@@ -4,13 +4,14 @@ MAINTAINER John Morris <john@zultron.com>
 env DEBIAN_ARCH=armhf
 env SYS_ROOT=$ARM_ROOT
 env HOST_MULTIARCH=$ARM_HOST_MULTIARCH
+env DISTRO=jessie
 
 ###################################################################
 # Configure apt for Machinekit
 
 # add Machinekit package archive
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 43DDF224
-RUN echo 'deb http://deb.machinekit.io/debian jessie main' > \
+RUN echo "deb http://deb.machinekit.io/debian $DISTRO main" > \
         /etc/apt/sources.list.d/machinekit.list
 
 
@@ -26,8 +27,7 @@ ADD debian/ /tmp/debian/
 RUN /tmp/debian/configure -prxt8.6
 
 # Add multistrap configurations
-ADD jessie.conf /tmp/
-ADD rpi.conf /tmp/
+ADD $DISTRO.conf /tmp/
 
 # Directory for `mk-build-deps` apt repository
 RUN mkdir /tmp/debs && \
@@ -44,7 +44,7 @@ RUN mk-build-deps -a $DEBIAN_ARCH /tmp/debian/control && \
 
 # Build "sysroot"
 # - Select and unpack build dependency packages
-RUN multistrap -f /tmp/jessie.conf -a $DEBIAN_ARCH -d $SYS_ROOT
+RUN multistrap -f /tmp/$DISTRO.conf -a $DEBIAN_ARCH -d $SYS_ROOT
 # - Fix symlinks in "sysroot" libdir pointing to `/lib/$MULTIARCH`
 RUN for link in $(find $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/ -type l); do \
         if test $(dirname $(readlink $link)) != .; then \
