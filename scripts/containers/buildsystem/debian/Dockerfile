@@ -33,27 +33,41 @@ ADD $DISTRO.conf /tmp/
 RUN mkdir /tmp/debs && \
     touch /tmp/debs/Sources
 
-
-##############################
-# Arch build environment
-
 # Create deps package
 RUN mk-build-deps -a $DEBIAN_ARCH /tmp/debian/control && \
     mv *.deb /tmp/debs && \
     ( cd /tmp/debs && dpkg-scanpackages -m . > /tmp/debs/Packages )
 
+# Add deps repo to apt sources
+RUN echo "deb file:///tmp/debs ./" > /etc/apt/sources.list.d/local.list
+
+# Update apt cache
+RUN apt-get update
+
+
+##############################
+# Arch build environment
+
 # Build "sysroot"
 # - Select and unpack build dependency packages
-RUN multistrap -f /tmp/$DISTRO.conf -a $DEBIAN_ARCH -d $SYS_ROOT
+RUN if test $DEBIAN_ARCH = amd64; then \
+        apt-get install -y  -o Apt::Get::AllowUnauthenticated=true \
+            machinekit-build-deps; \
+    else \
+        multistrap -f /tmp/$DISTRO.conf -a $DEBIAN_ARCH -d $SYS_ROOT; \
+    fi
 # - Fix symlinks in "sysroot" libdir pointing to `/lib/$MULTIARCH`
-RUN for link in $(find $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/ -type l); do \
-        if test $(dirname $(readlink $link)) != .; then \
-	    ln -sf ../../../lib/${HOST_MULTIARCH}/$(basename \
-	        $(readlink $link)) $link; \
-	fi; \
-    done
+RUN if ! test $DEBIAN_ARCH = amd64; then \
+        for link in $(find $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/ -type l); do \
+            if test $(dirname $(readlink $link)) != .; then \
+                ln -sf ../../../lib/${HOST_MULTIARCH}/$(basename \
+                    $(readlink $link)) $link; \
+            fi; \
+        done; \
+    fi
 # - Link tcl/tk setup scripts
-RUN mkdir -p /usr/lib/${HOST_MULTIARCH} && \
+RUN test $DEBIAN_ARCH = amd64 || \
+    mkdir -p /usr/lib/${HOST_MULTIARCH} && \
     ln -s $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/tcl8.6 \
         /usr/lib/${HOST_MULTIARCH} && \
     ln -s $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/tk8.6 \
