@@ -66,10 +66,11 @@ RUN if ! test $DEBIAN_ARCH = amd64; then \
         done; \
     fi
 # - Link tcl/tk setup scripts
-RUN test $DEBIAN_ARCH = amd64 || \
-    mkdir -p /usr/lib/${HOST_MULTIARCH} && \
-    ln -s $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/tcl8.6 \
-        /usr/lib/${HOST_MULTIARCH} && \
-    ln -s $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/tk8.6 \
-        /usr/lib/${HOST_MULTIARCH}
+RUN test $DEBIAN_ARCH = amd64 || { \
+        mkdir -p /usr/lib/${HOST_MULTIARCH} && \
+        ln -s $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/tcl8.6 \
+            /usr/lib/${HOST_MULTIARCH} && \
+        ln -s $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/tk8.6 \
+            /usr/lib/${HOST_MULTIARCH}; \
+        }
 
