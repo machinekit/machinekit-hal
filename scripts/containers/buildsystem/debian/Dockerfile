@@ -1,6 +1,10 @@
 FROM zultron/docker-cross-builder
 MAINTAINER John Morris <john@zultron.com>
 
+env DEBIAN_ARCH=armhf
+env SYS_ROOT=$ARM_ROOT
+env HOST_MULTIARCH=$ARM_HOST_MULTIARCH
+
 ###################################################################
 # Configure apt for Machinekit
 
@@ -31,85 +35,27 @@ RUN mkdir /tmp/debs && \
 
 
 ##############################
-# Native arch build environment
-RUN yes y | mk-build-deps -ir /tmp/debian/control
-# Regression test deps
-RUN apt-get install -y \
-	netcat-openbsd
+# Arch build environment
 
-
-##############################
-# armhf arch build environment
-
-# Create armhf deps package
-RUN mk-build-deps -a armhf /tmp/debian/control && \
+# Create deps package
+RUN mk-build-deps -a $DEBIAN_ARCH /tmp/debian/control && \
     mv *.deb /tmp/debs && \
     ( cd /tmp/debs && dpkg-scanpackages -m . > /tmp/debs/Packages )
 
-# Build armhf "sysroot"
+# Build "sysroot"
 # - Select and unpack build dependency packages
-RUN multistrap -f /tmp/jessie.conf -a armhf -d $ARM_ROOT
+RUN multistrap -f /tmp/jessie.conf -a $DEBIAN_ARCH -d $SYS_ROOT
 # - Fix symlinks in "sysroot" libdir pointing to `/lib/$MULTIARCH`
-RUN for link in $(find $ARM_ROOT/usr/lib/${ARM_HOST_MULTIARCH}/ -type l); do \
+RUN for link in $(find $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/ -type l); do \
         if test $(dirname $(readlink $link)) != .; then \
-	    ln -sf ../../../lib/${ARM_HOST_MULTIARCH}/$(basename \
+	    ln -sf ../../../lib/${HOST_MULTIARCH}/$(basename \
 	        $(readlink $link)) $link; \
 	fi; \
     done
 # - Link tcl/tk setup scripts
-RUN mkdir -p /usr/lib/${ARM_HOST_MULTIARCH} && \
-    ln -s $ARM_ROOT/usr/lib/${ARM_HOST_MULTIARCH}/tcl8.6 \
-        /usr/lib/${ARM_HOST_MULTIARCH} && \
-    ln -s $ARM_ROOT/usr/lib/${ARM_HOST_MULTIARCH}/tk8.6 \
-        /usr/lib/${ARM_HOST_MULTIARCH}
-
-
-##############################
-# i386 arch build environment
-
-# Create i386 deps package
-RUN mk-build-deps -a i386 /tmp/debian/control && \
-    mv *.deb /tmp/debs && \
-    ( cd /tmp/debs && dpkg-scanpackages -m . > /tmp/debs/Packages )
-
-# Build i386 "sysroot"
-# - Select and unpack build dependency packages
-RUN multistrap -f /tmp/jessie.conf -a i386 -d $I386_ROOT
-# - Fix symlinks in "sysroot" libdir pointing to `/lib/$MULTIARCH`
-RUN for link in $(find $I386_ROOT/usr/lib/${I386_HOST_MULTIARCH}/ -type l); do \
-        if test $(dirname $(readlink $link)) != .; then \
-	    ln -sf ../../../lib/${I386_HOST_MULTIARCH}/$(basename \
-	        $(readlink $link)) $link; \
-	fi; \
-    done
-# - Link tcl/tk setup scripts
-RUN mkdir -p /usr/lib/${I386_HOST_MULTIARCH} && \
-    ln -s $I386_ROOT/usr/lib/${I386_HOST_MULTIARCH}/tcl8.6 \
-        /usr/lib/${I386_HOST_MULTIARCH} && \
-    ln -s $I386_ROOT/usr/lib/${I386_HOST_MULTIARCH}/tk8.6 \
-        /usr/lib/${I386_HOST_MULTIARCH}
-
-
-##############################
-# Raspbian build environment
-
-# (Using armhf deps package)
-
-# Build rpi "sysroot"
-# - Select and unpack build dependency packages
-RUN multistrap -f /tmp/rpi.conf -a armhf -d $RPI_ROOT
-# - Fix symlinks in "sysroot" libdir pointing to `/lib/$MULTIARCH`
-RUN for link in $(find $RPI_ROOT/usr/lib/${ARM_HOST_MULTIARCH}/ -type l); do \
-        if test $(dirname $(readlink $link)) != .; then \
-            ln -sf ../../../lib/${ARM_HOST_MULTIARCH}/$(basename \
-                $(readlink $link)) $link; \
-        fi; \
-    done
-# # - Link tcl/tk setup scripts
-# RUN mkdir -p /usr/lib/${ARM_HOST_MULTIARCH} && \
-#     ln -s $RPI_ROOT/usr/lib/${ARM_HOST_MULTIARCH}/tcl8.6 \
-#         /usr/lib/${ARM_HOST_MULTIARCH} && \
-#     ln -s $RPI_ROOT/usr/lib/${ARM_HOST_MULTIARCH}/tk8.6 \
-#         /usr/lib/${ARM_HOST_MULTIARCH}
-
+RUN mkdir -p /usr/lib/${HOST_MULTIARCH} && \
+    ln -s $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/tcl8.6 \
+        /usr/lib/${HOST_MULTIARCH} && \
+    ln -s $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/tk8.6 \
+        /usr/lib/${HOST_MULTIARCH}
 
