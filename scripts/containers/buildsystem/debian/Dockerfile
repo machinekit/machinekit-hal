@@ -1,10 +1,10 @@
 FROM zultron/docker-cross-builder
 MAINTAINER John Morris <john@zultron.com>
 
-env DEBIAN_ARCH=amd64
+env DEBIAN_ARCH=
 env SYS_ROOT=
-env HOST_MULTIARCH=x86_64-linux-gnu
-env DISTRO=jessie
+env HOST_MULTIARCH=
+env DISTRO=
 
 ###################################################################
 # Configure apt for Machinekit
