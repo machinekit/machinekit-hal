@@ -1,9 +1,9 @@
 FROM zultron/docker-cross-builder
 MAINTAINER John Morris <john@zultron.com>
 
-env DEBIAN_ARCH=armhf
-env SYS_ROOT=$ARM_ROOT
-env HOST_MULTIARCH=$ARM_HOST_MULTIARCH
+env DEBIAN_ARCH=amd64
+env SYS_ROOT=
+env HOST_MULTIARCH=x86_64-linux-gnu
 env DISTRO=jessie
 
 ###################################################################
