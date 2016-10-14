@@ -1,10 +1,21 @@
 FROM zultron/docker-cross-builder
 MAINTAINER John Morris <john@zultron.com>
 
+###################################################################
+# Build configuration settings
+
 env DEBIAN_ARCH=
 env SYS_ROOT=
 env HOST_MULTIARCH=
 env DISTRO=
+env EXTRA_FLAGS=
+
+###################################################################
+# Environment (computed)
+
+ENV CPPFLAGS="--sysroot=$SYS_ROOT ${EXTRA_FLAGS}"
+ENV LDFLAGS="--sysroot=$SYS_ROOT ${EXTRA_FLAGS}"
+ENV PKG_CONFIG_PATH="$SYS_ROOT/usr/lib/$HOST_MULTIARCH/pkgconfig:$SYS_ROOT/usr/lib/pkgconfig:$SYS_ROOT/usr/share/pkgconfig"
 
 ###################################################################
 # Configure apt for Machinekit
@@ -46,7 +57,7 @@ RUN apt-get update
 
 
 ##############################
-# Arch build environment
+# Host arch build environment
 
 # Build "sysroot"
 # - Select and unpack build dependency packages
@@ -74,3 +85,20 @@ RUN test $DEBIAN_ARCH = amd64 || { \
             /usr/lib/${HOST_MULTIARCH}; \
         }
 
+##############################
+# Build arch build environment
+
+# Install Multi-Arch: foreign dependencies
+RUN apt-get install -y \
+        cython \
+        uuid-runtime \
+        protobuf-compiler \
+        python-protobuf \
+        python-pyftpdlib \
+        python-tk
+
+# Monkey-patch entire /usr/include
+RUN test $DEBIAN_ARCH = amd64 || { \
+        mv /usr/include /usr/include- && \
+        ln -s $SYS_ROOT/usr/include /usr/include; \
+    }
