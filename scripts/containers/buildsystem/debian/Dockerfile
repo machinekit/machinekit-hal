@@ -97,7 +97,8 @@ RUN apt-get install -y \
         protobuf-compiler \
         python-protobuf \
         python-pyftpdlib \
-        python-tk
+        python-tk \
+	netcat-openbsd
 
 # Monkey-patch entire /usr/include, and re-add build-arch headers
 RUN test $DEBIAN_ARCH = amd64 || { \
