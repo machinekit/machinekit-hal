@@ -11,28 +11,44 @@ information, see that repo.
 
 ## Using the builder
 
-- Pull or build one of the Docker images, `amd64`, `i386`, `armhf` or
-  `raspbian`.
-  - Pull image, `armhf` tag, from Docker Hub
+- Pull/build desired Docker image: `amd64`, `i386`, `armhf`,
+  `raspbian`
 
-            docker pull zultron/mk-cross-builder:armhf
+  - Pull:
 
-  - Or, build image from `Dockerfile`
-	- Clone this repository and `cd` into the directory
+        # Pull image, `armhf` tag, from Docker Hub
+        docker pull dovetailautomata/mk-cross-builder:armhf
 
-            git clone https://github.com/zultron/mk-builder-3.git
-            cd mk-builder-3
+  - Build from `Dockerfile`:
 
-	- Build Docker image for `armhf`
+        # Clone this repository; `cd` into the directory
+        git clone https://github.com/dovetailautomata/mk-cross-builder.git
+        cd mk-cross-builder
 
-	        ./mk-cross-builder.sh build armhf
+        # Build Docker image for `armhf`
+        ./mk-cross-builder.sh build armhf
 
-- Start the Docker image
-  - If `$MK_CROSS_BUILDER` is the path to this clone (and `$MK` is the
-    path to the Machinekit clone)
+- To build Machinekit in a Docker container with cross-build tools:
+  see Machinekit repo `scripts/build_docker`; from the Machinekit base
+  directory:
 
-            cd $MK
-            $MK_CROSS_BUILDER/mk-cross-builder.sh
+        # Build source packages and amd64 binary packages
+		scripts/build_docker -t amd64 -c deb
 
-- To build software, see the [`docker-cross-builder` repo][1]
-  instructions.
+		# Build amd64 binary-only packages (no source)
+		scripts/build_docker -t amd64 -c deb -n
+
+		# Build amd64 (default) RIP build with regression tests
+		scripts/build_docker -c test
+
+		# Build armhf binary-only packages
+		scripts/build_docker -t armhf -c deb
+
+	    # Interactive shell in raspbian cross-builder
+        scripts/build_docker -t raspbian
+
+		# Run command in `armhf`
+		scripts/build_docker bash -c 'echo $HOST_MULTIARCH'
+
+	- Note that `-t amd64` is the default, and source package build is
+      default only on `amd64`.  With no `-c`, 
