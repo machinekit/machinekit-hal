@@ -16,6 +16,8 @@ env EXTRA_FLAGS=
 ENV CPPFLAGS="--sysroot=$SYS_ROOT ${EXTRA_FLAGS}"
 ENV LDFLAGS="--sysroot=$SYS_ROOT ${EXTRA_FLAGS}"
 ENV PKG_CONFIG_PATH="$SYS_ROOT/usr/lib/$HOST_MULTIARCH/pkgconfig:$SYS_ROOT/usr/lib/pkgconfig:$SYS_ROOT/usr/share/pkgconfig"
+ENV DPKG_ROOT=$SYS_ROOT
+ENV PATH=/usr/lib/ccache:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/bin:$SYS_ROOT/usr/bin
 
 ###################################################################
 # Configure apt for Machinekit
