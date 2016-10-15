@@ -99,8 +99,9 @@ RUN apt-get install -y \
         python-pyftpdlib \
         python-tk
 
-# Monkey-patch entire /usr/include
+# Monkey-patch entire /usr/include, and re-add build-arch headers
 RUN test $DEBIAN_ARCH = amd64 || { \
-        mv /usr/include /usr/include- && \
+        mv /usr/include /usr/include.build && \
         ln -s $SYS_ROOT/usr/include /usr/include; \
+	ln -sf /usr/include.build/x86_64-linux-gnu $SYS_ROOT/usr/include; \
     }
