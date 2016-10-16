@@ -4,11 +4,11 @@ MAINTAINER John Morris <john@zultron.com>
 ###################################################################
 # Build configuration settings
 
-env DEBIAN_ARCH=
-env SYS_ROOT=
-env HOST_MULTIARCH=
-env DISTRO=
-env EXTRA_FLAGS=
+env DEBIAN_ARCH=@DEBIAN_ARCH@
+env SYS_ROOT=@SYS_ROOT@
+env HOST_MULTIARCH=@HOST_MULTIARCH@
+env DISTRO=@DISTRO@
+env EXTRA_FLAGS=@EXTRA_FLAGS@
 
 ###################################################################
 # Environment (computed)
