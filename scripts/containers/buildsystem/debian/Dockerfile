@@ -98,7 +98,9 @@ RUN apt-get install -y \
         python-protobuf \
         python-pyftpdlib \
         python-tk \
-	netcat-openbsd
+        netcat-openbsd \
+        tcl8.6 tk8.6 \
+        libxenomai-dev
 
 # Monkey-patch entire /usr/include, and re-add build-arch headers
 RUN test $DEBIAN_ARCH = amd64 || { \
