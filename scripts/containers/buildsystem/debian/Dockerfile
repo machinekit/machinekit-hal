@@ -87,6 +87,14 @@ RUN test $DEBIAN_ARCH = amd64 || { \
             /usr/lib/${HOST_MULTIARCH}; \
         }
 
+# - Link directories with glib/gtk includes in the wrong place
+RUN test $DEBIAN_ARCH = amd64 || { \
+	ln -s $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/glib-2.0 \
+	    /usr/lib/${HOST_MULTIARCH}; \
+	ln -s $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/gtk-2.0 \
+	    /usr/lib/${HOST_MULTIARCH}; \
+	}
+
 ##############################
 # Build arch build environment
 
