@@ -6,12 +6,12 @@
 # $USERPREFIX is exported from autoconfig
 #####################################################################
 
-if [ ! -f "$USERPREFIX/scripts/machinekit" ]; then
-    if [ ! -L "$USERPREFIX/scripts/machinekit" ]; then
-        ln -s $USERPREFIX/scripts/linuxcnc $USERPREFIX/scripts/machinekit
-        echo "Creating machinekit symlink"
-    fi
-fi
+#if [ ! -f "$USERPREFIX/scripts/machinekit" ]; then
+#    if [ ! -L "$USERPREFIX/scripts/machinekit" ]; then
+#        ln -s $USERPREFIX/scripts/linuxcnc $USERPREFIX/scripts/machinekit
+#        echo "Creating machinekit symlink"
+#    fi
+#fi
 
 if [ ! -d "$HOME/machinekit" ]; then
     ## if already linuxcnc dir linlk to it

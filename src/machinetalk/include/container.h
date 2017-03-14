@@ -10,7 +10,7 @@ extern "C"
 #include <assert.h>
 #endif
 
-#include <libnml/nml/nml_type.hh> // NMLTYPE
+//#include <libnml/nml/nml_type.hh> // NMLTYPE
 
 // need to get at enum ContainerType and some tags
 #if defined(GOOGLE_PROTOBUF_VERSION)
@@ -51,7 +51,7 @@ static inline bool is_Motion_container(MSGTYPE msgtype)
     return ((msgtype > EMCMOT_LOWER) &&
 	    (msgtype < EMCMOT_UPPER));
 }
-
+/*
 static inline bool is_NML_container(MSGTYPE msgtype)
 {
     return ((msgtype > EMC_NML_LOWER) &&
@@ -67,7 +67,7 @@ static inline int Motion_to_Container(NMLTYPE nmltype)
 {
     return (nmltype + EMCMOT_LOWER);
 }
-
+*/
 #if 0
 // enums are encoded as varints. To determine the total message length
 // to go into Container.length, we need to determine the length of

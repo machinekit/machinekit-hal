@@ -124,16 +124,11 @@ ifneq ($(wildcard src/configure src/Makefile.inc),)
 	    scripts/gen-rtapi.ini.sh.in \
 	    scripts/halrun \
 	    scripts/haltcl \
-	    scripts/linuxcnc \
 	    scripts/linuxcnc_var \
 	    scripts/linuxcncmkdesktop \
 	    scripts/machinekit.ini.tmpl \
 	    scripts/realtime \
 	    scripts/rip-environment \
-	    share/applications/linuxcnc-latency.desktop \
-	    share/applications/linuxcnc.desktop \
-	    share/desktop-directories/cnc.directory \
-	    share/menus/CNC.menu \
 	    src/Makefile.inc \
 	    src/Makefile.modinc \
 	    src/aclocal.m4 \

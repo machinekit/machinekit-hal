@@ -25,7 +25,7 @@
 
 AC_PREREQ(2.53)
 AC_INIT([LinuxCNC],[m4_normalize(esyscmd(cat ../VERSION))],[emc-developers@lists.sourceforge.net])
-AC_CONFIG_SRCDIR(emc/motion/motion.c)
+#AC_CONFIG_SRCDIR(emc/motion/motion.c)
 if test "$srcdir" != "."; then
     AC_MSG_ERROR([Building outside of srcdir is not supported])
 fi
@@ -2160,13 +2160,13 @@ if test "xyes" = "x$RUN_IN_PLACE"; then
     EMC2_ICON=$EMC2_HOME/machinekiticon.png
     EMC2_BIN_DIR=$EMC2_HOME/bin
     EMC2_LIBEXEC_DIR=$EMC2_HOME/libexec
-    EMC2_TCL_DIR=$EMC2_HOME/tcl
-    EMC2_TCL_LIB_DIR=$EMC2_HOME/tcl
+#    EMC2_TCL_DIR=$EMC2_HOME/tcl
+#    EMC2_TCL_LIB_DIR=$EMC2_HOME/tcl
     EMC2_LANG_DIR=$EMC2_HOME/src/objects
     EMC2_PO_DIR=$EMC2_HOME/share/locale
     EMC2_HELP_DIR=$EMC2_HOME/help
     EMC2_RTLIB_DIR=$EMC2_HOME/rtlib
-    LINUXCNC_CONFIG_PATH="~/machinekit/configs:$EMC2_HOME/configs"
+#    LINUXCNC_CONFIG_PATH="~/machinekit/configs:$EMC2_HOME/configs"
     EMC2_NCFILES_DIR=$EMC2_HOME/nc_files
     REALTIME=$EMC2_HOME/scripts/realtime
     EMC2_IMAGE_DIR=$EMC2_HOME
@@ -2178,13 +2178,13 @@ else
     EMC2_SCRIPT=$EMC2_BIN_DIR/emc
     EMC2_SUFFIX=""
     EMC2_ICON=machinekiticon
-    EMC2_TCL_DIR=${prefix}/lib/tcltk/linuxcnc
-    EMC2_TCL_LIB_DIR=${prefix}/lib/tcltk/linuxcnc
+#    EMC2_TCL_DIR=${prefix}/lib/tcltk/linuxcnc
+#    EMC2_TCL_LIB_DIR=${prefix}/lib/tcltk/linuxcnc
     EMC2_LANG_DIR=${prefix}/share/linuxcnc/tcl/msgs
     EMC2_PO_DIR=${prefix}/share/locale
     EMC2_HELP_DIR=${prefix}/share/doc/linuxcnc
     EMC2_RTLIB_DIR=${prefix}/lib/linuxcnc
-    LINUXCNC_CONFIG_PATH="~/machinekit/configs:${sysconfdir}/linuxcnc/configs:$(fe "$datadir")/linuxcnc/examples/sample-configs"
+#    LINUXCNC_CONFIG_PATH="~/machinekit/configs:${sysconfdir}/linuxcnc/configs:$(fe "$datadir")/linuxcnc/examples/sample-configs"
     EMC2_NCFILES_DIR=${prefix}/share/linuxcnc/ncfiles
     REALTIME=${bindir}/realtime
     EMC2_IMAGE_DIR=$(fe "$datadir")/linuxcnc
@@ -2211,12 +2211,12 @@ AC_DEFINE_UNQUOTED([GIT_CONFIG_SHA], "$GIT_CONFIG_SHA", [SHA valid when configur
 AC_SUBST([EMC2_SYSTEM_CONFIG_DIR])
 AC_SUBST([EMC2_BIN_DIR])
 AC_SUBST([EMC2_LIBEXEC_DIR])
-AC_SUBST([EMC2_TCL_DIR])
-AC_SUBST([EMC2_TCL_LIB_DIR])
+#AC_SUBST([EMC2_TCL_DIR])
+#AC_SUBST([EMC2_TCL_LIB_DIR])
 AC_SUBST([EMC2_HELP_DIR])
 AC_SUBST([EMC2_RTLIB_DIR])
 AC_SUBST([EMC2_LANG_DIR])
-AC_SUBST([LINUXCNC_CONFIG_PATH])
+#AC_SUBST([LINUXCNC_CONFIG_PATH])
 AC_SUBST([EMC2_NCFILES_DIR])
 AC_SUBST([REALTIME])
 AC_SUBST([EMC2_IMAGE_DIR])
@@ -2736,41 +2736,41 @@ EOFOUTER
 # so testing is done by finding tclConfig.sh and tkConfig.sh                 #
 # if the search fails the traditional check is done                          #
 ##############################################################################
-SC_PATH_TCLCONFIG
-SC_LOAD_TCLCONFIG
-TCL_CFLAGS="$TCL_INCLUDE_SPEC -DUSE_TCL_STUBS"
-TCL_LIBS="$TCL_STUB_LIB_SPEC"
-AC_PRUNE_DEFAULT_LDFLAGS(TCL_LIBS)
+#SC_PATH_TCLCONFIG
+#SC_LOAD_TCLCONFIG
+#TCL_CFLAGS="$TCL_INCLUDE_SPEC -DUSE_TCL_STUBS"
+#TCL_LIBS="$TCL_STUB_LIB_SPEC"
+#AC_PRUNE_DEFAULT_LDFLAGS(TCL_LIBS)
 
-SC_PATH_TKCONFIG
-SC_LOAD_TKCONFIG
-TK_CFLAGS="$TK_INCLUDE_SPEC $TK_XINCLUDES"
-TK_LIBS="$TK_LIBS $TK_LIB_SPEC"
-AC_PRUNE_DEFAULT_LDFLAGS(TK_LIBS)
+#SC_PATH_TKCONFIG
+#SC_LOAD_TKCONFIG
+#TK_CFLAGS="$TK_INCLUDE_SPEC $TK_XINCLUDES"
+#TK_LIBS="$TK_LIBS $TK_LIB_SPEC"
+#AC_PRUNE_DEFAULT_LDFLAGS(TK_LIBS)
 
-AC_PATH_PROGS(WISH,[wish${TCL_VERSION} wish], [wish],
-     [path="$TCL_EXEC_PREFIX/bin:$PATH"])
-AC_PATH_PROGS(TCLSH,[tclsh${TCL_VERSION} tclsh], [tclsh],
-     [path="$TCL_EXEC_PREFIX/bin:$PATH"])
+#AC_PATH_PROGS(WISH,[wish${TCL_VERSION} wish], [wish],
+#     [path="$TCL_EXEC_PREFIX/bin:$PATH"])
+#AC_PATH_PROGS(TCLSH,[tclsh${TCL_VERSION} tclsh], [tclsh],
+#     [path="$TCL_EXEC_PREFIX/bin:$PATH"])
 
-HAVE_WORKING_BLT=no
-AC_MSG_CHECKING([for BLT using tclsh8.5])
-if (test -f $TCL_EXEC_PREFIX/bin/tclsh8.5) && (echo ['if [catch {package require BLT}] { exit 1; } else { exit 0; }'] | tclsh8.5); then
-    AC_MSG_RESULT([found])
-    HAVE_WORKING_BLT=yes
-else
-    AC_MSG_RESULT([not found])
-fi
-
-AC_SUBST([TCL_DBGX])
-AC_SUBST([TK_DBGX])
-AC_SUBST([TCL_CFLAGS])
-AC_SUBST([TK_CFLAGS])
-AC_SUBST([TCL_LIBS])
-AC_SUBST([TK_LIBS])
-AC_SUBST([WISH])
-AC_SUBST([TCLSH])
-AC_SUBST([HAVE_WORKING_BLT])
+#HAVE_WORKING_BLT=no
+#AC_MSG_CHECKING([for BLT using tclsh8.5])
+#if (test -f $TCL_EXEC_PREFIX/bin/tclsh8.5) && (echo ['if [catch {package require BLT}] { exit 1; } else { exit 0; }'] | tclsh8.5); then
+#    AC_MSG_RESULT([found])
+#    HAVE_WORKING_BLT=yes
+#else
+#    AC_MSG_RESULT([not found])
+#fi
+#
+#AC_SUBST([TCL_DBGX])
+#AC_SUBST([TK_DBGX])
+#AC_SUBST([TCL_CFLAGS])
+#AC_SUBST([TK_CFLAGS])
+#AC_SUBST([TCL_LIBS])
+#AC_SUBST([TK_LIBS])
+#AC_SUBST([WISH])
+#AC_SUBST([TCLSH])
+#AC_SUBST([HAVE_WORKING_BLT])
 
 ##############################################################################
 # Section 7 - Miscelaneous support                                           #
@@ -2988,21 +2988,21 @@ if test "$BUILD_PYTHON" = "yes"; then
     AX_PYTHON_DEVEL(>= 2.6)
     AC_PRUNE_DEFAULT_LDFLAGS(PYTHON_LIBS)
 
-    AC_MSG_CHECKING([match between tk and Tkinter versions])
-
-    PYTHON_TK_VERSION="`$PYTHON -c 'import _tkinter; print _tkinter.TK_VERSION'`"
-    PYTHON_TCL_VERSION="`$PYTHON -c 'import _tkinter; print _tkinter.TCL_VERSION'`"
-
-    if test "$PYTHON_TCL_VERSION" != "$TCL_VERSION"; then
-	AC_MSG_RESULT([TCL mismatch: $TCL_VERSION vs $PYTHON_TCL_VERSION])
-	AC_MSG_ERROR([Python requires use of Tcl $PYTHON_TCL_VERSION and Tk $PYTHON_TK_VERSION.
-Install this version and specify --with-tcl and --with-tk if necessary])
-    fi
-    if test "$PYTHON_TK_VERSION" != "$TK_VERSION"; then
-	AC_MSG_RESULT([Tk mismatch: $TK_VERSION vs $PYTHON_TK_VERSION])
-	AC_MSG_ERROR(["Python requires use of Tk $TK_VERSION.  Install this version and specify --with-tk if necessary"])
-    fi
-    AC_MSG_RESULT([$PYTHON_TK_VERSION])
+#    AC_MSG_CHECKING([match between tk and Tkinter versions])
+#
+#    PYTHON_TK_VERSION="`$PYTHON -c 'import _tkinter; print _tkinter.TK_VERSION'`"
+#    PYTHON_TCL_VERSION="`$PYTHON -c 'import _tkinter; print _tkinter.TCL_VERSION'`"
+#
+#    if test "$PYTHON_TCL_VERSION" != "$TCL_VERSION"; then
+#	AC_MSG_RESULT([TCL mismatch: $TCL_VERSION vs $PYTHON_TCL_VERSION])
+#	AC_MSG_ERROR([Python requires use of Tcl $PYTHON_TCL_VERSION and Tk $PYTHON_TK_VERSION.
+#Install this version and specify --with-tcl and --with-tk if necessary])
+#    fi
+#    if test "$PYTHON_TK_VERSION" != "$TK_VERSION"; then
+#	AC_MSG_RESULT([Tk mismatch: $TK_VERSION vs $PYTHON_TK_VERSION])
+#	AC_MSG_ERROR(["Python requires use of Tk $TK_VERSION.  Install this version and specify --with-tk if necessary"])
+#    fi
+#    AC_MSG_RESULT([$PYTHON_TK_VERSION])
 
     # Get the CFLAGS and LIBS for boost::python.
     AX_BOOST_BASE(1.34, , [AC_MSG_ERROR([Boost 1.34.0 or newer required])])
@@ -3047,22 +3047,22 @@ fi
 # files that get created by ./configure                                      #
 ##############################################################################
 AC_CONFIG_FILES([../scripts/gen-rtapi.ini.sh])
-AC_CONFIG_FILES([../scripts/check-build-vs-configure-sha], [chmod +x ../scripts/check-build-vs-configure-sha])
-AC_CONFIG_FILES([../scripts/linuxcnc], [chmod +x ../scripts/linuxcnc])
+#AC_CONFIG_FILES([../scripts/check-build-vs-configure-sha], [chmod +x ../scripts/check-build-vs-configure-sha])
+#AC_CONFIG_FILES([../scripts/linuxcnc], [chmod +x ../scripts/linuxcnc])
 AC_CONFIG_FILES([../scripts/halrun], [chmod +x ../scripts/halrun])
 AC_CONFIG_FILES([../scripts/rip-environment], [chmod +x ../scripts/rip-environment])
-AC_CONFIG_FILES([../scripts/haltcl], [chmod +x ../scripts/haltcl])
+#AC_CONFIG_FILES([../scripts/haltcl], [chmod +x ../scripts/haltcl])
 AC_CONFIG_FILES([../scripts/realtime], [chmod +x ../scripts/realtime])
-AC_CONFIG_FILES([../scripts/linuxcnc_var], [chmod +x ../scripts/linuxcnc_var])
+#AC_CONFIG_FILES([../scripts/linuxcnc_var], [chmod +x ../scripts/linuxcnc_var])
 AC_CONFIG_FILES(Makefile.inc)
 AC_CONFIG_FILES(Makefile.modinc)
-AC_CONFIG_FILES(../tcl/linuxcnc.tcl)
+#AC_CONFIG_FILES(../tcl/linuxcnc.tcl)
 AC_CONFIG_FILES(../lib/python/nf.py)
-AC_CONFIG_FILES([../scripts/linuxcncmkdesktop], [chmod +x ../scripts/linuxcncmkdesktop])
-AC_CONFIG_FILES(../share/applications/linuxcnc-latency.desktop)
-AC_CONFIG_FILES(../share/applications/linuxcnc.desktop)
-AC_CONFIG_FILES(../share/desktop-directories/cnc.directory)
-AC_CONFIG_FILES(../share/menus/CNC.menu)
+#AC_CONFIG_FILES([../scripts/linuxcncmkdesktop], [chmod +x ../scripts/linuxcncmkdesktop])
+#AC_CONFIG_FILES(../share/applications/linuxcnc-latency.desktop)
+#AC_CONFIG_FILES(../share/applications/linuxcnc.desktop)
+#AC_CONFIG_FILES(../share/desktop-directories/cnc.directory)
+#AC_CONFIG_FILES(../share/menus/CNC.menu)
 AC_CONFIG_FILES(machinekitcfg.py-tmp)
 AC_CONFIG_FILES(../scripts/machinekit.ini.tmpl)
 AC_OUTPUT

@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include <emc/motion/motion.h>
-#include <emc/motion/motion_debug.h>
+//#include <motion.h>
+//#include <motion_debug.h>
 
 #include <machinetalk/protobuf/test.npb.h>
 #include <machinetalk/protobuf/value.npb.h>
@@ -11,13 +11,13 @@
 
 int main()
 {
-    printf("emcmot_joint_t = %zu\n", sizeof(emcmot_joint_t));
-    printf("emcmot_joint_status_t = %zu\n", sizeof(emcmot_joint_status_t));
-    printf("emcmot_command_t = %zu\n", sizeof(emcmot_command_t));
-    printf("spindle_status = %zu\n", sizeof(spindle_status));
-    printf("emcmot_status_t = %zu\n", sizeof(emcmot_status_t));
-    printf("emcmot_config_t = %zu\n", sizeof(emcmot_config_t));
-    printf("emcmot_debug_t = %zu\n", sizeof(emcmot_debug_t));
+//    printf("emcmot_joint_t = %zu\n", sizeof(emcmot_joint_t));
+//    printf("emcmot_joint_status_t = %zu\n", sizeof(emcmot_joint_status_t));
+//    printf("emcmot_command_t = %zu\n", sizeof(emcmot_command_t));
+//    printf("spindle_status = %zu\n", sizeof(spindle_status));
+//    printf("emcmot_status_t = %zu\n", sizeof(emcmot_status_t));
+//    printf("emcmot_config_t = %zu\n", sizeof(emcmot_config_t));
+//    printf("emcmot_debug_t = %zu\n", sizeof(emcmot_debug_t));
 
     printf("npb Container = %zu\n", sizeof(machinetalk_Container));
     printf("npb Test1 = %zu\n", sizeof(machinetalk_Test1));

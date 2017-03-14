@@ -173,18 +173,19 @@ MT_INSTALL_INCS +=  \
 	../include/machinetalk/nanopb/pb_decode.h
 
 # generate emctypes.proto from emc/nml_intf/emc.hh
-$(PBGEN)/emctypes.proto: emc/nml_intf/emc.hh $(MACHINETALK)/scripts/extract-nmltypes
-	$(ECHO) "extracting protobuf message types for NML from" $<
-	@mkdir -p $(PBGEN)
-	$(Q)$(MACHINETALK)/scripts/extract-nmltypes $< >$@
+#$(PBGEN)/emctypes.proto: emc/nml_intf/emc.hh $(MACHINETALK)/scripts/extract-nmltypes
+#	$(ECHO) "extracting protobuf message types for NML from" $<
+#	@mkdir -p $(PBGEN)
+#	$(Q)$(MACHINETALK)/scripts/extract-nmltypes $< >$@
 
 # generate mottypes.proto from emc/motion/motion.h
-$(PBGEN)/mottypes.proto: emc/motion/motion.h $(MACHINETALK)/scripts/extract-mottypes
-	$(ECHO) "extracting protobuf message types for Motion from" $<
-	@mkdir -p $(PBGEN)
-	$(Q)$(MACHINETALK)/scripts/extract-mottypes $< >$@
+#$(PBGEN)/mottypes.proto: ../../include/motion.h $(MACHINETALK)/scripts/extract-mottypes
+#	$(ECHO) "extracting protobuf message types for Motion from" $<
+#	@mkdir -p $(PBGEN)
+#	$(Q)$(MACHINETALK)/scripts/extract-mottypes $< >$@
 
-TARGETS += $(PBGEN)/emctypes.proto $(PBGEN)/mottypes.proto
+#TARGETS += $(PBGEN)/emctypes.proto 
+#$(PBGEN)/mottypes.proto
 
 
 # ---- generate dependcy files for .proto files

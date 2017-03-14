@@ -60,9 +60,9 @@ bool print_container(pb_istream_t *stream)
     }
     printf("submessage length=%llu\n", length);
 
-    printf("submessage: %s NML; %s Motion\n",
-	   is_NML_container(tag) ? "is" : "not",
-	   is_Motion_container(tag) ? "is" : "not");
+//    printf("submessage: %s NML; %s Motion\n",
+//	   is_NML_container(tag) ? "is" : "not",
+//	   is_Motion_container(tag) ? "is" : "not");
 
     // decoding the submessage left as exercise
     return true;

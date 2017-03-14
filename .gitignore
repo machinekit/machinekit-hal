@@ -16,9 +16,6 @@ build-stamp
 *.lyx
 debian/*.debhelper.log
 rtlib/Module.symvers
-share/*/*.desktop
-share/menus/CNC.menu
-share/desktop-directories/cnc.directory
 src/modules.order
 /configs/*/emc.nml
 !/configs/common/emc.nml

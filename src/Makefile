@@ -178,7 +178,7 @@ cc-option = $(shell \
 ifeq ($(KERNELRELEASE),)
 # When KERNELRELEASE is not defined, this is the userspace build.
 # The "modules" target is the gateway to the kernel module build.
-default: configs userspace modules
+default: userspace modules
 
 # Print 'entering' all the time
 MAKEFLAGS += w
@@ -209,14 +209,8 @@ SUBDIRS := \
 	\
 	rtapi/rtapi_math \
 	\
-	libnml/linklist \
-	libnml/cms \
-	libnml/rcs \
 	libnml/inifile \
-	libnml/os_intf \
-	libnml/nml \
-	libnml/buffer \
-	libnml/posemath libnml \
+	libnml/posemath \
 	\
 	rtapi/examples/timer \
 	rtapi/examples/shmem \
@@ -237,13 +231,11 @@ SUBDIRS := \
 	hal/user_comps/vismach \
 	hal/user_comps/vfs11_vfd \
 	hal/user_comps/vfdb_vfd \
-	hal/classicladder \
 	hal/utils \
 	hal \
 	hal/support \
 	hal/drivers/hal_pru_generic \
 	hal/simdrivers \
-	hal/cython \
 	hal/accessor \
 	\
 	emc/usr_intf/axis \
@@ -254,7 +246,6 @@ SUBDIRS := \
 	emc/usr_intf/gscreen \
 	emc/usr_intf/gmoccapy \
 	emc/usr_intf \
-	emc/nml_intf \
 	emc/task \
 	emc/iotask \
 	emc/kinematics \
@@ -262,7 +253,6 @@ SUBDIRS := \
 	emc/motion \
 	emc/tp \
 	emc/ini \
-	emc/rs274ngc \
 	emc/sai \
 	emc \
 	emc/pythonplugin \
@@ -277,12 +267,19 @@ ifeq ($(BUILD_WEBTALK),yes)
 SUBDIRS += machinetalk/webtalk
 endif
 
+ifeq ($(BUILD_PARSEL_TONGUE),yes)
+SUBDIRS += hal/cython
+endif
+
+
+
 # moved to src/rtapi/Submakefile
 # ULAPISRCS := rtapi/$(RTPREFIX)_ulapi.c
 
 # Each item in INCLUDES is transformed into a -I directive later on
 # The top directory is always included
 INCLUDES := .
+INCLUDES += include/
 
 USERSRCS :=
 PROGRAMS :=
@@ -461,21 +458,13 @@ config.h: config.h.in config.status
 	@./config.status -q --header=$@
 
 INFILES = \
-	../scripts/linuxcnc \
 	../scripts/realtime \
-	../scripts/haltcl \
 	../scripts/gen-rtapi.ini.sh \
 	Makefile.inc \
 	Makefile.modinc \
-	../tcl/linuxcnc.tcl \
 	../scripts/halrun \
 	../scripts/rip-environment \
-	../scripts/linuxcncmkdesktop \
-	../lib/python/nf.py \
-	../share/desktop-directories/cnc.directory \
-	../share/menus/CNC.menu \
-	../share/applications/linuxcnc.desktop \
-	../scripts/linuxcnc_var \
+	../lib/python/nf.py 
 
 $(INFILES): %: %.in config.status
 	@./config.status --file=$@
@@ -493,43 +482,6 @@ HEADERS := \
     emc/ini/initool.hh \
     emc/ini/initraj.hh \
     emc/ini/inihal.hh \
-    emc/kinematics/cubic.h \
-    emc/kinematics/kinematics.h \
-    emc/kinematics/genhexkins.h \
-    emc/kinematics/genserkins.h \
-    emc/kinematics/pumakins.h \
-    emc/tp/tc.h \
-    emc/tp/tc_types.h \
-    emc/tp/tcq.h \
-    emc/tp/tp.h \
-    emc/tp/tp_types.h \
-    emc/tp/spherical_arc.h \
-    emc/tp/blendmath.h \
-    emc/tp/tp_shared.h \
-    emc/tp/tp_private.h \
-    emc/motion/emcmotcfg.h \
-    emc/motion/emcmotglb.h \
-    emc/motion/motion.h \
-    emc/motion/motion_id.h \
-    emc/motion/usrmotintf.h \
-    emc/motion/state_tag.h \
-    emc/nml_intf/canon.hh \
-    emc/nml_intf/canon_position.hh \
-    emc/nml_intf/emctool.h \
-    emc/nml_intf/emc.hh \
-    emc/nml_intf/emc_nml.hh \
-    emc/nml_intf/emccfg.h \
-    emc/nml_intf/emcglb.h \
-    emc/nml_intf/emcpos.h \
-    emc/nml_intf/emcpose.h \
-    emc/nml_intf/interp_return.hh \
-    emc/nml_intf/interpl.hh \
-    emc/nml_intf/motion_types.h \
-    emc/nml_intf/debugflags.h \
-    emc/rs274ngc/interp_internal.hh \
-    emc/rs274ngc/interp_base.hh \
-    emc/rs274ngc/modal_state.hh \
-    emc/rs274ngc/rs274ngc.hh \
     hal/lib/hal_accessor.h \
     hal/lib/hal_accessor_macros.h \
     hal/lib/config_module.h \
@@ -549,52 +501,12 @@ HEADERS := \
     hal/lib/hal_types.h \
     hal/lib/vtable.h \
     hal/drivers/hal_spi.h \
-    libnml/buffer/locmem.hh \
-    libnml/buffer/memsem.hh \
-    libnml/buffer/phantom.hh \
-    libnml/buffer/physmem.hh \
-    libnml/buffer/recvn.h \
-    libnml/buffer/rem_msg.hh \
-    libnml/buffer/sendn.h \
-    libnml/buffer/shmem.hh \
-    libnml/buffer/tcpmem.hh \
-    libnml/cms/cms.hh \
-    libnml/cms/cms_aup.hh \
-    libnml/cms/cms_cfg.hh \
-    libnml/cms/cms_dup.hh \
-    libnml/cms/cms_srv.hh \
-    libnml/cms/cms_up.hh \
-    libnml/cms/cms_user.hh \
-    libnml/cms/cms_xup.hh \
-    libnml/cms/cmsdiag.hh \
-    libnml/cms/tcp_opts.hh \
-    libnml/cms/tcp_srv.hh \
     libnml/inifile/inifile.h \
     libnml/inifile/inifile.hh \
-    libnml/linklist/linklist.hh \
-    libnml/nml/cmd_msg.hh \
-    libnml/nml/nml.hh \
-    libnml/nml/nml_mod.hh \
-    libnml/nml/nml_oi.hh \
-    libnml/nml/nml_srv.hh \
-    libnml/nml/nml_type.hh \
-    libnml/nml/nmldiag.hh \
-    libnml/nml/nmlmsg.hh \
-    libnml/nml/stat_msg.hh \
-    libnml/os_intf/_sem.h \
-    libnml/os_intf/sem.hh \
-    libnml/os_intf/_shm.h \
-    libnml/os_intf/shm.hh \
-    libnml/os_intf/_timer.h \
-    libnml/os_intf/timer.hh \
     libnml/posemath/posemath.h \
     libnml/posemath/gotypes.h \
     libnml/posemath/gomath.h \
     libnml/posemath/sincos.h \
-    libnml/rcs/rcs.hh \
-    libnml/rcs/rcs_exit.hh \
-    libnml/rcs/rcs_print.hh \
-    libnml/rcs/rcsversion.h \
     machinetalk/build/machinetalk/protobuf/message.pb.h \
     machinetalk/build/machinetalk/protobuf/types.pb.h \
     machinetalk/build/machinetalk/protobuf/canon.npb.h \
@@ -770,7 +682,7 @@ endif  # BUILD_SYS == 'kbuild'
 #
 # Then in the above 'modules:' target, cd to the link tree and call
 # kbuild.
-MODULE_SOURCE_DIRS = emc hal libnml rtapi workaround machinetalk
+MODULE_SOURCE_DIRS = emc hal rtapi workaround machinetalk ## libnml
 MODULE_SOURCES = Makefile* config* modsilent.py
 $(OBJDIR)/.separate-kbuild-artifacts-hack.stamp:
 	mkdir -p $(OBJDIR)
@@ -873,13 +785,6 @@ endef
 install:
 	$(error $(ERROR_MESSAGE))
 
-MENUS = ../share/menus/CNC.menu \
-    ../share/desktop-directories/cnc.directory \
-    ../share/applications/linuxcnc.desktop \
-
-install-menus install-menu: $(MENUS)
-	mkdir -p $(HOME)/.config/menus/applications-merged
-	cp $< $(HOME)/.config/menus/applications-merged
 else
 
 DOCS_HELP=$(call GLOB,../help/*)
@@ -913,16 +818,16 @@ install-dirs:
 		$(DESTDIR)$(mandir)/man9 \
 		$(DESTDIR)$(tcldir)/msgs \
 		$(DESTDIR)$(localedir)/de/LC_MESSAGES \
-		$(DESTDIR)$(datadir)/axis/images \
-		$(DESTDIR)$(datadir)/axis/tcl \
-		$(DESTDIR)$(datadir)/gscreen/images \
-		$(DESTDIR)$(datadir)/gscreen/skins \
-		$(DESTDIR)$(datadir)/gmoccapy/images \
-		$(DESTDIR)$(datadir)/glade3/catalogs \
-		$(DESTDIR)$(datadir)/glade3/pixmaps \
-		$(DESTDIR)$(datadir)/gtksourceview-2.0/language-specs \
-		$(DESTDIR)$(datadir)/linuxcnc/stepconf \
-		$(DESTDIR)$(datadir)/linuxcnc/pncconf/pncconf-help \
+#		$(DESTDIR)$(datadir)/axis/images \
+#		$(DESTDIR)$(datadir)/axis/tcl \
+#		$(DESTDIR)$(datadir)/gscreen/images \
+#		$(DESTDIR)$(datadir)/gscreen/skins \
+#		$(DESTDIR)$(datadir)/gmoccapy/images \
+#		$(DESTDIR)$(datadir)/glade3/catalogs \
+#		$(DESTDIR)$(datadir)/glade3/pixmaps \
+#		$(DESTDIR)$(datadir)/gtksourceview-2.0/language-specs \
+#		$(DESTDIR)$(datadir)/linuxcnc/stepconf \
+#		$(DESTDIR)$(datadir)/linuxcnc/pncconf/pncconf-help \
 		$(DESTDIR)$(sysconfdir)/rsyslog.d \
 		$(DESTDIR)$(sysconfdir)/security/limits.d \
 		$(DESTDIR)$(sysconfdir)/udev/rules.d \
@@ -950,7 +855,7 @@ install-kernel-indep: install-dirs
 	((cd ../configs && tar --exclude CVS --exclude .cvsignore --exclude .gitignore -cf - .) | (cd $(DESTDIR)$(sampleconfsdir) && tar -xf -))
 
 	$(EXE) $(filter ../bin/%,$(TARGETS)) $(DESTDIR)$(bindir)
-	$(EXE) ../scripts/linuxcnc $(DESTDIR)$(bindir)
+#	$(EXE) ../scripts/linuxcnc $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/machinekit $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/linuxcnc_info $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/linuxcnc_var $(DESTDIR)$(bindir)
@@ -1141,55 +1046,6 @@ CONF=../configs
 COMMON=$(CONF)/common
 CONFILES=$(addsuffix /$(1), $(filter-out $(COMMON) $(CONF),\
                                          ${shell find ${CONF} -type d -print}))
-
-.PHONY: configs
-COPY_CONFIGS = $(patsubst %,../configs/%/core_stepper.hal, \
-                sim \
-                by_interface/parport/stepper \
-                by_machine/sherline/Sherline3Axis \
-                by_machine/sherline/SherlineLathe \
-                by_machine/cooltool \
-                by_interface/parport/classicladder/demo_step_cl)
-
-COPY_CONFIGS += $(patsubst %,../configs/%/core_servo.hal, \
-                sim \
-                by_interface/vitalsystems \
-                by_interface/servotogo \
-                by_interface/vigilant)
-
-COPY_CONFIGS += $(patsubst %,../configs/%/core_sim.hal, \
-                sim)
-
-COPY_CONFIGS += $(patsubst %,../configs/%/core_sim9.hal, \
-                sim)
-
-COPY_CONFIGS += $(patsubst %,../configs/%/axis_manualtoolchange.hal, \
-                sim \
-                by_interface/pluto/lathe-pluto\
-                by_interface/parport/plasma-thc-sim)
-
-show_configs_copy_stuff:
-	@echo CONFILES=$(CONFILES)
-	@echo CALL:$(call CONFILES,axis_manualtoolchange.hal)
-	@echo CALL:$(call CONFILES,core_stepper.hal)
-	@echo CALL:$(call CONFILES,core_servo.hal)
-	@echo CALL:$(call CONFILES,core_sim.hal)
-	@echo CALL:$(call CONFILES,core_sim9.hal)
-	@echo COPY_CONFIGS=$(COPY_CONFIGS)
-
-configs: $(COPY_CONFIGS)
-
-$(call CONFILES,axis_manualtoolchange.hal): %/axis_manualtoolchange.hal: ../configs/common/axis_manualtoolchange.hal
-	$(Q)-cp $< $@
-$(call CONFILES,core_stepper.hal): %/core_stepper.hal: ../configs/common/core_stepper.hal
-	$(Q)-cp $< $@
-$(call CONFILES,core_servo.hal): %/core_servo.hal: ../configs/common/core_servo.hal
-	$(Q)-cp $< $@
-$(call CONFILES,core_sim.hal): %/core_sim.hal: ../configs/common/core_sim.hal
-	$(Q)-cp $< $@
-$(call CONFILES,core_sim9.hal): %/core_sim9.hal: ../configs/common/core_sim9.hal
-	$(Q)-cp $< $@
-
 endif # userspace
 
 ifneq ($(KERNELRELEASE),)
@@ -1230,10 +1086,6 @@ EXTRA_CFLAGS = $(RTFLAGS) \
 	-I$(INCLUDE_PREFIX)/libnml/posemath \
 	-I$(INCLUDE_PREFIX)/rtapi \
 	-I$(INCLUDE_PREFIX)/hal/lib \
-	-I$(INCLUDE_PREFIX)/emc/nml_intf \
-	-I$(INCLUDE_PREFIX)/emc/kinematics \
-	-I$(INCLUDE_PREFIX)/emc/motion \
-	-I$(INCLUDE_PREFIX)/emc/tp \
 	-I$(INCLUDE_PREFIX)/machinetalk/nanopb \
 	-I$(INCLUDE_PREFIX)/machinetalk/build \
 	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT \
@@ -1518,80 +1370,22 @@ obj-$(CONFIG_PROBE_PARPORT) += probe_parport.o
 probe_parport-objs := hal/drivers/probe_parport.o $(MATHSTUB)
 endif
 
-obj-$(CONFIG_CLASSICLADDER_RT) += classicladder_rt.o
-classicladder_rt-objs := hal/classicladder/module_hal.o $(MATHSTUB)
-classicladder_rt-objs += hal/classicladder/arithm_eval.o
-classicladder_rt-objs += hal/classicladder/arrays.o
-classicladder_rt-objs += hal/classicladder/calc.o
-classicladder_rt-objs += hal/classicladder/calc_sequential.o
-classicladder_rt-objs += hal/classicladder/manager.o
-classicladder_rt-objs += hal/classicladder/symbols.o
-classicladder_rt-objs += hal/classicladder/vars_access.o
-
-ifdef SEQUENTIAL_SUPPORT
-classicladder_rt-objs += hal/classicladder/calc_sequential_rt.o
-endif
-
 obj-m += scope_rt.o
 scope_rt-objs := hal/utils/scope_rt.o $(MATHSTUB)
 
 
-obj-m += trivkins.o
-trivkins-objs := emc/kinematics/trivkins.o
-
-obj-m += XYZACkins.o
-XYZACkins-objs := emc/kinematics/XYZACkins.o
-
-obj-m += 5axiskins.o
-5axiskins-objs := emc/kinematics/5axiskins.o
-
-obj-m += maxkins.o
-maxkins-objs := emc/kinematics/maxkins.o
-
-obj-m += gantrykins.o
-gantrykins-objs := emc/kinematics/gantrykins.o
-
-obj-m += rotatekins.o
-rotatekins-objs := emc/kinematics/rotatekins.o
-
-obj-m += tripodkins.o
-tripodkins-objs := emc/kinematics/tripodkins.o
-
-obj-m += lineardeltakins.o
-lineardeltakins-objs := emc/kinematics/lineardeltakins.o
-
-obj-m += genhexkins.o
-genhexkins-objs := emc/kinematics/genhexkins.o
-genhexkins-objs += libnml/posemath/_posemath.o
-genhexkins-objs += libnml/posemath/sincos.o $(MATHSTUB)
-
-obj-m += genserkins.o
-genserkins-objs := emc/kinematics/genserkins.o
-genserkins-objs += libnml/posemath/gomath.o
-genserkins-objs += libnml/posemath/sincos.o $(MATHSTUB)
-
-obj-m += pumakins.o
-pumakins-objs := emc/kinematics/pumakins.o
-pumakins-objs += libnml/posemath/_posemath.o
-pumakins-objs += libnml/posemath/sincos.o $(MATHSTUB)
-
-obj-m += scarakins.o
-scarakins-objs := emc/kinematics/scarakins.o
-scarakins-objs += libnml/posemath/_posemath.o
-scarakins-objs += libnml/posemath/sincos.o $(MATHSTUB)
-
-obj-$(CONFIG_MOTMOD) += motmod.o
-motmod-objs := emc/kinematics/cubic.o
-motmod-objs += emc/motion/motion.o
-motmod-objs += emc/motion/command.o
-motmod-objs += emc/motion/control.o
-motmod-objs += emc/motion/homing.o
-motmod-objs += emc/motion/emcmotglb.o
-motmod-objs += emc/motion/emcmotutil.o
-motmod-objs += emc/motion/stashf.o
-motmod-objs += emc/motion/dbuf.o
-motmod-objs += libnml/posemath/_posemath.o
-motmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
+#obj-$(CONFIG_MOTMOD) += motmod.o
+#motmod-objs := emc/kinematics/cubic.o
+#motmod-objs += emc/motion/motion.o
+#motmod-objs += emc/motion/command.o
+#motmod-objs += emc/motion/control.o
+#motmod-objs += emc/motion/homing.o
+#motmod-objs += emc/motion/emcmotglb.o
+#motmod-objs += emc/motion/emcmotutil.o
+#motmod-objs += emc/motion/stashf.o
+#motmod-objs += emc/motion/dbuf.o
+#motmod-objs += libnml/posemath/_posemath.o
+#motmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
 # obj-m += vtexport.o
 # vtexport-objs := hal/vtable-example/vtexport.o
@@ -1612,20 +1406,6 @@ lutn-demo-objs := hal/icomp-example/lutn-demo.o
 
 obj-m += ufdemo.o
 ufdemo-objs := hal/userfunct-example/ufdemo.o
-
-obj-m += tp.o
-tp-objs := $(addprefix emc/tp/, \
-	tc.o 		\
-	tcq.o 		\
-	tp.o 		\
-	tpmain.o 	\
-	blendmath.o 	\
-	spherical_arc.o 	\
-	) 		\
-	emc/nml_intf/emcpose.o \
-	libnml/posemath/_posemath.o \
-	libnml/posemath/sincos.o $(MATHSTUB)
-
 
 TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), $(OBJDIR)/$(file))
 
@@ -1774,7 +1554,6 @@ endif # end BUILD_SYS=user-dso
 ifneq "$(filter normal user-dso,$(BUILD_SYS))" ""
 #$(RTLIBDIR)/instance$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(instance-objs))
 #$(RTLIBDIR)/rtapi$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(rtapi-objs))
-$(RTLIBDIR)/classicladder_rt$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(classicladder_rt-objs))
 $(RTLIBDIR)/boss_plc$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(boss_plc-objs))
 $(RTLIBDIR)/encoder$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(encoder-objs))
 $(RTLIBDIR)/encoderv2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(encoderv2-objs))
