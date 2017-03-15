@@ -477,11 +477,6 @@ default: $(INFILES)
 # in ../include is used when building external components of linuxcnc.
 HEADERS := \
     config.h \
-    emc/ini/emcIniFile.hh \
-    emc/ini/iniaxis.hh \
-    emc/ini/initool.hh \
-    emc/ini/initraj.hh \
-    emc/ini/inihal.hh \
     hal/lib/hal_accessor.h \
     hal/lib/hal_accessor_macros.h \
     hal/lib/config_module.h \
