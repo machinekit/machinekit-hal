@@ -35,12 +35,11 @@ if ! test "xyes" = "x@RUN_IN_PLACE@"; then
     return
 fi
 
-# stop it refusing to set env because of existing paths
-#case "$PATH" in
-#    @EMC2_BIN_DIR@:*|*:@EMC2_BIN_DIR@:*)
-#	echo "This script only needs to be run once per shell session."
-#	return ;;
-#esac
+case "$PATH" in
+    @EMC2_BIN_DIR@:*|*:@EMC2_BIN_DIR@:*)
+	echo "This script only needs to be run once per shell session."
+	return ;;
+esac
 
 RIP=@RUN_IN_PLACE@; export RIP
 EMC2_HOME=@EMC2_HOME@; export EMC2_HOME
