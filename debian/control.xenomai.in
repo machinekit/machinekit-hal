@@ -1,15 +1,9 @@
 
-Package: machinekit-xenomai
+Package: machinekit-hal-xenomai
 Architecture: any
-Depends: machinekit (= ${binary:Version}), ${shlibs:Depends},
-	xenomai-runtime
-Provides:  machinekit-rt-threads
-Recommends: hostmot2-firmware-all [!armhf]
-Enhances: machinekit
-Description: PC based motion controller for real-time Linux
- Machinekit is the next-generation Enhanced Machine Controller which
- provides motion control for CNC machine tools and robotic
- applications (milling, cutting, routing, etc.).
+Depends: xenomai-runtime
+Provides:  machinekit-hal
+Description: HAL stack split from machinekit
  .
  This package provides components and drivers that run on a Xenomai
  realtime system, with userspace threads.
