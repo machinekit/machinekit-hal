@@ -20,7 +20,6 @@ Build-Depends: debhelper (>= 6),
 Standards-Version: 2.1.0
 
 Package: machinekit-hal
-Breaks: machinekit
 Architecture: any
 Depends: ${misc:Depends},
     python-gnome2, python-numpy, python-vte, python-xlib, python-configobj,

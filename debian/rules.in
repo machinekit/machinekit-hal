@@ -26,8 +26,6 @@ endif
 THREADS_POSIX = --without-posix
 THREADS_RT_PREEMPT = --without-rt-preempt
 THREADS_XENOMAI = --without-xenomai
-THREADS_XENOMAI_KERNEL = --without-xenomai-kernel
-THREADS_RTAI_KERNEL = --without-rtai-kernel
 
 # Kernel threads need a list of configured header source directories
 # for each architecture
@@ -35,11 +33,6 @@ THREADS_RTAI_KERNEL = --without-rtai-kernel
 # Multiples should be space-separated
 #
 DEB_HOST_ARCH := $(shell dpkg-architecture -qDEB_HOST_ARCH)
-
-#HEADERS_XENOMAI_KERNEL_i386 = --with-xenomai-kernel-sources=""
-#HEADERS_XENOMAI_KERNEL_amd64 = --with-xenomai-kernel-sources=""
-#HEADERS_RTAI_KERNEL_amd64 = --with-rtai-kernel-sources=""
-#HEADERS_RTAI_KERNEL_i386 = --with-rtai-kernel-sources=""
 
 # Parallel make
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
@@ -123,9 +116,6 @@ ifneq ($(wildcard src/configure src/Makefile.inc),)
 	    scripts/gen-rtapi.ini.sh \
 	    scripts/gen-rtapi.ini.sh.in \
 	    scripts/halrun \
-	    scripts/haltcl \
-	    scripts/linuxcnc_var \
-	    scripts/linuxcncmkdesktop \
 	    scripts/machinekit.ini.tmpl \
 	    scripts/realtime \
 	    scripts/rip-environment \
@@ -155,7 +145,7 @@ install: build
 	(cd debian/extras && cp -a * ../tmp)
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) V=$(DH_VERBOSE) $@)
 	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/linuxcnc
-	cp lib/*.a debian/tmp/usr/lib
+	#cp lib/*.a debian/tmp/usr/lib
 	## if they weren't there we don't care if rm fails
 	rm -f debian/tmp/usr/share/applications/linuxcnc-usermanual*.desktop
 	rm -f debian/tmp/usr/share/applications/linuxcnc-halmanual*.desktop
@@ -166,7 +156,7 @@ install: build
 	rm -rf debian/tmp/usr/share/doc/linuxcnc/html
 	rm -f debian/tmp/usr/share/linuxcnc/examples/sample-configs/*/*position*.txt
 	# update emcweb.hal
-	sed 's/#NC_FILES_DIR/NC_FILES_DIR/' -i debian/tmp/usr/share/linuxcnc/examples/sample-configs/sim/emcweb.ini
+	#sed 's/#NC_FILES_DIR/NC_FILES_DIR/' -i debian/tmp/usr/share/linuxcnc/examples/sample-configs/sim/emcweb.ini
 
 ifneq (,$(wildcard debian/machinekit-*-kernel-*.install))
 	mkdir -p debian/tmp/etc/udev/rules.d
@@ -177,12 +167,12 @@ endif
 	cp src/rtapi/shmdrv/limits.d-machinekit.conf \
 	    debian/tmp/etc/security/limits.d/machinekit.conf
 
-	if (grep ^USERMODE_PCI=yes src/Makefile.inc -q); then \
-	    cp debian/machinekit-dev.install.in debian/machinekit-dev.install; \
-	else \
-	    grep -v userpci debian/machinekit-dev.install.in \
-		> debian/machinekit-dev.install; \
-	fi
+#	if (grep ^USERMODE_PCI=yes src/Makefile.inc -q); then \
+#	    cp debian/machinekit-dev.install.in debian/machinekit-dev.install; \
+#	else \
+#	    grep -v userpci debian/machinekit-dev.install.in \
+#		> debian/machinekit-dev.install; \
+#	fi
 
 	dh_install --sourcedir=debian/tmp --fail-missing -Xusr/bin/pasm
 
@@ -204,7 +194,7 @@ binary-arch: build install
 	    -X.tbl -X.xml -Xsample-configs
 	dh_fixperms -X/linuxcnc_module_helper -X/rtapi_app_
 	dh_python2 --ignore-shebangs --no-guessing-versions
-	dh_makeshlibs
+#	dh_makeshlibs
 	dh_installdeb
 
 #	# delete files that should be in machinekit-dev package
@@ -212,8 +202,8 @@ binary-arch: build install
 	rm -f debian/machinekit/usr/share/linuxcnc/Makefile.modinc
 	rm -f debian/machinekit/usr/share/linuxcnc/Makefile.inc
 
-	cat debian/machinekit/DEBIAN/shlibs debian/shlibs.pre > \
-	    debian/shlibs.local
+#	cat debian/machinekit/DEBIAN/shlibs debian/shlibs.pre > \
+#	    debian/shlibs.local
 	dh_shlibdeps -l debian/machinekit/usr/lib
 	dh_gencontrol
 	dh_md5sums
