@@ -3,6 +3,10 @@ Package: machinekit-hal-xenomai
 Architecture: any
 Depends: xenomai-runtime
 Provides:  machinekit-hal
+Depends: ${misc:Depends},
+    python-numpy, python-vte, python-xlib, python-configobj,
+    python-zmq, python-protobuf (>= 2.4.1), python-gst0.10,
+    python-avahi, bc, procps, psmisc, module-init-tools | kmod
 Description: HAL stack split from machinekit
  .
  This package provides components and drivers that run on a Xenomai

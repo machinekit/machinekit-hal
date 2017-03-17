@@ -18,12 +18,3 @@ Build-Depends: debhelper (>= 6),
     python-simplejson, libboost-thread-dev,
     python-pyftpdlib, @BUILD_DEPS@
 Standards-Version: 2.1.0
-
-Package: machinekit-hal
-Architecture: any
-Depends: ${misc:Depends},
-    python-gnome2, python-numpy, python-vte, python-xlib, python-configobj,
-    python-zmq, python-protobuf (>= 2.4.1), python-gst0.10,
-    python-avahi, python-simplejson, python-pyftpdlib,
-    bc, procps, psmisc, module-init-tools | kmod
-Description: HAL stack package split from Machinekit.
