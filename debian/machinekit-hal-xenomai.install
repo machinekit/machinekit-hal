@@ -25,9 +25,7 @@ etc/modprobe.d/linuxcnc.conf
 usr/libexec/linuxcnc/*
 usr/lib/*.so
 usr/lib/linuxcnc/*.so
-usr/include/linuxcnc/userpci/*
-usr/include/linuxcnc/machinetalk/*
-usr/include/linuxcnc/shmdrv/*
+usr/include/linuxcnc/userpci/*.h
 usr/share/linuxcnc/*.gif
 usr/share/linuxcnc/*.png
 usr/share/linuxcnc/Makefile.*

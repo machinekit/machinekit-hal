@@ -101,8 +101,8 @@ cp control.in control
 echo "debian/control:  copied base template" >&2
 cp rules.in rules; chmod +x rules
 echo "debian/rules:  copied base template" >&2
-cp machinekit-hal.install.in machinekit-hal.install
-echo "debian/machinekit-hal.install.in:  copied base template" >&2
+cp machinekit-hal-posix.install.in machinekit-hal-posix.install
+echo "debian/machinekit-hal-posix.install.in:  copied base template" >&2
 
 # read command line options
 while getopts prx:?h ARG; do

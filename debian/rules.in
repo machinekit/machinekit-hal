@@ -132,7 +132,9 @@ install: build
 	mkdir -p debian/tmp
 	(cd debian/extras && cp -a * ../tmp)
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) V=$(DH_VERBOSE) $@)
-	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/linuxcnc
+	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/linuxcnc \
+	    debian/tmp/usr/include/linuxcnc/machinetalk/nanopb \
+	    debian/tmp/usr/include/linuxcnc/machinetalk/protobuf
 	#cp lib/*.a debian/tmp/usr/lib
 	## if they weren't there we don't care if rm fails
 #	rm -f debian/tmp/usr/share/applications/linuxcnc-usermanual*.desktop
