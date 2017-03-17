@@ -2,6 +2,7 @@
 Package: machinekit-hal-rt-preempt
 Architecture: any
 Provides:  machinekit-hal
+Conflicts: machinekit
 Depends: ${misc:Depends},
     python-numpy, python-vte, python-xlib, python-configobj,
     python-zmq, python-protobuf (>= 2.4.1), python-gst0.10,

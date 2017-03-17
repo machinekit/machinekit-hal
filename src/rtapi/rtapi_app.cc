@@ -1725,7 +1725,7 @@ int main(int argc, char **argv)
 #endif
 
     // the actual checking for setuid happens in harden_rt() (if needed)
-    if (!foreground && (getuid() >= 0)) {
+    if (!foreground && (getuid() > 0)) {
 	pid_t pid1;
 	pid_t pid2;
 	int status;
