@@ -108,7 +108,7 @@ static int bind_ifs(mk_socket_t *s, const argvec_t &ifs)
 	    uri = "tcp://" + ifs[i] + ":" + boost::lexical_cast<std::string>(s->port);
 	}
 	// use this port number for the rest of the ifs
-	s->port = zsocket_bind(s->socket, uri.c_str());
+	s->port = zsocket_bind(s->socket, "%s", uri.c_str());
 	if (s->port < 0) {
 	    syslog_async(LOG_ERR, "bind to '%s' failed: %s",
 			 uri.c_str(), strerror(errno));
@@ -166,7 +166,7 @@ int mk_bindsocket(mk_netopts_t *n, mk_socket_t *s)
 	// use IPC sockets
 	snprintf(buf, sizeof(buf), ZMQIPC_FORMAT,
 		 n->rundir, n->rtapi_instance, s->tag, n->service_uuid);
-	s->port = zsocket_bind(s->socket, buf);
+	s->port = zsocket_bind(s->socket, "%s", buf);
 	if (s->port < 0)
 	    syslog_async(LOG_ERR, "bind(%s): %s\n", buf, strerror(errno));
 
@@ -187,8 +187,9 @@ int mk_announce(mk_netopts_t *n, mk_socket_t *s, const char *headline, const cha
     assert(n != NULL);
 
     // dont't announce if both ANNOUNCE_IPV4 and ANNOUNCE_IPV6 are zero
-    if (!(n->announce_ipv4 || n->announce_ipv4))
-	return 0;
+    if (!(n->announce_ipv4 || n->announce_ipv6)) {
+        return 0;
+    }
 
     // determine avahi announcement mode
     if (!n->announce_ipv4)
