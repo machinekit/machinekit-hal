@@ -231,6 +231,8 @@ SUBDIRS := \
 	hal/user_comps/vismach \
 	hal/user_comps/vfs11_vfd \
 	hal/user_comps/vfdb_vfd \
+	hal/user_comps/huanyang-vfd \
+	hal/classicladder \
 	hal/utils \
 	hal \
 	hal/support \
