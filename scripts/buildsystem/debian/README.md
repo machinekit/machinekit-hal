@@ -52,3 +52,34 @@ information, see that repo.
 
 	- Note that `-t amd64` is the default, and source package build is
       default only on `amd64`.  With no `-c`, 
+
+# Setting up automated builds
+
+- Create Github organization
+  - In GitHub account:  Create organization, e.g. `my-mk-pkgs`
+  - Fork Machinekit repo into organization
+  - Enable Docker builds on repo
+	- Click the "Settings" tab
+	- Click "Integrations & Services" on the left
+	- Click "Add Service", and find and click "Docker"
+- Set up Travis CI
+  - Create account
+  - Link to GitHub
+  - On upper right, drop-down menu, select 'accounts'
+  - Click "Review and add your authorized organizations"; goes back to GH
+    - `my-mk-pkgs` org should be checked
+  - If org not on left side, click "Sync account" button
+  - Click org on left side
+	- Flip switch for repo on
+  - Go to repo; drop-down "More options" menu choose "Settings"
+  - Turn these "General settings" on:
+	- Build only if `.travis.yml` is present
+	- Build pushes
+	- Build pull requests
+- Set up Packagecloud.io
+  - Create account with free plan
+  - Upper right drop-down menu, pick "API Token"; copy
+  - On Travis CI repo settings, add these variables:
+	- `PACKAGECLOUD_USER`:  enter your user name  (Display value: on)
+	- `PACKAGECLOUD_REPO`:  `machinekit` (Display value: on)
+	- `PACKAGECLOUD_TOKEN`:  paste your GH API token  (Display value: **OFF**)
