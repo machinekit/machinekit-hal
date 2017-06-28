@@ -22,7 +22,7 @@ information, see that repo.
   - Build from `Dockerfile`:
 
         # Clone this repository; `cd` into the directory
-        git clone https://github.com/dovetailautomata/mk-cross-builder.git
+        git clone https://github.com/Dovetail-Automata/mk-cross-builder.git
         cd mk-cross-builder
 
         # Build Docker image for `armhf`
