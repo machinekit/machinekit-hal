@@ -7,7 +7,7 @@ native system to cross-build Machinekit packages.
 The image is based on the [`docker-cross-builder` image][1].  For more
 information, see that repo.
 
-[1]: https://github.com/zultron/docker-cross-builder
+[1]: https://github.com/Dovetail-Automata/docker-cross-builder
 
 ## Using the builder
 
