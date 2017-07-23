@@ -131,15 +131,15 @@ static int update(void *arg, const hal_funct_args_t *fa)
 
 		// protobuf-decode it
 		pb_istream_t stream = pb_istream_from_buffer(data, size);
-		pb_JplanCommand rx =  pb_JplanCommand_init_zero;
-		if (!pb_decode(&stream, pb_JplanCommand_fields, &rx)) {
+		machinetalk_JplanCommand rx =  machinetalk_JplanCommand_init_zero;
+		if (!pb_decode(&stream, machinetalk_JplanCommand_fields, &rx)) {
 		    rtapi_print_msg(RTAPI_MSG_ERR, "%s: pb_decode(JplanCommand) failed: '%s'",
 				    compname, PB_GET_ERROR(&stream));
 		} else {
 		    // decode ok - apply all set fields to driving pins
 		    for (i = 0; i < rx.joint_count; i++) {
 			struct joint *jp = &ip->joints[i];
-			pb_JplanJoint *jc = &rx.joint[i];
+			machinetalk_JplanJoint *jc = &rx.joint[i];
 			if (jc->has_enable) *(jp->enable) = jc->enable;
 			if (jc->has_pos_cmd) *(jp->pos_cmd) = jc->pos_cmd;
 			if (jc->has_max_vel) *(jp->max_vel) = jc->max_vel;
@@ -215,10 +215,10 @@ static int instantiate_jplan(const int argc, const char **argv)
 	    hal_pin_float_newf(HAL_OUT, &(jp->curr_vel), inst_id, "%s.%d.curr-vel", name, i))
 	    return -1;
 
-	hal_pin_dir_t dir = queued ? HAL_OUT : HAL_IO;
+	hal_pin_dir_t dir = queued ? HAL_OUT : HAL_IN;
 	if (hal_pin_float_newf(dir,    &(jp->pos_cmd), inst_id, "%s.%d.pos-cmd", name, i) ||
-	    hal_pin_float_newf(HAL_IO, &(jp->max_vel), inst_id, "%s.%d.max-vel", name, i) ||
-	    hal_pin_float_newf(HAL_IO, &(jp->max_acc), inst_id, "%s.%d.max-acc", name, i))
+	    hal_pin_float_newf(dir, &(jp->max_vel), inst_id, "%s.%d.max-vel", name, i) ||
+	    hal_pin_float_newf(dir, &(jp->max_acc), inst_id, "%s.%d.max-acc", name, i))
 	    return -1;
     }
     hal_export_xfunct_args_t xfunct_args = {
