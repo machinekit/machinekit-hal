@@ -165,7 +165,9 @@ binary-arch: build install
 	dh_fixperms -X/linuxcnc_module_helper -X/rtapi_app_
 	dh_python2 --ignore-shebangs --no-guessing-versions
 	dh_installdeb
-	dh_shlibdeps -l debian/machinekit/usr/lib
+	### Needed whilst using our own libs which may not have full debian info and deps
+	#dh_shlibdeps -l debian/machinekit-hal/usr/lib
+	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info -l debian/machinekit-hal/usr/lib
 	dh_gencontrol
 	dh_md5sums
 	dh_builddeb
