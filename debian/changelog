@@ -2,4 +2,4 @@ machinekit-hal (0.1) jessie; urgency=low
 
   * Initial packageReworked debian/configure, #215
 
- -- ArcEye <arceye@mgware.co.uk>  Thurs, 16 March 2017 17:30:30 -0000
+ -- ArcEye <arceye@mgware.co.uk>  Thu, 16 Mar 2017 17:30:30 -0000
