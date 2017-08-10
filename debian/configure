@@ -43,8 +43,13 @@ guess_arch_from_kver() {
 }
 
 do_posix() {
-    cat control.posix.in >> control
-    echo "debian/control:  added POSIX threads package" >&2
+    if [[ $DISTRO_CODENAME == "stretch" ]] ; then
+	cat control.posix-stretch.in >> control
+	echo "debian/control:  added POSIX threads package for stretch" >&2
+    else
+	cat control.posix.in >> control
+        echo "debian/control:  added POSIX threads package" >&2
+    fi
     rules_enable_threads posix
     HAVE_FLAVOR=true
 }
@@ -153,8 +158,15 @@ HAVE_KTHREADS_FLAVOR=false
 rm -f machinekit-hal-{rtai,xenomai}-kernel-*.install
 
 # copy base templates into place
-cp control.in control
+# stretch uses some different packages
+if [[ $DISTRO_CODENAME == "stretch" ]] ; then
+    cp control-stretch.in control
+    echo "debian/control:  copied Stretch base template" >&2
+else
+    cp control.in control
 echo "debian/control:  copied base template" >&2
+fi
+
 cp rules.in rules; chmod +x rules
 echo "debian/rules:  copied base template" >&2
 #cp machinekit-hal-posix.install.in machinekit-hal-posix.install
