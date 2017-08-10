@@ -122,7 +122,20 @@ endif
 #	# Remove package artifacts
 	dh_clean
 
+
 install: build
+
+	## have to test after build or Makefile.inc will not exist ##
+	cp debian/machinekit-hal-posix.install.in debian/machinekit-hal-posix.install
+	cp debian/machinekit-hal-rt-preempt.install.in debian/machinekit-hal-rt-preempt.install
+	cp debian/machinekit-hal-xenomai.install.in debian/machinekit-hal-xenomai.install
+
+	if (grep ^USERMODE_PCI=yes src/Makefile.inc -q); then \
+	    echo "usr/include/linuxcnc/userpci/*.h" >> debian/machinekit-hal-posix.install; \
+	    echo "usr/include/linuxcnc/userpci/*.h" >> debian/machinekit-hal-rt-preempt.install; \
+	    echo "usr/include/linuxcnc/userpci/*.h" >> debian/machinekit-hal-xenomai.install; \
+	fi
+
 	dh_testdir
 	dh_testroot
 	dh_prep
@@ -165,7 +178,7 @@ binary-arch: build install
 	dh_fixperms -X/linuxcnc_module_helper -X/rtapi_app_
 	dh_python2 --ignore-shebangs --no-guessing-versions
 	dh_installdeb
-	### Needed whilst using our own libs which may not have full debian info and deps
+	### Needed whilst usin our own libs which may not have full debian info and deps
 	#dh_shlibdeps -l debian/machinekit-hal/usr/lib
 	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info -l debian/machinekit-hal/usr/lib
 	dh_gencontrol

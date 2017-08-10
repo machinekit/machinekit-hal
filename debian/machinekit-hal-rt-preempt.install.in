@@ -11,7 +11,7 @@ usr/lib/python*/*/*/*.py
 usr/lib/python*/*/machinetalk/protobuf/*.py
 usr/lib/python*/*/machinetalk/*.py
 usr/lib/python*/*/machinekit/nosetests/*.py
-usr/lib/linuxcnc/posix/*.so
+usr/lib/linuxcnc/rt-preempt/*.so
 usr/include/linuxcnc/*.h
 usr/include/linuxcnc/*.hh
 usr/libexec/linuxcnc/pci_read
@@ -19,13 +19,11 @@ usr/libexec/linuxcnc/pci_write
 usr/libexec/linuxcnc/inivar
 usr/libexec/linuxcnc/flavor
 usr/libexec/linuxcnc/rtapi_msgd
-usr/libexec/linuxcnc/rtapi_app_posix
+usr/libexec/linuxcnc/rtapi_app_rt-preempt
 etc/modprobe.d/linuxcnc.conf
 usr/lib/*.so
-usr/lib/linuxcnc/ulapi-posix.so
-usr/include/linuxcnc/userpci/*.h
+usr/lib/linuxcnc/ulapi-rt-preempt.so
 usr/share/linuxcnc/*.gif
 usr/share/linuxcnc/*.png
 usr/share/linuxcnc/Makefile.*
 usr/share/linuxcnc/udev/90-xhc.rules
-

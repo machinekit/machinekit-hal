@@ -68,6 +68,24 @@ do_rt-preempt() {
     HAVE_FLAVOR=true
 }
 
+do_tcl_tk_version() {
+    TCL_TK_VER="$1"
+    if test -z "$TCL_TK_VER"; then
+        # No -t option specified; to ensure a reproducible package,
+        # use the latest version from the distro
+	TCL_TK_VER=8.6
+	case "$DISTRO_ID" in
+	    Debian)  test "${DISTRO_RELEASE/.*/}" -lt 8 && TCL_TK_VER=8.5 ;;
+	    Raspbian)test "${DISTRO_RELEASE/.*/}" -lt 8 && TCL_TK_VER=8.5 ;;
+	    Ubuntu)  test "${DISTRO_RELEASE/.*/}" -lt 14 && TCL_TK_VER=8.5 ;;
+	    neon)  test "${DISTRO_RELEASE/.*/}" -lt 14 && TCL_TK_VER=8.5 ;;
+	    *)  usage "Unknown distro '${DISTRO_ID}'" ;;
+	esac
+    fi
+    TCL_TK_BUILD_DEPS="tcl${TCL_TK_VER}-dev, tk${TCL_TK_VER}-dev"
+    TCL_TK_DEPS="tcl${TCL_TK_VER}, tk${TCL_TK_VER}"
+    echo "debian/control:  Set tcl/tk build deps to version $TCL_TK_VER" >&2
+}
 
 do_xenomai() {
     # Be sure the -dev files only appear once
@@ -130,8 +148,6 @@ usage() {
 	echo "   -x		build Xenomai threads"
 	echo "   -c		rewrite changelog to set package version from git commit"
 	echo "	 -s		create source tarball for non binary package builds"
-	echo "   -X <kver>	build Xenomai-kernel threads ***"
-	echo "   -R <kver>	build RTAI-kernel threads ***"
 	echo "   -t <tclver>	set tcl/tk version"
 	echo "      *** Argument may be repeated for multiple kernels"
     } >&2
@@ -154,6 +170,10 @@ DEPS= # List of Depends
 HAVE_FLAVOR=false
 HAVE_KTHREADS_FLAVOR=false
 
+# Determine tcl/tk version
+do_tcl_tk_version "$TCL_TK_VER"
+
+
 # delete old files
 rm -f machinekit-hal-{rtai,xenomai}-kernel-*.install
 
@@ -172,15 +192,14 @@ echo "debian/rules:  copied base template" >&2
 #cp machinekit-hal-posix.install.in machinekit-hal-posix.install
 #echo "debian/machinekit-hal-posix.install.in:  copied base template" >&2
 
-while getopts dprxcsR:X:t:?h ARG; do
+# read command line options - d is a dummy to stop args being req
+while getopts prxd:t:?h ARG; do
     case $ARG in
 	p) do_posix ;;
 	r) do_rt-preempt ;;
 	x) do_xenomai ;;
 	c) do_changelog ;;  # set new changelog with package versions from git
 	s) do_source_tarball ;; # create tarball for non binary builds
-	R) do_rtai_kernel "$OPTARG" ;;
-	X) do_xenomai_kernel "$OPTARG" ;;
 	t) TCL_TK_VER="$OPTARG" ;;
 	?|h) usage ;;
 	*) usage "Unknown arg: '-$ARG'" ;;
