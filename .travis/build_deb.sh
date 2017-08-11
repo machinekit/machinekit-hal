@@ -12,7 +12,7 @@ fi
 MAJOR_MINOR_VERSION="${MAJOR_MINOR_VERSION:-0.1}"
 PKGSOURCE="${PKGSOURCE:-travis.${TRAVIS_REPO_SLUG/\//.}}"
 DEBIAN_SUITE="${DEBIAN_SUITE:-experimental}"
-REPO_URL="${REPO_URL:-https://github.com/machinekit/machinekit}"
+REPO_URL="${REPO_URL:-https://github.com/arceye/Machinekit-HAL}"
 
 # Compute version
 if ${IS_PR}; then
@@ -45,7 +45,7 @@ RELEASE="1${UPSTREAM}.git${SHA1SHORT}~1${DISTRO}"
 # https://www.debian.org/doc/debian-policy/ch-source.html#s-dpkgchangelog
 mv debian/changelog debian/changelog.old
 cat > debian/changelog <<EOF
-machinekit (${VERSION}-${RELEASE}) ${DEBIAN_SUITE}; urgency=low
+machinekit-hal (${VERSION}-${RELEASE}) ${DEBIAN_SUITE}; urgency=low
 
   * Travis CI rebuild for ${DISTRO}, ${PR_OR_BRANCH}, commit ${SHA1SHORT}
     - ${COMMIT_URL}
@@ -63,7 +63,7 @@ if test ${MARCH} = 64; then
     (
 	cd ${ROOTFS}${MACHINEKIT_PATH}
 	git archive HEAD | bzip2 -z > \
-            ../machinekit_${VERSION}.orig.tar.bz2
+            ../machinekit-hal_${VERSION}.orig.tar.bz2
     )
 else
     # the rest will be binaries only

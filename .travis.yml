@@ -30,28 +30,19 @@ env:
     - SFTP_USER="${SFTP_USER:-travis}"
     - SFTP_ADDR="${SFTP_ADDR:-empty}"
   matrix:
-    - TAG=wheezy-64    CMD=run_tests
     - TAG=jessie-64    CMD=run_tests
-    - TAG=wheezy-64    CMD=build_deb
-    - TAG=wheezy-32    CMD=build_deb
-    - TAG=wheezy-armhf CMD=build_deb FLAV=posix
-    - TAG=wheezy-armhf CMD=build_deb FLAV=xenomai
-    - TAG=wheezy-armhf CMD=build_deb FLAV=rt_preempt
     - TAG=jessie-64    CMD=build_deb
     - TAG=jessie-32    CMD=build_deb
     - TAG=jessie-armhf CMD=build_deb FLAV=posix
     - TAG=jessie-armhf CMD=build_deb FLAV=xenomai
     - TAG=jessie-armhf CMD=build_deb FLAV=rt_preempt
-    - TAG=raspbian-armhf CMD=build_deb FLAV=posix
-    - TAG=raspbian-armhf CMD=build_deb FLAV=xenomai
-    - TAG=raspbian-armhf CMD=build_deb FLAV=rt_preempt
 
 script:
   - .travis/docker_run.sh
 
 after_success:
   - .travis/send_binaries.sh
-  - test ${TAG} != "raspbian-armhf" && .travis/upload_packagecloud.sh
+  - .travis/upload_packagecloud.sh
 
 after_script:
   - .travis/send_status.sh

@@ -1,7 +1,7 @@
 #!/bin/bash -ex
 cd "$(dirname $0)/.."
 
-MACHINEKIT_PATH="/usr/src/machinekit"
+MACHINEKIT_PATH="/usr/src/Machinekit-HAL"
 TRAVIS_PATH="$MACHINEKIT_PATH/.travis"
 DOCKER_CONTAINER=${DOCKER_CONTAINER:-"machinekit/mk-builder"}
 COMMITTER_NAME="$(git log -1 --pretty=format:%an)"

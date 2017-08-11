@@ -33,9 +33,13 @@ cd shared/info
 put ${TRAVIS_BUILD_DIR}/../${FILE}
 bye
 EOF
+    chmod 700 ~/.ssh/
+    chmod 600 ~/.ssh/*
+    chown -R $USER ~/.ssh/
+    chgrp -R $USER ~/.ssh/
 
     err=0
-    sshpass -p ${SFTP_PASSWD} sftp -P ${SFTP_PORT} -o StrictHostKeyChecking=no \
+    sshpass -p ${SFTP_PASSWD} sftp -v -P ${SFTP_PORT} -o StrictHostKeyChecking=no \
         -oBatchMode=no -b ${TRAVIS_BUILD_DIR}/../sftp_cmds \
         ${SFTP_USER}@${SFTP_ADDR} || err=$?
 
