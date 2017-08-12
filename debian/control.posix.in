@@ -6,7 +6,8 @@ Conflicts: machinekit
 Depends: ${misc:Depends},
     python-numpy, python-vte, python-xlib, python-configobj,
     python-zmq, python-protobuf (>= 2.4.1), python-gst0.10,
-    python-avahi, bc, procps, psmisc, module-init-tools | kmod
+    python-avahi, bc, procps, psmisc, module-init-tools | kmod,
+    libczmq2, libjansson4
 Description: HAL stack split from Machinekit
  .
  This package provides components and drivers that run on a non-realtime
