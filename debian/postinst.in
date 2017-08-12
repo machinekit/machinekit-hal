@@ -9,6 +9,8 @@ cd /usr/share/pyshared/
 @PYTHON_EXECUTABLE@ hal/setup install --install-layout=deb > /dev/null
 @PYTHON_EXECUTABLE@ machinekit/setup install --install-layout=deb > /dev/null
 
+touch /var/log/linuxcnc.log
+
 # restart services
 service udev restart 2>/dev/null || true
 service rsyslog restart 2>/dev/null || true
