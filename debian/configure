@@ -187,6 +187,10 @@ else
 echo "debian/control:  copied base template" >&2
 fi
 
+cp postinst.in machinekit-hal-posix.postinst
+cp postinst.in machinekit-hal-rt-preemmpt.postinst
+cp postinst.in machinekit-hal-xenomai.postinst
+
 cp rules.in rules; chmod +x rules
 echo "debian/rules:  copied base template" >&2
 #cp machinekit-hal-posix.install.in machinekit-hal-posix.install
