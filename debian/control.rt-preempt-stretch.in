@@ -6,7 +6,7 @@ Conflicts: machinekit
 Depends: ${misc:Depends},
     python-numpy, python-vte, python-xlib, python-configobj,
     zeromq, czmq, python-protobuf (>= 2.4.1), python-gst-1.0,
-    python-avahi, bc, procps, psmisc, module-init-tools | kmod,
+    python-avahi, bc, procps, psmisc, module-init-tools | kmod, yapps2-runtime,
     linux-image-rt-686-pae [i386], linux-image-rt-amd64 [amd64]
 Description: HAL stack split from machinekit
  .
