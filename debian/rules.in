@@ -157,6 +157,9 @@ install: build
 	cp src/rtapi/shmdrv/limits.d-machinekit.conf \
 	    debian/tmp/etc/security/limits.d/machinekit.conf
 
+	cp lib/python/machinekit/*.so \
+	    debian/tmp/usr/lib/python2.7/dist-packages/machinekit
+
 	dh_install --sourcedir=debian/tmp --fail-missing -Xusr/bin/pasm
 
 # Build architecture-independent files here.
