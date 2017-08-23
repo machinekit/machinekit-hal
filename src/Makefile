@@ -224,6 +224,7 @@ SUBDIRS := \
 	hal/components \
 	hal/vtable-example \
 	hal/userfunct-example \
+	hal/cython \
 	hal/drivers \
 	hal/user_comps/devices \
 	hal/user_comps/mb2hal \
@@ -252,11 +253,6 @@ endif
 ifeq ($(BUILD_WEBTALK),yes)
 SUBDIRS += machinetalk/webtalk
 endif
-
-ifeq ($(BUILD_PARSEL_TONGUE),yes)
-SUBDIRS += hal/cython
-endif
-
 
 
 # moved to src/rtapi/Submakefile
