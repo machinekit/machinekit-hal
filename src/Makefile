@@ -203,7 +203,6 @@ SUBDIRS := \
 	machinetalk/lib \
 	machinetalk/config-service \
 	machinetalk/haltalk \
-	machinetalk/mkwrapper \
 	machinetalk/mklauncher \
 	machinetalk/videoserver \
 	\
