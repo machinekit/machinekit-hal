@@ -12,7 +12,7 @@ usr/lib/python*/*/*/*.so
 usr/lib/python*/*/machinetalk/protobuf/*
 usr/lib/python*/*/machinetalk/*.py
 usr/lib/python*/*/machinekit/nosetests/*.py
-usr/lib/linuxcnc/rt-preempt/*.so
+usr/lib/linuxcnc/rt-preempt/*
 usr/include/linuxcnc/*.h
 usr/include/linuxcnc/*.hh
 usr/libexec/linuxcnc/pci_read
