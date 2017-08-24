@@ -18,9 +18,9 @@ PRU_DBG := $(patsubst %,$(RTLIBDIR)/%.dbg,$(PRU_MAINS))
 # the first defined RTOS flavor (typically posix)
 #TARGETS +=  $(PRU_BIN) $(PRU_DBG)
 # Only build PRU code for the Xenomai RTOS flavor
-#ifeq ($(threads),xenomai)
+ifeq ($(threads),xenomai)
 modules : $(PRU_BIN) $(PRU_DBG)
-#endif
+endif
 
 # .bin output, create listing
 PASM_BINFLAGS := -b -L -d
