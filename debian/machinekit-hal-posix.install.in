@@ -13,7 +13,7 @@ usr/lib/python*/*/machinetalk/protobuf/*
 usr/lib/python*/*/machinetalk/*.py
 usr/lib/python*/*/machinekit/nosetests/*.py
 usr/lib/python*/*/fdm/config/*.py
-usr/lib/linuxcnc/posix/*.so
+usr/lib/linuxcnc/posix/*
 usr/include/linuxcnc/*.h
 usr/include/linuxcnc/*.hh
 usr/libexec/linuxcnc/pci_read
