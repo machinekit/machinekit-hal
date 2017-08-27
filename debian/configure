@@ -188,8 +188,10 @@ echo "debian/control:  copied base template" >&2
 fi
 
 cp postinst.in machinekit-hal-posix.postinst
-cat postinst.in rt-preempt-postinst.add > machinekit-hal-rt-preempt.postinst
-cat postinst.in xenomai-postinst.add > machinekit-hal-xenomai.postinst
+cp postinst.in machinekit-hal-rt-preempt.postinst
+cp postinst.in machinekit-hal-xenomai.postinst
+#cat postinst.in rt-preempt-postinst.add > machinekit-hal-rt-preempt.postinst
+#cat postinst.in xenomai-postinst.add > machinekit-hal-xenomai.postinst
 
 cp rules.in rules; chmod +x rules
 echo "debian/rules:  copied base template" >&2
