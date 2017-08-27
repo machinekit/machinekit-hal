@@ -136,6 +136,18 @@ install: build
 	    echo "usr/include/linuxcnc/userpci/*.h" >> debian/machinekit-hal-xenomai.install; \
 	fi
 
+	## only want this for armhf builds ##
+	if [ -f debian/platform_pc ] ; then \
+	    rm -f debian/platform_pc; \
+	else \
+	    cat debian/rt-preempt-postinst.add >> debian/machinekit-hal-rt-preempt.postinst; \
+	    cat debian/xenomai-postinst.add >> debian/machinekit-hal-xenomai.postinst; \
+	    echo "usr/lib/linuxcnc/posix/*.bin" >> debian/machinekit-hal-rt-preempt.install; \
+	    echo "usr/lib/linuxcnc/posix/*.dbg" >> debian/machinekit-hal-rt-preempt.install; \
+	    echo "usr/lib/linuxcnc/posix/*.bin" >> debian/machinekit-hal-xenomai.install; \
+	    echo "usr/lib/linuxcnc/posix/*.dbg" >> debian/machinekit-hal-xenomai.install; \
+	fi
+
 	dh_testdir
 	dh_testroot
 	dh_prep

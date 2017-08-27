@@ -1,0 +1,5 @@
+
+# move the BBB pru_*.* files to correct dir
+mv /usr/lib/linuxcnc/posix/* /usr/lib/linuxcnc/xenomai
+rmdir /usr/lib/linuxcnc/posix
+
