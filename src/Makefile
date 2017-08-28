@@ -1257,7 +1257,7 @@ scope_rt-objs := hal/utils/scope_rt.o $(MATHSTUB)
 # vtexport-objs += hal/vtable-example/vcode.o
 
 obj-m += jplan.o
-jplan-objs := hal/jplanner/jplan.o
+jplan-objs := hal/jplanner/jplan.o machinetalk/build/machinetalk/protobuf/jplan.npb.o
 
 obj-m += interpolate.o
 interpolate-objs := hal/interpolator/interpolate.o
