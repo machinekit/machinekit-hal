@@ -1,0 +1,4 @@
+
+# move the BBB pru_*.* to the correct dir
+mv /usr/lib/linuxcnc/posix/* /usr/lib/linuxcnc/rt-preempt
+rmdir /usr/lib/linuxcnc/posix
