@@ -30,4 +30,3 @@ usr/share/linuxcnc/*.png
 usr/share/linuxcnc/Makefile.*
 usr/share/linuxcnc/udev/90-xhc.rules
 usr/share/fdm/thermistor_tables/*
-
