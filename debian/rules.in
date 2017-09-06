@@ -137,15 +137,10 @@ install: build
 	fi
 
 	## only want this for armhf builds ##
-	if [ -f debian/platform_pc ] ; then \
-	    rm -f debian/platform_pc; \
-	else \
-	    cat debian/rt-preempt-postinst.add >> debian/machinekit-hal-rt-preempt.postinst; \
-	    cat debian/xenomai-postinst.add >> debian/machinekit-hal-xenomai.postinst; \
-	    echo "usr/lib/linuxcnc/posix/*.bin" >> debian/machinekit-hal-rt-preempt.install; \
-	    echo "usr/lib/linuxcnc/posix/*.dbg" >> debian/machinekit-hal-rt-preempt.install; \
-	    echo "usr/lib/linuxcnc/posix/*.bin" >> debian/machinekit-hal-xenomai.install; \
-	    echo "usr/lib/linuxcnc/posix/*.dbg" >> debian/machinekit-hal-xenomai.install; \
+	if [ ! -f debian/platform_pc ] ; then \
+	    echo "usr/lib/linuxcnc/prubin/*" >> debian/machinekit-hal-posix.install; \
+	    echo "usr/lib/linuxcnc/prubin/*" >> debian/machinekit-hal-rt-preempt.install; \
+	    echo "usr/lib/linuxcnc/prubin/*" >> debian/machinekit-hal-xenomai.install; \
 	fi
 
 	dh_testdir
@@ -168,6 +163,14 @@ install: build
 	mkdir -p debian/tmp/etc/security/limits.d
 	cp src/rtapi/shmdrv/limits.d-machinekit.conf \
 	    debian/tmp/etc/security/limits.d/machinekit.conf
+
+	## only want this for armhf builds too ##
+	if [ -f debian/platform_pc ] ; then \
+	    rm -f debian/platform_pc; \
+	else \
+	    mkdir -p debian/tmp/usr/lib/linuxcnc/prubin; \
+	    cp rtlib/prubin/* debian/tmp/usr/lib/linuxcnc/prubin; \
+	fi
 
 	dh_install --sourcedir=debian/tmp --fail-missing -Xusr/bin/pasm
 
