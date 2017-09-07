@@ -1,5 +1,6 @@
 
-# move the BBB pru_*.* files to correct dir
-mv /usr/lib/linuxcnc/posix/* /usr/lib/linuxcnc/xenomai
-rmdir /usr/lib/linuxcnc/posix
-
+# make symlinks to BBB pru_*.*
+ln -s /usr/lib/linuxcnc/prubin/pru_generic.bin /usr/lib/linuxcnc/xenomai/pru_generic.bin
+ln -s /usr/lib/linuxcnc/prubin/pru_generic.dbg /usr/lib/linuxcnc/xenomai/pru_generic.dbg
+ln -s /usr/lib/linuxcnc/prubin/pru_decamux.bin /usr/lib/linuxcnc/xenomai/pru_decamux.bin
+ln -s /usr/lib/linuxcnc/prubin/pru_decamux.dbg /usr/lib/linuxcnc/xenomai/pru_decamux.dbg
