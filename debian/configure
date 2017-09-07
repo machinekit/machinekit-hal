@@ -199,7 +199,7 @@ echo "debian/rules:  copied base template" >&2
 #echo "debian/machinekit-hal-posix.install.in:  copied base template" >&2
 
 # read command line options - d is a dummy to stop args being req
-while getopts prxd:t:?h ARG; do
+while getopts csprxd:t:?h ARG; do
     case $ARG in
 	p) do_posix ;;
 	r) do_rt-preempt ;;
