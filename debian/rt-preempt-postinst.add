@@ -1,4 +1,6 @@
 
-# move the BBB pru_*.* to the correct dir
-mv /usr/lib/linuxcnc/posix/* /usr/lib/linuxcnc/rt-preempt
-rmdir /usr/lib/linuxcnc/posix
+# make symlinks to BBB pru_*.*
+ln -s /usr/lib/linuxcnc/prubin/pru_generic.bin /usr/lib/linuxcnc/rt-preempt/pru_generic.bin
+ln -s /usr/lib/linuxcnc/prubin/pru_generic.dbg /usr/lib/linuxcnc/rt-preempt/pru_generic.dbg
+ln -s /usr/lib/linuxcnc/prubin/pru_decamux.bin /usr/lib/linuxcnc/rt-preempt/pru_decamux.bin
+ln -s /usr/lib/linuxcnc/prubin/pru_decamux.dbg /usr/lib/linuxcnc/rt-preempt/pru_decamux.dbg
