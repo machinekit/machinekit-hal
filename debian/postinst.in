@@ -2,6 +2,7 @@
 # postinst script for machinekit-hal
 
 touch /var/log/linuxcnc.log
+chmod 666 /var/log/linuxcnc.log
 
 # restart services
 service udev restart 2>/dev/null || true
