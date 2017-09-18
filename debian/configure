@@ -88,9 +88,16 @@ do_tcl_tk_version() {
 }
 
 do_xenomai() {
+    if [[ $DISTRO_CODENAME == "stretch" ]] ; then
+	cat control.xenomai-stretch.in >> control
+	echo "debian/control:  added xenomai threads package for Stretch" >&2
+    else
+	cat control.xenomai.in >> control
+	echo "debian/control:  added xenomai threads package for Wheezy/Jessie" >&2
+    fi
+
     # Be sure the -dev files only appear once
     BUILD_DEPS="${BUILD_DEPS/libxenomai-dev, /}libxenomai-dev, "
-    cat control.xenomai.in >> control
     echo "debian/control:  added Xenomai (userland) threads package" \
 	"with Build-Depends:" >&2
     echo "    libxenomai-dev" >&2
@@ -190,13 +197,9 @@ fi
 cp postinst.in machinekit-hal-posix.postinst
 cp postinst.in machinekit-hal-rt-preempt.postinst
 cp postinst.in machinekit-hal-xenomai.postinst
-#cat postinst.in rt-preempt-postinst.add > machinekit-hal-rt-preempt.postinst
-#cat postinst.in xenomai-postinst.add > machinekit-hal-xenomai.postinst
 
 cp rules.in rules; chmod +x rules
 echo "debian/rules:  copied base template" >&2
-#cp machinekit-hal-posix.install.in machinekit-hal-posix.install
-#echo "debian/machinekit-hal-posix.install.in:  copied base template" >&2
 
 # read command line options - d is a dummy to stop args being req
 while getopts csprxd:t:?h ARG; do
