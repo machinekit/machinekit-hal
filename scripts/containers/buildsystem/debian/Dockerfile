@@ -42,7 +42,9 @@ RUN if test $DISTRO = stretch; then \
 # Set up debian/control for `mk-build-deps`
 #     FIXME download parts from upstream
 ADD debian/ /tmp/debian/
-RUN /tmp/debian/configure -prxt8.6
+# FIXME no Xenomai in Stretch
+# RUN /tmp/debian/configure -prxt8.6
+RUN /tmp/debian/configure -prt8.6
 
 # Add multistrap configurations
 ADD jessie.conf raspbian.conf stretch-rpi.conf stretch.conf /tmp/
