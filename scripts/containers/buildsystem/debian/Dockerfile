@@ -24,7 +24,7 @@ ENV PATH=/usr/lib/ccache:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/bin:$SYS_ROOT/
 
 # add Machinekit package archive
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 43DDF224
-RUN echo "deb http://deb.machinekit.io/debian jessie main" > \
+RUN echo "deb http://deb.machinekit.io/debian $DISTRO main" > \
         /etc/apt/sources.list.d/machinekit.list
 
 
