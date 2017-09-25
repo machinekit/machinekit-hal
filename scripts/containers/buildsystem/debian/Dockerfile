@@ -70,9 +70,11 @@ RUN apt-get update
 # Build "sysroot"
 # - Select and unpack build dependency packages
 RUN if test $DEBIAN_ARCH = amd64; then \
+        echo "Installing machinekit-build-deps package"; \
         apt-get install -y  -o Apt::Get::AllowUnauthenticated=true \
             machinekit-build-deps; \
     else \
+        echo "Multistrapping from /tmp/$DISTRO.conf"; \
         multistrap -f /tmp/$DISTRO.conf -a $DEBIAN_ARCH -d $SYS_ROOT; \
     fi
 # - Fix symlinks in "sysroot" libdir pointing to `/lib/$MULTIARCH`
