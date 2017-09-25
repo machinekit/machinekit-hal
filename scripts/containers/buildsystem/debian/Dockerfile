@@ -1,4 +1,4 @@
-FROM dovetailautomata/docker-cross-builder
+FROM zultron/docker-cross-builder:@DISTRO@
 MAINTAINER John Morris <john@zultron.com>
 
 ###################################################################
