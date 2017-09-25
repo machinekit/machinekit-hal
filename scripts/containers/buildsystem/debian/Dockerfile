@@ -45,7 +45,7 @@ ADD debian/ /tmp/debian/
 RUN /tmp/debian/configure -prxt8.6
 
 # Add multistrap configurations
-ADD $DISTRO.conf /tmp/
+ADD jessie.conf raspbian.conf stretch-rpi.conf stretch.conf /tmp/
 
 # Directory for `mk-build-deps` apt repository
 RUN mkdir /tmp/debs && \
