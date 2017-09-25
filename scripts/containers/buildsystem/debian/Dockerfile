@@ -55,7 +55,8 @@ RUN mkdir /tmp/debs && \
 RUN if test $DISTRO = jessie; then \
         mk-build-deps --arch $DEBIAN_ARCH /tmp/debian/control; \
     else \
-        mk-build-deps --host-arch $DEBIAN_ARCH /tmp/debian/control; \
+        mk-build-deps --build-arch $DEBIAN_ARCH --host-arch $DEBIAN_ARCH \
+	    /tmp/debian/control; \
     fi && \
     mv *.deb /tmp/debs && \
     ( cd /tmp/debs && dpkg-scanpackages -m . > /tmp/debs/Packages )
