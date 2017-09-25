@@ -24,11 +24,14 @@ ENV PATH=/usr/lib/ccache:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/bin:$SYS_ROOT/
 
 # add Machinekit package archive
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 43DDF224
-# FIXME for stretch
-RUN test $DISTRO = stretch || \
-    echo "deb http://deb.machinekit.io/debian $DISTRO main" > \
-        /etc/apt/sources.list.d/machinekit.list
-
+# FIXME temporary for stretch
+RUN if test $DISTRO = stretch; then \
+        echo "deb http://deb.mgware.co.uk $DISTRO main" > \
+            /etc/apt/sources.list.d/machinekit.list; \
+    else \
+	echo "deb http://deb.machinekit.io/debian jessie main" > \
+            /etc/apt/sources.list.d/machinekit.list; \
+    fi
 
 ###################################################################
 # Install Machinekit dependency packages
