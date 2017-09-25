@@ -47,7 +47,11 @@ RUN mkdir /tmp/debs && \
     touch /tmp/debs/Sources
 
 # Create deps package
-RUN mk-build-deps -a $DEBIAN_ARCH /tmp/debian/control && \
+RUN if test $DISTRO = jessie; then \
+        mk-build-deps --arch $DEBIAN_ARCH /tmp/debian/control; \
+    else \
+        mk-build-deps --host-arch $DEBIAN_ARCH /tmp/debian/control; \
+    fi && \
     mv *.deb /tmp/debs && \
     ( cd /tmp/debs && dpkg-scanpackages -m . > /tmp/debs/Packages )
 
