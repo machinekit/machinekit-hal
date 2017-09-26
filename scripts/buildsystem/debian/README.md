@@ -77,7 +77,7 @@ commands can help.  Run them from inside a container (see above).
 - Select the GitHub "mk-cross-builder" repo and "Create" it.
 - For each tag to be auto-built, enter the following:
   - Name: `master`
-  - Dockerfile Location:  `/dockerfiles/Dockerfile.$TAG`
+  - Dockerfile Location:  `/Dockerfile.$TAG`
   - Docker Tag Name: `$TAG`
 - "Save Changes"
 
