@@ -53,6 +53,15 @@ information, see that repo.
 	- Note that `-t amd64` is the default, and source package build is
       default only on `amd64`.  With no `-c`, 
 
+- Querying packages in the sysroot:
+
+        # Installed packages
+        dpkg-query --admindir=$DPKG_ROOT/var/lib/dpkg -p libczmq-dev
+
+        # Apt cache
+        apt-cache -o Dir::State=$DPKG_ROOT/var/lib/apt/ show libczmq-dev
+
+
 # Setting up automated builds
 
 - Create Github organization
