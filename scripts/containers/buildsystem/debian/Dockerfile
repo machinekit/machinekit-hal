@@ -9,6 +9,7 @@ env HOST_MULTIARCH=@HOST_MULTIARCH@
 env DISTRO_CODENAME=@DISTRO_CODENAME@
 env DISTRO_VER=@DISTRO_VER@
 env EXTRA_FLAGS=@EXTRA_FLAGS@
+env CONTAINER_REV=@CONTAINER_REV@
 
 ###################################################################
 # Generic apt configuration
