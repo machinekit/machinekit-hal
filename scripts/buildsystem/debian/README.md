@@ -67,6 +67,24 @@ commands can help.  Run them from inside a container (see above).
 
 # Setting up automated `mk-cross-builder` image builds
 
+- Fork this repo into a GitHub account
+- In the GitHub repo "Settings", "Integrations & Services" tab, from
+  the "Add Service" drop-down, select "Docker".
+- If you haven't already, create a hub.docker.com account and link it
+  with GitHub.
+- From the "Create" drop-down menu (upper right), select "Create
+  Automated Build".
+- Select the GitHub "mk-cross-builder" repo and "Create" it.
+- For each tag to be auto-built, enter the following:
+  - Name: `master`
+  - Dockerfile Location:  `/dockerfiles/Dockerfile.$TAG`
+  - Docker Tag Name: `$TAG`
+- "Save Changes"
+
+Now, either trigger builds with the "Build Settings" tab "Trigger"
+button on hub.docker.com, or else push new commits to the master
+branch on GitHub.
+
 # Setting up automated Machinekit builds
 
 - Create Github organization
