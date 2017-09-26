@@ -1,4 +1,4 @@
-FROM zultron/docker-cross-builder:@DISTRO@
+FROM @BASE_IMAGE@
 MAINTAINER John Morris <john@zultron.com>
 
 ###################################################################
@@ -29,12 +29,6 @@ RUN echo 'APT::Install-Recommends "0";\nAPT::Install-Suggests "0";' > \
 # use stable Debian mirror
 RUN sed -i /etc/apt/sources.list -e 's/httpredir.debian.org/ftp.debian.org/'
 
-# Stop `dpkg-gencontrol` warnings about flock
-RUN apt-get -y install \
-	libfile-fcntllock-perl \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
 ###################################################################
 # Add foreign arches and update OS
 
@@ -45,14 +39,14 @@ RUN dpkg --add-architecture i386
 # update Debian OS
 RUN apt-get update \
     && apt-get -y upgrade \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get clean
 
 ###################################################################
 # Install utility and dev packages
 
 # Utilities
 RUN apt-get -y install \
+	libfile-fcntllock-perl \
 	locales \
 	git \
 	bzip2 \
@@ -75,8 +69,7 @@ RUN apt-get -y install \
 	python-restkit \
 	python-apt \
 	rubygems \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get clean
 
 # Dev tools
 RUN apt-get install -y \
@@ -98,8 +91,7 @@ RUN apt-get install -y \
 	crossbuild-essential-armhf \
 	qemu-user-static \
 	linux-libc-dev:armhf \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get clean
 
 ###########################################
 # Packagecloud.io
@@ -132,7 +124,7 @@ ENV I386_HOST_MULTIARCH=i386-linux-gnu
 RUN mkdir $SYS_ROOT
 
 # Add multistrap configurations
-ADD multistrap-conf/ /tmp/
+ADD multistrap-configs/ /tmp/multistrap-configs/
 
 # Add `{dh_shlibdeps,dpkg-shlibdeps} --sysroot` argument
 ADD dpkg-shlibdeps.patch /tmp/
@@ -203,20 +195,18 @@ RUN if test $DEBIAN_ARCH = amd64; then \
 ##############################
 # Machinekit:  Host arch build environment
 
-# Build "sysroot"
-# - Select and unpack build dependency packages
-RUN if test $DEBIAN_ARCH = amd64; then \
-        echo "Installing native arch machinekit-build-deps package"; \
+# Native arch:  Install build dependencies
+RUN test $DEBIAN_ARCH != amd64 || { \
         apt-get install -y  -o Apt::Get::AllowUnauthenticated=true \
             machinekit-build-deps \
-	&& apt-get clean \
-	&& rm -rf /var/lib/apt/lists/*; \
-    else \
-        echo "Multistrapping from" \
-	    "/tmp/multistrap-configs/$DISTRO_CODENAME.conf"; \
-        multistrap -f /tmp/multistrap-configs/$DISTRO_CODENAME.conf \
-	    -a $DEBIAN_ARCH -d $SYS_ROOT; \
-    fi
+	&& apt-get clean; \
+    }
+
+# Foreign arch:  Build "sysroot"
+# - Select and unpack build dependency packages
+RUN test $DEBIAN_ARCH = amd64 \
+    || multistrap -f /tmp/multistrap-configs/$DISTRO_CODENAME.conf \
+	-a $DEBIAN_ARCH -d $SYS_ROOT
 # - Fix symlinks in "sysroot" libdir pointing to `/lib/$MULTIARCH`
 RUN if ! test $DEBIAN_ARCH = amd64; then \
         for link in $(find $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/ -type l); do \
@@ -257,9 +247,8 @@ RUN apt-get install -y \
         netcat-openbsd \
         tcl8.6 tk8.6 \
     && { test $DISTRO_CODENAME != jessie \
-         || apt-get install -y libxenomai-dev } \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+         || apt-get install -y libxenomai-dev; } \
+    && apt-get clean
 
 # Monkey-patch entire /usr/include, and re-add build-arch headers
 RUN test $DEBIAN_ARCH = amd64 || { \

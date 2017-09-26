@@ -1,59 +1,62 @@
 # Machinekit Cross-Builder
 
-This builds a Docker image containing `multistrap` system root trees
-for Debian Jessie `armhf` and `i386` architectures, with tools in the
-native system to cross-build Machinekit packages.
-
-The image is based on the [`docker-cross-builder` image][1].  For more
-information, see that repo.
-
-[1]: https://github.com/Dovetail-Automata/docker-cross-builder
+This builds Debian Docker images with tools and dependencies for
+building/cross-building Machinekit packages.  For cross-building
+`armhf` and `i386` architectures, the image contains a `multistrap`
+system root tree, and for native `amd64` builds the image contains
+needed dependencies and tools in the root filesystem.
 
 ## Using the builder
 
-- Pull/build desired Docker image: `amd64`, `i386`, `armhf`,
-  `raspbian`
+- Determine the 'tag' for the desired architecture and distro
+  combination.  The format is `$ARCH_$DISTRO`, where `$ARCH` may be
+  one of `amd64`, `i386`, `armhf`, `raspbian`; `$DISTRO` may be one of
+  `8` for Jessie, `9` for Stretch; e.g. `armhf_9`.
 
-  - Pull:
+- Pull or build desired Docker image `$TAG`:
 
-        # Pull image, `armhf` tag, from Docker Hub
-        docker pull dovetailautomata/mk-cross-builder:armhf
+  - Pull a pre-built image:
 
-  - Build from `Dockerfile`:
+        # Pull image, `armhf_9` tag, from Docker Hub
+        docker pull zultron/mk-cross-builder:$TAG
+
+  - Or, build from `Dockerfile`:
 
         # Clone this repository; `cd` into the directory
-        git clone https://github.com/Dovetail-Automata/mk-cross-builder.git
+        git clone https://github.com/zultron/mk-cross-builder.git
         cd mk-cross-builder
 
-        # Build Docker image for `armhf`
-        ./mk-cross-builder.sh build armhf
+        # Build Docker image
+        ./mk-cross-builder.sh build $TAG
 
-- To build Machinekit in a Docker container with cross-build tools:
-  see Machinekit repo `scripts/build_docker`; from the Machinekit base
-  directory:
+- To build Machinekit in a Docker container with cross-build tools,
+  `cd` into a Machinekit source tree:
 
-        # Build source packages and amd64 binary packages
-		scripts/build_docker -t amd64 -c deb
+        # Build source packages and amd64 binary packages for Stretch
+		scripts/build_docker -t amd64_9 -c deb
 
-		# Build amd64 binary-only packages (no source)
-		scripts/build_docker -t amd64 -c deb -n
+		# Build amd64 binary-only packages (no source) for Wheezy
+		scripts/build_docker -t amd64_8 -c deb -n
 
 		# Build amd64 (default) RIP build with regression tests
 		scripts/build_docker -c test
 
-		# Build armhf binary-only packages
-		scripts/build_docker -t armhf -c deb
+		# Build armhf binary-only packages for Stretch
+		scripts/build_docker -t armhf_9 -c deb
 
-	    # Interactive shell in raspbian cross-builder
-        scripts/build_docker -t raspbian
+	    # Interactive shell in raspbian/Stretch container
+        scripts/build_docker -t raspbian_9
 
-		# Run command in `armhf`
-		scripts/build_docker bash -c 'echo $HOST_MULTIARCH'
+		# Run command in `armhf_9` container
+		scripts/build_docker -t armhf_9 bash -c 'echo $HOST_MULTIARCH'
 
-	- Note that `-t amd64` is the default, and source package build is
-      default only on `amd64`.  With no `-c`, 
+	- Note that source packages are only built by default on
+      `amd64_*`, the native architecture.
 
 - Querying packages in the sysroot:
+
+Knowing what's in the multistrap filesystem can be difficult.  These
+commands can help.  Run them from inside a container (see above).
 
         # Installed packages
         dpkg-query --admindir=$DPKG_ROOT/var/lib/dpkg -p libczmq-dev
@@ -62,7 +65,9 @@ information, see that repo.
         apt-cache -o Dir::State=$DPKG_ROOT/var/lib/apt/ show libczmq-dev
 
 
-# Setting up automated builds
+# Setting up automated `mk-cross-builder` image builds
+
+# Setting up automated Machinekit builds
 
 - Create Github organization
   - In GitHub account:  Create organization, e.g. `my-mk-pkgs`
