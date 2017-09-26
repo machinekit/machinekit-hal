@@ -6,7 +6,8 @@ MAINTAINER John Morris <john@zultron.com>
 
 env DEBIAN_ARCH=@DEBIAN_ARCH@
 env HOST_MULTIARCH=@HOST_MULTIARCH@
-env DISTRO=@DISTRO@
+env DISTRO_CODENAME=@DISTRO_CODENAME@
+env DISTRO_VER=@DISTRO_VER@
 env EXTRA_FLAGS=@EXTRA_FLAGS@
 
 ###################################################################
@@ -155,11 +156,11 @@ RUN for i in /usr/bin/i586-linux-gnu-*; do \
 # add Machinekit package archive
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 43DDF224
 # FIXME temporary for stretch
-RUN if test $DISTRO = stretch; then \
-        echo "deb http://deb.mgware.co.uk $DISTRO main" > \
+RUN if test $DISTRO_CODENAME = stretch; then \
+        echo "deb http://deb.mgware.co.uk $DISTRO_CODENAME main" > \
             /etc/apt/sources.list.d/machinekit.list; \
     else \
-	echo "deb http://deb.machinekit.io/debian $DISTRO main" > \
+	echo "deb http://deb.machinekit.io/debian $DISTRO_CODENAME main" > \
             /etc/apt/sources.list.d/machinekit.list; \
     fi
 
@@ -172,7 +173,7 @@ RUN if test $DISTRO = stretch; then \
 # Set up debian/control for `mk-build-deps`
 #     FIXME download parts from upstream
 ADD debian/ /tmp/debian/
-RUN if test $DISTRO = stretch; then \
+RUN if test $DISTRO_CODENAME = stretch; then \
 	/tmp/debian/configure -prt8.6; \
     else \
 	/tmp/debian/configure -prxt8.6; \
@@ -183,7 +184,7 @@ RUN mkdir /tmp/debs && \
     touch /tmp/debs/Sources
 
 # Create deps package and local package repo
-RUN if test $DISTRO = jessie; then \
+RUN if test $DISTRO_CODENAME = jessie; then \
         mk-build-deps --arch $DEBIAN_ARCH /tmp/debian/control; \
     else \
         mk-build-deps --build-arch $DEBIAN_ARCH --host-arch $DEBIAN_ARCH \
@@ -211,8 +212,9 @@ RUN if test $DEBIAN_ARCH = amd64; then \
 	&& apt-get clean \
 	&& rm -rf /var/lib/apt/lists/*; \
     else \
-        echo "Multistrapping from /tmp/multistrap-configs/$DISTRO.conf"; \
-        multistrap -f /tmp/multistrap-configs/$DISTRO.conf \
+        echo "Multistrapping from" \
+	    "/tmp/multistrap-configs/$DISTRO_CODENAME.conf"; \
+        multistrap -f /tmp/multistrap-configs/$DISTRO_CODENAME.conf \
 	    -a $DEBIAN_ARCH -d $SYS_ROOT; \
     fi
 # - Fix symlinks in "sysroot" libdir pointing to `/lib/$MULTIARCH`
@@ -254,7 +256,8 @@ RUN apt-get install -y \
         python-tk \
         netcat-openbsd \
         tcl8.6 tk8.6 \
-    && { test $DISTRO != jessie || apt-get install -y libxenomai-dev } \
+    && { test $DISTRO_CODENAME != jessie \
+         || apt-get install -y libxenomai-dev } \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
