@@ -123,9 +123,9 @@ ADD packagecloud/PackagecloudIo.py /usr/lib/python2.7
 ###################################################################
 # Build environment
 
-ENV CPPFLAGS="${SYS_ROOT:---sysroot=$SYS_ROOT ${EXTRA_FLAGS}}"
-ENV LDFLAGS="${SYS_ROOT:---sysroot=$SYS_ROOT ${EXTRA_FLAGS}}"
-ENV PKG_CONFIG_PATH="${SYS_ROOT:-$SYS_ROOT/usr/lib/$HOST_MULTIARCH/pkgconfig:$SYS_ROOT/usr/lib/pkgconfig:$SYS_ROOT/usr/share/pkgconfig}"
+ENV CPPFLAGS="${SYS_ROOT:+--sysroot=$SYS_ROOT ${EXTRA_FLAGS}}"
+ENV LDFLAGS="${SYS_ROOT:+--sysroot=$SYS_ROOT ${EXTRA_FLAGS}}"
+ENV PKG_CONFIG_PATH="${SYS_ROOT:+$SYS_ROOT/usr/lib/$HOST_MULTIARCH/pkgconfig:$SYS_ROOT/usr/lib/pkgconfig:$SYS_ROOT/usr/share/pkgconfig}"
 ENV DPKG_ROOT=$SYS_ROOT
 
 # armhf build root environment
