@@ -192,10 +192,10 @@ RUN if test $DISTRO_CODENAME = stretch; then \
 # Set up debian/control for `mk-build-deps`
 #     FIXME download parts from upstream
 ADD debian/ /tmp/debian/
-RUN if test $DISTRO_CODENAME = stretch; then \
-	/tmp/debian/configure -prt8.6; \
-    else \
+RUN if test $DISTRO_VER = 8; then \
 	/tmp/debian/configure -prxt8.6; \
+    else \
+	/tmp/debian/configure -prt8.6; \
     fi
 
 # Directory for `mk-build-deps` apt repository
