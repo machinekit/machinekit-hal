@@ -40,7 +40,7 @@ RUN dpkg --add-architecture i386
 
 # add emdebian package archive, Jessie only
 ADD emdebian-toolchain-archive.key /tmp/
-RUN test $DISTRO_CODENAME != jessie || { \
+RUN test $DISTRO_VER -gt 8 || { \
 	apt-key add /tmp/emdebian-toolchain-archive.key && \
 	echo "deb http://emdebian.org/tools/debian/ jessie main" > \
 	    /etc/apt/sources.list.d/emdebian.list; \
@@ -100,7 +100,7 @@ RUN apt-get install -y \
 	crossbuild-essential-armhf \
 	qemu-user-static \
 	linux-libc-dev:armhf \
-    && if test $DISTRO_CODENAME = jessie; then \
+    && if test $DISTRO_VER -eq 8; then \
         apt-get install -y \
 	    binutils-i586-linux-gnu \
 	    gcc-4.9-multilib \
@@ -165,7 +165,7 @@ RUN for i in /usr/bin/i586-linux-gnu-*; do \
     done
 
 # Symlink armhf-arch pkg-config, Jessie only
-RUN test $DISTRO_CODENAME != jessie \
+RUN test $DISTRO_VER -gt 8 \
     || ln -s pkg-config /usr/bin/${ARM_HOST_MULTIARCH}-pkg-config
 
 
@@ -203,7 +203,7 @@ RUN mkdir /tmp/debs && \
     touch /tmp/debs/Sources
 
 # Create deps package and local package repo
-RUN if test $DISTRO_CODENAME = jessie; then \
+RUN if test $DISTRO_VER -eq 8; then \
         mk-build-deps --arch $DEBIAN_ARCH /tmp/debian/control; \
     else \
         mk-build-deps --build-arch $DEBIAN_ARCH --host-arch $DEBIAN_ARCH \
@@ -277,7 +277,7 @@ RUN apt-get install -y \
         python-tk \
         netcat-openbsd \
         tcl8.6 tk8.6 \
-    && { test $DISTRO_CODENAME != jessie \
+    && { test $DISTRO_VER -gt 8 \
          || apt-get install -y libxenomai-dev; } \
     && apt-get clean
 
