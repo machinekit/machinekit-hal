@@ -146,7 +146,7 @@ ADD multistrap-configs/ /tmp/multistrap-configs/
 # Add `{dh_shlibdeps,dpkg-shlibdeps} --sysroot` argument
 ADD dpkg-shlibdeps-*.patch /tmp/
 RUN cd / && \
-    patch -p0 -F 0 -N < /tmp/dpkg-shlibdeps-$DISTRO_CODENAME.patch && \
+    patch -p0 -F 0 -N < /tmp/dpkg-shlibdeps-$DISTRO_VER.patch && \
     rm /tmp/dpkg-shlibdeps-*.patch
 # Help dpkg-shlibdeps find i386 libraries
 RUN test -z "$SYS_ROOT" \
