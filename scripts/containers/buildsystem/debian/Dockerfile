@@ -4,12 +4,13 @@ MAINTAINER John Morris <john@zultron.com>
 ###################################################################
 # Build configuration settings
 
-env DEBIAN_ARCH=@DEBIAN_ARCH@
-env HOST_MULTIARCH=@HOST_MULTIARCH@
-env DISTRO_CODENAME=@DISTRO_CODENAME@
-env DISTRO_VER=@DISTRO_VER@
-env EXTRA_FLAGS=@EXTRA_FLAGS@
-env CONTAINER_REV=@CONTAINER_REV@
+ENV DEBIAN_ARCH=@DEBIAN_ARCH@
+ENV HOST_MULTIARCH=@HOST_MULTIARCH@
+ENV DISTRO_CODENAME=@DISTRO_CODENAME@
+ENV DISTRO_VER=@DISTRO_VER@
+ENV EXTRA_FLAGS=@EXTRA_FLAGS@
+ENV CONTAINER_REV=@CONTAINER_REV@
+ENV SYS_ROOT=@SYS_ROOT@
 
 ###################################################################
 # Generic apt configuration
@@ -36,6 +37,14 @@ RUN sed -i /etc/apt/sources.list -e 's/httpredir.debian.org/ftp.debian.org/'
 # add foreign architectures
 RUN dpkg --add-architecture armhf
 RUN dpkg --add-architecture i386
+
+# add emdebian package archive, Jessie only
+ADD emdebian-toolchain-archive.key /tmp/
+RUN test $DISTRO_CODENAME != jessie || { \
+	apt-key add /tmp/emdebian-toolchain-archive.key && \
+	echo "deb http://emdebian.org/tools/debian/ jessie main" > \
+	    /etc/apt/sources.list.d/emdebian.list; \
+    }
 
 # update Debian OS
 RUN apt-get update \
@@ -88,10 +97,18 @@ RUN apt-get install -y \
 	quilt \
 	psmisc \
 	pkg-config \
-	binutils-multiarch \
 	crossbuild-essential-armhf \
 	qemu-user-static \
 	linux-libc-dev:armhf \
+    && if test $DISTRO_CODENAME = jessie; then \
+        apt-get install -y \
+	    binutils-i586-linux-gnu \
+	    gcc-4.9-multilib \
+	    g++-4.9-multilib; \
+    else \
+        apt-get install -y \
+	    binutils-multiarch; \
+    fi \
     && apt-get clean
 
 ###########################################
@@ -106,10 +123,9 @@ ADD packagecloud/PackagecloudIo.py /usr/lib/python2.7
 ###################################################################
 # Build environment
 
-ENV SYS_ROOT=/sysroot
-ENV CPPFLAGS="--sysroot=$SYS_ROOT ${EXTRA_FLAGS}"
-ENV LDFLAGS="--sysroot=$SYS_ROOT ${EXTRA_FLAGS}"
-ENV PKG_CONFIG_PATH="$SYS_ROOT/usr/lib/$HOST_MULTIARCH/pkgconfig:$SYS_ROOT/usr/lib/pkgconfig:$SYS_ROOT/usr/share/pkgconfig"
+ENV CPPFLAGS="${SYS_ROOT:---sysroot=$SYS_ROOT ${EXTRA_FLAGS}}"
+ENV LDFLAGS="${SYS_ROOT:---sysroot=$SYS_ROOT ${EXTRA_FLAGS}}"
+ENV PKG_CONFIG_PATH="${SYS_ROOT:-$SYS_ROOT/usr/lib/$HOST_MULTIARCH/pkgconfig:$SYS_ROOT/usr/lib/pkgconfig:$SYS_ROOT/usr/share/pkgconfig}"
 ENV DPKG_ROOT=$SYS_ROOT
 
 # armhf build root environment
@@ -122,25 +138,35 @@ ENV I386_HOST_MULTIARCH=i386-linux-gnu
 # Monkey-patches and multistrap setup
 
 # Create sysroot directory
-RUN mkdir $SYS_ROOT
+RUN test -z "$SYS_ROOT" || mkdir $SYS_ROOT
 
 # Add multistrap configurations
 ADD multistrap-configs/ /tmp/multistrap-configs/
 
 # Add `{dh_shlibdeps,dpkg-shlibdeps} --sysroot` argument
-ADD dpkg-shlibdeps.patch /tmp/
+ADD dpkg-shlibdeps-*.patch /tmp/
 RUN cd / && \
-    patch -p0 -F 0 -N < /tmp/dpkg-shlibdeps.patch && \
-    rm /tmp/dpkg-shlibdeps.patch
+    patch -p0 -F 0 -N < /tmp/dpkg-shlibdeps-$DISTRO_CODENAME.patch && \
+    rm /tmp/dpkg-shlibdeps-*.patch
 # Help dpkg-shlibdeps find i386 libraries
-RUN mkdir -p ${SYS_ROOT}/usr/lib/ && \
-    ln -s ${I386_HOST_MULTIARCH} ${SYS_ROOT}/usr/lib/i586-linux-gnu
-RUN mkdir -p ${SYS_ROOT}/etc && \
-    cp /etc/ld.so.conf ${SYS_ROOT}/etc/ld.so.conf
+RUN test -z "$SYS_ROOT" \
+    || { \
+        mkdir -p ${SYS_ROOT}/usr/lib/ \
+        && ln -s ${I386_HOST_MULTIARCH} ${SYS_ROOT}/usr/lib/i586-linux-gnu; \
+    }
+RUN test -z "$SYS_ROOT" \
+    || { \
+        mkdir -p ${SYS_ROOT}/etc \
+        && cp /etc/ld.so.conf ${SYS_ROOT}/etc/ld.so.conf; \
+    }
 # Symlink i586 binutils to i386 so ./configure can find them
 RUN for i in /usr/bin/i586-linux-gnu-*; do \
 	ln -s $(basename $i) $(echo $i | sed 's/i586/i386/'); \
     done
+
+# Symlink armhf-arch pkg-config, Jessie only
+RUN test $DISTRO_CODENAME != jessie \
+    || ln -s pkg-config /usr/bin/${ARM_HOST_MULTIARCH}-pkg-config
 
 
 ###################################################################
@@ -197,7 +223,8 @@ RUN if test $DEBIAN_ARCH = amd64; then \
 # Machinekit:  Host arch build environment
 
 # Native arch:  Install build dependencies
-RUN test $DEBIAN_ARCH != amd64 || { \
+RUN test -n "$SYS_ROOT" \
+    || { \
         apt-get install -y  -o Apt::Get::AllowUnauthenticated=true \
             machinekit-build-deps \
 	&& apt-get clean; \
@@ -205,20 +232,22 @@ RUN test $DEBIAN_ARCH != amd64 || { \
 
 # Foreign arch:  Build "sysroot"
 # - Select and unpack build dependency packages
-RUN test $DEBIAN_ARCH = amd64 \
+RUN test -z "$SYS_ROOT" \
     || multistrap -f /tmp/multistrap-configs/$DISTRO_CODENAME.conf \
 	-a $DEBIAN_ARCH -d $SYS_ROOT
 # - Fix symlinks in "sysroot" libdir pointing to `/lib/$MULTIARCH`
-RUN if ! test $DEBIAN_ARCH = amd64; then \
+RUN test -z "$SYS_ROOT" \
+    || { \
         for link in $(find $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/ -type l); do \
             if test $(dirname $(readlink $link)) != .; then \
                 ln -sf ../../../lib/${HOST_MULTIARCH}/$(basename \
                     $(readlink $link)) $link; \
             fi; \
         done; \
-    fi
+    }
 # - Link tcl/tk setup scripts
-RUN test $DEBIAN_ARCH = amd64 || { \
+RUN test -z "$SYS_ROOT" \
+    || { \
         mkdir -p /usr/lib/${HOST_MULTIARCH} && \
         ln -s $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/tcl8.6 \
             /usr/lib/${HOST_MULTIARCH} && \
@@ -227,8 +256,9 @@ RUN test $DEBIAN_ARCH = amd64 || { \
     }
 
 # - Link directories with glib/gtk includes in the wrong place
-RUN test $DEBIAN_ARCH = amd64 || { \
-	ln -s $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/glib-2.0 \
+RUN test -z "$SYS_ROOT" \
+    || { \
+        ln -s $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/glib-2.0 \
 	    /usr/lib/${HOST_MULTIARCH}; \
 	ln -s $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/gtk-2.0 \
 	    /usr/lib/${HOST_MULTIARCH}; \
@@ -252,7 +282,8 @@ RUN apt-get install -y \
     && apt-get clean
 
 # Monkey-patch entire /usr/include, and re-add build-arch headers
-RUN test $DEBIAN_ARCH = amd64 || { \
+RUN test -z "$SYS_ROOT" \
+    || { \
         mv /usr/include /usr/include.build && \
         ln -s $SYS_ROOT/usr/include /usr/include; \
 	ln -sf /usr/include.build/x86_64-linux-gnu $SYS_ROOT/usr/include; \
