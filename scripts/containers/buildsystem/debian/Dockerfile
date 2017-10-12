@@ -159,6 +159,10 @@ RUN test -z "$SYS_ROOT" \
         mkdir -p ${SYS_ROOT}/etc \
         && cp /etc/ld.so.conf ${SYS_ROOT}/etc/ld.so.conf; \
     }
+# Help dpkg-shlibdeps find libs
+RUN test -z "$SYS_ROOT" \
+    || echo "/lib/arm-linux-gnueabihf\n/usr/lib/arm-linux-gnueabihf" \
+        > /etc/ld.so.conf.d/${HOST_MULTIARCH}.conf
 # Symlink i586 binutils to i386 so ./configure can find them
 RUN for i in /usr/bin/i586-linux-gnu-*; do \
 	ln -s $(basename $i) $(echo $i | sed 's/i586/i386/'); \
