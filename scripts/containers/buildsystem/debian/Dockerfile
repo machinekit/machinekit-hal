@@ -113,11 +113,12 @@ RUN apt-get install -y \
 ###########################################
 # Packagecloud.io
 
-# Add packagecloud cli and prune utility
-RUN gem install package_cloud --no-rdoc --no-ri
-ADD packagecloud/packagecloud-prune.py /usr/bin/packagecloud-prune
-ADD packagecloud/packagecloud-upload.sh /usr/bin/packagecloud-upload
-ADD packagecloud/PackagecloudIo.py /usr/lib/python2.7
+# FIXME this began failing in Stretch
+# # Add packagecloud cli and prune utility
+# RUN gem install package_cloud --no-rdoc --no-ri
+# ADD packagecloud/packagecloud-prune.py /usr/bin/packagecloud-prune
+# ADD packagecloud/packagecloud-upload.sh /usr/bin/packagecloud-upload
+# ADD packagecloud/PackagecloudIo.py /usr/lib/python2.7
 
 ###################################################################
 # Build environment
