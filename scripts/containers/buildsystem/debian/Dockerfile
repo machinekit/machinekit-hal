@@ -9,7 +9,6 @@ ENV HOST_MULTIARCH=@HOST_MULTIARCH@
 ENV DISTRO_CODENAME=@DISTRO_CODENAME@
 ENV DISTRO_VER=@DISTRO_VER@
 ENV EXTRA_FLAGS=@EXTRA_FLAGS@
-ENV CONTAINER_REV=@CONTAINER_REV@
 ENV SYS_ROOT=@SYS_ROOT@
 
 ###################################################################
@@ -308,6 +307,8 @@ ENV SHELL=/bin/bash
 ENV PATH=/usr/lib/ccache:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/bin
 RUN echo "${USER}:x:${UID}:${GID}::${HOME}:${SHELL}" >> /etc/passwd
 RUN echo "${USER}:x:${GID}:" >> /etc/group
+# Put this last so the Docker cache isn't dirtied constantly
+ENV CONTAINER_REV=@CONTAINER_REV@
 
 # Customize the run environment to your taste
 # - bash prompt
