@@ -10,7 +10,7 @@ needed dependencies and tools in the root filesystem.
 
 - Determine the 'tag' for the desired architecture and distro
   combination.  The format is `$ARCH_$DISTRO`, where `$ARCH` may be
-  one of `amd64`, `i386`, `armhf`, `raspbian`; `$DISTRO` may be one of
+  one of `amd64`, `i386`, `armhf`; `$DISTRO` may be one of
   `8` for Jessie, `9` for Stretch; e.g. `armhf_9`.
 
 - Pull or build desired Docker image `$TAG`:
@@ -43,9 +43,6 @@ needed dependencies and tools in the root filesystem.
 
 		# Build armhf binary-only packages for Stretch
 		scripts/build_docker -t armhf_9 -c deb
-
-	    # Interactive shell in raspbian/Stretch container
-        scripts/build_docker -t raspbian_9
 
 		# Run command in `armhf_9` container
 		scripts/build_docker -t armhf_9 bash -c 'echo $HOST_MULTIARCH'
