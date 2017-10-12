@@ -36,7 +36,7 @@ def config_dir(tmpdir):
 
 
 def test_reading_single_launcher_file_works(context, single_launcher_file):
-    launcher = Mklauncher(context, launcherDirs=single_launcher_file)
+    launcher = Mklauncher(context, launcher_dirs=single_launcher_file)
 
     launchers = launcher.container.launcher
     assert len(launchers) == 1
@@ -63,7 +63,6 @@ def test_reading_launcher_importances_works(valid_importance_file):
 
     importances.load()
 
-    print(importances._importances)
     assert importances['/foo/bar/baz:myconfig'] == 10
     assert importances['/foo/bar/baz:anotherconfig'] == 2
 
@@ -86,6 +85,37 @@ def test_writing_launcher_importances_works(tmpdir):
     assert 'another_config = 0' in data
 
 
+def test_rewriting_launcher_importances_works(valid_importance_file):
+    importances = LauncherImportance(valid_importance_file)
+
+    importances.load()
+    importances['/foo/bar/baz:myconfig'] = 8
+    importances.save()
+
+    assert os.path.exists(valid_importance_file)
+    with open(valid_importance_file) as save_file:
+        data = save_file.read()
+        assert '[/foo/bar/baz]' in data
+        assert 'myconfig = 8' in data
+
+
+def test_regression_paths_with_dot_cause_problems(tmpdir):
+    save_file = tmpdir.join('test/output.ini')
+    importances = LauncherImportance(str(save_file))
+
+    importances['./foo/bar/:config1'] = 10
+    importances['.:config1'] = 2
+    importances.save()
+    importances.load()
+    importances['./foo/bar/:config1'] == 3
+    importances.save()
+
+    assert os.path.exists(str(save_file))
+    data = save_file.read()
+    assert '[./foo/bar/]' in data
+    assert 'config1 = 3' not in data  # ConfigParser causes problems with . in the section name
+
+
 def test_reading_launcher_importances_with_non_existing_file_does_not_throw_error(tmpdir):
     save_file = tmpdir.join('save.ini')
     importances = LauncherImportance(str(save_file))
@@ -94,7 +124,7 @@ def test_reading_launcher_importances_with_non_existing_file_does_not_throw_erro
 
 
 def test_updating_launcher_importance_works(context, single_launcher_file, config_dir):
-    launcher = Mklauncher(context, launcherDirs=single_launcher_file, config_dir=config_dir)
+    launcher = Mklauncher(context, launcher_dirs=single_launcher_file, config_dir=config_dir)
 
     from machinetalk.protobuf.config_pb2 import Launcher
     msg = Launcher()
