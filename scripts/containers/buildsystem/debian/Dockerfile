@@ -267,7 +267,7 @@ RUN test -z "$SYS_ROOT" \
 RUN test -z "$SYS_ROOT" \
     || { \
         ln -s $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/glib-2.0 \
-	    /usr/lib/${HOST_MULTIARCH}; \
+	    /usr/lib/${HOST_MULTIARCH} && \
 	ln -s $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/gtk-2.0 \
 	    /usr/lib/${HOST_MULTIARCH}; \
     }
@@ -295,7 +295,7 @@ RUN apt-get install -y \
 RUN test -z "$SYS_ROOT" \
     || { \
         mv /usr/include /usr/include.build && \
-        ln -s $SYS_ROOT/usr/include /usr/include; \
+        ln -s $SYS_ROOT/usr/include /usr/include && \
 	ln -sf /usr/include.build/x86_64-linux-gnu $SYS_ROOT/usr/include; \
     }
 
