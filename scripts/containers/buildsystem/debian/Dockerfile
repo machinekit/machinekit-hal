@@ -4,13 +4,13 @@ MAINTAINER John Morris <john@zultron.com>
 ###################################################################
 # Build configuration settings
 
-ENV DEBIAN_ARCH=@DEBIAN_ARCH@
-ENV HOST_MULTIARCH=@HOST_MULTIARCH@
-ENV DISTRO_CODENAME=@DISTRO_CODENAME@
-ENV DISTRO_VER=@DISTRO_VER@
-ENV EXTRA_FLAGS=@EXTRA_FLAGS@
-ENV SYS_ROOT=@SYS_ROOT@
-ENV LDEMULATION=@LDEMULATION@
+@ENV_DEBIAN_ARCH@
+@ENV_HOST_MULTIARCH@
+@ENV_DISTRO_CODENAME@
+@ENV_DISTRO_VER@
+@ENV_SYS_ROOT@
+@ENV_EXTRA_FLAGS@
+@ENV_LDEMULATION@
 
 ###################################################################
 # Generic apt configuration
