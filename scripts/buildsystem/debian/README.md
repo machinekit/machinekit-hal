@@ -35,7 +35,7 @@ needed dependencies and tools in the root filesystem.
         # Build source packages and amd64 binary packages for Stretch
 		scripts/build_docker -t amd64_9 -c deb
 
-		# Build amd64 binary-only packages (no source) for Wheezy
+		# Build amd64 binary-only packages (no source) for Jessie
 		scripts/build_docker -t amd64_8 -c deb -n
 
 		# Build amd64 (default) RIP build with regression tests
