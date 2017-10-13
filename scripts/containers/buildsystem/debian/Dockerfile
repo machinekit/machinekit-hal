@@ -10,6 +10,7 @@ ENV DISTRO_CODENAME=@DISTRO_CODENAME@
 ENV DISTRO_VER=@DISTRO_VER@
 ENV EXTRA_FLAGS=@EXTRA_FLAGS@
 ENV SYS_ROOT=@SYS_ROOT@
+ENV LDEMULATION=@LDEMULATION@
 
 ###################################################################
 # Generic apt configuration
