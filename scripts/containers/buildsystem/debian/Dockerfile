@@ -165,6 +165,12 @@ RUN test $DISTRO_VER -gt 8 || \
     for i in /usr/bin/i586-linux-gnu-*; do \
 	ln -s $(basename $i) $(echo $i | sed 's/i586/i386/'); \
     done
+# Give dh_strip the multiarch utility names it needs
+RUN test $DISTRO_VER -eq 8 || { \
+        ln -s x86_64-linux-gnu-objcopy /usr/bin/i686-linux-gnu-objcopy && \
+        ln -s x86_64-linux-gnu-objdump /usr/bin/i686-linux-gnu-objdump && \
+        ln -s x86_64-linux-gnu-strip /usr/bin/i686-linux-gnu-strip; \
+    }
 
 # Symlink armhf-arch pkg-config, Jessie only
 RUN test $DISTRO_VER -gt 8 \
