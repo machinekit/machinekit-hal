@@ -99,17 +99,23 @@ RUN apt-get install -y \
 	pkg-config \
 	crossbuild-essential-armhf \
 	qemu-user-static \
-	linux-libc-dev:armhf \
-    && if test $DISTRO_VER -eq 8; then \
-        apt-get install -y \
+	linux-libc-dev:armhf
+# - amd64 -> i386 multiarch/multilib compiles
+RUN test $DISTRO_VER -gt 8 \
+    ||{ apt-get install -y \
 	    binutils-i586-linux-gnu \
 	    gcc-4.9-multilib \
-	    g++-4.9-multilib; \
-    else \
-        apt-get install -y \
-	    binutils-multiarch; \
-    fi \
-    && apt-get clean
+	    g++-4.9-multilib \
+	&& apt-get clean; \
+    }
+RUN test $DISTRO_VER -eq 8 \
+    ||{ apt-get install -y \
+	    binutils-multiarch \
+	    gcc-6-multilib \
+	    g++-6-multilib \
+	    libgcc-6-dev:$DEBIAN_ARCH \
+        && apt-get clean; \
+    }
 
 ###########################################
 # Packagecloud.io
@@ -149,23 +155,14 @@ ADD dpkg-shlibdeps-*.patch /tmp/
 RUN cd / && \
     patch -p0 -F 0 -N < /tmp/dpkg-shlibdeps-$DISTRO_VER.patch && \
     rm /tmp/dpkg-shlibdeps-*.patch
-# Help dpkg-shlibdeps find i386 libraries
-RUN test -z "$SYS_ROOT" \
-    || { \
-        mkdir -p ${SYS_ROOT}/usr/lib/ \
-        && ln -s ${I386_HOST_MULTIARCH} ${SYS_ROOT}/usr/lib/i586-linux-gnu; \
-    }
 RUN test -z "$SYS_ROOT" \
     || { \
         mkdir -p ${SYS_ROOT}/etc \
         && cp /etc/ld.so.conf ${SYS_ROOT}/etc/ld.so.conf; \
     }
-# Help dpkg-shlibdeps find libs
-RUN test -z "$SYS_ROOT" \
-    || echo "/lib/arm-linux-gnueabihf\n/usr/lib/arm-linux-gnueabihf" \
-        > /etc/ld.so.conf.d/${HOST_MULTIARCH}.conf
 # Symlink i586 binutils to i386 so ./configure can find them
-RUN for i in /usr/bin/i586-linux-gnu-*; do \
+RUN test $DISTRO_VER -gt 8 || \
+    for i in /usr/bin/i586-linux-gnu-*; do \
 	ln -s $(basename $i) $(echo $i | sed 's/i586/i386/'); \
     done
 
