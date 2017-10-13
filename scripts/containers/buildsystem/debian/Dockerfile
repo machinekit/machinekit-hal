@@ -272,6 +272,10 @@ RUN test -z "$SYS_ROOT" \
 	    /usr/lib/${HOST_MULTIARCH}; \
     }
 
+# - Link `xeno-config` to where autoconf can find it
+RUN test -z "$SYS_ROOT" -o $DISTRO_VER -gt 8 || \
+    ln -s /sysroot/usr/bin/xeno-config /usr/bin/
+
 ##############################
 # Machinekit:  Build arch build environment
 
@@ -285,8 +289,6 @@ RUN apt-get install -y \
         python-tk \
         netcat-openbsd \
         tcl8.6 tk8.6 \
-    && { test $DISTRO_VER -gt 8 \
-         || apt-get install -y libxenomai-dev; } \
     && apt-get clean
 
 # Monkey-patch entire /usr/include, and re-add build-arch headers
