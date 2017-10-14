@@ -1,3 +1,10 @@
+machinekit-hal (0.1) stretch; urgency=low
+
+  * Updated for Stretch packages
+
+ -- ArcEye <arceye@mgware.co.uk>  Sat, 14 Oct 2017 11:36:00 -0000
+
+
 machinekit-hal (0.1) jessie; urgency=low
 
   * Initial packageReworked debian/configure, #215

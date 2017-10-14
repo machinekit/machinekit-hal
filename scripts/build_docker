@@ -10,7 +10,7 @@
 ###########################################################
 # Configuration from environment, CL args and defaults
 CMD=${CMD:-shell}
-IMAGE=${IMAGE:-dovetailautomata/mk-cross-builder}
+IMAGE=${IMAGE:-arceye/mk-cross-builder}
 TAG=${TAG:-amd64}
 JOBS=${JOBS:-2}
 BUILD_SOURCE=${BUILD_SOURCE:-true}  # update Changelog & source pkg
