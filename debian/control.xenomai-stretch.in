@@ -7,7 +7,7 @@ Depends: ${misc:Depends},
     xenomai-runtime, python-numpy, python-vte, python-xlib, python-configobj,
     python-protobuf (>= 2.4.1), python-gst-1.0,
     python-avahi, bc, procps, psmisc, module-init-tools | kmod,
-    zeromq, czmq, libjansson4, yapps2-runtime, python-zmq
+    libzmq3-dev (>= 4.0.2), libczmq-dev (>= 4.0.2), libjansson4, yapps2-runtime, python-zmq
 Description: HAL stack split from machinekit
  .
  This package provides components and drivers that run on a Xenomai

@@ -201,6 +201,7 @@ binary-arch: build install
 	dh_installdeb
 	### Needed whilst usin our own libs which may not have full debian info and deps
 	#dh_shlibdeps -l debian/machinekit-hal/usr/lib
+	# may not need this with the cross-builder, remove later
 	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info -l debian/machinekit-hal/usr/lib
 	dh_gencontrol
 	dh_md5sums
