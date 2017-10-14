@@ -939,7 +939,7 @@ AC_ARG_ENABLE(dev,
 # NML
 ##############################################################################
 
-PKG_CHECK_MODULES([CZMQ], [libczmq > 2.0],
+PKG_CHECK_MODULES([CZMQ], [libczmq > 4.0],
     [
         AC_DEFINE(HAVE_CZMQ, [], [zeroMQ czmq library available])
 	USE_CZMQ=yes
@@ -947,7 +947,7 @@ PKG_CHECK_MODULES([CZMQ], [libczmq > 2.0],
 
 PKG_CHECK_MODULES([PROTOBUF], [protobuf > 2.4.0],
     [
-        AC_DEFINE(HAVE_PROTOBUF, [], [zeroMQ czmq library available])
+        AC_DEFINE(HAVE_PROTOBUF, [], [protobuf library available])
 	USE_PROTOBUF=yes
     ],)
 
@@ -983,9 +983,10 @@ PKG_CHECK_MODULES([LWS], libwebsockets,
    ],)
 
 AC_MSG_CHECKING(whether to build webtalk)
-AC_ARG_ENABLE(webtalk,
-    [  --enable-webtalk    build Webtalk],
-    [
+AC_ARG_ENABLE([webtalk],
+    AS_HELP_STRING([--enable-webtalk="ARG"], [build Webtalk [ARG=yes] ]))
+
+    AS_IF([test "x$enable_webtalk" = "xyes"], [
 	if test "$USE_LWS" != "yes"; then
 	    AC_MSG_ERROR([Please install libwebsockets before building Webtalk.])
 	fi
