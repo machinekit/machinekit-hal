@@ -2,7 +2,6 @@ etc/linuxcnc/*
 etc/rsyslog.d/linuxcnc.conf
 etc/security/limits.d/machinekit.conf
 etc/udev/rules.d/50-shmdrv.rules
-etc/ld.so.conf.d/czmq-zeromq.conf
 usr/lib/*.so.*
 usr/bin/*
 usr/lib/python*/*/*.py
