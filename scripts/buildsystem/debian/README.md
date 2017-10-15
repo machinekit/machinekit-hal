@@ -6,6 +6,9 @@ building/cross-building Machinekit packages.  For cross-building
 system root tree, and for native `amd64` builds the image contains
 needed dependencies and tools in the root filesystem.
 
+Package build times on Travis CI, including `armhf`, are reduced to
+under 13 mins. without cache, and under 8 mins. with cache.
+
 ## Using the builder
 
 - Determine the 'tag' for the desired architecture and distro
@@ -62,7 +65,7 @@ commands can help.  Run them from inside a container (see above).
         apt-cache -o Dir::State=$DPKG_ROOT/var/lib/apt/ show libczmq-dev
 
 
-# Setting up automated `mk-cross-builder` image builds
+# Set up hub.docker.com automated `mk-cross-builder` image builds
 
 - Fork this repo into a GitHub account
 - In the GitHub repo "Settings", "Integrations & Services" tab, from
@@ -82,7 +85,7 @@ Now, either trigger builds with the "Build Settings" tab "Trigger"
 button on hub.docker.com, or else push new commits to the master
 branch on GitHub.
 
-# Setting up automated Machinekit builds
+# Set up Travis CI automated Machinekit builds
 
 - Create Github organization
   - In GitHub account:  Create organization, e.g. `my-mk-pkgs`
@@ -92,8 +95,7 @@ branch on GitHub.
 	- Click "Integrations & Services" on the left
 	- Click "Add Service", and find and click "Docker"
 - Set up Travis CI
-  - Create account
-  - Link to GitHub
+  - Create account and link to GitHub
   - On upper right, drop-down menu, select 'accounts'
   - Click "Review and add your authorized organizations"; goes back to GH
     - `my-mk-pkgs` org should be checked
