@@ -109,7 +109,7 @@ case $CMD in
 	)
 
 	# Set changelog location
-	BUILD_OPTS+=" --changes-option=-ldebian/changelog.new"
+	# BUILD_OPTS+=" --changes-option=-ldebian/changelog.new"
 
 	BUILD_CL=( bash -xec "
             # configure source package
