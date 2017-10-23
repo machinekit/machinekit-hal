@@ -43,27 +43,16 @@ guess_arch_from_kver() {
 }
 
 do_posix() {
-    if [[ $DISTRO_CODENAME == "stretch" ]] ; then
-	cat control.posix-stretch.in >> control
-	echo "debian/control:  added POSIX threads package for Stretch" >&2
-    else
-	cat control.posix.in >> control
-        echo "debian/control:  added POSIX threads package for Jessie" >&2
-    fi
+    cat control.posix.in >> control
+    echo "debian/control:  added POSIX threads package" >&2
     rules_enable_threads posix
     HAVE_FLAVOR=true
 }
 
 ## cater for fact that Stretch now has it's own rt-preempt kernels
 do_rt-preempt() {
-    if [[ $DISTRO_CODENAME == "stretch" ]] ; then
-	cat control.rt-preempt-stretch.in >> control
-	echo "debian/control:  added RT_PREEMPT threads package for Stretch" >&2
-    else
-	cat control.rt-preempt.in >> control
-	echo "debian/control:  added RT_PREEMPT threads package for Jessie" >&2
-    fi
-
+    cat control.rt-preempt.in >> control
+    echo "debian/control:  added RT_PREEMPT threads package" >&2
     rules_enable_threads rt-preempt
     HAVE_FLAVOR=true
 }
@@ -88,13 +77,8 @@ do_tcl_tk_version() {
 }
 
 do_xenomai() {
-    if [[ $DISTRO_CODENAME == "stretch" ]] ; then
-	cat control.xenomai-stretch.in >> control
-	echo "debian/control:  added xenomai threads package for Stretch" >&2
-    else
-	cat control.xenomai.in >> control
-	echo "debian/control:  added xenomai threads package for Jessie" >&2
-    fi
+    cat control.xenomai.in >> control
+    echo "debian/control:  added xenomai threads package for Jessie" >&2
 
     # Be sure the -dev files only appear once
     BUILD_DEPS="${BUILD_DEPS/libxenomai-dev, /}libxenomai-dev, "
@@ -116,7 +100,7 @@ do_changelog() {
     COMMITTER="$(git show -s --pretty=%an $(git rev-parse --short HEAD))"
     EMAIL="$(git show -s --format='%ae' $(git rev-parse --short HEAD))"
 
-    mv changelog changelog.old
+    rm -f changelog
     cat > changelog <<EOF
 machinekit-hal (${MKVERSION}) ${DISTRO_UC}; urgency=low
 
@@ -127,7 +111,7 @@ machinekit-hal (${MKVERSION}) ${DISTRO_UC}; urgency=low
 EOF
 
 cat changelog # debug output
-cat changelog.old >> changelog
+cat changelog.in >> changelog
 echo "New package version number added to changelog"
 }
 
@@ -185,14 +169,8 @@ do_tcl_tk_version "$TCL_TK_VER"
 rm -f machinekit-hal-{rtai,xenomai}-kernel-*.install
 
 # copy base templates into place
-# stretch uses some different packages
-if [[ $DISTRO_CODENAME == "stretch" ]] ; then
-    cp control-stretch.in control
-    echo "debian/control:  copied Stretch base template" >&2
-else
-    cp control.in control
-echo "debian/control:  copied Jessie base template" >&2
-fi
+cp control.in control
+echo "debian/control:  copied base template" >&2
 
 cp postinst.in machinekit-hal-posix.postinst
 cp postinst.in machinekit-hal-rt-preempt.postinst
@@ -200,6 +178,9 @@ cp postinst.in machinekit-hal-xenomai.postinst
 
 cp rules.in rules; chmod +x rules
 echo "debian/rules:  copied base template" >&2
+
+cp changelog.in changelog
+echo "debian/rules:  copied base changelog" >&2
 
 # read command line options - d is a dummy to stop args being req
 while getopts csprxd:t:?h ARG; do

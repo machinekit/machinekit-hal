@@ -3,9 +3,8 @@
 /rules
 /files
 /configure.cmdline
-/machinekit.install
-/machinekit-*-kernel-*.install
-/machinekit-dev.install
+/machinekit*.install
+/changelog
 
 # directory artifacts
 /tmp
@@ -15,3 +14,5 @@
 /*substvars
 /*.debhelper
 /shlibs.local
+
+!/changelog.in
