@@ -52,7 +52,7 @@ UPSTREAM_ID=${PKGSOURCE//[-_]/}.${PR_OR_BRANCH//[-_]/}
 VERSION="${MAJOR_MINOR_VERSION}.${TIMESTAMP}.git${SHA1SHORT}"
 
 # Final release
-RELEASE="1${UPSTREAM_ID}~1${DISTRO}"
+RELEASE="1~${DISTRO}"
 
 ###########################################################
 # Debug output
