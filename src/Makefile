@@ -448,8 +448,7 @@ INFILES = \
 	Makefile.inc \
 	Makefile.modinc \
 	../scripts/halrun \
-	../scripts/rip-environment \
-	../lib/python/nf.py 
+	../scripts/rip-environment
 
 $(INFILES): %: %.in config.status
 	@./config.status --file=$@
@@ -576,42 +575,6 @@ TARGETS += headers
 # respective Submakefiles will need to provide rules to copy them into
 # ../install.
 headers: $(SUBDIRECTORY_HEADERS)
-
-# tooledit as standalone app:
-TARGETS += ../bin/tooledit
-../bin/tooledit: Makefile
-	$(Q)rm -f $@
-	$(Q)(echo "#!$(TCLSH)")>|$@
-	$(Q)(echo "source $(EMC2_TCL_LIB_DIR)/tooledit.tcl")>>$@
-	$(Q)(echo "standalone_tooledit")>>$@
-	$(Q)chmod +x $@
-
-# ngcgui as standalone app:
-TARGETS += ../bin/ngcgui
-../bin/ngcgui: Makefile
-	$(Q)rm -f $@
-	$(Q)(echo "#!$(TCLSH)")>|$@
-	$(Q)(echo "source $(EMC2_TCL_LIB_DIR)/ngcgui.tcl")>>$@
-	$(Q)(echo "::ngcgui::standalone_ngcgui")>>$@
-	$(Q)chmod +x $@
-
-# pyngcgui as standalone app:
-TARGETS += ../bin/pyngcgui
-../bin/pyngcgui: Makefile
-	$(Q)rm -f $@
-	$(Q)(echo "#!$(PYTHON)")>|$@
-	$(Q)(echo "import pyngcgui")>>$@
-	$(Q)(echo "pyngcgui.standalone_pyngcgui()")>>$@
-	$(Q)chmod +x $@
-
-# gremlin_view as standalone app:
-TARGETS += ../bin/gremlin_view
-../bin/gremlin_view: Makefile
-	$(Q)rm -f $@
-	$(Q)(echo "#!$(PYTHON)")>|$@
-	$(Q)(echo "import gremlin_view")>>$@
-	$(Q)(echo "gremlin_view.standalone_gremlin_view()")>>$@
-	$(Q)chmod +x $@
 
 # halshow as standalone app:
 TARGETS += ../bin/halshow
@@ -808,10 +771,8 @@ endif
 install-kernel-indep: install-dirs
 	$(EXE) ../scripts/realtime $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/halrun $(DESTDIR)$(bindir)
-	$(FILE) ../*.png ../*.gif $(DESTDIR)$(datadir)/linuxcnc
 
 	$(EXE) $(filter ../bin/%,$(TARGETS)) $(DESTDIR)$(bindir)
-#	$(EXE) ../scripts/linuxcnc $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/latency-test $(DESTDIR)$(bindir)
 ifeq ($(HAVE_WORKING_BLT),yes)
 	$(EXE) ../scripts/latency-plot $(DESTDIR)$(bindir)
@@ -834,7 +795,6 @@ endif
 	$(FILE) rtapi/shmdrv/shmdrv.rules \
 		$(DESTDIR)$(sysconfdir)/udev/rules.d/50-shmdrv.rules
 	$(FILE) ../etc/linuxcnc/machinekit.ini $(DESTDIR)$(sysconfdir)/linuxcnc
-	$(EXE) ../bin/profile_axis $(DESTDIR)$(bindir)
 	$(EXE) ../bin/mank $(DESTDIR)$(bindir)
 
 ifeq ($(BUILD_PYTHON),yes)
@@ -845,8 +805,6 @@ install-python: install-dirs
 	$(DIR) $(DESTDIR)$(SITEPY)/machinetalk
 	$(DIR) $(DESTDIR)$(SITEPY)/machinetalk/protobuf
 	$(DIR) $(DESTDIR)$(SITEPY)/fdm
-	$(DIR) $(DESTDIR)$(SITEPY)/fdm/config
-	$(DIR) $(DESTDIR)$(datadir)/fdm/thermistor_tables
 	$(DIR) $(DESTDIR)$(SITEPY)/drivers
 	$(EXE) ../bin/hal_input $(DESTDIR)$(bindir)
 	$(EXE) ../bin/hal_gpio_mcp23017 $(DESTDIR)$(bindir)
@@ -861,9 +819,7 @@ install-python: install-dirs
 	$(FILE) ../lib/python/machinekit/*.so $(DESTDIR)$(SITEPY)/machinekit/
 	$(FILE) ../lib/python/machinetalk/*.py $(DESTDIR)$(SITEPY)/machinetalk/
 	$(FILE) ../lib/python/machinetalk/protobuf/*.py $(DESTDIR)$(SITEPY)/machinetalk/protobuf/
-	$(FILE) ../lib/python/fdm/config/*.py $(DESTDIR)$(SITEPY)/fdm/config
 	$(FILE) ../lib/python/drivers/*.py $(DESTDIR)$(SITEPY)/drivers
-	$(FILE) ../share/fdm/thermistor_tables/*.txt $(DESTDIR)$(datadir)/fdm/thermistor_tables
 	$(EXE) ../bin/mklauncher $(DESTDIR)$(bindir)
 	$(EXE) ../bin/configserver $(DESTDIR)$(bindir)
 	$(EXE) ../bin/videoserver $(DESTDIR)$(bindir)
@@ -1050,14 +1006,8 @@ obj-$(CONFIG_SIGGEN) += siggen.o
 siggen-objs := hal/components/siggen.o $(MATHSTUB)
 obj-$(CONFIG_PID) += threads.o
 threads-objs := hal/components/threads.o $(MATHSTUB)
-#obj-$(CONFIG_SUPPLY) += supply.o
-#supply-objs := hal/components/supply.o $(MATHSTUB)
 obj-$(CONFIG_SIM_ENCODER) += sim_encoder.o
 sim_encoder-objs := hal/components/sim_encoder.o $(MATHSTUB)
-#obj-$(CONFIG_WATCHDOG) += watchdog.o
-#watchdog-objs := hal/components/watchdog.o $(MATHSTUB)
-#obj-$(CONFIG_MODMATH) += modmath.o
-#modmath-objs := hal/components/modmath.o $(MATHSTUB)
 obj-$(CONFIG_STREAMER) += streamer.o
 streamer-objs := hal/components/streamer.o $(MATHSTUB)
 obj-$(CONFIG_SAMPLER) += sampler.o
@@ -1195,10 +1145,10 @@ hostmot2-objs +=			  \
     hal/drivers/mesa-hostmot2/ioport.o	  \
     hal/drivers/mesa-hostmot2/encoder.o   \
     hal/drivers/mesa-hostmot2/abs_encoder.o\
-	hal/drivers/mesa-hostmot2/resolver.o  \
+    hal/drivers/mesa-hostmot2/resolver.o  \
     hal/drivers/mesa-hostmot2/pwmgen.o	  \
     hal/drivers/mesa-hostmot2/tp_pwmgen.o \
-	hal/drivers/mesa-hostmot2/sserial.o   \
+    hal/drivers/mesa-hostmot2/sserial.o   \
     hal/drivers/mesa-hostmot2/stepgen.o   \
     hal/drivers/mesa-hostmot2/bspi.o  \
     hal/drivers/mesa-hostmot2/uart.o  \
@@ -1251,19 +1201,6 @@ endif
 obj-m += scope_rt.o
 scope_rt-objs := hal/utils/scope_rt.o $(MATHSTUB)
 
-
-#obj-$(CONFIG_MOTMOD) += motmod.o
-#motmod-objs := emc/kinematics/cubic.o
-#motmod-objs += emc/motion/motion.o
-#motmod-objs += emc/motion/command.o
-#motmod-objs += emc/motion/control.o
-#motmod-objs += emc/motion/homing.o
-#motmod-objs += emc/motion/emcmotglb.o
-#motmod-objs += emc/motion/emcmotutil.o
-#motmod-objs += emc/motion/stashf.o
-#motmod-objs += emc/motion/dbuf.o
-#motmod-objs += libnml/posemath/_posemath.o
-#motmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
 # obj-m += vtexport.o
 # vtexport-objs := hal/vtable-example/vtexport.o
