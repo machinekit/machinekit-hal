@@ -576,42 +576,6 @@ TARGETS += headers
 # ../install.
 headers: $(SUBDIRECTORY_HEADERS)
 
-# tooledit as standalone app:
-TARGETS += ../bin/tooledit
-../bin/tooledit: Makefile
-	$(Q)rm -f $@
-	$(Q)(echo "#!$(TCLSH)")>|$@
-	$(Q)(echo "source $(EMC2_TCL_LIB_DIR)/tooledit.tcl")>>$@
-	$(Q)(echo "standalone_tooledit")>>$@
-	$(Q)chmod +x $@
-
-# ngcgui as standalone app:
-TARGETS += ../bin/ngcgui
-../bin/ngcgui: Makefile
-	$(Q)rm -f $@
-	$(Q)(echo "#!$(TCLSH)")>|$@
-	$(Q)(echo "source $(EMC2_TCL_LIB_DIR)/ngcgui.tcl")>>$@
-	$(Q)(echo "::ngcgui::standalone_ngcgui")>>$@
-	$(Q)chmod +x $@
-
-# pyngcgui as standalone app:
-TARGETS += ../bin/pyngcgui
-../bin/pyngcgui: Makefile
-	$(Q)rm -f $@
-	$(Q)(echo "#!$(PYTHON)")>|$@
-	$(Q)(echo "import pyngcgui")>>$@
-	$(Q)(echo "pyngcgui.standalone_pyngcgui()")>>$@
-	$(Q)chmod +x $@
-
-# gremlin_view as standalone app:
-TARGETS += ../bin/gremlin_view
-../bin/gremlin_view: Makefile
-	$(Q)rm -f $@
-	$(Q)(echo "#!$(PYTHON)")>|$@
-	$(Q)(echo "import gremlin_view")>>$@
-	$(Q)(echo "gremlin_view.standalone_gremlin_view()")>>$@
-	$(Q)chmod +x $@
-
 # halshow as standalone app:
 TARGETS += ../bin/halshow
 ../bin/halshow: Makefile
