@@ -448,8 +448,7 @@ INFILES = \
 	Makefile.inc \
 	Makefile.modinc \
 	../scripts/halrun \
-	../scripts/rip-environment \
-	../lib/python/nf.py 
+	../scripts/rip-environment
 
 $(INFILES): %: %.in config.status
 	@./config.status --file=$@
@@ -834,7 +833,7 @@ endif
 	$(FILE) rtapi/shmdrv/shmdrv.rules \
 		$(DESTDIR)$(sysconfdir)/udev/rules.d/50-shmdrv.rules
 	$(FILE) ../etc/linuxcnc/machinekit.ini $(DESTDIR)$(sysconfdir)/linuxcnc
-	$(EXE) ../bin/profile_axis $(DESTDIR)$(bindir)
+#	$(EXE) ../bin/profile_axis $(DESTDIR)$(bindir)
 	$(EXE) ../bin/mank $(DESTDIR)$(bindir)
 
 ifeq ($(BUILD_PYTHON),yes)
@@ -845,8 +844,8 @@ install-python: install-dirs
 	$(DIR) $(DESTDIR)$(SITEPY)/machinetalk
 	$(DIR) $(DESTDIR)$(SITEPY)/machinetalk/protobuf
 	$(DIR) $(DESTDIR)$(SITEPY)/fdm
-	$(DIR) $(DESTDIR)$(SITEPY)/fdm/config
-	$(DIR) $(DESTDIR)$(datadir)/fdm/thermistor_tables
+#	$(DIR) $(DESTDIR)$(SITEPY)/fdm/config
+#	$(DIR) $(DESTDIR)$(datadir)/fdm/thermistor_tables
 	$(DIR) $(DESTDIR)$(SITEPY)/drivers
 	$(EXE) ../bin/hal_input $(DESTDIR)$(bindir)
 	$(EXE) ../bin/hal_gpio_mcp23017 $(DESTDIR)$(bindir)
@@ -861,9 +860,9 @@ install-python: install-dirs
 	$(FILE) ../lib/python/machinekit/*.so $(DESTDIR)$(SITEPY)/machinekit/
 	$(FILE) ../lib/python/machinetalk/*.py $(DESTDIR)$(SITEPY)/machinetalk/
 	$(FILE) ../lib/python/machinetalk/protobuf/*.py $(DESTDIR)$(SITEPY)/machinetalk/protobuf/
-	$(FILE) ../lib/python/fdm/config/*.py $(DESTDIR)$(SITEPY)/fdm/config
+#	$(FILE) ../lib/python/fdm/config/*.py $(DESTDIR)$(SITEPY)/fdm/config
 	$(FILE) ../lib/python/drivers/*.py $(DESTDIR)$(SITEPY)/drivers
-	$(FILE) ../share/fdm/thermistor_tables/*.txt $(DESTDIR)$(datadir)/fdm/thermistor_tables
+#	$(FILE) ../share/fdm/thermistor_tables/*.txt $(DESTDIR)$(datadir)/fdm/thermistor_tables
 	$(EXE) ../bin/mklauncher $(DESTDIR)$(bindir)
 	$(EXE) ../bin/configserver $(DESTDIR)$(bindir)
 	$(EXE) ../bin/videoserver $(DESTDIR)$(bindir)
