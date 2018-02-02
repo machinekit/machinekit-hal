@@ -24,8 +24,6 @@ usr/libexec/linuxcnc/rtapi_app_posix
 etc/modprobe.d/linuxcnc.conf
 usr/lib/*.so
 usr/lib/linuxcnc/ulapi-posix.so
-usr/share/linuxcnc/*.gif
-usr/share/linuxcnc/*.png
 usr/share/linuxcnc/Makefile.*
 usr/share/linuxcnc/udev/90-xhc.rules
 #usr/share/fdm/thermistor_tables/*

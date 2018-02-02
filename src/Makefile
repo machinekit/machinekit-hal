@@ -807,7 +807,7 @@ endif
 install-kernel-indep: install-dirs
 	$(EXE) ../scripts/realtime $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/halrun $(DESTDIR)$(bindir)
-	$(FILE) ../*.png ../*.gif $(DESTDIR)$(datadir)/linuxcnc
+#	$(FILE) ../*.png ../*.gif $(DESTDIR)$(datadir)/linuxcnc
 
 	$(EXE) $(filter ../bin/%,$(TARGETS)) $(DESTDIR)$(bindir)
 #	$(EXE) ../scripts/linuxcnc $(DESTDIR)$(bindir)
