@@ -1,10 +1,15 @@
-# machinekit-HAL
+__machinekit-hal__ is a split out repo which just contains the HAL elements of machinekit
 
-Split out HAL standalone
+It can be built as a RIP and used in the same way as a machinekit RIP, but without the CNC elements.
 
-Hardware Abstraction Layer split from the CNC stack.
+Install _machinekit-hal-{flavour}_  if using packages.
 
-Work in Progress- do not use except for testing
+PR's should not be made directly to this repo without prior notice.
 
-Currently test building as Jessie packages for amd64, i386 and armhf plus Raspbian.
+The machinekit repo is periodically cherry-picked for relevant new commits by the developers
+and machinekit-hal updated from these.
 
+NB. There is a related repo __machinekit-cnc__, which contains all the CNC elements missing from this repo.
+
+It is possible to install _machinekit-hal-{flavour}_ and then install _machinekit-cnc-{flavour}_ and have
+a fully functioning system, albeit there is no advantage to doing so, rather than use the _machinekit_ packages.
