@@ -773,11 +773,6 @@ install-kernel-indep: install-dirs
 	$(EXE) ../scripts/halrun $(DESTDIR)$(bindir)
 
 	$(EXE) $(filter ../bin/%,$(TARGETS)) $(DESTDIR)$(bindir)
-	$(EXE) ../scripts/latency-test $(DESTDIR)$(bindir)
-ifeq ($(HAVE_WORKING_BLT),yes)
-	$(EXE) ../scripts/latency-plot $(DESTDIR)$(bindir)
-	$(EXE) ../scripts/latency-histogram $(DESTDIR)$(bindir)
-endif
 	$(FILE) $(filter ../lib/%.a ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
 	cp --no-dereference $(filter ../lib/%.so, $(TARGETS)) $(DESTDIR)$(libdir)
 	$(FILE) ../rtlib/ulapi-*.so $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)
