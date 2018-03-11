@@ -43,7 +43,13 @@ guess_arch_from_kver() {
 }
 
 do_posix() {
-    cat control.posix.in >> control
+    ## need python-gst0.10 for Jessie, none for Stretch, Sid or Buster
+    if [ "$DISTRO_CODENAME" == "jessie" ]; then
+	cat control.posix.in >> control
+    else
+        cat control.posix-stretch.in >> control
+    fi
+    
     echo "debian/control:  added POSIX threads package" >&2
     rules_enable_threads posix
     HAVE_FLAVOR=true
@@ -51,7 +57,13 @@ do_posix() {
 
 ## cater for fact that Stretch now has it's own rt-preempt kernels
 do_rt-preempt() {
-    cat control.rt-preempt.in >> control
+    ## need python-gst0.10 for Jessie, none for Stretch, Sid or Buster
+    if [ "$DISTRO_CODENAME" == "jessie" ]; then
+	cat control.rt-preempt.in >> control
+    else
+        cat control.rt-preempt-stretch.in >> control
+    fi
+
     echo "debian/control:  added RT_PREEMPT threads package" >&2
     rules_enable_threads rt-preempt
     HAVE_FLAVOR=true
@@ -77,9 +89,14 @@ do_tcl_tk_version() {
 }
 
 do_xenomai() {
-    cat control.xenomai.in >> control
-    echo "debian/control:  added xenomai threads package for Jessie" >&2
+    ## need python-gst0.10 for Jessie, none for Stretch Sid or Buster
+    if [ "$DISTRO_CODENAME" == "jessie" ]; then
+	cat control.xenomai.in >> control
+    else
+        cat control.xenomai-stretch.in >> control
+    fi
 
+    echo "debian/control:  added xenomai threads package for Jessie" >&2
     # Be sure the -dev files only appear once
     BUILD_DEPS="${BUILD_DEPS/libxenomai-dev, /}libxenomai-dev, "
     echo "debian/control:  added Xenomai (userland) threads package" \
