@@ -1,0 +1,14 @@
+
+Package: machinekit-hal-xenomai
+Architecture: any
+Provides:  machinekit-hal
+Conflicts: machinekit
+Depends: ${misc:Depends},
+    xenomai-runtime, python-numpy, python-vte, python-xlib, python-configobj,
+    python-zmq, python-protobuf (>= 2.4.1),
+    python-avahi, bc, procps, psmisc, module-init-tools | kmod,
+    libzmq3-dev (>= 4.0.4), libczmq-dev (>= 4.0.2), libjansson4, yapps2-runtime
+Description: HAL stack split from machinekit
+ .
+ This package provides components and drivers that run on a Xenomai
+ realtime system, with userspace threads.
