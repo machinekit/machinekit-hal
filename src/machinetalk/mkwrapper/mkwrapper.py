@@ -45,8 +45,7 @@ def getFreePort():
     return port
 
 
-# noinspection PyClassicStyleClass
-class CustomFTPHandler(FTPHandler):
+class CustomFTPHandler(object, FTPHandler):
 
     def on_file_received(self, file):
         # do something when a file has been received
