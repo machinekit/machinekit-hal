@@ -50,8 +50,6 @@ static int update_joint(struct joint *joint,
                         const double pos_cmd,
                         const double max_vel,
                         const double max_acc,
-                        const double home_pos,
-                        const bool   home_set,
                         const double period)
 {
     double max_dv, tiny_dp, pos_err, vel_req;
@@ -179,8 +177,6 @@ static int update(void *arg, const hal_funct_args_t *fa)
                                *(jp->pos_cmd),
                                *(jp->max_vel),
                                *(jp->max_acc),
-                               *(jp->home_pos),
-                               *(jp->home_set),
                                period);
     }
     *(ip->joints_active) = active;
@@ -229,9 +225,7 @@ static int instantiate_jplan(const int argc, const char **argv)
         if (hal_pin_bit_newf(HAL_OUT, &(jp->active), inst_id, "%s.%d.active", name, i) ||
             hal_pin_bit_newf(HAL_IN, &(jp->enable), inst_id, "%s.%d.enable", name, i)  ||
             hal_pin_float_newf(HAL_OUT, &(jp->curr_pos), inst_id, "%s.%d.curr-pos", name, i)  ||
-            hal_pin_float_newf(HAL_OUT, &(jp->curr_vel), inst_id, "%s.%d.curr-vel", name, i) ||
-            hal_pin_float_newf(HAL_IN, &(jp->home_pos), inst_id, "%s.%d.home-pos", name, i)   ||
-		    hal_pin_bit_newf(HAL_IN, &(jp->home_set), inst_id, "%s.%d.home-set", name, i))
+            hal_pin_float_newf(HAL_OUT, &(jp->curr_vel), inst_id, "%s.%d.curr-vel", name, i))
             return -1;
 
         hal_pin_dir_t dir = queued ? HAL_OUT : HAL_IN;
