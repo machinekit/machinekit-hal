@@ -146,6 +146,8 @@ install: build
 	dh_testdir
 	dh_testroot
 	dh_prep
+
+	mkdir -p debian/tmp/usr/lib/python2.7/dist-packages/gladevcp
 	dh_installdirs
 # start the install
 	mkdir -p debian/tmp
@@ -153,7 +155,8 @@ install: build
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) V=$(DH_VERBOSE) $@)
 	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/linuxcnc \
 	    debian/tmp/usr/include/linuxcnc/machinetalk/nanopb \
-	    debian/tmp/usr/include/linuxcnc/machinetalk/protobuf
+	    debian/tmp/usr/include/linuxcnc/machinetalk/protobuf 
+	
 
 #ifneq (,$(wildcard debian/machinekit-*-kernel-*.install))
 	mkdir -p debian/tmp/etc/udev/rules.d
