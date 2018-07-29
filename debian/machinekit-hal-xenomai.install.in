@@ -11,6 +11,7 @@ usr/lib/python*/*/*/*.so
 usr/lib/python*/*/machinetalk/protobuf/*
 usr/lib/python*/*/machinetalk/*.py
 usr/lib/python*/*/machinekit/nosetests/*.py
+usr/lib/python*/*/gladevcp/*
 usr/lib/linuxcnc/xenomai/*
 usr/include/linuxcnc/*.h
 usr/include/linuxcnc/*.hh

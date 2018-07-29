@@ -808,6 +808,8 @@ install-python: install-dirs
 	$(EXE) ../bin/hal_temp_ads7828 $(DESTDIR)$(bindir)
 	$(EXE) ../bin/hal_temp_bbb $(DESTDIR)$(bindir)
 	$(EXE) ../bin/hal_temp_atlas $(DESTDIR)$(bindir)
+	$(EXE) ../bin/pyvcp $(DESTDIR)$(bindir)
+	$(EXE) ../bin/gladevcp $(DESTDIR)$(bindir)
 	$(FILE) ../lib/python/*.py ../lib/python/*.so $(DESTDIR)$(SITEPY)
 	$(FILE) ../lib/python/machinekit/*.py $(DESTDIR)$(SITEPY)/machinekit/
 	$(FILE) ../lib/python/machinekit/nosetests/*.py $(DESTDIR)$(SITEPY)/machinekit/nosetests
@@ -815,6 +817,7 @@ install-python: install-dirs
 	$(FILE) ../lib/python/machinetalk/*.py $(DESTDIR)$(SITEPY)/machinetalk/
 	$(FILE) ../lib/python/machinetalk/protobuf/*.py $(DESTDIR)$(SITEPY)/machinetalk/protobuf/
 	$(FILE) ../lib/python/drivers/*.py $(DESTDIR)$(SITEPY)/drivers
+	$(FILE) ../lib/python/gladevcp/*.* $(DESTDIR)$(SITEPY)/gladevcp
 	$(EXE) ../bin/mklauncher $(DESTDIR)$(bindir)
 	$(EXE) ../bin/configserver $(DESTDIR)$(bindir)
 	$(EXE) ../bin/videoserver $(DESTDIR)$(bindir)
