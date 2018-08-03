@@ -1,12 +1,11 @@
-machinekit-hal (0.1) stretch; urgency=low
+machinekit-hal (0.2.0) stretch; urgency=low
 
-  * Updated for Stretch packages
+  * HAL stack split out from machinekit
+  * pyvcp and gladevcp elements housed here to enable stand-alone panels
+  * Can be recombined with machinekit-cnc to provide full
+    machinekit funtionality
+  * See machinekit changelog for historical details
 
- -- ArcEye <arceye@mgware.co.uk>  Sat, 14 Oct 2017 11:36:00 -0000
+ -- ArcEye <arceyeATmgwareDOTcoDOTuk>  Mon, 31 Jul 2018 1518:24:30 +0100
 
 
-machinekit-hal (0.1) jessie; urgency=low
-
-  * Initial packageReworked debian/configure, #215
-
- -- ArcEye <arceye@mgware.co.uk>  Thu, 16 Mar 2017 17:30:30 -0000
