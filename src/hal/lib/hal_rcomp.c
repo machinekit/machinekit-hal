@@ -301,7 +301,9 @@ int hal_ccomp_report(hal_compiled_comp_t *cc,
 
     for (i = 0; i < cc->n_pins; i++) {
 	if (report_all || RTAPI_BIT_TEST(cc->changed, i)) {
-	    const hal_pin_t *pin = cc->pin[i];
+	    // removing const from pin reduces 2 warnings to 1, but larger Q is why
+	    // so many of the inlines have inconsistent const qualifiers
+	    hal_pin_t *pin = cc->pin[i];
 	    // XXX this is not a good API
 	    // drop the fourth argument and pass only the pin
 	    // to force accessor use in the report callback

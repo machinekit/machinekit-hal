@@ -976,7 +976,9 @@ int main(int argc, char **argv)
     argv0_len = strlen(argv[0]);
     procname_len = strlen(proctitle);
     max_procname_len = (argv0_len > procname_len) ? (procname_len) : (argv0_len);
-
+    // Compiler warnings.
+    // `specified bound depends on the length of the source argument [-Wstringop-overflow=]`
+    // which isn't actually correct since it is limited to size of smallest string by preceding lines.
     strncpy(argv[0], proctitle, max_procname_len);
     memset(&argv[0][max_procname_len], '\0', argv0_len - max_procname_len);
 
