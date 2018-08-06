@@ -368,6 +368,13 @@ int check_rtapi_lib(char *name)
     return (stat(fname, &sb) == 0);
 }
 
+// NB. compiler warnings re possible data truncation or overrun
+// So long as a buffer of size PATH_MAX _plus_ extra formatting
+// is being copied into another buffer of size PATH_MAX,
+// you either restrict to size PATH_MAX and risk truncation or 
+// do not restrict and risk segfault on buffer overrun.
+// Would require too much work to remove warnings at this time.
+
 int module_path(char *result, const char *basename)
 {
     /* Find a kernel module's path */

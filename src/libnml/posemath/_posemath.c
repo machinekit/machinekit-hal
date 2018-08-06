@@ -519,6 +519,10 @@ int pmMatZyzConvert(PmRotationMatrix const * const m, PmEulerZyz * const zyz)
     return pmErrno = 0;
 }
 
+// Compiler warnings
+// reference to fabs() and atan2() before declaration conflicts with
+// built in function
+
 int pmMatZyxConvert(PmRotationMatrix const * const m, PmEulerZyx * const zyx)
 {
     zyx->y = rtapi_atan2(-m->x.z, pmSqrt(pmSq(m->x.x) + pmSq(m->x.y)));

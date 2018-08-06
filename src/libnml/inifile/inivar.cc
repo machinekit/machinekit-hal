@@ -29,6 +29,10 @@
 #include "config.h"
 #include "inifile.hh"
 
+// Compiler warnings
+// Copying a string of unknown length into a fixed size buffer
+// and restricting copy size to buffer size, will always raise
+// a warning re possible truncation
 
 int main(int argc, char *argv[])
 {
