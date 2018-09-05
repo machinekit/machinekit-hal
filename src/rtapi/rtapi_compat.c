@@ -59,7 +59,7 @@
 #define XENO_GID_SYSFS "/sys/module/xeno_nucleus/parameters/xenomai_gid"
 
 // static storage of kernel module directory
-static char kmodule_dir[PATH_MAX];
+// UNUSED static char kmodule_dir[PATH_MAX];
 
 static FILE *rtapi_inifile = NULL;
 
@@ -377,7 +377,8 @@ int check_rtapi_lib(char *name)
 
 int module_path(char *result, const char *basename)
 {
-    /* Find a kernel module's path */
+    // Find a kernel module's path, there are now none 
+#if 0
     struct stat sb;
     char buf[PATH_MAX];
     char rtlib_result[PATH_MAX];
@@ -433,6 +434,9 @@ int module_path(char *result, const char *basename)
 	fprintf(stderr, "\tor directory %s\n", buf);
 
     return -ENOENT;
+#endif
+
+    return 0;
 }
 
 int is_module_loaded(const char *module)
