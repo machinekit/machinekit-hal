@@ -78,12 +78,7 @@ BUILD_ALL_FLAVORS = no
 BUILD_THREAD_MODULES = yes
 endif # $(threads)
 
-## if KERNELRELEASE is non-empty, we're in kbuild
-#ifeq ($(KERNELRELEASE),)
 BUILD_KBUILD = no
-#else
-#BUILD_KBUILD = yes
-#endif
 
 # extract the version from the kernel source version.h
 ifneq ($(KERNELDIR),)
@@ -137,13 +132,6 @@ modules:  userspace
 	        $(MAKE) modules threads=$(f);\
 	    )\
 	)
-
-#ifeq ($(HAVE_KERNEL_THREADS),yes)
-#	@test -f ../libexec/linuxcnc_module_helper -a \
-#	\( `stat -c %u ../libexec/linuxcnc_module_helper` -ne 0 -o \
-#	    ! -u ../libexec/linuxcnc_module_helper \) \
-#        && need_setuid=1; 
-#endif
 
 ifeq ($(RUN_IN_PLACE)+$(BUILD_DRIVERS),yes+yes)
 	for f in $(filter-out %-kernel,$(BUILD_THREAD_FLAVORS)); do \
@@ -249,10 +237,6 @@ SUBDIRS := \
 	emc \
 	\
 	po \
-
-#ifeq ($(HAVE_KERNEL_THREADS),yes)
-#SUBDIRS += module_helper
-#endif
 
 ifeq ($(BUILD_WEBTALK),yes)
 SUBDIRS += machinetalk/webtalk
@@ -596,22 +580,6 @@ userspace: python
 clean: pythonclean cscopeclean
 endif
 
-# This is the gateway into the crazy world of "kbuild", the linux 2.6 system
-# for building kernel modules.	Other kernel module build styles need to be
-# accomodated here.
-#
-# (don't build when 'BUILD_ALL_FLAVORS' or 'BUILD_THREADS_MODULES' are set;
-# these are intermediate make runs)
-#ifeq ($(BUILD_SYS)+$(BUILD_THREAD_MODULES),kbuild+yes)
-#modules:  $(OBJDIR)/.separate-kbuild-artifacts-hack.stamp
-#	mkdir -p $(RTLIBDIR)
-#	$(PYTHON) modsilent.py $(MAKE) \
-#	    -C $(KERNELDIR) \
-#	    SUBDIRS=$(BASEPWD)/$(OBJDIR) \
-#	    CC="$(CC)" KBUILD_VERBOSE=$(BUILD_VERBOSE) modules
-#	cp $(OBJDIR)/Module.symvers $(OBJDIR)/*$(MODULE_EXT) $(RTLIBDIR)
-#endif  # BUILD_SYS == 'kbuild'
-
 # It looks almost impossible to coerce kbuild into putting build
 # artifacts outside the source tree.  The universal build needs to
 # keep these artifacts separate for each kthread flavor.  To solve
@@ -628,10 +596,6 @@ $(OBJDIR)/.separate-kbuild-artifacts-hack.stamp:
 	# never follow symbolic links
 	cp -rlfd $(MODULE_SOURCE_DIRS) $(OBJDIR)
 	cp -lf $(MODULE_SOURCES) $(OBJDIR)
-#ifeq ($(BUILD_SYS),kbuild)
-#	# kbuild needs a full copy of this tree with
-#	cp -rlf halcomp-srcs $(OBJDIR)
-#endif
 	ln -sf $(BASEPWD)/../bin $(OBJDIR)/..
 	ln -sf $(BASEPWD)/../scripts $(OBJDIR)/..
 	touch $@
@@ -678,13 +642,7 @@ clean: depclean modclean docclean
 fix_perms = test -f $(1) && chown root $(1) && chmod 4750 $(1) || true
 
 ifeq ($(BUILD_DRIVERS),yes)
-#ifeq ($(HAVE_KERNEL_THREADS),yes)
-#CHECK_KFLAV_SWITCH=-k
-#endif
 setuid:
-#ifeq ($(HAVE_KERNEL_THREADS),yes)
-#	$(call fix_perms,../libexec/linuxcnc_module_helper)
-#endif
 	$(call fix_perms,../libexec/pci_read)
 	$(call fix_perms,../libexec/pci_write)
 	$(foreach f,$(BUILD_THREAD_FLAVORS),\
@@ -826,9 +784,6 @@ endif
 
 install-kernel-dep: install-dirs
 	$(SETUID) ../libexec/rtapi_app_* $(DESTDIR)$(EMC2_LIBEXEC_DIR)
-#ifeq ($(HAVE_KERNEL_THREADS),yes)
-#	$(SETUID) ../libexec/linuxcnc_module_helper $(DESTDIR)$(EMC2_LIBEXEC_DIR)
-#endif
 ifeq ($(BUILD_DRIVERS),yes)
 	$(SETUID) ../libexec/pci_write $(DESTDIR)$(EMC2_LIBEXEC_DIR)
 	$(SETUID) ../libexec/pci_read $(DESTDIR)$(EMC2_LIBEXEC_DIR)
@@ -857,14 +812,6 @@ endif
 		done; \
 	    fi; \
 	done
-#ifeq ($(USE_SHMDRV),yes)
-#	for srcdir in ../rtlib/shmdrv/*; do \
-#	    kver=`basename $$srcdir`; \
-#	    echo Installing shmdrv.ko module for kernel version $$kver; \
-#	    $(DIR) $(DESTDIR)/lib/modules/$$kver/linuxcnc; \
-#	    $(FILE) $$srcdir/* $(DESTDIR)/lib/modules/$$kver/linuxcnc; \
-#	done;
-#endif
 endif # ! RUN_IN_PLACE
 
 CONF=../configs
@@ -872,27 +819,6 @@ COMMON=$(CONF)/common
 CONFILES=$(addsuffix /$(1), $(filter-out $(COMMON) $(CONF),\
                                          ${shell find ${CONF} -type d -print}))
 endif # userspace
-
-#ifneq ($(KERNELRELEASE),)
-# KERNELRELEASE is non-empty, therefore we are building modules using
-# the "kbuild" system.
-#
-#INCLUDE_PREFIX = $(BASEPWD)
-#
-#
-# When the Submakefile is included in the kbuild Makefile, the
-# module's obj-m and foo-objs definitions may remain in the Submakefile
-#include $(BASEPWD)/hal/lib/Submakefile
-#include $(BASEPWD)/machinetalk/Submakefile
-#include $(BASEPWD)/hal/i_components/Submakefile
-#include $(BASEPWD)/hal/components/Submakefile
-#include $(BASEPWD)/hal/vtable-example/Submakefile
-#include $(BASEPWD)/hal/userfunct-example/Submakefile
-#include $(BASEPWD)/machinetalk/msgcomponents/Submakefile
-#include $(BASEPWD)/rtapi/Submakefile
-#include $(BASEPWD)/rtapi/shmdrv/Submakefile
-#include $(BASEPWD)/rtapi/rtapi_math/Submakefile
-#endif # KERNELRELEASE non-empty
 
 # $(BASEPWD) is used here, instead of relative paths, because that's
 # what kbuild seems to require
@@ -921,12 +847,6 @@ EXTRA_CFLAGS = $(RTFLAGS) \
 ifdef TARGET_PLATFORM_BEAGLEBONE
 EXTRA_CFLAGS += -I$(INCLUDE_PREFIX)/hal/support/pru
 endif
-
-#ifeq ($(BUILD_SYS),kbuild)
-#EXTRA_CFLAGS += $(call cc-option,-Wframe-larger-than=2560) $(call cc-option,-Wno-declaration-after-statement)
-#endif
-
-
 
 # For each module, there's an addition to obj-m or obj-$(CONFIG_foo)
 # plus a definition of foo-objs, which contains the full path to the
