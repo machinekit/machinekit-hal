@@ -645,7 +645,6 @@ modclean:
 	-rm -rf .tmp_versions
 	-rm -rf halcomp-srcs
 	find . -name .tmp_versions |xargs rm -rf
-	-rm -f $(RTLIBDIR)/*.ko
 	-rm -f $(RTLIBDIR)/*.so
 
 depclean:
@@ -662,7 +661,7 @@ clean: depclean modclean docclean
 	for flav in $(BUILD_THREAD_FLAVORS); do \
 	    rm -rf ../lib/$$flav; \
 	done
-	-rm -rf ../rtlib ../libexec
+	-rm -rf ../libexec
 	rm -f ../etc/linuxcnc/rtapi.ini
 	-rm -f $(COPY_CONFIGS)
 	-rm -f $(RTLIBDIR)/*.$(MODULE_EXT)
