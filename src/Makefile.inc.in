@@ -66,11 +66,13 @@ EMC2_HOME=@EMC2_HOME@
 LIB_DIR=@EMC2_HOME@/lib
 
 # flavor (and kver) subdirectories
-ifeq ($(BUILD_SYS),user-dso)
-RTDIR_EXT=$(threads)
-else
-RTDIR_EXT=$(threads)/$(KERNEL_VERS)
-endif
+#ifeq ($(BUILD_SYS),user-dso)
+#RTDIR_EXT=$(threads)
+#else
+#RTDIR_EXT=$(threads)/$(KERNEL_VERS)
+#endif
+RTDIR_EXT=modules
+
 
 #used for install stuff
 #but have them here as reference
