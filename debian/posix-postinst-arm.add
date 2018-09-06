@@ -1,6 +1,9 @@
+# make symlinks to flavours
+ln -sf /usr/lib/linuxcnc/modules /usr/lib/linuxcnc/posix
 
 # ensure the links do not pre-exist, from previous installs.
 # or user work-arounds,  which will produce error messages
+# all now point to /usr/lib/linuxcnc/modules anyway
 rm -f /usr/lib/linuxcnc/posix/pru_generic.bin
 rm -f /usr/lib/linuxcnc/posix/pru_generic.dbg
 rm -f /usr/lib/linuxcnc/posix/pru_decamux.bin

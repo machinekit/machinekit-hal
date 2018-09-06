@@ -1081,25 +1081,25 @@ endif
 	$(FILE) ../etc/linuxcnc/rtapi.ini $(DESTDIR)$(sysconfdir)/linuxcnc
 
 	# RTAPI modules:  install userland flavor .so modules into
-	# e.g. /usr/lib/linuxcnc/modules and kthread flavor .ko
-	# modules for each kver into e.g. /lib/modules/<kver>/linuxcnc
+	# e.g. /usr/lib/linuxcnc/modules 
+
+	NO_OF_FLAVOURS := $(words $(BUILD_THREAD_FLAVORS))
+	counter=0
+	echo "$(NO_OF_FLAVOURS)"
+
 	for flavor in $(BUILD_THREAD_FLAVORS); do \
 	    if test $${flavor%-kernel} = $${flavor}; then \
-		echo Installing modules for userland flavor $$flavor; \
-		$(DIR) $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)/$$flavor; \
-		$(FILE) ../rtlib/$$flavor/* \
-		    $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)/$$flavor; \
-	    else \
-		echo Installing modules for kthreads flavor $$flavor; \
-		for srcdir in ../rtlib/$$flavor/*; do \
-		    kver=`basename $$srcdir`; \
-		    echo Installing modules for flavor $$flavor, kver $$kver; \
-		    $(DIR) $(DESTDIR)/lib/modules/$$kver/linuxcnc; \
-		    $(FILE) $$srcdir/* $(DESTDIR)/lib/modules/$$kver/linuxcnc; \
-		done; \
+		if test $${counter} = 0; then \
+		    echo Installing modules for userland flavor $$flavor; \
+		    $(DIR) $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)/$$flavor; \
+		    $(FILE) ../rtlib/$$flavor/* \
+			$(DESTDIR)$(EMC2_RTLIB_BASE_DIR)/$$flavor; \
+		    $(eval counter=$(shell echo $$(($(counter)+1)))) \
+		fi; \
 	    fi; \
 	done
-endif #  RUN_IN_PLACE
+
+endif # ! RUN_IN_PLACE
 
 CONF=../configs
 COMMON=$(CONF)/common

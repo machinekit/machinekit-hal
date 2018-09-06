@@ -161,7 +161,11 @@ install: build
 	mkdir -p debian/tmp
 	(cd debian/extras && cp -a * ../tmp)
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) V=$(DH_VERBOSE) $@)
-	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/linuxcnc
+	mkdir -p debian/tmp/usr/lib/linuxcnc/modules debian/tmp/usr/include/linuxcnc
+	## temp symlinks until all paths resolved
+#	ln -sf debian/tmp/usr/lib/linuxcnc/modules debian/tmp/usr/lib/linuxcnc/posix
+#	ln -sf debian/tmp/usr/lib/linuxcnc/modules debian/tmp/usr/lib/linuxcnc/rt-preempt
+#	ln -sf debian/tmp/usr/lib/linuxcnc/modules debian/tmp/usr/lib/linuxcnc/xenomai
 	cp lib/*.a debian/tmp/usr/lib
 	## if they weren't there we don't care if rm fails
 	rm -f debian/tmp/usr/share/applications/linuxcnc-usermanual*.desktop
@@ -194,15 +198,18 @@ endif
 	    echo "usr/include/linuxcnc/userpci/*.h" >> debian/machinekit-xenomai.install; \
 	fi
 
-	## only want this for armhf builds ##
+	## only want prubin for armhf builds ##
 	if [ -f debian/platform_pc ] ; then \
+	    cat debian/posix-postinst-pc.add >> debian/machinekit-posix.postinst; \
+	    cat debian/rt-preempt-postinst-pc.add >> debian/machinekit-rt-preempt.postinst; \
+	    cat debian/xenomai-postinst-pc.add >> debian/machinekit-xenomai.postinst; \
 	    rm -f debian/platform_pc; \
 	else \
 	    mkdir -p debian/tmp/usr/lib/linuxcnc/prubin; \
 	    cp rtlib/prubin/* debian/tmp/usr/lib/linuxcnc/prubin; \
-	    cat debian/posix-postinst.add >> debian/machinekit-posix.postinst; \
-	    cat debian/rt-preempt-postinst.add >> debian/machinekit-rt-preempt.postinst; \
-	    cat debian/xenomai-postinst.add >> debian/machinekit-xenomai.postinst; \
+	    cat debian/posix-postinst-arm.add >> debian/machinekit-posix.postinst; \
+	    cat debian/rt-preempt-postinst-arm.add >> debian/machinekit-rt-preempt.postinst; \
+	    cat debian/xenomai-postinst-arm.add >> debian/machinekit-xenomai.postinst; \
 	    echo "usr/lib/linuxcnc/prubin/*" >> debian/machinekit-posix.install; \
 	    echo "usr/lib/linuxcnc/prubin/*" >> debian/machinekit-rt-preempt.install; \
 	    echo "usr/lib/linuxcnc/prubin/*" >> debian/machinekit-xenomai.install; \

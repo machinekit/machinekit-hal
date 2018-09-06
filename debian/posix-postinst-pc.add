@@ -1,0 +1,2 @@
+
+ln -sf /usr/lib/linuxcnc/modules /usr/lib/linuxcnc/posix
