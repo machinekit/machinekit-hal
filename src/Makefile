@@ -122,18 +122,16 @@ ifeq ($(BUILD_ALL_FLAVORS),yes)
 FLAVORUP = $(shell echo $(1) | tr a-z- A-Z_)
 FLAVORVAR = $($(call FLAVORUP,$(1))_THREADS_$(2))
 modules:  userspace
-	$(MAKE) modules threads=posix ;
-#
-#	@$(foreach f,$(BUILD_THREAD_FLAVORS),\
-#	    echo "Making modules for flavor $(f)"; \
-#	    $(if $(findstring kbuild,$(call FLAVORVAR,$(f),BUILD_SYS)),\
-#		$(foreach kd,$(call FLAVORVAR,$(f),KERNEL_DIRS),\
-#		    echo "    kernel source dir $(kd)"; \
-#		    $(MAKE) modules threads=$(f) KERNELDIR=$(kd);\
-#		    ),\
-#	        $(MAKE) modules threads=$(f);\
-#	    )\
-#	)
+	@$(foreach f,$(BUILD_THREAD_FLAVORS),\
+	    echo "Making modules for flavor $(f)"; \
+	    $(if $(findstring kbuild,$(call FLAVORVAR,$(f),BUILD_SYS)),\
+		$(foreach kd,$(call FLAVORVAR,$(f),KERNEL_DIRS),\
+		    echo "    kernel source dir $(kd)"; \
+		    $(MAKE) modules threads=$(f) KERNELDIR=$(kd);\
+		    ),\
+	        $(MAKE) modules threads=$(f);\
+	    )\
+	)
 
 ifeq ($(RUN_IN_PLACE)+$(BUILD_DRIVERS),yes+yes)
 	for f in $(filter-out %-kernel,$(BUILD_THREAD_FLAVORS)); do \
