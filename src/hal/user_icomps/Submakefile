@@ -1,19 +1,13 @@
-##  A rather hacky but effective way to build components from C code using instcomp
-##  The dependencies to watch.so include instcomp and the userpci headers 
-##  These are jobs, so this build happens after they are completed.
-##  The creation of RTLIBDIRs are not jobs, so we have to make them first or this fails
-##
-##  Most of this can go once we just have one modules dir, they are binary identical between flavours.
+##  An effective way to build instantiated components from C code
+##  RTLIBDIR is permanant at present, need to add a job to make it later
 
 HALUSERICOMPDIR= hal/user_icomps
 
 HALUSERICOMP_SUBMAKEFILE= $(HALUSERICOMPDIR)/Submakefile
 
-$(RTLIBDIR): Makefile.inc
-	mkdir -p $(RTLIBDIR)
+obj-m += watch.o
+# the list of parts
+watch-objs := $(HALUSERICOMPDIR)/watch.o
 
-$(RTLIBDIR)/watch.so: $(HALUSERICOMPDIR)/watch.c ../bin/instcomp ../include/userpci/module.h $(RTLIBDIR)
-	$(Q)../bin/instcomp --require-license --install $(HALUSERICOMPDIR)/watch.c
-
-TARGETS += $(RTLIBDIR)/watch.so
+$(RTLIBDIR)/watch$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(watch-objs))
 
