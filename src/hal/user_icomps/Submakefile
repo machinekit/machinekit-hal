@@ -1,0 +1,42 @@
+##  A rather hacky but effective way to build components from C code using instcomp
+##  The dependencies to watch.so include instcomp and the userpci headers 
+##  These are jobs, so this build happens after they are completed.
+##  The creation of RTLIBDIRs are not jobs, so we have to make them first or this fails
+##
+##  Most of this can go once we just have one modules dir, they are binary identical between flavours.
+
+HALUSERICOMPDIR= hal/user_icomps
+
+HALUSERICOMP_SUBMAKEFILE= $(HALUSERICOMPDIR)/Submakefile
+
+$(RTLIBDIR): Makefile.inc
+ifeq ($(HAVE_POSIX_THREADS),yes)
+	mkdir -p $(EMC2_RTLIB_BASE_DIR)/posix
+endif
+ifeq ($(HAVE_RT_PREEMPT_THREADS),yes)
+	mkdir -p $(EMC2_RTLIB_BASE_DIR)/rt-preempt
+endif
+ifeq ($(HAVE_XENOMAI_THREADS),yes)
+	mkdir -p $(EMC2_RTLIB_BASE_DIR)/xenomai
+endif
+
+$(RTLIBDIR)/watch.so: $(HALUSERICOMPDIR)/watch.c ../bin/instcomp ../include/userpci/module.h $(RTLIBDIR)
+	$(Q)../bin/instcomp --require-license --install $(HALUSERICOMPDIR)/watch.c
+ifeq ($(HAVE_POSIX_THREADS),yes)
+ifneq ($(RTLIBDIR),$(EMC2_RTLIB_BASE_DIR)/posix)
+	$(Q)/bin/cp -rf $(RTLIBDIR)/watch.so $(RTLIBDIR)/../posix 2>/dev/null || true
+endif
+endif
+ifeq ($(HAVE_RT_PREEMPT_THREADS),yes)
+ifneq ($(RTLIBDIR),$(EMC2_RTLIB_BASE_DIR)/rt-preempt)
+	$(Q)/bin/cp -rf $(RTLIBDIR)/watch.so $(RTLIBDIR)/../rt-preempt 2>/dev/null || true
+endif
+endif
+ifeq ($(HAVE_XENOMAI_THREADS),yes)
+ifneq ($(RTLIBDIR),$(EMC2_RTLIB_BASE_DIR)/xenomai)
+	$(Q)/bin/cp -rf $(RTLIBDIR)/watch.so $(RTLIBDIR)/../xenomai 2>/dev/null || true
+endif
+endif
+
+TARGETS += $(RTLIBDIR)/watch.so
+
