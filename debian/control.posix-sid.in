@@ -1,22 +1,21 @@
 
-Package: machinekit-hal-rt-preempt
+Package: machinekit-hal-posix
 Architecture: any
 Provides:  machinekit-hal
 Conflicts: machinekit
 Depends: ${misc:Depends},
-    linux-image-rt-686-pae [i386], linux-image-rt-amd64 [amd64],
     tcl8.6, tk8.6,
     bwidget (>= 1.7), libtk-img (>=1.13),
     ${python:Depends}, ${misc:Depends},
-    python-tk, python-imaging, python-imaging-tk,
+    python-tk, python-pil, python-pil.imagetk,
     python-gnome2, python-glade2,
     python-numpy, python-gtksourceview2,
     python-vte, python-xlib, python-gtkglext1, python-configobj,
     python-zmq, python-protobuf (>= 2.4.1),
     python-avahi, python-simplejson, python-pyftpdlib,
     python-pydot, xdot, tclreadline, bc, procps, psmisc,
-    python-gst0.10, python-configobj,
+    python-gst-1.0, python-configobj,
     module-init-tools | kmod,
     libzmq3-dev (>= 4.0.4), libczmq-dev (>= 4.0.2), libjansson4, yapps2-runtime
-Description: HAL stack split from machinekit
- This package provides components and drivers that run on an RT-Preempt system.
+Description: HAL stack split from Machinekit
+ This package provides components and drivers that run on a non-realtime (Posix) system.
