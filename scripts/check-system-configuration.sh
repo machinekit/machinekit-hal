@@ -140,7 +140,7 @@ check-ulimits() {
 	echo
 	echo "          Value for 'memlock' in file $last_ulimit_config"
 	echo "          should be raised to $reasonable_memlock or greater"
-	echo
+	echo ""
 	return 1
     fi
 }
@@ -151,50 +151,50 @@ check-ulimits() {
 #
 # The shmdrv converged shared memory driver for kthreads flavors must
 # be accessible.  Look for a 'shmdrv.rules' file.
-check-shmdrv() {
-    local udev_conf=/etc/udev/rules.d/50-shmdrv.rules
-    local udev_configs="$(get-conf-files /etc/udev/rules.d/*.rules)"
-    
-    # If $udev_conf exists, assume the contents are correct
-    if test -f $udev_conf; then
-	return 0
-    fi
-
-    # Otherwise, assume any KERNEL=="shmdrv" setting is correct
-    for f in $udev_configs; do
-	if grep -q 'KERNEL=="shmdrv"' $f; then
-	    return 0
-	fi
-    done
-    
-    # If we're here, we found no sign of udev configuration.
-    echo "Warning:  No udev configuration for shmdrv was found."
-    echo
-    echo "          The user running LinuxCNC must have write access to"
-    echo "          /dev/shmdrv when running kernel threads, which may"
-    echo "          be configured in /etc/udev/rules.d."
-    echo
-    echo "          Hint:"
-    echo "            $ sudo cp rtapi/shmdrv/shmdrv.rules $udev_conf"
-    echo "            $ sudo udevadm trigger"
-    echo
-    return 1
-}
+#check-shmdrv() {
+#    local udev_conf=/etc/udev/rules.d/50-shmdrv.rules
+#    local udev_configs="$(get-conf-files /etc/udev/rules.d/*.rules)"
+#    
+#    # If $udev_conf exists, assume the contents are correct
+#    if test -f $udev_conf; then
+#	return 0
+#    fi
+#
+#    # Otherwise, assume any KERNEL=="shmdrv" setting is correct
+#    for f in $udev_configs; do
+#	if grep -q 'KERNEL=="shmdrv"' $f; then
+#	    return 0
+#	fi
+#    done
+#    
+#    # If we're here, we found no sign of udev configuration.
+#    echo "Warning:  No udev configuration for shmdrv was found."
+#    echo
+#    echo "          The user running LinuxCNC must have write access to"
+#    echo "          /dev/shmdrv when running kernel threads, which may"
+#    echo "          be configured in /etc/udev/rules.d."
+#    echo
+#    echo "          Hint:"
+#    echo "            $ sudo cp rtapi/shmdrv/shmdrv.rules $udev_conf"
+#    echo "            $ sudo udevadm trigger"
+#    echo
+#    return 1
+#}
 
 HAVE_KERNEL_THREADS=false
-while getopts k opt; do
-    case "$opt" in
-	k) HAVE_KERNEL_THREADS=true ;;
-	*) echo "Usage: $0 [ -k ]" >&2; exit 1 ;;
-    esac
-done
+#while getopts k opt; do
+#    case "$opt" in
+#	k) HAVE_KERNEL_THREADS=true ;;
+#	*) echo "Usage: $0 [ -k ]" >&2; exit 1 ;;
+#    esac
+#done
 
 
 res=0
 check-rsyslog || res=1
 check-ulimits || res=1
-if $HAVE_KERNEL_THREADS; then
-    check-shmdrv || res=1
-fi
+#if $HAVE_KERNEL_THREADS; then
+#    check-shmdrv || res=1
+#fi
 
 exit $res
