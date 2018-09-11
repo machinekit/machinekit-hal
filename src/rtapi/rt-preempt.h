@@ -58,6 +58,9 @@
 #endif
 
 
+/* rtapi_main.c */
+#define HAVE_RTAPI_MODULE_INIT_HOOK   // init cgroups
+
 /* misc */
 #define HAVE_RTAPI_TASK_FREE
 #define HAVE_DROP_RESTORE_PRIVS

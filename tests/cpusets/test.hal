@@ -1,0 +1,6 @@
+setexact_for_test_suite_only
+
+newthread test 10000000 cgname=/rt
+
+loadusr -w ps -C rtapi:0 -wLo comm=,psr=
+

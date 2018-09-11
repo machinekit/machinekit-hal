@@ -1,12 +1,12 @@
-Source: machinekit-hal
+Source: machinekit
 Section: misc
 Priority: extra
-Maintainer: ArcEye <arceyeATmgwareDOTcoDOTuk>
+Maintainer: John Morris <john@dovetail-automata.com>
 Build-Depends: debhelper (>= 6),
     autoconf (>= 2.63), automake, libboost-python-dev, libgl1-mesa-dev,
-    libglu1-mesa-dev, libmodbus-dev (>= 3.0),
+    libglu1-mesa-dev, libgtk2.0-dev, libmodbus-dev (>= 3.0), libudev-dev,
     libncurses-dev, libreadline-dev, libusb-1.0-0-dev, libxmu-dev,
-    libxmu-headers, python (>= 2.6.6-3~), python-dev (>= 2.6.6-3~),
+    libxmu-headers, python (>= 2.6.6), python-dev (>= 2.6.6),
     cython (>= 0.19), dh-python,
     pkg-config, psmisc, python-tk, libxaw7-dev, libboost-serialization-dev,
     libzmq3-dev (>= 4.0.4), libczmq-dev (>= 4.0.2), libjansson-dev (>= 2.5),
@@ -16,8 +16,8 @@ Build-Depends: debhelper (>= 6),
     uuid-dev, uuid-runtime, libavahi-client-dev,
     libprotobuf-dev (>= 2.4.1), protobuf-compiler (>= 2.4.1),
     python-protobuf (>= 2.4.1), libprotoc-dev (>= 2.4.1),
-    python-simplejson, libboost-thread-dev,
-    python-pyftpdlib, libcgroup-dev, @BUILD_DEPS@
+    python-simplejson, libtk-img, libboost-thread-dev,
+    python-pyftpdlib, tcl8.6-dev, tk8.6-dev, libcgroup-dev, @BUILD_DEPS@
 Standards-Version: 2.1.0
 
 #########################################################################
@@ -52,9 +52,8 @@ Depends: ${shlibs:Depends}, machinekit-rt-threads, tcl8.6, tk8.6,
     python-vte, python-xlib, python-gtkglext1, python-configobj,
     python-zmq, python-protobuf (>= 2.4.1),
     python-avahi, python-simplejson, python-pyftpdlib,
-    python-pydot, xdot,
-    tclreadline, bc, procps, psmisc, cgroup-tools,
-    python-gst0.10, uuid-runtime
+    python-pydot, xdot, python-gst-1.0, python-gtksourceview2,
+    tclreadline, bc, procps, psmisc, cgroup-tools, uuid-runtime
 Description: PC based motion controller for real-time Linux
  Machinekit is the next-generation Enhanced Machine Controller which
  provides motion control for CNC machine tools and robotic

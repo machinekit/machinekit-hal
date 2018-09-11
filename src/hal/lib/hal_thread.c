@@ -177,6 +177,7 @@ int hal_create_xthread(const hal_threadargs_t *args)
 	new->uses_fp = args->uses_fp;
 	new->cpu_id = args->cpu_id;
 	new->flags = args->flags;
+    strncpy(new->cgname, args->cgname, LINELEN);
 
 	/* have to create and start a task to run the thread */
 	if (dlist_empty(&hal_data->threads)) {
@@ -240,7 +241,9 @@ int hal_create_xthread(const hal_threadargs_t *args)
 	    .cpu_id =new->cpu_id,
 	    .name = (char *)ho_name(new),
 	    .flags = new->flags,
+        .cgname = {0},
 	};
+    strncpy(rargs.cgname, new->cgname, LINELEN);
 	retval = rtapi_task_new(&rargs);
 	if (retval < 0) {
 	    HALFAIL_RC(EINVAL, "could not create task for thread %s", args->name);
