@@ -175,13 +175,15 @@ int _rtapi_task_new(const rtapi_task_args_t *args) {
     */
 
     // task slot found; reserve it and release lock
-    rtapi_print_msg(RTAPI_MSG_DBG,
-		    "Creating new task %d  '%s:%d': "
-		    "req prio %d (highest=%d lowest=%d) stack=%lu fp=%d flags=%d\n",
-		    task_id, args->name, rtapi_instance, args->prio,
-		    _rtapi_prio_highest(),
-		    _rtapi_prio_lowest(),
-		    args->stacksize, args->uses_fp, args->flags);
+    rtapi_print_msg(
+        RTAPI_MSG_DBG,
+        "Creating new task %d  '%s:%d': "
+        "req prio %d (highest=%d lowest=%d) stack=%lu fp=%d flags=%d "
+        "cgname=%s\n",
+        task_id, args->name, rtapi_instance, args->prio,
+        _rtapi_prio_highest(),
+        _rtapi_prio_lowest(),
+        args->stacksize, args->uses_fp, args->flags, args->cgname);
     task->magic = TASK_MAGIC;
 
     /* fill out task structure */
@@ -193,6 +195,7 @@ int _rtapi_task_new(const rtapi_task_args_t *args) {
     task->flags = args->flags;
     task->uses_fp = args->uses_fp;
     task->cpu = args->cpu_id > -1 ? args->cpu_id : rtapi_data->rt_cpu;
+    strncpy(task->cgname, args->cgname, LINELEN);
 
     rtapi_print_msg(RTAPI_MSG_DBG, "Task CPU:  %d\n", task->cpu);
 

@@ -159,6 +159,7 @@ typedef struct {
     void *arg;			/* task argument */
     int cpu;
     rtapi_thread_flags_t flags;
+    char cgname[LINELEN];
 } task_data;
 
 typedef struct {

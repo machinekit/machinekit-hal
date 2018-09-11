@@ -795,6 +795,7 @@ typedef struct {
     char *name;
     int cpu_id;
     rtapi_thread_flags_t flags;             // eg Posix, nowait
+    char cgname[LINELEN];
 } rtapi_task_args_t;
 
 
