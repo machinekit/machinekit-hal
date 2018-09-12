@@ -77,16 +77,22 @@ ifeq ($(BUILD_SYS),kbuild)
 ULAPI_SRCS += rtapi/$(threads)/rtapi_module.c
 endif
 
+
 # resolved at loadtime
 $(call TOOBJSDEPS, $(ULAPI_SRCS)): EXTRAFLAGS += \
 	$(THREADS_RTFLAGS) -fPIC
 
 ULAPISO := ../rtlib/ulapi-$(threads).so
 
-$(ULAPISO): ../lib/liblinuxcnchal.so ../lib/liblinuxcncshm.so \
-		$(call TOOBJS, $(ULAPI_SRCS))
+$(ULAPISO): ../lib/liblinuxcnchal.so ../lib/liblinuxcncshm.so $(call TOOBJS, $(ULAPI_SRCS))
 	$(ECHO) Creating shared object $@
-	@mkdir -p ../rtlib
+	@mkdir -p ../rtlib/modules;
+## create the symlinks for RIP which are done by postinst for a package
+ifeq ($(RUN_IN_PLACE),yes)
+	for f in $(filter-out %-kernel,$(BUILD_THREAD_FLAVORS)); do \
+	    ln -sf ../rtlib/modules ../rtlib/$$f; \
+	done ;
+endif
 	@rm -f $@
 	$(Q)$(CC) $(LDFLAGS)  -Wl,-soname,$(notdir $@) -shared \
 	    -o $@ $^ $(ULAPISO_LIBS) $(RT_LDFLAGS) \
