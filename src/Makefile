@@ -243,10 +243,6 @@ SUBDIRS := \
 	\
 	po \
 
-#ifeq ($(HAVE_KERNEL_THREADS),yes)
-#SUBDIRS += module_helper
-#endif
-
 ifeq ($(BUILD_WEBTALK),yes)
 SUBDIRS += machinetalk/webtalk
 endif
@@ -672,13 +668,7 @@ clean: depclean modclean docclean
 fix_perms = test -f $(1) && chown root $(1) && chmod 4750 $(1) || true
 
 ifeq ($(BUILD_DRIVERS),yes)
-#ifeq ($(HAVE_KERNEL_THREADS),yes)
-#CHECK_KFLAV_SWITCH=-k
-#endif
 setuid:
-#ifeq ($(HAVE_KERNEL_THREADS),yes)
-#	$(call fix_perms,../libexec/linuxcnc_module_helper)
-#endif
 	$(call fix_perms,../libexec/pci_read)
 	$(call fix_perms,../libexec/pci_write)
 	$(foreach f,$(BUILD_THREAD_FLAVORS),\
@@ -820,9 +810,6 @@ endif
 
 install-kernel-dep: install-dirs
 	$(SETUID) ../libexec/rtapi_app_* $(DESTDIR)$(EMC2_LIBEXEC_DIR)
-#ifeq ($(HAVE_KERNEL_THREADS),yes)
-#	$(SETUID) ../libexec/linuxcnc_module_helper $(DESTDIR)$(EMC2_LIBEXEC_DIR)
-#endif
 ifeq ($(BUILD_DRIVERS),yes)
 	$(SETUID) ../libexec/pci_write $(DESTDIR)$(EMC2_LIBEXEC_DIR)
 	$(SETUID) ../libexec/pci_read $(DESTDIR)$(EMC2_LIBEXEC_DIR)
@@ -851,14 +838,6 @@ endif
 		done; \
 	    fi; \
 	done
-#ifeq ($(USE_SHMDRV),yes)
-#	for srcdir in ../rtlib/shmdrv/*; do \
-#	    kver=`basename $$srcdir`; \
-#	    echo Installing shmdrv.ko module for kernel version $$kver; \
-#	    $(DIR) $(DESTDIR)/lib/modules/$$kver/linuxcnc; \
-#	    $(FILE) $$srcdir/* $(DESTDIR)/lib/modules/$$kver/linuxcnc; \
-#	done;
-#endif
 endif # ! RUN_IN_PLACE
 
 CONF=../configs
