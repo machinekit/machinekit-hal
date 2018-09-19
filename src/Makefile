@@ -78,12 +78,7 @@ BUILD_ALL_FLAVORS = no
 BUILD_THREAD_MODULES = yes
 endif # $(threads)
 
-# if KERNELRELEASE is non-empty, we're in kbuild
-ifeq ($(KERNELRELEASE),)
 BUILD_KBUILD = no
-else
-BUILD_KBUILD = yes
-endif
 
 # extract the version from the kernel source version.h
 ifneq ($(KERNELDIR),)
@@ -114,6 +109,8 @@ endif
 
 # default target:  put before everything else
 default:
+
+###########################################################################################
 
 ifeq ($(BUILD_ALL_FLAVORS),yes)
 # Top-level modules target
@@ -156,6 +153,7 @@ endif
 
 endif # BUILD_ALL_FLAVORS
 
+#############################################################################################
 
 OBJDIR := objects/$(RTDIR_EXT)
 DEPDIR := depends/$(RTDIR_EXT)
@@ -171,6 +169,8 @@ cc-option = $(shell \
     else \
 	echo "$(2)"; \
     fi ;)
+
+#############################################################################################
 
 ifeq ($(KERNELRELEASE),)
 # When KERNELRELEASE is not defined, this is the userspace build.
@@ -592,15 +592,15 @@ endif
 #
 # (don't build when 'BUILD_ALL_FLAVORS' or 'BUILD_THREADS_MODULES' are set;
 # these are intermediate make runs)
-ifeq ($(BUILD_SYS)+$(BUILD_THREAD_MODULES),kbuild+yes)
-modules:  $(OBJDIR)/.separate-kbuild-artifacts-hack.stamp
-	mkdir -p $(RTLIBDIR)
-	$(PYTHON) modsilent.py $(MAKE) \
-	    -C $(KERNELDIR) \
-	    SUBDIRS=$(BASEPWD)/$(OBJDIR) \
-	    CC="$(CC)" KBUILD_VERBOSE=$(BUILD_VERBOSE) modules
-	cp $(OBJDIR)/Module.symvers $(OBJDIR)/*$(MODULE_EXT) $(RTLIBDIR)
-endif  # BUILD_SYS == 'kbuild'
+#ifeq ($(BUILD_SYS)+$(BUILD_THREAD_MODULES),kbuild+yes)
+#modules:  $(OBJDIR)/.separate-kbuild-artifacts-hack.stamp
+#mkdir -p $(RTLIBDIR)
+#	$(PYTHON) modsilent.py $(MAKE) \
+#	    -C $(KERNELDIR) \
+#	    SUBDIRS=$(BASEPWD)/$(OBJDIR) \
+#	    CC="$(CC)" KBUILD_VERBOSE=$(BUILD_VERBOSE) modules
+#	cp $(OBJDIR)/Module.symvers $(OBJDIR)/*$(MODULE_EXT) $(RTLIBDIR)
+#endif  # BUILD_SYS == 'kbuild'
 
 # It looks almost impossible to coerce kbuild into putting build
 # artifacts outside the source tree.  The universal build needs to
@@ -618,10 +618,6 @@ $(OBJDIR)/.separate-kbuild-artifacts-hack.stamp:
 	# never follow symbolic links
 	cp -rlfd $(MODULE_SOURCE_DIRS) $(OBJDIR)
 	cp -lf $(MODULE_SOURCES) $(OBJDIR)
-ifeq ($(BUILD_SYS),kbuild)
-	# kbuild needs a full copy of this tree with
-	cp -rlf halcomp-srcs $(OBJDIR)
-endif
 	ln -sf $(BASEPWD)/../bin $(OBJDIR)/..
 	ln -sf $(BASEPWD)/../scripts $(OBJDIR)/..
 	touch $@
@@ -708,7 +704,7 @@ endef
 install:
 	$(error $(ERROR_MESSAGE))
 
-else
+else  ## ifeq($(RUN_IN_PLACE),yes)
 
 DOCS_HELP=$(call GLOB,../help/*)
 NC_FILES=$(filter-out %/butterfly.ngc,$(call GLOB,../nc_files/*))
@@ -838,7 +834,7 @@ endif
 		done; \
 	    fi; \
 	done
-endif # ! RUN_IN_PLACE
+endif #  RUN_IN_PLACE
 
 CONF=../configs
 COMMON=$(CONF)/common
@@ -846,26 +842,28 @@ CONFILES=$(addsuffix /$(1), $(filter-out $(COMMON) $(CONF),\
                                          ${shell find ${CONF} -type d -print}))
 endif # userspace
 
-ifneq ($(KERNELRELEASE),)
-# KERNELRELEASE is non-empty, therefore we are building modules using
-# the "kbuild" system.
+#################################################################################################################
+
+#ifneq ($(KERNELRELEASE),)
+## KERNELRELEASE is non-empty, therefore we are building modules using
+## the "kbuild" system.
+##
+#INCLUDE_PREFIX = $(BASEPWD)
 #
-INCLUDE_PREFIX = $(BASEPWD)
-
-
-# When the Submakefile is included in the kbuild Makefile, the
-# module's obj-m and foo-objs definitions may remain in the Submakefile
-include $(BASEPWD)/hal/lib/Submakefile
-include $(BASEPWD)/machinetalk/Submakefile
-include $(BASEPWD)/hal/i_components/Submakefile
-include $(BASEPWD)/hal/components/Submakefile
-include $(BASEPWD)/hal/vtable-example/Submakefile
-include $(BASEPWD)/hal/userfunct-example/Submakefile
-include $(BASEPWD)/machinetalk/msgcomponents/Submakefile
-include $(BASEPWD)/rtapi/Submakefile
-include $(BASEPWD)/rtapi/shmdrv/Submakefile
-include $(BASEPWD)/rtapi/rtapi_math/Submakefile
-endif # KERNELRELEASE non-empty
+#
+## When the Submakefile is included in the kbuild Makefile, the
+## module's obj-m and foo-objs definitions may remain in the Submakefile
+#include $(BASEPWD)/hal/lib/Submakefile
+#include $(BASEPWD)/machinetalk/Submakefile
+#include $(BASEPWD)/hal/i_components/Submakefile
+#include $(BASEPWD)/hal/components/Submakefile
+#include $(BASEPWD)/hal/vtable-example/Submakefile
+#include $(BASEPWD)/hal/userfunct-example/Submakefile
+#include $(BASEPWD)/machinetalk/msgcomponents/Submakefile
+#include $(BASEPWD)/rtapi/Submakefile
+#include $(BASEPWD)/rtapi/shmdrv/Submakefile
+#include $(BASEPWD)/rtapi/rtapi_math/Submakefile
+#endif # KERNELRELEASE non-empty
 
 # $(BASEPWD) is used here, instead of relative paths, because that's
 # what kbuild seems to require
@@ -894,9 +892,10 @@ EXTRA_CFLAGS = $(RTFLAGS) \
 ifdef TARGET_PLATFORM_BEAGLEBONE
 EXTRA_CFLAGS += -I$(INCLUDE_PREFIX)/hal/support/pru
 endif
-ifeq ($(BUILD_SYS),kbuild)
-EXTRA_CFLAGS += $(call cc-option,-Wframe-larger-than=2560) $(call cc-option,-Wno-declaration-after-statement)
-endif
+
+#ifeq ($(BUILD_SYS),kbuild)
+#EXTRA_CFLAGS += $(call cc-option,-Wframe-larger-than=2560) $(call cc-option,-Wno-declaration-after-statement)
+#endif
 
 
 
@@ -1076,7 +1075,7 @@ endif
 endif
 
 # these won't compile as-is with userland threading
-
+######################################################
 #ifneq ($(BUILD_SYS),user-dso)
 #obj-$(CONFIG_HAL_M5I20) += hal_m5i20.o
 #hal_m5i20-objs := hal/drivers/hal_m5i20.o $(MATHSTUB)
@@ -1087,6 +1086,7 @@ endif
 #obj-$(CONFIG_HAL_GM) += hal_gm.o
 #hal_gm-objs := hal/drivers/hal_gm.o $(MATHSTUB)
 #endif
+####################################################
 
 # Gnu make 'expression' syntax is pathetic. What were these guys smoking?
 # turn on by default
@@ -1195,6 +1195,7 @@ ufdemo-objs := hal/userfunct-example/ufdemo.o
 
 TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), $(OBJDIR)/$(file))
 
+#######################################################################################################
 
 # USER_DSO module building
 # (don't build when 'BUILD_ALL_FLAVORS' or 'BUILD_THREADS_MODULES' are set;
@@ -1313,6 +1314,8 @@ $(sort $(CXXRTOBJS)) : $(OBJDIR)/%.o : %.cc $(DEPDIR)/%.d
 
 endif # end BUILD_SYS=user-dso
 
+####################################################################################################################################################
+
 # # ------ not used anymore -------------
 # ifeq ($(BUILD_SYS),normal)
 # modules: $(patsubst %,$(RTLIBDIR)/%,$(obj-m))
@@ -1335,6 +1338,8 @@ endif # end BUILD_SYS=user-dso
 # 	$(ECHO) Linking $@
 # 	$(Q)ld -r -static -S  $(LDFLAGS) -o $@ $^ $(EXTRALINK)
 # endif # end 'normal'
+
+##############################################################################################
 
 # build kernel RTAPI modules
 ifneq "$(filter normal user-dso,$(BUILD_SYS))" ""
@@ -1461,7 +1466,11 @@ $(shell echo 1>&2 Reading $(words $(READ_RTDEPS))/$(words $(RTDEPS)) realtime de
 -include $(READ_RTDEPS)
 $(shell echo 1>&2 Done reading realtime dependencies)
 endif
+
 endif  # build kernel RTAPI modules
+
+###############################################################################################
+
 
 # Phony so that it is always rebuilt when requested, not because it
 # shouldn't exist as a file
