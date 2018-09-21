@@ -94,3 +94,4 @@ var encodedBuffer = new ArrayBuffer([0x08, 0xd2, 0x01]);
 var decodedMessageContainer = machinetalk.protobuf.message.Container.decode(encodedBuffer);
 ```
 This results in a messageContainer like the one defined in [Encoding](#Encoding).
+
