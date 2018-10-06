@@ -584,15 +584,6 @@ endif
 #
 # (don't build when 'BUILD_ALL_FLAVORS' or 'BUILD_THREADS_MODULES' are set;
 # these are intermediate make runs)
-#ifeq ($(BUILD_SYS)+$(BUILD_THREAD_MODULES),kbuild+yes)
-#modules:  $(OBJDIR)/.separate-kbuild-artifacts-hack.stamp
-#mkdir -p $(RTLIBDIR)
-#	$(PYTHON) modsilent.py $(MAKE) \
-#	    -C $(KERNELDIR) \
-#	    SUBDIRS=$(BASEPWD)/$(OBJDIR) \
-#	    CC="$(CC)" KBUILD_VERBOSE=$(BUILD_VERBOSE) modules
-#	cp $(OBJDIR)/Module.symvers $(OBJDIR)/*$(MODULE_EXT) $(RTLIBDIR)
-#endif  # BUILD_SYS == 'kbuild'
 
 # It looks almost impossible to coerce kbuild into putting build
 # artifacts outside the source tree.  The universal build needs to
@@ -836,30 +827,6 @@ endif # userspace
 
 #################################################################################################################
 
-#ifneq ($(KERNELRELEASE),)
-## KERNELRELEASE is non-empty, therefore we are building modules using
-## the "kbuild" system.
-##
-#INCLUDE_PREFIX = $(BASEPWD)
-#
-#
-## When the Submakefile is included in the kbuild Makefile, the
-## module's obj-m and foo-objs definitions may remain in the Submakefile
-#include $(BASEPWD)/hal/lib/Submakefile
-#include $(BASEPWD)/machinetalk/Submakefile
-#include $(BASEPWD)/hal/i_components/Submakefile
-#include $(BASEPWD)/hal/components/Submakefile
-#include $(BASEPWD)/hal/vtable-example/Submakefile
-#include $(BASEPWD)/hal/userfunct-example/Submakefile
-#include $(BASEPWD)/machinetalk/msgcomponents/Submakefile
-#include $(BASEPWD)/rtapi/Submakefile
-#include $(BASEPWD)/rtapi/shmdrv/Submakefile
-#include $(BASEPWD)/rtapi/rtapi_math/Submakefile
-#endif # KERNELRELEASE non-empty
-
-# $(BASEPWD) is used here, instead of relative paths, because that's
-# what kbuild seems to require
-
 EXTRA_CFLAGS = $(RTFLAGS) \
         $(ARCH_CFLAGS) \
 	-D__MODULE__ \
@@ -884,12 +851,6 @@ EXTRA_CFLAGS = $(RTFLAGS) \
 ifdef TARGET_PLATFORM_BEAGLEBONE
 EXTRA_CFLAGS += -I$(INCLUDE_PREFIX)/hal/support/pru
 endif
-
-#ifeq ($(BUILD_SYS),kbuild)
-#EXTRA_CFLAGS += $(call cc-option,-Wframe-larger-than=2560) $(call cc-option,-Wno-declaration-after-statement)
-#endif
-
-
 
 # For each module, there's an addition to obj-m or obj-$(CONFIG_foo)
 # plus a definition of foo-objs, which contains the full path to the
@@ -918,20 +879,6 @@ endif
 # 	rtapi/rtapi_time.o \
 # 	rtapi/rtapi_io.o \
 # 	rtapi/$(THREADS_SOURCE).o
-# # Kernel threads need rtapi_module.c
-# ifeq ($(BUILD_SYS),kbuild)
-# rtapi-objs += rtapi/rtapi_module.o
-# endif
-# # User threads need rtapi_pci.c
-# ifeq ($(BUILD_SYS),user-dso)
-# rtapi-objs += rtapi/rtapi_pci.o
-# rtapi-objs += rtapi/shmdrv/shmdrvapi.o
-# # and rtapi_app_main/exit stubs
-# rtapi-objs += rtapi/rtapi_main.o
-# # and autodetect/compat checks
-# rtapi-objs += rtapi/rtapi_compat.o
-# endif
-
 
 # Subdirectory: rtapi/examples (unneeded?)
 
@@ -1363,32 +1310,22 @@ $(RTLIBDIR)/sampler$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(sampler-objs))
 $(RTLIBDIR)/hal_parport$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_parport-objs))
 $(RTLIBDIR)/probe_parport$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(probe_parport-objs))
 
-
-#ifeq ($(BUILD_SYS),user-dso)
-$(RTLIBDIR)/probe_parport$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(probe_parport-objs))
-#endif
-
 ifeq ($(USERMODE_PCI),yes)
 $(RTLIBDIR)/hostmot2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hostmot2-objs))
 $(RTLIBDIR)/hm2_7i43$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_7i43-objs))
 $(RTLIBDIR)/hm2_7i90$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_7i90-objs))
 $(RTLIBDIR)/hm2_pci$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_pci-objs))
 $(RTLIBDIR)/setsserial$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(setsserial-objs))
-#ifeq ($(BUILD_SYS),user-dso)
 $(RTLIBDIR)/hm2_eth$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_eth-objs))
-#endif
 $(RTLIBDIR)/hm2_test$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_test-objs))
 endif
 
 ifdef TARGET_PLATFORM_SOCFPGA
-#ifeq ($(BUILD_SYS),user-dso)
 $(RTLIBDIR)/hostmot2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hostmot2-objs))
 $(RTLIBDIR)/hm2_soc_ol$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_soc_ol-objs))
-#endif
 endif
 
 ifdef TARGET_PLATFORM_BEAGLEBONE
-#ifeq ($(BUILD_SYS),user-dso)
 $(RTLIBDIR)/hal_pru$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_pru-objs))
 $(RTLIBDIR)/hal_pru_generic$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_pru_generic-objs))
 $(RTLIBDIR)/hal_prudebug$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_prudebug-objs))
@@ -1396,7 +1333,6 @@ $(RTLIBDIR)/hal_gpio$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_gpio-objs))
 $(RTLIBDIR)/hal_bb_gpio$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_bb_gpio-objs))
 $(RTLIBDIR)/pepper$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pepper-objs))
 $(RTLIBDIR)/hal_arm335xQEP$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_arm335xQEP-objs))
-#endif
 endif
 
 ifdef TARGET_PLATFORM_H3
