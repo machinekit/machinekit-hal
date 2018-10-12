@@ -594,7 +594,7 @@ function Cleanup() {
 
     for i in `seq 10`; do
         # (the one component is the halcmd itself)
-        if [ `$HALCMD list comp | wc -w` = 1 ]; then break; fi
+        if [ "`$HALCMD list comp | wc -w`" = 1 ]; then break; fi
         sleep .2
     done
 
