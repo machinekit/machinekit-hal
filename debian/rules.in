@@ -214,14 +214,10 @@ binary-arch: build install
 	    -X.tbl -X.xml -Xsample-configs
 	dh_fixperms -X/linuxcnc_module_helper -X/rtapi_app_
 	dh_python2 --ignore-shebangs --no-guessing-versions --no-ext-rename
+	dh_makeshlibs
 	dh_installdeb
 
-#	# delete files that should be in machinekit-<flavor> package
-	rm -f debian/machinekit/usr/bin/comp
-	rm -f debian/machinekit/usr/share/linuxcnc/Makefile.modinc
-	rm -f debian/machinekit/usr/share/linuxcnc/Makefile.inc
-
-	cat debian/machinekit/DEBIAN/shlibs debian/shlibs.pre > \
+	cat debian/machinekit-hal-posix/DEBIAN/shlibs debian/shlibs.pre > \
 	    debian/shlibs.local
         #enable buster builds to work with problematic shlib deps in current packages
 	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info \
