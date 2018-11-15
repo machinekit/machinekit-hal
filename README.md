@@ -1,15 +1,21 @@
-__machinekit-hal__ is a split out repo which just contains the HAL elements of machinekit
+machinetalk-protobuf
+====================
 
-It can be built as a RIP and used in the same way as a machinekit RIP, but without the CNC elements.
+Protobuf declarations for machinekit messages
 
-Install _machinekit-hal-{flavour}_  if using packages.
+This repo is integrated into github.com/machinekit/machinekit as a git subtree.
 
-PR's should not be made directly to this repo without prior notice.
+To change/add to message definitions:
 
-The machinekit repo is periodically cherry-picked for relevant new commits by the developers
-and machinekit-hal updated from these.
+* send a PR against this repo
+* add a new remote in your machinekit repo referring to here
+* update the subtree in your machinekit repo like so
 
-NB. There is a related repo __machinekit-cnc__, which contains all the CNC elements missing from this repo.
+```
+git remote add machinetalk-protobuf git://github.com/machinekit/machinetalk-protobuf.git
+git fetch machinetalk-protobuf
+git subtree merge --prefix=src/machinetalk/proto machinetalk-protobuf/master --squash
+```
 
 Now create a PR against the machinekit repo.
 
