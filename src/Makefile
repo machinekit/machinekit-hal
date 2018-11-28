@@ -687,6 +687,14 @@ endef
 install:
 	$(error $(ERROR_MESSAGE))
 
+MENUS = ../share/menus/CNC.menu \
+    ../share/desktop-directories/cnc.directory \
+    ../share/applications/linuxcnc.desktop \
+
+install-menus install-menu: $(MENUS)
+	mkdir -p $(HOME)/.config/menus/applications-merged
+	cp $< $(HOME)/.config/menus/applications-merged
+
 else  ## ifeq($(RUN_IN_PLACE),yes)
 
 DOCS_HELP=$(call GLOB,../help/*)
