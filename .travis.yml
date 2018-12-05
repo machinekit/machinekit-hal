@@ -17,10 +17,7 @@ services:
   - docker
 
 before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq sshpass
-  - gem install package_cloud
-  - .travis/check_sftp.sh 
+  - .travis/check_sftp.sh
 
 env:
   global:
