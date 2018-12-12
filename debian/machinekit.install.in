@@ -4,6 +4,7 @@ etc/security/limits.d/machinekit.conf
 etc/udev/rules.d/50-shmdrv.rules
 etc/X11/app-defaults/*
 usr/lib/*.so.*
+usr/lib/linuxcnc/modules/*.so
 usr/lib/tcltk/linuxcnc
 usr/bin/*
 usr/lib/python*/*/*.py

@@ -121,11 +121,14 @@ ifeq ($(BUILD_ALL_FLAVORS),yes)
 #
 # Following tradition, this incarnation of the modules recipe is
 # placed far away from all others.
+#################################################################################
 
-modules:  userspace
+modules: userspace
+	NO_OF_FLAVOURS=$(words $(BUILD_THREAD_FLAVORS))
+	counter=0
 	for f in $(BUILD_THREAD_FLAVORS); do \
 	    $(MAKE) modules threads=$$f; \
-	done; \
+	done;
 
 ifeq ($(RUN_IN_PLACE)+$(BUILD_DRIVERS),yes+yes)
 	for f in $(BUILD_THREAD_FLAVORS); do \
@@ -133,11 +136,12 @@ ifeq ($(RUN_IN_PLACE)+$(BUILD_DRIVERS),yes+yes)
 		    \( 0`stat -c %u ../libexec/rtapi_app_$$f 2>/dev/null` \
 			-ne 0 -o ! -u ../libexec/rtapi_app_$$f \) \
 		&& need_setuid=1; \
-	    ln -sf $(EMC2_HOME)/rtlib/prubin/pru_generic.bin ../rtlib/$$f/pru_generic.bin; \
-	    ln -sf $(EMC2_HOME)/rtlib/prubin/pru_generic.dbg ../rtlib/$$f/pru_generic.dbg; \
-	    ln -sf $(EMC2_HOME)/rtlib/prubin/pru_decamux.bin ../rtlib/$$f/pru_decamux.bin; \
-	    ln -sf $(EMC2_HOME)/rtlib/prubin/pru_decamux.dbg ../rtlib/$$f/pru_decamux.dbg; \
-	done; \
+	    ln -sf $(EMC2_HOME)/rtlib/prubin/pru_generic.bin ../rtlib/modules/pru_generic.bin; \
+	    ln -sf $(EMC2_HOME)/rtlib/prubin/pru_generic.dbg ../rtlib/modules/pru_generic.dbg; \
+	    ln -sf $(EMC2_HOME)/rtlib/prubin/pru_decamux.bin ../rtlib/modules/pru_decamux.bin; \
+	    ln -sf $(EMC2_HOME)/rtlib/prubin/pru_decamux.dbg ../rtlib/modules/pru_decamux.dbg; \
+	done; 
+
 	test "$$need_setuid" = 1 && \
 	    $(VECHO) -n "You now need to run 'sudo make setuid' " && \
 	    $(VECHO) "in order to run in place." || true
@@ -1083,19 +1087,14 @@ endif
 	# RTAPI modules:  install userland flavor .so modules into
 	# e.g. /usr/lib/linuxcnc/modules 
 
-	NO_OF_FLAVOURS := $(words $(BUILD_THREAD_FLAVORS))
-	counter=0
-	echo "$(NO_OF_FLAVOURS)"
+	##TODO: change $$flavor to modules for install
 
 	for flavor in $(BUILD_THREAD_FLAVORS); do \
 	    if test $${flavor%-kernel} = $${flavor}; then \
-		if test $${counter} = 0; then \
-		    echo Installing modules for userland flavor $$flavor; \
-		    $(DIR) $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)/$$flavor; \
-		    $(FILE) ../rtlib/$$flavor/* \
-			$(DESTDIR)$(EMC2_RTLIB_BASE_DIR)/$$flavor; \
-		    $(eval counter=$(shell echo $$(($(counter)+1)))) \
-		fi; \
+		echo Installing modules for userland flavor $$flavor; \
+		$(DIR) $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)/$$flavor; \
+		$(FILE) ../rtlib/$$flavor/* \
+		    $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)/$$flavor; \
 	    fi; \
 	done
 

@@ -89,7 +89,10 @@ ULAPISO := ../rtlib/ulapi-$(threads).so
 $(ULAPISO): ../lib/liblinuxcnchal.so ../lib/liblinuxcncshm.so \
 		$(call TOOBJS, $(ULAPI_SRCS))
 	$(ECHO) Creating shared object $(notdir $@)
-	@mkdir -p ../rtlib
+	@mkdir -p ../rtlib/modules; \
+        ln -sf ../rtlib/modules ../rtlib/posix; \
+	ln -sf ../rtlib/modules ../rtlib/rt-preempt; \
+        ln -sf ../rtlib/modules ../rtlib/xenomai; 
 	@rm -f $@
 	$(Q)$(CC) $(LDFLAGS)  -Wl,-soname,$(notdir $@) -shared \
 	    -o $@ $^ $(ULAPISO_LIBS) $(RT_LDFLAGS) \
