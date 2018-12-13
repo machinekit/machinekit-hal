@@ -158,12 +158,12 @@ dnl #--------------------------------------------------------#
 AC_DEFUN([_cfg_flavor_params],
 	[[[posix],[0],[user-dso],[rt-preempt],[.so],[.so],[0]],
 	 [[rt-preempt],[1],[user-dso],[rt-preempt],[.so],[.so],[0]],
-	 [[xenomai],[2],[user-dso],[xenomai],[.so],[.so],[FLAVOR_DOES_IO]],
-	 [[xenomai-kernel],[3],[kbuild],[xenomai-kernel],[.ko],[.so],dnl
-[FLAVOR_DOES_IO|FLAVOR_KERNEL_BUILD],[rtapi_math]],
-	 [[rtai-kernel],[4],[kbuild],[rtai-kernel],[.ko],[.so],dnl
-[FLAVOR_DOES_IO|FLAVOR_KERNEL_BUILD],dnl
-[rtai_hal rtai_sched rtapi_math]]])
+	 [[xenomai],[2],[user-dso],[xenomai],[.so],[.so],[FLAVOR_DOES_IO]]])
+#	 [[xenomai-kernel],[3],[kbuild],[xenomai-kernel],[.ko],[.so],dnl
+#[FLAVOR_DOES_IO|FLAVOR_KERNEL_BUILD],[rtapi_math]],
+#	 [[rtai-kernel],[4],[kbuild],[rtai-kernel],[.ko],[.so],dnl
+#[FLAVOR_DOES_IO|FLAVOR_KERNEL_BUILD],dnl
+#[rtai_hal rtai_sched rtapi_math]]])
 
 
 dnl #--------------------------------------------------------#
@@ -1175,37 +1175,38 @@ check_xenomai_kernel_source() {
 
 }
 
-check_rtai_kernel_source() {
-    # check if kernel source is an rtai kernel source
-    # assume check_source_configured() already done
 
-    local ksrc_dir=${1}
-    if test -z "$ksrc_dir"; then
-        AC_MSG_ERROR([check_rtai_kernel_source() given empty ksrc_dir])
-    fi
-
-
-    # look for rt_daemonize (older RTAI) or rtai_irq_handler (at least
-    # RTAI 4.0) or rtai_syscall_hook (RTAI 4.1) function definition
-    AC_MSG_CHECKING(if $ksrc_dir is an RTAI kernel)
-    if test -f "$ksrc_dir/Module.symvers" && \
-            grep -q '\(rt_daemonize\|rtai_irq_handler\|rtai_syscall_hook\)' \
-            "$ksrc_dir/Module.symvers"; then
-        AC_MSG_RESULT([yes])
-        return 0
-    else
-        AC_MSG_RESULT([no])
-        return 1
-    fi
-
-}
+#check_rtai_kernel_source() {
+#    # check if kernel source is an rtai kernel source
+#    # assume check_source_configured() already done
+#
+#    local ksrc_dir=${1}
+#    if test -z "$ksrc_dir"; then
+#        AC_MSG_ERROR([check_rtai_kernel_source() given empty ksrc_dir])
+#    fi
+#
+#
+#    # look for rt_daemonize (older RTAI) or rtai_irq_handler (at least
+#    # RTAI 4.0) or rtai_syscall_hook (RTAI 4.1) function definition
+#    AC_MSG_CHECKING(if $ksrc_dir is an RTAI kernel)
+#    if test -f "$ksrc_dir/Module.symvers" && \
+#            grep -q '\(rt_daemonize\|rtai_irq_handler\|rtai_syscall_hook\)' \
+#            "$ksrc_dir/Module.symvers"; then
+#        AC_MSG_RESULT([yes])
+#        return 0
+#    else
+#        AC_MSG_RESULT([no])
+#        return 1
+#    fi
+#
+#}
 
 # xenomai kernel modules will be built for these kernels if
 # xenomai-kernel threads are enabled
-xenomai_kernels=''
+#xenomai_kernels=''
 # RTAI kernel modules will be built for these kernels if
 # rtai-kernel threads are enabled
-rtai_kernels=''
+#rtai_kernels=''
 # shmdrv kernel modules will be built for these kernels if
 # shmdrv and at least one userspace threads are enabled
 shmdrv_kernels=''
@@ -1253,30 +1254,31 @@ AC_ARG_WITH(xenomai-kernel-sources,
 
 # check any RTAI sources specified on command line now
 # if any found, only build RTAI modules for these kernels
-AC_ARG_WITH(rtai-kernel-sources,
-    [AS_HELP_STRING([--with-rtai-kernel-sources="<ksrc_dir> <ksrc_dir>..."],
-	[directory paths of RTAI kernel source(s), space-separated])],
-	[# check directories now
-	    if test $with_rtai_kernel_sources = no; then
-	        # ignore this
-		with_rtai_kernel_sources=''
-	    else
-		for ksrc_dir in $with_rtai_kernel_sources; do
-		    ksrc_dir=$(readlink -f $ksrc_dir)
-		    # add only configured, confirmed RTAI sources
-		    if check_kernel_source_configured $ksrc_dir && \
-			check_rtai_kernel_source $ksrc_dir; then
-			shmdrv_kernels="$shmdrv_kernels $ksrc_dir"
-			rtai_kernels="$rtai_kernels $ksrc_dir"
-			# note this one's been seen
-			kernel_seen $ksrc_dir
-		    else
-			AC_MSG_ERROR([invalid RTAI kernel source:  $ksrc_dir])
-		    fi
-		done
-	    fi
-	],
-	[with_rtai_kernel_sources=''])
+#AC_ARG_WITH(rtai-kernel-sources,
+#    [AS_HELP_STRING([--with-rtai-kernel-sources="<ksrc_dir> <ksrc_dir>..."],
+#	[directory paths of RTAI kernel source(s), space-separated])],
+#	[# check directories now
+#	    if test $with_rtai_kernel_sources = no; then
+#	        # ignore this
+#		with_rtai_kernel_sources=''
+#	    else
+#		for ksrc_dir in $with_rtai_kernel_sources; do
+#		    ksrc_dir=$(readlink -f $ksrc_dir)
+#		    # add only configured, confirmed RTAI sources
+#		    if check_kernel_source_configured $ksrc_dir && \
+#			check_rtai_kernel_source $ksrc_dir; then
+#			shmdrv_kernels="$shmdrv_kernels $ksrc_dir"
+#			rtai_kernels="$rtai_kernels $ksrc_dir"
+#			# note this one's been seen
+#			kernel_seen $ksrc_dir
+#		    else
+#			AC_MSG_ERROR([invalid RTAI kernel source:  $ksrc_dir])
+#		    fi
+#		done
+#	    fi
+#	],
+#	[with_rtai_kernel_sources=''])
+#
 
 # check any shmdrv sources specified on command line now
 # if any found, build shmdrv modules for these kernels
@@ -1340,9 +1342,9 @@ find_kernels() {
 	    xenomai_kernels="$xenomai_kernels $location"
 	# if --with-rtai-kernel-sources not explicitly on cmdline and
 	# RTAI kernel detected, add it
-	test -z "$with_rtai_kernel_sources" && \
-	        check_rtai_kernel_source $location && \
-	    rtai_kernels="$rtai_kernels $location"
+	#test -z "$with_rtai_kernel_sources" && \
+	#        check_rtai_kernel_source $location && \
+	#    rtai_kernels="$rtai_kernels $location"
     done
 }
 
@@ -1385,40 +1387,40 @@ AC_ARG_WITH(xenomai,
      test $withval = yes && all_flavors_default=no],
     [with_xenomai=check])
 
-AC_ARG_WITH(xenomai-kernel,
-    [AS_HELP_STRING([--with-xenomai-kernel],
-        [build Xenomai kernel-space realtime threads (deprecated)])],
-    [xenomai_kernel_from_cmdline=$withval
-     test $withval = yes && all_flavors_default=no],
-    [with_xenomai_kernel=check])
+#AC_ARG_WITH(xenomai-kernel,
+#    [AS_HELP_STRING([--with-xenomai-kernel],
+#        [build Xenomai kernel-space realtime threads (deprecated)])],
+#    [xenomai_kernel_from_cmdline=$withval
+#     test $withval = yes && all_flavors_default=no],
+#    [with_xenomai_kernel=check])
 # XENOMAI_THREADS_RTS:  locate the 'xeno-config' executable
-AC_ARG_WITH(xeno-config,
-    [AS_HELP_STRING([--with-xeno-config=<path>],
-    [location of the xeno-config executable])],
-    [xeno_config_from_cmdline=yes],
-    [
-	with_xenomai_config=""
-    ])
-
-AC_ARG_WITH(rtai-kernel,
-    [AS_HELP_STRING([--with-rtai-kernel],
-        [build RTAI kernel-space realtime threads modules])],
-    [test $withval = yes && all_flavors_default=no],
-    [with_rtai_kernel=check])
+#AC_ARG_WITH(xeno-config,
+#    [AS_HELP_STRING([--with-xeno-config=<path>],
+#    [location of the xeno-config executable])],
+#    [xeno_config_from_cmdline=yes],
+#    [
+#	with_xenomai_config=""
+#    ])
+#
+#AC_ARG_WITH(rtai-kernel,
+#    [AS_HELP_STRING([--with-rtai-kernel],
+#        [build RTAI kernel-space realtime threads modules])],
+#    [test $withval = yes && all_flavors_default=no],
+#    [with_rtai_kernel=check])
 # RTAI_KERNEL_THREADS_RTS:  locate the 'rtai-config' executable
-AC_ARG_WITH(rtai-config,
-    [AS_HELP_STRING([--with-rtai-config=<path>],
-    [location of the rtai-config executable])],
-    [rtai_config_from_cmdline=yes],
-    [
-	with_rtai_config=""
-    ])
+#AC_ARG_WITH(rtai-config,
+#    [AS_HELP_STRING([--with-rtai-config=<path>],
+#    [location of the rtai-config executable])],
+#    [rtai_config_from_cmdline=yes],
+#    [
+#	with_rtai_config=""
+#    ])
 
 
 # If a --with-<flavor> flag was found, disable all flavors not
 # explicitly enabled
 if test $all_flavors_default = no; then
-    for f in posix rt_preempt xenomai xenomai_kernel rtai_kernel; do
+    for f in posix rt_preempt xenomai; do
         if eval "test \$with_$f = check"; then
 	    eval "with_$f=no"
 	fi
@@ -1613,107 +1615,107 @@ AC_MSG_RESULT($with_xenomai_kernel)
 
 ##############################################################################
 # RTAI flavor checks
-
-if test "$with_rtai_kernel" != no; then
-    # look for rtai-config path
-    RTAI_KERNEL_THREADS_RTS=''
-    if test "$rtai_config_from_cmdline" = yes; then
-        # user-supplied path
-	RTAI_KERNEL_THREADS_RTS=$with_rtai_config
-    else
-        # guess path from defaults
-	rtai_config_path=''
-	dirs="$(echo \
-	   /usr/realtime-`uname -r` /usr/realtime* /usr /usr/src/rtai*)"
-	for d in $dirs; do
-	    rtai_config_path="$rtai_config_path:$d:$d/bin"
-	done
-	AC_PATH_PROGS([RTAI_KERNEL_THREADS_RTS],[rtai-config],
-	    [],[$rtai_config_path])
-    fi
-    # check rtai-config path
-    if test -n "$RTAI_KERNEL_THREADS_RTS"; then
-        # path found, so check its validity: --linux-dir should return
-        # a configured kernel source directory with .config file
-	AC_MSG_CHECKING([usability of RTAI utility, $RTAI_KERNEL_THREADS_RTS])
-	if test -x $RTAI_KERNEL_THREADS_RTS -a \
-	     -f $($RTAI_KERNEL_THREADS_RTS -o --linux-dir 2>/dev/null)/.config
-	then
-	    # ShabbyX-style `rtai-config`
-	    RTAI_KERNEL_THREADS_RTS="$RTAI_KERNEL_THREADS_RTS -o"
-	    AC_MSG_RESULT(yes)
-	elif test -x $RTAI_KERNEL_THREADS_RTS -a \
-	     -f $($RTAI_KERNEL_THREADS_RTS --linux-dir 2>/dev/null)/.config
-	then
-	    AC_MSG_RESULT(yes)
-	else
+#
+#if test "$with_rtai_kernel" != no; then
+#    # look for rtai-config path
+#    RTAI_KERNEL_THREADS_RTS=''
+#    if test "$rtai_config_from_cmdline" = yes; then
+#        # user-supplied path
+#	RTAI_KERNEL_THREADS_RTS=$with_rtai_config
+#    else
+#        # guess path from defaults
+#	rtai_config_path=''
+#	dirs="$(echo \
+#	   /usr/realtime-`uname -r` /usr/realtime* /usr /usr/src/rtai*)"
+#	for d in $dirs; do
+#	    rtai_config_path="$rtai_config_path:$d:$d/bin"
+#	done
+#	AC_PATH_PROGS([RTAI_KERNEL_THREADS_RTS],[rtai-config],
+#	    [],[$rtai_config_path])
+#    fi
+#    # check rtai-config path
+#    if test -n "$RTAI_KERNEL_THREADS_RTS"; then
+#        # path found, so check its validity: --linux-dir should return
+#        # a configured kernel source directory with .config file
+#	AC_MSG_CHECKING([usability of RTAI utility, $RTAI_KERNEL_THREADS_RTS])
+#	if test -x $RTAI_KERNEL_THREADS_RTS -a \
+#	     -f $($RTAI_KERNEL_THREADS_RTS -o --linux-dir 2>/dev/null)/.config
+#	then
+#	    # ShabbyX-style `rtai-config`
+#	    RTAI_KERNEL_THREADS_RTS="$RTAI_KERNEL_THREADS_RTS -o"
+#	    AC_MSG_RESULT(yes)
+#	elif test -x $RTAI_KERNEL_THREADS_RTS -a \
+#	     -f $($RTAI_KERNEL_THREADS_RTS --linux-dir 2>/dev/null)/.config
+#	then
+#	    AC_MSG_RESULT(yes)
+#	else
 	    RTAI_KERNEL_THREADS_RTS=''
-	    AC_MSG_RESULT(no)
-	fi
-    fi
-    # deal with nothing found in the right way
-    if test -z "$RTAI_KERNEL_THREADS_RTS"; then
-	if test "$rtai_config_from_cmdline" = yes; then
-	    # --with-rtai-config specified, but invalid path
-	    AC_MSG_ERROR(--with-rtai-config:  "$with_rtai_config":  bad path)
-        elif test "$with_rtai_kernel" = yes; then
-	    # --with-rtai-kernel specified but can't find rtai-config
-            AC_MSG_ERROR("rtai-config" not found; use --with-rtai-config")
-	else
-	    with_rtai_kernel=no
-	fi
-    fi
-fi
+#	    AC_MSG_RESULT(no)
+#	fi
+#    fi
+#    # deal with nothing found in the right way
+#    if test -z "$RTAI_KERNEL_THREADS_RTS"; then
+#	if test "$rtai_config_from_cmdline" = yes; then
+#	    # --with-rtai-config specified, but invalid path
+#	    AC_MSG_ERROR(--with-rtai-config:  "$with_rtai_config":  bad path)
+#        elif test "$with_rtai_kernel" = yes; then
+#	    # --with-rtai-kernel specified but can't find rtai-config
+#            AC_MSG_ERROR("rtai-config" not found; use --with-rtai-config")
+#	else
+#	    with_rtai_kernel=no
+#	fi
+#    fi
+#fi
 
 # Generate RTFLAGS for RTAI
-if test $with_rtai_kernel != no -a -n "$rtai_kernels"; then
-
-    RTAI_KERNEL_THREADS_RTFLAGS="$($RTAI_KERNEL_THREADS_RTS --module-cflags) \
-	-I$($RTAI_KERNEL_THREADS_RTS --prefix)/include"
-    RTAI_KERNEL_THREADS_LDFLAGS="$($RTAI_KERNEL_THREADS_RTS --lxrt-ldflags) \
-        -llxrt -Wl,-rpath,$($RTAI_KERNEL_THREADS_RTS --library-dir)"
-
-    if test "$host_cpu" = x86_64; then
-	flags="-msse -mpreferred-stack-boundary=4 -funsafe-math-optimizations"
-    else
-        flags="-fno-unsafe-math-optimizations"
-    fi
-    RTAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS="$flags"
-
-    RTAI_KERNEL_THREADS_RTDIR=$(readlink -f \
-	$($RTAI_KERNEL_THREADS_RTS --module-dir))
-fi
-AC_MSG_CHECKING(whether to build RTAI threads)
-test -z "$RTAI_KERNEL_THREADS_RTS" && with_rtai_kernel=no
-test -z "$rtai_kernels" && with_rtai_kernel=no
-
+#if test $with_rtai_kernel != no -a -n "$rtai_kernels"; then
+#
+#    RTAI_KERNEL_THREADS_RTFLAGS="$($RTAI_KERNEL_THREADS_RTS --module-cflags) \
+#	-I$($RTAI_KERNEL_THREADS_RTS --prefix)/include"
+#    RTAI_KERNEL_THREADS_LDFLAGS="$($RTAI_KERNEL_THREADS_RTS --lxrt-ldflags) \
+#        -llxrt -Wl,-rpath,$($RTAI_KERNEL_THREADS_RTS --library-dir)"
+#
+#    if test "$host_cpu" = x86_64; then
+#	flags="-msse -mpreferred-stack-boundary=4 -funsafe-math-optimizations"
+#    else
+#        flags="-fno-unsafe-math-optimizations"
+#    fi
+#    RTAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS="$flags"
+#
+#    RTAI_KERNEL_THREADS_RTDIR=$(readlink -f \
+#	$($RTAI_KERNEL_THREADS_RTS --module-dir))
+#fi
+#AC_MSG_CHECKING(whether to build RTAI threads)
+#test -z "$RTAI_KERNEL_THREADS_RTS" && with_rtai_kernel=no
+#test -z "$rtai_kernels" && with_rtai_kernel=no
+#
 # Check the RTAI Module.symvers file
-if test $with_rtai_kernel != no; then
-    RTAI_KERNEL_THREADS_EXTRA_SYMBOLS=`$RTAI_KERNEL_THREADS_RTS \
-	--module-dir`/Module.symvers
-    if ! test -f "${RTAI_KERNEL_THREADS_EXTRA_SYMBOLS}"; then
-	if test "$with_rtai_kernel" = check; then
-	    with_rtai_kernel=no
-	else
-	    AC_MSG_ERROR([RTAI build requested but no Module.symvers found])
-	fi
-    fi
-fi
-test "$with_rtai_kernel" = check && with_rtai_kernel=yes
-if test $with_rtai_kernel = yes; then
-    BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS rtai-kernel"
-fi
-AC_MSG_RESULT($with_rtai_kernel)
-if test $with_rtai_kernel = yes; then
-    AC_MSG_CHECKING(RTAI version)
-    if grep -q rt_free_timers $RTAI_KERNEL_THREADS_EXTRA_SYMBOLS; then
-        RTAI_VERSION=401
-	AC_MSG_RESULT(4.1 or greater)
-    else
-        RTAI_VERSION=400
-	AC_MSG_RESULT(4.0 or earlier)
-    fi
-fi
+#if test $with_rtai_kernel != no; then
+#    RTAI_KERNEL_THREADS_EXTRA_SYMBOLS=`$RTAI_KERNEL_THREADS_RTS \
+#	--module-dir`/Module.symvers
+#    if ! test -f "${RTAI_KERNEL_THREADS_EXTRA_SYMBOLS}"; then
+#	if test "$with_rtai_kernel" = check; then
+#	    with_rtai_kernel=no
+#	else
+#	    AC_MSG_ERROR([RTAI build requested but no Module.symvers found])
+#	fi
+#    fi
+#f#i
+#test "$with_rtai_kernel" = check && with_rtai_kernel=yes
+#if test $with_rtai_kernel = yes; then#
+#    BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS rtai-kernel"
+#fi
+#AC_MSG_RESULT($with_rtai_kernel)
+#if test $with_rtai_kernel = yes; then
+#    AC_MSG_CHECKING(RTAI version)
+#    if grep -q rt_free_timers $RTAI_KERNEL_THREADS_EXTRA_SYMBOLS; then
+#        RTAI_VERSION=401
+#	AC_MSG_RESULT(4.1 or greater)
+#    else
+#        RTAI_VERSION=400
+#	AC_MSG_RESULT(4.0 or earlier)
+#    fi
+#fi
 
 ##############################################################################
 # Subsection 2.6                                                             #
@@ -1981,47 +1983,47 @@ AC_SUBST([XENOMAI_THREADS_EXTRA_KMODS],[])
 AC_SUBST([PRECISE_MULTILIB_BUG],[$PRECISE_MULTILIB_BUG])
 
 # Xenomai kernel settings
-if test "$with_xenomai_kernel" = yes; then
-    AC_DEFINE([HAVE_XENOMAI_KERNEL_THREADS],[],[Build Xenomai kernel threads])
-fi
-AC_SUBST([HAVE_XENOMAI_KERNEL_THREADS],[$with_xenomai_kernel])
-AC_SUBST([XENOMAI_KERNEL_THREADS_FLAVOR_ID],_cfg_flavor_id(xenomai-kernel))
-AC_SUBST([XENOMAI_KERNEL_THREADS_BUILD_SYS],
-	_cfg_flavor_build_sys(xenomai-kernel))
-AC_SUBST([XENOMAI_KERNEL_THREADS_SOURCE],[xenomai-kernel])
+#if test "$with_xenomai_kernel" = yes; then
+#    AC_DEFINE([HAVE_XENOMAI_KERNEL_THREADS],[],[Build Xenomai kernel threads])
+#fi
+#AC_SUBST([HAVE_XENOMAI_KERNEL_THREADS],[$with_xenomai_kernel])
+#AC_SUBST([XENOMAI_KERNEL_THREADS_FLAVOR_ID],_cfg_flavor_id(xenomai-kernel))
+#AC_SUBST([XENOMAI_KERNEL_THREADS_BUILD_SYS],
+#	_cfg_flavor_build_sys(xenomai-kernel))
+#AC_SUBST([XENOMAI_KERNEL_THREADS_SOURCE],[xenomai-kernel])
 # force hard-float for kernel modules
-AC_SUBST([XENOMAI_KERNEL_THREADS_RTFLAGS])
-AC_SUBST([XENOMAI_KERNEL_THREADS_LDFLAGS])
-AC_SUBST([XENOMAI_KERNEL_THREADS_RTS])
-AC_SUBST([XENOMAI_KERNEL_THREADS_KERNEL_DIRS],[$xenomai_kernels])
-AC_SUBST([XENOMAI_KERNEL_THREADS_EXTRA_SYMBOLS])
+#AC_SUBST([XENOMAI_KERNEL_THREADS_RTFLAGS])
+#AC_SUBST([XENOMAI_KERNEL_THREADS_LDFLAGS])
+#AC_SUBST([XENOMAI_KERNEL_THREADS_RTS])
+#AC_SUBST([XENOMAI_KERNEL_THREADS_KERNEL_DIRS],[$xenomai_kernels])
+#AC_SUBST([XENOMAI_KERNEL_THREADS_EXTRA_SYMBOLS])
 # in-kernel math options
-AC_SUBST([XENOMAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS])
-AC_SUBST([XENOMAI_KERNEL_THREADS_RTDIR],[])
-AC_SUBST([XENOMAI_KERNEL_THREADS_EXTRA_KMODS],
-	"_cfg_flavor_extra_kmods(xenomai-kernel)")
+#AC_SUBST([XENOMAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS])
+#AC_SUBST([XENOMAI_KERNEL_THREADS_RTDIR],[])
+#AC_SUBST([XENOMAI_KERNEL_THREADS_EXTRA_KMODS],
+#	"_cfg_flavor_extra_kmods(xenomai-kernel)")
 
 # RTAI settings
-if test "$with_rtai_kernel" = yes; then
-    AC_DEFINE([HAVE_RTAI_KERNEL_THREADS],[],[Build RTAI threads])
-fi
-AC_SUBST([HAVE_RTAI_KERNEL_THREADS],[$with_rtai_kernel])
-AC_SUBST([RTAI_KERNEL_THREADS_FLAVOR_ID],_cfg_flavor_id(rtai-kernel))
-AC_SUBST([RTAI_KERNEL_THREADS_BUILD_SYS],_cfg_flavor_build_sys(rtai-kernel))
-AC_SUBST([RTAI_KERNEL_THREADS_SOURCE],[rtai-kernel])
-AC_SUBST([RTAI_KERNEL_THREADS_RTFLAGS])
-AC_SUBST([RTAI_KERNEL_THREADS_LDFLAGS])
-AC_SUBST([RTAI_KERNEL_THREADS_RTS])
-AC_SUBST([RTAI_KERNEL_THREADS_KERNEL_DIRS],[$rtai_kernels])
-AC_SUBST([RTAI_KERNEL_THREADS_EXTRA_SYMBOLS])
-AC_SUBST([RTAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS])
+#if test "$with_rtai_kernel" = yes; then
+#    AC_DEFINE([HAVE_RTAI_KERNEL_THREADS],[],[Build RTAI threads])
+#fi
+#AC_SUBST([HAVE_RTAI_KERNEL_THREADS],[$with_rtai_kernel])
+#AC_SUBST([RTAI_KERNEL_THREADS_FLAVOR_ID],_cfg_flavor_id(rtai-kernel))
+#AC_SUBST([RTAI_KERNEL_THREADS_BUILD_SYS],_cfg_flavor_build_sys(rtai-kernel))
+#AC_SUBST([RTAI_KERNEL_THREADS_SOURCE],[rtai-kernel])
+#AC_SUBST([RTAI_KERNEL_THREADS_RTFLAGS])
+#AC_SUBST([RTAI_KERNEL_THREADS_LDFLAGS])
+#AC_SUBST([RTAI_KERNEL_THREADS_RTS])
+#AC_SUBST([RTAI_KERNEL_THREADS_KERNEL_DIRS],[$rtai_kernels])
+#AC_SUBST([RTAI_KERNEL_THREADS_EXTRA_SYMBOLS])
+#AC_SUBST([RTAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS])
 # absolute path of rtai-config rtdir with symlinks dereferenced
-AC_SUBST([RTAI_KERNEL_THREADS_RTDIR],[$RTAI_KERNEL_THREADS_RTDIR])
-AC_SUBST([RTAI_KERNEL_THREADS_EXTRA_KMODS],
-	"_cfg_flavor_extra_kmods(rtai-kernel)")
-if test -n "$RTAI_VERSION"; then
-    AC_DEFINE_UNQUOTED([RTAI_VERSION],$RTAI_VERSION,"RTAI version")
-fi
+#AC_SUBST([RTAI_KERNEL_THREADS_RTDIR],[$RTAI_KERNEL_THREADS_RTDIR])
+#AC_SUBST([RTAI_KERNEL_THREADS_EXTRA_KMODS],
+#	"_cfg_flavor_extra_kmods(rtai-kernel)")
+#if test -n "$RTAI_VERSION"; then
+#    AC_DEFINE_UNQUOTED([RTAI_VERSION],$RTAI_VERSION,"RTAI version")
+#fi
 
 
 # while we are at it, drop a git scent mark

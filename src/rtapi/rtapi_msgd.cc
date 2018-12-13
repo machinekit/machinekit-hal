@@ -466,6 +466,7 @@ static int flavor_and_kernel_compatible(flavor_ptr f)
 		    rtapi_instance, f->name);
 	    return 1;
 	}
+	/*
 	if ((f->flavor_id != RTAPI_XENOMAI_ID) &&
 	    (f->flavor_id != RTAPI_XENOMAI_KERNEL_ID)) {
 	    fprintf(stderr,
@@ -473,14 +474,17 @@ static int flavor_and_kernel_compatible(flavor_ptr f)
 		    rtapi_instance, f->name);
 	    return 0;
 	}
+	*/
     }
 
+    /*
     if (kernel_is_rtai() &&
 	(f->flavor_id != RTAPI_RTAI_KERNEL_ID)) {
 	fprintf(stderr, "MSGD:%d ERROR: trying to start %s RTAPI on an RTAI kernel\n",
 		    rtapi_instance, f->name);
 	return 0;
     }
+    */
 
     if (kernel_is_rtpreempt() &&
 	(f->flavor_id != RTAPI_RT_PREEMPT_ID)) {

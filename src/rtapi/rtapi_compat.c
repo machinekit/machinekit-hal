@@ -188,6 +188,7 @@ flavor_t flavors[] = {
       .flavor_id = RTAPI_XENOMAI_ID,
       .flags = XENOMAI_FLAVOR_FLAGS
     },
+/*
     { .name = RTAPI_RTAI_KERNEL_NAME,
       .mod_ext = ".ko",
       .so_ext = ".so",
@@ -203,7 +204,7 @@ flavor_t flavors[] = {
       .flavor_id = RTAPI_XENOMAI_KERNEL_ID,
       .flags =  XENOMAI_KERNEL_FLAVOR_FLAGS
     },
-
+*/
     { .name = RTAPI_NOTLOADED_NAME,
       .mod_ext = "",
       .so_ext = "",
@@ -264,20 +265,21 @@ flavor_ptr default_flavor(void)
 	    exit(1);
     }
 
-    if (kernel_is_rtai()) {
+/*    if (kernel_is_rtai()) {
 	f = flavor_byid(RTAPI_RTAI_KERNEL_ID); 
 	if (check_rtapi_lib((char *)f->name))
 	    return f;
     }
+*/
     if (kernel_is_xenomai()) {
 	/* check for userspace first */
 	f = flavor_byid(RTAPI_XENOMAI_ID); 
 	if (check_rtapi_lib((char *)f->name))
 	    return f;
 	/* else look for xenomai_kernel */
-	f = flavor_byid(RTAPI_XENOMAI_KERNEL_ID); 
-	if (check_rtapi_lib((char *)f->name))
-	    return f;
+	//f = flavor_byid(RTAPI_XENOMAI_KERNEL_ID); 
+	//if (check_rtapi_lib((char *)f->name))
+	//    return f;
     }
     if (kernel_is_rtpreempt()) {
 	f = flavor_byid(RTAPI_RT_PREEMPT_ID); 

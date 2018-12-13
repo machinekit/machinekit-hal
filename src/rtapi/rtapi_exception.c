@@ -205,7 +205,7 @@ static void log_thread_stats(rtapi_exception_t type,
 
     switch (flavor) {
     case RTAPI_XENOMAI_ID:
-    case RTAPI_XENOMAI_KERNEL_ID:
+//    case RTAPI_XENOMAI_KERNEL_ID:
 	if (ts->num_updates) {
 	    rtapi_print_msg(RTAPI_MSG_WARN,
 			    "wait_errors=%d overruns=%d modesw=%d ctxsw=%d"

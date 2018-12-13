@@ -2491,7 +2491,7 @@ static void print_thread_stats(hal_thread_t *tptr)
     // flavor-specific statistics counters
     switch (flavor) {
     case RTAPI_XENOMAI_ID: // xenomai-user
-    case RTAPI_XENOMAI_KERNEL_ID:
+    //case RTAPI_XENOMAI_KERNEL_ID:
 
 	halcmd_output("    wait_errors=%d\t",
 		      ts->flavor.xeno.wait_errors);
