@@ -124,11 +124,9 @@ ifeq ($(BUILD_ALL_FLAVORS),yes)
 #################################################################################
 
 modules: userspace
-	NO_OF_FLAVOURS=$(words $(BUILD_THREAD_FLAVORS))
-	counter=0
 	for f in $(BUILD_THREAD_FLAVORS); do \
 	    $(MAKE) modules threads=$$f; \
-	done;
+	done; \
 
 ifeq ($(RUN_IN_PLACE)+$(BUILD_DRIVERS),yes+yes)
 	for f in $(BUILD_THREAD_FLAVORS); do \
