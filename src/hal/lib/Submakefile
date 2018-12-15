@@ -8,6 +8,7 @@ LIBS := ../lib
 	$(ECHO) Copying header file $@
 	$(Q)cp $< $@
 
+
 # link in basic nanonpb support routines
 HALLIBSRCS := $(HALLIBDIR)/hal_lib.c \
 	$(HALLIBDIR)/hal_group.c \
@@ -55,6 +56,10 @@ HALLIB := ../lib/liblinuxcnchal.so
 # for now, link in ulapi  plus any referenced  objs directly
 # cause: http://fedoraproject.org/wiki/UnderstandingDSOLinkChange
 
+# might seem like strange place to create modules dir,
+# but hallib is one of the first to be built, so ensures
+# it exists with symlinks, before module build
+
 $(HALLIB).0: \
 	$(call TOOBJS, $(HALLIBSRCS)) \
 	$(call TOOBJS, $(ULAPI_AUTOLOAD_SRCS)) \
@@ -64,7 +69,11 @@ $(HALLIB).0: \
 	$(call TOOBJS, machinetalk/lib/syslog_async.c) \
 	$(LIBS)/libmachinetalk-pb2++.so
 	$(ECHO) Creating shared library $(notdir $@)
-	@mkdir -p ../lib
+	@mkdir -p ../lib \
+	@mkdir -p ../rtlib/modules; \
+	ln -sf ../rtlib/modules ../rtlib/posix; \
+	ln -sf ../rtlib/modules ../rtlib/rt-preempt; \
+	ln -sf ../rtlib/modules ../rtlib/xenomai;
 	@rm -f $@
 	$(Q)$(CC) $(LDFLAGS) -Wl,-rpath,$(EMC2_RTLIB_DIR) \
 	    -Wl,-soname,$(notdir $@) -shared \

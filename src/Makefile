@@ -78,6 +78,13 @@ BUILD_ALL_FLAVORS = no
 BUILD_THREAD_MODULES = yes
 endif # $(threads)
 
+#ifneq ($(BUILD_THREAD_FLAVORS),)
+#@mkdir -p ../rtlib/modules \
+#for f in $(BUILD_THREAD_FLAVORS); do \
+#    ln -s ../rtlib/modules ../rtlib/$$f; \
+#done; 
+#endif
+
 BUILD_KBUILD = no
 
 # extract the version from the kernel source version.h
