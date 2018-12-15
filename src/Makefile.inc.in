@@ -53,7 +53,7 @@ exec_prefix=@exec_prefix@
 EMC2_HOME=@EMC2_HOME@
 LIB_DIR=@EMC2_HOME@/lib
 
-RTDIR_EXT=modules
+RTDIR_EXT=$(threads)
 
 #used for install stuff
 #but have them here as reference
