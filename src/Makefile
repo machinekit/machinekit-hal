@@ -141,11 +141,7 @@ ifeq ($(RUN_IN_PLACE)+$(BUILD_DRIVERS),yes+yes)
 		    \( 0`stat -c %u ../libexec/rtapi_app_$$f 2>/dev/null` \
 			-ne 0 -o ! -u ../libexec/rtapi_app_$$f \) \
 		&& need_setuid=1; \
-	    ln -sf $(EMC2_HOME)/rtlib/prubin/pru_generic.bin ../rtlib/modules/pru_generic.bin; \
-	    ln -sf $(EMC2_HOME)/rtlib/prubin/pru_generic.dbg ../rtlib/modules/pru_generic.dbg; \
-	    ln -sf $(EMC2_HOME)/rtlib/prubin/pru_decamux.bin ../rtlib/modules/pru_decamux.bin; \
-	    ln -sf $(EMC2_HOME)/rtlib/prubin/pru_decamux.dbg ../rtlib/modules/pru_decamux.dbg; \
-	done; 
+	done;
 
 	test "$$need_setuid" = 1 && \
 	    $(VECHO) -n "You now need to run 'sudo make setuid' " && \

@@ -49,8 +49,23 @@ objects/%.bin objects/%.dbg : %.p objects/%.d $(PASM)
 
 $(PRU_BIN): $(PRUBINDIR)/%.bin : objects/$(PRU_SRC_DIR)/%.bin
 	cp -f $^ $@
+	$(Q)mkdir -p $(RTLIBDIR)
+	ln -sf ../prubin/$(notdir $@) $(RTLIBDIR)/$(notdir $@)
 
 $(PRU_DBG): $(PRUBINDIR)/%.dbg : objects/$(PRU_SRC_DIR)/%.dbg
 	cp -f $^ $@
+	$(Q)mkdir -p $(RTLIBDIR)
+	ln -sf ../prubin/$(notdir $@) $(RTLIBDIR)/$(notdir $@)
+
+install_prubin:
+	$(DIR) $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)/prubin
+#	#  Copy .bin and .dbg files to the rtlib/prubin directory
+	$(FILE) $(PRUBINDIR)/*.bin $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)/prubin
+	$(FILE) $(PRUBINDIR)/*.dbg $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)/prubin
+#	#  Copy .bin and .dbg symlinks to the rtlib/modules directory
+	$(DIR) $(DESTDIR)$(EMC2_RTLIB_DIR)
+	cp -a $(RTLIBDIR)/*.bin $(RTLIBDIR)/*.dbg $(DESTDIR)$(EMC2_RTLIB_DIR)
+
+install:  install_prubin
 
 endif
