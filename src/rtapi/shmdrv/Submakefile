@@ -1,7 +1,7 @@
 ##################################################################
 #             the shmdrv shared memory allocator module
 #
-#  loosely based on: http://www.embrisk.com/notes/shmem.html 
+#  loosely based on: http://www.embrisk.com/notes/shmem.html
 #  Status: public domain
 #
 ##################################################################
@@ -23,7 +23,7 @@ endif # BUILD_SYS = kbuild
 # shmdrv module
 #
 # build for all kernels in SHMDRV_KERNEL_DIRS
-ifeq ($(BUILD_ALL_FLAVORS)+$(USE_SHMDRV),yes+yes)
+ifeq ($(USE_SHMDRV),yes)
 # we have no mapping of kver to kdir, so use a timestamp and do the
 # whole thing in a big ugly non-Makefile-thonic shell script
 SHMDRV_SRCS = rtapi/shmdrv/shmdrv.c \
@@ -47,7 +47,7 @@ objects/.shmdrv-built: $(SHMDRV_SRCS)
 	touch $@
 
 modules: objects/.shmdrv-built
-endif # BUILD_ALL_FLAVORS && USE_SHMDRV
+endif # USE_SHMDRV
 
 #------------------------------
 # liblinuxcncshm.so shared lib
@@ -65,7 +65,7 @@ $(SHMDRVLIB).0: $(call TOOBJS, $(SHMDRVAPISRCS))
 	@rm -f $@
 	$(Q)$(CC) $(LDFLAGS)  -Wl,-soname,$(notdir $@) -shared \
 	    -o $@ $^ -lrt
-USERSRCS += $(SHMDRVAPISRCS) 
+USERSRCS += $(SHMDRVAPISRCS)
 TARGETS += $(SHMDRVLIB) $(SHMDRVLIB).0
 
 ifeq ($(BUILD_EXAMPLES),yes)

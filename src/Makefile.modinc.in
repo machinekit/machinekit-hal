@@ -13,13 +13,13 @@
 
 # An example Makefile using Makefile.modinc to build one kernel module from a
 # single source file would read:
-# 
+#
 # obj-m += example.o
 # include .../Makefile.modinc
 
 # An example Makefile using Makefile.modinc to build one kernel module from
 # several source files would read:
-# 
+#
 # obj-m += complex.o
 # complex-objs := complex1.o complex2.o complex_main.o
 # include .../Makefile.modinc
@@ -80,7 +80,7 @@ EXTRA_CFLAGS := $(RTFLAGS) $(EXTRA_RTFLAGS) \
 
 ifeq ($(RUN_IN_PLACE),yes)
 EXTRA_CFLAGS += -I$(EMC2_HOME)/include
-RTLIBDIR := $(EMC2_HOME)/rtlib/$(RTDIR_EXT)
+RTLIBDIR := $(EMC2_HOME)/rtlib/modules
 LIBDIR := $(EMC2_HOME)/lib
 else
 EXTRA_CFLAGS += -I$(includedir)/linuxcnc

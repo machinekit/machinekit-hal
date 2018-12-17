@@ -1,5 +1,5 @@
 #                                                          -*-makefile-gmake-*-
-# @configure_input@ 
+# @configure_input@
 # on @DATE@
 #
 
@@ -53,8 +53,6 @@ exec_prefix=@exec_prefix@
 EMC2_HOME=@EMC2_HOME@
 LIB_DIR=@EMC2_HOME@/lib
 
-RTDIR_EXT=$(threads)
-
 #used for install stuff
 #but have them here as reference
 #build system only uses EMC2_RTLIB_DIR when creating rtapi.ini
@@ -62,7 +60,7 @@ EMC2_BIN_DIR=@EMC2_BIN_DIR@
 EMC2_TCL_DIR=@EMC2_TCL_DIR@
 EMC2_HELP_DIR=@EMC2_HELP_DIR@
 EMC2_RTLIB_BASE_DIR=@EMC2_RTLIB_DIR@
-EMC2_RTLIB_DIR=$(EMC2_RTLIB_BASE_DIR)/$(RTDIR_EXT)
+EMC2_RTLIB_DIR=$(EMC2_RTLIB_BASE_DIR)/modules
 EMC2_USER_CONFIG_DIR=~/emc2/configs
 EMC2_SYSTEM_CONFIG_DIR=@EMC2_SYSTEM_CONFIG_DIR@
 EMC2_NCFILES_DIR=@EMC2_NCFILES_DIR@
@@ -401,4 +399,3 @@ BOOST_THREAD_LIB=@BOOST_THREAD_LIB@
 BOOST_SYSTEM_LIB=@BOOST_SYSTEM_LIB@
 
 #### END CONFIG ####
-

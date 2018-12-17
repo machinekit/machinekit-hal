@@ -33,11 +33,6 @@ ifeq ($(BUILD_DOCS),yes)
     .PHONY: docpages
 endif
 
-ifeq ($(TRIVIAL_BUILD),no)
--include $(patsubst %.comp, objects/%.mak,\
-	$(COMPS) $(DRIVER_COMPS) $(MSG_COMPS))
-endif # TRIVIAL_BUILD == no
-
 obj-m += $(patsubst hal/drivers/%.comp, %.o, \
 	$(patsubst hal/components/%.comp, %.o, \
 	$(patsubst machinetalk/msgcomponents/%.comp, %.o, \
@@ -76,27 +71,39 @@ $(MSG_COMP_DOCPAGES): ../man/man9/%.asciidoc: \
 	--frontmatter="edit-branch: $(EDIT_BRANCH)" 	\
 	-o $@ $<
 
-# .c and .mak files are identical for all flavors
-#
-# in the top-level make, build them once in a common location
+# Build .c sources
 objects/%.c: %.comp ../bin/comp
 	$(ECHO) "Preprocessing $(notdir $<)"
 	@mkdir -p $(dir $@)
 	$(Q)../bin/comp --require-license -o $@ $<
 
-objects/%.mak: %.comp $(HALCOMP_SUBMAKEFILE)
-	$(ECHO) "Generating comp build rules for $(notdir $<)"
-	@mkdir -p $(dir $@)
-	$(Q)echo "$(notdir $*)-objs := objects/$*.o" > $@.tmp
-	$(Q)echo "\$$(RTLIBDIR)/$(notdir $*)\$$(MODULE_EXT): \\" >> $@.tmp
-	$(Q)echo "    \$$(OBJDIR)/objects/$*.o" >> $@.tmp
-	$(Q)mv -f $@.tmp $@
+# Generate rules for building component.so files
+# logic-objs := objects/hal/components/logic.o
+# $(RTLIBDIR)/logic$(MODULE_EXT): $(OBJDIR)/objects/hal/components/logic.o
+#
+# example:  $$(call comp_build_rules,hal/components,hal/components/logic.comp)
+#
+define comp_build_rules
+$$(patsubst $$(dir $(1))%.comp,%-objs,$(1)) := \
+    $$(patsubst %.comp,objects/%.o,$(1))
+$$(patsubst $(dir $(1))%.comp,$(RTLIBDIR)/%$(MODULE_EXT),$(1)): \
+    $(OBJDIR)/objects/$$(patsubst %.comp,%.o,$(1))
 
-# Generate .c and .mak files before the modules target
-modules: $(patsubst %.comp, objects/%.c, \
-	$(COMPS) $(DRIVER_COMPS) $(MSG_COMPS))
-modules: $(patsubst %.comp, objects/%.mak, \
-	$(COMPS) $(DRIVER_COMPS) $(MSG_COMPS))
+endef
+#
+# For hal/components/*.comp:
+$(eval $(foreach comp,$(COMPS),$(call comp_build_rules,$(comp))))
+#
+# For hal/drivers/*.comp:
+$(eval $(foreach comp,$(DRIVER_COMPS),$(call comp_build_rules,$(comp))))
+#
+# For machinetalk/msgcomponents/*.comp:
+$(eval $(foreach comp,$(MSG_COMPS),$(call comp_build_rules,$(comp))))
+
+
+#$$(info $(call comp_build_rules,machinetalk/msgcomponents/remote.comp))
+#$$(info $(patsubst $(dir machinetalk/msgcomponents/remote.comp)%.comp,%-objs,machinetalk/msgcomponents/remote.comp) := $(patsubst %.comp,objects/%.o,machinetalk/msgcomponents/remote.comp))
+#$$(info $(patsubst machinetalk/msgcomponents/%.comp,../rtlib/modules/%.so,machinetalk/msgcomponents/remote.comp): objects/modules/objects/$(patsubst %.comp,%.o,machinetalk/msgcomponents/remote.comp))
 
 HALSTREAMERSRCS := hal/components/streamer_usr.c
 USERSRCS += $(HALSTREAMERSRCS)

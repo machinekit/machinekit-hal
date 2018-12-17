@@ -66,18 +66,6 @@ ECHO=@true
 VECHO=true
 endif
 
-ifeq ($(threads),)
-# if $(threads) wasn't passed in on the command line, rerun make for
-# each flavor/(optional)kernel-source combo
-BUILD_ALL_FLAVORS = yes
-BUILD_THREAD_MODULES = no
-else
-# $(threads) was passed in; build modules for this flavor and (if
-# applicable) kernel-source
-BUILD_ALL_FLAVORS = no
-BUILD_THREAD_MODULES = yes
-endif # $(threads)
-
 #ifneq ($(BUILD_THREAD_FLAVORS),)
 #@mkdir -p ../rtlib/modules \
 #for f in $(BUILD_THREAD_FLAVORS); do \
@@ -108,53 +96,15 @@ endif
 ifeq ($(BUILD_THREAD_FLAVORS),)
 $(error Makefile.inc must specify 'BUILD_THREAD_FLAVORS' and other variables)
 endif
-# prevent typos
-ifeq "$(filter $(threads),$(BUILD_THREAD_FLAVORS))" ""
-$(error "$(threads)" is not a valid RTOS flavor; please pick one of:\
-    $(BUILD_THREAD_FLAVORS))
-endif
 
 # default target:  put before everything else
 default:
 
-###########################################################################################
-
-ifeq ($(BUILD_ALL_FLAVORS),yes)
-# Top-level modules target
-#
-# Re-run 'make modules', once for each configured userland threads
-# flavor, and once for each detected kernel for each configured kernel
-# threads flavor.  Set 'threads' and where applicable 'KERNELDIR'.
-#
-# Following tradition, this incarnation of the modules recipe is
-# placed far away from all others.
-#################################################################################
-
-modules:
-	for f in $(BUILD_THREAD_FLAVORS); do \
-	    $(MAKE) modules threads=$$f; \
-	done; \
-
-ifeq ($(RUN_IN_PLACE)+$(BUILD_DRIVERS),yes+yes)
-	for f in $(BUILD_THREAD_FLAVORS); do \
-	    test -f ../libexec/rtapi_app_$$f -a \
-		    \( 0`stat -c %u ../libexec/rtapi_app_$$f 2>/dev/null` \
-			-ne 0 -o ! -u ../libexec/rtapi_app_$$f \) \
-		&& need_setuid=1; \
-	done;
-
-	test "$$need_setuid" = 1 && \
-	    $(VECHO) -n "You now need to run 'sudo make setuid' " && \
-	    $(VECHO) "in order to run in place." || true
-endif
-
-endif # BUILD_ALL_FLAVORS
-
 #############################################################################################
 
-OBJDIR := objects/$(RTDIR_EXT)
-DEPDIR := depends/$(RTDIR_EXT)
-RTLIBDIR := ../rtlib/$(RTDIR_EXT)
+OBJDIR := objects/modules
+DEPDIR := depends/modules
+RTLIBDIR := ../rtlib/modules
 
 DEP = $(1) $(CPPFLAGS) -MM -MG -MT "$(2)" $(4) -o $(3).tmp && \
 	mv -f "$(3)".tmp "$(3)"
@@ -741,9 +691,6 @@ endif
 # This is the gateway into the crazy world of "kbuild", the linux 2.6 system
 # for building kernel modules.	Other kernel module build styles need to be
 # accomodated here.
-#
-# (don't build when 'BUILD_ALL_FLAVORS' or 'BUILD_THREADS_MODULES' are set;
-# these are intermediate make runs)
 
 # It looks almost impossible to coerce kbuild into putting build
 # artifacts outside the source tree.  The universal build needs to
@@ -1576,9 +1523,7 @@ TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), $(OBJDIR)/$(file))
 #######################################################################################################
 
 # USER_DSO module building
-# (don't build when 'BUILD_ALL_FLAVORS' or 'BUILD_THREADS_MODULES' are set;
-# these are intermediate make runs)
-ifeq ($(BUILD_SYS)+$(BUILD_THREAD_MODULES),user-dso+yes)
+ifeq ($(BUILD_SYS),user-dso)
 EXTRA_CFLAGS += -fPIC
 
 RTOBJS := $(sort $(foreach mod,$(obj-m),$(call TORTOBJS,$(mod))))
@@ -1656,9 +1601,23 @@ RTDEPS := $(sort $(patsubst $(OBJDIR)/%.o,$(DEPDIR)/%.d, $(RTOBJS)))
 # it means that symbols referenced are resolved within the object first, instead of looking
 # at any symbols exported (maybe by accident) by rtap_app proper.
 #
+
+modules:
+ifeq ($(RUN_IN_PLACE)+$(BUILD_DRIVERS),yes+yes)
+	for f in $(BUILD_THREAD_FLAVORS); do \
+	    test -f ../libexec/rtapi_app_$$f -a \
+		    \( 0`stat -c %u ../libexec/rtapi_app_$$f 2>/dev/null` \
+			-ne 0 -o ! -u ../libexec/rtapi_app_$$f \) \
+		&& need_setuid=1; \
+	done; \
+	test "$$need_setuid" = 1 && \
+	    $(VECHO) -n "You now need to run 'sudo make setuid' " && \
+	    $(VECHO) "in order to run in place." || true
+endif
+
 modules: $(patsubst %.o,$(RTLIBDIR)/%.so,$(obj-m))
 $(RTLIBDIR)/%.so:
-	$(ECHO) Linking realtime $(threads) $(notdir $@)
+	$(ECHO) Linking realtime $(notdir $@)
 	@mkdir -p $(dir $@)
 	@# link all objects files into a single .so
 	$(Q)$(LD) -d -r -o $(OBJDIR)/$*.tmp $^
@@ -1671,14 +1630,14 @@ $(RTLIBDIR)/%.so:
 
 $(sort $(RTDEPS)): $(DEPDIR)/%.d: %.c
 	@mkdir -p $(dir $@)
-	$(ECHO) Depending realtime $(threads) $<
+	$(ECHO) Depending realtime $<
 	$(Q)$(call DEP,$(CC),$@ \
 		$(patsubst depends/%.d,objects/%.o,$@),$@,$(OPT) \
 		$(DEBUG) $(CPPFLAGS) $(EXTRA_CFLAGS) $<)
 
 # Rules to make .o (object) files
 $(sort $(RTOBJS)) : $(OBJDIR)/%.o : %.c $(DEPDIR)/%.d
-	$(ECHO) Compiling realtime $(threads) $<
+	$(ECHO) Compiling realtime $<
 	@rm -f $@
 	@mkdir -p $(dir $@)
 	$(Q)$(CC) -c $(OPT) $(DPKG_CFLAGS) $(DEBUG) $(CPPFLAGS) \

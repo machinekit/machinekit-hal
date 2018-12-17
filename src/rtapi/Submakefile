@@ -271,9 +271,6 @@ modules:  ../libexec/rtapi_app_$(threads)
 #                 USERLAND THREAD STYLES
 ##################################################################
 ifeq ($(BUILD_SYS),user-dso)
-# Build only during real module build, i.e. when 'make modules
-# threads=<flavor>'
-ifeq ($(BUILD_THREAD_MODULES),yes)
 
 # the rtapi.so module
 obj-$(CONFIG_RTAPI) += rtapi_$(threads).o
@@ -306,8 +303,6 @@ $(RTLIBDIR)/rtapi_$(threads)$(MODULE_EXT): EXTRA_LDFLAGS += $(RT_LDFLAGS)
 # rule for threads module, moved from src/Makefile
 $(RTLIBDIR)/rtapi_$(threads)$(MODULE_EXT): \
 	$(addprefix $(OBJDIR)/,$(rtapi_$(threads)-objs))
-
-endif # BUILD_THREAD_MODULES
 
 
 ##################################################################
