@@ -15,25 +15,6 @@ INCLUDES += rtapi rtapi_export
 	$(Q)cp  $^ $@
 
 ##########################################
-# Separate sources hack
-#
-# ulapi.so needs sources to be built separately for each flavor.  The
-# Makefile rules, and TOOBJS & friends, always build the same source
-# file into the same object file.
-#
-# Hack around this by creating a symlink 'rtapi/<flavor>' that points
-# back to the rtapi directory.  Then the same source can be referred
-# to as 'rtapi/<flavor1>/foo.c' or 'rtapi/<flavor2>/foo.c', and thus
-# be built into separate object files.
-
-rtapi/$(threads)/%: rtapi/.flavor-$(threads)-link-create-stamp
-	@:  # do nothing
-
-rtapi/.flavor-$(threads)-link-create-stamp:
-	ln -s . rtapi/$(threads)
-	@touch $@
-
-##########################################
 # Clean up
 modclean:  modclean-rtapi
 modclean-rtapi:
