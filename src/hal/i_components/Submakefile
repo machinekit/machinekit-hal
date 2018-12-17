@@ -14,11 +14,6 @@ CONVERTERS :=  \
     conv_u64_float.icomp conv_u64_bit.icomp conv_u64_s64.icomp \
     conv_u64_s64.icomp conv_u64_u32.icomp conv_s64_s32.icomp conv_s64_u32.icomp
 
-ifeq ($(BUILD_KBUILD),yes)
-ICOMPS := $(patsubst $(BASEPWD)/%,%,$(wildcard \
-	$(BASEPWD)/$(HALICOMPDIR)/*.icomp ))
-include $(patsubst %.icomp, $(BASEPWD)/halcomp-srcs/%.mak, $(ICOMPS))
-else
 ICOMPS := $(sort $(wildcard $(HALICOMPDIR)/*.icomp)  \
 	$(addprefix hal/i_components/, $(CONVERTERS)))
 
@@ -32,17 +27,14 @@ ifeq ($(BUILD_DOCS),yes)
     .PHONY: i_docpages
 endif
 
-ifeq ($(TRIVIAL_BUILD)+$(BUILD_THREAD_MODULES),no+yes)
--include $(patsubst %.icomp, $(BASEPWD)/halcomp-srcs/%.mak,\
+ifeq ($(TRIVIAL_BUILD),no)
+-include $(patsubst %.icomp, $(BASEPWD)/objects/%.mak,\
 	$(ICOMPS))
 endif # TRIVIAL_BUILD == no
-endif
 
 
-ifeq ($(BUILD_THREAD_MODULES),yes)
 obj-m += \
 	$(patsubst hal/i_components/%.icomp, %.o, $(ICOMPS))
-endif
 
 ICOMP_DOCPAGES := $(patsubst $(HALICOMPDIR)/%.icomp, ../man/man9/%.asciidoc, \
 	$(ICOMPS))
@@ -55,29 +47,27 @@ $(ICOMP_DOCPAGES): ../man/man9/%.asciidoc: $(HALICOMPDIR)/%.icomp ../bin/instcom
 	--frontmatter="edit-branch: $(EDIT_BRANCH)" 	\
 		-o $@ $<
 
-ifeq ($(BUILD_ALL_FLAVORS),yes)
 # .c and .mak files are identical for all flavors
 #
-# in the top-level make, build them once in a common location
-halcomp-srcs/%.c: %.icomp ../bin/instcomp
+# build them once in a common location
+objects/%.c: %.icomp ../bin/instcomp
 	$(ECHO) "Preprocessing $(notdir $<)"
 	@mkdir -p $(dir $@)
 	$(Q)../bin/instcomp --require-license -o $@ $<
 
-halcomp-srcs/%.mak: %.icomp $(HALICOMP_SUBMAKEFILE)
+objects/%.mak: %.icomp $(HALICOMP_SUBMAKEFILE)
 	$(ECHO) "Generating icomp build rules for $(notdir $<)"
 	@mkdir -p $(dir $@)
-	$(Q)echo "$(notdir $*)-objs := halcomp-srcs/$*.o" > $@.tmp
+	$(Q)echo "$(notdir $*)-objs := objects/$*.o" > $@.tmp
 	$(Q)echo "\$$(RTLIBDIR)/$(notdir $*)\$$(MODULE_EXT): \\" >> $@.tmp
-	$(Q)echo "    \$$(OBJDIR)/halcomp-srcs/$*.o" >> $@.tmp
+	$(Q)echo "    \$$(OBJDIR)/objects/$*.o" >> $@.tmp
 	$(Q)mv -f $@.tmp $@
 
 # Generate .c and .mak files before the modules target
-modules: $(patsubst %.icomp, halcomp-srcs/%.c, \
+modules: $(patsubst %.icomp, objects/%.c, \
 	$(ICOMPS) )
-modules: $(patsubst %.icomp, halcomp-srcs/%.mak, \
+modules: $(patsubst %.icomp, objects/%.mak, \
 	$(ICOMPS))
-endif # BUILD_ALL_FLAVORS == yes
 
 # Regenerate conv_*.icomp when below rules are touched
 $(addprefix hal/i_components/, $(CONVERTERS)): hal/i_components/Submakefile

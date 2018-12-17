@@ -82,7 +82,7 @@ endif # $(threads)
 #@mkdir -p ../rtlib/modules \
 #for f in $(BUILD_THREAD_FLAVORS); do \
 #    ln -s ../rtlib/modules ../rtlib/$$f; \
-#done; 
+#done;
 #endif
 
 BUILD_KBUILD = no
@@ -130,7 +130,7 @@ ifeq ($(BUILD_ALL_FLAVORS),yes)
 # placed far away from all others.
 #################################################################################
 
-modules: userspace
+modules:
 	for f in $(BUILD_THREAD_FLAVORS); do \
 	    $(MAKE) modules threads=$$f; \
 	done; \
@@ -1086,7 +1086,7 @@ endif
 	$(FILE) ../etc/linuxcnc/rtapi.ini $(DESTDIR)$(sysconfdir)/linuxcnc
 
 	# RTAPI modules:  install userland flavor .so modules into
-	# e.g. /usr/lib/linuxcnc/modules 
+	# e.g. /usr/lib/linuxcnc/modules
 
 	##TODO: change $$flavor to modules for install
 
