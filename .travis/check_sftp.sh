@@ -14,7 +14,7 @@ then
     # test conection
     FILE="${TRAVIS_REPO_SLUG//\//.}_${TRAVIS_BRANCH}_${TRAVIS_JOB_NUMBER}"
 
-    cat >${TRAVIS_BUILD_DIR}/../${FILE} << EOF 
+cat >${TRAVIS_BUILD_DIR}/../${FILE} << EOF
 TRAVIS_BRANCH=${TRAVIS_BRANCH}
 TRAVIS_BUILD_DIR=${TRAVIS_BUILD_DIR}
 TRAVIS_BUILD_ID=${TRAVIS_BUILD_ID}
@@ -50,5 +50,4 @@ EOF
     exit 0
 fi
 
-# cannot use sftp
-die "SFTP not available"
+echo "Successfully configured sftp"

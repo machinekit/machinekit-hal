@@ -1,7 +1,8 @@
 INCLUDES += hal/drivers
 
 ../include/%.h: ./hal/drivers/%.h
-	cp  $^ $@
+	$(ECHO) Copying header file $@
+	$(Q)cp  $^ $@
 
 # build instructions for the hal_p260c module
 obj-m += hal_p260c.o

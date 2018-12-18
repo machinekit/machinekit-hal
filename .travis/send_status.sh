@@ -1,13 +1,22 @@
 #!/bin/bash -e
 
 cd ~/
-if [ ! -f ~/no_sftp ]; then
-    FILE="${TRAVIS_REPO_SLUG//\//.}_${TRAVIS_BRANCH}_${TRAVIS_JOB_NUMBER}_"
-    if [ ${TRAVIS_TEST_RESULT} ]; then
-        FILE+="passed"
-    else
-        FILE+="failed"
-    fi
+if [ -f ~/no_sftp ]; then
+    echo "Not sending status:  sftp unavailable" >&2
+    exit 0
+fi
+
+if [ -z "${SFTP_PASSWD}" ]; then
+    echo "Not sending status:  sftp parameters unconfigured" >&2
+    exit 0
+fi
+
+FILE="${TRAVIS_REPO_SLUG//\//.}_${TRAVIS_BRANCH}_${TRAVIS_JOB_NUMBER}_"
+if [ ${TRAVIS_TEST_RESULT} ]; then
+    FILE+="passed"
+else
+    FILE+="failed"
+fi
 
     touch ${FILE}
     cat >sftp_cmds <<EOF
