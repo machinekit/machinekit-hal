@@ -22,11 +22,11 @@
 ********************************************************************/
 
 #include "config.h"
-#include "xenomai-common.h"
 #include "rtapi.h"
 #include "rtapi_common.h"
 
 #include <sys/mman.h>			/* munlockall() */
+#define XENOMAI_INCLUDE(header) <XENOMAI_SKIN/header>
 #include XENOMAI_INCLUDE(task.h)	/* RT_TASK, rt_task_*() */
 #include XENOMAI_INCLUDE(timer.h)	/* rt_timer_*() */
 #include <signal.h>			/* sigaction/SIGXCPU handling */
@@ -42,7 +42,7 @@
 RT_TASK ostask_array[RTAPI_MAX_TASKS + 1];
 
 // this is needed due to the weirdness of the rt_task_self return value -
-// it does _not_ match the address of the RT_TASK structure it was 
+// it does _not_ match the address of the RT_TASK structure it was
 // created with
 RT_TASK *ostask_self[RTAPI_MAX_TASKS + 1];
 
@@ -271,11 +271,11 @@ void _rtapi_task_wrapper(void * task_id_hack) {
 
     /* call the task function with the task argument */
     (task->taskcode) (task->arg);
-    
+
     /* if the task ever returns, we record that fact */
     task->state = ENDED;
     rtapi_print_msg(RTAPI_MSG_ERR,
-		    "ERROR: reached end of wrapper for task %d '%s'\n", 
+		    "ERROR: reached end of wrapper for task %d '%s'\n",
 		    task_id, task->name);
 }
 
@@ -310,7 +310,7 @@ int _rtapi_task_start_hook(task_data *task, int task_id) {
 
     int prio = (task->flags & TF_NONRT) ? 0 :task->prio;
 
-    if ((retval = rt_task_create (&ostask_array[task_id], task->name, 
+    if ((retval = rt_task_create (&ostask_array[task_id], task->name,
 				  task->stacksize, prio,
 				  uses_fpu | which_cpu | T_JOINABLE)
 	 ) != 0) {

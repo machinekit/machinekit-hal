@@ -5,17 +5,17 @@
 *               for more info.
 *
 *     Copyright 2006-2013 Various Authors
-* 
+*
 *     This program is free software; you can redistribute it and/or modify
 *     it under the terms of the GNU General Public License as published by
 *     the Free Software Foundation; either version 2 of the License, or
 *     (at your option) any later version.
-* 
+*
 *     This program is distributed in the hope that it will be useful,
 *     but WITHOUT ANY WARRANTY; without even the implied warranty of
 *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 *     GNU General Public License for more details.
-* 
+*
 *     You should have received a copy of the GNU General Public License
 *     along with this program; if not, write to the Free Software
 *     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -25,16 +25,11 @@
 #include "rtapi.h"		// these functions
 #include "rtapi_common.h"	// these functions
 
-#ifndef MODULE  // kernel threads systems have own timer functions
-#    include <time.h>		// clock_getres(), clock_gettime()
-#endif
+#include <time.h>		// clock_getres(), clock_gettime()
 
 
 #ifndef HAVE_RTAPI_GET_CLOCKS_HOOK
 // find a useable time stamp counter
-#ifndef MODULE			/* kernel has rdtscll in
-				   arch/x86/include/msr.h; does this
-				   apply to other arches?  */
 #ifdef MSR_H_USABLE
 #include <asm/msr.h>
 #elif defined(__i386__) || defined(__x86_64__)
@@ -43,7 +38,6 @@
 #else
 #error No implementation of rtapi_get_clocks available
 #define rdtscll(val) (val)=0
-#endif
 #endif
 #endif /* HAVE_RTAPI_GET_CLOCKS_HOOK */
 
@@ -60,7 +54,7 @@ unsigned long timer_counts;
 
 
 #ifdef HAVE_RTAPI_CLOCK_SET_PERIOD_HOOK
-void _rtapi_clock_set_period_hook(long int nsecs, RTIME *counts, 
+void _rtapi_clock_set_period_hook(long int nsecs, RTIME *counts,
 				 RTIME *got_counts);
 #endif
 
@@ -186,5 +180,3 @@ long long int _rtapi_get_clocks(void) {
     return _rtapi_get_clocks_hook();
 #endif  /* HAVE_RTAPI_GET_CLOCKS_HOOK */
 }
-
-

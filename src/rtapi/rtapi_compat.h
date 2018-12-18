@@ -37,14 +37,6 @@
 
 #define RTPREEMPT_FLAVOR_FLAGS             (FLAVOR_DOES_IO)
 
-#define RTAI_KERNEL_FLAVOR_FLAGS           (FLAVOR_DOES_IO| \
-					    FLAVOR_KERNEL_BUILD|\
-					    FLAVOR_RTAPI_DATA_IN_SHM)
-
-#define XENOMAI_KERNEL_FLAVOR_FLAGS        (FLAVOR_DOES_IO|\
-					    FLAVOR_KERNEL_BUILD|\
-					    FLAVOR_RTAPI_DATA_IN_SHM)
-
 #define XENOMAI_FLAVOR_FLAGS               (FLAVOR_DOES_IO)
 
 
@@ -54,7 +46,6 @@
 *      RTAPI or ULAPI, for instance rtapi_msgd or rtapistat.           *
 *      exported by rtapi_compat.c .                                    *
 ************************************************************************/
-#ifndef MODULE
 
 #include <limits.h> // provides PATH_MAX
 
@@ -214,5 +205,4 @@ int rtapi_get_tags(const char *mod_name);
 
 SUPPORT_END_DECLS
 
-#endif // MODULE
 #endif // RTAPI_COMPAT_H

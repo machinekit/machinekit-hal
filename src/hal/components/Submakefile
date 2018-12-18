@@ -1,9 +1,6 @@
 HALCOMP_SUBMAKEFILE= hal/components/Submakefile
 # for debugging this file - to prevent recompilation of
 # everything under the sun with every small change
-HALCOMP_SUBMAKEFILE= hal/components/Submakefile
-# for debugging this file - to prevent recompilation of
-# everything under the sun with every small change
 #HALCOMP_SUBMAKEFILE=
 
 COMPS := $(sort $(wildcard hal/components/*.comp))
@@ -78,10 +75,12 @@ objects/%.c: %.comp ../bin/comp
 	$(Q)../bin/comp --require-license -o $@ $<
 
 # Generate rules for building component.so files
-# logic-objs := objects/hal/components/logic.o
-# $(RTLIBDIR)/logic$(MODULE_EXT): $(OBJDIR)/objects/hal/components/logic.o
 #
 # example:  $$(call comp_build_rules,hal/components,hal/components/logic.comp)
+# produces rules:
+# logic-objs := objects/hal/components/logic.o
+# ../rtlib/modules/remote.so: \
+#     objects/modules/objects/machinetalk/msgcomponents/remote.o
 #
 define comp_build_rules
 $$(patsubst $$(dir $(1))%.comp,%-objs,$(1)) := \
@@ -121,9 +120,27 @@ USERSRCS += $(HALSAMPLERSRCS)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/halsampler
 
-# build instructions for the delayline module
-obj-m += delayline.o
-# the list of parts
-delayline-objs := hal/components/delayline.o $(MATHSTUB)
+# C-language components
 
-$(RTLIBDIR)/delayline$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(delayline-objs))
+#$$(eval $(call c_comp_build_rules,hal/components/boss_plc.o))
+$(eval $(call c_comp_build_rules,hal/components/encoder.o))
+$(eval $(call c_comp_build_rules,hal/components/encoderv2.o))
+$(eval $(call c_comp_build_rules,hal/components/counter.o))
+$(eval $(call c_comp_build_rules,hal/components/encoder_ratio.o))
+$(eval $(call c_comp_build_rules,hal/components/encoder_ratiov2.o))
+$(eval $(call c_comp_build_rules,hal/components/stepgen.o))
+$(eval $(call c_comp_build_rules,hal/components/stepgenv2.o))
+$(eval $(call c_comp_build_rules,hal/components/lcd.o))
+$(eval $(call c_comp_build_rules,hal/components/matrix_kb.o))
+$(eval $(call c_comp_build_rules,hal/components/mux_generic.o))
+$(eval $(call c_comp_build_rules,hal/components/pwmgen.o))
+$(eval $(call c_comp_build_rules,hal/components/pwmgenv2.o))
+$(eval $(call c_comp_build_rules,hal/components/siggen.o))
+$(eval $(call c_comp_build_rules,hal/components/threads.o))
+#$$(eval $(call c_comp_build_rules,hal/components/supply.o))
+$(eval $(call c_comp_build_rules,hal/components/sim_encoder.o))
+#$$(eval $(call c_comp_build_rules,hal/components/watchdog.o))
+#$$(eval $(call c_comp_build_rules,hal/components/modmath.o))
+$(eval $(call c_comp_build_rules,hal/components/streamer.o))
+$(eval $(call c_comp_build_rules,hal/components/sampler.o))
+$(eval $(call c_comp_build_rules,hal/components/delayline.o))

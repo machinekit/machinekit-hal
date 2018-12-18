@@ -6,16 +6,16 @@
 */
 /********************************************************************
 * Description:  rtapi_common.h
-*               This file, 'rtapi_common.h', contains typedefs and 
-*               other items common to both the realtime and 
+*               This file, 'rtapi_common.h', contains typedefs and
+*               other items common to both the realtime and
 *               non-realtime portions of the implementation.
 *
 * Author: John Kasunich, Paul Corner
 * License: LGPL Version 2
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change: 
+* Last change:
 ********************************************************************/
 
 /** This file, 'rtapi_common.h', contains typedefs and other items
@@ -73,31 +73,21 @@
 
 #include "rtapi_bitops.h"	/* test_bit() et al. */
 
-#if defined(BUILD_SYS_USER_DSO)
-#include <sys/ipc.h>		/* IPC_* */
-#include <sys/shm.h>
-#include <sys/types.h>  
-#endif
-
-#if defined(BUILD_SYS_USER_DSO)
 #include <sys/ipc.h>		/* IPC_* */
 #include <sys/shm.h>
 #include <sys/types.h>
-#endif
 
 #ifndef NULL
 #define NULL 0
 #endif
 
 
+#ifdef RTAPI                    /* ULAPI doesn't vary by thread flavor */
 #include THREADS_HEADERS	/* thread-specific headers */
-
-
-/* module information */
-#ifdef MODULE
-MODULE_AUTHOR("John Kasunich, Fred Proctor, & Paul Corner");
-MODULE_DESCRIPTION("Portable Real Time API");
-MODULE_LICENSE("GPL");
+#else
+// These are the same as Xenomai and RT_PREEMPT anyway
+#define PRIO_LOWEST 0
+#define PRIO_HIGHEST 99
 #endif
 
 // RTAPI_MAX_* moved to config.h
@@ -209,23 +199,20 @@ typedef struct {
     task_data task_array[RTAPI_MAX_TASKS + 1];	/* data for tasks */
     shmem_data shmem_array[RTAPI_MAX_SHMEMS + 1];	/* data for shared
 							   memory */
-#ifdef THREAD_RTAPI_DATA
-    THREAD_RTAPI_DATA;		/* RTAPI data defined in thread system */
-#endif
 } rtapi_data_t;
 
 
 /* rtapi_common.c */
 extern rtapi_data_t *rtapi_data;
 
-#if defined(RTAPI) || defined(MODULE)
+#if defined(RTAPI)
 extern void init_rtapi_data(rtapi_data_t * data);
-extern void init_global_data(global_data_t * data, 
-			     int instance_id, int hal_size, 
+extern void init_global_data(global_data_t * data,
+			     int instance_id, int hal_size,
 			     int rtlevel, int userlevel, const char *name);
 #endif
 
-#if defined(RTAPI) && defined(BUILD_SYS_USER_DSO)
+#if defined(RTAPI)
 extern int  _next_handle(void);
 #endif
 
@@ -236,16 +223,6 @@ extern long page_size;  // for munmap
 /* rtapi_task.c */
 extern task_data *task_array;
 
-
-/* $(THREADS).c */
-/* RT_TASK is actually flavor-specific.  It ought to be hookified, but
-   it isn't because the two kthreads flavors both use the same same
-   for this data type (perhaps because they share history and the
-   ipipe patch)
- */
-#if defined(MODULE)
-extern RT_TASK *ostask_array[];
-#endif
 
 /* rtapi_time.c */
 #ifdef BUILD_SYS_USER_DSO

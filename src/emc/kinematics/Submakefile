@@ -42,3 +42,46 @@ TARGETS += ../bin/drawbotkins
 ../include/%.hh: ./emc/kinematics/%.hh
 	$(ECHO) Copying header file $@
 	$(Q)cp $^ $@
+
+# C language components
+$(eval $(call c_comp_build_rules,emc/kinematics/trivkins.o))
+$(eval $(call c_comp_build_rules,emc/kinematics/XYZACkins.o))
+$(eval $(call c_comp_build_rules,emc/kinematics/5axiskins.o))
+$(eval $(call c_comp_build_rules,emc/kinematics/maxkins.o))
+$(eval $(call c_comp_build_rules,emc/kinematics/gantrykins.o))
+$(eval $(call c_comp_build_rules,emc/kinematics/rotatekins.o))
+$(eval $(call c_comp_build_rules,emc/kinematics/tripodkins.o))
+$(eval $(call c_comp_build_rules,emc/kinematics/itripodkins.o))
+$(eval $(call c_comp_build_rules,emc/kinematics/lineardeltakins.o))
+$(eval $(call c_comp_build_rules,emc/kinematics/genhexkins.o, \
+	libnml/posemath/_posemath.o \
+	libnml/posemath/sincos.o \
+))
+$(eval $(call c_comp_build_rules,emc/kinematics/genserkins.o, \
+	libnml/posemath/gomath.o \
+	libnml/posemath/sincos.o \
+))
+$(eval $(call c_comp_build_rules,emc/kinematics/drawbotkins.o, \
+	libnml/posemath/gomath.o \
+	libnml/posemath/sincos.o \
+))
+$(eval $(call c_comp_build_rules,emc/kinematics/pumakins.o, \
+	libnml/posemath/_posemath.o \
+	libnml/posemath/sincos.o \
+))
+$(eval $(call c_comp_build_rules,emc/kinematics/scarakins.o, \
+	libnml/posemath/_posemath.o \
+	libnml/posemath/sincos.o \
+))
+$(eval $(call c_comp_build_rules,emc/kinematics/cubic.o, \
+	emc/motion/motion.o \
+	emc/motion/command.o \
+	emc/motion/control.o \
+	emc/motion/homing.o \
+	emc/motion/emcmotglb.o \
+	emc/motion/emcmotutil.o \
+	emc/motion/stashf.o \
+	emc/motion/dbuf.o \
+	libnml/posemath/_posemath.o \
+	libnml/posemath/sincos.o \
+))

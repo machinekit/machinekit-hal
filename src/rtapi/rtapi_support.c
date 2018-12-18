@@ -10,17 +10,17 @@
 *               RTAPI starts up
 *
 *     Copyright 2006-2013 Various Authors
-* 
+*
 *     This program is free software; you can redistribute it and/or modify
 *     it under the terms of the GNU General Public License as published by
 *     the Free Software Foundation; either version 2 of the License, or
 *     (at your option) any later version.
-* 
+*
 *     This program is distributed in the hope that it will be useful,
 *     but WITHOUT ANY WARRANTY; without even the implied warranty of
 *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 *     GNU General Public License for more details.
-* 
+*
 *     You should have received a copy of the GNU General Public License
 *     along with this program; if not, write to the Free Software
 *     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -39,16 +39,6 @@
 #endif
 #define RTPRINTBUFFERLEN 256
 
-#ifdef MODULE
-#include "rtapi_app.h"
-
-#include <stdarg.h>		/* va_* */
-#include <linux/kernel.h>	/* kernel's vsnprintf */
-
-#define MSG_ORIGIN MSG_KERNEL
-
-#else  /* user land */
-
 #include <stdio.h>		/* libc's vsnprintf() */
 #include <sys/types.h>
 #include <unistd.h>
@@ -57,7 +47,6 @@
 #define MSG_ORIGIN MSG_RTUSER
 #else
 #define MSG_ORIGIN MSG_ULAPI
-#endif
 #endif
 
 static int get_msg_level(void);
@@ -157,10 +146,8 @@ void default_rtapi_msg_handler(msg_level_t level, const char *fmt,
 			       va_list ap)
 {
     static pid_t rtapi_pid;
-#if !defined(BUILD_SYS_KBUILD) && !defined(MODULE)
     if (rtapi_pid == 0)
 	rtapi_pid = getpid();
-#endif
     vs_ringlogfv(level, rtapi_pid, MSG_ORIGIN, logtag, fmt, ap);
 }
 
@@ -178,7 +165,7 @@ void rtapi_set_msg_handler(rtapi_msg_handler_t handler) {
 }
 
 // rtapi_get_msg_level and rtapi_set_msg_level moved here
-// since they access the global segment 
+// since they access the global segment
 // which might not exist during first use
 // assure we can use message levels before global_data is set up
 
@@ -246,7 +233,7 @@ void rtapi_print(const char *fmt, ...) {
 void rtapi_print_msg(int level, const char *fmt, ...) {
     va_list args;
 
-    if ((level <= rtapi_get_msg_level()) && 
+    if ((level <= rtapi_get_msg_level()) &&
 	(rtapi_get_msg_level() != RTAPI_MSG_NONE)) {
 	va_start(args, fmt);
 	rtapi_msg_handler(level, fmt, args);

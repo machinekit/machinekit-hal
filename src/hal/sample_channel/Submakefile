@@ -1,0 +1,2 @@
+$(eval $(call c_comp_build_rules,hal/sample_channel/sample_channel_pb.o, \
+	machinetalk/build/machinetalk/protobuf/sample.npb.o))

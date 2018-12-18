@@ -50,3 +50,18 @@ USERSRCS += $(CLASSICLADDERSRCS)
 
 TARGETS += ../bin/classicladder
 endif
+
+# Can't use the macro for this, since there's no classicladder_rt.c file
+obj-m += classicladder_rt.o
+classicladder_rt-objs := hal/classicladder/module_hal.o
+classicladder_rt-objs += hal/classicladder/arithm_eval.o
+classicladder_rt-objs += hal/classicladder/arrays.o
+classicladder_rt-objs += hal/classicladder/calc.o
+classicladder_rt-objs += hal/classicladder/calc_sequential.o
+classicladder_rt-objs += hal/classicladder/manager.o
+classicladder_rt-objs += hal/classicladder/symbols.o
+classicladder_rt-objs += hal/classicladder/vars_access.o
+ifdef SEQUENTIAL_SUPPORT
+classicladder_rt-objs += hal/classicladder/calc_sequential_rt.o
+endif
+$(RTLIBDIR)/classicladder_rt.so: $(addprefix $(OBJDIR)/,$(classicladder_rt-objs))

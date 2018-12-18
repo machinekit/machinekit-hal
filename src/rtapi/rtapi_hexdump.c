@@ -18,17 +18,6 @@
 
 #include <stdarg.h>		/* va_start and va_end macros */
 
-#ifdef MODULE
-#include "rtapi_app.h"
-
-#include <linux/types.h>
-#include <linux/ctype.h>
-#include <linux/kernel.h>
-#include <linux/export.h>
-
-#else  /* user land */
-
-
 #include <stdio.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -40,14 +29,11 @@
 	    typeof(y) _min2 = (y);		\
 	    (void) (&_min1 == &_min2);		\
 	    _min1 < _min2 ? _min1 : _min2; })
-#endif
 
 
 // API doc moved to rtapi_hexdump.h
 
-#ifndef MODULE
 const char hex_asc[] = "0123456789abcdef";
-#endif
 
 void rtapi_hex_dump_to_buffer(const void *buf, size_t len, int rowsize,
 			      int groupsize, char *linebuf, size_t linebuflen,

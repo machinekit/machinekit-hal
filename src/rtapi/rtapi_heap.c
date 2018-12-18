@@ -36,14 +36,10 @@
 // so it can be used as a shared memory malloc
 static void _rtapi_unlocked_free(struct rtapi_heap *h, void *ap);
 
-#ifdef MODULE
-#define MSG_ORIGIN MSG_KERNEL
-#else
 #ifdef RTAPI
 #define MSG_ORIGIN MSG_RTUSER
 #else
 #define MSG_ORIGIN MSG_ULAPI
-#endif
 #endif
 
 #define HEAP_MUTEX(h) (&(h)->mutex)
@@ -331,7 +327,7 @@ int _rtapi_heap_init(struct rtapi_heap *heap, const char *name)
     heap->requested = 0;
     heap->allocated = 0;
     heap->freed = 0;
-    if (name) 
+    if (name)
 	strncpy(heap->name, name, sizeof(heap->name));
     else {
 #ifdef RTAPI
@@ -379,4 +375,3 @@ size_t _rtapi_heap_status(struct rtapi_heap *h,
 	}
     }
 }
-

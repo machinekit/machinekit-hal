@@ -145,3 +145,6 @@ objects/%.py: %.g ../bin/yapps
 clean: hal-utils-clean
 hal-utils-clean:
 	rm -f ../bin/yapps ../lib/python/yapps/*.pyc
+
+# C language components
+$(eval $(call c_comp_build_rules,hal/utils/scope_rt.o))

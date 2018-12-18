@@ -10,20 +10,13 @@ INCLUDES += $(TP_DIR)
 	$(Q)cp $^ $@
 
 
-# obj-m += tp.o
-# tp-objs := $(addprefix emc/tp/, \
-# 	tc.o 		\
-# 	tcq.o 		\
-# 	tp.o 		\
-# 	tpmain.o 	\
-# 	blendmath.o 	\
-# 	spherical_arc.o 	\
-# 	) 		\
-# 	emc/nml_intf/emcpose.o \
-# 	libnml/posemath/_posemath.o \
-# 	libnml/posemath/sincos.o $(MATHSTUB)
-
-
-# ifneq "$(filter normal user-dso,$(BUILD_SYS))" ""
-# $(RTLIBDIR)/tp$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(tp-objs))
-# endif
+$(eval $(call c_comp_build_rules,$(TP_DIR)/tp.o, \
+	$(TP_DIR)/tcq.o 		\
+	$(TP_DIR)/tc.o 		\
+	$(TP_DIR)/tpmain.o 	\
+	$(TP_DIR)/blendmath.o 	\
+	$(TP_DIR)/spherical_arc.o 	\
+	emc/nml_intf/emcpose.o \
+	libnml/posemath/_posemath.o \
+	libnml/posemath/sincos.o \
+))

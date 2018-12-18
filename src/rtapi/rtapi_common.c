@@ -14,20 +14,15 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+#ifdef ULAPI
+#include <stdlib.h>
+#endif
+
 #include "config.h"
 #include "rtapi.h"
 #include "rtapi_common.h"
 #include "rtapi_compat.h"
 #include "ring.h"
-
-#ifndef MODULE
-#include <stdlib.h>		/* strtol() */
-#endif
-
-#if defined(BUILD_SYS_KBUILD) && defined(ULAPI)
-#include <stdio.h>		/* putchar */
-#endif
-
 
 /* these pointers are initialized at startup to point
    to resource data in the master data structure above
@@ -39,20 +34,13 @@
    that process's memory mapping.)
 */
 
-#ifdef BUILD_SYS_USER_DSO
-// in the userland threads scenario, there is no point in having this 
+// in the userland threads scenario, there is no point in having this
 // in shared memory, so keep it here
 static rtapi_data_t local_rtapi_data;
 rtapi_data_t *rtapi_data = &local_rtapi_data;
 task_data *task_array =  local_rtapi_data.task_array;
 shmem_data *shmem_array = local_rtapi_data.shmem_array;
 module_data *module_array = local_rtapi_data.module_array;
-#else
-rtapi_data_t *rtapi_data = NULL;
-task_data *task_array = NULL;
-shmem_data *shmem_array = NULL;
-module_data *module_array = NULL;
-#endif
 
 // RTAPI:
 // global_data is exported by rtapi_module.c (kthreads)
@@ -60,7 +48,7 @@ module_data *module_array = NULL;
 // ULAPI: exported in ulapi_autoload.c
 extern global_data_t *global_data;
 
-/* 
+/*
    define the rtapi_switch struct, with pointers to all rtapi_*
    functions
 
@@ -78,9 +66,15 @@ int _rtapi_dummy(void) {
 
 static rtapi_switch_t rtapi_switch_struct = {
     .git_version = GIT_VERSION,
+#ifdef RTAPI
     .thread_flavor_name = THREAD_FLAVOR_NAME,
     .thread_flavor_id = THREAD_FLAVOR_ID,
     .thread_flavor_flags = FLAVOR_FLAGS,
+#else
+    .thread_flavor_name = "ULAPI",
+    .thread_flavor_id = -1,
+    .thread_flavor_flags = 0,
+#endif
 
     // init & exit functions
     .rtapi_init = &_rtapi_init,
@@ -168,18 +162,14 @@ rtapi_switch_t *rtapi_get_handle(void) {
 EXPORT_SYMBOL(rtapi_get_handle);
 #endif
 
-#if defined(BUILD_SYS_KBUILD)
-int shmdrv_loaded = 1;  // implicit
-#else
 int shmdrv_loaded;  // set in rtapi_app_main, and ulapi_main
-#endif
 long page_size;     // set in rtapi_app_main
 
 void rtapi_autorelease_mutex(void *variable)
 {
     if (rtapi_data != NULL)
 	rtapi_mutex_give(&(rtapi_data->mutex));
-    else 
+    else
 	// programming error
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"rtapi_autorelease_mutex: rtapi_data == NULL!\n");
@@ -213,7 +203,7 @@ void init_rtapi_data(rtapi_data_t * data)
     data->magic = RTAPI_MAGIC;
     /* set version code and flavor ID so other modules can check it */
     data->serial = RTAPI_SERIAL;
-    data->thread_flavor_id = THREAD_FLAVOR_ID;
+    data->thread_flavor_id = -1; // Unknown at this point
     data->ring_mutex = 0;
     /* and get busy */
     data->rt_module_count = 0;
@@ -314,107 +304,3 @@ int  _rtapi_next_handle(void)
 {
     return rtapi_add_and_fetch(1, &global_data->next_handle);
 }
-
-/* simple_strtol defined in
-   /usr/src/kernels/<kversion>/include/linux/kernel.h */
-#ifndef MODULE
-long int simple_strtol(const char *nptr, char **endptr, int base) {
-# ifdef HAVE_RTAPI_SIMPLE_STRTOL_HOOK
-    return rtapi_simple_strtol_hook(nptr,endptr,base);
-# else
-    return strtol(nptr, endptr, base);
-# endif
-}
-#ifdef RTAPI
-EXPORT_SYMBOL(simple_strtol);
-#endif
-#endif
-
-#if defined(BUILD_SYS_KBUILD) && defined(ULAPI)
-/*  This function is disabled everywhere...  */
-void _rtapi_printall(void) {
-    module_data *modules;
-    task_data *tasks;
-    shmem_data *shmems;
-    int n, m;
-
-    if (rtapi_data == NULL) {
-	rtapi_print_msg(RTAPI_MSG_DBG, "rtapi_data = NULL, not initialized\n");
-	return;
-    }
-    rtapi_print_msg(RTAPI_MSG_DBG, "rtapi_data = %p\n",
-		    rtapi_data);
-    rtapi_print_msg(RTAPI_MSG_DBG, "  magic = %d\n",
-		    rtapi_data->magic);
-    rtapi_print_msg(RTAPI_MSG_DBG, "  serial = %d\n",
-		    rtapi_data->serial);
-    rtapi_print_msg(RTAPI_MSG_DBG, "  thread_flavor id = %d\n",
-		    rtapi_data->thread_flavor_id);
-    rtapi_print_msg(RTAPI_MSG_DBG, "  mutex = %lu\n",
-		    rtapi_data->mutex);
-    rtapi_print_msg(RTAPI_MSG_DBG, "  rt_module_count = %d\n",
-		    rtapi_data->rt_module_count);
-    rtapi_print_msg(RTAPI_MSG_DBG, "  ul_module_count = %d\n",
-		    rtapi_data->ul_module_count);
-    rtapi_print_msg(RTAPI_MSG_DBG, "  task_count  = %d\n",
-		    rtapi_data->task_count);
-    rtapi_print_msg(RTAPI_MSG_DBG, "  shmem_count = %d\n",
-		    rtapi_data->shmem_count);
-    rtapi_print_msg(RTAPI_MSG_DBG, "  timer_running = %d\n",
-		    rtapi_data->timer_running);
-    rtapi_print_msg(RTAPI_MSG_DBG, "  timer_period  = %ld\n",
-		    rtapi_data->timer_period);
-    modules = &(rtapi_data->module_array[0]);
-    tasks = &(rtapi_data->task_array[0]);
-    shmems = &(rtapi_data->shmem_array[0]);
-    rtapi_print_msg(RTAPI_MSG_DBG, "  module array = %p\n",modules);
-    rtapi_print_msg(RTAPI_MSG_DBG, "  task array   = %p\n", tasks);
-    rtapi_print_msg(RTAPI_MSG_DBG, "  shmem array  = %p\n", shmems);
-    for (n = 0; n <= RTAPI_MAX_MODULES; n++) {
-	if (modules[n].state != NO_MODULE) {
-	    rtapi_print_msg(RTAPI_MSG_DBG, "  module %02d\n", n);
-	    rtapi_print_msg(RTAPI_MSG_DBG, "    state = %d\n",
-			    modules[n].state);
-	    rtapi_print_msg(RTAPI_MSG_DBG, "    name = %p\n",
-			    modules[n].name);
-	    rtapi_print_msg(RTAPI_MSG_DBG, "    name = '%s'\n",
-			    modules[n].name);
-	}
-    }
-    for (n = 0; n <= RTAPI_MAX_TASKS; n++) {
-	if (tasks[n].state != EMPTY) {
-	    rtapi_print_msg(RTAPI_MSG_DBG, "  task %02d\n", n);
-	    rtapi_print_msg(RTAPI_MSG_DBG, "    state = %d\n",
-			    tasks[n].state);
-	    rtapi_print_msg(RTAPI_MSG_DBG, "    prio  = %d\n",
-			    tasks[n].prio);
-	    rtapi_print_msg(RTAPI_MSG_DBG, "    owner = %d\n",
-			    tasks[n].owner);
-	    rtapi_print_msg(RTAPI_MSG_DBG, "    code  = %p\n",
-			    tasks[n].taskcode);
-	}
-    }
-    for (n = 0; n <= RTAPI_MAX_SHMEMS; n++) {
-	if (shmems[n].key != 0) {
-	    rtapi_print_msg(RTAPI_MSG_DBG, "  shmem %02d\n", n);
-	    rtapi_print_msg(RTAPI_MSG_DBG, "    key     = %d\n",
-			    shmems[n].key);
-	    rtapi_print_msg(RTAPI_MSG_DBG, "    rtusers = %d\n",
-			    shmems[n].rtusers);
-	    rtapi_print_msg(RTAPI_MSG_DBG, "    ulusers = %d\n",
-			    shmems[n].ulusers);
-	    rtapi_print_msg(RTAPI_MSG_DBG, "    size    = %ld\n",
-			    shmems[n].size);
-	    rtapi_print_msg(RTAPI_MSG_DBG, "    bitmap  = ");
-	    for (m = 0; m <= RTAPI_MAX_MODULES; m++) {
-		if (rtapi_test_bit(m, shmems[n].bitmap)) {
-		    putchar('1');
-		} else {
-		    putchar('0');
-		}
-	    }
-	    putchar('\n');
-	}
-    }
-}
-#endif

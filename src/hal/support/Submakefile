@@ -81,5 +81,8 @@ USERSRCS += $(PRUSSDRV_SRCS)
 #	$(ECHO) Assembling PRU code $@
 #	$(Q)$(PASM) $(PASM_BINFLAGS) $^ $(basename $@)
 
+# C components
+$(eval $(call c_comp_build_rules,hal/components/hal_pru.o, $(LIBPTHREAD)))
+$(eval $(call c_comp_build_rules,hal/components/hal_prudebug.o, $(LIBPTHREAD)))
 
 endif
