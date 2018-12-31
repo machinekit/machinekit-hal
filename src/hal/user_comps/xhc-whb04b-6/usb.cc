@@ -35,8 +35,6 @@
 #include "./hal.h"
 #include "./xhc-whb04b6.h"
 
-using std::endl;
-
 namespace XhcWhb04b6 {
 
 
@@ -253,9 +251,9 @@ void Usb::sendDisplayData()
 
     if (mIsSimulationMode)
     {
-        *verboseTxOut << "out   0x" << outputPackageBuffer.asBlocks << endl <<
+        *verboseTxOut << "out   0x" << outputPackageBuffer.asBlocks << "\n" <<
                       std::dec << "out   size " << sizeof(outputPackageBuffer.asBlockArray) << "B " << outputPackageData
-                      << endl;
+                      << "\n";
     }
 
     for (size_t idx = 0; idx < (sizeof(outputPackageBuffer.asBlockArray) / sizeof(UsbOutPackageBlockFields)); idx++)
@@ -284,7 +282,7 @@ void Usb::sendDisplayData()
 
         if (r < 0)
         {
-            std::cerr << "transmission failed, try to reconnect ..." << endl;
+            std::cerr << "transmission failed, try to reconnect ...\n";
             setDoReconnect(true);
             return;
         }
@@ -395,7 +393,7 @@ void UsbOutPackageBlocks::init(const UsbOutPackageData* data)
     const uint8_t* d = reinterpret_cast<const uint8_t*>(data);
     block0.init(d += 0);
     block1.init(d += 7);
-    block2.init(d + 7);
+    block2.init(d += 7);
 }
 
 // ----------------------------------------------------------------------
@@ -441,13 +439,13 @@ std::ostream& operator<<(std::ostream& os, const UsbOutPackageData& data)
     bool enableMultiLine = false;
     if (enableMultiLine)
     {
-        os << std::hex << std::setfill('0') << "header       0x" << std::setw(2) << data.header << endl
+        os << std::hex << std::setfill('0') << "header       0x" << std::setw(2) << data.header << "\n"
            << "day of month   0x"
            << std::setw(2)
-           << static_cast<unsigned short>(data.seed) << endl << "status 0x" << std::setw(2)
-           << static_cast<unsigned short>(data.displayModeFlags.asByte) << endl << std::dec << "coordinate1  "
-           << data.row1Coordinate << endl << "coordinate2  " << data.row2Coordinate << endl << "coordinate3  "
-           << data.row3Coordinate << endl << "feed rate        " << data.feedRate << endl << "spindle rps      "
+           << static_cast<unsigned short>(data.seed) <<  "\nstatus 0x" << std::setw(2)
+           << static_cast<unsigned short>(data.displayModeFlags.asByte) << "\n" << std::dec << "coordinate1  "
+           << data.row1Coordinate << "\ncoordinate2  " << data.row2Coordinate << "\ncoordinate3  "
+           << data.row3Coordinate << "\nfeed rate        " << data.feedRate << "\nspindle rps      "
            << data.spindleSpeed;
     }
     else
@@ -470,12 +468,12 @@ UsbOutPackageBuffer::UsbOutPackageBuffer() :
 {
     if (false)
     {
-        std::cout << "sizeof usb data " << sizeof(UsbOutPackageData) << endl
-                  << " blocks count   " << sizeof(UsbOutPackageBlocks) / sizeof(UsbOutPackageBlockFields) << endl
-                  << " sizeof block   " << sizeof(UsbOutPackageBlockFields) << endl
-                  << " sizeof blocks  " << sizeof(UsbOutPackageBlocks) << endl
-                  << " sizeof array   " << sizeof(asBlockArray) << endl
-                  << " sizeof package " << sizeof(UsbOutPackageData) << endl;
+        std::cout << "sizeof usb data " << sizeof(UsbOutPackageData) << "\n"
+                  << " blocks count   " << sizeof(UsbOutPackageBlocks) / sizeof(UsbOutPackageBlockFields) << "\n"
+                  << " sizeof block   " << sizeof(UsbOutPackageBlockFields) << "\n"
+                  << " sizeof blocks  " << sizeof(UsbOutPackageBlocks) << "\n"
+                  << " sizeof array   " << sizeof(asBlockArray) << "\n"
+                  << " sizeof package " << sizeof(UsbOutPackageData) << "\n";
     }
     assert(sizeof(UsbOutPackageBlocks) == sizeof(asBlockArray));
     size_t blocksCount = sizeof(UsbOutPackageBlocks) / sizeof(UsbOutPackageBlockFields);
@@ -571,7 +569,7 @@ void Usb::onUsbDataReceived(struct libusb_transfer* transfer)
                                   << std::setw(2)
                                   << static_cast<unsigned short>(Usb::ConstantPackages.sleepPackage.header)
                                   << " but got " << std::hex << std::setfill('0') << std::setw(2)
-                                  << static_cast<unsigned short>(inputPackageBuffer.asFields.header) << endl;
+                                  << static_cast<unsigned short>(inputPackageBuffer.asFields.header) << "\n";
                     verboseTxOut->copyfmt(init);
                 }
 
@@ -594,7 +592,7 @@ void Usb::onUsbDataReceived(struct libusb_transfer* transfer)
                         struct timeval now;
                         gettimeofday(&now, nullptr);
                         *verboseTxOut << "event going to sleep: device was idle for "
-                                      << (now.tv_sec - sleepState.mLastWakeupTimestamp.tv_sec) << " seconds" << endl;
+                                      << (now.tv_sec - sleepState.mLastWakeupTimestamp.tv_sec) << " seconds\n";
                     }
                 }
                     // on regular package
@@ -608,8 +606,7 @@ void Usb::onUsbDataReceived(struct libusb_transfer* transfer)
                             struct timeval now;
                             gettimeofday(&now, nullptr);
                             *verboseTxOut << "woke up: device was sleeping for "
-                                          << (now.tv_sec - sleepState.mLastWakeupTimestamp.tv_sec) << " seconds"
-                                          << endl;
+                                          << (now.tv_sec - sleepState.mLastWakeupTimestamp.tv_sec) << " seconds\n";
                         }
                         gettimeofday(&sleepState.mLastWakeupTimestamp, nullptr);
                     }
@@ -620,7 +617,7 @@ void Usb::onUsbDataReceived(struct libusb_transfer* transfer)
             else
             {
                 std::cerr << "received unexpected package size: expected=" << (transfer->actual_length) << ", current="
-                          << expectedPackageSize << endl;
+                          << expectedPackageSize << "\n";
             }
 
             if (mIsRunning)
@@ -645,12 +642,12 @@ void Usb::onUsbDataReceived(struct libusb_transfer* transfer)
         case (LIBUSB_TRANSFER_NO_DEVICE):
         case (LIBUSB_TRANSFER_OVERFLOW):
         case (LIBUSB_TRANSFER_ERROR):
-            std::cerr << "transfer error: " << transfer->status << endl;
+            std::cerr << "transfer error: " << transfer->status << "\n";
             requestTermination();
             break;
 
         default:
-            std::cerr << "unknown transfer status: " << transfer->status << endl;
+            std::cerr << "unknown transfer status: " << transfer->status << "\n";
             requestTermination();
             break;
     }
@@ -719,17 +716,17 @@ bool Usb::init()
             sleep(1);
         }
         setDoReconnect(false);
-        *verboseInitOut << " done" << endl;
+        *verboseInitOut << " done\n";
     }
 
     *verboseInitOut << "init  usb context ...";
     int r = libusb_init(&context);
     if (r != 0)
     {
-        std::cerr << endl << "failed to initialize usb context" << endl;
+        std::cerr << "\nfailed to initialize usb context\n";
         return false;
     }
-    *verboseInitOut << " ok" << endl;
+    *verboseInitOut << " ok\n";
 
     libusb_log_level logLevel = LIBUSB_LOG_LEVEL_INFO;
     //logLevel = LIBUSB_LOG_LEVEL_DEBUG;
@@ -758,7 +755,7 @@ bool Usb::init()
         ssize_t devicesCount = libusb_get_device_list(context, &devicesReference);
         if (devicesCount < 0)
         {
-            std::cerr << endl << "failed to get device list" << endl;
+            std::cerr << "\nfailed to get device list\n";
             return false;
         }
 
@@ -773,15 +770,15 @@ bool Usb::init()
                 *verboseInitOut << "." << std::flush;
                 if ((mWaitSecs--) <= 0)
                 {
-                    std::cerr << endl << "timeout exceeded, exiting" << endl;
+                    std::cerr << "\ntimeout exceeded, exiting\n";
                     return false;
                 }
             }
             sleep(1);
         }
     } while (!isDeviceOpen() && mIsRunning);
-    *verboseInitOut << " ok" << endl
-                    << "init  " << mName << " device found" << endl;
+    *verboseInitOut << " ok\n"
+                    << "init  " << mName << " device found\n";
 
     if (isDeviceOpen())
     {
@@ -790,20 +787,20 @@ bool Usb::init()
         {
             int r = libusb_detach_kernel_driver(deviceHandle, 0);
             assert(0 == r);
-            *verboseInitOut << " ok" << endl;
+            *verboseInitOut << " ok\n";
         }
         else
         {
-            *verboseInitOut << " already detached" << endl;
+            *verboseInitOut << " already detached\n";
         }
         *verboseInitOut << "init  claiming interface ...";
         int r = libusb_claim_interface(deviceHandle, 0);
         if (r != 0)
         {
-            std::cerr << endl << "failed to claim interface" << endl;
+            std::cerr << "\nfailed to claim interface\n";
             return false;
         }
-        *verboseInitOut << " ok" << endl;
+        *verboseInitOut << " ok\n";
     }
     return true;
 }

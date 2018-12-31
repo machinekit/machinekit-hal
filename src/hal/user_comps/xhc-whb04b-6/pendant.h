@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2017 Raoul Rubien (github.com/rubienr)
+   Copyright (C) 2018 Raoul Rubien (github.com/rubienr)
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -592,12 +592,26 @@ public:
     virtual void onFeedInactiveEvent(const KeyCode& axis) override;
     virtual bool onJogDialEvent(const HandWheelCounters& counters, int8_t delta) override;
 
+    //! Sets Lead mode to spindle: Jog dial will change spindle speed.
+    //! Note: Switching Lead mode is not supported at runtime, only at start.
+    //! \sa mIsLeadModeSpindle
+    //! \sa setLeadModeFeed()
+    void setLeadModeSpindle();
+
+    //! Sets Lead mode to feed: Jog dial will change feed override.
+    //! Note: Switching Lead mode is not supported at runtime, only at start.
+    //! \sa mIsLeadModeSpindle
+    //! \sa setLeadModeSpindle()
+    void setLeadModeFeed();
+
 private:
     Hal& mHal;
     ButtonsState mPreviousButtonsState;
     ButtonsState mCurrentButtonsState;
     Handwheel    mHandWheel;
     Display      mDisplay;
+    //! if in Lead mode: if true jog wheel changes the spindle speed, changes the feed overide otherwise
+    bool         mIsLeadModeSpindle = true;
 
     float mScale;
     float mMaxVelocity;

@@ -2,7 +2,7 @@
    XHC-WHB04B-6 Wireless MPG pendant LinuxCNC HAL module for LinuxCNC.
    Based on XHC-HB04.
 
-   Copyright (C) 2017 Raoul Rubien (github.com/rubienr).
+   Copyright (C) 2018 Raoul Rubien (github.com/rubienr).
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -34,8 +34,6 @@
 // local includes
 #include "./xhc-whb04b6.h"
 
-using std::endl;
-
 // forward declarations
 
 // globals
@@ -51,69 +49,77 @@ static int printUsage(const char* programName, const char* deviceName, bool isEr
     {
         os = &std::cerr;
     }
-    *os << programName << " version " << PACKAGE_VERSION << " " << __DATE__ << " " << __TIME__ << endl
-        << endl
-        << "SYNOPSIS" << endl
-        << "    " << programName << " [-h | --help] | [-H] [OPTIONS] " << endl
-        << endl
-        << "NAME" << endl
-        << "    " << programName << " - jog dial HAL component for the " << deviceName << " device" << endl
-        << endl
-        << "DESCRIPTION" << endl
+    *os << programName << " version " << PACKAGE_VERSION << " " << __DATE__ << " " << __TIME__ << "\n"
+        << "\n"
+        << "SYNOPSIS\n"
+        << "    " << programName << " [-h | --help] | [-H] [OPTIONS]\n"
+        << "\n"
+        << "NAME\n"
+        << "    " << programName << " - jog dial HAL component for the " << deviceName << " device\n"
+        << "\n"
+        << "DESCRIPTION\n"
         << "    " << programName << " is a HAL component that receives events from the " << deviceName << " device "
-        << "and exposes them to HAL via HAL pins." << endl
-        << endl
-        << "OPTIONS" << endl
-        << " -h, --help" << endl
-        << "    Prints the synopsis and the most commonly used commands." << endl
-        << endl
-        << " -H " << endl
+        << "and exposes them to HAL via HAL pins.\n"
+        << "\n"
+        << "OPTIONS\n"
+        << " -h, --help\n"
+        << "    Prints the synopsis and the most commonly used commands.\n"
+        << "\n"
+        << " -H\n"
         << "    Run " << programName << " in HAL-mode instead of interactive mode. When in HAL mode "
         << "commands from device will be exposed to HAL's shred memory. Interactive mode is useful for "
-        << "testing device connectivity and debugging." << endl
-        << endl
-        << " -t" << endl
+        << "testing device connectivity and debugging.\n"
+        << "\n"
+        << " -t\n"
         << "    Wait with timeout for USB device then proceed, exit otherwise. Without -t the timeout is "
-        << "implicitly infinite." << endl
-        << endl
-        << " -u, -U" << endl
+        << "implicitly infinite.\n"
+        << "\n"
+        << " -s, \n"
+        << "    Lead in Spindle mode: "
+        << "Lead + jogwheel changes the spindle speed. Each tick will increase/decrease the spindle speed.\n"
+        << "\n"
+        << " -f, \n"
+        << "    Lead in Feed mode: "
+        << "Lead + jogwheel changes the feed override. Each tick will increment/decrement the feed override.\n"
+        << "\n"
+        << " -u, -U\n"
         << "    Show received data from device. With -U received and transmitted data will be printed. "
-        << "Output is prefixed with \"usb\"." << endl
-        << endl
-        << " -p" << endl
-        << "    Show HAL pins and HAL related messages. Output is prefixed with \"hal\"." << endl
-        << endl
-        << " -e" << endl
+        << "Output is prefixed with \"usb\".\n"
+        << "\n"
+        << " -p\n"
+        << "    Show HAL pins and HAL related messages. Output is prefixed with \"hal\".\n"
+        << "\n"
+        << " -e\n"
         << "    Show captured events such as button pressed/released, jog dial, axis rotary button, and "
-            "feed rotary button event. Output is prefixed with \"event\"." << endl
-        << endl
-        << " -a" << endl
-        << "    Enable all logging facilities without explicitly specifying each." << endl
+            "feed rotary button event. Output is prefixed with \"event\".\n"
+        << "\n"
+        << " -a\n"
+        << "    Enable all logging facilities without explicitly specifying each.\n"
         //! this feature must be removed when checksum check is implemented
-        << endl
-        << " -c" << endl
+        << "\n"
+        << " -c\n"
         << "    Enable checksum output which is necessary for debugging the checksum generator function. Do not rely "
-            "on this feature since it will be removed once the generator is implemented." << endl
-        << endl
-        << " -n " << endl
+            "on this feature since it will be removed once the generator is implemented.\n"
+        << "\n"
+        << " -n\n"
         << "    Force being silent and not printing any output except of errors. This will also inhibit messages "
-            "prefixed with \"init\"." << endl
-        << endl
-        << "EXAMPLES" << endl
-        << programName << " -ue" << endl
-        << "    Start in userspace mode (simulation) and prints incoming USB data transfer and generated key pressed/released events." << endl
-        << endl
-        << programName << " -p" << endl
-        << "    Start in userspace mode (simulation) and prints HAL pin names and events distributed to HAL memory." << endl
-        << endl
-        << programName << " -Hn" << endl
-        << "    Start in HAL mode and avoid output, except of errors." << endl
-        << endl
-        << "AUTHORS" << endl
+            "prefixed with \"init\".\n"
+        << "\n"
+        << "EXAMPLES\n"
+        << programName << " -ue\n"
+        << "    Start in userspace mode (simulation) and prints incoming USB data transfer and generated key pressed/released events.\n"
+        << "\n"
+        << programName << " -p\n"
+        << "    Start in userspace mode (simulation) and prints HAL pin names and events distributed to HAL memory.\n"
+        << "\n"
+        << programName << " -Hn\n"
+        << "    Start in HAL mode and avoid output, except of errors.\n"
+        << "\n"
+        << "AUTHORS\n"
         << "    This component was started by Raoul Rubien based on predecessor "
            "device's component xhc-hb04.cc. https://github.com/machinekit/machinekit/graphs/contributors "
            "gives you a more complete list of contributors."
-        << endl;
+        << "\n";
 
     if (isError)
     {
@@ -148,7 +154,7 @@ bool parseFloat(const char* str, float& out)
     std::istringstream iss(str);
     if (!(iss >> out))
     {
-        std::cerr << "no valid value specified: " << str << endl;
+        std::cerr << "no valid value specified: " << str << "\n";
         return false;
     }
     return true;
@@ -198,6 +204,12 @@ int main(int argc, char** argv)
                 break;
             case 'c':
                 WhbComponent->enableCrcDebugging(true);
+                break;
+            case 's':
+                WhbComponent->setLeadModeSpindle();
+                break;
+            case 'f':
+                WhbComponent->setLeadModeFeed();
                 break;
             case 'n':
                 break;
