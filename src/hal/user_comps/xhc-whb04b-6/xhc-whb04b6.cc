@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2017 Raoul Rubien (github.com/rubienr)
+   Copyright (C) 2018 Raoul Rubien (github.com/rubienr)
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -31,8 +31,6 @@
 // local library includes
 
 // local includes
-
-using std::endl;
 
 namespace XhcWhb04b6 {
 
@@ -86,7 +84,7 @@ void XhcWhb04b6Component::printCrcDebug(const UsbInPackage& inPackage, const Usb
         }
         else
         {
-            *mRxCout << "warn  checksum error" << endl;
+            *mRxCout << "warn  checksum error\n";
         }
         mRxCout->copyfmt(init);
         return;
@@ -110,16 +108,16 @@ void XhcWhb04b6Component::printCrcDebug(const UsbInPackage& inPackage, const Usb
 
     if (mIsCrcDebuggingEnabled)
     {
-        *mRxCout << endl;
+        *mRxCout << "\n";
         *mRxCout << "0x key " << std::setw(8) << static_cast<unsigned short>(inPackage.buttonKeyCode1)
                  << " random " << std::setw(8) << static_cast<unsigned short>(inPackage.randomByte)
                  << " crc " << std::setw(8) << static_cast<unsigned short>(inPackage.crc)
-                 << " delta " << std::setw(8) << static_cast<unsigned short>(delta.to_ulong()) << endl;
+                 << " delta " << std::setw(8) << static_cast<unsigned short>(delta.to_ulong()) << "\n";
 
         *mRxCout << "0b key " << buttonKeyCode
                  << " random " << random
                  << " crc " << crc
-                 << " delta " << delta << endl;
+                 << " delta " << delta << "\n";
     }
 
     //! \brief On button pressed checksum calculation.
@@ -138,18 +136,18 @@ void XhcWhb04b6Component::printCrcDebug(const UsbInPackage& inPackage, const Usb
 
     if (mIsCrcDebuggingEnabled)
     {
-        *mRxCout << endl
-                 << "~seed                  " << nonSeed << endl
-                 << "random                 " << random << endl
-                 << "                       -------- &" << endl
-                 << "~seed & random         " << nonSeedAndRandom << endl
-                 << "key                    " << buttonKeyCode << endl
-                 << "                       -------- ^" << endl
+        *mRxCout << "\n"
+                 << "~seed                  " << nonSeed << "\n"
+                 << "random                 " << random << "\n"
+                 << "                       -------- &\n"
+                 << "~seed & random         " << nonSeedAndRandom << "\n"
+                 << "key                    " << buttonKeyCode << "\n"
+                 << "                       -------- ^\n"
                  << "key ^ (~seed & random) " << keyXorNonSeedAndRandom
                  << " = calculated delta " << std::setw(2)
                  << static_cast<unsigned short>(keyXorNonSeedAndRandom.to_ulong())
                  << " vs " << std::setw(2) << static_cast<unsigned short>(delta.to_ulong())
-                 << ((keyXorNonSeedAndRandom == delta) ? " OK" : " FAIL") << endl
+                 << ((keyXorNonSeedAndRandom == delta) ? " OK" : " FAIL") << "\n"
                  << "calculated crc         " << calculatedCrcBitset << " " << std::setw(2) << calculatedCrc << " vs "
                  << std::setw(2)
                  << expectedCrc << ((isValid) ? "                    OK" : "                    FAIL")
@@ -189,7 +187,7 @@ void XhcWhb04b6Component::onInputDataReceived(const UsbInPackage& inPackage)
     *mRxCout << " => ";
     printInputData(inPackage);
     printCrcDebug(inPackage, mUsb.getOutputPackageData());
-    *mRxCout << endl;
+    *mRxCout << "\n";
 
     uint8_t keyCode      = inPackage.buttonKeyCode1;
     uint8_t modifierCode = inPackage.buttonKeyCode2;
@@ -251,11 +249,11 @@ void XhcWhb04b6Component::requestTermination(int signal)
 {
     if (signal >= 0)
     {
-        *mInitCout << "termination requested upon signal number " << signal << " ..." << endl;
+        *mInitCout << "termination requested upon signal number " << signal << " ...\n";
     }
     else
     {
-        *mInitCout << "termination requested ... " << endl;
+        *mInitCout << "termination requested ...\n";
     }
     mUsb.requestTermination();
     mIsRunning = false;
@@ -309,18 +307,20 @@ XhcWhb04b6Component::XhcWhb04b6Component() :
                  MetaButtonCodes(mKeyCodes.Buttons.undefined, mKeyCodes.Buttons.undefined)
     },
     mUsb(mName, *this, mHal),
-    mTxCout(&mDevNull),
+    //mTxCout(&mDevNull),
     mRxCout(&mDevNull),
-    mKeyEventCout(&mDevNull),
-    mHalInitCout(&mDevNull),
+    //mKeyEventCout(&mDevNull),
+    //mHalInitCout(&mDevNull),
     mInitCout(&mDevNull),
     packageReceivedEventReceiver(*this),
     mPendant(mHal, mUsb.getOutputPackageData())
 {
     setSimulationMode(true);
+    enableVerbosePendant(false);
     enableVerboseRx(false);
     enableVerboseTx(false);
     enableVerboseInit(false);
+    setEnableVerboseKeyEvents(false);
     enableVerboseHal(false);
 }
 
@@ -455,7 +455,7 @@ int XhcWhb04b6Component::run()
 {
     if (mHal.isSimulationModeEnabled())
     {
-        *mInitCout << "init  starting in simulation mode" << endl;
+        *mInitCout << "init  starting in simulation mode\n";
     }
 
     bool isHalReady = false;
@@ -491,10 +491,10 @@ int XhcWhb04b6Component::run()
             *mInitCout << "init  enabling reception ...";
             if (!enableReceiveAsyncTransfer())
             {
-                std::cerr << endl << "failed to enable reception" << endl;
+                std::cerr << "\nfailed to enable reception\n";
                 return EXIT_FAILURE;
             }
-            *mInitCout << " ok" << endl;
+            *mInitCout << " ok\n";
         }
         process();
         teardownUsb();
@@ -572,7 +572,7 @@ void XhcWhb04b6Component::process()
         updateDisplay();
 
         mHal.setIsPendantConnected(false);
-        *mInitCout << "connection lost, cleaning up" << endl;
+        *mInitCout << "connection lost, cleaning up\n";
         struct timeval tv;
         tv.tv_sec  = 1;
         tv.tv_usec = 0;
@@ -595,6 +595,13 @@ void XhcWhb04b6Component::teardownUsb()
 
 // ----------------------------------------------------------------------
 
+void XhcWhb04b6Component::enableVerbosePendant(bool enable)
+{
+    mPendant.enableVerbose(enable);
+}
+
+// ----------------------------------------------------------------------
+
 void XhcWhb04b6Component::enableVerboseRx(bool enable)
 {
     mUsb.enableVerboseRx(enable);
@@ -613,30 +620,29 @@ void XhcWhb04b6Component::enableVerboseRx(bool enable)
 void XhcWhb04b6Component::enableVerboseTx(bool enable)
 {
     mUsb.enableVerboseTx(enable);
-    if (enable)
+    /*if (enable)
     {
         mTxCout = &std::cout;
     }
     else
     {
         mTxCout = &mDevNull;
-    }
+    }*/
 }
 
 // ----------------------------------------------------------------------
 
 void XhcWhb04b6Component::enableVerboseHal(bool enable)
 {
-    mHal.setEnableVerbose(enable);
-
-    if (enable)
+    mHal.enableVerbose(enable);
+    /*if (enable)
     {
         mHalInitCout = &std::cout;
     }
     else
     {
         mHalInitCout = &mDevNull;
-    }
+    }*/
 }
 
 // ----------------------------------------------------------------------
@@ -701,14 +707,14 @@ bool XhcWhb04b6Component::isSimulationModeEnabled() const
 void XhcWhb04b6Component::setEnableVerboseKeyEvents(bool enable)
 {
     mUsb.enableVerboseRx(enable);
-    if (enable)
+    /*if (enable)
     {
         mKeyEventCout = &std::cout;
     }
     else
     {
         mKeyEventCout = &mDevNull;
-    }
+    }*/
 }
 
 // ----------------------------------------------------------------------
@@ -717,4 +723,19 @@ void XhcWhb04b6Component::enableCrcDebugging(bool enable)
 {
     mIsCrcDebuggingEnabled = enable;
 }
+
+// ----------------------------------------------------------------------
+
+void XhcWhb04b6Component::setLeadModeSpindle()
+{
+    mPendant.setLeadModeSpindle();
+}
+
+// ----------------------------------------------------------------------
+
+void XhcWhb04b6Component::setLeadModeFeed()
+{
+    mPendant.setLeadModeFeed();
+}
+
 }

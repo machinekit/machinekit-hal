@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2017 Raoul Rubien (github.com/rubienr)
+   Copyright (C) 2018 Raoul Rubien (github.com/rubienr)
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -32,6 +32,7 @@
 
 // local library includes
 #include <hal.h>
+#include <sys/types.h>
 
 // forward declarations
 
@@ -40,7 +41,63 @@ namespace XhcWhb04b6 {
 // forward declarations
 class MetaButtonCodes;
 class KeyCodes;
+namespace Profiles {
+struct ModeRequest;
+struct SpindleRequest;
+struct HalRequestProfile;
+}
 
+namespace Profiles {
+
+// ----------------------------------------------------------------------
+
+//! Defines hold and space delays for mode requests when pin is toggled.
+struct ModeRequest {
+    const useconds_t holdMs;
+    const useconds_t spaceMs;
+
+    const uint       modeCheckLoops;
+    const useconds_t modeCheckLoopTimeoutMs;
+};
+
+// ----------------------------------------------------------------------
+
+//! Defines hold and space delays for spindle increment/decrement requests.
+struct SpindleRequest {
+    const useconds_t holdMs;
+    const useconds_t spaceMs;
+};
+
+// ----------------------------------------------------------------------
+
+//! Overall hal request profile.
+struct HalRequestProfile
+{
+    ModeRequest    mode;
+    SpindleRequest spindle;
+};
+
+// ----------------------------------------------------------------------
+
+//! A slow profile is reasonable for the BeagleBoneBlack especially when using Axis UI.
+static constexpr HalRequestProfile halRequestSlowProfile()
+{
+    //! For BeagleBoneBlack this values seams reasonable, since it is a rather slow hardware.
+    return HalRequestProfile
+    {
+        {
+            // ModeRequest
+            10, 10, // hold, space
+            60,  5  // loops, timeout
+        },
+        {
+            // SpindleRequest
+            30, 30,  // hold, space
+        }
+    };
+}
+
+}
 
 // ----------------------------------------------------------------------
 
@@ -130,8 +187,6 @@ public:
 
         //! to be connected to \ref halui.mode.is-auto
         hal_bit_t* isModeAuto{nullptr};
-        //! to be connected to \ref halui.mode.is-joint
-        hal_bit_t* isModeJoint{nullptr};
         //! to be connected to \ref halui.mode.is-manual
         hal_bit_t* isModeManual{nullptr};
         //! to be connected to \ref halui.mode.is-mdi
@@ -203,10 +258,13 @@ public:
         //! to be connected to \ref axis.5.jog-vel-mode
         hal_bit_t* axisCSetVelocityMode{nullptr};
 
-        hal_bit_t* feedValueSelected0_001{nullptr};
-        hal_bit_t* feedValueSelected0_01{nullptr};
-        hal_bit_t* feedValueSelected0_1{nullptr};
-        hal_bit_t* feedValueSelected1_0{nullptr};
+        hal_bit_t* feedValueSelected_0_001{nullptr};
+        hal_bit_t* feedValueSelected_0_01{nullptr};
+        hal_bit_t* feedValueSelected_0_1{nullptr};
+        hal_bit_t* feedValueSelected_1_0{nullptr};
+        hal_bit_t* feedValueSelected_60{nullptr};
+        hal_bit_t* feedValueSelected_100{nullptr};
+        hal_bit_t* feedValueSelected_lead{nullptr};
 
         //! to be connected to \ref  \ref halui.feed-override.scale
         hal_float_t* feedOverrideScale{nullptr};
@@ -221,6 +279,8 @@ public:
         //! to be connected to \ref halui.feed-override.increase
         hal_bit_t  * feedOverrideIncrease{nullptr};
 
+        //! to be connected to \ref halui.spindle.start
+        hal_bit_t* spindleStart{nullptr};
         //! to be connected to \ref halui.spindle.stop
         hal_bit_t* spindleStop{nullptr};
         //! to be connected to \ref halui.spindle.forward
@@ -235,9 +295,6 @@ public:
         hal_bit_t* spindleOverrideDoDecrease{nullptr};
         //! to be connected to halui.spindle-override.increase
         hal_bit_t* spindleOverrideDoIncrease{nullptr};
-
-        //! to be connected to \ref halui.jog-speed
-        hal_float_t* jogSpeedValue{nullptr};
 
         //! to be connected to \ref halui.home-all
         hal_bit_t* homeAll{nullptr};
@@ -271,8 +328,6 @@ public:
 
         //! to be connected to \ref halui.mode.auto
         hal_bit_t* doModeAuto{nullptr};
-        //! to be connected to \ref halui.mode.joint
-        hal_bit_t* doModeJoint{nullptr};
         //! to be connected to \ref halui.mode.manual
         hal_bit_t* doModeManual{nullptr};
         //! to be connected to \ref halui.mode.mdi
@@ -304,7 +359,8 @@ public:
 class Hal
 {
 public:
-    Hal();
+    Hal(Profiles::HalRequestProfile halRequestProfile=Profiles::halRequestSlowProfile());
+
     ~Hal();
     //! Initializes HAL memory and pins according to simulation mode. Must not be called more than once.
     //! If \ref mIsSimulationMode is true heap memory will be used, shared HAL memory otherwise.
@@ -321,7 +377,7 @@ public:
     const char* getHalComponentName() const;
     //! Enables verbose hal output.
     //! \param enable true to enable hal messages, disable otherwise
-    void setEnableVerbose(bool enable);
+    void enableVerbose(bool enable);
     //! If set indicates that no other axis is active.
     //! \param enabled true if no axis is active, false otherwise
     void setNoAxisActive(bool enabled);
@@ -405,21 +461,36 @@ public:
     hal_float_t getFeedUps() const;
 
     //! Propagates the feed value 0.001 selection state to hal.
-    //! \sa Hal::Out::feedValueSelected0_001
+    //! \sa Hal::Out::feedValueSelected_0_001
     //! \param selected true if 0.001 is selected, false otherwise
     void setFeedValueSelected0_001(bool selected);
     //! Propagates the feed value 0.01 selection state to hal.
-    //! \sa Hal::Out::feedValueSelected0_01
+    //! \sa Hal::Out::feedValueSelected_0_01
     //! \param selected true if 0.01 is selected, false otherwise
     void setFeedValueSelected0_01(bool selected);
     //! Propagates the feed value 0.1 selection state to hal.
-    //! \sa Hal::Out::feedValueSelected0_1
+    //! \sa Hal::Out::feedValueSelected_0_1
     //! \param selected true if 0.1 is selected, false otherwise
     void setFeedValueSelected0_1(bool selected);
     //! Propagates the feed value 1.0 selection state to hal.
-    //! \sa Hal::Out::feedValueSelected1_0
+    //! \sa Hal::Out::feedValueSelected_1_0
     //! \param selected true if 1.0 is selected, false otherwise
     void setFeedValueSelected1_0(bool selected);
+
+    //! Propagates the feed value 60% selection state to hal.
+    //! \sa Hal::Out::feedValueSelected_60
+    //! \param selected true if 60% is selected, false otherwise
+    void setFeedValueSelected60(bool selected);
+
+    //! Propagates the feed value 100% selection state to hal.
+    //! \sa Hal::Out::feedValueSelected_100
+    //! \param selected true if 100% is selected, false otherwise
+    void setFeedValueSelected100(bool selected);
+
+    //! Propagates the feed value Lead selection state to hal.
+    //! \sa Hal::Out::feedValueSelected_lead
+    //! \param selected true if Lead is selected, false otherwise
+    void setFeedValueSelectedLead(bool selected);
 
     //! Returns the spindle speed.
     //! \return the spindle speed in rounds per second
@@ -430,8 +501,10 @@ public:
     void setSpindleMinus(bool enabled);
     //! \sa setReset(bool, size_t)
     void setFunction(bool enabled);
-    //! \sa setReset(bool, size_t)
-    void setMachineHome(bool enabled);
+    //! Requests machine to search home for all axis. \ref halui.home-all
+    void requestMachineHomingAll(bool isRisingEdge);
+    //! Requests machine to go home (move axis to home position).
+    void requestMachineGoHome(bool enabled);
     //! \sa setReset(bool, size_t)
     void setSafeZ(bool enabled);
     //! \sa setReset(bool, size_t)
@@ -484,6 +557,25 @@ public:
     //! \sa setMacro1(bool, size_t)
     void setMacro16(bool enabled);
 
+    //! Toggles (high then low) spindle increase signal count times.
+    //! \sa HalMemory::Out::spindleDoIncrease
+    //! \sa spindleSpeedToggle(int8_t, bool)
+    //! \sa toggleSpindleIncrease()
+    void spindleIncrease(int8_t count);
+    //! Toggles (high then low) spindle decrease signal count times.
+    //! \sa HalMemory::Out::spindleDoDecrease
+    //! \sa spindleSpeedToggle(int8_t, bool)
+    //! \sa toggleSpindleDecrease()
+    void spindleDecrease(int8_t count);
+    //! Inverts the spindle increase signal state once.
+    //! \sa HalMemory::Out::spindleDoIncrease
+    //! \sa spindleIncrease(int8_t)
+    void toggleSpindleIncrease();
+    //! Inverts the spindle decrease signal state once.
+    //! \sa HalMemory::Out::spindleDoDecrease
+    //! \sa spindleDecrease(int8_t)
+    void toggleSpindleDecrease();
+
     //! Writes the corresponding counter to to each axis' count.
     //! \param counters values to propagate to each axis
     void setJogCounts(const HandWheelCounters& counters);
@@ -503,11 +595,6 @@ public:
     //! \xrefitem getAxisXPosition(bool)
     hal_float_t getAxisCPosition(bool absolute) const;
 
-    //! Requests manual mode if in MDI mode. Skips request if in AUTO mode.
-    //! \param isButtonPressed true on button press, false on release
-    //! \return true on successful request and if isButtonPressed == true, false otherwise
-    bool trySetManualMode(bool isButtonPressed);
-
 private:
     HalMemory* memory{nullptr};
     std::map <std::string, size_t> mButtonNameToIdx;
@@ -518,8 +605,9 @@ private:
     int          mHalCompId{-1};
     std::ostream mDevNull{nullptr};
     std::ostream* mHalCout{nullptr};
-    HandwheelStepmodes::Mode mStepMode;
-    bool                     mIsSpindleDirectionForward{true};
+    HandwheelStepmodes::Mode    mStepMode;
+    bool                        mIsSpindleDirectionForward{true};
+    Profiles::HalRequestProfile mHalRequestProfile;
 
     //! //! Allocates new hal_bit_t pin according to \ref mIsSimulationMode. If \ref mIsSimulationMode then
     //! mallocs memory, hal_pin_bit_new allocation otherwise.
@@ -556,9 +644,38 @@ private:
     void toggleStartResumeProgram();
 
     void clearStartResumeProgramStates();
+    //! \sa requestManualMode(bool)
+    bool requestAutoMode(bool isRisingEdge);
+    //! Requests manual mode if in MDI mode. Skips request if in AUTO mode.
+    //! \sa requestMode(bool, hal_bit_t*, hal_bit_t*)
+    //! \param isButtonPressed true on button press, false on release
+    //! \return true if machine has selected the mode, false otherwise
+    bool requestManualMode(bool isRisingEdge);
+    //! \sa requestManualMode(bool)
+    bool requestMdiMode(bool isRisingEdge);
 
-    void enableManualMode(bool isRisingEdge);
+    //! Polls for condition with timeout and max loops count.
+    //! Returns if condition is met or number of loops is exhausted.
+    //! Experience on BeagleBoneBlack with Axis UI revealed that the delay until a mode is switched is
+    //! approximately 80ms to 150ms.
+    //! \param condition the condition to be polled
+    //! \param timeout_ms delay in [ms] in between condition is checks
+    //! \param max_timeouts maximum number of checks
+    //! \return true if condition was met, false otherwise
+    bool waitForRequestedMode(volatile hal_bit_t* condition);
 
-    void enableMdiMode(bool isRisingEdge);
+    //! Requests machine mode such as auto, mdi, manual. When toggling it introduces hold and space delay.
+    //! \sa mModesRequestProfile
+    //! \param requestPin the (output) pin to toggle for requesting
+    //! \param modeFeedbackPin the (input) pin reflecting if the mode is set
+    //! \return on rising edge: true if the machine has selected or is in the desired mode, false otherwise;
+    //! on falling edge: false
+    bool requestMode(bool isRisingEdge, hal_bit_t* requestPin, hal_bit_t* modeFeedbackPin);
+
+    //! Toggles n times the spindle increase/decrease pin.
+    //! \sa Profiles::SindleRequest
+    //! \param count times to toggle the increase pin
+    //! \param increase increase pin if true, decrease pin otherwise
+    void spindleSpeedToggle(int8_t count, bool increase);
 };
 }

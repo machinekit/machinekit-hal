@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2017 Raoul Rubien (github.com/rubienr)
+   Copyright (C) 2018 Raoul Rubien (github.com/rubienr)
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -24,6 +24,7 @@
 
 // system includes
 #include <type_traits>
+#include <ostream>
 #include <stdint.h>
 #include <list>
 
@@ -452,6 +453,7 @@ class Handwheel
 public:
     Handwheel(const FeedRotaryButton& feedButton, KeyEventListener* listener = nullptr);
     ~Handwheel();
+    void enableVerbose(bool enable);
     void setMode(HandWheelCounters::CounterNameToIndex mode);
     void count(int8_t delta);
     const HandWheelCounters& counters() const;
@@ -465,6 +467,7 @@ private:
     bool              mIsEnabled{false};
     const FeedRotaryButton& mFeedButton;
     KeyEventListener      * mEventListener;
+    std::ostream          mDevNull{nullptr};
     std::ostream          * mWheelCout;
     const char            * mPrefix;
 };
@@ -575,6 +578,7 @@ public:
     void updateDisplayData();
     void clearDisplayData();
 
+    void enableVerbose(bool enable);
     const ButtonsState& currentButtonsState() const;
     const ButtonsState& previousButtonsState() const;
     const Handwheel& handWheel() const;
@@ -588,17 +592,32 @@ public:
     virtual void onFeedInactiveEvent(const KeyCode& axis) override;
     virtual bool onJogDialEvent(const HandWheelCounters& counters, int8_t delta) override;
 
+    //! Sets Lead mode to spindle: Jog dial will change spindle speed.
+    //! Note: Switching Lead mode is not supported at runtime, only at start.
+    //! \sa mIsLeadModeSpindle
+    //! \sa setLeadModeFeed()
+    void setLeadModeSpindle();
+
+    //! Sets Lead mode to feed: Jog dial will change feed override.
+    //! Note: Switching Lead mode is not supported at runtime, only at start.
+    //! \sa mIsLeadModeSpindle
+    //! \sa setLeadModeSpindle()
+    void setLeadModeFeed();
+
 private:
     Hal& mHal;
     ButtonsState mPreviousButtonsState;
     ButtonsState mCurrentButtonsState;
     Handwheel    mHandWheel;
     Display      mDisplay;
+    //! if in Lead mode: if true jog wheel changes the spindle speed, changes the feed overide otherwise
+    bool         mIsLeadModeSpindle = true;
 
     float mScale;
     float mMaxVelocity;
 
     const char  * mPrefix;
+    std::ostream  mDevNull{nullptr};
     std::ostream* mPendantCout;
 
     void shiftButtonState();
