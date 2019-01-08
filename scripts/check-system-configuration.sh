@@ -133,7 +133,7 @@ check-ulimits() {
     echo "            $ sudo cp rtapi/shmdrv/limits.d-machinekit.conf /etc/security/limits.d/machinekit.conf"
     return 1
     fi
-    
+
     # Next, check the 'memlock' value looks sane
     if test $memlock != unlimited && test $memlock -lt $reasonable_memlock; then
     echo "Warning:  Config 'memlock' value $memlock too small"
@@ -144,8 +144,6 @@ check-ulimits() {
     return 1
     fi
 }
-
-HAVE_KERNEL_THREADS=false
 
 res=0
 check-rsyslog || res=1

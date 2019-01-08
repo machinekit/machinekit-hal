@@ -1,6 +1,6 @@
 #! /bin/bash
 #
-# @configure_input@ 
+# @configure_input@
 # on @DATE@
 #
 
@@ -10,12 +10,9 @@ prefix=@prefix@
 exec_prefix=@exec_prefix@
 RTAPI_INI=@EMC2_SYSTEM_CONFIG_DIR@/rtapi.ini
 INIVAR=@EMC2_LIBEXEC_DIR@/inivar
-LSMOD=@LSMOD@
 PIDOF=@PIDOF@
 PS=@PS@
 AWK=@AWK@
-SHM_DEV=/dev/shmdrv
-SHM_STAT=/sys/devices/virtual/misc/shmdrv/status
 
 # if not overridden by user, point MACHINEKIT_INI to installed default:
 if [ -z "$MACHINEKIT_INI" ]; then
@@ -54,14 +51,11 @@ getvar() {
 #
 # Executables
 getvar flavor
-getvar linuxcnc_module_helper
 getvar rtapi_msgd
 #getvar halcmd
 
 # Flavor configuration
 FLAVOR=$($flavor)
-BUILD_SYS=`${flavor} -b`
-getvar MODULES --flavor
 getvar rtapi_app --flavor
 
 # catch this common error early on:
@@ -69,11 +63,6 @@ if ! test -u ${rtapi_app}
 then
     echo Warning - ${rtapi_app} not setuid >&2
     echo "'sudo make setuid' missing?" >&2
-fi
-
-# Other, overridable by environment variables
-if [ "$USE_SHMDRV" == "" ]  ; then
-    getvar USE_SHMDRV
 fi
 
 if [ "$HAL_SIZE" == "" ]  ; then
@@ -84,13 +73,6 @@ if [ "$DEBUG" == "" ]  ; then
     getvar DEBUG
 fi
 DEBUG=$((10#0$DEBUG))  # be sure $DEBUG is some base-10 number
-
-# SHMDRV_OPTS:
-# suggested use: SHMDRV_OPTS='debug=3'
-# which will log shmdrv operations to the kernel log
-if [ "$SHMDRV_OPTS" != "" ]  ; then
-    MSGD_OPTS="$MSGD_OPTS --shmdrv_opts=$SHMDRV_OPTS"
-fi
 
 # SYSLOG_TO_STDERR:  when set, log to stdout instead of syslog
 if test -n "$SYSLOG_TO_STDERR"; then
@@ -105,19 +87,6 @@ if [ "$MK_INSTANCE_NAME" != "" ]  ; then
 else
     unset NAME_CMD
 fi
-
-
-# Compute module lists
-#
-# kernel threads also need the rtapi and hal_lib kernel modules
-test $BUILD_SYS = kbuild && MODULES="$MODULES rtapi hal_lib"
-#
-# reverse list of modules for unloading
-MODULES_UNLOAD=
-for MOD in $MODULES; do
-    MODULES_UNLOAD="$MOD $MODULES_UNLOAD"
-done
-
 
 
 # wait for a process to exit

@@ -46,6 +46,7 @@ sysconfdir=@sysconfdir@
 # Makefile.inc paths
 EMC2_HOME=@EMC2_HOME@
 RTLIB_DIR=@EMC2_RTLIB_DIR@
+MODULES_DIR=@EMC2_MODULES_DIR@
 SYSTEM_CONFIG_DIR=@EMC2_SYSTEM_CONFIG_DIR@
 LIBEXEC_DIR=@EMC2_LIBEXEC_DIR@
 BIN_DIR=@EMC2_BIN_DIR@
@@ -56,8 +57,6 @@ TARGET_PLATFORM=@TARGET_PLATFORM@
 GIT_VERSION=@GIT_VERSION@
 RUN_IN_PLACE=@RUN_IN_PLACE@
 PIDOF=@PIDOF@
-RTAI_KERNEL_THREADS_RTS="@RTAI_KERNEL_THREADS_RTS@"
-USE_SHMDRV=@USE_SHMDRV@
 
 
 #################################################
@@ -77,16 +76,12 @@ cat <<EOF
 # Default DEBUG level, 0-5 for NONE, ERR, WARN, INFO, DBG, ALL
 DEBUG=1
 
-# shared memory kernel driver
-USE_SHMDRV=${USE_SHMDRV}
-
 # fixme make param
 HAL_SIZE=524288
 
 # Executables
 flavor=${LIBEXEC_DIR}/flavor
 rtapi_msgd=${LIBEXEC_DIR}/rtapi_msgd
-linuxcnc_module_helper=${LIBEXEC_DIR}/linuxcnc_module_helper
 # rtapi_app should be defined in the appropriate flavor section below
 
 # directory paths
@@ -109,5 +104,3 @@ EOF
 #
 # The following sections are added automatically by configure.in
 # macros.
-
-
