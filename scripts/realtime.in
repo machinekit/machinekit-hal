@@ -155,37 +155,11 @@ CheckStatus(){
 	fi
     done
 
-    if test $BUILD_SYS = kbuild; then
-        # check loaded/unloaded status of modules
-        for MOD in $MODULES_UNLOAD ; do
-            if $LSMOD | awk '{print $1}' | grep -x $MOD >/dev/null ; then
-                echo "$MOD loaded" >&2
-            else
-                echo "$MOD not loaded" >&2
-                res=1
-            fi
-        done
-    fi
-
-    # check if shmdrv is loaded, when applicable
-    if test $BUILD_SYS = 'kbuild' -o $USE_SHMDRV = yes; then
-	if CheckShm -l; then
-	    echo "shmdrv loaded" >&2
-	else
-	    echo "shmdrv not loaded" >&2
-	    res=1
-	fi
-    fi
-
     return $res
 }
 
 
 Load(){
-
-    # kernel threads must have shmdrv.ko loaded
-    # userland threads optionally may use the shmdrv module.
-    # The shmdrv module is loaded by rtapi_msgd if needed.
 
     # rtapi_msgd creates the global segment containing the error ring buffer
     # so start this first:
@@ -198,8 +172,7 @@ Load(){
     "${cmd[@]}" || (
 	e=$?; echo "rtapi_msgd startup failed - aborting" >&2; exit $e)
 
-    # rtapi_app_<flavor> now handles the kernel module loading
-    # for kthreads as needed
+    # rtapi_app_<flavor>
     local cmd=(${rtapi_app} --instance=$MK_INSTANCE $RTAPI_APP_OPTS)
     if [ $DEBUG -gt 0 ] ; then
 	echo "rtapi_app command:  ${cmd[@]}" >&2
@@ -212,67 +185,7 @@ Load(){
     # wait until rtapi_app responds, meaning setup is complete
     # this avoids startup races
     halcmd ping
-
-    if test BUILD_SYS = 'kbuild'; then
-	# help debugging startup issues for kthreads
-        if [ $DEBUG -gt 0 ] && [ -w /proc/rtapi/debug ] ; then
-            echo "$DEBUG" > /proc/rtapi/debug
-        fi
-    fi
 }
-
-CheckShm(){
-    # -l: return success if shmdrv device exists
-    # -w: wait for shmdrv to be loaded; return success if loaded
-
-    # Skip checks if shmdrv is not applicable
-    test $BUILD_SYS = 'user-dso' -a $USE_SHMDRV = no && return 0
-
-    case "$1" in
-	-l)
-	    # success if shmdrv device exists
-	    test -c $SHM_DEV; return ;;
-
-	-w)
-	    # wait for shmdrv to be loaded; this abomination is needed
-	    # because udev sometimes doesn't have the device ready for
-	    # us in time.
-	    n=0
-	    while [ $((n++)) -lt 100 ]; do
-		[ -w $SHM_DEV ] && return 0
-		sleep .1
-	    done
-
-	    # $SHM_DEV never became writable after ten seconds
-	    return 1;;
-    esac
-}
-
-
-
-RemoveModules(){
-    # Remove a list of modules recursively
-    # 
-    # When RTAPI shuts down uncleanly, not only hal_lib and rtapi may
-    # still be loaded, but also comp, motmod, or other modules that
-    # depend on those.
-    #
-    # Check for loaded modules dependent on hal_lib and unload them
-    # first.
-
-    for MODULE in $*; do
-        # recurse on any dependent modules in /proc/modules
-        DEP_MODULES=$(cat /proc/modules | \
-            awk '/^'$MODULE' / { mods=$4; gsub(","," ",mods); print mods }')
-        test "$DEP_MODULES" = - || RemoveModules $DEP_MODULES
-
-        # remove module if still loaded
-        grep -q "^$MODULE " /proc/modules && \
-            $linuxcnc_module_helper remove $MODULE
-
-    done
-}
-
 
 Unload(){
 
@@ -286,14 +199,11 @@ Unload(){
         fi
     fi
 
-    if test $USE_SHMDRV = no; then
+    # remove any linuxcnc-specific POSIX shm segments if they exist
+    # see src/rtapi/rtapi_shmkeys.h: SHM_FMT
 
-	    # remove any linuxcnc-specific POSIX shm segments if they exist
-	    # see src/rtapi/rtapi_shmkeys.h: SHM_FMT
-
-	INSTKEY=`printf 'linuxcnc-%d-' $MK_INSTANCE`
-	rm  -f  /dev/shm/${INSTKEY}* >/dev/null 2>&1
-    fi
+    INSTKEY=`printf 'linuxcnc-%d-' $MK_INSTANCE`
+    rm  -f  /dev/shm/${INSTKEY}* >/dev/null 2>&1
 
 
     # wait until rtapi_msgd has vanished. This assures
@@ -323,27 +233,11 @@ Unload(){
 	    kill -KILL $(FindRunningProcs msgd:$MK_INSTANCE)
 	fi
     fi
-
-    RemoveModules $MODULES_UNLOAD
-
-    # unload shmdrv, if applicable
-    if test $BUILD_SYS = 'kbuild' -o $USE_SHMDRV = yes; then
-	if CheckShm -l; then
-	    # module is loaded; try to force unload, always return success
-	    if test $DEBUG -gt 1; then
-		echo "realtime unload: notice: attempting to unload shmdrv" >&2
-	    fi
-	    $linuxcnc_module_helper remove shmdrv 2>/dev/null || true
-	else
-	    echo -n "realtime unload: warning: " >&2
-	    echo "shmdrv expected to be loaded, but wasn't" 1>&2
-	fi
-    fi
 }
 
 CheckUnloaded(){
 
-    # if msgd:$MK_INSTANCE is still around, this might still be a running instance 
+    # if msgd:$MK_INSTANCE is still around, this might still be a running instance
     # after all - this applies to all flavors - msgd is always there, so cop out
 
 
@@ -356,7 +250,6 @@ CheckUnloaded(){
 
     # if msgd:$MK_INSTANCE isnt running but rtapi:$MK_INSTANCE is, that's bad - msgd
     # should be last to exit
-    # this is a noop in kthreads, but clearly an error in uthreads
 
     if CheckRunningProcs rtapi:$MK_INSTANCE; then
 	RTAPI_PID=`FindRunningProcs rtapi:$MK_INSTANCE`
@@ -366,9 +259,9 @@ CheckUnloaded(){
 	exit 1
     fi
 
-    # regardless if shmdrv is loaded or not, Posix shm segments for this
-    # particular instance should not exist and be in use at this point, which 
-    # could be the case if a HAL usercomp were still hanging around
+    # Posix shm segments for this particular instance should not exist
+    # and be in use at this point, which could be the case if a HAL
+    # usercomp were still hanging around
 
     # if any, determine if a process is still using it; complain if so,
     # else remove with a note
@@ -385,24 +278,6 @@ CheckUnloaded(){
 	    rm -f $seg
 	fi
     done
-
-    # TBD: if fuser /dev/shm indicates a process is using shmdrv, then
-    # this is likely another instance, so dont try to unload shmdrv
-    # because it's going to fail anyway
-
-    # checks to see if all modules were unloaded
-
-    STATUS=
-    for module in $MODULES_UNLOAD ; do
-	# check to see if the module is installed
-	if $LSMOD | awk '{print $1}' | grep -x $module >/dev/null ; then
-	    echo "ERROR: Could not unload '$module'" >&2
-	    STATUS=error
-	fi
-    done
-    if [ -n "$STATUS" ] ; then
-	exit 1
-    fi
 }
 
 CMD=$1
@@ -427,12 +302,6 @@ case "$CMD" in
   unloadcheck)
 	CheckUnloaded
 	;;
-  # for script debugging
-  shmcheck)
-	if CheckShm -l; then
-	    echo "shmdrv loaded" >&2; exit 0
-	fi
-  	;;
   *)
 	echo "Usage: $0 {start|load|stop|unload|restart|force-reload|status}" >&2
 	exit 1
@@ -440,4 +309,3 @@ case "$CMD" in
 esac
 
 exit 0
-

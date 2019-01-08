@@ -8,10 +8,6 @@
 #error "This driver is for the beaglebone platform only"
 #endif
 
-#if !defined(BUILD_SYS_USER_DSO)
-#error "This driver is for usermode threads only"
-#endif
-
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_compat.h"       /* RTAPI support functions */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
@@ -110,7 +106,7 @@ static int comp_id;		/* component ID */
 static const char *modname = MODNAME;
 
 // if filename doesnt exist, prefix this path:
-char *fw_path = "/lib/firmware/pru/";       
+char *fw_path = "/lib/firmware/pru/";
 
 // shared with PRU
 static unsigned long *pru_data_ram;     // points to PRU data RAM
@@ -335,7 +331,7 @@ static int setup_pru(int pru, char *filename, int disabled)
 
     // default the .bin filename if not given
     if (!strlen(filename)){
-	rtapi_print_msg(RTAPI_MSG_ERR, 
+	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "%s: no filename given - default to %s\n",
 	    modname, DEFAULT_CODE);
 	filename = DEFAULT_CODE;
@@ -346,7 +342,7 @@ static int setup_pru(int pru, char *filename, int disabled)
 
     if (!((stat(pru_binpath, &statb) == 0) &&
 	 S_ISREG(statb.st_mode))) {
-	rtapi_print_msg(RTAPI_MSG_ERR, 
+	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "%s: filename %s does not exist.\n", modname, pru_binpath);
 	// filename not found, prefix fw_path & try that:
 	strcpy(pru_binpath, fw_path);

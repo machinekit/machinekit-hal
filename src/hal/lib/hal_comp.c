@@ -10,11 +10,9 @@
 #include <sys/types.h>		/* pid_t */
 #include <unistd.h>		/* getpid() */
 #endif
-#if defined(BUILD_SYS_USER_DSO) || (defined(RTAPI) && !defined(BUILD_SYS_KBUILD))
 #include <signal.h>
 #ifndef abs
 int abs(int x) { if(x < 0) return -x; else return x; }
-#endif
 #endif
 
 

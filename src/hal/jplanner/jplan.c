@@ -98,6 +98,7 @@ static int update_joint(struct joint *joint,
         vel_req = 0.0;
         /* and set command to present position to avoid movement when
            next enabled */
+        // Writing to a possible HAL_IN pin!
         *(joint->pos_cmd) = *(joint->curr_pos);
     }
     /* limit velocity request */
@@ -231,7 +232,7 @@ static int instantiate_jplan(const int argc, const char **argv)
             hal_pin_float_newf(HAL_OUT, &(jp->curr_pos), inst_id, "%s.%d.curr-pos", name, i)  ||
             hal_pin_float_newf(HAL_OUT, &(jp->curr_vel), inst_id, "%s.%d.curr-vel", name, i) ||
             hal_pin_float_newf(HAL_IN, &(jp->home_pos), inst_id, "%s.%d.home-pos", name, i)   ||
-		    hal_pin_bit_newf(HAL_IN, &(jp->home_set), inst_id, "%s.%d.home-set", name, i))
+            hal_pin_bit_newf(HAL_IN, &(jp->home_set), inst_id, "%s.%d.home-set", name, i))
             return -1;
 
         hal_pin_dir_t dir = queued ? HAL_OUT : HAL_IN;

@@ -1,10 +1,10 @@
 /********************************************************************
 * Description:  rtapi_pci.c
-*               This file, 'rtapi_pci.c', implements the 
-*               usermode PCI functions 
+*               This file, 'rtapi_pci.c', implements the
+*               usermode PCI functions
 *
 *
-* Copyright (C) 2009 - 2013 Michael Büsch <m AT bues DOT CH>, 
+* Copyright (C) 2009 - 2013 Michael Büsch <m AT bues DOT CH>,
 *                           Charles Steinkuehler <charles AT steinkuehler DOT net>
 *                           John Morris <john AT zultron DOT com>
 *                           Michael Haberler <license AT mah DOT priv DOT at>
@@ -29,7 +29,7 @@
 #endif
 
 #include "config.h"
-#if defined(USERMODE_PCI) && defined(BUILD_SYS_USER_DSO)
+#if defined(USERMODE_PCI)
 
 #include <libudev.h>
 #include <stdio.h>		/* vprintf() */
@@ -361,7 +361,7 @@ void * rtapi_pci_ioremap(struct rtapi_pcidev *dev, int bar, size_t size)
 		return NULL;
 	}
 
-//	rtapi_print_msg(RTAPI_MSG_ERR, "%i: %lx.%lx %lx.%lx\n", i, 
+//	rtapi_print_msg(RTAPI_MSG_ERR, "%i: %lx.%lx %lx.%lx\n", i,
 //		*((unsigned long *) (mmio + 0xff0)),
 //		*((unsigned long *) (mmio + 0xff4)),
 //		*((unsigned long *) (mmio + 0xff8)),
@@ -485,8 +485,8 @@ int pci_register_driver(struct pci_driver *driver)
     }
 
     for (i=0; driver->id_table[i].vendor != 0; i++) {
-        snprintf(buf, sizeof(buf), "%04X:%04X", 
-            driver->id_table[i].vendor, 
+        snprintf(buf, sizeof(buf), "%04X:%04X",
+            driver->id_table[i].vendor,
             driver->id_table[i].device);
 
         err = udev_enumerate_add_match_property(enumerate, "PCI_ID", buf);
@@ -667,7 +667,7 @@ int pci_enable_device(struct pci_dev *dev)
 	}
     fprintf(stream, "1");
     fclose(stream);
-        
+
     /* Open the resource file... */
     snprintf(path, sizeof(path), "%s/resource", dev->sys_path);
     stream = fopen(path, "r");
@@ -677,7 +677,7 @@ int pci_enable_device(struct pci_dev *dev)
 				path, strerror(errno));
 		return -1;
 	}
-        
+
     /* ...and read in the data */
     for (i=0; i < 6; i++) {
         r=fscanf(stream, "%p %p %lx",

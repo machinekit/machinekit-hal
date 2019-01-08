@@ -27,12 +27,10 @@
 
 #include "config.h"
 
-#if defined(USERMODE_PCI) && defined(BUILD_SYS_USER_DSO)
+#if defined(USERMODE_PCI)
 #include <sys/io.h>
 #include <rtapi.h>
 #include <rtapi/rtapi_pci.h>
-#else
-#include <linux/pci.h>
 #endif
 
 #include "rtapi.h"
@@ -79,7 +77,7 @@ static void set32(hm2_test_t *me, u16 addr, u32 val) {
 }
 
 
-// 
+//
 // these are the "low-level I/O" functions exported up
 //
 
@@ -131,18 +129,18 @@ int rtapi_app_main(void) {
 
     switch (test_pattern) {
 
-        // 
+        //
         // this one has nothing
-        // 
+        //
 
         case 0: {
             break;
         }
 
 
-        // 
+        //
         // this one has a good IO Cookie, but that's it
-        // 
+        //
 
         case 1: {
             set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
@@ -150,10 +148,10 @@ int rtapi_app_main(void) {
         }
 
 
-        // 
+        //
         // this one has a good IO Cookie and Config Name
         // the idrom offset is 0, and there's nothing there
-        // 
+        //
 
         case 2: {
             set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
@@ -169,10 +167,10 @@ int rtapi_app_main(void) {
         }
 
 
-        // 
+        //
         // good IO Cookie, Config Name, and IDROM Type
         // the IDROM offset is the usual, 0x400, and there's an invalid IDROM type there
-        // 
+        //
 
         case 3: {
             set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
@@ -195,11 +193,11 @@ int rtapi_app_main(void) {
         }
 
 
-        // 
+        //
         // good IO Cookie, Config Name, and IDROM Type
         // the IDROM offset is the usual, 0x400, and there's a good IDROM type there
         // but the portwidth is 0
-        // 
+        //
 
         case 4: {
             set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
@@ -217,11 +215,11 @@ int rtapi_app_main(void) {
         }
 
 
-        // 
+        //
         // good IO Cookie, Config Name, and IDROM Type
         // the IDROM offset is the usual, 0x400, and there's a good IDROM type there
         // but the portwidth is 29 which is bogus
-        // 
+        //
 
         case 5: {
             set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
@@ -243,11 +241,11 @@ int rtapi_app_main(void) {
         }
 
 
-        // 
+        //
         // good IO Cookie, Config Name, and IDROM Type
         // the IDROM offset is the usual, 0x400, and there's a good IDROM type there
         // good PortWidth
-        // 
+        //
 
         case 6: {
             set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
@@ -269,11 +267,11 @@ int rtapi_app_main(void) {
         }
 
 
-        // 
+        //
         // good IO Cookie, Config Name, and IDROM Type
         // the IDROM offset is the usual, 0x400, and there's a good IDROM type there
         // good PortWidth, but problematic IOPorts and IOWidth
-        // 
+        //
 
         case 7: {
             set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
@@ -301,11 +299,11 @@ int rtapi_app_main(void) {
         }
 
 
-        // 
+        //
         // good IO Cookie, Config Name, and IDROM Type
         // the IDROM offset is the usual, 0x400, and there's a good IDROM type there
         // good PortWidth, but IOPorts doesnt match what the llio said
-        // 
+        //
 
         case 8: {
             set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
@@ -331,12 +329,12 @@ int rtapi_app_main(void) {
         }
 
 
-        // 
+        //
         // good IO Cookie, Config Name, and IDROM Type
         // the IDROM offset is the usual, 0x400, and there's a good IDROM type there
         // good PortWidth, IOPorts, and IOWidth
         // but the clocks are bad
-        // 
+        //
 
         case 9: {
             set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
@@ -363,12 +361,12 @@ int rtapi_app_main(void) {
         }
 
 
-        // 
+        //
         // good IO Cookie, Config Name, and IDROM Type
         // the IDROM offset is the usual, 0x400, and there's a good IDROM type there
         // good PortWidth, IOPorts, and IOWidth
         // but the clocks are bad
-        // 
+        //
 
         case 10: {
             set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
@@ -396,11 +394,11 @@ int rtapi_app_main(void) {
         }
 
 
-        // 
+        //
         // good IO Cookie, Config Name, and IDROM Type
         // the IDROM offset is the usual, 0x400, and there's a good IDROM type there
         // good PortWidth, IOPorts, IOWidth, and clocks
-        // 
+        //
         // The problem with this register file is that the Pin Descriptor
         // array contains no valid PDs, though the IDROM advertised 144 pins.
         //
@@ -535,11 +533,11 @@ int rtapi_app_main(void) {
         }
 
 
-        // 
+        //
         // good IO Cookie, Config Name, and IDROM Type
         // the IDROM offset is the usual, 0x400, and there's a good IDROM type there
         // good but unusual (non-24) PortWidth
-        // 
+        //
 
         case 14: {
             set32(me, HM2_ADDR_IOCOOKIE, HM2_IOCOOKIE);
@@ -606,4 +604,3 @@ void rtapi_app_exit(void) {
     LL_PRINT("driver unloaded\n");
     hal_exit(comp_id);
 }
-

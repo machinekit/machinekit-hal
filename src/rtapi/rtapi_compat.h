@@ -30,7 +30,6 @@
 ************************************************************************/
 
 #define  FLAVOR_DOES_IO        RTAPI_BIT(0) // userland: whether iopl() needs to be called
-#define  FLAVOR_KERNEL_BUILD   RTAPI_BIT(1) // set when defined(BUILD_SYS_KBUILD)
 #define  FLAVOR_RTAPI_DATA_IN_SHM   RTAPI_BIT(2) // this flavor keeps rtapi_data in a shm segment
 
 #define POSIX_FLAVOR_FLAGS                 0
@@ -71,9 +70,6 @@ typedef struct {
 
 SUPPORT_BEGIN_DECLS
 
-extern int is_module_loaded(const char *module);
-extern int load_module(const char *module, const char *modargs);
-extern int run_module_helper(const char *format, ...);
 extern long int simple_strtol(const char *nptr, char **endptr, int base);
 
 
@@ -108,7 +104,6 @@ int run_shell(char *format, ...);
 
 // kernel tests in rtapi_compat.c
 extern int kernel_is_xenomai();
-extern int kernel_is_rtai();
 extern int kernel_is_rtpreempt();
 
 // return the Xenomai group id from
@@ -125,13 +120,8 @@ extern int kernel_instance_id();
 
 extern flavor_t flavors[];
 extern flavor_ptr flavor_byname(const char *flavorname);
-extern flavor_ptr flavor_byid(int flavor_id);
+extern flavor_ptr const flavor_byid(int flavor_id);
 extern flavor_ptr default_flavor(void);
-
-// determine if this is a userland or kthreads flavor
-static inline int kernel_threads(flavor_ptr f) {
-    return (f->flags & FLAVOR_KERNEL_BUILD) != 0;
-}
 
 /*
  * Given a result buffer of PATH_MAX size and a module or shared

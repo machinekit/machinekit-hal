@@ -4,94 +4,94 @@
 *
 * Author: Alex Joni
 * License: GPL Version 2
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 * see below for aditional notes
 *
-* Last change: 
+* Last change:
 ********************************************************************/
 
 /** This is the driver for Servo-To-Go Model I & II board.
     The board includes 8 channels of quadrature encoder input,
     8 channels of analog input and output, 32 bits digital I/O,
     and an interval timer with interrupt.
-        
+
     Installation of the driver only realtime:
-    
+
 	insmod hal_stg num_chan=8 dio="IIOO"
 	    - autodetects the address
 	or
-    
+
 	insmod hal_stg base=0x200 num_chan=8 dio="IIOO"
-    
+
     Check your Hardware manual for your base address.
 
-    The digital inputs/outputs configuration is determined by a 
-    config string passed to insmod when loading the module.  
+    The digital inputs/outputs configuration is determined by a
+    config string passed to insmod when loading the module.
     The format consists by a four character string that sets the
     direction of each group of pins. Each character of the direction
     string is either "I" or "O".  The first character sets the
-    direction of port A (Port A - DIO.0-7), the next sets 
-    port B (Port B - DIO.8-15), the next sets port C (Port C - DIO.16-23), 
+    direction of port A (Port A - DIO.0-7), the next sets
+    port B (Port B - DIO.8-15), the next sets port C (Port C - DIO.16-23),
     and the fourth sets port D (Port D - DIO.24-31).
-    
+
     The following items are exported to the HAL.
-   
+
     Encoders:
       Parameters:
 	float	stg.<channel>.position-scale  (counts per unit)
-   
+
       Pins:
 	s32	stg.<channel>.counts
 	float	stg.<channel>.position
 
 /todo   bit	stg.<channel>.index-enable
 /todo  	bit	stg.<channel>.enc-reset-count
-   
+
       Functions:
         void    stg.<channel>.capture_position
-   
-   
+
+
     DACs:
       Parameters:
 	float	stg.<channel>.dac-offset
 	float	stg.<channel>.dac-gain
-   
+
       Pins:
 	float	stg.<channel>.dac-value
-   
+
       Functions:
 	void    stg.<channel>.dac-write
-   
-   
+
+
     ADC:
       Parameters:
 	float	stg.<channel>.adc-offset
 	float	stg.<channel>.adc-gain
-   
+
       Pins:
 	float	stg.<channel>.adc-value
-   
+
       Functions:
 	void    stg.<channel>.adc-read
-   
-   
+
+
     Digital In:
       Pins:
 	bit	stg.in-<pinnum>
 	bit	stg.in-<pinnum>-not
-   
+
       Functions:
 	void    stg.digital-in-read
-   
-   
+
+
     Digital Out:
       Parameters:
 	bit	stg.out-<pinnum>-invert
-   
+
       Pins:
 	bit	stg.out-<pinnum>
-   
+
       Functions:
 	void    stg.digital-out-write
 
@@ -105,7 +105,7 @@
                        <jmkasunich AT users DOT sourceforge DOT net>
 */
 
-/* Based on STGMEMBS.CPP from the Servo To Go Windows drivers 
+/* Based on STGMEMBS.CPP from the Servo To Go Windows drivers
     - Copyright (c) 1996 Servo To Go Inc and released under GPL Version 2 */
 /* Also relates to the EMC1 code (very similar to STGMEMBS.CPP)
     work done by Fred Proctor, Will Shackleford */
@@ -136,9 +136,6 @@
 */
 
 #include "config.h"
-#ifdef BUILD_SYS_KBUILD
-#include <asm/io.h>
-#endif 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
@@ -196,7 +193,7 @@ typedef struct {
 /* dio data */
     io_pin port[4][8];				/* holds 4 ports each 8 pins, either input or output */
     unsigned char dir_bits;			/* remembers config (which port is input which is output) */
-    
+
     unsigned char model;
 
 } stg_struct;
@@ -338,7 +335,7 @@ int rtapi_app_main(void)
     /* we now should have directions figured out, next is exporting the pins based on that */
     mask = 0x01;
     for ( m = 0 ; m < 4 ; m++ ) {
-    
+
 	/*          port, direction, driver */
 	export_pins(m, (dir_bits & mask), stg_driver);
 
@@ -348,7 +345,7 @@ int rtapi_app_main(void)
     stg_driver->dir_bits = dir_bits; /* remember direction of each port, will be used in the write / read functions */
 
     stg_dio_init();
-    
+
     /* export all the variables for each counter, dac */
     for (n = 0; n < num_chan; n++) {
 	/* export all vars */
@@ -380,7 +377,7 @@ int rtapi_app_main(void)
 
 	/* init counter chip */
 	stg_counter_init(n);
-	
+
 	retval = export_dac(n, stg_driver);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
@@ -407,13 +404,13 @@ int rtapi_app_main(void)
 	*(stg_driver->adc_value[n]) = 0;
 	stg_driver->adc_offset[n] = 0.0;
 	stg_driver->adc_gain[n] = 1.0;
-	
+
 	stg_driver->adc_current_chan = -1; /* notify that no conversion has been started yet */
 
 	/* init adc chip */
 	stg_adc_init(n);
     }
-    
+
     /* export functions */
     retval = hal_export_funct("stg.capture-position", stg_counter_capture,
 	stg_driver, 1, 0, comp_id);
@@ -515,18 +512,18 @@ static void stg_counter_capture(void *arg, long period)
     /*
      * STG Model 1, stg1
      */
-    for( n = 0; n < num_chan; n++ ) 
+    for( n = 0; n < num_chan; n++ )
     {
     	/* reset and then select current axes pair to be reset by index
        *  Because they index polarity is configurable for the stg2 card be select
        *  even for the odd axes */
       stg1_select_index_axis(arg, n);
 
-      if (stg1_get_index_pulse_latch(arg, n)) 
+      if (stg1_get_index_pulse_latch(arg, n))
       {
         *(stg->index_latch[n]) = 1;
 
-      	if ( *(stg->index_enable[n]) == 1 ) 
+      	if ( *(stg->index_enable[n]) == 1 )
         {
           // read the value without latching, latching was done on index
           // remember this as an offset, it will be substracted from nominal
@@ -542,8 +539,8 @@ static void stg_counter_capture(void *arg, long period)
           */
         } else {
           /* NOP, no action needed, since the selection of an index pair is just valid until the next
-           *  pair is selected */   
-		} 
+           *  pair is selected */
+		}
       } else {
         *(stg->index_latch[n]) = 0;
       }
@@ -556,7 +553,7 @@ static void stg_counter_capture(void *arg, long period)
      */
 
     // Set IDLEN
-    for( mask = 0, n = 0; n < num_chan; n++ ) 
+    for( mask = 0, n = 0; n < num_chan; n++ )
     {
       if( *(stg->index_enable[n]) == 1 )
       {
@@ -564,19 +561,19 @@ static void stg_counter_capture(void *arg, long period)
       }
     }
     stg2_select_index_axes( arg, mask );
-    
+
     // Read all latches
     index_pulse_latches = stg2_get_all_index_pulse_latches( arg );
 
     // set or reset index_latch
     // index-enable reset if needed
-    for( n = 0; n < num_chan; n++ ) 
+    for( n = 0; n < num_chan; n++ )
     {
       if( index_pulse_latches & (1<<n) )
       {
         *(stg->index_latch[n]) = 1;
 
-      	if ( *(stg->index_enable[n]) == 1 ) 
+      	if ( *(stg->index_enable[n]) == 1 )
         {
           // read the value without latching, latching was done on index
 														// remember this as an offset, it will be substracted from nominal
@@ -599,17 +596,17 @@ static void stg_counter_capture(void *arg, long period)
 		}
     // Reset all latches
     stg2_reset_all_index_latches( arg );
-		
+
   } else {
     // NOP, only models stg1 and stg2, thus should never be reached */
 	}
 
-  for (n = 0; n < num_chan; n++) 
+  for (n = 0; n < num_chan; n++)
   {
 	/* capture raw counts to latches */
 	stg_counter_latch(n);
 	/* read raw count, and substract the offset (determined by indexed homing) */
-	*(stg->count[n]) = stg_counter_read(n) - stg->offset[n]; 
+	*(stg->count[n]) = stg_counter_read(n) - stg->offset[n];
 	/* make sure scale isn't zero or tiny to avoid divide error */
 	if (stg->pos_scale[n] < 0.0) {
 	    if (stg->pos_scale[n] > -EPSILON)
@@ -625,9 +622,9 @@ static void stg_counter_capture(void *arg, long period)
   return;
 }
 
-/* stg_debug_print 
- *  run this function from a very slow, 
- *  e.g. 1sec thread and it will give some information 
+/* stg_debug_print
+ *  run this function from a very slow,
+ *  e.g. 1sec thread and it will give some information
  */
 /*
 static void stg_debug_print( void *arg, long period )
@@ -646,27 +643,18 @@ static void stg_debug_print( void *arg, long period )
   msg = rtapi_get_msg_level();
   rtapi_set_msg_level( STG_MSG_LEVEL );
 
-  if( stg->model == 1 ) 
+  if( stg->model == 1 )
   {
-//#ifndef BUILD_SYS_KBUILD
 		intc_reg = rtapi_inb(base + INTC);
-//#else 
-		intc_reg = inb(base + INTC);
-//#endif 
-    rtapi_print_msg(RTAPI_MSG_DBG, "STG: %04d: IXS1 is %s\n", counter, ( intc_reg & IXS1 ) ? "TRUE" : "FALSE" );    
+    rtapi_print_msg(RTAPI_MSG_DBG, "STG: %04d: IXS1 is %s\n", counter, ( intc_reg & IXS1 ) ? "TRUE" : "FALSE" );
     rtapi_print_msg(RTAPI_MSG_DBG, "STG: %04d: IXS0 is %s\n", counter, ( intc_reg & IXS0 ) ? "TRUE" : "FALSE" );
     rtapi_print_msg(RTAPI_MSG_DBG, "STG: %04d: IXLVL is active %s\n", counter, ( intc_reg & IXLVL ) ? "TRUE" : "FALSE" );
 
-  } else if (stg->model == 2 ) 
+  } else if (stg->model == 2 )
   {
-// #ifndef BUILD_SYS_KBUILD
     idlen_reg = rtapi_inb( base + IDLEN );
     seldi_reg = rtapi_inb( base + SELDI );
-// #else 
-    idlen_reg = inb( base + IDLEN );
-    seldi_reg = inb( base + SELDI );
-// #endif 
-      
+
     rtapi_print_msg(RTAPI_MSG_DBG, "STG: %04d: IDLEN is 0x%02x\n", counter, idlen_reg );
     rtapi_print_msg(RTAPI_MSG_DBG, "STG: %04d: SELDI is 0x%02x\n", counter, seldi_reg );
 
@@ -686,7 +674,7 @@ static void stg_debug_print( void *arg, long period )
 /* stg_dacs_write() - writes all dac's to the board
     - calls stg_dac_write() */
 static void stg_dacs_write(void *arg, long period)
-{    
+{
     stg_struct *stg;
     double volts;
     short ncounts, i;
@@ -702,8 +690,8 @@ static void stg_dacs_write(void *arg, long period)
                 volts = 10.0;
 	/* compute the value for the DAC, the extra - in there is STG specific */
 	ncounts = (short) ((((-10.0 - volts) * 0x1FFF) / 20.0) - 1 );
-	/* write it to the card */	
-	stg_dac_write(i, ncounts);	
+	/* write it to the card */
+	stg_dac_write(i, ncounts);
     }
   return;
 }
@@ -724,14 +712,14 @@ static void stg_dacs_write(void *arg, long period)
     - and at the end of the function the new conversion is started, so that the data
       will be available at the next run.
     This way 8 periods are needed to read 8 ADC's. It is possible to set the board
-    to do faster conversions (AZ bit on INTC off), but that would make it less 
+    to do faster conversions (AZ bit on INTC off), but that would make it less
     reliable (autozero takes care of temp. errors).*/
 /*! \todo STG_ADC_Improvement (if any user requests it).
     Another improvement might be to let the user chose what channels he would like
     for ADC (having only 2 channels might speed things up considerably).
 */
 static void stg_adcs_read(void *arg, long period)
-{    
+{
     stg_struct *stg;
     double volts;
     short ncounts;
@@ -739,7 +727,7 @@ static void stg_adcs_read(void *arg, long period)
 
     stg = arg;
     i = stg->adc_current_chan;
-    if ((i >= 0) && (i < num_chan)) { 
+    if ((i >= 0) && (i < num_chan)) {
 	/* we should have the conversion done for adc_num_chan */
 	ncounts = stg_adc_read(stg,i);
 	volts = ncounts * 10.0 / 4096;
@@ -747,7 +735,7 @@ static void stg_adcs_read(void *arg, long period)
     }
     /* if adc_num_chan < 0, it's the first time this routine runs
        thus we don't have any ready data, we simply start the next conversion */
-    if (stg->adc_current_chan++ >= num_chan) 
+    if (stg->adc_current_chan++ >= num_chan)
 	stg->adc_current_chan=0; //increase the channel, and roll back to 0 after all chans are done
 
     /* select the current channel with the mux, and start the conversion */
@@ -780,7 +768,7 @@ static void split_input(unsigned char data, io_pin *dest, int num)
 	dest++;
     }
   return;
-}    
+}
 
 // helper function to extract the data out of HAL and place it into a char
 // written by JMK
@@ -815,65 +803,33 @@ static void stg_di_read(void *arg, long period) //reads digital inputs from the 
     stg_struct *stg;
     unsigned char val;
     stg=arg;
-    
+
     if ( (stg->dir_bits & 0x01) == 0) { // if port A is set as input, read the bits
 	if (stg->model == 1)
-#ifndef BUILD_SYS_KBUILD
 	    val = rtapi_inb(base + DIO_A);
-#else /* BUILD_SYS_KBUILD */
-	    val = inb(base + DIO_A);
-#endif /* BUILD_SYS_KBUILD */
 	else
-#ifndef BUILD_SYS_KBUILD
 	    val = rtapi_inb(base + PORT_A);
-#else /* BUILD_SYS_KBUILD */
-	    val = inb(base + PORT_A);
-#endif /* BUILD_SYS_KBUILD */
 	split_input(val, &(stg->port[0][0]), 8);
     }
     if ( (stg->dir_bits & 0x02) == 0) { // if port B is set as input, read the bits
 	if (stg->model == 1)
-#ifndef BUILD_SYS_KBUILD
     	    val = rtapi_inb(base + DIO_B);
-#else /* BUILD_SYS_KBUILD */
-    	    val = inb(base + DIO_B);
-#endif /* BUILD_SYS_KBUILD */
 	else
-#ifndef BUILD_SYS_KBUILD
 	    val = rtapi_inb(base + PORT_B);
-#else /* BUILD_SYS_KBUILD */
-	    val = inb(base + PORT_B);
-#endif /* BUILD_SYS_KBUILD */
 	split_input(val, &(stg->port[1][0]), 8);
     }
     if ( (stg->dir_bits & 0x04) == 0) { // if port C is set as input, read the bits
 	if (stg->model == 1)
-#ifndef BUILD_SYS_KBUILD
 	    val = rtapi_inb(base + DIO_C);
-#else /* BUILD_SYS_KBUILD */
-	    val = inb(base + DIO_C);
-#endif /* BUILD_SYS_KBUILD */
 	else
-#ifndef BUILD_SYS_KBUILD
 	    val = rtapi_inb(base + PORT_C);
-#else /* BUILD_SYS_KBUILD */
-	    val = inb(base + PORT_C);
-#endif /* BUILD_SYS_KBUILD */
 	split_input(val, &(stg->port[2][0]), 8);
     }
     if ( (stg->dir_bits & 0x08) == 0) { // if port D is set as input, read the bits
 	if (stg->model == 1)
-#ifndef BUILD_SYS_KBUILD
     	    val = rtapi_inb(base + DIO_D);
-#else /* BUILD_SYS_KBUILD */
-    	    val = inb(base + DIO_D);
-#endif /* BUILD_SYS_KBUILD */
 	else
-#ifndef BUILD_SYS_KBUILD
 	    val = rtapi_inb(base + PORT_D);
-#else /* BUILD_SYS_KBUILD */
-	    val = inb(base + PORT_D);
-#endif /* BUILD_SYS_KBUILD */
 	split_input(val, &(stg->port[3][0]), 8);
     }
 }
@@ -887,62 +843,30 @@ static void stg_do_write(void *arg, long period) //writes digital outputs to the
     if ( (stg->dir_bits & 0x01) != 0) { // if port A is set as output, write the bits
 	val = build_output(&(stg->port[0][0]), 8);
 	if (stg->model == 1)
-#ifndef BUILD_SYS_KBUILD
 	    rtapi_outb(val, base + DIO_A);
-#else /* BUILD_SYS_KBUILD */
-	    outb(val, base + DIO_A);
-#endif /* BUILD_SYS_KBUILD */
 	else
-#ifndef BUILD_SYS_KBUILD
 	    rtapi_outb(val, base + PORT_A);
-#else /* BUILD_SYS_KBUILD */
-	    outb(val, base + PORT_A);
-#endif /* BUILD_SYS_KBUILD */
     }
     if ( (stg->dir_bits & 0x02) != 0) { // if port B is set as output, write the bits
 	val = build_output(&(stg->port[1][0]), 8);
 	if (stg->model == 1)
-#ifndef BUILD_SYS_KBUILD
 	    rtapi_outb(val, base + DIO_B);
-#else /* BUILD_SYS_KBUILD */
-	    outb(val, base + DIO_B);
-#endif /* BUILD_SYS_KBUILD */
 	else
-#ifndef BUILD_SYS_KBUILD
 	    rtapi_outb(val, base + PORT_B);
-#else /* BUILD_SYS_KBUILD */
-	    outb(val, base + PORT_B);
-#endif /* BUILD_SYS_KBUILD */
     }
     if ( (stg->dir_bits & 0x04) != 0) { // if port C is set as output, write the bits
 	val = build_output(&(stg->port[2][0]), 8);
 	if (stg->model == 1)
-#ifndef BUILD_SYS_KBUILD
 	    rtapi_outb(val, base + DIO_C);
-#else /* BUILD_SYS_KBUILD */
-	    outb(val, base + DIO_C);
-#endif /* BUILD_SYS_KBUILD */
 	else
-#ifndef BUILD_SYS_KBUILD
 	    rtapi_outb(val, base + PORT_C);
-#else /* BUILD_SYS_KBUILD */
-	    outb(val, base + PORT_C);
-#endif /* BUILD_SYS_KBUILD */
     }
     if ( (stg->dir_bits & 0x08) != 0) { // if port D is set as output, write the bits
 	val = build_output(&(stg->port[3][0]), 8);
 	if (stg->model == 1)
-#ifndef BUILD_SYS_KBUILD
 	    rtapi_outb(val, base + DIO_D);
-#else /* BUILD_SYS_KBUILD */
-	    outb(val, base + DIO_D);
-#endif /* BUILD_SYS_KBUILD */
 	else
-#ifndef BUILD_SYS_KBUILD
 	    rtapi_outb(val, base + PORT_D);
-#else /* BUILD_SYS_KBUILD */
-	    outb(val, base + PORT_D);
-#endif /* BUILD_SYS_KBUILD */
     }
 }
 
@@ -958,40 +882,24 @@ static void stg_do_write(void *arg, long period) //writes digital outputs to the
 
 /*
   stg_counter_init() - Initializes the channel
-  
+
   works the same for both cards (STG & STG2)
 */
 static int stg_counter_init(int ch)
 {
     /* Set Counter Command Register - Master Control, Master Reset (MRST), */
     /* and Reset address pointer (RADR). */
-#ifndef BUILD_SYS_KBUILD
     rtapi_outb(0x23, CTRL(ch));
-#else /* BUILD_SYS_KBUILD */
-    outb(0x23, CTRL(ch));
-#endif /* BUILD_SYS_KBUILD */
 
     /* Set Counter Command Register - Input Control, OL Load (P3), */
     /* and Enable Inputs A and B (INA/B). */
-#ifndef BUILD_SYS_KBUILD
     rtapi_outb(0x68, CTRL(ch));
-#else /* BUILD_SYS_KBUILD */
-    outb(0x68, CTRL(ch));
-#endif /* BUILD_SYS_KBUILD */
 
     /* Set Counter Command Register - Output Control */
-#ifndef BUILD_SYS_KBUILD
     rtapi_outb(0x80, CTRL(ch));
-#else /* BUILD_SYS_KBUILD */
-    outb(0x80, CTRL(ch));
-#endif /* BUILD_SYS_KBUILD */
 
     /* Set Counter Command Register - Quadrature */
-#ifndef BUILD_SYS_KBUILD
     rtapi_outb(0xC3, CTRL(ch));
-#else /* BUILD_SYS_KBUILD */
-    outb(0xC3, CTRL(ch));
-#endif /* BUILD_SYS_KBUILD */
     return 0;
 }
 
@@ -1003,10 +911,10 @@ static int stg_counter_init(int ch)
 static int stg_dac_init(int ch)
 {
     int i;
-    
+
     /* set all DAC's to 0 on startup */
     for (i=0; i < num_chan; i++) {
-	stg_dac_write(i, 0x1000); //by Xuecheng, 0x1000 coresponds to 0V 
+	stg_dac_write(i, 0x1000); //by Xuecheng, 0x1000 coresponds to 0V
     }
     return 0;
 }
@@ -1021,11 +929,7 @@ static int stg_adc_init(int ch)
     /* not much to setup for the ADC's */
     /* only select the mode of operation we will work with AutoZero */
     if (stg_driver->model == 1)
-#ifndef BUILD_SYS_KBUILD
 	rtapi_outb(0x0f, base + MIO_2);	// the second 82C55 is already configured (by running stg_dio_init)
-#else /* BUILD_SYS_KBUILD */
-	outb(0x0f, base + MIO_2);	// the second 82C55 is already configured (by running stg_dio_init)
-#endif /* BUILD_SYS_KBUILD */
 					// we only set bit 8 (AZ) to 1 to enable it
     return 0;
 }
@@ -1046,105 +950,55 @@ static int stg_dio_init(void)
 	control |= 0x02;
     if ( (stg_driver->dir_bits & 0x04) == 0) // if port C is set as input, set bits accordingly
 	control |= 0x09;
-    
+
     if (stg_driver->model == 1) {
 	// write the computed control to MIO_1
-#ifndef BUILD_SYS_KBUILD
 	rtapi_outb(control, base+MIO_1);
-#else /* BUILD_SYS_KBUILD */
-	outb(control, base+MIO_1);
-#endif /* BUILD_SYS_KBUILD */
     } else { //model STG2
 	// write port A,B,C direction to ABC_DIR
-#ifndef BUILD_SYS_KBUILD
 	rtapi_outb(control, base+ABC_DIR);
-#else /* BUILD_SYS_KBUILD */
-	outb(control, base+ABC_DIR);
-#endif /* BUILD_SYS_KBUILD */
     }
-    
-#ifndef BUILD_SYS_KBUILD
+
 	tempINTC = rtapi_inb(base + INTC);
-#else /* BUILD_SYS_KBUILD */
-	tempINTC = inb(base + INTC);
-#endif /* BUILD_SYS_KBUILD */
-    
+
     if (stg_driver->model == 1) {
 	// next compute the directions for port D, located on the second 82C55
 	control = 0x82;
-    
+
 	if ( (stg_driver->dir_bits & 0x08) == 0)// if port D is set as input, set bits accordingly
 	    control = 0x92;
 
-#ifndef BUILD_SYS_KBUILD
 	tempIMR = rtapi_inb(base + IMR); // get the current interrupt mask
-#else /* BUILD_SYS_KBUILD */
-	tempIMR = inb(base + IMR); // get the current interrupt mask
-#endif /* BUILD_SYS_KBUILD */
-        
-#ifndef BUILD_SYS_KBUILD
+
 	rtapi_outb(0xff, base + OCW1); //mask off all interrupts
-#else /* BUILD_SYS_KBUILD */
-	outb(0xff, base + OCW1); //mask off all interrupts
-#endif /* BUILD_SYS_KBUILD */
-    
+
 	// write the computed control to MIO_2
-#ifndef BUILD_SYS_KBUILD
 	rtapi_outb(control, base+MIO_2);
-#else /* BUILD_SYS_KBUILD */
-	outb(control, base+MIO_2);
-#endif /* BUILD_SYS_KBUILD */
-    
-#ifndef BUILD_SYS_KBUILD
+
 	rtapi_outb(tempINTC, base + INTC); //restore interrupt control reg.
-#else /* BUILD_SYS_KBUILD */
-	outb(tempINTC, base + INTC); //restore interrupt control reg.
-#endif /* BUILD_SYS_KBUILD */
-    
-#ifndef BUILD_SYS_KBUILD
+
 	rtapi_outb(tempIMR, base+ OCW1); //restore int mask
-#else /* BUILD_SYS_KBUILD */
-	outb(tempIMR, base+ OCW1); //restore int mask
-#endif /* BUILD_SYS_KBUILD */
 
     } else { //model STG2
-    
+
 	// save contents of CNTRL0, it will get reinitialized
-#ifndef BUILD_SYS_KBUILD
 	tempCtrl0 = rtapi_inb(base+CNTRL0);
 	tempCtrl1 = rtapi_inb(base+CNTRL1);
-#else /* BUILD_SYS_KBUILD */
-	tempCtrl0 = inb(base+CNTRL0);
-	tempCtrl1 = inb(base+CNTRL1);
-#endif /* BUILD_SYS_KBUILD */
-    
+
 	// CNTRL0 output, BRDTST input, D output
 	control = 0x82;
 
 	if ( (stg_driver->dir_bits & 0x08) == 0)// if port D is set as input, set bits accordingly
 	    control = 0x8b;
-	
-#ifndef BUILD_SYS_KBUILD
+
 	rtapi_outb(0xff, base + CNTRL1); // disable interrupts
-#else /* BUILD_SYS_KBUILD */
-	outb(0xff, base + CNTRL1); // disable interrupts
-#endif /* BUILD_SYS_KBUILD */
-	
-#ifndef BUILD_SYS_KBUILD
+
 	rtapi_outb(control, base + D_DIR); // set port D direction, also resets CNTRL0
-#else /* BUILD_SYS_KBUILD */
-	outb(control, base + D_DIR); // set port D direction, also resets CNTRL0
-#endif /* BUILD_SYS_KBUILD */
-	
-#ifndef BUILD_SYS_KBUILD
+
 	rtapi_outb(tempCtrl0, base + CNTRL0);
 	rtapi_outb( (tempCtrl1 & 0x0f) | 0xf0, base + CNTRL1);
-#else /* BUILD_SYS_KBUILD */
-	outb(tempCtrl0, base + CNTRL0);
-	outb( (tempCtrl1 & 0x0f) | 0xf0, base + CNTRL1);
-#endif /* BUILD_SYS_KBUILD */
     }
-    
+
     return 0;
 }
 
@@ -1154,13 +1008,9 @@ static int stg_dio_init(void)
 *            these do the actual data exchange with the board          *
 ************************************************************************/
 
-static void stg_counter_latch(int i) 
+static void stg_counter_latch(int i)
 {
-#ifndef BUILD_SYS_KBUILD
     rtapi_outb(0x03, CTRL(i));
-#else /* BUILD_SYS_KBUILD */
-    outb(0x03, CTRL(i));
-#endif /* BUILD_SYS_KBUILD */
 }
 
 
@@ -1182,15 +1032,9 @@ static long stg_counter_read(int i)
 	} byte;
     } pos;
 
-#ifndef BUILD_SYS_KBUILD
     pos.byte.b0 = rtapi_inb(DATA(i));
     pos.byte.b1 = rtapi_inb(DATA(i));
     pos.byte.b2 = rtapi_inb(DATA(i));
-#else /* BUILD_SYS_KBUILD */
-    pos.byte.b0 = inb(DATA(i));
-    pos.byte.b1 = inb(DATA(i));
-    pos.byte.b2 = inb(DATA(i));
-#endif /* BUILD_SYS_KBUILD */
     if (pos.byte.b2 < 0) {
 	pos.byte.b3 = -1;
     } else {
@@ -1206,11 +1050,11 @@ static void stg1_select_index_axis(void *arg, unsigned int channel)
   unsigned char byPol = 1;
 
   if (stg->model == 1)
-  { 
+  {
     /*
      * Set polarity to low active if that is requested
      */
-    if( *(stg->index_polarity[channel]) == 0 ) 
+    if( *(stg->index_polarity[channel]) == 0 )
     {
       byPol = 0;
     }
@@ -1218,28 +1062,20 @@ static void stg1_select_index_axis(void *arg, unsigned int channel)
     /* Stg manual p. 21: "The bits are level triggered and cannot be reset if they are active"
      *  So it is save to reset them and only those which are really active will remain */
     stg1_reset_index_latch(arg, channel);
-  
+
     // routine for Model 1
 		// initialize stuff to poll index pulse
 		byAxis = channel;
-		
+
 		byAxis &= 0x6;						// ignore low bit, we check 2 axes at a time
 		byAxis <<= 3;						// shift into position for IXS1, IXS0
-#ifndef BUILD_SYS_KBUILD
 		byIntc = rtapi_inb(base + INTC);			// get a copy of INTC, we'll change
-#else /* BUILD_SYS_KBUILD */
-		byIntc = inb(base + INTC);			// get a copy of INTC, we'll change
-#endif /* BUILD_SYS_KBUILD */
 											// some bits in it, not all
 		byIntc &= ~(IXLVL | IXS1 | IXS0);	// zero bits for axis and polarity
 		byIntc |= byAxis;					// put axes address in INTC
 		if (byPol != 0)					// is index pulse active high?
 			byIntc |= IXLVL;
-#ifndef BUILD_SYS_KBUILD
 		rtapi_outb(byIntc, base + INTC);
-#else /* BUILD_SYS_KBUILD */
-		outb(byIntc, base + INTC);
-#endif /* BUILD_SYS_KBUILD */
 	}
 }
 
@@ -1249,11 +1085,7 @@ static void stg2_select_index_axes( void *arg, unsigned char mask )
      *  writing 0 to the corresponding bit disables the index pulse
      *  writing 1 enables it
      */
-#ifndef BUILD_SYS_KBUILD
     rtapi_outb( mask, base + IDLEN );
-#else /* BUILD_SYS_KBUILD */
-    outb( mask, base + IDLEN );
-#endif /* BUILD_SYS_KBUILD */
     return;
 }
 
@@ -1265,13 +1097,8 @@ static void stg1_reset_index_latch(void *arg, unsigned int channel)
 
   if (stg->model == 1)
   {   // routine for Model 1
-#ifndef BUILD_SYS_KBUILD
    	rtapi_inb(base + ODDRST);        //reset index pulse latch for ODD axis
    	rtapi_inb(base + BRDTST);        //reset index pulse latch for EVEN axis
-#else /* BUILD_SYS_KBUILD */
-   	inb(base + ODDRST);        //reset index pulse latch for ODD axis
-   	inb(base + BRDTST);        //reset index pulse latch for EVEN axis
-#endif /* BUILD_SYS_KBUILD */
   }
   return;
 }
@@ -1281,29 +1108,20 @@ static void stg2_reset_all_index_latches( void *arg )
   stg_struct *stg = arg;
   if( stg->model == 2 )
   {
-    /*     
-     * stg2 manual p.22, 
-     *  writing 0 to IDL resets the index latch, 
+    /*
+     * stg2 manual p.22,
+     *  writing 0 to IDL resets the index latch,
      *  writing 1 has no effect
      */
-#ifndef BUILD_SYS_KBUILD
     rtapi_outb( 0x00, base + IDL);
-#else /* BUILD_SYS_KBUILD */
-    outb( 0x00, base + IDL);
-#endif /* BUILD_SYS_KBUILD */
   }
   return;
 }
 
 unsigned char stg1_get_current_IRR(void)
 {
-#ifndef BUILD_SYS_KBUILD
     rtapi_outb(base + OCW3, 0x0a);           // IRR on next read
     return rtapi_inb(base + IRR);
-#else /* BUILD_SYS_KBUILD */
-    outb(base + OCW3, 0x0a);           // IRR on next read
-    return inb(base + IRR);
-#endif /* BUILD_SYS_KBUILD */
 }
 
 static unsigned short stg1_get_index_pulse_latch(void *arg, unsigned int chan)
@@ -1332,28 +1150,20 @@ static unsigned char stg2_get_all_index_pulse_latches( void *arg )
   unsigned char indexRegister = 0;
 
   if( stg-> model == 2 )
-#ifndef BUILD_SYS_KBUILD
     indexRegister = rtapi_inb( base + IDL );
-#else /* BUILD_SYS_KBUILD */
-    indexRegister = inb( base + IDL );
-#endif /* BUILD_SYS_KBUILD */
   return indexRegister;
 }
 
 
 /*
   stg_dac_write() - writes a dac channel
-  
+
   works the same for both cards (STG & STG2)
 */
 static int stg_dac_write(int ch, short value)
-{        
+{
     /* write the DAC */
-#ifndef BUILD_SYS_KBUILD
     rtapi_outw(value, base + DAC_0 + (ch << 1));
-#else /* BUILD_SYS_KBUILD */
-    outw(value, base + DAC_0 + (ch << 1));
-#endif /* BUILD_SYS_KBUILD */
 
     return 0;
 }
@@ -1366,70 +1176,36 @@ int stg_adc_start(void *arg, unsigned short wAxis)
     unsigned char tempCtrl0;
 
     stg = arg;
-    
+
     if (stg->model == 1) {
 	/* do a dummy read from the ADC, just to set the input multiplexer to
 	 the right channel */
-#ifndef BUILD_SYS_KBUILD
 	rtapi_inw(base + ADC_0 + (wAxis << 1));
-#else /* BUILD_SYS_KBUILD */
-	inw(base + ADC_0 + (wAxis << 1));
-#endif /* BUILD_SYS_KBUILD */
 
 	/* wait 4 uS for settling time on the multiplexer and ADC. You probably
 	 shouldn't really have a delay in a driver */
-#ifndef BUILD_SYS_KBUILD
 	rtapi_outb(0, 0x80);
 	rtapi_outb(0, 0x80);
 	rtapi_outb(0, 0x80);
 	rtapi_outb(0, 0x80);
-#else /* BUILD_SYS_KBUILD */
-	outb(0, 0x80);
-	outb(0, 0x80);
-	outb(0, 0x80);
-	outb(0, 0x80);
-#endif /* BUILD_SYS_KBUILD */
 
 	/* now start conversion */
-#ifndef BUILD_SYS_KBUILD
 	rtapi_outw(0, base + ADC_0 + (wAxis << 1));
-#else /* BUILD_SYS_KBUILD */
-	outw(0, base + ADC_0 + (wAxis << 1));
-#endif /* BUILD_SYS_KBUILD */
     } else { //model STG2
 
-#ifndef BUILD_SYS_KBUILD
 	tempCtrl0 = rtapi_inb(base+CNTRL0) & 0x07; // save IRQ
-#else /* BUILD_SYS_KBUILD */
-	tempCtrl0 = inb(base+CNTRL0) & 0x07; // save IRQ
-#endif /* BUILD_SYS_KBUILD */
 	tempCtrl0 |= (wAxis << 4) | 0x88; //autozero & cal cycle
-#ifndef BUILD_SYS_KBUILD
 	rtapi_outb(tempCtrl0, base + CNTRL0); // select channel
-#else /* BUILD_SYS_KBUILD */
-	outb(tempCtrl0, base + CNTRL0); // select channel
-#endif /* BUILD_SYS_KBUILD */
 
 	/* wait 4 uS for settling time on the multiplexer and ADC. You probably
 	 shouldn't really have a delay in a driver */
-#ifndef BUILD_SYS_KBUILD
 	rtapi_outb(0, 0x80);
 	rtapi_outb(0, 0x80);
 	rtapi_outb(0, 0x80);
 	rtapi_outb(0, 0x80);
-#else /* BUILD_SYS_KBUILD */
-	outb(0, 0x80);
-	outb(0, 0x80);
-	outb(0, 0x80);
-	outb(0, 0x80);
-#endif /* BUILD_SYS_KBUILD */
-	
+
 	/* now start conversion */
-#ifndef BUILD_SYS_KBUILD
 	rtapi_outw(0, base + ADC_0);
-#else /* BUILD_SYS_KBUILD */
-	outw(0, base + ADC_0);
-#endif /* BUILD_SYS_KBUILD */
     }
     return 0;
 };
@@ -1442,9 +1218,9 @@ static short stg_adc_read(void *arg, int axis)
     stg = arg;
 
     /*
-    there must have been a delay between stg_adc_start() and 
-    stg_adc_read(), of 19 usec if autozeroing (we are), 4 usecs 
-    otherwise. In code that calls this, make sure you split these 
+    there must have been a delay between stg_adc_start() and
+    stg_adc_read(), of 19 usec if autozeroing (we are), 4 usecs
+    otherwise. In code that calls this, make sure you split these
     calls up with some intervening code
     */
 
@@ -1456,32 +1232,16 @@ static short stg_adc_read(void *arg, int axis)
 	Register) of Interrupt Controller.  Don't wait forever though
 	bail out eventually. */
 
-#ifndef BUILD_SYS_KBUILD
 	for (j = 0; !(rtapi_inb(base + IRR) & 0x08) && (j < 1000); j++);
-#else /* BUILD_SYS_KBUILD */
-	for (j = 0; !(inb(base + IRR) & 0x08) && (j < 1000); j++);
-#endif /* BUILD_SYS_KBUILD */
-    
-#ifndef BUILD_SYS_KBUILD
+
 	j = rtapi_inw(base + ADC_0 + (axis << 1));
-#else /* BUILD_SYS_KBUILD */
-	j = inw(base + ADC_0 + (axis << 1));
-#endif /* BUILD_SYS_KBUILD */
 
     } else { //model 2
 
-#ifndef BUILD_SYS_KBUILD
 	for (j = 0; (rtapi_inb(base + BRDTST) & 0x08) && (j < 1000); j++);
-#else /* BUILD_SYS_KBUILD */
-	for (j = 0; (inb(base + BRDTST) & 0x08) && (j < 1000); j++);
-#endif /* BUILD_SYS_KBUILD */
-	
-#ifndef BUILD_SYS_KBUILD
-	j = rtapi_inw(base + ADC_0 + (axis << 1));	
-#else /* BUILD_SYS_KBUILD */
-	j = inw(base + ADC_0 + (axis << 1));	
-#endif /* BUILD_SYS_KBUILD */
-    
+
+	j = rtapi_inw(base + ADC_0 + (axis << 1));
+
     }
 
 
@@ -1501,12 +1261,12 @@ static short stg_adc_read(void *arg, int axis)
 static int stg_set_interrupt(short interrupt)
 {
     unsigned char tempINTC;
-    
+
     if (stg_driver->model == 1)
 	tempINTC=0x80;
     else
 	tempINTC=0x88;//also CAL low, don|t want ADC to calibrate
-    
+
     switch (interrupt) {
 	case 3: break;
 	case 5: tempINTC |= 4;break;
@@ -1517,19 +1277,11 @@ static int stg_set_interrupt(short interrupt)
 	case 12: tempINTC |= 3;break;
 	case 15: tempINTC |= 1;break;
 	default: tempINTC |= 4;break;
-    }        
+    }
     if (stg_driver->model == 1)
-#ifndef BUILD_SYS_KBUILD
 	rtapi_outb(tempINTC, base + INTC);
-#else /* BUILD_SYS_KBUILD */
-	outb(tempINTC, base + INTC);
-#endif /* BUILD_SYS_KBUILD */
     else
-#ifndef BUILD_SYS_KBUILD
 	rtapi_outb(tempINTC, base + CNTRL0);
-#else /* BUILD_SYS_KBUILD */
-	outb(tempINTC, base + CNTRL0);
-#endif /* BUILD_SYS_KBUILD */
 
     return 0;
 }
@@ -1548,11 +1300,11 @@ static int stg_init_card()
    */
   if ( (model != 0) && (base != 0) )
   {
-  	stg_driver->model = model;  
+  	stg_driver->model = model;
   } else {
   	base = stg_autodetect();
     }
-    
+
   /*
    * Now check if the settings for a card a ok
    */
@@ -1567,54 +1319,32 @@ static int stg_init_card()
      * STG1
      */
 	// initialize INTC as output
-#ifndef BUILD_SYS_KBUILD
 	rtapi_outb(0x92, base +  MIO_2);
-#else /* BUILD_SYS_KBUILD */
-	outb(0x92, base +  MIO_2);
-#endif /* BUILD_SYS_KBUILD */
-    
+
 	stg_set_interrupt(5); // initialize it to smthg, we won't use it anyways
-    
-#ifndef BUILD_SYS_KBUILD
+
 	rtapi_outb(0x1a, base + ICW1); // initialize the 82C59 as single chip (STG docs say so:)
 	rtapi_outb(0x00, base + ICW2); // ICW2 not used, must init it to 0
 	rtapi_outb(0xff, base + OCW1); // mask off all interrupts
-#else /* BUILD_SYS_KBUILD */
-	outb(0x1a, base + ICW1); // initialize the 82C59 as single chip (STG docs say so:)
-	outb(0x00, base + ICW2); // ICW2 not used, must init it to 0
-	outb(0xff, base + OCW1); // mask off all interrupts
-#endif /* BUILD_SYS_KBUILD */
     rtapi_print_msg(RTAPI_MSG_INFO,
       "STG: Initialised stg%1d card at address %x\n", stg_driver->model, base);
-  } else if (stg_driver->model == 2 ) { 
+  } else if (stg_driver->model == 2 ) {
     /*
      * STG2
      */
-#ifndef BUILD_SYS_KBUILD
 	rtapi_outb(0x8b, base + D_DIR); // initialize CONTRL0 output, BRDTST input
-#else /* BUILD_SYS_KBUILD */
-	outb(0x8b, base + D_DIR); // initialize CONTRL0 output, BRDTST input
-#endif /* BUILD_SYS_KBUILD */
-    
+
     /* stg2 manual, p.21
      *  writing 0 to the corresponding bit disables the index pulse
      *  writing 1 enables it
      */
-#ifndef BUILD_SYS_KBUILD
     rtapi_outb( 0x00, base + IDLEN );
-#else /* BUILD_SYS_KBUILD */
-    outb( 0x00, base + IDLEN );
-#endif /* BUILD_SYS_KBUILD */
 
     /* stg2 manual, p.21
      *  writing 0 to the corresponding bit selects the index pulse to latch the counter
      *  writing 1 to the corresponding bit selects EXLATCH to latch the counter
      */
-#ifndef BUILD_SYS_KBUILD
     rtapi_outb( 0x00, base + SELDI );
-#else /* BUILD_SYS_KBUILD */
-    outb( 0x00, base + SELDI );
-#endif /* BUILD_SYS_KBUILD */
 
   	stg_set_interrupt(5); // initialize it to something, we won't use it anyways
     rtapi_print_msg(RTAPI_MSG_INFO,
@@ -1623,7 +1353,7 @@ static int stg_init_card()
   	rtapi_print_msg(RTAPI_MSG_ERR, "STG: ERROR: The model stg%1d is not correct\n", stg_driver->model );
   	return -ENODEV;
     }
-    
+
   /* restore saved message level */
   rtapi_set_msg_level(msg);
 
@@ -1648,18 +1378,10 @@ unsigned short stg_autodetect()
 	address = i * 0x20 + 0x200;
 
 	/* does jumper = i? */
-#ifndef BUILD_SYS_KBUILD
 	//if ((rtapi_inb(address + BRDTST) & 0x0f) == i) { // by Xuecheng, not necessary
-#else /* BUILD_SYS_KBUILD */
-	//if ((inb(address + BRDTST) & 0x0f) == i) { // by Xuecheng, not necessary
-#endif /* BUILD_SYS_KBUILD */
 	    k = 0;		// var for getting the serial
 	    for (j = 0; j < 8; j++) {
-#ifndef BUILD_SYS_KBUILD
 		ofs = (rtapi_inb(address + BRDTST) >> 4);
-#else /* BUILD_SYS_KBUILD */
-		ofs = (inb(address + BRDTST) >> 4);
-#endif /* BUILD_SYS_KBUILD */
 
 		if (ofs & 8) {	/* is SER set? */
 		    ofs = ofs & 7;	/* mask for Q2,Q1,Q0 */
@@ -1748,15 +1470,15 @@ static int export_counter(int num, stg_struct *addr)
 
 
   /*
-   * The index polarity is configurable for the stg1 cards only, 
+   * The index polarity is configurable for the stg1 cards only,
    *  but not for the stg2 cards
    */
-  if( addr->model == 1 ) 
+  if( addr->model == 1 )
   {
     /* export read only HAL pin for index pulse polarity */
     retval = hal_pin_bit_newf(HAL_IN, &addr->index_polarity[num],
 			      comp_id, "stg.%d.index-polarity", num);
-    if (retval != 0) 
+    if (retval != 0)
     {
       return retval;
     }
@@ -1904,7 +1626,7 @@ static int export_output_pin(int pinnum, io_pin * pin)
    * This function exports a lot of stuff, which results in a lot of
    *  logging if msg_level is at INFO or ALL. So we save the current value
    *  of msg_level and restore it later.  If you actually need to log this
-   *  function's actions, change the second line below 
+   *  function's actions, change the second line below
    */
   msg = rtapi_get_msg_level();
   rtapi_set_msg_level( STG_MSG_LEVEL );

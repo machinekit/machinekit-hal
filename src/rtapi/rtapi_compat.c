@@ -51,15 +51,10 @@
 // if this exists, and contents is '1', it's RT_PREEMPT
 #define PREEMPT_RT_SYSFS "/sys/kernel/realtime"
 
-// Exists on RTAI and Xenomai
+// Exists on Xenomai
 #define PROC_IPIPE "/proc/ipipe"
-
-// These exist on Xenomai but not on RTAI
 #define PROC_IPIPE_XENOMAI "/proc/ipipe/Xenomai"
 #define XENO_GID_SYSFS "/sys/module/xeno_nucleus/parameters/xenomai_gid"
-
-// static storage of kernel module directory
-static char kmodule_dir[PATH_MAX];
 
 static FILE *rtapi_inifile = NULL;
 
@@ -72,15 +67,6 @@ int kernel_is_xenomai()
     return ((stat(XNHEAP_DEV_NAME, &sb) == 0) &&
 	    (stat(PROC_IPIPE_XENOMAI, &sb) == 0) &&
 	    (stat(XENO_GID_SYSFS, &sb) == 0));
-}
-
-int kernel_is_rtai()
-{
-    struct stat sb;
-
-    return ((stat(PROC_IPIPE, &sb) == 0) && 
-	    (stat(PROC_IPIPE_XENOMAI, &sb) != 0) &&
-	    (stat(XENO_GID_SYSFS, &sb) != 0));
 }
 
 int kernel_is_rtpreempt()
@@ -159,56 +145,28 @@ int kernel_instance_id()
     return retval;
 }
 
-flavor_t flavors[] = {
+const flavor_t flavors[] = {
     { .name = RTAPI_POSIX_NAME,
       .mod_ext = ".so",
       .so_ext = ".so",
-      .build_sys = "user-dso",
       .flavor_id = RTAPI_POSIX_ID,
       .flags = POSIX_FLAVOR_FLAGS // FLAVOR_USABLE
-    },
-    { .name = "sim", // alias for above- old habíts die hard
-      .mod_ext = ".so",
-      .so_ext = ".so",
-      .build_sys = "user-dso",
-      .flavor_id = RTAPI_POSIX_ID,
-      .flags = POSIX_FLAVOR_FLAGS
     },
     { .name = RTAPI_RT_PREEMPT_NAME,
       .mod_ext = ".so",
       .so_ext = ".so",
-      .build_sys = "user-dso",
       .flavor_id = RTAPI_RT_PREEMPT_ID,
       .flags = RTPREEMPT_FLAVOR_FLAGS
     },
      { .name = RTAPI_XENOMAI_NAME,
       .mod_ext = ".so",
       .so_ext = ".so",
-      .build_sys = "user-dso",
       .flavor_id = RTAPI_XENOMAI_ID,
       .flags = XENOMAI_FLAVOR_FLAGS
     },
-/*
-    { .name = RTAPI_RTAI_KERNEL_NAME,
-      .mod_ext = ".ko",
-      .so_ext = ".so",
-      .build_sys = "kbuild",
-      .flavor_id = RTAPI_RTAI_KERNEL_ID,
-      .flags = RTAI_KERNEL_FLAVOR_FLAGS
-    },
-
-    { .name = RTAPI_XENOMAI_KERNEL_NAME,
-      .mod_ext = ".ko",
-      .so_ext = ".so",
-      .build_sys = "kbuild",
-      .flavor_id = RTAPI_XENOMAI_KERNEL_ID,
-      .flags =  XENOMAI_KERNEL_FLAVOR_FLAGS
-    },
-*/
     { .name = RTAPI_NOTLOADED_NAME,
       .mod_ext = "",
       .so_ext = "",
-      .build_sys = "n/a",
       .flavor_id = RTAPI_NOTLOADED_ID,
       .flags = 0
     },
@@ -248,7 +206,7 @@ flavor_ptr default_flavor(void)
 
     if (fname) {
 	if ((flavor = flavor_byname(fname)) == NULL) {
-	    fprintf(stderr, 
+	    fprintf(stderr,
 		    "FLAVOR=%s: no such flavor -- valid flavors are:\n",
 		    fname);
 	    f = flavors;
@@ -265,24 +223,14 @@ flavor_ptr default_flavor(void)
 	    exit(1);
     }
 
-/*    if (kernel_is_rtai()) {
-	f = flavor_byid(RTAPI_RTAI_KERNEL_ID); 
-	if (check_rtapi_lib((char *)f->name))
-	    return f;
-    }
-*/
     if (kernel_is_xenomai()) {
 	/* check for userspace first */
-	f = flavor_byid(RTAPI_XENOMAI_ID); 
+	f = flavor_byid(RTAPI_XENOMAI_ID);
 	if (check_rtapi_lib((char *)f->name))
 	    return f;
-	/* else look for xenomai_kernel */
-	//f = flavor_byid(RTAPI_XENOMAI_KERNEL_ID); 
-	//if (check_rtapi_lib((char *)f->name))
-	//    return f;
     }
     if (kernel_is_rtpreempt()) {
-	f = flavor_byid(RTAPI_RT_PREEMPT_ID); 
+	f = flavor_byid(RTAPI_RT_PREEMPT_ID);
 	if (check_rtapi_lib((char *)f->name))
 	    return f;
     }
@@ -352,7 +300,7 @@ int get_rtapi_config(char *result, const char *param, int n)
 
 int check_rtapi_lib(char *name)
 {
-    /* Check if the corresponding rtapi lib for a particular 
+    /* Check if the corresponding rtapi lib for a particular
 	flavor is present */
     char *val;
     char fname[PATH_MAX];
@@ -364,117 +312,10 @@ int check_rtapi_lib(char *name)
 	return 0;
     }
 
-    snprintf(fname, PATH_MAX,"%s/ulapi-%s.so", val, name);
+    snprintf(fname, PATH_MAX,"%s/ulapi.so", val);
 
     /* check if rtapi lib exists */
     return (stat(fname, &sb) == 0);
-}
-
-int module_path(char *result, const char *basename)
-{
-    /* Find a kernel module's path */
-    struct stat sb;
-    char buf[PATH_MAX];
-    char rtlib_result[PATH_MAX];
-    int has_rtdir;
-    struct utsname uts;
-	
-    // Initialize kmodule_dir, only once
-    if (kmodule_dir[0] == 0) {
-	uname(&uts);
-
-	get_rtapi_config(buf,"RUN_IN_PLACE",4);
-	if (strncmp(buf,"yes",3) == 0) {
-	    // Complete RTLIB_DIR should be <RTLIB_DIR>/<flavor>/<uname -r>
-	    if (get_rtapi_config(buf,"RTLIB_DIR",PATH_MAX) != 0)
-		return -ENOENT;
-
-	    if (strcmp(default_flavor()->build_sys,"user-dso") == 0) {
-		// point user threads to a common directory
-		snprintf(kmodule_dir,PATH_MAX,"%s/userland/%s",
-			 buf, uts.release);
-	    } else {
-		// kthreads each have their own directory
-		snprintf(kmodule_dir,PATH_MAX,"%s/%s/%s",
-			 buf, default_flavor()->name, uts.release);
-	    }
-	} else {
-	    // Complete RTLIB_DIR should be /lib/modules/<uname -r>/linuxcnc
-	    snprintf(kmodule_dir, PATH_MAX,
-		     "/lib/modules/%s/linuxcnc", uts.release);
-	}
-    }
-
-    // Look for module in kmodule_dir/RTLIB_DIR
-    snprintf(result, PATH_MAX, "%s/%s.ko", kmodule_dir, basename);
-    if ((stat(result, &sb) == 0)  && (S_ISREG(sb.st_mode)))
-	return 0;
-
-    // Not found; save result for possible later diagnostic msg
-    strcpy(rtlib_result,result);
-
-    // Check RTDIR as well (RTAI)
-    has_rtdir = (get_rtapi_config(buf, "RTDIR", PATH_MAX) == 0 && buf[0] != 0);
-    if (has_rtdir) {
-	snprintf(result, PATH_MAX, "%s/%s.ko", buf, basename);
-	if ((stat(result, &sb) == 0)  && (S_ISREG(sb.st_mode)))
-	    return 0;
-    }
-
-    // Module not found
-    fprintf(stderr, "module '%s.ko' not found in directory\n\t%s\n",
-	    basename, kmodule_dir);
-    if (has_rtdir)
-	fprintf(stderr, "\tor directory %s\n", buf);
-
-    return -ENOENT;
-}
-
-int is_module_loaded(const char *module)
-{
-    FILE *fd;
-    char line[100];
-    int len = strlen(module);
-
-    fd = fopen("/proc/modules", "r");
-    if (fd == NULL) {
-	fprintf(stderr, "module_loaded: ERROR: cannot read /proc/modules\n");
-        return -1;
-    }
-    while (fgets(line, sizeof(line), fd)) {
-        if (!strncmp(line, module, len)) {
-            fclose(fd);
-            return 1;
-        }
-    }
-    fclose(fd);
-    return 0;
-}
-
-int run_module_helper(const char *format, ...)
-{
-    char mod_helper[PATH_MAX+100];
-
-    if (get_rtapi_config(mod_helper, "linuxcnc_module_helper", PATH_MAX) != 0) {
-        fprintf(stderr, "load_module: ERROR: failed to read "
-		"linuxcnc_module_helper path from rtapi config\n");
-	return -1;
-    }
-    strcat(mod_helper, " ");
-
-    int n = strlen(mod_helper);
-    va_list args;
-    int retval;
-
-    va_start(args, format);
-    retval = vsnprintf(&mod_helper[n], sizeof(mod_helper) - n, format, args);
-    va_end(args);
-
-    if (retval < 0 ) {
-	fprintf(stderr, "run_module_helper: invalid arguments\n");
-	return retval;
-    }
-    return system(mod_helper);
 }
 
 //int procfs_cmd(const char *path, const char *format, ...)
@@ -688,24 +529,17 @@ int rtapi_get_tags(const char *mod_name)
 
     flavor_ptr flavor = default_flavor();
 
-    if (kernel_threads(flavor)) {
-	if (module_path(modpath, mod_name) < 0) {
-	    perror("module_path");
-	    return -1;
-	}
-    } else {
-	if (get_rtapi_config(modpath,"RTLIB_DIR",PATH_MAX) != 0) {
-	    perror("cant get  RTLIB_DIR ?\n");
-	    return -1;
-	}
-	strcat(modpath,"/");
-	strcat(modpath, flavor->name);
-	strcat(modpath,"/");
-	strcat(modpath,mod_name);
-	strcat(modpath, flavor->mod_ext);
+    if (get_rtapi_config(modpath,"RTLIB_DIR",PATH_MAX) != 0) {
+        perror("cant get  RTLIB_DIR ?\n");
+        return -1;
     }
-    const char **caps = get_caps(modpath);
+    strcat(modpath,"/");
+    strcat(modpath, flavor->name);
+    strcat(modpath,"/");
+    strcat(modpath,mod_name);
+    strcat(modpath, flavor->mod_ext);
 
+    const char **caps = get_caps(modpath);
     char **p = (char **)caps;
     while (p && *p && strlen(*p)) {
 	cp1 = *p++;
@@ -750,9 +584,8 @@ int run_shell(char *format, ...)
 }
 
 // those are ok to use from userland RT modules:
-#if defined(BUILD_SYS_USER_DSO) && defined(RTAPI)
+#if defined(RTAPI)
 EXPORT_SYMBOL(run_shell);
-EXPORT_SYMBOL(is_module_loaded);
 EXPORT_SYMBOL(rtapi_fs_read);
 EXPORT_SYMBOL(rtapi_fs_write);
 #endif

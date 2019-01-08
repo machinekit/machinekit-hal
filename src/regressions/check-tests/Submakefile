@@ -8,7 +8,7 @@ INCLUDES += $(CHECK_TESTS)
 
 
 TESTS = check_tests
-check_PROGRAMS = ../bin/check_tests 
+check_PROGRAMS = ../bin/check_tests
 check_tests_SOURCES = $(addprefix $(CHECK_TESTS)/, \
 	timers.c \
 	check-util.c \
@@ -22,7 +22,7 @@ check_tests_LDADD = ../lib/libmtalk.so.0 \
 	../lib/liblinuxcncini.so.0
 
 $(call TOOBJSDEPS, $(check_tests_SOURCES)) : EXTRAFLAGS += \
-	$(CHECK_CFLAGS) -DULAPI -DBUILD_SYS_USER_DSO -fPIC -pthread
+	$(CHECK_CFLAGS) -DULAPI -fPIC -pthread
 
 TARGETS += $(check_PROGRAMS)
 
@@ -38,7 +38,7 @@ USERSRCS += $(check_tests_SOURCES)
 
 
 # /tmp/foo_ring_expanded-c.i:
-# 	$(CC)  -E $(CFLAGS) $(CHECK_CFLAGS) -DULAPI  -DBUILD_SYS_USER_DSO  -I. -Irtapi -x c -std=c11 \
+# 	$(CC)  -E $(CFLAGS) $(CHECK_CFLAGS) -DULAPI  -I. -Irtapi -x c -std=c11 \
 # 	$(CHECK_TESTS)/check_tests.c | $(CB) > $@
 # TARGETS += /tmp/foo_ring_expanded-c.i
 endif

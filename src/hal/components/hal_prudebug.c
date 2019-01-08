@@ -8,10 +8,6 @@
 #error "This driver is for the beaglebone platform only"
 #endif
 
-#if !defined(BUILD_SYS_USER_DSO)
-#error "This driver is for usermode threads only"
-#endif
-
 // try to make sense of IEP and ECAP counters
 // not part of debugging
 #define EXPLORE_COUNTERS 1

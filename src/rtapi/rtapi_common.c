@@ -64,17 +64,14 @@ int _rtapi_dummy(void) {
     return -EINVAL;
 }
 
+static const flavor_t f;
+&f = flavor_byid(global_data->rtapi_thread_flavor);
+
 static rtapi_switch_t rtapi_switch_struct = {
     .git_version = GIT_VERSION,
-#ifdef RTAPI
-    .thread_flavor_name = THREAD_FLAVOR_NAME,
-    .thread_flavor_id = THREAD_FLAVOR_ID,
-    .thread_flavor_flags = FLAVOR_FLAGS,
-#else
-    .thread_flavor_name = "ULAPI",
-    .thread_flavor_id = -1,
-    .thread_flavor_flags = 0,
-#endif
+    .thread_flavor_name = f.name,
+    .thread_flavor_id = f.thread_flavor_id,
+    .thread_flavor_flags = f.flags,
 
     // init & exit functions
     .rtapi_init = &_rtapi_init,
@@ -182,8 +179,6 @@ void rtapi_autorelease_mutex(void *variable)
 // in ULAPI, we have only hal_lib which calls 'down'
 // onto ulapi.so to init, so in this case global_data
 // is exported by hal_lib and referenced by ulapi.so
-
-extern global_data_t *global_data;
 
 
 /* global init code */

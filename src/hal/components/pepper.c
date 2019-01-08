@@ -6,7 +6,7 @@
 *
 * Author: Bas Laarhoven
 * License: GPL Version 2
-*    
+*
 * Copyright (c) 2014 All rights reserved.
 *
 * Last change:  16-04-2014 sjl - created.
@@ -92,10 +92,6 @@ MODULE_AUTHOR("Bas Laarhoven");
 MODULE_DESCRIPTION("Pepper Board Configuration Component for EMC HAL");
 MODULE_LICENSE("GPL");
 
-
-#if !defined( BUILD_SYS_USER_DSO)
-#error "This driver is for usermode threads only"
-#endif
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
@@ -276,11 +272,11 @@ static void pepper_update( void *arg, long period)
      *    Simple, two state implementation (00 & 11).
      */
         if (*(pepper->io_ena_in) == 0) {
-            spindle_mosi = 
+            spindle_mosi =
             enable_sck = 0;
             state = 0;
         } else {
-            spindle_mosi = 
+            spindle_mosi =
             enable_sck =
                 *(pepper->stepper_ena_in[ 0]) ||
                 *(pepper->stepper_ena_in[ 1]) ||
@@ -412,7 +408,7 @@ static int pepper_export( hal_pepper_t* addr, const char* prefix)
 {
     int retval;
     int i;
-       
+
     retval = hal_pin_bit_newf( HAL_IN, &(addr->io_ena_in), comp_id, "%s.io-ena.in", prefix);
     if (retval != 0) {
         return retval;

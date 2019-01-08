@@ -2,10 +2,10 @@
 * Description: mot_priv.h
 *   Macros and declarations local to the realtime sources.
 *
-* Author: 
+* Author:
 * License: GPL Version 2
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change:
@@ -117,7 +117,7 @@ typedef struct {
     hal_float_t debug_float_3;	/* RPA: generic param, for debugging */
     hal_s32_t debug_s32_0;	/* RPA: generic param, for debugging */
     hal_s32_t debug_s32_1;	/* RPA: generic param, for debugging */
-    
+
     hal_bit_t *synch_do[EMCMOT_MAX_DIO]; /* WPI array: output pins for motion synched IO */
     hal_bit_t *synch_di[EMCMOT_MAX_DIO]; /* RPI array: input pins for motion synched IO */
     hal_bit_t *synch_do_io[EMCMOT_MAX_DIO]; /* RPI array: output io pins for motion synched IO */
@@ -151,7 +151,7 @@ typedef struct {
     hal_float_t *spindle_speed_out_rps_abs;	/* spindle speed output absolute*/
     hal_float_t *spindle_speed_cmd_rps;	/* spindle speed command without SO applied */
     hal_float_t *spindle_speed_in;	/* spindle speed measured */
-    
+
     // spindle orient
     hal_float_t *spindle_orient_angle;	/* out: desired spindle angle, degrees */
     hal_s32_t   *spindle_orient_mode;	/* out: 0: least travel; 1: cw; 2: ccw */
@@ -248,15 +248,15 @@ enum pause_state { PS_RUNNING=0,  // aka 'not paused'
 /* HAL component ID for motion module */
 extern int mot_comp_id;
 
-/* userdefined number of joints. default is EMCMOT_MAX_JOINTS(=8), 
+/* userdefined number of joints. default is EMCMOT_MAX_JOINTS(=8),
    but can be altered at motmod insmod time */
 extern int num_joints;
 
-/* userdefined number of digital IO. default is 4. (EMCMOT_MAX_DIO=64), 
+/* userdefined number of digital IO. default is 4. (EMCMOT_MAX_DIO=64),
    but can be altered at motmod insmod time */
 extern int num_dio;
 
-/* userdefined number of analog IO. default is 4. (EMCMOT_MAX_AIO=64), 
+/* userdefined number of analog IO. default is 4. (EMCMOT_MAX_AIO=64),
    but can be altered at motmod insmod time */
 extern int num_aio;
 
@@ -409,10 +409,4 @@ extern void reportError(const char *fmt, ...) __attribute((format(printf,1,2)));
 #define GET_JOINT_FAULT_FLAG(joint) ((joint)->flag & EMCMOT_JOINT_FAULT_BIT ? 1 : 0)
 
 #define SET_JOINT_FAULT_FLAG(joint,fl) if (fl) (joint)->flag |= EMCMOT_JOINT_FAULT_BIT; else (joint)->flag &= ~EMCMOT_JOINT_FAULT_BIT;
-
-#if defined(LINUX_VERSION_CODE) && !defined(BUILD_SYS_USER_DSO)
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0)
-#define HAVE_CPU_KHZ
-#endif
-#endif
 #endif /* MOT_PRIV_H */

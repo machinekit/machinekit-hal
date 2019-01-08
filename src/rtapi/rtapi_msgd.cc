@@ -109,7 +109,6 @@ using namespace google::protobuf;
 
 int rtapi_instance;
 global_data_t *global_data;
-int shmdrv_loaded;
 long page_size;
 
 // some global defaults are set in msgd, and recorded in the
@@ -127,7 +126,6 @@ static int global_heap_flags =  RTAPIHEAP_TRIM;
 
 static const char *inifile;
 static int foreground;
-static int use_shmdrv;
 static flavor_ptr flavor;
 static const char *instance_name;
 static int signal_fd;
@@ -159,8 +157,6 @@ static int shutdowntimer_id;
 static mk_netopts_t netopts;
 static mk_socket_t  logpub;
 static int port = -1; // defaults to ephemeral port
-
-static const char *shmdrv_opts;
 
 static ringbuffer_t rtapi_msg_buffer;   // ring access strcuture for messages
 static const char *progname;
@@ -211,33 +207,6 @@ static global_data_t *create_global_segment(const size_t global_size)
 
 	pid_t msgd_pid = pid_of("msgd:%d", rtapi_instance);
 
-	if (rtapi_instance == kernel_instance_id()) {
-
-	    // collision with a running kernel instance - not good.
-	    int shmdrv_loaded = is_module_loaded("shmdrv");
-	    int rtapi_loaded = is_module_loaded("rtapi");
-	    int hal_loaded = is_module_loaded("hal_lib");
-
-	    fprintf(stderr, "ERROR: found existing kernel "
-		   "instance with the same instance id (%d)\n",
-		   rtapi_instance);
-
-	    fprintf(stderr,"kernel modules loaded: %s%s%s\n",
-		   shmdrv_loaded ? "shmdrv " : "",
-		   rtapi_loaded ? "rtapi " : "",
-		   hal_loaded ? "hal_lib " : "");
-
-	    if (msgd_pid > 0)
-		FAIL_NULL(EEXIST,
-			  "the msgd process msgd:%d is "
-			  "already running, pid: %d\n",
-			  rtapi_instance, msgd_pid);
-	    else
-		FAIL_NULL(ENOENT,
-			  "msgd:%d not running!\n",
-			  rtapi_instance);
-	}
-
 	// running userthreads instance?
 	pid_t app_pid = pid_of("rtapi:%d", rtapi_instance);
 
@@ -262,45 +231,38 @@ static global_data_t *create_global_segment(const size_t global_size)
 			  rtapi_instance);
 
 	    // TBD: might check for other user HAL processes still
-	    // around. This might work with fuser on the HAL segment
-	    // but might be tricky wit shmdrv.
+	    // around. This might work with fuser on the HAL segment.
 	}
 
 	// leftover shared memory segments were around, but no using
 	// entities (user process or kernel modules).
 	// Remove and keep going:
-	if (shmdrv_loaded) {
-	    // since neiter rtapi.ko nor hal_lib.ko is loaded
-	    // cause a garbage collect in shmdrv
-	    shmdrv_gc();
-	} else {
-	    // Posix shm case.
-	    char segment_name[LINELEN];
+        // Posix shm case.
+        char segment_name[LINELEN];
 
-	    if (hal_exists) {
-		sprintf(segment_name, SHM_FMT, rtapi_instance, halkey);
-		fprintf(stderr,"warning: removing unused HAL shm segment %s\n",
-			segment_name);
-		if (shm_unlink(segment_name))
-		    perror(segment_name);
-	    }
-	    if (rtapi_exists) {
-		sprintf(segment_name, SHM_FMT, rtapi_instance, rtapikey);
-		fprintf(stderr,"warning: removing unused RTAPI"
-			" shm segment %s\n",
-			segment_name);
-		if (shm_unlink(segment_name))
-		    perror(segment_name);
-	    }
-	    if (global_exists) {
-		sprintf(segment_name, SHM_FMT, rtapi_instance, globalkey);
-		fprintf(stderr,"warning: removing unused global"
-			" shm segment %s\n",
-			segment_name);
-		if (shm_unlink(segment_name))
-		    perror(segment_name);
-	    }
-	}
+        if (hal_exists) {
+            sprintf(segment_name, SHM_FMT, rtapi_instance, halkey);
+            fprintf(stderr,"warning: removing unused HAL shm segment %s\n",
+                    segment_name);
+            if (shm_unlink(segment_name))
+                perror(segment_name);
+        }
+        if (rtapi_exists) {
+            sprintf(segment_name, SHM_FMT, rtapi_instance, rtapikey);
+            fprintf(stderr,"warning: removing unused RTAPI"
+                    " shm segment %s\n",
+                    segment_name);
+            if (shm_unlink(segment_name))
+                perror(segment_name);
+        }
+        if (global_exists) {
+            sprintf(segment_name, SHM_FMT, rtapi_instance, globalkey);
+            fprintf(stderr,"warning: removing unused global"
+                    " shm segment %s\n",
+                    segment_name);
+            if (shm_unlink(segment_name))
+                perror(segment_name);
+        }
     }
 
     // now try again:
@@ -476,15 +438,6 @@ static int flavor_and_kernel_compatible(flavor_ptr f)
 	}
 	*/
     }
-
-    /*
-    if (kernel_is_rtai() &&
-	(f->flavor_id != RTAPI_RTAI_KERNEL_ID)) {
-	fprintf(stderr, "MSGD:%d ERROR: trying to start %s RTAPI on an RTAI kernel\n",
-		    rtapi_instance, f->name);
-	return 0;
-    }
-    */
 
     if (kernel_is_rtpreempt() &&
 	(f->flavor_id != RTAPI_RT_PREEMPT_ID)) {
@@ -747,11 +700,9 @@ static struct option long_options[] = {
     { "flavor",   required_argument, 0, 'f'},
     { "halsize",  required_argument, 0, 'H'},
     { "halstacksize",  required_argument, 0, 'T'},
-    { "shmdrv",  no_argument,        0, 'S'},
     { "port",	required_argument, NULL, 'p' },
     { "svcuuid", required_argument, 0, 'R'},
     { "interfaces", required_argument, 0, 'n'},
-    { "shmdrv_opts", required_argument, 0, 'o'},
     { "nosighdlr",   no_argument,    0, 'G'},
     { "heapdebug",   no_argument,    0, 'P'},
 
@@ -838,12 +789,6 @@ int main(int argc, char **argv)
 	case 'H':
 	    halsize = atoi(optarg);
 	    break;
-	case 'S':
-	    use_shmdrv++;
-	    break;
-	case 'o':
-	    shmdrv_opts = strdup(optarg);
-	    break;
 	case 'P':
 	    hal_heap_flags |= (RTAPIHEAP_TRACE_MALLOC|RTAPIHEAP_TRACE_FREE);
 	    global_heap_flags |= (RTAPIHEAP_TRACE_MALLOC|RTAPIHEAP_TRACE_FREE);
@@ -918,30 +863,6 @@ int main(int argc, char **argv)
 	    fprintf(stderr, "cannot determine if this user "
 		    "is a member of group xenomai: %s\n",
 		    strerror(-retval));
-	    exit(EXIT_FAILURE);
-	}
-    }
-
-    // do we need the shmdrv module?
-    if (((flavor->flags & FLAVOR_KERNEL_BUILD) ||
-	 use_shmdrv) &&
-	!shmdrv_available()) {
-
-	if (shmdrv_opts == NULL)
-	    shmdrv_opts = getenv("SHMDRV_OPTS");
-	if (shmdrv_opts == NULL)
-	    shmdrv_opts = "";
-
-	if (run_module_helper("insert shmdrv %s",shmdrv_opts)) {
-	    fprintf(stderr, "%s: cant insert shmdrv module - needed by %s\n",
-		    progname, use_shmdrv ? "--shmdrv" : flavor->name);
-	    exit(EXIT_FAILURE);
-	}
-
-	shm_common_init();
-	if (!shmdrv_available()) {
-	    fprintf(stderr, "%s: BUG: shmdrv module not detected\n",
-		    progname);
 	    exit(EXIT_FAILURE);
 	}
     }
@@ -1034,7 +955,6 @@ int main(int argc, char **argv)
 		     global_data->rt_msg_level,
 		     global_data->user_msg_level,
 		     global_data->hal_size,
-		     shmdrv_loaded ? "shmdrv" : "Posix",
 #ifdef __clang__
 		     "clang", __clang_version__,
 #endif

@@ -100,17 +100,7 @@
 #include <rtapi_compat.h>
 #endif
 
-
-#if defined(BUILD_SYS_USER_DSO)
 #include <stdbool.h>
-#else // kernel thread styles
-#if defined(RTAPI)
-#include <linux/types.h>
-#else // ULAPI
-#include <stdbool.h>
-#include <time.h>               /* remote comp timestamps */
-#endif
-#endif
 
 RTAPI_BEGIN_DECLS
 

@@ -66,7 +66,7 @@ $(ULAPISO): ../lib/liblinuxcnchal.so ../lib/liblinuxcncshm.so \
 	$(ECHO) Creating shared object $(notdir $@)
 	@rm -f $@
 	$(Q)$(CC) $(LDFLAGS)  -Wl,-soname,$(notdir $@) -shared \
-	    -o $@ $^ $(ULAPISO_LIBS) $(RT_LDFLAGS) \
+	    -o $@ $^ $(ULAPISO_LIBS) \
 	../lib/liblinuxcncshm.so \
 	../lib/liblinuxcnchal.so
 
@@ -100,7 +100,7 @@ $(ULAPI_AUTOLOAD_LIB).0: $(call TOOBJS, $(ULAPI_AUTOLOAD_SRCS)) \
 	@rm -f $@
 	$(Q)$(CC) $(LDFLAGS) -Wl,-rpath,$(EMC2_RTLIB_DIR) \
 	    -Wl,-soname,$(notdir $@) -shared \
-	    -o $@ $^ -ldl $(RT_LDFLAGS)
+	    -o $@ $^ -ldl
 
 TARGETS += $(ULAPI_AUTOLOAD_LIB) $(ULAPI_AUTOLOAD_LIB).0
 
@@ -273,22 +273,13 @@ rtapi-objs += rtapi/rtapi_pci.o
 RTAPI_MODULE_EXTRA_LDFLAGS += $(LIBUDEV_LIBS)
 endif
 
-RTAPI_MODULE_EXTRA_LDFLAGS += $(RT_LDFLAGS)
-
-# - POSIX
-ifeq ($(HAVE_POSIX_THREADS),yes)
-rtapi_posix-objs := $(rtapi-objs) rtapi/rt-preempt.o
-$(OBJDIR)/rtapi/rt-preempt.o:  EXTRA_CFLAGS += -DRTAPI_POSIX
-$(RTLIBDIR)/rtapi_posix.so:  EXTRA_LDFLAGS += $(RTAPI_MODULE_EXTRA_LDFLAGS)
-$(RTLIBDIR)/rtapi_posix.so:  \
-	$(addprefix $(OBJDIR)/,$(rtapi_posix-objs))
-obj-m += rtapi_posix.o
-endif
-
-# - RT_PREEMPT
+# - RT_PREEMPT + POSIX
 ifeq ($(HAVE_RT_PREEMPT_THREADS),yes)
 rtapi_rt-preempt-objs := $(rtapi-objs) rtapi/rt-preempt.o
-$(RTLIBDIR)/rtapi_rt-preempt.so:  EXTRA_LDFLAGS += $(RTAPI_MODULE_EXTRA_LDFLAGS)
+$(addprefix $(OBJDIR)/,$(rtapi_rt-preempt-objs)): \
+	EXTRA_CFLAGS += $(RT_PREEMPT_THREADS_RTFLAGS)
+$(RTLIBDIR)/rtapi_rt-preempt.so:  EXTRA_LDFLAGS += \
+	$(RTAPI_MODULE_EXTRA_LDFLAGS) $(RT_PREEMPT_THREADS_LDFLAGS)
 $(RTLIBDIR)/rtapi_rt-preempt.so:  \
 	$(addprefix $(OBJDIR)/,$(rtapi_rt-preempt-objs))
 obj-m += rtapi_rt-preempt.o
@@ -297,9 +288,12 @@ endif
 # - Xenomai
 ifeq ($(HAVE_XENOMAI_THREADS),yes)
 rtapi_xenomai-objs := $(rtapi-objs) rtapi/xenomai.o
-$(RTLIBDIR)/rtapi_xenomai.so:  EXTRA_LDFLAGS += $(RTAPI_MODULE_EXTRA_LDFLAGS)
+$(addprefix $(OBJDIR)/,$(rtapi_xenomai-objs)): \
+	EXTRA_CFLAGS += $(XENOMAI_THREADS_RTFLAGS)
+$(RTLIBDIR)/rtapi_xenomai.so:  EXTRA_LDFLAGS += \
+	$(RTAPI_MODULE_EXTRA_LDFLAGS) $(XENOMAI_THREADS_LDFLAGS)
 $(RTLIBDIR)/rtapi_xenomai.so:  \
-	$(addprefix $(OBJDIR)/,$(rtapi_xenomai-objs) rtapi/xenomai.o)
+	$(addprefix $(OBJDIR)/,$(rtapi_xenomai-objs))
 obj-m += rtapi_xenomai.o
 endif
 

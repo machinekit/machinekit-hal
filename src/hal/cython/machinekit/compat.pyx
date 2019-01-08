@@ -21,23 +21,14 @@ cdef class Flavor:
     property so_ext:
         def __get__(self): return self._f.so_ext
 
-    property build_sys:
-        def __get__(self): return self._f.build_sys
-
     property flavorid:
         def __get__(self): return self._f.flavor_id
 
     property flags:
         def __get__(self): return self._f.flags
 
-def is_module_loaded(m):
-    return c_is_module_loaded(m)
-
 def kernel_is_xenomai():
     return bool(c_kernel_is_xenomai())
-
-def kernel_is_rtai():
-    return bool(c_kernel_is_rtai())
 
 def kernel_is_rtpreempt():
     return bool(c_kernel_is_rtpreempt())
@@ -69,11 +60,6 @@ def default_flavor():
     if f == NULL:
         raise RuntimeError("BUG: flavor() failed")
     return Flavor_Init(f)
-
-def run_module_helper(name):
-    rc = c_run_module_helper(name)
-    if rc:
-        raise RuntimeError("module_helper(%s) failed: %d %s " % (name, rc, strerror(rc)))
 
 def module_path(basename):
     cdef char result[1024]

@@ -58,17 +58,13 @@
 #error "This driver is for the beaglebone platform only"
 #endif
 
-#if !defined(BUILD_SYS_USER_DSO)
-#error "This driver is for usermode threads only"
-#endif
-
 // #include RTAPI_INC_LIST_H
 // #include "rtapi.h"          /* RTAPI realtime OS API */
 // #include "rtapi_app.h"      /* RTAPI realtime module decls */
 // #include "rtapi_math.h"
 // #include "hal.h"            /* HAL public API decls */
 // #include <pthread.h>
-// 
+//
 // #include <stdio.h>
 // #include <stdlib.h>
 // #include <unistd.h>
@@ -87,16 +83,16 @@
 #define f_period_s ((double)(l_period_ns * 1e-9))
 
 
-// Start out with default pulse length/width and setup/hold delays of 1 mS (1000000 nS) 
+// Start out with default pulse length/width and setup/hold delays of 1 mS (1000000 nS)
 #define DEFAULT_DELAY 1000000
 
 
 /***********************************************************************
 *                       REALTIME FUNCTIONS                             *
 ************************************************************************/
-// 
+//
 // read accumulator to figure out where the stepper has gotten to
-// 
+//
 
 void hpg_stepgen_read(hal_pru_generic_t *hpg, long l_period_ns) {
     // Read data from the PRU here...
@@ -366,7 +362,7 @@ static void update_stepgen(hal_pru_generic_t *hpg, long l_period_ns, int i) {
 
     steps_per_sec_cmd = new_vel * *(s->hal.pin.position_scale);
     s->pru.rate = steps_per_sec_cmd * (double)0x08000000 * (double) hpg->config.pru_period * 1e-9;
-    
+
     // clip rate just to be safe...should be limited by code above
     if ((s->pru.rate < 0x80000000) && (s->pru.rate > 0x03FFFFFF)) {
         s->pru.rate = 0x03FFFFFF;
@@ -615,7 +611,7 @@ rtapi_print_msg(RTAPI_MSG_DBG, "hpg_stepgen_init\n");
         hpg->stepgen.instance[i].pru.task.hdr.mode = eMODE_STEP_DIR;
         pru_task_add(hpg, &(hpg->stepgen.instance[i].task));
 
-        if ((r = export_stepgen(hpg,i)) != 0){ 
+        if ((r = export_stepgen(hpg,i)) != 0){
             rtapi_print_msg(RTAPI_MSG_ERR,
                     "%s: ERROR: failed to export stepgen %i: %i\n", hpg->config.name,i,r);
             return -1;

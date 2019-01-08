@@ -115,16 +115,6 @@ int rtapi_app_main(void)
 	 return -EINVAL;
     }
 
-    // consistency check
-    if (global_data->rtapi_thread_flavor != THREAD_FLAVOR_ID) {
-	 rtapi_print_msg(RTAPI_MSG_ERR,
-			 "RTAPI:%d BUG: thread flavors dont match:"
-			 " global %d rtapi %d\n",
-			 rtapi_instance, global_data->rtapi_thread_flavor,
-			 THREAD_FLAVOR_ID);
-	 return -EINVAL;
-    }
-
     // good to use global_data from here on
 
     // this heap is inited in rtapi_msgd.cc

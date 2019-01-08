@@ -82,7 +82,7 @@
 #endif
 
 
-#ifdef RTAPI                    /* ULAPI doesn't vary by thread flavor */
+#ifdef THREADS_HEADERS // This will be defined only for a couple of files
 #include THREADS_HEADERS	/* thread-specific headers */
 #else
 // These are the same as Xenomai and RT_PREEMPT anyway
@@ -225,12 +225,7 @@ extern task_data *task_array;
 
 
 /* rtapi_time.c */
-#ifdef BUILD_SYS_USER_DSO
 extern int period;
-#else /* BUILD_SYS_KBUILD */
-extern long int max_delay;
-extern unsigned long timer_counts;
-#endif
 #ifdef HAVE_RTAPI_MODULE_TIMER_STOP
 void _rtapi_module_timer_stop(void);
 #endif
@@ -244,9 +239,7 @@ extern shmem_data *shmem_array;
 extern void *shmem_addr_array[];
 
 /* rtapi_module.c */
-#ifndef BUILD_SYS_USER_DSO
 extern int _init_master_shared_memory(rtapi_data_t **rtapi_data);
-#endif
 extern module_data *module_array;
 
 #endif /* RTAPI_COMMON_H */

@@ -45,9 +45,7 @@ long int max_delay = DEFAULT_MAX_DELAY;
 
 #ifdef RTAPI  /* hide most functions from ULAPI */
 
-#ifdef BUILD_SYS_USER_DSO
 int period = 0;
-#endif
 
 // Actual number of counts of the periodic timer
 unsigned long timer_counts;
@@ -58,7 +56,6 @@ void _rtapi_clock_set_period_hook(long int nsecs, RTIME *counts,
 				 RTIME *got_counts);
 #endif
 
-#ifdef BUILD_SYS_USER_DSO
 long int _rtapi_clock_set_period(long int nsecs) {
 #ifndef RTAPI_TIME_NO_CLOCK_MONOTONIC
     struct timespec res = { 0, 0 };
@@ -86,44 +83,6 @@ long int _rtapi_clock_set_period(long int nsecs) {
 
     return period;
 }
-#else  /* BUILD_SYS_KBUILD  */
-long int _rtapi_clock_set_period(long int nsecs) {
-    RTIME counts, got_counts;
-
-    if (nsecs == 0) {
-	/* it's a query, not a command */
-	return rtapi_data->timer_period;
-    }
-    if (rtapi_data->timer_running) {
-	/* already started, can't restart */
-	return -EINVAL;
-    }
-    /* limit period to 2 micro-seconds min, 1 second max */
-    if ((nsecs < 2000) || (nsecs > 1000000000L)) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "RTAPI: ERR: clock_set_period: %ld nsecs,  out of range\n",
-	    nsecs);
-	return -EINVAL;
-    }
-
-    /* kernel thread systems should init counts and
-       rtapi_data->timer_period using their own timer functions */
-#ifdef HAVE_RTAPI_CLOCK_SET_PERIOD_HOOK
-    _rtapi_clock_set_period_hook(nsecs, &counts, &got_counts);
-    timer_counts = got_counts;
-#endif
-
-    rtapi_print_msg(RTAPI_MSG_DBG,
-		    "RTAPI: clock_set_period requested: %ld  actual: %ld  "
-		    "counts requested: %llu  actual: %d\n",
-		    nsecs, rtapi_data->timer_period,
-		    (unsigned long long)counts, (int)got_counts);
-
-    rtapi_data->timer_running = 1;
-    max_delay = rtapi_data->timer_period / 4;
-    return rtapi_data->timer_period;
-}
-#endif  /* BUILD_SYS_KBUILD  */
 
 // rtapi_delay_hook MUST be implemented by all threads systems
 void _rtapi_delay_hook(long int nsec);

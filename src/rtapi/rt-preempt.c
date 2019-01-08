@@ -3,8 +3,8 @@
 *
 *               This file, 'rt-preempt.c', implements the unique
 *               functions for the RT_PREEMPT thread system.
-* 
-* Copyright (C) 2012, 2013 Michael Büsch <m AT bues DOT CH>, 
+*
+* Copyright (C) 2012, 2013 Michael Büsch <m AT bues DOT CH>,
 *                          John Morris <john AT zultron DOT com>,
 *                          Michael Haberler <license AT mah DOT priv DOT at>
 *
@@ -12,12 +12,12 @@
 * modify it under the terms of the GNU Lesser General Public
 * License as published by the Free Software Foundation; either
 * version 2.1 of the License, or (at your option) any later version.
-* 
+*
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 * Lesser General Public License for more details.
-* 
+*
 * You should have received a copy of the GNU Lesser General Public
 * License along with this library; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -249,7 +249,7 @@ static int realtime_set_affinity(task_data *task) {
 			   sizeof(set), &set);
     if (task->cpu > -1) { // CPU set explicitly
 	if (!CPU_ISSET(task->cpu, &set)) {
-	    rtapi_print_msg(RTAPI_MSG_ERR, 
+	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "RTAPI: ERROR: realtime_set_affinity(%s): "
 			    "CPU %d not available\n",
 			    task->name, task->cpu);
@@ -284,7 +284,7 @@ static int realtime_set_affinity(task_data *task) {
 	return -EINVAL;
     }
     rtapi_print_msg(RTAPI_MSG_DBG,
-		    "realtime_set_affinity(): task %s assigned to CPU %d\n", 
+		    "realtime_set_affinity(): task %s assigned to CPU %d\n",
 		    task->name, use_cpu);
     return 0;
 }
@@ -355,18 +355,22 @@ static void *realtime_thread(void *arg) {
                         task->name, task->cgname);
     }
     if (!(task->flags & TF_NONRT)) {
-	if (realtime_set_priority(task)) {
-#ifdef RTAPI_POSIX // This requires privs - tell user how to obtain them
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "to get non-preemptive scheduling with POSIX threads,");
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "you need to run 'sudo setcap cap_sys_nice=pe libexec/rtapi_app_posix'");
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "your might have to install setcap (e.g.'sudo apt-get install libcap2-bin') to do this.");
-#else
+	if (realtime_set_priority(task) &&
+            global_data->rtapi_thread_flavor == RTAPI_POSIX_ID) {
+            // This requires privs - tell user how to obtain them
+	    rtapi_print_msg(
+                RTAPI_MSG_ERR,
+                "to get non-preemptive scheduling with POSIX threads,");
+	    rtapi_print_msg(
+                RTAPI_MSG_ERR,
+                "you need to run "
+                "'sudo setcap cap_sys_nice=pe libexec/rtapi_app_posix'");
+	    rtapi_print_msg(
+                RTAPI_MSG_ERR,
+                "your might have to install setcap "
+                "(e.g.'sudo apt-get install libcap2-bin') to do this.");
+        } else
 	    goto error;
-#endif
-	}
     }
 
     /* We're done initializing. Open the barrier. */
@@ -485,13 +489,13 @@ int _rtapi_wait_hook(const int flags) {
 
 	ts->flavor.rtpreempt.wait_errors++;
 
-#ifndef RTAPI_POSIX
-	rtapi_exception_detail_t detail = {0};
-	detail.task_id = task_id(task);
+        if (global_data->rtapi_thread_flavor == RTAPI_POSIX_ID) {
+            rtapi_exception_detail_t detail = {0};
+            detail.task_id = task_id(task);
 
-	if (rt_exception_handler)
-	    rt_exception_handler(RTP_DEADLINE_MISSED, &detail, ts);
-#endif
+            if (rt_exception_handler)
+                rt_exception_handler(RTP_DEADLINE_MISSED, &detail, ts);
+        }
     }
     return 0;
 }

@@ -21,34 +21,34 @@
   using CAN8 interface board.
 
  \details
-  The number FOC axis controlled is determined  by the insmod command 
-  line parameter 'FOC_axis' passed from .hal configuration file. 
-  It accepts a comma separated (no spaces) list of up to 8 numbers 
-  indicating the CAN address of the FOC channel. 
+  The number FOC axis controlled is determined  by the insmod command
+  line parameter 'FOC_axis' passed from .hal configuration file.
+  It accepts a comma separated (no spaces) list of up to 8 numbers
+  indicating the CAN address of the FOC channel.
   \note actually the FOC axis are configured all with address 3 each
-  axis on a single CAN line in order to stress the system with maximum 
+  axis on a single CAN line in order to stress the system with maximum
   CAN load.
-    
-  A second command line parameter "ctrl_type", selects between position 
+
+  A second command line parameter "ctrl_type", selects between position
   csp, traj-generator, velocity, current, torque control modes
-   
-  in order to adapt to different mechanical setup/encoder type the following 
+
+  in order to adapt to different mechanical setup/encoder type the following
   parameters are needed:
     PPR: pulses per revolution (for 2FOC is always 65536 all encoders are expanded to 16bit)
-    Screw_ratio: lead screw ratio (mm/turns) such as 5mm/turn 
-    Screw gear: number of teeths of screw pulley 
-    Motor gear: number of teeths of motor pulley 
+    Screw_ratio: lead screw ratio (mm/turns) such as 5mm/turn
+    Screw gear: number of teeths of screw pulley
+    Motor gear: number of teeths of motor pulley
 
   To use this driver the 2FOC boards must be configured for speed control
-  and CAN address 3 connecting each axis on a different CAN8 line in a 
+  and CAN address 3 connecting each axis on a different CAN8 line in a
   point2point configuration.
-  2FOC periodic message is configured for: 
+  2FOC periodic message is configured for:
    - position(32bit)
    - velocity(16bit)
    - Iq(16bit)
 
  \par How to compile.
-  In order to compile, this driver should be placed in the 
+  In order to compile, this driver should be placed in the
   /machinekit/src/hal/drivers/ directory
   in the the Makefile in the /machinekit/src directory add the following:
     ifeq ($(TARGET_PLATFORM), zedboard)
@@ -57,7 +57,7 @@
     endif
   in the '# Subdirectory: hal/drivers' section
 
-  and add 
+  and add
     ifeq ($(TARGET_PLATFORM),zedboard)
     $(RTLIBDIR)/hal_zedcan$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_zedcan-objs))
     endif
@@ -77,13 +77,10 @@
 */
 
 #include "rtapi.h"         // rtapi_print_msg()
-#include "rtapi_bitops.h"  // RTAPI_BIT(n)    
-#include "rtapi_app.h"     // 
+#include "rtapi_bitops.h"  // RTAPI_BIT(n)
+#include "rtapi_app.h"     //
 #include "hal.h"
 
-#if !defined(BUILD_SYS_USER_DSO) 
-    #error "This driver is for usermode threads only"
-#endif
 #if !defined(TARGET_PLATFORM_ZEDBOARD)
     #error "This driver is for the Zedboard platform only"
 #endif
@@ -115,7 +112,7 @@ MODULE_AUTHOR("Claudio Lorini");
 MODULE_DESCRIPTION("Driver CAN for Zedboard 2FOC board");
 MODULE_LICENSE("GPL");
 
-// Miscellaneous peripheral 
+// Miscellaneous peripheral
 #define PMODA_OUTREG            0x04
 #define PMODB_INREG             0x08
 #define RESET_CAN_REG           0x00
@@ -164,7 +161,7 @@ typedef struct {
 
     // used for debug pourpouses
     hal_float_t dbg;
-    
+
 } FOC_data_t;
 
 /** \brief Array of FOC_data structs in shared memory, 1 per configured axis */
@@ -212,11 +209,11 @@ bool FOCAxisIsOperationEnable[MAX_FOC_CHAN]={false};
  \pre  */
 static void send_setpoint(void *arg, long period)
 {
-    int nbytes; 
+    int nbytes;
     int n;
     __s16 setpoint;
     FOC_data_t *foctxdata = NULL;
-    
+
     // point to first axis data
     foctxdata = arg;
 
@@ -225,7 +222,7 @@ static void send_setpoint(void *arg, long period)
 
         // giva a fake feedback to machinekit
         // *(foctxdata->feedback) = *(foctxdata->setpoint);
-        
+
         // procede to periodic CAN data exchange only if FOC in 'enable operation'
         if( false != FOCAxisIsOperationEnable[n] ) {
 
@@ -255,26 +252,26 @@ static void send_setpoint(void *arg, long period)
  \brief  Parse incoming CAN messages
  \params rxframe: incoming message
          n: CAN channel
-         FOC_data_t: FOC data image to fill 
+         FOC_data_t: FOC data image to fill
  \return 0 everything OK
         -1 */
 int ParseMessage(struct can_frame *rxframe, int n, FOC_data_t *focrxdata)
 {
     // parse packet type, mask away CAN address
     switch( ( rxframe->can_id & 0xFFFFFF) ) {
-        
+
         case 0xFFFF81:
-        {  
+        {
             // 0x81FFFF81, here it is a periodic! grab first (4 bytes) data (position).
             __s32 *pos = NULL;
 
             // FOC position feedback is 65536 postions per turn
             // for a direct drive screw with 1mm x turn 65536.0;
             // for a direct drive screw with 5mm x turn 65536.0/5.0;
-            // for 46:22 pulleys and 5mm x turn 65535/(5*46/22) 
+            // for 46:22 pulleys and 5mm x turn 65535/(5*46/22)
             pos = (__s32*) rxframe->data;
-            // *(focrxdata->feedback) = (float) *pos / (65536.0/5.0); 
-            *(focrxdata->feedback) = (float) *pos / ( (float)PPR[n] / ( (float)Screw_ratio[n]*((float)Motor_gear[n]/Screw_gear[n]))); 
+            // *(focrxdata->feedback) = (float) *pos / (65536.0/5.0);
+            *(focrxdata->feedback) = (float) *pos / ( (float)PPR[n] / ( (float)Screw_ratio[n]*((float)Motor_gear[n]/Screw_gear[n])));
         }
         break;
 
@@ -282,7 +279,7 @@ int ParseMessage(struct can_frame *rxframe, int n, FOC_data_t *focrxdata)
         {
             // 0x81FFFF82, here it is a status/error packet.
             hal_u32_t *stat = NULL, *err = NULL;
-                        
+
             stat = (hal_u32_t*)  rxframe->data;
             err  = (hal_u32_t*) (rxframe->data+4);
             *(focrxdata->focstatus) = (hal_u32_t) *stat;
@@ -295,8 +292,8 @@ int ParseMessage(struct can_frame *rxframe, int n, FOC_data_t *focrxdata)
         break;
 
         case 0xFFFFFF:
-            // 0x8xFFFFFF: ok, this is a command NACK, something serious has happened, 
-            // like an set-point overrange or such...                        
+            // 0x8xFFFFFF: ok, this is a command NACK, something serious has happened,
+            // like an set-point overrange or such...
             // \todo try to mend it.
             rtapi_print_msg(RTAPI_MSG_ERR,"HAL_ZED_CAN: Error: NACK (0x%X) from CAN%d",rxframe->can_id, n);
             // hal_exit(comp_id);
@@ -336,7 +333,7 @@ WR(map_MiscAddress + PMODA_OUTREG, rmw);
 
         // procede to periodic CAN data exchange only if FOC in 'enable operation'
         if( false != FOCAxisIsOperationEnable[n] ) {
-            // parse all messages (eventually) in the rx queue 
+            // parse all messages (eventually) in the rx queue
             do {
                 // read data (hopefully not-blocking)
                 nbytes = read (sock[n], &rxframe[n], sizeof (struct can_frame));
@@ -359,9 +356,9 @@ WR(map_MiscAddress + PMODA_OUTREG, rmw);
 
 /**
  \brief Setup CAN communication with 2FOC board
- \details 
- \pre 
- \return 
+ \details
+ \pre
+ \return
    0: everything ok.
    ....: failed to initialize communication */
 static int setup_CAN(int n)
@@ -388,13 +385,13 @@ static int setup_CAN(int n)
 
     /** \todo error mamagement a palla */
     //
-    rtapi_snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "can%d",n); 
+    rtapi_snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "can%d",n);
     //
     ioctl (sock[n], SIOCGIFINDEX, &ifr);
     //
     addr.can_family = AF_CAN;
     addr.can_ifindex = ifr.ifr_ifindex;
-   
+
     rtapi_print_msg(RTAPI_MSG_INFO, "HAL_ZED_CAN: %s at index %d\n", ifr.ifr_name, ifr.ifr_ifindex);
 
     // Bind the socket
@@ -410,16 +407,16 @@ static int setup_CAN(int n)
         hal_exit(comp_id);
         return -1;
     }
-      
+
     /* sets the socket read timout to zero */
     memset((char*)&tv,0,sizeof(tv));
     if(-1 == setsockopt(sock[n], SOL_SOCKET, SO_RCVTIMEO,(char *)&tv,sizeof(tv))) {
         rtapi_print_msg(RTAPI_MSG_ERR, "HAL_ZED_CAN: Error: cannot set socket RX timeout");
         hal_exit(comp_id);
         return -1;
-    }  
+    }
 
-    // make the socket read non-blocking 
+    // make the socket read non-blocking
     if(0 != fcntl(sock[n], F_SETFL, fcntl(sock[n], F_GETFL, 0) | O_NONBLOCK)) {
         rtapi_print_msg(RTAPI_MSG_ERR, "HAL_ZED_CAN: Error: cannot set socket in non-blocking mode");
         hal_exit(comp_id);
@@ -440,7 +437,7 @@ static int setup_CAN(int n)
 /**
  \brief   Determine Zynq revision
  \details Parse data in /proc/cpuinfo for 'Revision'
- \return 
+ \return
     -1: unable to parse /proc/cpuinfo
     -1: unable to parse a version number
     nnnn: the one and only revision */
@@ -451,14 +448,14 @@ static int zynq_revision()
     // parse /proc/cpuinfo for the line: Revision
     char *rev_line = "Revision";
     FILE *f = fopen(path,"r");
-  
+
     if (!f) {
         rtapi_print_msg(RTAPI_MSG_ERR, "HAL_ZED_CAN: can't open %s: %d - %s\n",
           path, errno, strerror(errno));
         hal_exit(comp_id);
         return -1;
     }
-  
+
     while (fgets(line, sizeof(line), f)) {
         if (!strncmp(line, rev_line, strlen(rev_line))) {
             s = strchr(line, ':');
@@ -473,16 +470,16 @@ static int zynq_revision()
 }
 
 /**
- \brief   Parse the control type configuration passed to the module 
+ \brief   Parse the control type configuration passed to the module
  \details Valid configurations are:
     'c' for CSP,      Contimuous Setpoint Position
     'j' for TRAJGEN,  Position control with trajectory generator
-    'v' for VELOCITY, Velocity control 
-    'i' for CURRENT,  Current (torque) control 
+    'v' for VELOCITY, Velocity control
+    'i' for CURRENT,  Current (torque) control
     't' for TORQUE,   Torque control with sensor feedback
- \todo all.  
- \return 
-    MODE:    detected mode 
+ \todo all.
+ \return
+    MODE:    detected mode
     INVALID: mode not set or invalid */
 static CONTROL parse_ctrl_type(const char *ctrl)
 {
@@ -499,24 +496,24 @@ static CONTROL parse_ctrl_type(const char *ctrl)
 
 /**
  \brief   Determine Zedboard FPGA HW revision
- \details The FPGA can contain different resources, a version register determine 
+ \details The FPGA can contain different resources, a version register determine
    the available resources
- \todo    Do register read for FPGA versioning  
- \return 
+ \todo    Do register read for FPGA versioning
+ \return
     01: the one and only revision */
 static int zb_revision()
 {
     return 01;
 }
 
-/** 
- \brief Export pins for component(s) 
- \param 
-   num: component number 
-   addr: pointer to array of the num^th FOC channel data 
+/**
+ \brief Export pins for component(s)
+ \param
+   num: component number
+   addr: pointer to array of the num^th FOC channel data
 */
 static int exportFOCaxis(int num, FOC_data_t * addr)
-{    
+{
     int retval = 0;
 
     //
@@ -528,8 +525,8 @@ static int exportFOCaxis(int num, FOC_data_t * addr)
         rtapi_print_msg(RTAPI_MSG_ERR, "HAL_ZED_CAN: ERROR: pin setpoint export failed with err=%d", retval);
         hal_exit(comp_id);
         return -1;
-    } 
-    // make available position feedback in hal        
+    }
+    // make available position feedback in hal
     if ( (retval = hal_pin_float_newf(HAL_OUT, &(addr->feedback), comp_id, "hal_zed_can.%d.feedback", num) ) < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "HAL_ZED_CAN: ERROR: pin feedback export failed with err=%d", retval);
         hal_exit(comp_id);
@@ -548,7 +545,7 @@ static int exportFOCaxis(int num, FOC_data_t * addr)
         hal_exit(comp_id);
         return -1;
     }
-    // instantiate parameter 
+    // instantiate parameter
     retval = hal_pin_u32_newf(HAL_OUT, &(addr->focstatus), comp_id, "hal_zed_can.%d.status", num);
     // check for failed debug space mapping
     if(retval != 0) {
@@ -556,7 +553,7 @@ static int exportFOCaxis(int num, FOC_data_t * addr)
         hal_exit(comp_id);
         return -1;
     }
-    // instantiate parameter 
+    // instantiate parameter
     retval = hal_pin_u32_newf(HAL_OUT, &(addr->focerror), comp_id, "hal_zed_can.%d.error", num);
     // check for failed debug space mapping
     if(retval != 0) {
@@ -571,8 +568,8 @@ static int exportFOCaxis(int num, FOC_data_t * addr)
 }
 
 /**
- \brief do a programmable delay in a barbarous way... 
- \details 
+ \brief do a programmable delay in a barbarous way...
+ \details
  \params delaycycle: delay expiration value */
 void dodelay(unsigned long delaycycles)
 {
@@ -585,16 +582,16 @@ void dodelay(unsigned long delaycycles)
 
 /**
  \brief Make sure the periodic communication with 2FOC board is on
- \details 
- \pre 
- \return 
+ \details
+ \pre
+ \return
    0: everything ok.
    ....: failed to initialize periodic communication */
 int setup_2FOC_periodic()
 {
     int  nbytes;
     int n;
-    // \todo use the global variable for status/error 
+    // \todo use the global variable for status/error
     FOC_data_t *focrxdata = NULL;
 
     // zero contents of databuffers
@@ -643,12 +640,12 @@ int setup_2FOC_periodic()
             rtapi_print_msg(RTAPI_MSG_ERR,"HAL_ZED_CAN: Unable to send 'enable operation' command to axis %d",n);
             hal_exit(comp_id);
             exit(-1);
-        }     
+        }
         dodelay(20000);
     }
     rtapi_print_msg(RTAPI_MSG_INFO, "HAL_ZED_CAN: ShutDown,SwitchOn, EnableOperation sent to all channels.");
 
-    
+
     // \todo Check anything possible before waiting for alignment
     // - errors of any kind
     // - board switched on and operationenabled
@@ -660,7 +657,7 @@ int setup_2FOC_periodic()
     // wait for completion of the rotor alignment (flag in status message)
     for (n = 0; n < num_chan; n++) {
         int nbytes=0;
-    
+
         do {
             // read CAN packet
             nbytes = read (sock[n], &rxframe[n], sizeof (struct can_frame));
@@ -671,9 +668,9 @@ int setup_2FOC_periodic()
                 }
             }
         }
-        // rotor alignment completed 
+        // rotor alignment completed
         while ( 0 == (*(focrxdata->focstatus) & 0x00020000 ) );
-  
+
         // \todo Check anything possible before living control to machinekit:
         // - errors of any kind
         // - correct configuration (speed loop)
@@ -698,23 +695,23 @@ int rtapi_app_main(void)
 {
     // zynq and FPGA code revision
     int rev, zrev, n;
-    // save messaging level 
+    // save messaging level
     static int msg_level;
     int retval = 0;
-    
-    int fdmisc; 
 
-    // save message level on entering 
+    int fdmisc;
+
+    // save message level on entering
     msg_level = rtapi_get_msg_level();
-    
+
     /* setup messaging level in:
     RTAPI_MSG_NONE, RTAPI_MSG_ERR, RTAPI_MSG_WARN,
     RTAPI_MSG_INFO, RTAPI_MSG_DBG, RTAPI_MSG_ALL */
     rtapi_set_msg_level(RTAPI_MSG_ALL);
 
-    // check Zynq revision 
+    // check Zynq revision
     if ((zrev = zynq_revision()) < 0) {
-        // unable to determine zynq revision 
+        // unable to determine zynq revision
         rtapi_print_msg(RTAPI_MSG_ERR, "HAL_ZED_CAN: ERROR: unable to determine zynq revision");
         hal_exit(comp_id);
         return -1;
@@ -722,9 +719,9 @@ int rtapi_app_main(void)
     // notify zynq revision
     rtapi_print_msg(RTAPI_MSG_INFO, "HAL_ZED_CAN: Zynq Revision %d \n", zrev);
 
-    // check Zedboard FPGA hardware revision 
+    // check Zedboard FPGA hardware revision
     rev = zb_revision();
-  
+
     // do revision specific configuration
     switch (rev) {
         case 01:
@@ -748,9 +745,9 @@ int rtapi_app_main(void)
     printf("Map Misc peripheral: virtual 0x%x  real 0x%x \n", map_MiscAddress, MISC_ADDR);
 
     // parse module parameters in order to find the number
-    // of configured FOC channels and their CAN address/configuration 
+    // of configured FOC channels and their CAN address/configuration
     for(n = 0; n < MAX_FOC_CHAN && FOC_axis[n] != -1 ; n++) {
-        // check for a valid CAN address 
+        // check for a valid CAN address
         if( (FOC_axis[n] <= 0) || ( FOC_axis[n] > 15) ) {
             rtapi_print_msg(RTAPI_MSG_ERR, "HAL_ZED_CAN: ERROR: bad CAN address '%i', axis %i", FOC_axis[n], n);
             hal_exit(comp_id);
@@ -763,9 +760,9 @@ int rtapi_app_main(void)
             hal_exit(comp_id);
             return -1;
         }
-        // found a correctly configured channel 
+        // found a correctly configured channel
         num_chan++;
-        // notify 
+        // notify
         rtapi_print_msg(RTAPI_MSG_INFO, "HAL_ZED_CAN: FOC axis %d with CAN address %d.",n, FOC_axis[n] );
         rtapi_print_msg(RTAPI_MSG_INFO, "HAL_ZED_CAN: Motor gear %d, Screw gear %d, Screw ratio %d Encoder PPR %d.", Screw_gear[n], Motor_gear[n], Screw_ratio[n], PPR[n]);
     }
@@ -774,7 +771,7 @@ int rtapi_app_main(void)
         hal_exit(comp_id);
         return -1;
     }
- 
+
     // allocate shared memory for FOC_data of each axis
     FOC_data_array = hal_malloc(num_chan * sizeof(FOC_data_t));
     if ( 0 == FOC_data_array ) {
@@ -839,16 +836,16 @@ int rtapi_app_main(void)
     return 0;
 }
 
-/** 
- \brief Exit component closing communication with EMS 
+/**
+ \brief Exit component closing communication with EMS
  \pre */
 void rtapi_app_exit(void)
-{ 
+{
     int n;
 
     // notify clean termination
     rtapi_print_msg(RTAPI_MSG_INFO, "HAL_ZED_CAN: component terminated successfully \n");
-   
+
     // close CAN sockets
     for(n = 0; n < num_chan ; n++) {
         close(sock[n]);
@@ -856,4 +853,3 @@ void rtapi_app_exit(void)
 
     hal_exit(comp_id);
 }
-

@@ -35,9 +35,9 @@
 	config string passed to insmod when loading the module.
 	The format consists of a character string that sets the
 	direction of each group of pins. Each character or character pair
-	of the direction string is one of "I", "O", "ii", "io", "oi" or "oo". 
-	The individual and character pair formats may be used interchangably in 
-	the same string, however the lower case format must always appear in 
+	of the direction string is one of "I", "O", "ii", "io", "oi" or "oo".
+	The individual and character pair formats may be used interchangably in
+	the same string, however the lower case format must always appear in
 	pairs. The representatiom of each character or character pair is as follows:
 
 	  I: 8 (0..7)  Inputs
@@ -153,9 +153,6 @@
 */
 
 #include "config.h"
-#if !defined(BUILD_SYS_USER_DSO)
-#include <asm/io.h>
-#endif
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include <linux/pci.h>
@@ -211,13 +208,8 @@ typedef struct {
 } vti_struct;
 
 static vti_struct *vti_driver;
-#if defined(BUILD_SYS_USER_DSO)
 #include "rtapi_pci.h"
 static struct rtapi_pcidev *dev = NULL;
-#else
-struct pci_dev *dev = NULL;
-struct pci_access *device;
-#endif
 volatile struct encoder *encoder = NULL;
 volatile struct timer *timer = NULL;
 volatile struct dac *dac = NULL;
@@ -283,7 +275,7 @@ static void vti_do_write(void *arg, long period);	//writes digital outputs to th
 int rtapi_app_main(void)
 {
     int retval;
-    
+
     /* test for number of channels */
     if ((num_chan <= 0) || (num_chan > MAX_CHAN)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -322,9 +314,7 @@ int rtapi_app_main(void)
 
     diocount = vti_parse_dio();
     if (diocount == -1) {
-#if defined(BUILD_SYS_USER_DSO)
 	rtapi_pci_put_device(dev);
-#endif
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "VTI: ERROR: bad config info for port.\n");
 	return -1;
@@ -335,9 +325,7 @@ int rtapi_app_main(void)
 
     /* init counter chip */
     if (vti_counter_init(num_chan) == -1) {
-#if defined(BUILD_SYS_USER_DSO)
 	rtapi_pci_put_device(dev);
-#endif
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "VTI: ERROR: bad config info counter.\n");
 	return -1;
@@ -355,9 +343,7 @@ int rtapi_app_main(void)
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "VTI: ERROR: vti.counter-capture funct export failed\n");
-#if defined(BUILD_SYS_USER_DSO)
 	rtapi_pci_put_device(dev);
-#endif
 	hal_exit(comp_id);
 	return -1;
     }
@@ -369,9 +355,7 @@ int rtapi_app_main(void)
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "VTI: ERROR: vti.write-dacs funct export failed\n");
-#if defined(BUILD_SYS_USER_DSO)
 	rtapi_pci_put_device(dev);
-#endif
 	hal_exit(comp_id);
 	return -1;
     }
@@ -382,9 +366,7 @@ int rtapi_app_main(void)
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "VTI: ERROR: vti.read-adcs funct export failed\n");
-#if defined(BUILD_SYS_USER_DSO)
 	rtapi_pci_put_device(dev);
-#endif
 	hal_exit(comp_id);
 	return -1;
     }
@@ -395,9 +377,7 @@ int rtapi_app_main(void)
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "VTI: ERROR: vti.di-read funct export failed\n");
-#if defined(BUILD_SYS_USER_DSO)
 	rtapi_pci_put_device(dev);
-#endif
 	hal_exit(comp_id);
 	return -1;
     }
@@ -410,9 +390,7 @@ int rtapi_app_main(void)
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "VTI: ERROR: vti.do-write funct export failed\n");
-#if defined(BUILD_SYS_USER_DSO)
 	rtapi_pci_put_device(dev);
-#endif
 	hal_exit(comp_id);
 	return -1;
     }
@@ -470,13 +448,11 @@ static int vti_parse_dio(void)
 
 void rtapi_app_exit(void)
 {
-#if defined(BUILD_SYS_USER_DSO)
     rtapi_pci_iounmap(dev, (void __iomem *)encoder);
     rtapi_pci_iounmap(dev, (void __iomem *)dac);
     rtapi_pci_iounmap(dev, (void __iomem *)timer);
     rtapi_pci_iounmap(dev, (void __iomem *)ip);
     rtapi_pci_put_device(dev);
-#endif
     hal_exit(comp_id);
 }
 
@@ -488,7 +464,7 @@ static void vti_counter_capture(void *arg, long period)
 {
     vti_struct *vti;
     int i;
-    
+
     vti = arg;
     for (i = 0; i < num_chan; i++) {
 	/* capture raw counts to latches */
@@ -520,7 +496,7 @@ static void vti_dacs_write(void *arg, long period)
 	    (*(vti->dac_value[i]) - vti->dac_offset[i]) * vti->dac_gain[i];
 	/* compute the value for the DAC, the extra - in there is vti specific */
         ncounts = ((volts / 10) * 0x7fff) + 0x8000;
-	
+
 	/* write it to the card */
 	vti_dac_write(i, ncounts);
     }
@@ -528,7 +504,7 @@ static void vti_dacs_write(void *arg, long period)
 
 /* The VTI board has no ADCs. Procedure is retained only as a stub, should it be called from
    elsewhere in the application. */
-   
+
 static void vti_adcs_read(void *arg, long period)
 {
     return;
@@ -599,7 +575,7 @@ static void vti_di_read(void *arg, long period)	//reads digital inputs from the 
 	split_input(latchedVal, &(vti->port[0][0]), 4);
     if (vti->dir_bits[1] == 0)
 	split_input(latchedVal, &(vti->port[0][4]), 4);
-		
+
     /* Get Extended I/O inputs */
    if (diocount <= 8) return; // No extended I/O enabled
    for (i = 1; i < (diocount / 8); i++) {
@@ -615,17 +591,17 @@ static void vti_do_write(void *arg, long period)	//writes digital outputs to the
 {
     vti_struct *vti;
     int i;
-    
+
     vti = arg;
     /* Write ENCDAC onboard outputs */
     if (diocount == 0) return; // No DIO
     encoder->DIO = build_output(&(vti->port[0][0]), 8);
     if (diocount <= 8) return; // No extended I/O
-    
+
     /* Write Extended I/O outputs */
      for (i = 1; i < diocount / 8; i++) {
-	dac->DIO[i - 1] = build_output(&(vti->port[i][0]), 8); 
-      } 
+	dac->DIO[i - 1] = build_output(&(vti->port[i][0]), 8);
+      }
 
 }
 
@@ -673,7 +649,7 @@ static int vti_counter_init(int counters)
 static int vti_dac_init(int channels)
 {
     int retval, i;
-    
+
     encoder->DAC = DAC_IND_MODE;  // Enable DACs for output indpendent of watchdog
     for (i = 0; i < channels; i++) {
 	retval = export_dac(i, vti_driver);
@@ -704,7 +680,7 @@ static int vti_dio_init(int nibbles)
 {
     unsigned int mask;
     int i;
-    
+
     /* we will select the directions of each port */
     /* First initialize the 8 on board I/O points */
     if (diocount == 0) return 0; // No DIO
@@ -755,34 +731,34 @@ static long vti_counter_read(int axis)
     Longword EncData;
     static long int lastCount;
 //    static unsigned short lastdac;
-    
+
     if ((axis >= MAX_CHANS) || (axis < 0)) {
 	return 0x80000000;	// Return encoder error value
       }
     lastCount = enc_counts[axis];
     status = encoder->Status;       // latch status from vti board
     count = encoder->Counter[axis]; // latch count from vti board
-    
+
     EncData.Long = (long int)enc_counts[axis];
     if (status & (1 << axis)) {
       if (status & (1 << (axis + 4))) {
-	EncData.Word[1] += 1;  
+	EncData.Word[1] += 1;
         }
       else {
-	EncData.Word[1] -= 1;  
+	EncData.Word[1] -= 1;
         }
       }
-    
-    
+
+
     EncData.Word[0] = count;
-//    Filter out spurious roll overs / roll unders    
-    if ((EncData.Long - lastCount) > 0x7fff) 
+//    Filter out spurious roll overs / roll unders
+    if ((EncData.Long - lastCount) > 0x7fff)
       EncData.Word[1] -= 1;
-    else 
+    else
       if ((lastCount - EncData.Long) > 0x7fff)
         EncData.Word[1] += 1;
     enc_counts[axis] = EncData.Long;
-	
+
     return EncData.Long;
 }
 
@@ -800,7 +776,7 @@ static int vti_dac_write(int axis, short value)
     junk = dac->mode;         // Read from mode to trigger update dac immediately
     junk++;		      // Silence compiler '-Wunused-value' warnings
     dac->dac[axis] = value;   // Write dac value
-    
+
      return 0;
 }
 
@@ -829,23 +805,10 @@ static int vti_init_card()
 {
     int retval=vti_autodetect();
     if (retval == 0) {
-#if defined(BUILD_SYS_USER_DSO)
 	encoder = (volatile struct encoder *) rtapi_pci_ioremap(dev, 2, sizeof(encoder));
 	dac = (volatile struct dac *) rtapi_pci_ioremap(dev, 4, sizeof(dac));
 	timer = (volatile struct timer *) rtapi_pci_ioremap(dev, 3, sizeof(timer));
 	ip = (volatile struct ip *) rtapi_pci_ioremap(dev, 5, sizeof(ip));
-#else
-	encoder = (volatile struct encoder *)
-	    ioremap(pci_resource_start(dev, 2), sizeof(encoder));
-	dac =
-	    (volatile struct dac *) ioremap(pci_resource_start(dev,
-		4), sizeof(dac));
-	timer =
-	    (volatile struct timer *) ioremap(pci_resource_start(dev,
-		3), sizeof(timer));
-	ip = (volatile struct ip *) ioremap(pci_resource_start(dev, 5),
-	    sizeof(ip));
-#endif
     } else {
 	return (retval);
     }
@@ -866,19 +829,11 @@ static int vti_init_card()
 /* scans possible addresses for vti cards */
 static int vti_autodetect()
 {
-#if defined(BUILD_SYS_USER_DSO)
     dev = rtapi_pci_get_device(VENDOR, DEVICE, NULL);
     if (dev) {
        rtapi_pci_put_device(dev);
 	rtapi_print_msg(RTAPI_MSG_INFO,
 			"VTI: Card detected in slot");
-#else
-    dev = pci_get_device(VENDOR, DEVICE, dev);
-    if (dev) {
-       pci_dev_put(dev);
-	rtapi_print_msg(RTAPI_MSG_INFO,
-	    "VTI: Card detected in slot: %2x\n", PCI_SLOT(dev->devfn));
-#endif
 	return (0);
     } else {
 	rtapi_print_msg(RTAPI_MSG_INFO, "VTI: Exiting with auto detect failed\n");

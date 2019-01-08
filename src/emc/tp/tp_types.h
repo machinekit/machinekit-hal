@@ -7,7 +7,7 @@
 * Author:
 * License: GPL Version 2
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
 ********************************************************************/
@@ -18,10 +18,7 @@
 #include "posemath.h"
 #include "tc_types.h"
 #include "tcq.h"
-
-#if defined(BUILD_SYS_USER_DSO)
 #include <stdbool.h>
-#endif
 
 #define TP_DEFAULT_QUEUE_SIZE 32
 /* Minimum length of a segment in cycles (must be greater than 1 to ensure each

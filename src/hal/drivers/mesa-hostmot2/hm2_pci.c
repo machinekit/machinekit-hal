@@ -20,12 +20,10 @@
 
 #include "config.h"
 
-#if defined(USERMODE_PCI) && defined(BUILD_SYS_USER_DSO)
+#if defined(USERMODE_PCI)
 #include <sys/io.h>
 #include <rtapi.h>
 #include <rtapi/rtapi_pci.h>
-#else
-#include <linux/pci.h>
 #endif
 
 #include "rtapi.h"
@@ -207,7 +205,7 @@ MODULE_DEVICE_TABLE(pci, hm2_pci_tbl);
 
 
 
-// 
+//
 // these are the "low-level I/O" functions exported up
 //
 
@@ -452,7 +450,7 @@ static int hm2_plx9054_reset(hm2_lowlevel_io_t *this) {
 
 
 
-// 
+//
 // misc internal functions
 //
 
@@ -839,4 +837,3 @@ void rtapi_app_exit(void) {
     LL_PRINT("driver unloaded\n");
     hal_exit(comp_id);
 }
-

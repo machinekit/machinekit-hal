@@ -126,9 +126,7 @@
 
 #include "rtapi.h"			// RTAPI realtime OS API.
 #include "rtapi_app.h"			// RTAPI realtime module decls.
-#if defined(BUILD_SYS_USER_DSO)
 #include "rtapi_pci.h"
-#endif
 #include "hal.h"			// HAL public API decls.
 #include "motenc.h"			// Hardware dependent defines.
 
@@ -210,9 +208,7 @@ typedef struct {
 
 typedef struct {
     // Private data.
-#if defined(BUILD_SYS_USER_DSO)
     struct rtapi_pcidev			*pDev;
-#endif
     MotencRegMap			*pCard;
     int					boardType;
     char				*pTypeName;
@@ -279,11 +275,7 @@ int
 rtapi_app_main(void)
 {
     int					i, j;
-#if defined(BUILD_SYS_USER_DSO)
     struct rtapi_pcidev			*pDev = NULL;
-#else
-    struct pci_dev			*pDev = NULL;
-#endif
     MotencRegMap			*pCard = NULL;
     Device				*pDevice;
 
@@ -301,11 +293,7 @@ rtapi_app_main(void)
 
     i = 0;
     // Find a MOTENC card.
-#if defined(BUILD_SYS_USER_DSO)
     while((i < MAX_DEVICES) && ((pDev = rtapi_pci_get_device(MOTENC_VENDOR_ID, MOTENC_DEVICE_ID, pDev)) != NULL)){
-#else
-	while((i < MAX_DEVICES) && ((pDev = pci_get_device(MOTENC_VENDOR_ID, MOTENC_DEVICE_ID, pDev)) != NULL)){
-#endif
 	// Allocate memory for device object.
 	pDevice = hal_malloc(sizeof(Device));
 
@@ -314,22 +302,14 @@ rtapi_app_main(void)
 	    hal_exit(driver.componentId);
 	    return(-ENOMEM);
 	}
-#if defined(BUILD_SYS_USER_DSO)
 	pDevice->pDev = pDev;
-#endif
 	// Save pointer to device object.
 	driver.deviceTable[i++] = pDevice;
-	
+
 	// Map card into memory.
-#if defined(BUILD_SYS_USER_DSO)
 	pCard = (MotencRegMap *)rtapi_pci_ioremap(pDev, 2, sizeof(MotencRegMap));
 	rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card detected\n");
 	rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card address @ %p, Len = %d\n", pCard, (int)sizeof(MotencRegMap));
-#else
-	pCard = (MotencRegMap *)ioremap_nocache(pci_resource_start(pDev, 2), pci_resource_len(pDev, 2));
-	rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card detected in slot %2x\n", PCI_SLOT(pDev->devfn));
-	rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card address @ %p, Len = %d\n", pCard, (int)pci_resource_len(pDev, 2));
-#endif
 	// Initialize device.
 	Device_Init(pDevice, pCard);
 	rtapi_print_msg(RTAPI_MSG_INFO, "MOTENC: Card is %s, ID: %d\n", pDevice->pTypeName, pDevice->boardID);
@@ -338,7 +318,7 @@ rtapi_app_main(void)
 	    hal_exit(driver.componentId);
 	    return(-ENODEV);
 	}
-	
+
 
 	if ( driver.idPresent[pDevice->boardID] != 0 ) {
 	    // duplicate ID... a strict driver would bail out, but
@@ -356,7 +336,7 @@ rtapi_app_main(void)
 	    rtapi_print_msg(RTAPI_MSG_WARN, "MOTENC: WARNING, duplicate ID, remapped to %d\n", j);
 	}
 	driver.idPresent[pDevice->boardID] = 1;
-	
+
 	// Export pins, parameters, and functions.
 	if(Device_ExportPinsParametersFunctions(pDevice, driver.componentId)){
 	    hal_exit(driver.componentId);
@@ -394,15 +374,11 @@ rtapi_app_exit(void)
 	    for(j = 0; j < MOTENC_NUM_DAC_CHANNELS; j++){
 		pDevice->pCard->dac[j] = MOTENC_DAC_COUNT_ZERO;
 	    }
-	    
+
 	    // Unmap card.
-#if defined(BUILD_SYS_USER_DSO)
 	    rtapi_pci_iounmap(pDevice->pDev, (void *)(pDevice->pCard));
 	    // Unregister the device
 	    rtapi_pci_put_device(pDevice->pDev);
-#else
-	    iounmap((void *)(pDevice->pCard));
-#endif
 	    // TODO: Free device object when HAL supports free.
 //	    hal_free(pDevice);
 	}
@@ -450,7 +426,7 @@ Device_Init(Device *this, MotencRegMap *pCard)
     // Extract board id from first FPGA. The user sets this via jumpers on the card.
     status = pCard->fpga[0].statusControl;
     this->boardID = (status & MOTENC_STATUS_BOARD_ID) >> MOTENC_STATUS_BOARD_ID_SHFT;
-    
+
     // Initialize hardware.
     for(i = 0; i < this->numFpga; i++){
 	pCard->fpga[i].digitalIo = MOTENC_DIGITAL_OUT;
@@ -481,7 +457,7 @@ Device_ExportPinsParametersFunctions(Device *this, int componentId)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     boardId = this->boardID;
-    
+
     // Export encoders.
     error = Device_ExportEncoderPinsParametersFunctions(this, componentId, boardId);
 
@@ -901,7 +877,7 @@ Device_AdcRead(void *arg, long period)
 	pCard->adcDataCommand = MOTENC_ADC_COMMAND_CHN_0_1_2_3;
 	pCard->adcStartConversion = 1;
 	break;
-    
+
     // Wait for first conversion, start conversion on second 4 channels.
     case 1:
 	if(Device_AdcRead4(this, 0)){

@@ -1031,18 +1031,10 @@ extern rtapi_exception_handler_t  _rtapi_set_exception(rtapi_exception_handler_t
     a non-NULL value.
 */
 #  include <linux/version.h>
-#  if !defined(BUILD_SYS_USER_DSO)
-#    include <linux/module.h>
-#    include <linux/ioport.h>
-#  endif // BUILD_SYS_USER_DSO
 
     static __inline__ void *rtapi_request_region(unsigned long base,
             unsigned long size, const char *name) {
-#  if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0) && !defined(BUILD_SYS_USER_DSO)
-        return (void*)request_region(base, size, name);
-#  else
         return (void*)-1;
-#  endif
     }
 
 /** 'rtapi_release_region() releases I/O memory reserved by
@@ -1052,9 +1044,6 @@ extern rtapi_exception_handler_t  _rtapi_set_exception(rtapi_exception_handler_t
 */
     static __inline__ void rtapi_release_region(unsigned long base,
             unsigned long int size) {
-#  if LINUX_VERSION_CODE >= KERNEL_VERSION(2,4,0) &&  !defined(BUILD_SYS_USER_DSO)
-        release_region(base, size);
-#  endif
     }
 #endif // RTAPI && BUILD_DRIVERS
 
@@ -1064,8 +1053,7 @@ extern rtapi_exception_handler_t  _rtapi_set_exception(rtapi_exception_handler_t
 /** rtapi_switch contains pointers to the _rtapi_* functions declared
     above.  The struct is initialized in rtapi_common.c.
 
-    Each thread system needs a member in the thread_flavor_id_t enum,
-    and should set the macro THREAD_FLAVOR_ID to that enumerator.
+    Each thread system needs a member in the thread_flavor_id_t enum.
 */
 
 // prototype for dummy rtapi placeholder function
@@ -1176,9 +1164,7 @@ extern void rtapi_autorelease_mutex(void *variable);
 // configurable at rtapi.so module load time _only_
 extern int rtapi_instance;
 
-#if defined(BUILD_SYS_USER_DSO)
 extern long int simple_strtol(const char *nptr, char **endptr, int base);
-#endif
 
 #ifdef ULAPI
 // the ulapi constructor and destructor
@@ -1230,15 +1216,6 @@ extern int ulapi_loaded(void);
 
 #include <rtapi_export.h>
 
-#if !defined(BUILD_SYS_USER_DSO)
-#ifndef LINUX_VERSION_CODE
-#include <linux/version.h>
-#endif
-#endif
-#ifndef KERNEL_VERSION
-#define KERNEL_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
-#endif
-
 #ifndef LINUX_VERSION_CODE
 #define LINUX_VERSION_CODE 0
 #endif
@@ -1248,8 +1225,6 @@ extern int ulapi_loaded(void);
 
 // compile-time assert
 #define rtapi_ct_assert(cond, failure) _Static_assert(cond, failure)
-
-#if defined(BUILD_SYS_USER_DSO) || (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,0))
 
 #define RTAPI_MP_INT(var,descr)    \
   MODULE_PARM(var,"i");            \
@@ -1310,92 +1285,6 @@ extern int ulapi_loaded(void);
 #define RTAPI_IP_ARRAY_STRING(var,num,descr)       \
   INSTANCE_PARM(var,"1-" RTAPI_STRINGIFY(num) "s");  \
   INSTANCE_PARM_DESC(var,descr);
-
-
-#else /* version 2.6 or later */
-
-#include <linux/module.h>
-
-#define RTAPI_MP_INT(var,descr)    \
-  module_param(var, int, 0);       \
-  MODULE_PARM_DESC(var,descr);
-
-#define RTAPI_MP_UINT(var,descr)    \
-  module_param(var, uint, 0);       \
-  MODULE_PARM_DESC(var,descr);
-
-#define RTAPI_MP_LONG(var,descr)   \
-  module_param(var, long, 0);      \
-  MODULE_PARM_DESC(var,descr);
-
-#define RTAPI_MP_STRING(var,descr) \
-  module_param(var, charp, 0);     \
-  MODULE_PARM_DESC(var,descr);
-
-#define RTAPI_MP_ARRAY_INT(var,num,descr)                \
-  int __dummy_##var;                                     \
-  module_param_array(var, int, &(__dummy_##var), 0);     \
-  MODULE_PARM_DESC(var,descr);
-
-#define RTAPI_MP_ARRAY_LONG(var,num,descr)               \
-  int __dummy_##var;                                     \
-  module_param_array(var, long, &(__dummy_##var), 0);    \
-  MODULE_PARM_DESC(var,descr);
-
-#define RTAPI_MP_ARRAY_STRING(var,num,descr)             \
-  int __dummy_##var;                                     \
-  module_param_array(var, charp, &(__dummy_##var), 0);  \
-  MODULE_PARM_DESC(var,descr);
-
-// for kthreads, export params in
-// /sys/modules/<name>/parameters/<var>
-#define RTAPI_IP_MODE (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP)
-
-#define RTAPI_IP_INT(var,descr)    \
-  module_param(var, int, RTAPI_IP_MODE);       \
-  MODULE_PARM_DESC(var,descr);
-
-#define RTAPI_IP_UINT(var,descr)    \
-  module_param(var, uint, RTAPI_IP_MODE);       \
-  MODULE_PARM_DESC(var,descr);
-
-#define RTAPI_IP_LONG(var,descr)   \
-  module_param(var, long, RTAPI_IP_MODE);      \
-  MODULE_PARM_DESC(var,descr);
-
-#define RTAPI_IP_STRING(var,descr) \
-  module_param(var, charp, RTAPI_IP_MODE);     \
-  MODULE_PARM_DESC(var,descr);
-
-#ifdef _NOTYET
-
-// no param array support for instance params yet
-#define RTAPI_IP_ARRAY_INT(var,num,descr)                \
-  int __dummy_##var;                                     \
-  module_param_array(var, int, &(__dummy_##var), RTAPI_IP_MODE);     \
-  MODULE_PARM_DESC(var,descr);
-
-#define RTAPI_IP_ARRAY_LONG(var,num,descr)               \
-  int __dummy_##var;                                     \
-  module_param_array(var, long, &(__dummy_##var), RTAPI_IP_MODE);    \
-  MODULE_PARM_DESC(var,descr);
-
-#define RTAPI_IP_ARRAY_STRING(var,num,descr)             \
-  int __dummy_##var;                                     \
-  module_param_array(var, charp, &(__dummy_##var), RTAPI_IP_MODE);  \
-  MODULE_PARM_DESC(var,descr);
-
-#endif // _NOTYET
-
-#endif /* version < 2.6 */
-
-#if !defined(BUILD_SYS_USER_DSO)
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,4,0)
-#define MODULE_LICENSE(license)         \
-static const char __module_license[] __attribute__((section(".modinfo"))) =   \
-"license=" license
-#endif
-#endif
 
 
 // module tagging for feature inspection

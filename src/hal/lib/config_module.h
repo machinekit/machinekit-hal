@@ -65,8 +65,6 @@
     place of something like <linux/list.h>
 */
 
-#ifdef BUILD_SYS_USER_DSO
-
 /* Usermode PCI builds */
 
 #define RTAPI_INC_CTYPE_H       <ctype.h>
@@ -76,19 +74,5 @@
 #define RTAPI_INC_LIST_H        "userpci/list.h"
 #define RTAPI_INC_SLAB_H        "userpci/slab.h"
 #define RTAPI_INC_STRING_H      "userpci/string.h"
-
-#else
-
-/* Linux kernel module builds */
-
-#define RTAPI_INC_CTYPE_H       "linux/ctype.h"
-#define RTAPI_INC_DEVICE_H      "linux/device.h"
-#define RTAPI_INC_FIRMWARE_H    "linux/firmware.h"
-#define RTAPI_INC_GFP_H         "linux/gfp.h"
-#define RTAPI_INC_LIST_H        "linux/list.h"
-#define RTAPI_INC_SLAB_H        "linux/slab.h"
-#define RTAPI_INC_STRING_H      "linux/string.h"
-
-#endif /* BUILD_SYS_USER_DSO */
 
 #endif /* CONFIG_MODULE_H */

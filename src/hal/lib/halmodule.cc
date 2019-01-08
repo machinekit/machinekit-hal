@@ -25,6 +25,7 @@ using namespace std;
 #include "rtapi.h"
 #include "hal.h"
 #include "hal_priv.h"
+#include "rtapi_compat.h"
 
 #if PY_VERSION_HEX < 0x02050000 && !defined(PY_SSIZE_T_MIN)
 typedef int Py_ssize_t;
@@ -1135,6 +1136,7 @@ const char *module_doc = "Interface to emc2's hal\n"
 
 extern "C"
 void init_hal(void) {
+    flavor_ptr f = default_flavor();
     PyObject *m = Py_InitModule3("_hal", module_methods,
             module_doc);
 
@@ -1166,17 +1168,8 @@ void init_hal(void) {
     PyModule_AddIntConstant(m, "HAL_OUT", HAL_OUT);
     PyModule_AddIntConstant(m, "HAL_IO", HAL_IO);
 
-#if defined(RTAPI_POSIX)
-    PyModule_AddIntConstant(m, "is_sim", 1);
-    PyModule_AddIntConstant(m, "is_rt", 0);
-#else
-    PyModule_AddIntConstant(m, "is_sim", 0);
-    PyModule_AddIntConstant(m, "is_rt", 1);
-#endif
-
-#ifdef RTAPI_KERNEL_VERSION
-    PyModule_AddStringConstant(m, "kernel_version", RTAPI_KERNEL_VERSION);
-#endif
+    PyModule_AddIntConstant(m, "is_sim", f->flavor_id == RTAPI_POSIX_ID);
+    PyModule_AddIntConstant(m, "is_rt", f->flavor_id != RTAPI_POSIX_ID);
 
     PyRun_SimpleString(
             "(lambda s=__import__('signal'):"

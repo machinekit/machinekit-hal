@@ -121,10 +121,7 @@ int lib_mem_id = -1;	/* RTAPI shmem ID for library module */
 // to the instance module (kernel modes)
 
 
-// defined(BUILD_SYS_KBUILD) && defined(RTAPI)
-// defined & attached in, and exported from rtapi_module.c
-
-// defined(BUILD_SYS_USER_DSO) && defined(RTAPI)
+// defined(RTAPI)
 // defined & attached in, and exported from rtapi_main.c
 
 /***********************************************************************
@@ -448,13 +445,13 @@ EXPORT_SYMBOL(hal_shmem_base);
 
 // ------------ private API:  ------------
 //  found in their respective source files:
-EXPORT_SYMBOL(halpr_find_comp_by_name); 
-EXPORT_SYMBOL(halpr_find_pin_by_name); 
-EXPORT_SYMBOL(halpr_find_sig_by_name); 
-EXPORT_SYMBOL(halpr_find_param_by_name); 
-EXPORT_SYMBOL(halpr_find_thread_by_name); 
-EXPORT_SYMBOL(halpr_find_funct_by_name); 
-EXPORT_SYMBOL(halpr_find_inst_by_name); 
+EXPORT_SYMBOL(halpr_find_comp_by_name);
+EXPORT_SYMBOL(halpr_find_pin_by_name);
+EXPORT_SYMBOL(halpr_find_sig_by_name);
+EXPORT_SYMBOL(halpr_find_param_by_name);
+EXPORT_SYMBOL(halpr_find_thread_by_name);
+EXPORT_SYMBOL(halpr_find_funct_by_name);
+EXPORT_SYMBOL(halpr_find_inst_by_name);
 EXPORT_SYMBOL(hal_data);
 
 // hal_comp.c:

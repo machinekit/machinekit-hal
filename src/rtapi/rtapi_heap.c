@@ -49,7 +49,7 @@ static void __attribute__((format(printf,3,4)))
 heap_print(struct rtapi_heap *h, int level, const char *fmt, ...)
 {
     static pid_t _pid;
-#if !defined(RTAPI)   && !defined(BUILD_SYS_KBUILD)
+#if !defined(RTAPI)
     if (_pid == 0)
 	_pid = getpid();
 #endif

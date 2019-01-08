@@ -16,7 +16,6 @@ HALLIBSRCS := $(HALLIBDIR)/hal_lib.c \
 	$(HALLIBDIR)/hal_rcomp.c \
 	$(HALLIBDIR)/hal_vtable.c \
 	$(HALLIBDIR)/hal_funct.c \
-	$(HALLIBDIR)/hal_procfs.c \
 	$(HALLIBDIR)/hal_thread.c \
 	$(HALLIBDIR)/hal_param.c \
 	$(HALLIBDIR)/hal_signal.c \
@@ -43,7 +42,7 @@ $(call TOOBJSDEPS, $(HALLIBMTALK_SRCS)) : EXTRAFLAGS=-fPIC $(HALLIBMTALK_CXXFLAG
 # ULAPI: all thread-specific code now comes in through the ulapi library
 # (liblinuxcnculapi.so) which autoloads the proper ulapi on demand
 
-$(call TOOBJSDEPS, $(HALLIBSRCS)): EXTRAFLAGS += $(THREADS_RTFLAGS) -fPIC
+$(call TOOBJSDEPS, $(HALLIBSRCS)): EXTRAFLAGS += -fPIC
 
 # Add to list of sources to compile -DULAPI ->
 # objects/{$(HALLIBDIR)/hal_lib.o}
@@ -77,7 +76,7 @@ $(HALLIB).0: \
 	@rm -f $@
 	$(Q)$(CC) $(LDFLAGS) -Wl,-rpath,$(EMC2_RTLIB_DIR) \
 	    -Wl,-soname,$(notdir $@) -shared \
-	    -o $@ $^ -lstdc++ -ldl -lrt $(PROTOBUF_LIBS) $(PROTOCXXLIB) $(CZMQ_LIBS) $(RT_LDFLAGS)
+	    -o $@ $^ -lstdc++ -ldl -lrt $(PROTOBUF_LIBS) $(PROTOCXXLIB) $(CZMQ_LIBS)
 
 HALMODULESRCS := $(HALLIBDIR)/halmodule.cc
 PYSRCS += $(HALMODULESRCS)
@@ -98,7 +97,6 @@ hal_lib-objs += hal/lib/hal_ring.o
 hal_lib-objs += hal/lib/hal_rcomp.o
 hal_lib-objs += hal/lib/hal_vtable.o
 hal_lib-objs += hal/lib/hal_funct.o
-hal_lib-objs += hal/lib/hal_procfs.o
 hal_lib-objs += hal/lib/hal_thread.o
 hal_lib-objs += hal/lib/hal_signal.o
 hal_lib-objs += hal/lib/hal_pin.o

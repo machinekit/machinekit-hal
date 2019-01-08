@@ -120,7 +120,7 @@ AC_CONFIG_MACRO_DIR(/usr/share/aclocal)
 # RealTime checking                                                          #
 # Subsection 2.1 - init basic thread style params and declare m4 macros      #
 # Subsection 2.2 - documentation of threads variables to be configured       #
-# Subsection 2.3 - misc basic features:  platform, shmdrv, parport I/O, etc. #
+# Subsection 2.3 - misc basic features:  platform, parport I/O, etc.         #
 # Subsection 2.4 - kernel detection and RT capability probing                #
 # Subsection 2.5 - thread style configuration                                #
 # Subsection 2.6 - userland PCI driver configuration                         #
@@ -131,72 +131,55 @@ AC_CONFIG_MACRO_DIR(/usr/share/aclocal)
 # Subsection 2.1                                                             #
 # init basic thread style params                                             #
 # - the [_cfg_flavor_params] m4 macro lists all flavors                      #
-# - for each flavor, lists name, flavor_id, build_sys and threads_source     #
+# - for each flavor, lists name, flavor_id and threads_source                #
 #                                                                            #
 # define several m4 macros to help manipulate the list                       #
 ##############################################################################
 
 
 dnl #--------------------------------------------------------#
-dnl # list of all thread styles with FLAVOR_ID and BUILD_SYS #
+dnl # list of all thread styles with FLAVOR_ID               #
 dnl #                                                        #
-dnl # each thread style needs a 4-item m4 tuple set here:    #
-dnl # flavor-name, flavor-id, build-sys, threads-headers     #
+dnl # each thread style needs a 3-item m4 tuple set here:    #
+dnl # flavor-name, flavor-id, threads-headers                #
 dnl #                                                        #
 dnl # flavor-name: lower-case with hyphens                   #
 dnl # flavor-id: a unique integer                            #
-dnl # build-sys: one of kbuild or user-dso                   #
 dnl # threads-headers: header file from rtapi/*.h (w/o '.h') #
 dnl # mod_ext:  RTAPI module extension, .so or .ko           #
 dnl # so_ext:  ULAPI module extension, .so                   #
 dnl # flags:  see rtapi.h; combine with '|' operator, or 0   #
-dnl # extra_kmods:  list of extra kmodules to load           #
 dnl #                                                        #
 dnl # these are used in both Makefiles and in config.h,      #
 dnl # and are the single authoritative source for these data #
 dnl #--------------------------------------------------------#
 AC_DEFUN([_cfg_flavor_params],
-	[[[posix],[0],[user-dso],[rt-preempt],[.so],[.so],[0]],
-	 [[rt-preempt],[1],[user-dso],[rt-preempt],[.so],[.so],[0]],
-	 [[xenomai],[2],[user-dso],[xenomai],[.so],[.so],[FLAVOR_DOES_IO]]])
-#	 [[xenomai-kernel],[3],[kbuild],[xenomai-kernel],[.ko],[.so],dnl
-#[FLAVOR_DOES_IO|FLAVOR_KERNEL_BUILD],[rtapi_math]],
-#	 [[rtai-kernel],[4],[kbuild],[rtai-kernel],[.ko],[.so],dnl
-#[FLAVOR_DOES_IO|FLAVOR_KERNEL_BUILD],dnl
-#[rtai_hal rtai_sched rtapi_math]]])
+	[[[posix],[0],[rt-preempt],[.so],[.so],[0]],
+	 [[rt-preempt],[1],[rt-preempt],[.so],[.so],[0]],
+	 [[xenomai],[2],[xenomai],[.so],[.so],[FLAVOR_DOES_IO]]])
 
 
 dnl #--------------------------------------------------------#
 dnl # m4 convenience macros for accessing above data         #
 
 dnl list of all thread styles to be used in macros
-dnl   posix,rt-preempt,xenomai,xenomai-kernel,rtai
+dnl   posix,rt-preempt,xenomai
 AC_DEFUN([_cfg_all_flavors],
 	m4_map_sep([m4_car],[[,]],[_cfg_flavor_params]))
 
 dnl _cfg_flavor_id(flavor):  return THREAD_FLAVOR_ID
-dnl   _cfg_flavor_id(xenomai) => 2; _cfg_flavor_id(rtai) => 4
+dnl   _cfg_flavor_id(xenomai) => 2; _cfg_flavor_id(posix) => 0
 AC_DEFUN([_cfg_flavor_tuple_id],[$2])
 AC_DEFUN([_cfg_flavor_id],
 	[m4_foreach([flav],[_cfg_flavor_params],
 	    [m4_cond(m4_car(flav),$1,
 	        m4_apply([_cfg_flavor_tuple_id],[flav]))])])
 
-dnl _cfg_flavor_build_sys(flavor):  return BUILD_SYS:  kbuild or user-dso
-dnl   for use in Makefiles
-dnl   _cfg_flavor_build_sys(xenomai) => user-dso;
-dnl   _cfg_flavor_build_sys(xenomai-kernel) => kbuild;
-AC_DEFUN([_cfg_flavor_tuple_build_sys],[$3])
-AC_DEFUN([_cfg_flavor_build_sys],
-	[m4_foreach([flav],[_cfg_flavor_params],
-	    [m4_cond(m4_car(flav),$1,
-	        m4_apply([_cfg_flavor_tuple_build_sys],[flav]))])])
-
 dnl _cfg_flavor_threads_headers(flavor):  return THREADS_HEADERS
 dnl   for use in config.h
 dnl   _cfg_flavor_threads_headers(xenomai) => rtapi/xenomai.h;
 dnl   _cfg_flavor_threads_headers(posix) => rtapi/rt-preempt.h;
-AC_DEFUN([_cfg_flavor_tuple_threads_headers],[$4])
+AC_DEFUN([_cfg_flavor_tuple_threads_headers],[$3])
 AC_DEFUN([_cfg_flavor_threads_headers],
 	rtapi/[m4_foreach([flav],[_cfg_flavor_params],
 	    [m4_cond(m4_car(flav),$1,
@@ -206,7 +189,7 @@ dnl _cfg_flavor_mod_ext(flavor):  return RT module extension:  .ko or .so
 dnl   for use in rtapi.ini
 dnl   _cfg_flavor_mod_ext(xenomai) => .so;
 dnl   _cfg_flavor_mod_ext(xenomai-kernel) => .ko;
-AC_DEFUN([_cfg_flavor_tuple_mod_ext],[$5])
+AC_DEFUN([_cfg_flavor_tuple_mod_ext],[$4])
 AC_DEFUN([_cfg_flavor_mod_ext],
 	[m4_foreach([flav],[_cfg_flavor_params],
 	    [m4_cond(m4_car(flav),$1,
@@ -215,7 +198,7 @@ AC_DEFUN([_cfg_flavor_mod_ext],
 dnl _cfg_flavor_so_ext(flavor):  return plugin filename extension:  .so
 dnl   for use in rtapi.ini
 dnl   _cfg_flavor_so_ext(xenomai) => .so
-AC_DEFUN([_cfg_flavor_tuple_so_ext],[$6])
+AC_DEFUN([_cfg_flavor_tuple_so_ext],[$5])
 AC_DEFUN([_cfg_flavor_so_ext],
 	[m4_foreach([flav],[_cfg_flavor_params],
 	    [m4_cond(m4_car(flav),$1,
@@ -225,69 +208,20 @@ dnl _cfg_flavor_flags(flavor):  flavor flags:  integer expression
 dnl   for use in rtapi.ini
 dnl   _cfg_flavor_flags(rt-preempt) => 0
 dnl   _cfg_flavor_flags(xenomai) => FLAVOR_DOES_IO
-dnl   _cfg_flavor_flags(xenomai-kernel) => FLAVOR_DOES_IO|FLAVOR_KERNEL_BUILD
-AC_DEFUN([_cfg_flavor_tuple_flags],[$7])
+AC_DEFUN([_cfg_flavor_tuple_flags],[$6])
 AC_DEFUN([_cfg_flavor_flags],
 	[m4_foreach([flav],[_cfg_flavor_params],
 	    [m4_cond(m4_car(flav),$1,
 	        m4_apply([_cfg_flavor_tuple_flags],[flav]))])])
 
-dnl _cfg_flavor_extra_kmods(flavor):  extra kernel modules to load for kthreads
-dnl   for use in rtapi.ini
-dnl   _cfg_flavor_extra_kmods(xenomai-kernel) => rtapi_math
-AC_DEFUN([_cfg_flavor_tuple_extra_kmods],[$8])
-AC_DEFUN([_cfg_flavor_extra_kmods],
-	[m4_foreach([flav],[_cfg_flavor_params],
-	    [m4_cond(m4_car(flav),$1,
-	        m4_apply([_cfg_flavor_tuple_extra_kmods],[flav]))])])
-
 dnl _cfg_flavor_upcase(flavor):  return uppercase, and dashes->underscores
 dnl   used to generate C preprocessor macro names
-dnl   _cfg_flavor_ucase(xenomai-kernel) => XENOMAI_KERNEL
+dnl   _cfg_flavor_ucase(rt-preempt) => RT_PREEMPT
 AC_DEFUN([_cfg_flavor_upcase],[m4_translit([$*],[a-z-],[A-Z_])])
 
 dnl _cfg_flavor_underscored(flavor):  return dashes->underscores
 dnl   used to generate e.g. $with_xenomai_kernel
 AC_DEFUN([_cfg_flavor_underscored],[m4_translit([$*],[-],[_])])
-
-dnl _cfg_flavor_BUILD_SYS(flavor):  return BUILD_SYS_{KBUILD,USER_DSO}
-dnl   for use in config.h
-dnl   _cfg_flavor_BUILD_SYS(xenomai) => BUILD_SYS_USER_DSO;
-dnl   _cfg_flavor_BUILD_SYS(xenomai-kernel) => BUILD_SYS_KBUILD;
-AC_DEFUN([_cfg_flavor_BUILD_SYS],
-	[BUILD_SYS_[]_cfg_flavor_upcase(_cfg_flavor_build_sys($1))])
-
-dnl _cfg_kbuild_flavors:  list of kbuild RT thread flavors
-AC_DEFUN([_cfg_flavor_tuple_name],[$1])
-m4_foreach([flav],[_cfg_flavor_params],
-	[m4_cond(_cfg_flavor_build_sys(flav),[kbuild],
-	    [m4_append_uniq([_cfg_tmp],_cfg_flavor_tuple_name(flav),[[ ]])]
-)])
-
-dnl   _cfg_kbuild_flavors => xenomai-kernel,rtai
-AC_DEFUN([_cfg_kbuild_flavors],m4_split(_cfg_tmp))
-
-
-#--------------------------------------------------------#
-# Universal build variables and macros
-#
-# new thread systems introduced here:
-# http://wiki.linuxcnc.org/cgi-bin/wiki.pl?RealtimeConfiguratonProposal
-#
-# at the shell script/makefile level, we have:
-#
-# $(threads) - one of 'rtai-kernel', 'posix', 'xenomai', 'xenomai-kernel',
-# 'rt-preempt' in shell/Makefile
-#
-# the Makefile will run '$(MAKE) threads=<flavor> modules' once for
-# each flavor configured here.
-#
-# This is used to generate the upper-case, underscored $(THREADS),
-# which is e.g. POSIX or RTAI_KERNEL.
-#
-# $(THREADS) in turn is used to select the correct configuration
-# variables out of Makefile.inc.  For example, THREADS_RTFLAGS is set
-# to RT_PREEMPT_THREADS_RTFLAGS for the rt-preempt flavor.
 
 
 ##############################################################################
@@ -306,8 +240,7 @@ AC_DEFUN([_cfg_kbuild_flavors],m4_split(_cfg_tmp))
 # BUILD_THREAD_FLAVORS
 #
 # a list of all configured threads systems to build; the complete
-# possible list is 'posix rt-preempt xenomai xenomai-kernel
-# rtai-kernel'
+# possible list is 'posix rt-preempt xenomai'
 #
 # <THREADS_SYSTEM>_THREADS_RTS
 #
@@ -325,10 +258,6 @@ AC_DEFUN([_cfg_kbuild_flavors],m4_split(_cfg_tmp))
 # this is used in config.h to set flavor-specific macros, and set in
 # cflags for any compile that #includes config.h
 #
-# <THREADS_SYSTEM>_THREADS_BUILD_SYS
-#
-# 'kbuild' for kernel threads, 'user-dso' for user threads
-#
 # <THREADS_SYSTEM>_THREADS_SOURCE
 #
 # the basename of the flavor's file in src/rtapi; this is usually the
@@ -345,33 +274,7 @@ AC_DEFUN([_cfg_kbuild_flavors],m4_split(_cfg_tmp))
 # list of LDFLAGS specific to the threads system; also obtained partly
 # from <THREADS_SYSTEM>_THREADS_RTS --ldflags
 #
-# <THREADS_SYSTEM>_THREADS_KERNEL_DIRS
-#
-# for kbuild flavors only (currently); list of directory paths for the
-# flavor's configured kernel source trees
-#
-# paths may be explicitly set on the ./configure command line using
-# '--with-xenomai-kernel-sources' or '--with-rtai-kernel-sources'
-#
-# otherwise kernel sources are automatically detected from standard
-# locations, which may be extended using '--with-extra-kernel-sources'
-#
-# SHMDRV_KERNEL_DIRS
-#
-# similar to above, a list of directory paths for which to build the
-# shmdrv.ko module
-#
-# as above, paths may be set using '--with-shmdrv-kernel-sources'
-#
-# --enable-shmdrv builds shmdrv.ko for all configured kernels,
-# regardless of whether other kthreads modules will be built;
-# shmdrv.ko is always built for kthreads modules
-#
-# <THREADS_SYSTEM>_THREADS_EXTRA_SYMBOLS
-#
 # path name to a Module.symvers file needed by kbuild
-#
-# <THREADS_SYSTEM>_THREADS_KERNEL_MATH_CFLAGS
 #
 # math-related CFLAGS used in RTAPI compiles; partly obtained by
 # <THREADS_SYSTEM>_THREADS_RTS
@@ -385,25 +288,6 @@ AC_DEFUN([_cfg_kbuild_flavors],m4_split(_cfg_tmp))
 #
 # flavor macros from config.h, set appropriately for each '$(MAKE)
 # threads=<flavor> modules' run:
-#
-# RTAPI_<FLAVOR>
-#
-# for example '#ifdef RTAPI_RTAI_KERNEL' to test if the current flavor
-# being built is rtai-kernel
-
-# THREAD_FLAVOR_NAME
-#
-# the name of the current flavor, quoted, e.g. "posix" or "rt-preempt"
-
-# BUILD_SYS_USER_DSO or BUILD_SYS_KBUILD
-#
-# The former will be defined for userland threads, the latter for
-# kernel threads
-#
-# THREADS_HEADERS
-#
-# Used by the rtapi system to #include the correct headers for the
-# flavor currently being built, e.g. "rtapi/xenomai.h"
 
 # RTAPI_<FLAVOR>_ID
 #
@@ -448,18 +332,6 @@ AC_DEFUN([_cfg_kbuild_flavors],m4_split(_cfg_tmp))
 # /* build hardware drivers */
 # #define BUILD_DRIVERS /**/
 #
-#
-KSOURCE_LOCATION_HINTS=$(echo \
-	/usr/src/kernels/* \
-	/usr/src/linux-headers-* \
-	/lib/modules/*/build \
-	)
-#
-# Places to look for Xeno and RTAI kernel headers
-#
-# RedHat-derivatives: (/usr/src/kernels/`uname -r`),
-# Debian-derivatives: (/usr/src/linux-headers-`uname -r`)
-# Vanilla kernel install: (/lib/modules/`uname -r`/build)
 
 
 # USE_PORTABLE_PARPORT_IO="no"
@@ -899,29 +771,6 @@ AC_ARG_ENABLE(proto-js,
     ])
 
 
-AC_MSG_CHECKING(whether to use the common shared memory driver)
-AC_ARG_ENABLE(shmdrv,
-    [  --enable-shmdrv      use the common shared memory driver kernel module],
-    [
-        case "$enableval" in
-            Y*|y*)
-		USE_SHMDRV=yes
-                AC_MSG_RESULT([explicitly configuring for common shared memory driver kernel module])
-            ;;
-            N*|n*)
-		USE_SHMDRV=no
-                AC_MSG_RESULT([explicitly disabling shared memory driver kernel module])
-            ;;
-        esac
-	if test -z "USE_SHMDRV"; then
-	   AC_MSG_ERROR([ I dont understand $enableval, just yes or no ])
-	fi
-    ],
-    [
-      USE_SHMDRV=no
-      AC_MSG_RESULT([default is no])
-    ])
-
 AC_MSG_CHECKING(whether to use inb/outb or ppdev ioctl on the x86 for parport I/O)
 AC_ARG_ENABLE(portable-parport,
     [  --enable-portable-parport      Build hal_parport using the ppdev ioctl instead of inb/outb],
@@ -1088,266 +937,6 @@ AC_PYTHON_MODULE(pyftpdlib.servers, failed to import pyftpdlib.servers
 
 
 ##############################################################################
-# Subsection 2.4                                                             #
-# Kernel detection                                                           #
-# Find all kernels on system and assess realtime capabilities                #
-##############################################################################
-
-check_kernel_source_configured() {
-    # Check if a path is a configured kernel source
-    local ksrc_dir=${1}
-    if test -z "$ksrc_dir"; then
-        AC_MSG_ERROR([check_kernel_source_configured() given empty ksrc_dir])
-    fi
-
-    AC_MSG_CHECKING([for configured kernel source in $ksrc_dir])
-    # if .config and version.h both exist, then assume it's configured
-    if test -f "$ksrc_dir/.config" -a \
-	    \(  -f "$ksrc_dir/include/linux/version.h" -o \
-	    -f "$ksrc_dir/include/generated/uapi/linux/version.h"  \); then
-	AC_MSG_RESULT([found])
-	return 0
-    else
-	AC_MSG_RESULT([not found])
-	return 1
-    fi
-}
-
-check_kernel_source_version() {
-    # get kernel version from version.h; set variable KVER
-    # assume check_source_configured() already done
-
-    # Unfortunately, many distributions (redhat, mandrake) have
-    # #defines inside version.h, so a simple cat|grep|cut test won't
-    # work... But then again, RH & Mandrake kernels are notorious for
-    # their use of patches that break the RT patching - Both RTAI and
-    # RTLinux strongly recommend using a virgin source from
-    # kernel.org.
-
-    local ksrc_dir=${1}
-    if test -z "$ksrc_dir"; then
-        AC_MSG_ERROR([check_kernel_source_version() given empty ksrc_dir])
-    fi
-
-    # Get the kernel version from version.h
-    AC_MSG_CHECKING([kernel version string in $ksrc_dir])
-
-    if test -e $ksrc_dir/include/linux/utsrelease.h; then
-	VERSION_FILE=$ksrc_dir/include/linux/utsrelease.h
-    elif test -e $ksrc_dir/include/generated/utsrelease.h; then
-	VERSION_FILE=$ksrc_dir/include/generated/utsrelease.h
-    else
-	VERSION_FILE=$ksrc_dir/include/linux/version.h
-    fi
-    KVER=`$CC -E -dM ${VERSION_FILE} | grep UTS | cut -d '"' -f 2`
-
-    if test -z "$KVER"; then
-	AC_MSG_RESULT([not found])
-    else
-	AC_MSG_RESULT([$KVER])
-    fi
-}
-
-check_xenomai_kernel_source() {
-    # check if kernel source is a xenomai kernel source
-    # assume check_source_configured() already done
-
-    local ksrc_dir=${1}
-    if test -z "$ksrc_dir"; then
-        AC_MSG_ERROR([check_xenomai_kernel_source() given empty ksrc_dir])
-    fi
-
-    # look for CONFIG_XENOMAI variable
-    AC_MSG_CHECKING(if $ksrc_dir is a xenomai kernel)
-    if test -f "$ksrc_dir/.config" && \
-	    grep -q '^CONFIG_XENOMAI=' "$ksrc_dir/.config"; then
-	AC_MSG_RESULT([yes])
-	return 0
-    else
-	AC_MSG_RESULT([no])
-	return 1
-    fi
-
-}
-
-
-#check_rtai_kernel_source() {
-#    # check if kernel source is an rtai kernel source
-#    # assume check_source_configured() already done
-#
-#    local ksrc_dir=${1}
-#    if test -z "$ksrc_dir"; then
-#        AC_MSG_ERROR([check_rtai_kernel_source() given empty ksrc_dir])
-#    fi
-#
-#
-#    # look for rt_daemonize (older RTAI) or rtai_irq_handler (at least
-#    # RTAI 4.0) or rtai_syscall_hook (RTAI 4.1) function definition
-#    AC_MSG_CHECKING(if $ksrc_dir is an RTAI kernel)
-#    if test -f "$ksrc_dir/Module.symvers" && \
-#            grep -q '\(rt_daemonize\|rtai_irq_handler\|rtai_syscall_hook\)' \
-#            "$ksrc_dir/Module.symvers"; then
-#        AC_MSG_RESULT([yes])
-#        return 0
-#    else
-#        AC_MSG_RESULT([no])
-#        return 1
-#    fi
-#
-#}
-
-# xenomai kernel modules will be built for these kernels if
-# xenomai-kernel threads are enabled
-#xenomai_kernels=''
-# RTAI kernel modules will be built for these kernels if
-# rtai-kernel threads are enabled
-#rtai_kernels=''
-# shmdrv kernel modules will be built for these kernels if
-# shmdrv and at least one userspace threads are enabled
-shmdrv_kernels=''
-#
-# list of kernel sources seen, so we don't check the same ones repeatedly
-seen_kernels=' '
-# ...and a function to check and add new
-kernel_seen() {
-    if test "${seen_kernels/ $1 /}" = "$seen_kernels"; then
-        # not seen
-	seen_kernels="$seen_kernels $1 "
-	return 1
-    else
-        # seen
-	return 0
-    fi
-}
-
-# check any xenomai sources specified on command line now
-# if any found, only build xenomai modules for these kernels
-AC_ARG_WITH(xenomai-kernel-sources,
-    [AS_HELP_STRING([--with-xenomai-kernel-sources="<ksrc_dir> <ksrc_dir>..."],
-	[directory paths of xenomai kernel source(s), space-separated])],
-	[# check directories now
-	    if test $with_xenomai_kernel_sources = no; then
-	        # ignore this
-		with_xenomai_kernel_sources=''
-	    else
-		for ksrc_dir in $with_xenomai_kernel_sources; do
-		    ksrc_dir=$(readlink -f $ksrc_dir)
-		    # add only configured, confirmed Xenomai sources
-		    if check_kernel_source_configured $ksrc_dir && \
-			check_xenomai_kernel_source $ksrc_dir; then
-			shmdrv_kernels="shmdrv_kernels $ksrc_dir"
-			xenomai_kernels="$xenomai_kernels $ksrc_dir"
-			# note this one's been seen
-			kernel_seen $ksrc_dir
-		    else
-			AC_MSG_ERROR([invalid xenomai kernel source: $ksrc_dir])
-		    fi
-		done
-	    fi
-	],
-	[with_xenomai_kernel_sources=''])
-
-# check any RTAI sources specified on command line now
-# if any found, only build RTAI modules for these kernels
-#AC_ARG_WITH(rtai-kernel-sources,
-#    [AS_HELP_STRING([--with-rtai-kernel-sources="<ksrc_dir> <ksrc_dir>..."],
-#	[directory paths of RTAI kernel source(s), space-separated])],
-#	[# check directories now
-#	    if test $with_rtai_kernel_sources = no; then
-#	        # ignore this
-#		with_rtai_kernel_sources=''
-#	    else
-#		for ksrc_dir in $with_rtai_kernel_sources; do
-#		    ksrc_dir=$(readlink -f $ksrc_dir)
-#		    # add only configured, confirmed RTAI sources
-#		    if check_kernel_source_configured $ksrc_dir && \
-#			check_rtai_kernel_source $ksrc_dir; then
-#			shmdrv_kernels="$shmdrv_kernels $ksrc_dir"
-#			rtai_kernels="$rtai_kernels $ksrc_dir"
-#			# note this one's been seen
-#			kernel_seen $ksrc_dir
-#		    else
-#			AC_MSG_ERROR([invalid RTAI kernel source:  $ksrc_dir])
-#		    fi
-#		done
-#	    fi
-#	],
-#	[with_rtai_kernel_sources=''])
-#
-
-# check any shmdrv sources specified on command line now
-# if any found, build shmdrv modules for these kernels
-AC_ARG_WITH(shmdrv-kernel-sources,
-    [AS_HELP_STRING([--with-shmdrv-kernel-sources="<ksrc_dir> <ksrc_dir>..."],
-	[directory paths of kernel source(s) to build shmdrv module for])],
-	[# check directories now
-	    if test $with_shmdrv_kernel_sources = no; then
-	        # ignore --without-shmdrv-kernel-sources
-		with_shmdrv_kernel_sources=''
-	    else
-		for ksrc_dir in $with_shmdrv_kernel_sources; do
-		    ksrc_dir=$(readlink -f $ksrc_dir)
-		    # add only new, configured sources
-		    if ! kernel_seen $ksrc_dir && \
-			    check_kernel_source_configured $ksrc_dir; then
-			shmdrv_kernels="$shmdrv_kernels $ksrc_dir"
-		    else
-			AC_MSG_ERROR([invalid kernel source:  $ksrc_dir])
-		    fi
-		done
-	    fi
-	],
-	[with_shmdrv_kernel_sources=''])
-
-AC_ARG_WITH(extra_kernel_sources,
-	[AS_HELP_STRING(
-	    [--with-extra-kernel-sources="<dir> <dir>..."],
-	    [list of extra kernel source directories to search])],
-	[KSOURCE_LOCATION_HINTS="$KSOURCE_LOCATION_HINTS
-	    $with_extra_kernel_sources"])
-
-
-find_kernels() {
-    # find all kernel directories from hints if not told on cmdline
-    # check kernel source is a valid, configured tree
-    # add all valid trees to $shmdrv_kernels
-    # add all valid xenomai and rtai trees to $xenomai_kernels and
-    #     $rtai_kernels, respectively
-    location_list=''
-    for location in $KSOURCE_LOCATION_HINTS; do
-        location=$(readlink -f $location)
-
-	# be sure $location is a directory not already in the list
-	test -d "$location" || continue
-	test "${location_list/$location/}" = "${location_list}" || continue
-
-	# if kernel source has been seen, ignore it
-	kernel_seen $location && continue
-
-	# if kernel source unconfigured, ignore it
-        check_kernel_source_configured $location || continue
-
-	# if --with-shmdrv-kernel-sources not explicitly on cmdline, add it
-	test -z "$with_shmdrv_kernel_sources" && \
-	    shmdrv_kernels="$shmdrv_kernels $location"
-	# if --with-xenomai-kernel-sources not explicitly on cmdline
-	# and xenomai kernel detected, add it
-	test -z "$with_xenomai_kernel_sources" && \
-	        check_xenomai_kernel_source $location && \
-	    xenomai_kernels="$xenomai_kernels $location"
-	# if --with-rtai-kernel-sources not explicitly on cmdline and
-	# RTAI kernel detected, add it
-	#test -z "$with_rtai_kernel_sources" && \
-	#        check_rtai_kernel_source $location && \
-	#    rtai_kernels="$rtai_kernels $location"
-    done
-}
-
-
-find_kernels
-
-
-##############################################################################
 # Subsection 2.5                                                             #
 # Flavor configuration                                                       #
 # - Check whether each flavor should be configured                           #
@@ -1381,36 +970,6 @@ AC_ARG_WITH(xenomai,
     [xenomai_from_cmdline=$withval
      test $withval = yes && all_flavors_default=no],
     [with_xenomai=check])
-
-#AC_ARG_WITH(xenomai-kernel,
-#    [AS_HELP_STRING([--with-xenomai-kernel],
-#        [build Xenomai kernel-space realtime threads (deprecated)])],
-#    [xenomai_kernel_from_cmdline=$withval
-#     test $withval = yes && all_flavors_default=no],
-#    [with_xenomai_kernel=check])
-# XENOMAI_THREADS_RTS:  locate the 'xeno-config' executable
-#AC_ARG_WITH(xeno-config,
-#    [AS_HELP_STRING([--with-xeno-config=<path>],
-#    [location of the xeno-config executable])],
-#    [xeno_config_from_cmdline=yes],
-#    [
-#	with_xenomai_config=""
-#    ])
-#
-#AC_ARG_WITH(rtai-kernel,
-#    [AS_HELP_STRING([--with-rtai-kernel],
-#        [build RTAI kernel-space realtime threads modules])],
-#    [test $withval = yes && all_flavors_default=no],
-#    [with_rtai_kernel=check])
-# RTAI_KERNEL_THREADS_RTS:  locate the 'rtai-config' executable
-#AC_ARG_WITH(rtai-config,
-#    [AS_HELP_STRING([--with-rtai-config=<path>],
-#    [location of the rtai-config executable])],
-#    [rtai_config_from_cmdline=yes],
-#    [
-#	with_rtai_config=""
-#    ])
-
 
 # If a --with-<flavor> flag was found, disable all flavors not
 # explicitly enabled
@@ -1526,10 +1085,6 @@ if test "$with_xenomai" != no -o "$with_xenomai_kernel" != no; then
 	    with_xenomai=no
 	fi
     fi
-    if test -x "$XENOMAI_THREADS_RTS"; then
-        # found xeno-config; use same one for kernel threads for consistency
-	XENOMAI_KERNEL_THREADS_RTS="$XENOMAI_THREADS_RTS"
-    fi
 fi
 
 if test -n "$XENOMAI_THREADS_RTS"; then
@@ -1559,7 +1114,6 @@ if test "$with_xenomai" != no -o "$with_xenomai_kernel" != no; then
         flags="$flags -fno-stack-protector"
     fi
     XENOMAI_THREADS_RTFLAGS="$XENOMAI_THREADS_RTFLAGS $flags"
-    XENOMAI_KERNEL_THREADS_RTFLAGS="$XENOMAI_KERNEL_THREADS_RTFLAGS -g $flags"
     # xenomai kernel math options
     flags="-ffast-math -mhard-float"
     if test "$($XENOMAI_THREADS_RTS --arch)" = x86; then
@@ -1570,12 +1124,10 @@ if test "$with_xenomai" != no -o "$with_xenomai_kernel" != no; then
         # -mpreferred-stack-boundary=3 on x86_64 arch, so force it.
 	flags="$flags -mpreferred-stack-boundary=4"
     fi
-    XENOMAI_KERNEL_THREADS_KERNEL_MATH_CFLAGS="$flags"
     # ldflags
     flags="$($XENOMAI_THREADS_RTS --ldflags)"
     AC_PRUNE_DEFAULT_LDFLAGS(flags)
     XENOMAI_THREADS_LDFLAGS="$XENOMAI_THREADS_LDFLAGS $flags"
-    XENOMAI_KERNEL_THREADS_LDFLAGS="$XENOMAI_KERNEL_THREADS_LDFLAGS $flags"
 fi
 
 AC_MSG_CHECKING(whether to build Xenomai userland threads)
@@ -1672,12 +1224,6 @@ if test "$with_drivers" = yes; then
    AC_DEFINE(BUILD_DRIVERS, [], [build hardware drivers])
 fi
 AC_SUBST(BUILD_DRIVERS,[$with_drivers])
-
-if test "$USE_SHMDRV" = yes; then
-   AC_DEFINE(USE_SHMDRV, [], [use shm driver module])
-fi
-AC_SUBST(USE_SHMDRV)
-AC_SUBST(SHMDRV_KERNEL_DIRS,[$shmdrv_kernels])
 
 AC_SUBST(BUILD_EXAMPLES)
 if test "$BUILD_EXAMPLES" = yes; then
@@ -1806,12 +1352,10 @@ if test "$with_posix" = yes; then
 fi
 AC_SUBST([HAVE_POSIX_THREADS],[$with_posix])
 AC_SUBST([POSIX_THREADS_FLAVOR_ID],_cfg_flavor_id(posix))
-AC_SUBST([POSIX_THREADS_BUILD_SYS],_cfg_flavor_build_sys(posix))
 AC_SUBST([POSIX_THREADS_SOURCE],[rt-preempt])
 AC_SUBST([POSIX_THREADS_RTFLAGS])
 AC_SUBST([POSIX_THREADS_LDFLAGS])
 AC_SUBST([POSIX_THREADS_RTS],[])
-AC_SUBST([POSIX_THREADS_EXTRA_KMODS],[])
 
 # RT_PREEMPT settings
 if test "$with_rt_preempt" = yes; then
@@ -1819,12 +1363,10 @@ if test "$with_rt_preempt" = yes; then
 fi
 AC_SUBST([HAVE_RT_PREEMPT_THREADS],[$with_rt_preempt])
 AC_SUBST([RT_PREEMPT_THREADS_FLAVOR_ID],_cfg_flavor_id(rt-preempt))
-AC_SUBST([RT_PREEMPT_THREADS_BUILD_SYS],_cfg_flavor_build_sys(rt-preempt))
 AC_SUBST([RT_PREEMPT_THREADS_SOURCE],[rt-preempt])
 AC_SUBST([RT_PREEMPT_THREADS_RTFLAGS])
 AC_SUBST([RT_PREEMPT_THREADS_LDFLAGS])
 AC_SUBST([RT_PREEMPT_THREADS_RTS],[])
-AC_SUBST([RT_PREEMPT_THREADS_EXTRA_KMODS],[])
 
 # Xenomai general settings
 if test "$XENOMAI_V2" = true; then
@@ -1839,12 +1381,10 @@ if test "$with_xenomai" = yes; then
 fi
 AC_SUBST([HAVE_XENOMAI_THREADS],[$with_xenomai])
 AC_SUBST([XENOMAI_THREADS_FLAVOR_ID],_cfg_flavor_id(xenomai))
-AC_SUBST([XENOMAI_THREADS_BUILD_SYS],_cfg_flavor_build_sys(xenomai))
 AC_SUBST([XENOMAI_THREADS_SOURCE],[xenomai])
 AC_SUBST([XENOMAI_THREADS_RTFLAGS])
 AC_SUBST([XENOMAI_THREADS_LDFLAGS])
 AC_SUBST([XENOMAI_THREADS_RTS])
-AC_SUBST([XENOMAI_THREADS_EXTRA_KMODS],[])
 AC_SUBST([PRECISE_MULTILIB_BUG],[$PRECISE_MULTILIB_BUG])
 
 # while we are at it, drop a git scent mark
@@ -2062,6 +1602,7 @@ if test "xyes" = "x$RUN_IN_PLACE"; then
     EMC2_PO_DIR=$EMC2_HOME/share/locale
     EMC2_HELP_DIR=$EMC2_HOME/help
     EMC2_RTLIB_DIR=$EMC2_HOME/rtlib
+    EMC2_MODULES_DIR=$EMC2_RTLIB_DIR/modules
     LINUXCNC_CONFIG_PATH="~/machinekit/configs:$EMC2_HOME/configs"
     EMC2_NCFILES_DIR=$EMC2_HOME/nc_files
     REALTIME=$EMC2_HOME/scripts/realtime
@@ -2080,6 +1621,7 @@ else
     EMC2_PO_DIR=${prefix}/share/locale
     EMC2_HELP_DIR=${prefix}/share/doc/linuxcnc
     EMC2_RTLIB_DIR=${prefix}/lib/linuxcnc
+    EMC2_MODULES_DIR=$EMC2_RTLIB_DIR/modules
     LINUXCNC_CONFIG_PATH="~/machinekit/configs:${sysconfdir}/linuxcnc/configs:$(fe "$datadir")/linuxcnc/examples/sample-configs"
     EMC2_NCFILES_DIR=${prefix}/share/linuxcnc/ncfiles
     REALTIME=${bindir}/realtime
@@ -2098,6 +1640,8 @@ AC_DEFINE_UNQUOTED([EMC2_HOME], "$EMC2_HOME", [Prefix or RIP directory])
 AC_DEFINE_UNQUOTED([MACHINEKIT_INI], "$MACHINEKIT_INI", [path of global machinekit.ini file])
 AC_DEFINE_UNQUOTED([EMC2_BIN_DIR], "$EMC2_BIN_DIR", [Directory for binaries])
 AC_DEFINE_UNQUOTED([EMC2_RTLIB_DIR], "$EMC2_RTLIB_DIR", [Directory for ulapi shared objects])
+AC_DEFINE_UNQUOTED([EMC2_MODULES_DIR], "$EMC2_MODULES_DIR",
+                                       [Directory for rtapi shared objects])
 AC_DEFINE_UNQUOTED([EMC2_PO_DIR], "$EMC2_PO_DIR", [Directory for po/mo translation files])
 AC_DEFINE_UNQUOTED([EMC2_NCFILES_DIR], "$EMC2_NCFILES_DIR", [Directory for nc files])
 AC_DEFINE_UNQUOTED([EMC2_IMAGE_DIR], "$EMC2_IMAGE_DIR", [Directory for images])
@@ -2111,6 +1655,7 @@ AC_SUBST([EMC2_TCL_DIR])
 AC_SUBST([EMC2_TCL_LIB_DIR])
 AC_SUBST([EMC2_HELP_DIR])
 AC_SUBST([EMC2_RTLIB_DIR])
+AC_SUBST([EMC2_MODULES_DIR])
 AC_SUBST([EMC2_LANG_DIR])
 AC_SUBST([LINUXCNC_CONFIG_PATH])
 AC_SUBST([EMC2_NCFILES_DIR])
@@ -2214,27 +1759,6 @@ then
     AC_MSG_ERROR([awk not found])
 fi
 
-#if test -n "${rtai_kernels}${xenomai_kernels}${shmdrv_kernels}"; then
-    # Kernel module tools only needed for kthreads
-#    AC_PATH_PROG(INSMOD, insmod, "none", $SPATH)
-#    if test $INSMOD = "none"
-#    then
-#	AC_MSG_ERROR([insmod not found])
-#    fi
-
-#    AC_PATH_PROG(RMMOD, rmmod, "none", $SPATH)
-#    if test $RMMOD = "none"
-#    then
-#	AC_MSG_ERROR([rmmod not found])
-#    fi
-
-#    AC_PATH_PROG(LSMOD, lsmod, "none", $SPATH)
-#    if test $LSMOD = "none"
-#    then
-#	AC_MSG_ERROR([lsmod not found])
-#    fi
-#fi
-
 AC_PATH_PROG(PIDOF, pidof, "none", $SPATH)
 if test $PIDOF = "none"
 then
@@ -2255,42 +1779,6 @@ fi
 
 # MANDB empty is handled in doc/Submakefile
 AC_PATH_PROG(MANDB, mandb, "")
-
-AC_ARG_WITH(rmmod,
-    [  --with-rmmod=</path/rmmod>              rmmod variant],
-    [
-	case "$withval" in
-	"" | y | ye | yes)
-	    AC_MSG_ERROR([You must supply an argument to --with-rmmod.])
-	  ;;
-	n | no | none)
-	    RMMOD=""
-	  ;;
-	*)
-	    RMMOD="$withval"
-	esac
-    ],
-    [
-            RMMOD="$EMC2_BIN_DIR/linuxcnc_module_helper remove"
-    ])
-
-AC_ARG_WITH(insmod,
-    [  --with-insmod=</path/insmod>            insmod variant],
-    [
-	case "$withval" in
-	"" | y | ye | yes)
-	    AC_MSG_ERROR([You must supply an argument to --with-insmod.])
-	  ;;
-	n | no | none)
-	    INSMOD=""
-	  ;;
-	*)
-	    INSMOD="$withval"
-	esac
-    ],
-    [
-            INSMOD="$EMC2_BIN_DIR/linuxcnc_module_helper insert"
-    ])
 
 ##############################################################################
 # Subsection 3.5 - check for programs needed to build documentation          #
@@ -2475,7 +1963,7 @@ AC_SUBST(BUILD_DOCS)
 # be used in both kernel space and user space.
 
 dnl _cfg_thread_flavor_macros():  define thread flavor IDs
-dnl   and set RTAPI_<FLAVOR>, BUILD_SYS_<BUILDSYS> & THREADS_HEADERS macros
+dnl   and set RTAPI_<FLAVOR> & THREADS_HEADERS macros
 AC_DEFUN([_cfg_thread_flavor_macros],[dnl
 m4_foreach([_cfg_flavor],[_cfg_all_flavors],[dnl
 [#]define RTAPI_[]_cfg_flavor_upcase(_cfg_flavor)[]_ID dnl
@@ -2483,21 +1971,6 @@ _cfg_flavor_id(_cfg_flavor)
 [#]define RTAPI_[]_cfg_flavor_upcase(_cfg_flavor)[]_NAME dnl
 "_cfg_flavor"
 ])
-#if ! defined(THREAD_FLAVOR_ID)
-// this isn't allowed when building RTAPI
-#ifdef RTAPI
-#error RTAPI defined but THREAD_FLAVOR_ID not defined
-#endif
-m4_foreach([_cfg_flavor],[_cfg_all_flavors],[dnl
-[#]elif THREAD_FLAVOR_ID == RTAPI_[]_cfg_flavor_upcase(_cfg_flavor)_ID
-[#]  define RTAPI_[]_cfg_flavor_upcase(_cfg_flavor)
-[#]  define THREAD_FLAVOR_NAME "_cfg_flavor"
-[#]  define _cfg_flavor_BUILD_SYS(_cfg_flavor)
-[#]  define THREADS_HEADERS "_cfg_flavor_threads_headers(_cfg_flavor)"
-])dnl
-#else
-#error unknown value for THREAD_FLAVOR_ID
-#endif
 ])
 
 
@@ -2560,7 +2033,7 @@ AH_TOP([/********************************************************************
 
 ]
 // flavor IDs for the various threads systems
-// and conditional to set thread system and build_sys macros
+// and conditional to set thread system macros
 // alter these in configure.ac Subsection 2.0
 dnl this needs to be unquoted
 _cfg_thread_flavor_macros
@@ -2619,7 +2092,6 @@ m4_foreach([_cfg_flavor],[_cfg_all_flavors],[dnl
 # These values do not normally need to be changed.
 rtapi_app=@EMC2_LIBEXEC_DIR@/rtapi_app_[]_cfg_flavor
 RTS=@_cfg_flavor_upcase(_cfg_flavor)_THREADS_RTS@
-MODULES=@_cfg_flavor_upcase(_cfg_flavor)_THREADS_EXTRA_KMODS@
 ])
 EOF
 EOFOUTER

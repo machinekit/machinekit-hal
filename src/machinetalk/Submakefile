@@ -116,8 +116,6 @@ NANOPB_CFLAGS := -DPB_FIELD_32BIT '-DPB_SYSTEM_HEADER=<'$(MACHINETALK)'/include/
 NANOPB_OPTIONS := $(MACHINETALK)/nanopb.options
 
 # any extra flags to C compile nanopb bindings
-# this gets exported to RTFLAGS so dont add -fPIC here (stalls kthreads build)
-# machinetalk/msgcomponents/Submakefile:RTFLAGS +=   $(PROTO_NANOPB_CFLAGS)
 PROTO_NANOPB_CFLAGS := $(NANOPB_CFLAGS)
 
 # nanopb library .h/.c files

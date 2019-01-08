@@ -245,7 +245,7 @@ TOOBJSDEPS = $(call TOOBJS,$(1),$(2)) $(call TODEPS, $(1),$(2))
 
 # This macro generates build rules for C components
 # Example call & resulting rules:
-# $$(call c_comp_build_rules,hal/components/encoder.o,hal/components/othersrc.o)
+# $$(eval $(call c_comp_build_rules,hal/components/encoder.o,hal/components/othersrc.o))
 # obj-m += encoder.o
 # encoder-objs := hal/components/encoder.o hal/components/othersrc.o
 # $(RTLIBDIR)/encoder$(MODULE_EXT): \
@@ -1132,8 +1132,7 @@ TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), $(OBJDIR)/$(file))
 
 #######################################################################################################
 
-# USER_DSO module building
-ifeq ($(BUILD_SYS),user-dso)
+# Module building
 EXTRA_CFLAGS += -fPIC
 
 RTOBJS := $(sort $(foreach mod,$(obj-m),$(call TORTOBJS,$(mod))))
@@ -1260,8 +1259,6 @@ $(sort $(CXXRTOBJS)) : $(OBJDIR)/%.o : %.cc $(DEPDIR)/%.d
 	@mkdir -p $(dir $@)
 	$(Q)$(CXX) -c $(OPT) $(DEBUG) $(RT_CXXFLAGS) $(CPPFLAGS) \
 	    $(EXTRA_CFLAGS) $< -o $@
-
-endif # end BUILD_SYS=user-dso
 
 ###############################################################################################
 

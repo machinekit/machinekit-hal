@@ -64,10 +64,6 @@
 #error "This driver is for the beaglebone platform only"
 #endif
 
-#if !defined(BUILD_SYS_USER_DSO)
-#error "This driver is for usermode threads only"
-#endif
-
 /* Module information */
 #define MODNAME "hal_arm335xQEP"
 MODULE_AUTHOR("Russell Gower");
@@ -525,4 +521,3 @@ static int export_encoder(eqep_t *eqep)
 
     return 0;
 }
-

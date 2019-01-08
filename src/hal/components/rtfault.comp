@@ -11,10 +11,8 @@ license "GPL";
 ;;
 
 #include "rtapi.h"
-#if defined(BUILD_SYS_USER_DSO)
 #include <time.h>
 #include <stdio.h>
-#endif
 #include <stdbool.h>
 static bool previous_fault;
 static int n;
@@ -23,7 +21,7 @@ FUNCTION(_) {
     if (previous_fault ^ fault) {
 	n = count;
     }
-    previous_fault = fault;  
+    previous_fault = fault;
     if (n) {
 #if defined(BUILD_SYS_USER_DSO)
 	// printf() eventually calls write(), which will cause
