@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2017 Raoul Rubien (github.com/rubienr)
+   Copyright (C) 2018 Raoul Rubien (github.com/rubienr)
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -32,6 +32,7 @@
 
 // local library includes
 #include <hal.h>
+#include <sys/types.h>
 
 // forward declarations
 
@@ -40,7 +41,63 @@ namespace XhcWhb04b6 {
 // forward declarations
 class MetaButtonCodes;
 class KeyCodes;
+namespace Profiles {
+struct ModeRequest;
+struct SpindleRequest;
+struct HalRequestProfile;
+}
 
+namespace Profiles {
+
+// ----------------------------------------------------------------------
+
+//! Defines hold and space delays for mode requests when pin is toggled.
+struct ModeRequest {
+    const useconds_t holdMs;
+    const useconds_t spaceMs;
+
+    const uint       modeCheckLoops;
+    const useconds_t modeCheckLoopTimeoutMs;
+};
+
+// ----------------------------------------------------------------------
+
+//! Defines hold and space delays for spindle increment/decrement requests.
+struct SpindleRequest {
+    const useconds_t holdMs;
+    const useconds_t spaceMs;
+};
+
+// ----------------------------------------------------------------------
+
+//! Overall hal request profile.
+struct HalRequestProfile
+{
+    ModeRequest    mode;
+    SpindleRequest spindle;
+};
+
+// ----------------------------------------------------------------------
+
+//! A slow profile is reasonable for the BeagleBoneBlack especially when using Axis UI.
+static constexpr HalRequestProfile halRequestSlowProfile()
+{
+    //! For BeagleBoneBlack this values seams reasonable, since it is a rather slow hardware.
+    return HalRequestProfile
+    {
+        {
+            // ModeRequest
+            10, 10, // hold, space
+            60,  5  // loops, timeout
+        },
+        {
+            // SpindleRequest
+            30, 30,  // hold, space
+        }
+    };
+}
+
+}
 
 // ----------------------------------------------------------------------
 
@@ -130,8 +187,6 @@ public:
 
         //! to be connected to \ref halui.mode.is-auto
         hal_bit_t* isModeAuto{nullptr};
-        //! to be connected to \ref halui.mode.is-joint
-        hal_bit_t* isModeJoint{nullptr};
         //! to be connected to \ref halui.mode.is-manual
         hal_bit_t* isModeManual{nullptr};
         //! to be connected to \ref halui.mode.is-mdi
@@ -273,8 +328,6 @@ public:
 
         //! to be connected to \ref halui.mode.auto
         hal_bit_t* doModeAuto{nullptr};
-        //! to be connected to \ref halui.mode.joint
-        hal_bit_t* doModeJoint{nullptr};
         //! to be connected to \ref halui.mode.manual
         hal_bit_t* doModeManual{nullptr};
         //! to be connected to \ref halui.mode.mdi
@@ -306,7 +359,8 @@ public:
 class Hal
 {
 public:
-    Hal();
+    Hal(Profiles::HalRequestProfile halRequestProfile=Profiles::halRequestSlowProfile());
+
     ~Hal();
     //! Initializes HAL memory and pins according to simulation mode. Must not be called more than once.
     //! If \ref mIsSimulationMode is true heap memory will be used, shared HAL memory otherwise.
@@ -447,8 +501,10 @@ public:
     void setSpindleMinus(bool enabled);
     //! \sa setReset(bool, size_t)
     void setFunction(bool enabled);
-    //! \sa setReset(bool, size_t)
-    void setMachineHome(bool enabled);
+    //! Requests machine to search home for all axis. \ref halui.home-all
+    void requestMachineHomingAll(bool isRisingEdge);
+    //! Requests machine to go home (move axis to home position).
+    void requestMachineGoHome(bool enabled);
     //! \sa setReset(bool, size_t)
     void setSafeZ(bool enabled);
     //! \sa setReset(bool, size_t)
@@ -501,6 +557,25 @@ public:
     //! \sa setMacro1(bool, size_t)
     void setMacro16(bool enabled);
 
+    //! Toggles (high then low) spindle increase signal count times.
+    //! \sa HalMemory::Out::spindleDoIncrease
+    //! \sa spindleSpeedToggle(int8_t, bool)
+    //! \sa toggleSpindleIncrease()
+    void spindleIncrease(int8_t count);
+    //! Toggles (high then low) spindle decrease signal count times.
+    //! \sa HalMemory::Out::spindleDoDecrease
+    //! \sa spindleSpeedToggle(int8_t, bool)
+    //! \sa toggleSpindleDecrease()
+    void spindleDecrease(int8_t count);
+    //! Inverts the spindle increase signal state once.
+    //! \sa HalMemory::Out::spindleDoIncrease
+    //! \sa spindleIncrease(int8_t)
+    void toggleSpindleIncrease();
+    //! Inverts the spindle decrease signal state once.
+    //! \sa HalMemory::Out::spindleDoDecrease
+    //! \sa spindleDecrease(int8_t)
+    void toggleSpindleDecrease();
+
     //! Writes the corresponding counter to to each axis' count.
     //! \param counters values to propagate to each axis
     void setJogCounts(const HandWheelCounters& counters);
@@ -520,11 +595,6 @@ public:
     //! \xrefitem getAxisXPosition(bool)
     hal_float_t getAxisCPosition(bool absolute) const;
 
-    //! Requests manual mode if in MDI mode. Skips request if in AUTO mode.
-    //! \param isButtonPressed true on button press, false on release
-    //! \return true on successful request and if isButtonPressed == true, false otherwise
-    bool trySetManualMode(bool isButtonPressed);
-
 private:
     HalMemory* memory{nullptr};
     std::map <std::string, size_t> mButtonNameToIdx;
@@ -535,8 +605,9 @@ private:
     int          mHalCompId{-1};
     std::ostream mDevNull{nullptr};
     std::ostream* mHalCout{nullptr};
-    HandwheelStepmodes::Mode mStepMode;
-    bool                     mIsSpindleDirectionForward{true};
+    HandwheelStepmodes::Mode    mStepMode;
+    bool                        mIsSpindleDirectionForward{true};
+    Profiles::HalRequestProfile mHalRequestProfile;
 
     //! //! Allocates new hal_bit_t pin according to \ref mIsSimulationMode. If \ref mIsSimulationMode then
     //! mallocs memory, hal_pin_bit_new allocation otherwise.
@@ -573,9 +644,38 @@ private:
     void toggleStartResumeProgram();
 
     void clearStartResumeProgramStates();
+    //! \sa requestManualMode(bool)
+    bool requestAutoMode(bool isRisingEdge);
+    //! Requests manual mode if in MDI mode. Skips request if in AUTO mode.
+    //! \sa requestMode(bool, hal_bit_t*, hal_bit_t*)
+    //! \param isButtonPressed true on button press, false on release
+    //! \return true if machine has selected the mode, false otherwise
+    bool requestManualMode(bool isRisingEdge);
+    //! \sa requestManualMode(bool)
+    bool requestMdiMode(bool isRisingEdge);
 
-    void enableManualMode(bool isRisingEdge);
+    //! Polls for condition with timeout and max loops count.
+    //! Returns if condition is met or number of loops is exhausted.
+    //! Experience on BeagleBoneBlack with Axis UI revealed that the delay until a mode is switched is
+    //! approximately 80ms to 150ms.
+    //! \param condition the condition to be polled
+    //! \param timeout_ms delay in [ms] in between condition is checks
+    //! \param max_timeouts maximum number of checks
+    //! \return true if condition was met, false otherwise
+    bool waitForRequestedMode(volatile hal_bit_t* condition);
 
-    void enableMdiMode(bool isRisingEdge);
+    //! Requests machine mode such as auto, mdi, manual. When toggling it introduces hold and space delay.
+    //! \sa mModesRequestProfile
+    //! \param requestPin the (output) pin to toggle for requesting
+    //! \param modeFeedbackPin the (input) pin reflecting if the mode is set
+    //! \return on rising edge: true if the machine has selected or is in the desired mode, false otherwise;
+    //! on falling edge: false
+    bool requestMode(bool isRisingEdge, hal_bit_t* requestPin, hal_bit_t* modeFeedbackPin);
+
+    //! Toggles n times the spindle increase/decrease pin.
+    //! \sa Profiles::SindleRequest
+    //! \param count times to toggle the increase pin
+    //! \param increase increase pin if true, decrease pin otherwise
+    void spindleSpeedToggle(int8_t count, bool increase);
 };
 }

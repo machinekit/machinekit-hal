@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2017 Raoul Rubien (github.com/rubienr)
+   Copyright (C) 2018 Raoul Rubien (github.com/rubienr)
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -75,7 +75,8 @@ public:
     void enableCrcDebugging(bool enable);
     void setWaitWithTimeout(uint8_t waitSecs = 3);
     void printCrcDebug(const UsbInPackage& inPackage, const UsbOutPackageData& outPackageBuffer) const;
-    void offerHalMemory();
+    void setLeadModeSpindle();
+    void setLeadModeFeed();
 
 private:
     const char* mName;
