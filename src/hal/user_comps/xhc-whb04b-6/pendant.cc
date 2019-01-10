@@ -1246,7 +1246,6 @@ bool Pendant::onButtonPressedEvent(const MetaButtonCodes& metaButton)
     }
     else if (metaButton == KeyCodes::Meta.macro2)
     {
-        mHal.toggleLubeOnOff(true);
         mHal.setMacro2(true);
         isHandled = true;
     }
@@ -1293,13 +1292,11 @@ bool Pendant::onButtonPressedEvent(const MetaButtonCodes& metaButton)
     }
     else if (metaButton == KeyCodes::Meta.macro15)
     {
-        mHal.toggleFloodOnOff(true);
         mHal.setMacro15(true);
         isHandled = true;
     }
     else if (metaButton == KeyCodes::Meta.macro16)
     {
-        mHal.toggleMistOnOff(true);
         mHal.setMacro16(true);
         isHandled = true;
     }
@@ -1411,7 +1408,6 @@ bool Pendant::onButtonReleasedEvent(const MetaButtonCodes& metaButton)
     }
     else if (metaButton == KeyCodes::Meta.macro2)
     {
-        mHal.toggleLubeOnOff(false);
         mHal.setMacro2(false);
         isHandled = true;
     }
@@ -1458,13 +1454,11 @@ bool Pendant::onButtonReleasedEvent(const MetaButtonCodes& metaButton)
     }
     else if (metaButton == KeyCodes::Meta.macro15)
     {
-        mHal.toggleFloodOnOff(false);
         mHal.setMacro15(false);
         isHandled = true;
     }
     else if (metaButton == KeyCodes::Meta.macro16)
     {
-        mHal.toggleMistOnOff(false);
         mHal.setMacro16(false);
         isHandled = true;
     }
@@ -1774,31 +1768,16 @@ bool Display::onButtonPressedEvent(const MetaButtonCodes& metaButton)
                 DisplayIndicatorStepMode::StepMode::STEP);
         return true;
     }
-    
-     else if (metaButton == KeyCodes::Meta.safe_z)
+    else if (metaButton == KeyCodes::Meta.macro5)
     {
-        if (mAxisPositionMethod == AxisPositionMethod::ABSOLUTE)
-          {
-          	mAxisPositionMethod = AxisPositionMethod::RELATIVE;
-            return true;
-         	}
-         	else if (mAxisPositionMethod == AxisPositionMethod::RELATIVE)
-         	{
-            mAxisPositionMethod = AxisPositionMethod::ABSOLUTE;
-            return true;
-         	}
-    }    
-    
-//    else if (metaButton == KeyCodes::Meta.macro5)
-//    {
-//        mAxisPositionMethod = AxisPositionMethod::ABSOLUTE;
-//        return true;
-//    }
-//    else if (metaButton == KeyCodes::Meta.macro7)
-//    {
-//        mAxisPositionMethod = AxisPositionMethod::RELATIVE;
-//        return true;
-//    }
+        mAxisPositionMethod = AxisPositionMethod::ABSOLUTE;
+        return true;
+    }
+    else if (metaButton == KeyCodes::Meta.macro7)
+    {
+        mAxisPositionMethod = AxisPositionMethod::RELATIVE;
+        return true;
+    }
     return false;
 }
 
