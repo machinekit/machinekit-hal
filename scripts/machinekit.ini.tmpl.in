@@ -13,8 +13,12 @@
 # use this MKUUID value as a unique key.
 #
 # All MKUUID's must be different, so if there are several Machinekit instances
-# running on a LAN, there might be collisions
-# hence,  change this UUID by using the output of 'uuidgen':
+# running on a LAN, there might be collisions hence this UUID should always differ
+# from the default in scripts/machinekit.ini.tmpl.
+# You can alter it yourself with the output from uuidgen if required.
+#
+# Should you wish to retain the same MKUUID after repo cleans and rebuilds
+# keep a backup copy of the file and substitute it as required.
 MKUUID=a42c8c6b-4025-4f83-ba28-dad21114744a
 
 # -------------- enabling remote operation -----------------
