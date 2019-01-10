@@ -561,11 +561,13 @@ void Hal::init(const MetaButtonCodes* metaButtons, const KeyCodes& keyCodes)
     newHalBit(HAL_OUT, &(memory->out.feedValueSelected_0_01), mHalCompId, "%s.halui.feed.selected-0.01",
               mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.feedValueSelected_0_1), mHalCompId, "%s.halui.feed.selected-0.1",
+
               mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.feedValueSelected_1_0), mHalCompId, "%s.halui.feed.selected-1.0",
               mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.feedValueSelected_60), mHalCompId, "%s.halui.feed.selected-60",
               mComponentPrefix);
+
     newHalBit(HAL_OUT, &(memory->out.feedValueSelected_100), mHalCompId, "%s.halui.feed.selected-100",
               mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.feedValueSelected_lead), mHalCompId, "%s.halui.feed.selected-lead",
