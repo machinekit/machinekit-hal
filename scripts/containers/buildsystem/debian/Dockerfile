@@ -310,6 +310,7 @@ RUN apt-get install -y \
         python-tk \
         netcat-openbsd \
         tcl8.6 tk8.6 \
+        cgroup-tools \
     && apt-get clean
 
 # Monkey-patch entire /usr/include, and re-add build-arch headers
