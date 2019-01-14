@@ -9,18 +9,18 @@ needed dependencies and tools in the root filesystem.
 Package build times on Travis CI, including `armhf`, are reduced to
 under 13 mins. without cache, and under 8 mins. with cache.
 
-## Using the builder
+## Using the images
 
-- Determine the 'tag' for the desired architecture and distro
+- Determine `$TAG` for the desired architecture and distro
   combination.  The format is `$ARCH_$DISTRO`, where `$ARCH` may be
-  one of `amd64`, `i386`, `armhf`; `$DISTRO` may be one of
-  `8` for Jessie, `9` for Stretch; e.g. `armhf_9`.
+  one of `amd64`, `i386`, `armhf`; `$DISTRO` may be one of `8` for
+  Jessie, `9` for Stretch; e.g. `TAG=armhf_9`.
 
 - To build Machinekit in a Docker container with cross-build tools,
   `cd` into a Machinekit source tree:
 
-        # Build source packages and amd64 binary packages for Stretch
-		scripts/build_docker -t amd64_9 -c deb
+        # Build source and binary packages for Stretch
+		scripts/build_docker -t $TAG -c deb
 
 		# Build amd64 binary-only packages (no source) for Jessie
 		scripts/build_docker -t amd64_8 -c deb -n
@@ -28,11 +28,8 @@ under 13 mins. without cache, and under 8 mins. with cache.
 		# Build amd64 (default) RIP build with regression tests
 		scripts/build_docker -c test
 
-		# Build armhf binary-only packages for Stretch
-		scripts/build_docker -t armhf_9 -c deb
-
-		# Run command in `armhf_9` container
-		scripts/build_docker -t armhf_9 bash -c 'echo $HOST_MULTIARCH'
+		# Run command in container
+		scripts/build_docker -t $TAG bash -c 'echo $HOST_MULTIARCH'
 
 	- Note that source packages are only built by default on
       `amd64_*`, the native architecture.
@@ -48,6 +45,12 @@ commands can help.  Run them from inside a container (see above).
         # Apt cache
         apt-cache -o Dir::State=$DPKG_ROOT/var/lib/apt/ show libczmq-dev
 
+
+## Updating the Machinekit dependencies
+
+Machinekit dependencies are auto-generated from the Machinekit source
+tree `debian/` directory.  When those files are updated, the
+`configure` and `control*.in` files should be copied here.
 
 ## Building locally
 
