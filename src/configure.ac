@@ -3145,18 +3145,25 @@ AC_OUTPUT
 # as the user might have adapted it already
 
 
-AC_MSG_CHECKING(if $BUILD_TOPLEVEL/etc/linuxcnc/machinekit.ini exists with valid MKUUID )
-
-if test -e "$BUILD_TOPLEVEL/etc/linuxcnc/machinekit.ini"; then
-   ../scripts/fix-uuid $BUILD_TOPLEVEL/etc/linuxcnc/machinekit.ini $MKUUID ;
-   AC_MSG_RESULT($BUILD_TOPLEVEL/etc/linuxcnc/machinekit.ini file exists, ensured MKUUID was unique)
+if test "$RUN_IN_PLACE" = "yes"; then
+    AC_MSG_CHECKING(if $BUILD_TOPLEVEL/etc/linuxcnc/machinekit.ini exists with valid MKUUID )
+    if test -e "$BUILD_TOPLEVEL/etc/linuxcnc/machinekit.ini"; then
+	../scripts/fix-uuid $BUILD_TOPLEVEL/etc/linuxcnc/machinekit.ini $MKUUID ;
+	AC_MSG_RESULT($BUILD_TOPLEVEL/etc/linuxcnc/machinekit.ini file exists, ensured MKUUID was unique)
+    else
+	AC_MSG_RESULT($BUILD_TOPLEVEL/etc/linuxcnc/machinekit.ini does not exist - creating one)
+	mkdir -p  $BUILD_TOPLEVEL/etc/linuxcnc
+	cp ../scripts/machinekit.ini.tmpl $BUILD_TOPLEVEL/etc/linuxcnc/machinekit.ini
+	../scripts/fix-uuid $BUILD_TOPLEVEL/etc/linuxcnc/machinekit.ini $MKUUID ;
+	AC_MSG_RESULT(please review and edit options in $BUILD_TOPLEVEL/etc/linuxcnc/machinekit.ini as needed!)
+    fi
 else
-   AC_MSG_RESULT($BUILD_TOPLEVEL/etc/linuxcnc/machinekit.ini does not exist - creating one)
-   mkdir -p  $BUILD_TOPLEVEL/etc/linuxcnc
-   cp ../scripts/machinekit.ini.tmpl $BUILD_TOPLEVEL/etc/linuxcnc/machinekit.ini
-   ../scripts/fix-uuid $BUILD_TOPLEVEL/etc/linuxcnc/machinekit.ini $MKUUID ;
-   AC_MSG_RESULT(please review and edit options in $BUILD_TOPLEVEL/etc/linuxcnc/machinekit.ini as needed!)
+    ## if packaging we don't want to give MKUUID a unique uuid yet - else all packages will have same one
+    AC_MSG_RESULT($BUILD_TOPLEVEL/etc/linuxcnc/machinekit.ini does not exist - creating one)
+    mkdir -p  $BUILD_TOPLEVEL/etc/linuxcnc
+    cp ../scripts/machinekit.ini.tmpl $BUILD_TOPLEVEL/etc/linuxcnc/machinekit.ini
 fi
+
 
 # clean up machinekitcfg.py:
 # subsitute "yes" by True
