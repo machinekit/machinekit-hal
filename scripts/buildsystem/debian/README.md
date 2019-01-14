@@ -16,22 +16,6 @@ under 13 mins. without cache, and under 8 mins. with cache.
   one of `amd64`, `i386`, `armhf`; `$DISTRO` may be one of
   `8` for Jessie, `9` for Stretch; e.g. `armhf_9`.
 
-- Pull or build desired Docker image `$TAG`:
-
-  - Pull a pre-built image:
-
-        # Pull image, `armhf_9` tag, from Docker Hub
-        docker pull zultron/mk-cross-builder:$TAG
-
-  - Or, build from `Dockerfile`:
-
-        # Clone this repository; `cd` into the directory
-        git clone https://github.com/zultron/mk-cross-builder.git
-        cd mk-cross-builder
-
-        # Build Docker image
-        ./mk-cross-builder.sh build $TAG
-
 - To build Machinekit in a Docker container with cross-build tools,
   `cd` into a Machinekit source tree:
 
@@ -65,10 +49,10 @@ commands can help.  Run them from inside a container (see above).
         apt-cache -o Dir::State=$DPKG_ROOT/var/lib/apt/ show libczmq-dev
 
 
-## Updating the builder
+## Building locally
 
-After changes to the `Dockerfile` template, run `./mk-cross-builder.sh
-update` to generate Dockerfiles for each tag and commit the changes.
+Build images locally using the Docker hub build hook, supplying the
+image name, e.g. `hooks/build my_docker_id/mk-cross-builder:armhf_8`.
 
 # Set up hub.docker.com automated `mk-cross-builder` image builds
 

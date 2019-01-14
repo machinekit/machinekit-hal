@@ -1,16 +1,28 @@
-FROM @BASE_IMAGE@
+ARG BASE_IMAGE
+
+FROM ${BASE_IMAGE}
 MAINTAINER John Morris <john@zultron.com>
 
 ###################################################################
 # Build configuration settings
 
-@ENV_DEBIAN_ARCH@
-@ENV_HOST_MULTIARCH@
-@ENV_DISTRO_CODENAME@
-@ENV_DISTRO_VER@
-@ENV_SYS_ROOT@
-@ENV_EXTRA_FLAGS@
-@ENV_LDEMULATION@
+# - Passed in from hooks/build script based on Docker tag
+ARG DEBIAN_ARCH
+ARG HOST_MULTIARCH
+ARG DISTRO_CODENAME
+ARG DISTRO_VER
+ARG SYS_ROOT
+ARG EXTRA_FLAGS
+ARG LDEMULATION
+
+# - Set in container environment
+ENV DEBIAN_ARCH=${DEBIAN_ARCH}
+ENV HOST_MULTIARCH=${HOST_MULTIARCH}
+ENV DISTRO_CODENAME=${DISTRO_CODENAME}
+ENV DISTRO_VER=${DISTRO_VER}
+ENV SYS_ROOT=${SYS_ROOT}
+ENV EXTRA_FLAGS=${EXTRA_FLAGS}
+ENV LDEMULATION=${LDEMULATION}
 
 ###################################################################
 # Generic apt configuration
@@ -336,8 +348,6 @@ ENV SHELL=/bin/bash
 ENV PATH=/usr/lib/ccache:/opt/gcc-linaro-hf/bin:/usr/sbin:/usr/bin:/sbin:/bin
 RUN echo "${USER}:x:${UID}:${GID}::${HOME}:${SHELL}" >> /etc/passwd
 RUN echo "${USER}:x:${GID}:" >> /etc/group
-# Put this last so the Docker cache isn't dirtied constantly
-ENV CONTAINER_REV=@CONTAINER_REV@
 
 # Customize the run environment to your taste
 # - bash prompt
