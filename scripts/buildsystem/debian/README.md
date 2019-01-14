@@ -65,6 +65,11 @@ commands can help.  Run them from inside a container (see above).
         apt-cache -o Dir::State=$DPKG_ROOT/var/lib/apt/ show libczmq-dev
 
 
+## Updating the builder
+
+After changes to the `Dockerfile` template, run `./mk-cross-builder.sh
+update` to generate Dockerfiles for each tag and commit the changes.
+
 # Set up hub.docker.com automated `mk-cross-builder` image builds
 
 - Fork this repo into a GitHub account

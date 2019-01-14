@@ -38,14 +38,6 @@ RUN sed -i /etc/apt/sources.list -e 's/httpredir.debian.org/ftp.debian.org/'
 RUN dpkg --add-architecture armhf
 RUN dpkg --add-architecture i386
 
-# add emdebian package archive, Jessie only
-ADD emdebian-toolchain-archive.key /tmp/
-RUN test $DISTRO_VER -gt 8 || { \
-	apt-key add /tmp/emdebian-toolchain-archive.key && \
-	echo "deb http://emdebian.org/tools/debian/ jessie main" > \
-	    /etc/apt/sources.list.d/emdebian.list; \
-    }
-
 # update Debian OS
 RUN apt-get update \
     && apt-get -y upgrade \
@@ -97,9 +89,15 @@ RUN apt-get install -y \
 	quilt \
 	psmisc \
 	pkg-config \
-	crossbuild-essential-armhf \
 	qemu-user-static \
-	linux-libc-dev:armhf
+	linux-libc-dev:armhf \
+    && { \
+        test $DISTRO_VER -lt 9 \
+        || apt-get install -y \
+	    crossbuild-essential-armhf; \
+    } \
+    && apt-get clean
+
 # - amd64 -> i386 multiarch/multilib compiles
 RUN test $DISTRO_VER -gt 8 \
     ||{ apt-get install -y \
@@ -115,6 +113,27 @@ RUN test $DISTRO_VER -eq 8 \
 	    g++-6-multilib \
 	    libgcc-6-dev:$DEBIAN_ARCH \
         && apt-get clean; \
+    }
+
+# - Linaro gcc cross compiler for armhf
+RUN test $DISTRO_VER -gt 8 \
+    ||{ \
+        VER=4.9.4-2017.01 && \
+        ARCH=arm-linux-gnueabihf && \
+        DIR=gcc-linaro-${VER}-x86_64_${ARCH} && \
+        TXZ=${DIR}.tar.xz && \
+        URI=http://releases.linaro.org/components/toolchain/binaries/latest-4/${ARCH} && \
+        WORKD=/tmp/linaro && \
+        mkdir -p ${WORKD} && cd ${WORKD} && \
+        echo "Downloading gcc-linaro-${VER}" && \
+        wget --progress=dot:mega ${URI}/${TXZ} && \
+        wget -q ${URI}/${TXZ}.asc && \
+        echo "Validating checksum of compiler download" && \
+        md5sum -c ${TXZ}.asc && \
+        echo "Extracting compiler to /opt/" && \
+        tar xCf /opt ${WORKD}/${TXZ} && \
+        ln -snf ${DIR} /opt/gcc-linaro-hf && \
+        rm -rf ${WORKD}; \
     }
 
 ###########################################
@@ -158,7 +177,9 @@ RUN cd / && \
 RUN test -z "$SYS_ROOT" \
     || { \
         mkdir -p ${SYS_ROOT}/etc \
-        && cp /etc/ld.so.conf ${SYS_ROOT}/etc/ld.so.conf; \
+        && cp /etc/ld.so.conf ${SYS_ROOT}/etc/ld.so.conf \
+        && echo '/lib/arm-linux-gnueabihf\n/usr/lib/arm-linux-gnueabihf' > \
+	    /etc/ld.so.conf.d/arm-linux-gnueabihf.conf; \
     }
 # Symlink i586 binutils to i386 so ./configure can find them
 RUN test $DISTRO_VER -gt 8 || \
@@ -201,9 +222,9 @@ RUN if test $DISTRO_CODENAME = stretch; then \
 #     FIXME download parts from upstream
 ADD debian/ /tmp/debian/
 RUN if test $DISTRO_VER = 8; then \
-	/tmp/debian/configure -prx; \
+	MK_CROSS_BUILDER=1 /tmp/debian/configure -prx; \
     else \
-	/tmp/debian/configure -pr; \
+	MK_CROSS_BUILDER=1 /tmp/debian/configure -pr; \
     fi
 
 # Directory for `mk-build-deps` apt repository
@@ -289,6 +310,7 @@ RUN apt-get install -y \
         python-tk \
         netcat-openbsd \
         tcl8.6 tk8.6 \
+        cgroup-tools \
     && apt-get clean
 
 # Monkey-patch entire /usr/include, and re-add build-arch headers
@@ -311,7 +333,7 @@ ENV UID=1000
 ENV GID=1000
 ENV HOME=/home/${USER}
 ENV SHELL=/bin/bash
-ENV PATH=/usr/lib/ccache:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/bin
+ENV PATH=/usr/lib/ccache:/opt/gcc-linaro-hf/bin:/usr/sbin:/usr/bin:/sbin:/bin
 RUN echo "${USER}:x:${UID}:${GID}::${HOME}:${SHELL}" >> /etc/passwd
 RUN echo "${USER}:x:${GID}:" >> /etc/group
 # Put this last so the Docker cache isn't dirtied constantly
