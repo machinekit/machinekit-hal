@@ -3159,7 +3159,6 @@ if test "$RUN_IN_PLACE" = "yes"; then
     fi
 else
     ## if packaging we don't want to give MKUUID a unique uuid yet - else all packages will have same one
-    AC_MSG_RESULT($BUILD_TOPLEVEL/etc/linuxcnc/machinekit.ini does not exist - creating one)
     mkdir -p  $BUILD_TOPLEVEL/etc/linuxcnc
     cp ../scripts/machinekit.ini.tmpl $BUILD_TOPLEVEL/etc/linuxcnc/machinekit.ini
 fi
