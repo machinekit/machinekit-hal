@@ -9,7 +9,7 @@ XHC_WHB04B6_SRC = hal/user_comps/xhc-whb04b-6/hal.cc \
                   hal/user_comps/xhc-whb04b-6/main.cc
 
 XHC_WHB04B6_DEBUG = -g -funwind-tables
-XHC_WHB04B6_CFLAGS += $(LIBUSB10_CFLAGS) $(XHC_WHB04B6_DEBUG) -Wall -pedantic
+XHC_WHB04B6_CFLAGS += $(LIBUSB10_CFLAGS) $(XHC_WHB04B6_DEBUG) -Wall
 XHC_WHB04B6_LIBS = -lstdc++ $(LIBUSB10_LIBS) $(PROTOBUF_LIBS)
 
 $(call TOOBJSDEPS, $(XHC_WHB04B6_SRC)) : EXTRAFLAGS += $(XHC_WHB04B6_CFLAGS)
