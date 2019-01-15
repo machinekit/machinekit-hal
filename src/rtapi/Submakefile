@@ -257,6 +257,7 @@ $(call TOOBJSDEPS, rtapi/$(threads)/rtapi_app.cc): EXTRAFLAGS = \
 	    -o $@ \
 	    $^ \
 	    $(LDFLAGS) \
+	    $($(THREADS)_THREADS_LDFLAGS) \
 	    $(PROTOBUF_LIBS) $(CZMQ_LIBS) $(LTTNG_UST_LIBS) \
 	    -lstdc++ -ldl -luuid
 

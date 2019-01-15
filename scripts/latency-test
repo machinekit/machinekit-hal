@@ -56,7 +56,7 @@ BASE_HUMAN=$(human_time $BASE)
 SERVO_HUMAN=$(human_time $SERVO)
 if [ $BASE -eq 0 ]; then
 cat > lat.hal <<EOF
-newthread slow $SERVO
+newthread slow $SERVO ${CGNAME:+cgname=$CGNAME}
 loadrt timedelta count=1
 addf timedelta.0 slow
 start

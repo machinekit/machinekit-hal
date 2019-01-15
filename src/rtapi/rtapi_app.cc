@@ -1013,6 +1013,7 @@ static int rtapi_request(zloop_t *loop, zsock_t *socket, void *arg)
 	    args.uses_fp = pbreq.rtapicmd().use_fp();
 	    args.cpu_id = pbreq.rtapicmd().cpu();
 	    args.flags = (rtapi_thread_flags_t) pbreq.rtapicmd().flags();
+	    strncpy(args.cgname, pbreq.rtapicmd().cgname().c_str(), LINELEN);
 
 	    int retval = create_thread(&args);
 	    if (retval < 0) {

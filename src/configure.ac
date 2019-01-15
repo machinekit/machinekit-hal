@@ -557,7 +557,7 @@ AC_ARG_WITH(platform-pc,
 		;;
 	esac
     ])
-    
+
 AC_ARG_WITH(platform-socfpga,
     [AS_HELP_STRING(
         [--with-platform-socfpga],
@@ -1060,6 +1060,12 @@ PKG_CHECK_MODULES([AVAHI], [avahi-client > 0.6],
 	USE_AVAHI=yes
     ],)
 
+PKG_CHECK_MODULES([LIBCGROUP], libcgroup,
+   [
+        AC_DEFINE(HAVE_LIBCGROUP, [], [libcgroup library available])
+	USE_LIBCGROUP=yes
+   ],)
+
 AC_MSG_CHECKING(whether to enable NML-using parts)
 AC_ARG_ENABLE(nml,
     [  --enable-nml      enable NML-using parts],
@@ -1452,8 +1458,8 @@ test "$with_posix" = check && with_posix=yes
 test "$have_librt" = no && with_posix=no
 AC_MSG_RESULT($with_posix)
 if test "$with_posix" = yes; then
-   POSIX_THREADS_LDFLAGS="-lpthread -lrt"
-   POSIX_THREADS_RTFLAGS="$POSIX_THREADS_RTFLAGS -pthread"
+   POSIX_THREADS_LDFLAGS="-lpthread -lrt $LIBCGROUP_LIBS"
+   POSIX_THREADS_RTFLAGS="$POSIX_THREADS_RTFLAGS -pthread $LIBCGROUP_CFLAGS"
    BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS posix"
 fi
 
@@ -1462,8 +1468,9 @@ test "$with_rt_preempt" = check && with_rt_preempt=yes
 test "$have_librt" = no && with_rt_preempt=no
 AC_MSG_RESULT($with_rt_preempt)
 if test "$with_rt_preempt" = yes; then
-    RT_PREEMPT_THREADS_LDFLAGS="-lpthread -lrt"
+    RT_PREEMPT_THREADS_LDFLAGS="-lpthread -lrt $LIBCGROUP_LIBS"
     RT_PREEMPT_THREADS_RTFLAGS="$RT_PREEMPT_THREADS_RTFLAGS -pthread"
+    RT_PREEMPT_THREADS_RTFLAGS="$RT_PREEMPT_THREADS_RTFLAGS $LIBCGROUP_CFLAGS"
     BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS rt-preempt"
     with_userland_rt_threads=yes
 fi
@@ -1847,6 +1854,9 @@ AC_SUBST([SSL_LIBS])
 AC_SUBST([UUID_CFLAGS])
 AC_SUBST([UUID_LIBS])
 
+AC_SUBST([LIBCGROUP_CFLAGS])
+AC_SUBST([LIBCGROUP_LIBS])
+
 AC_SUBST([USE_CZMQ])
 AC_SUBST([USE_PROTOBUF])
 AC_SUBST([USE_JANSSON])
@@ -1855,6 +1865,7 @@ AC_SUBST([USE_URIPARSER])
 AC_SUBST([USE_AVAHI])
 AC_SUBST([USE_SSL])
 AC_SUBST([USE_UUID])
+AC_SUBST([USE_LIBCGROUP])
 
 if test "$with_usermode_pci" = yes; then
    AC_DEFINE([USERMODE_PCI], [], [build PCI drivers with usermode PCI support])
