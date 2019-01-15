@@ -68,7 +68,7 @@ static inline unsigned char rtapi_inb(unsigned int port)
 static inline void rtapi_outw(unsigned short word, unsigned int port)
 {
     outw(word,port);
-};
+}
 
 /** 'rtapi_inw() gets a word from 'port'.  Returns the word.  May
     be called from init/cleanup code, and from within realtime tasks.
