@@ -1,0 +1,31 @@
+#!/usr/bin/python2
+
+# Verify that limit3.out-vel and limit3.out-acc pins are accurate
+
+import sys
+
+def near(a, b):
+    return abs(a-b) < 0.00001
+
+result_filename = sys.argv[1]
+result_file = open(result_filename, 'r')
+retval = 0
+
+for line in result_file.readlines():
+    # Read columns:  one int, five floats
+    nums = line.split()[:6]
+    sample = int(nums[0])
+    (out, out_vel, out_vel_chk, out_acc, out_acc_chk) = [
+        float(n) for n in nums[1:]]
+
+    # limit3 outputs should match ddt comps for vel and acc
+    if not near(out_vel, out_vel_chk):
+        print "sample %d:  comp vel %.3f != measured vel %.3f" % \
+            (sample, out_vel, out_vel_chk)
+        retval = 1
+    if not near(out_acc, out_acc_chk):
+        print "sample %d:  comp acc %.3f != measured acc %.3f" % \
+            (sample, out_acc, out_acc_chk)
+        retval = 1
+
+sys.exit(retval)
