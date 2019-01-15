@@ -1,0 +1,41 @@
+setexact_for_test_suite_only
+
+loadrt threads name1=t period1=1000000
+loadrt sampler cfg=fffff depth=2048
+loadrt siggen
+loadrt limit3
+loadrt ddt names=ddt.out-accel,ddt.out-vel
+
+addf siggen.0.update t
+addf limit3.0.funct t
+addf ddt.out-vel.funct t
+addf ddt.out-accel.funct t
+addf sampler.0 t
+
+# Set input signal
+setp siggen.0.amplitude 75
+
+# Set limits
+setp limit3.0.min -50
+setp limit3.0.max 50
+setp limit3.0.maxv 4000
+setp limit3.0.maxa 10000
+setp limit3.0.smooth-steps 3
+
+# Plumb input
+net in siggen.0.sine => limit3.0.in
+
+# Plumb out-vel and out-accel check comps
+net out limit3.0.out => ddt.out-vel.in
+net out-vel-chk ddt.out-vel.out => ddt.out-accel.in
+
+# Plumb sampler
+net out => sampler.0.pin.0
+net out-vel limit3.0.out-vel => sampler.0.pin.1
+net out-vel-chk => sampler.0.pin.2
+net out-acc limit3.0.out-acc => sampler.0.pin.3
+net out-acc-chk ddt.out-accel.out => sampler.0.pin.4
+
+# Go
+start
+loadusr -w halsampler -t -n 800
