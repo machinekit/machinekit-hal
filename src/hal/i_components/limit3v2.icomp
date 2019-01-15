@@ -6,6 +6,7 @@ this means that the position, velocity, and acceleration are limited.""";
 pin_ptr in float in;
 pin_ptr out float out;
 pin_ptr out float out_vel;
+pin_ptr out bit stopped;
 pin_ptr out float out_acc;
 pin_ptr in bit load=0
     """When TRUE, immediately set \\fBout\\fB to \\fBin\\fR, ignoring maxv
@@ -34,6 +35,7 @@ license "GPL";
     do {                                                                \
         sf(out_acc, ((_out-gf(out))/fperiod-gf(out_vel))/fperiod);      \
         sf(out_vel, (_out-gf(out))/fperiod);                            \
+        sb(stopped, (rtapi_fabs(gf(out_vel)) < EPSILON));               \
         out_old = gf(out);                                              \
 	sf(out,_out);                                                   \
 	in_pos_old = _in;                                               \
