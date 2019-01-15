@@ -1711,7 +1711,7 @@ int main(int argc, char **argv)
     }
 
     openlog_async(argv[0], option, LOG_LOCAL1);
-    // setlogmask_async(LOG_UPTO(LOG_DEBUG));
+    setlogmask_async(LOG_UPTO(LOG_DEBUG));
     // max out async syslog buffers for slow system in debug mode
     tunelog_async(99,10);
 
