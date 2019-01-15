@@ -1229,9 +1229,8 @@ int loadrt(const int use_halmutex, char *mod_path, char *args[])
 
     retval = rtapi_loadrt(rtapi_instance, mod_path, (const char **)args);
     if ( retval != 0 ) {
-	halcmd_error("insmod failed, returned %d:\n%s\n"
-		     "See %s for more information.\n",
-		     retval, rtapi_rpcerror(), logpath);
+	halcmd_error("insmod failed, returned %d:\n%s\n",
+		     retval, rtapi_rpcerror());
 	return -1;
     }
 

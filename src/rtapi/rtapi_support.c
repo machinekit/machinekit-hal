@@ -97,7 +97,7 @@ int vs_ringlogfv(const msg_level_t level,
 
     if (get_msg_level() == RTAPI_MSG_NONE)
 	return 0;
-    if (level >= get_msg_level())
+    if (level > get_msg_level())
 	return 0;
 
     msg.hdr.origin = origin;
@@ -211,8 +211,13 @@ static int set_msg_level(int new_level)
     }
     return old_level;
 #else
-    old_level = ulapi_msg_level;
-    ulapi_msg_level = new_level;
+    if (global_data) {
+	old_level = global_data->user_msg_level;
+        global_data->user_msg_level = new_level;
+    } else {
+        old_level = ulapi_msg_level;
+        ulapi_msg_level = new_level;
+    }
     return old_level;
 #endif
 }
@@ -234,7 +239,7 @@ void rtapi_print(const char *fmt, ...) {
     va_list args;
 
     va_start(args, fmt);
-    rtapi_msg_handler(RTAPI_MSG_ALL, fmt, args);
+    rtapi_msg_handler(RTAPI_MSG_ERR, fmt, args);
     va_end(args);
 }
 
