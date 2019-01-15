@@ -8,6 +8,10 @@ pin_ptr out float out;
 pin_ptr in bit load=0
     """When TRUE, immediately set \\fBout\\fB to \\fBin\\fR, ignoring maxv
 and maxa""";
+pin_ptr in bit start=1
+    """When FALSE, stop, reducing velocity to zero as quickly as possible,
+respecting acceleration limits and ignoring input (overidden by \\fBload\\fR
+pin)""";
 pin_ptr in float min_=-1e20;
 pin_ptr in float max_=1e20;
 pin_ptr in float maxv=1e20;
@@ -105,15 +109,25 @@ FUNCTION(_) {
     in_pos_max = gf(in) + in_vel * in_vel_time_max;
     in_pos_min = gf(in) + in_vel * in_vel_time_min;
 
-    // 2. Choose the current goal:  input signal, max limit or min limit
+    // 2. Choose the current goal:  stop, input signal, max limit or min limit
     //
-    // Min/Max limits:
-    // - assume we're stopping at a limit by default
+    // Min/Max limits, stop:
+    // - assume we're stopping by default
     vel_diff = -out_vel;
     ach_pos_min = stop_pos_min;
     ach_pos_max = stop_pos_max;
+    // - is the start pin cleared?
+    if (!gb(start))
+        if (gf(out) > stop_pos_min && gf(out) < stop_pos_max)
+            goal_pos_min = goal_pos_max = goal_pos_cur = goal_pos_prev = gf(out);
+        else if (stop_time_max < stop_time_min)
+            goal_pos_min = goal_pos_max = goal_pos_cur = goal_pos_prev =
+                stop_pos_max;
+        else
+            goal_pos_min = goal_pos_max = goal_pos_cur = goal_pos_prev =
+                stop_pos_min;
     // - are we headed to crash into a min/max limit?
-    if (stop_pos_max > gf(max_) + EPSILON && !VALID_NEXT(gf(max_)))
+    else if (stop_pos_max > gf(max_) + EPSILON && !VALID_NEXT(gf(max_)))
 	goal_pos_min = goal_pos_max = goal_pos_cur = goal_pos_prev = gf(max_);
     else if (stop_pos_min < gf(min_) - EPSILON && !VALID_NEXT(gf(min_)))
 	goal_pos_min = goal_pos_max = goal_pos_cur = goal_pos_prev = gf(min_);
