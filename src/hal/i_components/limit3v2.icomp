@@ -5,6 +5,8 @@ less than maxa per second squared.  When the signal is a position,
 this means that the position, velocity, and acceleration are limited.""";
 pin_ptr in float in;
 pin_ptr out float out;
+pin_ptr out float out_vel;
+pin_ptr out float out_acc;
 pin_ptr in bit load=0
     """When TRUE, immediately set \\fBout\\fB to \\fBin\\fR, ignoring maxv
 and maxa""";
@@ -28,12 +30,14 @@ license "GPL";
 
 #include "rtapi_math.h"
 
-#define SET_NEXT_STATE(_out, _in)			\
-    do {						\
-        out_old = gf(out);                              \
-	sf(out,_out);					\
-	in_pos_old = _in;				\
-	return 0;                                       \
+#define SET_NEXT_STATE(_out, _in)                                       \
+    do {                                                                \
+        sf(out_acc, ((_out-gf(out))/fperiod-gf(out_vel))/fperiod);      \
+        sf(out_vel, (_out-gf(out))/fperiod);                            \
+        out_old = gf(out);                                              \
+	sf(out,_out);                                                   \
+	in_pos_old = _in;                                               \
+	return 0;                                                       \
     } while (0)
 
 #define VALID_NEXT(pos) ((pos) <= max_pos && (pos) >= min_pos)
@@ -56,7 +60,6 @@ FUNCTION(_) {
     double out_pos_max, out_pos_min, in_pos_max, in_pos_min;
     double ach_pos_min, ach_pos_max;
 
-    double out_vel = (gf(out)-out_old)/fperiod;
     double goal_pos_min, goal_pos_max, goal_pos_cur;
     double pos_diff, vel_diff, goal_pos_prev;
     double t, ti, a, v, s;
@@ -78,13 +81,12 @@ FUNCTION(_) {
 
     // 1.  Calculate distances and times to stop and match input velocity
     //
-    // Input and output velocity
+    // Input velocity
     in_vel = (gf(in) - in_pos_old) / fperiod;
-    out_vel = (gf(out) - out_old) / fperiod;
     //
     // Most negative/positive velocity reachable in one period
-    min_vel = rtapi_fmax(VF_GIVEN_VI_A_T(out_vel, -gf(maxa), fperiod), -gf(maxv));
-    max_vel = rtapi_fmin(VF_GIVEN_VI_A_T(out_vel,  gf(maxa), fperiod),  gf(maxv));
+    min_vel = rtapi_fmax(VF_GIVEN_VI_A_T(gf(out_vel), -gf(maxa), fperiod), -gf(maxv));
+    max_vel = rtapi_fmin(VF_GIVEN_VI_A_T(gf(out_vel),  gf(maxa), fperiod),  gf(maxv));
     // Most negative/positive position reachable in one period
     // - cur. pos + (distance to reach min/max vel in one period)
     min_pos = gf(out) + min_vel * fperiod;
@@ -113,7 +115,7 @@ FUNCTION(_) {
     //
     // Min/Max limits, stop:
     // - assume we're stopping by default
-    vel_diff = -out_vel;
+    vel_diff = -gf(out_vel);
     ach_pos_min = stop_pos_min;
     ach_pos_max = stop_pos_max;
     // - is the start pin cleared?
@@ -146,7 +148,7 @@ FUNCTION(_) {
 	goal_pos_max = in_pos_max;
 	goal_pos_cur = gf(in);
 	goal_pos_prev = in_pos_old;
-	vel_diff = out_vel - in_vel;
+	vel_diff = gf(out_vel) - in_vel;
 	ach_pos_min = out_pos_min;
 	ach_pos_max = out_pos_max;
     }
@@ -185,7 +187,7 @@ FUNCTION(_) {
 	ti = (int)((t - EPSILON*SIGN(t)) / fperiod + SIGN(t)) * fperiod;
 	// - Uniform acceleration to reach goal in time `ti`
 	a = (vel_diff - 0) / ti;
-	v = out_vel + a * fperiod;
+	v = gf(out_vel) + a * fperiod;
 	s = v * fperiod;
 	// - Effect new position, within limits
 	SET_NEXT_STATE(rtapi_fmin(max_pos, rtapi_fmax(min_pos, gf(out) + s)),
