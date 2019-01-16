@@ -388,7 +388,7 @@ endif
 
 BASE_CXXFLAGS:= $(INCLUDE) $(CXXFLAGS) \
 		$(CK_CFLAGS) \
-		$(DEBUG) $(OPT) \
+		$(DEBUG) $(DPKG_CFLAGS) $(OPT) \
 		$(PROFILE_CFLAGS) \
 		 -DGIT_BUILD_SHA=\"'$(GIT_BUILD_SHA)'\" \
 		$(ARCH_CFLAGS)
