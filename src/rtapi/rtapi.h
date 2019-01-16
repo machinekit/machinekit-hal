@@ -498,7 +498,7 @@ typedef struct {
     int pid;                 // if User RT or ULAPI; 0 for kernel
     int level;               // as passed in to rtapi_print_msg()
     char tag[TAGSIZE];       // eg program or module name
-    char buf[0];             // actual message
+    char buf[];              // actual message
 } rtapi_msgheader_t;
 
 #define rtapi2syslog(level) (level+2)
@@ -795,6 +795,7 @@ typedef struct {
     char *name;
     int cpu_id;
     rtapi_thread_flags_t flags;             // eg Posix, nowait
+    char cgname[LINELEN];
 } rtapi_task_args_t;
 
 

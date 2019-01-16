@@ -126,7 +126,7 @@ typedef struct {
     struct rtapi_heap heap;
     //size_t heap_size;
 
-    unsigned char arena[0] __attribute__((aligned(RTAPI_CACHELINE)));
+    unsigned char arena[] __attribute__((aligned(RTAPI_CACHELINE)));
 
 } global_data_t;
 

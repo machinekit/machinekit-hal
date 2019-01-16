@@ -11,7 +11,7 @@ extern "C" {
     int rtapi_shutdown(int instance);
     int rtapi_ping(int instance);
     int rtapi_newthread(int instance, const char *name, int period,
-			int cpu, int use_fp, int flags);
+                        int cpu, char *cgname, int use_fp, int flags);
     int rtapi_delthread(int instance, const char *name);
     int rtapi_callfunc(int instance,
 		       const char *func,

@@ -1,0 +1,5 @@
+This tests the 'start' pin on downward motion.  It replicates the
+motion in ../limit-accel-and-max but in the opposite direction.  Since
+it sets the same max accel and velocity, and begins slowing down when
+input hits -80, with a 'scale' comp to fix velocity, it can reuse the
+same 'expected' output.

@@ -166,7 +166,9 @@ case $CMD in
 esac
 
 ###########################################################
-# Update container image with custom /etc/passwd
+# Update new container image and add custom /etc/passwd
+
+docker pull ${IMAGE}:${TAG}
 
 if test ${UID_GID/:*/} != 1000; then
     echo "Updating /etc/passwd for UID $TRAVIS_UID" >&2

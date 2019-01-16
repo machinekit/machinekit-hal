@@ -1013,6 +1013,7 @@ static int rtapi_request(zloop_t *loop, zsock_t *socket, void *arg)
 	    args.uses_fp = pbreq.rtapicmd().use_fp();
 	    args.cpu_id = pbreq.rtapicmd().cpu();
 	    args.flags = (rtapi_thread_flags_t) pbreq.rtapicmd().flags();
+	    strncpy(args.cgname, pbreq.rtapicmd().cgname().c_str(), LINELEN);
 
 	    int retval = create_thread(&args);
 	    if (retval < 0) {
@@ -1710,7 +1711,7 @@ int main(int argc, char **argv)
     }
 
     openlog_async(argv[0], option, LOG_LOCAL1);
-    // setlogmask_async(LOG_UPTO(LOG_DEBUG));
+    setlogmask_async(LOG_UPTO(LOG_DEBUG));
     // max out async syslog buffers for slow system in debug mode
     tunelog_async(99,10);
 

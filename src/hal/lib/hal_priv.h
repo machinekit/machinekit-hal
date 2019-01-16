@@ -599,6 +599,7 @@ typedef struct {
     int uses_fp;
     int cpu_id;
     rtapi_thread_flags_t flags;
+    char cgname[LINELEN];
 } hal_threadargs_t;
 
 // extended arguments version of hal_create_thread().
@@ -621,6 +622,7 @@ typedef struct hal_thread {
                                 // root: hal_data.threads
     int cpu_id;                 /* cpu to bind on, or -1 */
     rtapi_thread_flags_t flags;             // eg Posix, nowait
+    char cgname[LINELEN];       // libcgroup name
 } hal_thread_t;
 
 
