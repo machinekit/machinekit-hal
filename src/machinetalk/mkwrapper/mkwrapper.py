@@ -79,7 +79,7 @@ class FileService(threading.Thread):
         self.file_port = get_free_port()
         self.file_dsname = "ftp://" + self.host + ":" + str(self.file_port)
 
-        self.fileService = service.Service(
+        self.file_service = service.Service(
             type_='file',
             svc_uuid=svc_uuid,
             dsn=self.file_dsname,
@@ -113,7 +113,7 @@ class FileService(threading.Thread):
 
         # Zeroconf
         try:
-            self.fileService.publish()
+            self.file_service.publish()
         except Exception as e:
             print_error('cannot register DNS service' + str(e))
             sys.exit(1)
@@ -128,7 +128,7 @@ class FileService(threading.Thread):
             self.server.serve_forever(timeout=1, blocking=False)
 
         self.server.close_all()
-        self.fileService.unpublish()
+        self.file_service.unpublish()
 
         self.running = False
         return
@@ -1212,34 +1212,8 @@ class LinuxCNCWrapper(object):
         elif modified:
             self.send_config(self.status_tx.config, MT_EMCSTAT_INCREMENTAL_UPDATE)
 
-    def update_io(self, stat):
+    def update_io_tool_table(self, stat):
         modified = False
-
-        if self.io_first_run:
-            self.status.io.estop = 0
-            self.status.io.flood = 0
-            self.status.io.lube = 0
-            self.status.io.lube_level = 0
-            self.status.io.mist = 0
-            self.status.io.pocket_prepped = 0
-            self.status.io.tool_in_spindle = 0
-            self.status.io.tool_offset.MergeFrom(self.zero_position())
-            self.io_first_run = False
-
-        for name in [
-            'estop',
-            'flood',
-            'lube',
-            'lube_level',
-            'mist',
-            'pocket_prepped',
-            'tool_in_spindle',
-        ]:
-            modified |= self.update_io_value(name, getattr(stat, name))
-
-        modified |= self.update_proto_position(
-            self.status.io, self.status_tx.io, 'tool_offset', stat.tool_offset
-        )
 
         tx_tool_result = EmcToolData()
         tool_table_changed = False
@@ -1322,6 +1296,39 @@ class LinuxCNCWrapper(object):
             self.io_tool_table_loaded = False
             modified = True
         del tx_tool_result
+
+        return modified
+
+    def update_io(self, stat):
+        modified = False
+
+        if self.io_first_run:
+            self.status.io.estop = 0
+            self.status.io.flood = 0
+            self.status.io.lube = 0
+            self.status.io.lube_level = 0
+            self.status.io.mist = 0
+            self.status.io.pocket_prepped = 0
+            self.status.io.tool_in_spindle = 0
+            self.status.io.tool_offset.MergeFrom(self.zero_position())
+            self.io_first_run = False
+
+        for name in [
+            'estop',
+            'flood',
+            'lube',
+            'lube_level',
+            'mist',
+            'pocket_prepped',
+            'tool_in_spindle',
+        ]:
+            modified |= self.update_io_value(name, getattr(stat, name))
+
+        modified |= self.update_proto_position(
+            self.status.io, self.status_tx.io, 'tool_offset', stat.tool_offset
+        )
+
+        modified |= self.update_io_tool_table(stat)
 
         if self.io_full_update:
             self.add_pparams()
