@@ -131,7 +131,7 @@ class Service(object):
                 )
             )
 
-        self.statusService = ZeroconfService(
+        self.status_service = ZeroconfService(
             self.name,
             self.port,
             stype=self.stype,
@@ -141,7 +141,7 @@ class Service(object):
         )
 
     def publish(self):
-        self.statusService.publish()
+        self.status_service.publish()
 
     def unpublish(self):
-        self.statusService.unpublish()
+        self.status_service.unpublish()
