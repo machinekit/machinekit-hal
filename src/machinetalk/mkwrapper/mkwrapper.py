@@ -79,7 +79,7 @@ class FileService(threading.Thread):
         self.file_port = get_free_port()
         self.file_dsname = "ftp://" + self.host + ":" + str(self.file_port)
 
-        self.fileService = service.Service(
+        self.file_service = service.Service(
             type_='file',
             svc_uuid=svc_uuid,
             dsn=self.file_dsname,
@@ -113,7 +113,7 @@ class FileService(threading.Thread):
 
         # Zeroconf
         try:
-            self.fileService.publish()
+            self.file_service.publish()
         except Exception as e:
             print_error('cannot register DNS service' + str(e))
             sys.exit(1)
@@ -128,7 +128,7 @@ class FileService(threading.Thread):
             self.server.serve_forever(timeout=1, blocking=False)
 
         self.server.close_all()
-        self.fileService.unpublish()
+        self.file_service.unpublish()
 
         self.running = False
         return

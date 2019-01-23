@@ -285,7 +285,7 @@ class Mklauncher(object):
             loopback=self.loopback,
             debug=self.debug,
         )
-        self.commandService = service.Service(
+        self.command_service = service.Service(
             type_='launchercmd',
             svc_uuid=svc_uuid,
             dsn=self.command_ds_name,
@@ -299,14 +299,14 @@ class Mklauncher(object):
         # Zeroconf
         try:
             self.launcher_service.publish()
-            self.commandService.publish()
+            self.command_service.publish()
         except Exception as e:
             logger.error(('cannot register DNS service' + str(e)))
             sys.exit(1)
 
     def _unpublish_services(self):
         self.launcher_service.unpublish()
-        self.commandService.unpublish()
+        self.command_service.unpublish()
 
     def _add_pparams_to_message(self):
         parameters = ProtocolParameters()
