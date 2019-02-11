@@ -70,19 +70,23 @@ PB_DESCRIPTOR(MotionStatus);
 PB_DESCRIPTOR(RTAPI_Message);
 PB_DESCRIPTOR(RTAPICommand);
 PB_DESCRIPTOR(LogMessage);
+PB_DESCRIPTOR(Value);
 /* PB_DESCRIPTOR(Test1); */
 /* PB_DESCRIPTOR(Test2); */
 /* PB_DESCRIPTOR(Test3); */
 
 // jplan messages
-PB_DESCRIPTOR(JplanJoint)
-PB_DESCRIPTOR(JplanCommand)
+PB_DESCRIPTOR(JplanJoint);
+PB_DESCRIPTOR(JplanCommand);
 
 //ros messages
-PB_DESCRIPTOR(JointTrajectoryPoint)
-PB_DESCRIPTOR(JointTrajectory)
-PB_DESCRIPTOR(Header)
-PB_DESCRIPTOR(Time)
+PB_DESCRIPTOR(JointTrajectoryPoint);
+PB_DESCRIPTOR(JointTrajectory);
+PB_DESCRIPTOR(Header);
+PB_DESCRIPTOR(Time);
+
+// sample stream message
+PB_DESCRIPTOR(Sample);
 
 // this likely supersedes the above exports, as it
 // contains a superset of pb_<message>_fields
@@ -103,6 +107,7 @@ msginfo_t msginfo[] = {
     VALUE_MESSAGES	   \
     JPLAN_MESSAGES         \
     ROS_MESSAGES           \
+    SAMPLE_MESSAGES        \
     PB_MSGINFO_DELIMITER
 };
 
