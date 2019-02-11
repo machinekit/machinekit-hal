@@ -586,6 +586,7 @@ HEADERS := \
     machinetalk/build/machinetalk/protobuf/config.pb.h \
     machinetalk/build/machinetalk/protobuf/firmware.npb.h \
     machinetalk/build/machinetalk/protobuf/jplan.pb.h \
+    machinetalk/build/machinetalk/protobuf/sample.pb.h \
     machinetalk/build/machinetalk/protobuf/message.npb.h \
     machinetalk/build/machinetalk/protobuf/motcmds.pb.h \
     machinetalk/build/machinetalk/protobuf/object.npb.h \
@@ -610,6 +611,7 @@ HEADERS := \
     machinetalk/build/machinetalk/protobuf/config.npb.h \
     machinetalk/build/machinetalk/protobuf/emcclass.pb.h \
     machinetalk/build/machinetalk/protobuf/jplan.npb.h \
+    machinetalk/build/machinetalk/protobuf/sample.npb.h \
     machinetalk/build/machinetalk/protobuf/log.pb.h \
     machinetalk/build/machinetalk/protobuf/motcmds.npb.h \
     machinetalk/build/machinetalk/protobuf/nanopb.pb.h \
@@ -1539,6 +1541,9 @@ motmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 obj-m += jplan.o
 jplan-objs := hal/jplanner/jplan.o machinetalk/build/machinetalk/protobuf/jplan.npb.o
 
+obj-m += sample_channel_pb.o
+sample_channel_pb-objs := hal/sample_channel/sample_channel_pb.o machinetalk/build/machinetalk/protobuf/sample.npb.o
+
 obj-m += interpolate.o
 interpolate-objs := hal/interpolator/interpolate.o machinetalk/build/machinetalk/protobuf/ros.npb.o
 
@@ -1822,6 +1827,7 @@ $(RTLIBDIR)/hal_gm$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_gm-objs))
 $(RTLIBDIR)/tp$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(tp-objs))
 $(RTLIBDIR)/ufdemo$(MODULE_EXT):	$(addprefix $(OBJDIR)/,$(ufdemo-objs))
 $(RTLIBDIR)/jplan$(MODULE_EXT):		$(addprefix $(OBJDIR)/,$(jplan-objs))
+$(RTLIBDIR)/sample_channel_pb$(MODULE_EXT):		$(addprefix $(OBJDIR)/,$(sample_channel_pb-objs))
 $(RTLIBDIR)/interpolate$(MODULE_EXT):	$(addprefix $(OBJDIR)/,$(interpolate-objs))
 $(RTLIBDIR)/icomp$(MODULE_EXT):		$(addprefix $(OBJDIR)/,$(icomp-objs))
 $(RTLIBDIR)/lutn-demo$(MODULE_EXT):	$(addprefix $(OBJDIR)/,$(lutn-demo-objs))
