@@ -175,53 +175,10 @@ AC_DEFUN([_cfg_flavor_id],
 	    [m4_cond(m4_car(flav),$1,
 	        m4_apply([_cfg_flavor_tuple_id],[flav]))])])
 
-dnl _cfg_flavor_threads_headers(flavor):  return THREADS_HEADERS
-dnl   for use in config.h
-dnl   _cfg_flavor_threads_headers(xenomai) => rtapi/xenomai.h;
-dnl   _cfg_flavor_threads_headers(posix) => rtapi/rt-preempt.h;
-AC_DEFUN([_cfg_flavor_tuple_threads_headers],[$3])
-AC_DEFUN([_cfg_flavor_threads_headers],
-	rtapi/[m4_foreach([flav],[_cfg_flavor_params],
-	    [m4_cond(m4_car(flav),$1,
-	        m4_apply([_cfg_flavor_tuple_threads_headers],[flav]))])].h)
-
-dnl _cfg_flavor_mod_ext(flavor):  return RT module extension:  .ko or .so
-dnl   for use in rtapi.ini
-dnl   _cfg_flavor_mod_ext(xenomai) => .so;
-dnl   _cfg_flavor_mod_ext(xenomai-kernel) => .ko;
-AC_DEFUN([_cfg_flavor_tuple_mod_ext],[$4])
-AC_DEFUN([_cfg_flavor_mod_ext],
-	[m4_foreach([flav],[_cfg_flavor_params],
-	    [m4_cond(m4_car(flav),$1,
-	        m4_apply([_cfg_flavor_tuple_mod_ext],[flav]))])])
-
-dnl _cfg_flavor_so_ext(flavor):  return plugin filename extension:  .so
-dnl   for use in rtapi.ini
-dnl   _cfg_flavor_so_ext(xenomai) => .so
-AC_DEFUN([_cfg_flavor_tuple_so_ext],[$5])
-AC_DEFUN([_cfg_flavor_so_ext],
-	[m4_foreach([flav],[_cfg_flavor_params],
-	    [m4_cond(m4_car(flav),$1,
-	        m4_apply([_cfg_flavor_tuple_so_ext],[flav]))])])
-
-dnl _cfg_flavor_flags(flavor):  flavor flags:  integer expression
-dnl   for use in rtapi.ini
-dnl   _cfg_flavor_flags(rt-preempt) => 0
-dnl   _cfg_flavor_flags(xenomai) => FLAVOR_DOES_IO
-AC_DEFUN([_cfg_flavor_tuple_flags],[$6])
-AC_DEFUN([_cfg_flavor_flags],
-	[m4_foreach([flav],[_cfg_flavor_params],
-	    [m4_cond(m4_car(flav),$1,
-	        m4_apply([_cfg_flavor_tuple_flags],[flav]))])])
-
 dnl _cfg_flavor_upcase(flavor):  return uppercase, and dashes->underscores
 dnl   used to generate C preprocessor macro names
 dnl   _cfg_flavor_ucase(rt-preempt) => RT_PREEMPT
 AC_DEFUN([_cfg_flavor_upcase],[m4_translit([$*],[a-z-],[A-Z_])])
-
-dnl _cfg_flavor_underscored(flavor):  return dashes->underscores
-dnl   used to generate e.g. $with_xenomai_kernel
-AC_DEFUN([_cfg_flavor_underscored],[m4_translit([$*],[-],[_])])
 
 
 ##############################################################################
