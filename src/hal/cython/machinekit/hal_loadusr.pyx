@@ -35,7 +35,7 @@ def loadusr(command, wait=False, wait_name=None, wait_timeout=5.0, shell=False, 
         # check if process is alive
         ret = p.returncode
         if ret is not None:
-            raise RuntimeError(command + ' exited with return code ' + str(ret))
+            raise RuntimeError(' '.join(cmd) + ' exited with return code ' + str(ret))
         # check if component exists
         if (wait_name is not None) and (wait_name in components) and (components[wait_name].state == COMP_READY):
             return components[wait_name]
