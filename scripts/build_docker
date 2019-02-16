@@ -165,7 +165,15 @@ case $CMD in
 	    ${RUN_TESTS} ${TEST_ARGS}"
 	)
 	;;
-    *)   echo "Unkown command '$CMD'" >&2; exit 1 ;;
+    "docs") # Just build docs
+	BUILD_CL=( bash -xec "
+	    cd src ;
+	    ./autogen.sh ;
+	    ./configure --enable-build-documentation ;
+	    make docpages i_docpages ;"
+	)
+	;;
+    *)   echo "Unknown command '$CMD'" >&2; exit 1 ;;
 esac
 
 ###########################################################
