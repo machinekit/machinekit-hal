@@ -1,13 +1,9 @@
 /********************************************************************
 * Description:  rt-preempt.h
-*               This file defines the differences specific to the
-*               the RT_PREEMPT thread system
-*
-*		It should be included in rtapi_common.h
+*               RT_PREEMPT flavor descriptors
 *
 *
-* Copyright (C) 2012, 2013 Michael Büsch <m AT bues DOT CH>, 
-*                          John Morris <john AT zultron DOT com>
+* Copyright (C) 2019       John Morris <john AT zultron DOT com>
 *
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
@@ -24,40 +20,7 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ********************************************************************/
 
-/***********************************************************************
-*                           TASK FUNCTIONS                             *
-************************************************************************/
+#include "rtapi_flavor.h"
 
-#include "config.h"
-#include <sched.h>		// sched_get_priority_*()
-#include <pthread.h>		/* pthread_* */
-
-#if THREAD_FLAVOR_ID == RTAPI_POSIX_ID
-#define FLAVOR_FLAGS POSIX_FLAVOR_FLAGS  // see rtapi_compat.h
-#endif
-
-#if THREAD_FLAVOR_ID == RTAPI_RT_PREEMPT_ID
-#define FLAVOR_FLAGS  RTPREEMPT_FLAVOR_FLAGS
-#endif
-
-/* rtapi_task.c */
-#define HAVE_RTAPI_TASK_NEW_HOOK
-#define HAVE_RTAPI_TASK_DELETE_HOOK
-#define HAVE_RTAPI_TASK_STOP_HOOK
-#define HAVE_RTAPI_WAIT_HOOK
-#define HAVE_RTAPI_TASK_SELF_HOOK
-#define HAVE_RTAPI_TASK_UPDATE_STATS_HOOK
-#define HAVE_RTAPI_TASK_PLL_GET_REFERENCE_HOOK
-#define HAVE_RTAPI_TASK_PLL_SET_CORRECTION_HOOK
-
-#if !defined(__i386__) && !defined(__x86_64__)
-#define HAVE_RTAPI_GET_CLOCKS_HOOK // needed for e.g. ARM, see rtapi_time.c
-#endif
-
-
-/* rtapi_main.c */
-#define HAVE_RTAPI_MODULE_INIT_HOOK   // init cgroups
-
-/* misc */
-#define HAVE_RTAPI_TASK_FREE
-#define HAVE_DROP_RESTORE_PRIVS
+extern flavor_descriptor_t flavor_rt_prempt_descriptor;
+extern flavor_descriptor_t flavor_posix_descriptor;

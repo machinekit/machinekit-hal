@@ -5,10 +5,6 @@ cdef extern from "rtapi_bitops.h":
 
 cdef extern from "rtapi_compat.h":
     cdef int  FLAVOR_DOES_IO
-    cdef int  FLAVOR_RTAPI_DATA_IN_SHM
-    cdef int  POSIX_FLAVOR_FLAGS
-    cdef int  RTPREEMPT_FLAVOR_FLAGS
-    cdef int  XENOMAI_FLAVOR_FLAGS
 
     ctypedef struct flavor_t:
         const char *name

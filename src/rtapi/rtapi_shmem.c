@@ -43,7 +43,7 @@
 *                           USERLAND THREADS                           *
 ************************************************************************/
 
-int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned long int size) {
+int rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned long int size) {
     shmem_data *shmem;
     int i, ret, actual_size;
     int is_new = 0;
@@ -121,7 +121,7 @@ int _rtapi_shmem_new_inst(int userkey, int instance, int module_id, unsigned lon
     return i;
 }
 
-int _rtapi_shmem_getptr_inst(int handle, int instance, void **ptr, unsigned long *size) {
+int rtapi_shmem_getptr_inst(int handle, int instance, void **ptr, unsigned long *size) {
     shmem_data *shmem;
     if (handle < 1 || handle >= RTAPI_MAX_SHMEMS)
 	return -EINVAL;
@@ -139,7 +139,7 @@ int _rtapi_shmem_getptr_inst(int handle, int instance, void **ptr, unsigned long
     return 0;
 }
 
-int _rtapi_shmem_delete_inst(int handle, int instance, int module_id) {
+int rtapi_shmem_delete_inst(int handle, int instance, int module_id) {
     shmem_data *shmem;
     int retval = 0;
 
@@ -181,21 +181,21 @@ int _rtapi_shmem_delete_inst(int handle, int instance, int module_id) {
     return retval;
 }
 
-int _rtapi_shmem_exists(int userkey) {
+int rtapi_shmem_exists(int userkey) {
     return shm_common_exists(userkey);
 }
 
 
-// implement rtapi_shmem_* calls  in terms of _rtapi_shmem_*_inst()
+// implement rtapi_shmem_* calls  in terms of rtapi_shmem_*_inst()
 
-int _rtapi_shmem_new(int userkey, int module_id, unsigned long int size) {
-    return _rtapi_shmem_new_inst(userkey, rtapi_instance, module_id, size);
+int rtapi_shmem_new(int userkey, int module_id, unsigned long int size) {
+    return rtapi_shmem_new_inst(userkey, rtapi_instance, module_id, size);
 }
 
-int _rtapi_shmem_getptr(int handle, void **ptr, unsigned long int *size) {
-    return _rtapi_shmem_getptr_inst(handle, rtapi_instance, ptr, size);
+int rtapi_shmem_getptr(int handle, void **ptr, unsigned long int *size) {
+    return rtapi_shmem_getptr_inst(handle, rtapi_instance, ptr, size);
 }
 
-int _rtapi_shmem_delete(int handle, int module_id) {
-    return _rtapi_shmem_delete_inst(handle, rtapi_instance, module_id);
+int rtapi_shmem_delete(int handle, int module_id) {
+    return rtapi_shmem_delete_inst(handle, rtapi_instance, module_id);
 }

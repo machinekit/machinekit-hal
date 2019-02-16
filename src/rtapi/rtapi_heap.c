@@ -61,12 +61,12 @@ heap_print(struct rtapi_heap *h, int level, const char *fmt, ...)
 
 static void *_rtapig_malloc(const int lock, struct rtapi_heap *h, size_t nbytes);
 
-void *_rtapi_malloc(struct rtapi_heap *h, size_t nbytes)
+void *rtapi_malloc(struct rtapi_heap *h, size_t nbytes)
 {
     return _rtapig_malloc(1, h, nbytes);
 }
 
-void  *_rtapi_malloc_aligned(struct rtapi_heap *h, size_t nbytes, size_t align)
+void  *rtapi_malloc_aligned(struct rtapi_heap *h, size_t nbytes, size_t align)
 {
 
     WITH_MUTEX(HEAP_MUTEX(h));
@@ -120,7 +120,7 @@ void  *_rtapi_malloc_aligned(struct rtapi_heap *h, size_t nbytes, size_t align)
     return result;
 }
 
-void _rtapi_free(struct rtapi_heap *h, void *);
+void rtapi_free(struct rtapi_heap *h, void *);
 
 static void *_rtapig_malloc(const int lock, struct rtapi_heap *h, size_t nbytes)
 {
@@ -149,7 +149,7 @@ static void *_rtapig_malloc(const int lock, struct rtapi_heap *h, size_t nbytes)
 	    }
 	    p->s.tag.attr = 0;
 	    h->free_p = heap_off(h, prevp);
-	    size_t alloced = _rtapi_allocsize(h, p+1);
+	    size_t alloced = rtapi_allocsize(h, p+1);
 	    h->requested += nbytes;
 	    h->allocated += alloced;
 	    if (h->flags & RTAPIHEAP_TRACE_MALLOC)
@@ -181,7 +181,7 @@ static void _rtapi_unlocked_free(struct rtapi_heap *h, void *ap)
 	if (h->flags & RTAPIHEAP_TRACE_FREE)
 	    heap_print(h, RTAPI_MSG_INFO,
 		       "%s: free aligned %p->%p size=%zu\n",
-		       __FUNCTION__, ap, base, _rtapi_allocsize(h, base));
+		       __FUNCTION__, ap, base, rtapi_allocsize(h, base));
 	ap = base;
     }
 
@@ -232,16 +232,16 @@ static void _rtapi_unlocked_free(struct rtapi_heap *h, void *ap)
     h->free_p = heap_off(h,p);
 }
 
-void _rtapi_free(struct rtapi_heap *h,void *ap)
+void rtapi_free(struct rtapi_heap *h,void *ap)
 {
     WITH_MUTEX(HEAP_MUTEX(h));
     _rtapi_unlocked_free(h, ap);
 }
 
-// given a pointer returned by _rtapi_malloc(),
+// given a pointer returned by rtapi_malloc(),
 // returns number of bytes actually available for use (which
 // might be a bit larger than requested) due to chunk alignent)
-size_t _rtapi_allocsize(struct rtapi_heap *h, const void *ap)
+size_t rtapi_allocsize(struct rtapi_heap *h, const void *ap)
 {
     rtapi_malloc_tag_t *rt = ((rtapi_malloc_tag_t *) ap) - 1;
 
@@ -253,33 +253,33 @@ size_t _rtapi_allocsize(struct rtapi_heap *h, const void *ap)
     return (p->s.tag.size -1) * sizeof (rtapi_malloc_hdr_t);
 }
 
-void *_rtapi_calloc(struct rtapi_heap *h, size_t nelem, size_t elsize)
+void *rtapi_calloc(struct rtapi_heap *h, size_t nelem, size_t elsize)
 {
-    void *p = _rtapi_malloc (h,nelem * elsize);
+    void *p = rtapi_malloc (h,nelem * elsize);
     if (!p)
         return NULL;
     memset(p, 0, nelem * elsize);
     return p;
 }
 
-void *_rtapi_realloc(struct rtapi_heap *h, void *ptr, size_t size)
+void *rtapi_realloc(struct rtapi_heap *h, void *ptr, size_t size)
 {
-    size_t sz = _rtapi_allocsize (h, ptr);
+    size_t sz = rtapi_allocsize (h, ptr);
 
     // requested size fits current allocation?
     if (size <= sz)
 	// could use trim like in malloc_aligned but not much gained
 	return ptr; // nothing to do
 
-    void *p = _rtapi_malloc (h, size);
+    void *p = rtapi_malloc (h, size);
     if (!p)
         return (p);
     memcpy(p, ptr, (sz > size) ? size : sz);
-    _rtapi_free(h, ptr);
+    rtapi_free(h, ptr);
     return p;
 }
 
-size_t _rtapi_heap_walk_freelist(struct rtapi_heap *h, chunk_t callback, void *user)
+size_t rtapi_heap_walk_freelist(struct rtapi_heap *h, chunk_t callback, void *user)
 {
     WITH_MUTEX(HEAP_MUTEX(h));
 
@@ -299,7 +299,7 @@ size_t _rtapi_heap_walk_freelist(struct rtapi_heap *h, chunk_t callback, void *u
     }
 }
 
-int _rtapi_heap_addmem(struct rtapi_heap *h, void *space, size_t size)
+int rtapi_heap_addmem(struct rtapi_heap *h, void *space, size_t size)
 {
     WITH_MUTEX(HEAP_MUTEX(h));
 
@@ -314,7 +314,7 @@ int _rtapi_heap_addmem(struct rtapi_heap *h, void *space, size_t size)
     return 0;
 }
 
-int _rtapi_heap_init(struct rtapi_heap *heap, const char *name)
+int rtapi_heap_init(struct rtapi_heap *heap, const char *name)
 {
     WITH_MUTEX(HEAP_MUTEX(heap));
 
@@ -339,14 +339,14 @@ int _rtapi_heap_init(struct rtapi_heap *heap, const char *name)
     return 0;
 }
 
-int  _rtapi_heap_setflags(struct rtapi_heap *heap, int flags)
+int  rtapi_heap_setflags(struct rtapi_heap *heap, int flags)
 {
     int f = heap->flags;
     heap->flags = flags;
     return f;
 }
 
-size_t _rtapi_heap_status(struct rtapi_heap *h,
+size_t rtapi_heap_status(struct rtapi_heap *h,
 			  struct rtapi_heap_stat *hs)
 {
     WITH_MUTEX(HEAP_MUTEX(h));

@@ -164,14 +164,9 @@ static AvahiCzmqPoll *av_loop;
 //
 // global_data is set in attach_global_segment() which was already
 // created by rtapi_msgd
-// rtapi_switch is set once rtapi.so has been loaded by calling the
-// rtapi_get_handle() method in rtapi.so.
-// Once set, rtapi methods in rtapi.so can be called normally through
-// the rtapi_switch redirection (see rtapi.h).
 
 // NB: do _not_ call any rtapi_* methods before these variables are set
-// except for rtapi_msg* and friends (those do not go through the rtapi_switch).
-rtapi_switch_t *rtapi_switch;
+// except for rtapi_msg* and friends.
 global_data_t *global_data;
 static const char *rpath;
 static int init_actions(int instance);
@@ -539,22 +534,6 @@ static int do_load_cmd(int instance,
         // first load of a module. Record default instanceparams
         // so they can be replayed before newinst
         record_instparms(module_path, mi);
-
-        // retrieve the address of rtapi_switch_struct
-        // so rtapi functions can be called and members
-        // accessed
-        // RTAPIMOD only will have that, but we need that as soon as
-        // possible so not much use in testing the name
-        if (rtapi_switch == NULL) {
-            rtapi_get_handle_t rtapi_get_handle;
-            dlerror();
-            rtapi_get_handle = (rtapi_get_handle_t)dlsym(mi.handle,
-                                                         "rtapi_get_handle");
-            if (rtapi_get_handle != NULL) {
-                rtapi_switch = rtapi_get_handle();
-                assert(rtapi_switch != NULL);
-            }
-        }
 
         int (*start)(void) = DLSYM<int(*)(void)>(mi.handle, "rtapi_app_main");
         if (!start) {

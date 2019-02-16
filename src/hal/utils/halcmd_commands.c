@@ -2474,69 +2474,10 @@ static int print_heap(char **patterns)
 
 static void print_thread_stats(hal_thread_t *tptr)
 {
-    int flavor = global_data->rtapi_thread_flavor;
-    rtapi_threadstatus_t *ts =
-	&global_data->thread_status[tptr->task_id];
-
     halcmd_output("\nLowlevel thread statistics for '%s':\n\n",
 		  ho_name(tptr));
 
-    // generic statistics counters
-    halcmd_output("    updates=%d\t", ts->num_updates);
-    if (ts->num_updates) {
-	halcmd_output("api_err=%d\t", ts->api_errors);
-	halcmd_output("other_err=%d\n", ts->api_errors);
-    }
-
-    // flavor-specific statistics counters
-    switch (flavor) {
-    case RTAPI_XENOMAI_ID: // xenomai-user
-    //case RTAPI_XENOMAI_KERNEL_ID:
-
-	halcmd_output("    wait_errors=%d\t",
-		      ts->flavor.xeno.wait_errors);
-	halcmd_output("overruns=%d\t",
-		      ts->flavor.xeno.total_overruns);
-	halcmd_output("modeswitches=%d\t",
-		      ts->flavor.xeno.modeswitches);
-	halcmd_output("contextswitches=%d\n",
-		      ts->flavor.xeno.ctxswitches);
-	halcmd_output("    pagefaults=%d\t",
-		      ts->flavor.xeno.pagefaults);
-	halcmd_output("exectime=%llduS\t",
-		      ts->flavor.xeno.exectime/1000);
-	halcmd_output("status=0x%x\n",
-		      ts->flavor.xeno.status);
-	break;
-
-    case RTAPI_POSIX_ID:
-    case RTAPI_RT_PREEMPT_ID:
-	halcmd_output("    wait_errors=%d\t",
-		      ts->flavor.rtpreempt.wait_errors);
-	halcmd_output("usercpu=%lduS\t",
-		      ts->flavor.rtpreempt.utime_sec * 1000000 +
-		      ts->flavor.rtpreempt.utime_usec);
-	halcmd_output("syscpu=%lduS\t",
-		      ts->flavor.rtpreempt.stime_sec * 1000000 +
-		      ts->flavor.rtpreempt.stime_usec);
-	halcmd_output("nsigs=%ld\n",
-		      ts->flavor.rtpreempt.ru_nsignals);
-	halcmd_output("    ivcsw=%ld\t",
-		      ts->flavor.rtpreempt.ru_nivcsw -
-		      ts->flavor.rtpreempt.startup_ru_nivcsw);
-	halcmd_output("    minflt=%ld\t",
-		      ts->flavor.rtpreempt.ru_minflt -
-		      ts->flavor.rtpreempt.startup_ru_minflt);
-	halcmd_output("    majflt=%ld\n",
-		      ts->flavor.rtpreempt.ru_majflt -
-		      ts->flavor.rtpreempt.startup_ru_majflt);
-	break;
-
-    default:
-	halcmd_error("halcmd: thread flavor %d stats not implemented\n",
-		     flavor);
-    }
-    halcmd_output("\n");
+    rtapi_print_thread_stats(tptr->task_id);
 }
 
 static int print_thread_entry(hal_object_ptr o, foreach_args_t *args)
@@ -2589,7 +2530,7 @@ static int print_thread_entry(hal_object_ptr o, foreach_args_t *args)
 	if (scriptmode != 0) {
 	    halcmd_output("\n");
 	} else {
-	    // if a thread name was given, print the flavor specific stats
+	    // if a thread name was given, print its stats
 	    if (named)
 		print_thread_stats(tptr);
 	}
@@ -2601,7 +2542,7 @@ static void print_thread_info(char **patterns)
 {
     if (scriptmode == 0) {
 	halcmd_output("Realtime Threads (flavor: %s, currently %s) :\n",
-		      current_flavor->name,
+		      flavor_descriptor->name,
 		      (hal_data->threads_running > 0) ? "running" : "stopped");
 	halcmd_output("     Period  FP CPU   Name                                          "
 		      "Time  Max-Time util  max  jitter-95%%     flags\n");

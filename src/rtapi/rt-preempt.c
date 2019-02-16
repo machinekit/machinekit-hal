@@ -25,10 +25,15 @@
 ********************************************************************/
 
 
+#include "rtapi_flavor.h"
 #include "rt-preempt.h"
 #include "rtapi.h"
 #include "rtapi_common.h"
 #include <libcgroup.h>
+
+#include "config.h"
+#include <sched.h>		// sched_get_priority_*()
+#include <pthread.h>		/* pthread_* */
 
 /***********************************************************************
 *                           TASK FUNCTIONS                             *
@@ -44,11 +49,14 @@
 #include <syscall.h>            // syscall(SYS_gettid);
 #include <sys/prctl.h>          // prctl(PR_SET_NAME)
 
+// if this exists, and contents is '1', it's RT_PREEMPT
+#define PREEMPT_RT_SYSFS "/sys/kernel/realtime"
+
 /* Lock for task_array and module_array allocations */
 static pthread_key_t task_key;
 static pthread_once_t task_key_once = PTHREAD_ONCE_INIT;
 
-int _rtapi_task_self_hook(void);
+int posix_task_self_hook(void);
 
 
 typedef struct {
@@ -73,8 +81,8 @@ extra_task_data_t extra_task_data[RTAPI_MAX_TASKS + 1];
 int have_cg;  // true when libcgroup initialized successfully
 #endif  /* RTAPI */
 
-#ifdef HAVE_RTAPI_GET_CLOCKS_HOOK
-long long int _rtapi_get_clocks_hook(void)
+#if !defined(__i386__) && !defined(__x86_64__)
+long long int posix_get_clocks_hook(void)
 {
     struct timespec ts;
     clock_gettime(CLOCK_MONOTONIC, &ts);
@@ -84,18 +92,8 @@ long long int _rtapi_get_clocks_hook(void)
 #endif
 
 
-int _rtapi_init(const char *modname) {
-    return _rtapi_next_handle();
-}
-
-int _rtapi_exit(int module_id) {
-    /* do nothing for ULAPI */
-    return 0;
-}
-
-
 #ifdef RTAPI
-void _rtapi_module_init_hook(void)
+void posix_module_init_hook(void)
 {
     int ret;
 
@@ -108,7 +106,7 @@ void _rtapi_module_init_hook(void)
                         ret, cgroup_strerror(ret));
 }
 #else
-void _rtapi_module_init_hook(void) {}
+void posix_module_init_hook(void) {}
 #endif
 
 #ifdef RTAPI
@@ -120,14 +118,14 @@ static inline int task_id(task_data *task) {
 /***********************************************************************
 *                           RT thread statistics update                *
 ************************************************************************/
-int _rtapi_task_update_stats_hook(void)
+int posix_task_update_stats_hook(void)
 {
-    int task_id = _rtapi_task_self_hook();
+    int task_id = posix_task_self_hook();
 
     // paranoia
     if ((task_id < 0) || (task_id > RTAPI_MAX_TASKS)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"_rtapi_task_update_stats_hook: BUG -"
+			"rtapi_task_update_stats_hook: BUG -"
 			" task_id out of range: %d\n",
 			task_id);
 	return -ENOENT;
@@ -200,7 +198,7 @@ static task_data *rtapi_this_task() {
     return (task_data *)pthread_getspecific(task_key);
 }
 
-int _rtapi_task_new_hook(task_data *task, int task_id) {
+int posix_task_new_hook(task_data *task, int task_id) {
     void *stackaddr;
 
     stackaddr = malloc(task->stacksize);
@@ -215,7 +213,7 @@ int _rtapi_task_new_hook(task_data *task, int task_id) {
     return task_id;
 }
 
-void _rtapi_task_delete_hook(task_data *task, int task_id) {
+int posix_task_delete_hook(task_data *task, int task_id) {
     int err;
     void *returncode;
 
@@ -240,6 +238,8 @@ void _rtapi_task_delete_hook(task_data *task, int task_id) {
     /* Free the thread stack. */
     free(extra_task_data[task_id].stackaddr);
     extra_task_data[task_id].stackaddr = NULL;
+
+    return &returncode;
 }
 
 static int realtime_set_affinity(task_data *task) {
@@ -381,7 +381,7 @@ static void *realtime_thread(void *arg) {
     _rtapi_advance_time(&extra_task_data[task_id(task)].next_time,
 		       task->period + task->pll_correction, 0);
 
-    _rtapi_task_update_stats_hook(); // inital stats update
+    posix_task_update_stats_hook(); // inital stats update
 
     /* The task should not pagefault at all. So record initial counts now.
      * Note that currently we _do_ receive a few pagefaults in the
@@ -419,7 +419,7 @@ static void *realtime_thread(void *arg) {
     return NULL;
 }
 
-int _rtapi_task_start_hook(task_data *task, int task_id) {
+int posix_task_start_hook(task_data *task, int task_id) {
     pthread_attr_t attr;
     int retval;
 
@@ -457,11 +457,11 @@ int _rtapi_task_start_hook(task_data *task, int task_id) {
     return 0;
 }
 
-void _rtapi_task_stop_hook(task_data *task, int task_id) {
+void posix_task_stop_hook(task_data *task, int task_id) {
     extra_task_data[task_id].destroyed = 1;
 }
 
-int _rtapi_wait_hook(const int flags) {
+int posix_wait_hook(const int flags) {
     struct timespec ts;
     task_data *task = rtapi_this_task();
 
@@ -483,7 +483,7 @@ int _rtapi_wait_hook(const int flags) {
 	// timing went wrong:
 
 	// update stats counters in thread status
-	_rtapi_task_update_stats_hook();
+	posix_task_update_stats_hook();
 
 	rtapi_threadstatus_t *ts =
 	    &global_data->thread_status[task_id(task)];
@@ -501,7 +501,7 @@ int _rtapi_wait_hook(const int flags) {
     return 0;
 }
 
-void _rtapi_delay_hook(long int nsec)
+void posix_delay_hook(long int nsec)
 {
     struct timespec t;
 
@@ -511,7 +511,7 @@ void _rtapi_delay_hook(long int nsec)
 }
 
 
-int _rtapi_task_self_hook(void) {
+int posix_task_self_hook(void) {
     int n;
 
     /* ask OS for pointer to its data for the current pthread */
@@ -529,15 +529,15 @@ int _rtapi_task_self_hook(void) {
     return -EINVAL;
 }
 
-long long _rtapi_task_pll_get_reference_hook(void) {
-    int task_id = _rtapi_task_self_hook();
+long long posix_task_pll_get_reference_hook(void) {
+    int task_id = posix_task_self_hook();
     if (task_id < 0) return 0;
     return extra_task_data[task_id].next_time.tv_sec * 1000000000LL
         + extra_task_data[task_id].next_time.tv_nsec;
 }
 
-int _rtapi_task_pll_set_correction_hook(long value) {
-    int task_id = _rtapi_task_self_hook();
+int posix_task_pll_set_correction_hook(long value) {
+    int task_id = posix_task_self_hook();
     task_data *task = &task_array[task_id];
     if (task <= 0) return -EINVAL;
     if (value > task->pll_correction_limit)
@@ -550,5 +550,116 @@ int _rtapi_task_pll_set_correction_hook(long value) {
     /*                 task_id, value); */
     return 0;
 }
+
+int kernel_is_rtpreempt()
+{
+    FILE *fd;
+    int retval = 0;
+
+    if ((fd = fopen(PREEMPT_RT_SYSFS,"r")) != NULL) {
+	int flag;
+	retval = ((fscanf(fd, "%d", &flag) == 1) && (flag));
+	fclose(fd);
+    }
+    return retval;
+}
+
+int rtpreempt_can_run_flavor()
+{
+    return kernel_is_rtpreempt();
+}
+
+int posix_can_run_flavor()
+{
+    return 1;
+}
+
+
+void print_thread_stats(int task_id)
+{
+    rtapi_threadstatus_t *ts =
+	&global_data->thread_status[task_id];
+
+    rtapi_print("    wait_errors=%d\t",
+                ts->flavor.rtpreempt.wait_errors);
+    rtapi_print("usercpu=%lduS\t",
+                ts->flavor.rtpreempt.utime_sec * 1000000 +
+                ts->flavor.rtpreempt.utime_usec);
+    rtapi_print("syscpu=%lduS\t",
+                ts->flavor.rtpreempt.stime_sec * 1000000 +
+                ts->flavor.rtpreempt.stime_usec);
+    rtapi_print("nsigs=%ld\n",
+                ts->flavor.rtpreempt.ru_nsignals);
+    rtapi_print("    ivcsw=%ld\t",
+                ts->flavor.rtpreempt.ru_nivcsw -
+                ts->flavor.rtpreempt.startup_ru_nivcsw);
+    rtapi_print("    minflt=%ld\t",
+                ts->flavor.rtpreempt.ru_minflt -
+                ts->flavor.rtpreempt.startup_ru_minflt);
+    rtapi_print("    majflt=%ld\n",
+                ts->flavor.rtpreempt.ru_majflt -
+                ts->flavor.rtpreempt.startup_ru_majflt);
+    rtapi_print("\n");
+}
+
+
+
+flavor_descriptor_t flavor_rt_prempt_descriptor = {
+    .name = "rt-preempt",
+    .flavor_id = RTAPI_RT_PREEMPT_ID,
+    .flags = FLAVOR_DOES_IO,
+    .time_no_clock_monotonic = 0,
+    .can_run_flavor = rtpreempt_can_run_flavor,
+    .module_init_hook = NULL,
+    .module_exit_hook = NULL,
+    .task_update_stats_hook = NULL,
+    .print_thread_stats_hook = print_thread_stats,
+    .task_new_hook = posix_task_new_hook,
+    .task_delete_hook = posix_task_delete_hook,
+    .task_start_hook = posix_task_start_hook,
+    .task_stop_hook = posix_task_stop_hook,
+    .task_pause_hook = NULL,
+    .wait_hook = posix_wait_hook,
+    .resume_hook = NULL,
+    .delay_hook = posix_delay_hook,
+    .get_time_hook = NULL,
+#if !defined(__i386__) && !defined(__x86_64__)
+    .get_clocks_hook = posix_get_clocks_hook,
+#else
+    .get_clocks_hook = NULL,
+#endif
+    .task_self_hook = posix_task_self_hook,
+    .task_pll_get_reference_hook = posix_task_pll_get_reference_hook,
+    .task_pll_set_correction_hook = posix_task_pll_set_correction_hook
+};
+
+flavor_descriptor_t flavor_posix_descriptor = {
+    .name = "posix",
+    .flavor_id = RTAPI_POSIX_ID,
+    .flags = 0,
+    .time_no_clock_monotonic = 0,
+    .can_run_flavor = posix_can_run_flavor,
+    .module_init_hook = NULL,
+    .module_exit_hook = NULL,
+    .task_update_stats_hook = NULL,
+    .print_thread_stats_hook = print_thread_stats,
+    .task_new_hook = posix_task_new_hook,
+    .task_delete_hook = posix_task_delete_hook,
+    .task_start_hook = posix_task_start_hook,
+    .task_stop_hook = posix_task_stop_hook,
+    .task_pause_hook = NULL,
+    .wait_hook = posix_wait_hook,
+    .resume_hook = NULL,
+    .delay_hook = posix_delay_hook,
+    .get_time_hook = NULL,
+#if !defined(__i386__) && !defined(__x86_64__)
+    .get_clocks_hook = posix_get_clocks_hook,
+#else
+    .get_clocks_hook = NULL,
+#endif
+    .task_self_hook = posix_task_self_hook,
+    .task_pll_get_reference_hook = posix_task_pll_get_reference_hook,
+    .task_pll_set_correction_hook = posix_task_pll_set_correction_hook
+};
 
 #endif /* RTAPI */

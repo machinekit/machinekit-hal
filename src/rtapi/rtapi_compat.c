@@ -43,200 +43,7 @@
 #include <elf.h>                // get_rpath()
 #include <link.h>
 
-// really in nucleus/heap.h but we rather get away with minimum include files
-#ifndef XNHEAP_DEV_NAME
-#define XNHEAP_DEV_NAME  "/dev/rtheap"
-#endif
-
-// if this exists, and contents is '1', it's RT_PREEMPT
-#define PREEMPT_RT_SYSFS "/sys/kernel/realtime"
-
-// Exists on Xenomai
-#define PROC_IPIPE "/proc/ipipe"
-#define PROC_IPIPE_XENOMAI "/proc/ipipe/Xenomai"
-#define XENO_GID_SYSFS "/sys/module/xeno_nucleus/parameters/xenomai_gid"
-
 static FILE *rtapi_inifile = NULL;
-
-static int check_rtapi_lib(char *name);
-
-int kernel_is_xenomai()
-{
-    struct stat sb;
-
-    return ((stat(XNHEAP_DEV_NAME, &sb) == 0) &&
-	    (stat(PROC_IPIPE_XENOMAI, &sb) == 0) &&
-	    (stat(XENO_GID_SYSFS, &sb) == 0));
-}
-
-int kernel_is_rtpreempt()
-{
-    FILE *fd;
-    int retval = 0;
-
-    if ((fd = fopen(PREEMPT_RT_SYSFS,"r")) != NULL) {
-	int flag;
-	retval = ((fscanf(fd, "%d", &flag) == 1) && (flag));
-	fclose(fd);
-    }
-    return retval;
-}
-
-int xenomai_gid()
-{
-    FILE *fd;
-    int gid = -1;
-
-    if ((fd = fopen(XENO_GID_SYSFS,"r")) != NULL) {
-	if (fscanf(fd, "%d", &gid) != 1) {
-	    fclose(fd);
-	    return -EBADF; // garbage in sysfs device
-	} else {
-	    fclose(fd);
-	    return gid;
-	}
-    }
-    return -ENOENT; // sysfs device cant be opened
-}
-
-int user_in_xenomai_group()
-{
-    int numgroups, i;
-    gid_t *grouplist;
-    int gid = xenomai_gid();
-
-    if (gid < 0)
-	return gid;
-
-    numgroups = getgroups(0,NULL);
-    grouplist = (gid_t *) calloc( numgroups, sizeof(gid_t));
-    if (grouplist == NULL)
-	return -ENOMEM;
-    if (getgroups( numgroups, grouplist) > 0) {
-	for (i = 0; i < numgroups; i++) {
-	    if (grouplist[i] == (unsigned) gid) {
-		free(grouplist);
-		return 1;
-	    }
-	}
-    } else {
-	free(grouplist);
-	return errno;
-    }
-    return 0;
-}
-
-
-// there is no easy way to determine the RTAPI instance id
-// of a kernel threads RTAPI instance, which is why this
-// parameter is made visible through a procfs entry.
-int kernel_instance_id()
-{
-    FILE *fd;
-    int retval = -1;
-
-    if ((fd = fopen("/proc/rtapi/instance","r")) != NULL) {
-	int flag;
-	if (fscanf(fd, "%d", &flag) == 1) {
-	    retval = flag;
-	}
-	fclose(fd);
-    }
-    return retval;
-}
-
-const flavor_t flavors[] = {
-    { .name = RTAPI_POSIX_NAME,
-      .mod_ext = ".so",
-      .so_ext = ".so",
-      .flavor_id = RTAPI_POSIX_ID,
-      .flags = POSIX_FLAVOR_FLAGS // FLAVOR_USABLE
-    },
-    { .name = RTAPI_RT_PREEMPT_NAME,
-      .mod_ext = ".so",
-      .so_ext = ".so",
-      .flavor_id = RTAPI_RT_PREEMPT_ID,
-      .flags = RTPREEMPT_FLAVOR_FLAGS
-    },
-     { .name = RTAPI_XENOMAI_NAME,
-      .mod_ext = ".so",
-      .so_ext = ".so",
-      .flavor_id = RTAPI_XENOMAI_ID,
-      .flags = XENOMAI_FLAVOR_FLAGS
-    },
-    { .name = RTAPI_NOTLOADED_NAME,
-      .mod_ext = "",
-      .so_ext = "",
-      .flavor_id = RTAPI_NOTLOADED_ID,
-      .flags = 0
-    },
-
-    { .name = NULL, // list sentinel
-      .flavor_id = -1,
-      .flags = 0
-    }
-};
-
-flavor_ptr flavor_byname(const char *flavorname)
-{
-    flavor_ptr f = &(flavors[0]);
-    while (f->name) {
-	if (!strcasecmp(flavorname, f->name))
-	    return f;
-	f++;
-    }
-    return NULL;
-}
-
-flavor_ptr flavor_byid(int flavor_id)
-{
-    flavor_ptr f = flavors;
-    while (f->name) {
-	if (flavor_id == f->flavor_id)
-	    return f;
-	f++;
-    }
-    return NULL;
-}
-
-flavor_ptr default_flavor(void)
-{
-    char *fname = getenv("FLAVOR");
-    flavor_ptr f, flavor;
-
-    if (fname) {
-	if ((flavor = flavor_byname(fname)) == NULL) {
-	    fprintf(stderr,
-		    "FLAVOR=%s: no such flavor -- valid flavors are:\n",
-		    fname);
-	    f = flavors;
-	    while (f->name) {
-		fprintf(stderr, "\t%s\n", f->name);
-		f++;
-	    }
-	    exit(1);
-	}
-	/* make sure corresponding rtapi lib is also present */
-	if (check_rtapi_lib(fname))
-	    return flavor;
-	else
-	    exit(1);
-    }
-
-    if (kernel_is_xenomai()) {
-	/* check for userspace first */
-	f = flavor_byid(RTAPI_XENOMAI_ID);
-	if (check_rtapi_lib((char *)f->name))
-	    return f;
-    }
-    if (kernel_is_rtpreempt()) {
-	f = flavor_byid(RTAPI_RT_PREEMPT_ID);
-	if (check_rtapi_lib((char *)f->name))
-	    return f;
-    }
-    return flavor_byid(RTAPI_POSIX_ID);
-}
-
 
 void check_rtapi_config_open()
 {
@@ -261,31 +68,24 @@ void check_rtapi_config_open()
     }
 }
 
-char *get_rtapi_param(const char *flavor, const char *param)
+char *get_rtapi_param(const char *param)
 {
     char *val;
-    char buf[RTAPI_NAME_LEN+8];    // strlen("flavor_") + RTAPI_NAME_LEN + 1
 
     // Open rtapi_inifile if it hasn't been already
     check_rtapi_config_open();
-
-    sprintf(buf, "flavor_%s", flavor);
-    val = (char *) iniFind(rtapi_inifile, param, buf);
-
-    if (val==NULL)
-	val = (char *) iniFind(rtapi_inifile, param, "global");
+    val = (char *) iniFind(rtapi_inifile, param, "global");
 
     return val;
 }
 
 int get_rtapi_config(char *result, const char *param, int n)
 {
-    /* Read a parameter value from rtapi.ini.  First try the flavor
-       section, then the global section.  Copy max n-1 bytes into
-       result buffer.  */
+    /* Read a parameter value from rtapi.ini.  Copy max n-1 bytes into result
+       buffer.  */
     char *val;
 
-    val = get_rtapi_param(default_flavor()->name, param);
+    val = get_rtapi_param(param);
 
     // Return if nothing found
     if (val==NULL) {
@@ -296,26 +96,6 @@ int get_rtapi_config(char *result, const char *param, int n)
     // Otherwise copy result into buffer (see 'WTF' comment in inifile.cc)
     strncpy(result, val, n-1);
     return 0;
-}
-
-int check_rtapi_lib(char *name)
-{
-    /* Check if the corresponding rtapi lib for a particular
-	flavor is present */
-    char *val;
-    char fname[PATH_MAX];
-    struct stat sb;
-
-    val = get_rtapi_param(name, "RTLIB_DIR");
-
-    if (val==NULL) {
-	return 0;
-    }
-
-    snprintf(fname, PATH_MAX,"%s/ulapi.so", val);
-
-    /* check if rtapi lib exists */
-    return (stat(fname, &sb) == 0);
 }
 
 //int procfs_cmd(const char *path, const char *format, ...)
@@ -527,17 +307,13 @@ int rtapi_get_tags(const char *mod_name)
     int result = 0, n = 0;
     char *cp1 = "";
 
-    flavor_ptr flavor = default_flavor();
-
     if (get_rtapi_config(modpath,"RTLIB_DIR",PATH_MAX) != 0) {
         perror("cant get  RTLIB_DIR ?\n");
         return -1;
     }
     strcat(modpath,"/");
-    strcat(modpath, flavor->name);
-    strcat(modpath,"/");
     strcat(modpath,mod_name);
-    strcat(modpath, flavor->mod_ext);
+    strcat(modpath, ".so");
 
     const char **caps = get_caps(modpath);
     char **p = (char **)caps;
@@ -552,40 +328,8 @@ int rtapi_get_tags(const char *mod_name)
     return result;
 }
 
-// lifted from hm2_ether.c by Michael Geszkiewicz  and Jeff Epler
-int run_shell(char *format, ...)
-{
-    char command[PATH_MAX];
-    va_list args;
-    int retval;
-
-    va_start(args, format);
-    retval = vsnprintf(command, sizeof(command), format, args);
-    va_end(args);
-
-    if (retval < 0) {
-    perror("vsnprintf");
-    return retval;
-    }
-    char *const argv[] = {"sh", "-c", command, NULL};
-    pid_t pid;
-    retval = posix_spawn(&pid, "/bin/sh", NULL, NULL, argv, environ);
-    if(retval < 0)
-    perror("posix_spawn");
-
-    int status;
-    waitpid(pid, &status, 0);
-    if (WIFEXITED(status))
-    return WEXITSTATUS(status);
-    else if (WIFSTOPPED(status))
-    return WTERMSIG(status)+128;
-    else
-    return status;
-}
-
 // those are ok to use from userland RT modules:
 #if defined(RTAPI)
-EXPORT_SYMBOL(run_shell);
 EXPORT_SYMBOL(rtapi_fs_read);
 EXPORT_SYMBOL(rtapi_fs_write);
 #endif

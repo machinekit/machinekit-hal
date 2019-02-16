@@ -74,10 +74,6 @@ hal_comp_t *halg_xinitfv(const int use_hal_mutex,
     rtapi_set_logtag("hal_lib");
     int comp_id, retval;
 
-    // sanity: these must have been inited before by the
-    // respective rtapi.so/.ko module
-    PCHECK_NULL(rtapi_switch);
-
     if ((dtor != NULL) && (ctor == NULL)) {
 	HALFAIL_NULL(EINVAL,"component '%s': NULL constructor doesnt make"
 		     " sense with non-NULL destructor", name);

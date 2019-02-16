@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #endif
 
+#include "rtapi_flavor.h"
 #include "config.h"
 #include "rtapi.h"
 #include "rtapi_common.h"
@@ -47,122 +48,6 @@ module_data *module_array = local_rtapi_data.module_array;
 // or rtapi_main.c (uthreads)
 // ULAPI: exported in ulapi_autoload.c
 extern global_data_t *global_data;
-
-/*
-   define the rtapi_switch struct, with pointers to all rtapi_*
-   functions
-
-   ULAPI doesn't define all functions, so for missing functions point
-   to the dummy function _rtapi_dummy() in hopes of more graceful
-   failure
-*/
-
-int _rtapi_dummy(void) {
-    rtapi_print_msg(RTAPI_MSG_ERR,
-		    "Error:  _rtapi_dummy function called from rtapi_switch; "
-		    "this should never happen!");
-    return -EINVAL;
-}
-
-static rtapi_switch_t rtapi_switch_struct;
-
-void init_rtapi_switch(void)
-{
-
-    flavor_ptr flavor = flavor_byid(global_data->rtapi_thread_flavor);
-
-    rtapi_switch_struct = (rtapi_switch_t){
-        .git_version = GIT_VERSION,
-        .thread_flavor_name = flavor->name,
-        .thread_flavor_id = flavor->flavor_id,
-        .thread_flavor_flags = flavor->flags,
-
-        // init & exit functions
-        .rtapi_init = &_rtapi_init,
-        .rtapi_exit = &_rtapi_exit,
-        .rtapi_next_handle = &_rtapi_next_handle,
-        // messaging functions moved to instance,
-        // implemented in rtapi_support.c
-        // time functions
-#ifdef RTAPI
-        .rtapi_clock_set_period = &_rtapi_clock_set_period,
-        .rtapi_delay = &_rtapi_delay,
-        .rtapi_delay_max = &_rtapi_delay_max,
-        .rtapi_task_pll_get_reference = &_rtapi_task_pll_get_reference,
-        .rtapi_task_pll_set_correction = &_rtapi_task_pll_set_correction,
-#else
-        .rtapi_clock_set_period = &_rtapi_dummy,
-        .rtapi_delay = &_rtapi_dummy,
-        .rtapi_delay_max = &_rtapi_dummy,
-        .rtapi_task_pll_get_reference = &_rtapi_dummy,
-        .rtapi_task_pll_set_correction = &_rtapi_dummy,
-#endif
-        .rtapi_get_time = &_rtapi_get_time,
-        .rtapi_get_clocks = &_rtapi_get_clocks,
-        // task functions
-        .rtapi_prio_highest = &_rtapi_prio_highest,
-        .rtapi_prio_lowest = &_rtapi_prio_lowest,
-        .rtapi_prio_next_higher = &_rtapi_prio_next_higher,
-        .rtapi_prio_next_lower = &_rtapi_prio_next_lower,
-#ifdef RTAPI
-        .rtapi_task_new = &_rtapi_task_new,
-        .rtapi_task_delete = &_rtapi_task_delete,
-        .rtapi_task_start = &_rtapi_task_start,
-        .rtapi_wait = &_rtapi_wait,
-        .rtapi_task_resume = &_rtapi_task_resume,
-        .rtapi_task_pause = &_rtapi_task_pause,
-        .rtapi_task_self = &_rtapi_task_self,
-#else
-        .rtapi_task_new = &_rtapi_dummy,
-        .rtapi_task_delete = &_rtapi_dummy,
-        .rtapi_task_start = &_rtapi_dummy,
-        .rtapi_wait = &_rtapi_dummy,
-        .rtapi_task_resume = &_rtapi_dummy,
-        .rtapi_task_pause = &_rtapi_dummy,
-        .rtapi_task_self = &_rtapi_dummy,
-#endif
-        // shared memory functions
-        .rtapi_shmem_new = &_rtapi_shmem_new,
-        .rtapi_shmem_new_inst = &_rtapi_shmem_new_inst,
-
-        .rtapi_shmem_delete = &_rtapi_shmem_delete,
-        .rtapi_shmem_delete_inst = &_rtapi_shmem_delete_inst,
-
-        .rtapi_shmem_getptr = &_rtapi_shmem_getptr,
-        .rtapi_shmem_getptr_inst = &_rtapi_shmem_getptr_inst,
-        .rtapi_shmem_exists = &_rtapi_shmem_exists,
-
-#ifdef RTAPI
-        .rtapi_set_exception = &_rtapi_set_exception,
-#else
-        .rtapi_set_exception = &_rtapi_dummy,
-#endif
-#ifdef RTAPI
-        .rtapi_task_update_stats = &_rtapi_task_update_stats,
-#else
-        .rtapi_task_update_stats = &_rtapi_dummy,
-#endif
-        .rtapi_malloc = &_rtapi_malloc,
-        .rtapi_malloc_aligned = &_rtapi_malloc_aligned,
-        .rtapi_calloc = &_rtapi_calloc,
-        .rtapi_realloc = &_rtapi_realloc,
-        .rtapi_free = &_rtapi_free,
-        .rtapi_allocsize = &_rtapi_allocsize,
-        .rtapi_heap_init = &_rtapi_heap_init,
-        .rtapi_heap_addmem = &_rtapi_heap_addmem,
-        .rtapi_heap_status = &_rtapi_heap_status,
-        .rtapi_heap_setflags = &_rtapi_heap_setflags,
-        .rtapi_heap_walk_freelist = &_rtapi_heap_walk_freelist,
-    };
-}
-
-// any API, any style:
-rtapi_switch_t *rtapi_get_handle(void) {
-    return &rtapi_switch_struct;
-}
-#ifdef RTAPI
-EXPORT_SYMBOL(rtapi_get_handle);
-#endif
 
 int shmdrv_loaded;  // set in rtapi_app_main, and ulapi_main
 long page_size;     // set in rtapi_app_main
@@ -203,7 +88,6 @@ void init_rtapi_data(rtapi_data_t * data)
     data->magic = RTAPI_MAGIC;
     /* set version code and flavor ID so other modules can check it */
     data->serial = RTAPI_SERIAL;
-    data->thread_flavor_id = -1; // Unknown at this point
     data->ring_mutex = 0;
     /* and get busy */
     data->rt_module_count = 0;
@@ -234,12 +118,26 @@ void init_rtapi_data(rtapi_data_t * data)
 	}
     }
 
-    init_rtapi_switch();
-
     /* done, release the mutex */
     rtapi_mutex_give(&(data->mutex));
     return;
 }
+
+/***********************************************************************
+*                    INIT AND EXIT FUNCTIONS                           *
+************************************************************************/
+
+int rtapi_init(const char *modname) {
+    return rtapi_next_handle();
+}
+
+int rtapi_exit(int module_id) {
+    /* do nothing for ULAPI */
+    return 0;
+}
+
+
+
 /***********************************************************************
 *                           RT Thread statistics collection            *
 *
@@ -261,15 +159,12 @@ void init_rtapi_data(rtapi_data_t * data)
 ************************************************************************/
 
 #ifdef RTAPI
-int _rtapi_task_update_stats(void)
+int rtapi_task_update_stats(void)
 {
-#ifdef HAVE_RTAPI_TASK_UPDATE_STATS_HOOK
-    extern int _rtapi_task_update_stats_hook(void);
-
-    return _rtapi_task_update_stats_hook();
-#else
-    return -ENOSYS;  // not implemented in this flavor
-#endif
+    if (flavor_descriptor->task_update_stats_hook)
+        return flavor_descriptor->task_update_stats_hook();
+    else
+        return -ENOSYS;  // not implemented in this flavor
 }
 #endif
 /***********************************************************************
@@ -290,8 +185,7 @@ extern rtapi_exception_handler_t rt_exception_handler;
 
 // may override default exception handler
 // returns the current handler so it might be restored
-// does NOT go through rtapi_switch (!)
-rtapi_exception_handler_t _rtapi_set_exception(rtapi_exception_handler_t h)
+rtapi_exception_handler_t rtapi_set_exception(rtapi_exception_handler_t h)
 {
     rtapi_exception_handler_t previous = rt_exception_handler;
     rt_exception_handler = h;
@@ -302,7 +196,7 @@ rtapi_exception_handler_t _rtapi_set_exception(rtapi_exception_handler_t h)
 // defined and initialized in rtapi_module.c (kthreads), rtapi_main.c (userthreads)
 extern ringbuffer_t rtapi_message_buffer;   // error ring access strcuture
 
-int  _rtapi_next_handle(void)
+int  rtapi_next_handle(void)
 {
     return rtapi_add_and_fetch(1, &global_data->next_handle);
 }

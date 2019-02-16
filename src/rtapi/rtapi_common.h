@@ -65,6 +65,8 @@
 
 /* Keep the includes here - It might get messy.. */
 
+#include "rtapi.h"
+
 #ifdef RTAPI
 #include <linux/sched.h>	/* for blocking when needed */
 #else
@@ -97,12 +99,11 @@
 
 #define MIN_STACKSIZE		32768
 
-/* This file contains data structures that live in shared memory and
-   are accessed by multiple different programs, both user processes
-   and kernel modules.  If the structure layouts used by various
-   programs don't match, that's bad.  So we have revision checking.
-   Whenever a module or program is loaded, thread_flavor_id and
-   serial is checked against the code in the shared memory area.  If
+/* This file contains data structures that live in shared memory and are
+   accessed by multiple different programs, both user processes and kernel
+   modules.  If the structure layouts used by various programs don't match,
+   that's bad.  So we have revision checking.  Whenever a module or program is
+   loaded and serial is checked against the code in the shared memory area.  If
    they don't match, the rtapi_init() call will fail.
   */
 
@@ -181,7 +182,6 @@ typedef struct {
 typedef struct {
     int magic;			/* magic number to validate data */
     int serial;			/* revision code for matching */
-    int thread_flavor_id;	/* unique ID for each thread style: rtapi.h */
     unsigned long mutex;	/* mutex against simultaneous access */
     unsigned long ring_mutex;	/* layering RTAPI functions requires per-layer locks */
     int rt_module_count;	/* loaded RT modules */
@@ -222,9 +222,6 @@ extern task_data *task_array;
 
 /* rtapi_time.c */
 extern int period;
-#ifdef HAVE_RTAPI_MODULE_TIMER_STOP
-void _rtapi_module_timer_stop(void);
-#endif
 
 
 /* rtapi_shmem.c */

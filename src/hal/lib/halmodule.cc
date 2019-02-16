@@ -1136,7 +1136,6 @@ const char *module_doc = "Interface to emc2's hal\n"
 
 extern "C"
 void init_hal(void) {
-    flavor_ptr f = default_flavor();
     PyObject *m = Py_InitModule3("_hal", module_methods,
             module_doc);
 
@@ -1167,9 +1166,6 @@ void init_hal(void) {
     PyModule_AddIntConstant(m, "HAL_IN", HAL_IN);
     PyModule_AddIntConstant(m, "HAL_OUT", HAL_OUT);
     PyModule_AddIntConstant(m, "HAL_IO", HAL_IO);
-
-    PyModule_AddIntConstant(m, "is_sim", f->flavor_id == RTAPI_POSIX_ID);
-    PyModule_AddIntConstant(m, "is_rt", f->flavor_id != RTAPI_POSIX_ID);
 
     PyRun_SimpleString(
             "(lambda s=__import__('signal'):"

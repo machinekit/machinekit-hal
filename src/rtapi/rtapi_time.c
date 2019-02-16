@@ -24,11 +24,11 @@
 #include "config.h"		// build configuration
 #include "rtapi.h"		// these functions
 #include "rtapi_common.h"	// these functions
+#include "rtapi_flavor.h"       // flavor_descriptor
 
 #include <time.h>		// clock_getres(), clock_gettime()
 
 
-#ifndef HAVE_RTAPI_GET_CLOCKS_HOOK
 // find a useable time stamp counter
 #ifdef MSR_H_USABLE
 #include <asm/msr.h>
@@ -39,7 +39,6 @@
 #error No implementation of rtapi_get_clocks available
 #define rdtscll(val) (val)=0
 #endif
-#endif /* HAVE_RTAPI_GET_CLOCKS_HOOK */
 
 long int max_delay = DEFAULT_MAX_DELAY;
 
@@ -51,15 +50,8 @@ int period = 0;
 unsigned long timer_counts;
 
 
-#ifdef HAVE_RTAPI_CLOCK_SET_PERIOD_HOOK
-void _rtapi_clock_set_period_hook(long int nsecs, RTIME *counts,
-				 RTIME *got_counts);
-#endif
-
-long int _rtapi_clock_set_period(long int nsecs) {
-#ifndef RTAPI_TIME_NO_CLOCK_MONOTONIC
-    struct timespec res = { 0, 0 };
-#endif
+long int rtapi_clock_set_period(long int nsecs) {
+    struct timespec res = { 0, 0};
 
     if (nsecs == 0)
 	return period;
@@ -68,35 +60,32 @@ long int _rtapi_clock_set_period(long int nsecs) {
 	return -EINVAL;
     }
 
-#ifdef RTAPI_TIME_NO_CLOCK_MONOTONIC
-    period = nsecs;
-#else
-    clock_getres(CLOCK_MONOTONIC, &res);
-    period = (nsecs / res.tv_nsec) * res.tv_nsec;
-    if (period < 1)
-	period = res.tv_nsec;
+    if (flavor_descriptor->time_no_clock_monotonic)
+        period = nsecs;
+    else {
+        clock_getres(CLOCK_MONOTONIC, &res);
+        period = (nsecs / res.tv_nsec) * res.tv_nsec;
+        if (period < 1)
+            period = res.tv_nsec;
 
-    rtapi_print_msg(RTAPI_MSG_DBG,
-		    "rtapi_clock_set_period (res=%ld) -> %d\n", res.tv_nsec,
-		    period);
-#endif  /* ! RTAPI_TIME_NO_CLOCK_MONOTONIC */
+        rtapi_print_msg(RTAPI_MSG_DBG,
+                        "rtapi_clock_set_period (res=%ld) -> %d\n", res.tv_nsec,
+                        period);
+    }
 
     return period;
 }
 
-// rtapi_delay_hook MUST be implemented by all threads systems
-void _rtapi_delay_hook(long int nsec);
-
-void _rtapi_delay(long int nsec)
+void rtapi_delay(long int nsec)
 {
     if (nsec > max_delay) {
 	nsec = max_delay;
     }
-    _rtapi_delay_hook(nsec);
+    flavor_descriptor->delay_hook(nsec);
 }
 
 
-long int _rtapi_delay_max(void)
+long int rtapi_delay_max(void)
 {
     return max_delay;
 }
@@ -105,37 +94,28 @@ long int _rtapi_delay_max(void)
 
 /* The following functions are common to both RTAPI and ULAPI */
 
-#ifdef HAVE_RTAPI_GET_TIME_HOOK
-long long int _rtapi_get_time_hook(void);
-
-long long int _rtapi_get_time(void) {
-    return _rtapi_get_time_hook();
+long long int rtapi_get_time(void) {
+    if (flavor_descriptor->get_time_hook)
+        return flavor_descriptor->get_time_hook();
+    else {
+        struct timespec ts;
+        clock_gettime(CLOCK_MONOTONIC, &ts);
+        return ts.tv_sec * 1000000000LL + ts.tv_nsec;
+    }
 }
-#else
-long long int _rtapi_get_time(void) {
 
-    struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    return ts.tv_sec * 1000000000LL + ts.tv_nsec;
-}
-#endif /* HAVE_RTAPI_GET_TIME_HOOK */
+long long int rtapi_get_clocks(void) {
+    if (flavor_descriptor->get_clocks_hook)
+        return flavor_descriptor->get_clocks_hook();
+    else {
+        long long int retval;
 
-#ifdef HAVE_RTAPI_GET_CLOCKS_HOOK
-long long int _rtapi_get_clocks_hook(void);
-#endif
+        /* This returns a result in clocks instead of nS, and needs to be
+           used with care around CPUs that change the clock speed to save
+           power and other disgusting, non-realtime oriented behavior.
+           But at least it doesn't take a week every time you call it.  */
 
-long long int _rtapi_get_clocks(void) {
-#ifndef HAVE_RTAPI_GET_CLOCKS_HOOK
-    long long int retval;
-
-    /* This returns a result in clocks instead of nS, and needs to be
-       used with care around CPUs that change the clock speed to save
-       power and other disgusting, non-realtime oriented behavior.
-       But at least it doesn't take a week every time you call it.  */
-
-    rdtscll(retval);
-    return retval;
-#else
-    return _rtapi_get_clocks_hook();
-#endif  /* HAVE_RTAPI_GET_CLOCKS_HOOK */
+        rdtscll(retval);
+        return retval;
+    }
 }

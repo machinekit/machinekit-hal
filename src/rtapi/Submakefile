@@ -199,7 +199,13 @@ RTAPI_APP_SRCS := \
 	rtapi/rtapi_app.cc \
 	rtapi/rtapi_compat.c \
 	rtapi/rtapi_hexdump.c \
-	rtapi/rtapi_support.c
+	rtapi/rtapi_support.c \
+	rtapi/rtapi_flavor.c \
+	rtapi/rt-preempt.c
+
+ifeq ($(HAVE_XENOMAI_THREADS),yes)
+RTAPI_APP_SRCS += rtapi/xenomai.c
+endif
 
 USERSRCS += $(RTAPI_APP_SRCS)
 
@@ -354,18 +360,6 @@ $(call TOOBJSDEPS, $(RTAPI_MSGD_SRCS)): \
 
 USERSRCS += $(RTAPI_MSGD_SRCS)
 TARGETS += ../libexec/rtapi_msgd
-
-# lock debugging help plus a bit of API example
-FLAVOR_SRCS =  rtapi/flavor.c rtapi/rtapi_compat.c
-
-../libexec/flavor: $(call TOOBJS, $(FLAVOR_SRCS)) \
-		../lib/liblinuxcncshm.so ../lib/liblinuxcncini.so
-	$(ECHO) Linking $(notdir $@)
-	@mkdir -p $(dir $@)
-	$(Q)$(CC)  $(LDFLAGS) -o $@ $^ -lrt
-
-USERSRCS += $(FLAVOR_SRCS)
-TARGETS += ../libexec/flavor
 
 ##################################################################
 #                     rtapi.ini config file

@@ -560,8 +560,6 @@ static char *loadusr_generator(const char *text, int state) {
     return NULL;
 }
 
-extern flavor_ptr current_flavor; // reference to current flavor descriptor
-
 static char *loadrt_generator(const char *text, int state) {
     static int len;
     static DIR *d;
@@ -572,9 +570,6 @@ static char *loadrt_generator(const char *text, int state) {
     return NULL;
 
     strcat(rtlibdir,"/");
-    //strcat(rtlibdir, current_flavor->name);
-    strcat(rtlibdir, "modules");
-    strcat(rtlibdir,"/");
 
     if(!state) {
         len = strlen(text);
@@ -583,13 +578,11 @@ static char *loadrt_generator(const char *text, int state) {
 
     while(d && (ent = readdir(d))) {
         char *result;
-        if(!strstr(ent->d_name, default_flavor()->mod_ext)) continue;
-        if(startswith(ent->d_name, "rtapi.")) continue;
+        if(!strstr(ent->d_name, ".so")) continue;
         if(startswith(ent->d_name, "hal_lib.")) continue;
         if(strncmp(text, ent->d_name, len) != 0) continue;
         result = strdup(ent->d_name);
-        result[strlen(result) - \
-           strlen(default_flavor()->mod_ext)] = 0;
+        result[strlen(result) - strlen(".so")] = 0;
         return result;
     }
     if (d != NULL) {
