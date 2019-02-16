@@ -4,13 +4,13 @@ from .compat cimport *
 from os import strerror
 
 
-cdef Flavor_Init(flavor_t *f):
+cdef Flavor_Init(const flavor_t *f):
       result = Flavor()
       result._f = f
       return result
 
 cdef class Flavor:
-    cdef flavor_t *_f
+    cdef const flavor_t *_f
 
     property name:
         def __get__(self): return self._f.name
@@ -43,20 +43,20 @@ def kernel_instance_id():
     return c_kernel_instance_id()
 
 def flavor_byname(name):
-    cdef flavor_t *f = c_flavor_byname(name)
+    cdef const flavor_t *f = c_flavor_byname(name)
     if f == NULL:
         raise RuntimeError("flavor_byname: no such flavor: %s" % name)
     return Flavor_Init(f)
 
 def flavor_byid(id):
-    cdef flavor_t *f = c_flavor_byid(id)
+    cdef const flavor_t *f = c_flavor_byid(id)
     if f == NULL:
         raise RuntimeError("flavor_byid: no such flavor: %d" % id)
     return Flavor_Init(f)
 
 
 def default_flavor():
-    cdef flavor_t *f = c_default_flavor()
+    cdef const flavor_t *f = c_default_flavor()
     if f == NULL:
         raise RuntimeError("BUG: flavor() failed")
     return Flavor_Init(f)

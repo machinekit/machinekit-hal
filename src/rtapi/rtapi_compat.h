@@ -53,9 +53,10 @@ typedef struct {
     const char *mod_ext;	// RTAPI module extensions, .ko/.so
     const char *so_ext;		// ulapi.so module extension
     const char *build_sys;
-    int flavor_id;
-    unsigned long flags;
-} flavor_t, *flavor_ptr;
+    const int flavor_id;
+    const unsigned long flags;
+} flavor_t;
+typedef const flavor_t *flavor_ptr;
 
 // these functions must work with or without rtapi.h included
 #if !defined(SUPPORT_BEGIN_DECLS)
@@ -118,9 +119,9 @@ extern int user_in_xenomai_group();
 // by consulting /proc/rtapi/instance
 extern int kernel_instance_id();
 
-extern flavor_t flavors[];
+extern const flavor_t flavors[];
 extern flavor_ptr flavor_byname(const char *flavorname);
-extern flavor_ptr const flavor_byid(int flavor_id);
+extern flavor_ptr  flavor_byid(int flavor_id);
 extern flavor_ptr default_flavor(void);
 
 /*

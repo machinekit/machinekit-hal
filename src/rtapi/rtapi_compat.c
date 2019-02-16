@@ -179,7 +179,7 @@ const flavor_t flavors[] = {
 
 flavor_ptr flavor_byname(const char *flavorname)
 {
-    flavor_ptr f = flavors;
+    flavor_ptr f = &(flavors[0]);
     while (f->name) {
 	if (!strcasecmp(flavorname, f->name))
 	    return f;

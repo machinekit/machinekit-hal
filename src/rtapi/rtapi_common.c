@@ -64,92 +64,97 @@ int _rtapi_dummy(void) {
     return -EINVAL;
 }
 
-static const flavor_t f;
-&f = flavor_byid(global_data->rtapi_thread_flavor);
+static rtapi_switch_t rtapi_switch_struct;
 
-static rtapi_switch_t rtapi_switch_struct = {
-    .git_version = GIT_VERSION,
-    .thread_flavor_name = f.name,
-    .thread_flavor_id = f.thread_flavor_id,
-    .thread_flavor_flags = f.flags,
+void init_rtapi_switch(void)
+{
 
-    // init & exit functions
-    .rtapi_init = &_rtapi_init,
-    .rtapi_exit = &_rtapi_exit,
-    .rtapi_next_handle = &_rtapi_next_handle,
-    // messaging functions moved to instance,
-    // implemented in rtapi_support.c
-    // time functions
+    flavor_ptr flavor = flavor_byid(global_data->rtapi_thread_flavor);
+
+    rtapi_switch_struct = (rtapi_switch_t){
+        .git_version = GIT_VERSION,
+        .thread_flavor_name = flavor->name,
+        .thread_flavor_id = flavor->flavor_id,
+        .thread_flavor_flags = flavor->flags,
+
+        // init & exit functions
+        .rtapi_init = &_rtapi_init,
+        .rtapi_exit = &_rtapi_exit,
+        .rtapi_next_handle = &_rtapi_next_handle,
+        // messaging functions moved to instance,
+        // implemented in rtapi_support.c
+        // time functions
 #ifdef RTAPI
-    .rtapi_clock_set_period = &_rtapi_clock_set_period,
-    .rtapi_delay = &_rtapi_delay,
-    .rtapi_delay_max = &_rtapi_delay_max,
-    .rtapi_task_pll_get_reference = &_rtapi_task_pll_get_reference,
-    .rtapi_task_pll_set_correction = &_rtapi_task_pll_set_correction,
+        .rtapi_clock_set_period = &_rtapi_clock_set_period,
+        .rtapi_delay = &_rtapi_delay,
+        .rtapi_delay_max = &_rtapi_delay_max,
+        .rtapi_task_pll_get_reference = &_rtapi_task_pll_get_reference,
+        .rtapi_task_pll_set_correction = &_rtapi_task_pll_set_correction,
 #else
-    .rtapi_clock_set_period = &_rtapi_dummy,
-    .rtapi_delay = &_rtapi_dummy,
-    .rtapi_delay_max = &_rtapi_dummy,
-    .rtapi_task_pll_get_reference = &_rtapi_dummy,
-    .rtapi_task_pll_set_correction = &_rtapi_dummy,
+        .rtapi_clock_set_period = &_rtapi_dummy,
+        .rtapi_delay = &_rtapi_dummy,
+        .rtapi_delay_max = &_rtapi_dummy,
+        .rtapi_task_pll_get_reference = &_rtapi_dummy,
+        .rtapi_task_pll_set_correction = &_rtapi_dummy,
 #endif
-    .rtapi_get_time = &_rtapi_get_time,
-    .rtapi_get_clocks = &_rtapi_get_clocks,
-    // task functions
-    .rtapi_prio_highest = &_rtapi_prio_highest,
-    .rtapi_prio_lowest = &_rtapi_prio_lowest,
-    .rtapi_prio_next_higher = &_rtapi_prio_next_higher,
-    .rtapi_prio_next_lower = &_rtapi_prio_next_lower,
+        .rtapi_get_time = &_rtapi_get_time,
+        .rtapi_get_clocks = &_rtapi_get_clocks,
+        // task functions
+        .rtapi_prio_highest = &_rtapi_prio_highest,
+        .rtapi_prio_lowest = &_rtapi_prio_lowest,
+        .rtapi_prio_next_higher = &_rtapi_prio_next_higher,
+        .rtapi_prio_next_lower = &_rtapi_prio_next_lower,
 #ifdef RTAPI
-    .rtapi_task_new = &_rtapi_task_new,
-    .rtapi_task_delete = &_rtapi_task_delete,
-    .rtapi_task_start = &_rtapi_task_start,
-    .rtapi_wait = &_rtapi_wait,
-    .rtapi_task_resume = &_rtapi_task_resume,
-    .rtapi_task_pause = &_rtapi_task_pause,
-    .rtapi_task_self = &_rtapi_task_self,
+        .rtapi_task_new = &_rtapi_task_new,
+        .rtapi_task_delete = &_rtapi_task_delete,
+        .rtapi_task_start = &_rtapi_task_start,
+        .rtapi_wait = &_rtapi_wait,
+        .rtapi_task_resume = &_rtapi_task_resume,
+        .rtapi_task_pause = &_rtapi_task_pause,
+        .rtapi_task_self = &_rtapi_task_self,
 #else
-    .rtapi_task_new = &_rtapi_dummy,
-    .rtapi_task_delete = &_rtapi_dummy,
-    .rtapi_task_start = &_rtapi_dummy,
-    .rtapi_wait = &_rtapi_dummy,
-    .rtapi_task_resume = &_rtapi_dummy,
-    .rtapi_task_pause = &_rtapi_dummy,
-    .rtapi_task_self = &_rtapi_dummy,
+        .rtapi_task_new = &_rtapi_dummy,
+        .rtapi_task_delete = &_rtapi_dummy,
+        .rtapi_task_start = &_rtapi_dummy,
+        .rtapi_wait = &_rtapi_dummy,
+        .rtapi_task_resume = &_rtapi_dummy,
+        .rtapi_task_pause = &_rtapi_dummy,
+        .rtapi_task_self = &_rtapi_dummy,
 #endif
-    // shared memory functions
-    .rtapi_shmem_new = &_rtapi_shmem_new,
-    .rtapi_shmem_new_inst = &_rtapi_shmem_new_inst,
+        // shared memory functions
+        .rtapi_shmem_new = &_rtapi_shmem_new,
+        .rtapi_shmem_new_inst = &_rtapi_shmem_new_inst,
 
-    .rtapi_shmem_delete = &_rtapi_shmem_delete,
-    .rtapi_shmem_delete_inst = &_rtapi_shmem_delete_inst,
+        .rtapi_shmem_delete = &_rtapi_shmem_delete,
+        .rtapi_shmem_delete_inst = &_rtapi_shmem_delete_inst,
 
-    .rtapi_shmem_getptr = &_rtapi_shmem_getptr,
-    .rtapi_shmem_getptr_inst = &_rtapi_shmem_getptr_inst,
-    .rtapi_shmem_exists = &_rtapi_shmem_exists,
+        .rtapi_shmem_getptr = &_rtapi_shmem_getptr,
+        .rtapi_shmem_getptr_inst = &_rtapi_shmem_getptr_inst,
+        .rtapi_shmem_exists = &_rtapi_shmem_exists,
 
 #ifdef RTAPI
-    .rtapi_set_exception = &_rtapi_set_exception,
+        .rtapi_set_exception = &_rtapi_set_exception,
 #else
-    .rtapi_set_exception = &_rtapi_dummy,
+        .rtapi_set_exception = &_rtapi_dummy,
 #endif
 #ifdef RTAPI
-    .rtapi_task_update_stats = &_rtapi_task_update_stats,
+        .rtapi_task_update_stats = &_rtapi_task_update_stats,
 #else
-    .rtapi_task_update_stats = &_rtapi_dummy,
+        .rtapi_task_update_stats = &_rtapi_dummy,
 #endif
-    .rtapi_malloc = &_rtapi_malloc,
-    .rtapi_malloc_aligned = &_rtapi_malloc_aligned,
-    .rtapi_calloc = &_rtapi_calloc,
-    .rtapi_realloc = &_rtapi_realloc,
-    .rtapi_free = &_rtapi_free,
-    .rtapi_allocsize = &_rtapi_allocsize,
-    .rtapi_heap_init = &_rtapi_heap_init,
-    .rtapi_heap_addmem = &_rtapi_heap_addmem,
-    .rtapi_heap_status = &_rtapi_heap_status,
-    .rtapi_heap_setflags = &_rtapi_heap_setflags,
-    .rtapi_heap_walk_freelist = &_rtapi_heap_walk_freelist,
-};
+        .rtapi_malloc = &_rtapi_malloc,
+        .rtapi_malloc_aligned = &_rtapi_malloc_aligned,
+        .rtapi_calloc = &_rtapi_calloc,
+        .rtapi_realloc = &_rtapi_realloc,
+        .rtapi_free = &_rtapi_free,
+        .rtapi_allocsize = &_rtapi_allocsize,
+        .rtapi_heap_init = &_rtapi_heap_init,
+        .rtapi_heap_addmem = &_rtapi_heap_addmem,
+        .rtapi_heap_status = &_rtapi_heap_status,
+        .rtapi_heap_setflags = &_rtapi_heap_setflags,
+        .rtapi_heap_walk_freelist = &_rtapi_heap_walk_freelist,
+    };
+}
 
 // any API, any style:
 rtapi_switch_t *rtapi_get_handle(void) {
@@ -228,6 +233,8 @@ void init_rtapi_data(rtapi_data_t * data)
 	    data->shmem_array[n].bitmap[m] = 0;
 	}
     }
+
+    init_rtapi_switch();
 
     /* done, release the mutex */
     rtapi_mutex_give(&(data->mutex));
