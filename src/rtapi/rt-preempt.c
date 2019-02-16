@@ -24,7 +24,8 @@
 *
 ********************************************************************/
 
-#include "config.h"
+
+#include "rt-preempt.h"
 #include "rtapi.h"
 #include "rtapi_common.h"
 #include <libcgroup.h>

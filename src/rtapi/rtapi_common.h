@@ -82,13 +82,9 @@
 #endif
 
 
-#ifdef THREADS_HEADERS // This will be defined only for a couple of files
-#include THREADS_HEADERS	/* thread-specific headers */
-#else
-// These are the same as Xenomai and RT_PREEMPT anyway
+// The same in both Xenomai and RT_PREEMPT
 #define PRIO_LOWEST 0
 #define PRIO_HIGHEST 99
-#endif
 
 // RTAPI_MAX_* moved to config.h
 

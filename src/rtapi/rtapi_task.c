@@ -44,20 +44,6 @@
 
 /* priority functions */
 
-/* Some RT systems (well, just RTAI) define lower values as higher
-   priority */
-#ifdef INVERSE_PRIO
-#    define PRIO_INCR --
-#    define PRIO_DECR ++
-#    define PRIO_GT(a,b) (a<b)
-#    define PRIO_LT(a,b) (a>b)
-#else // normal priorities
-#    define PRIO_INCR ++
-#    define PRIO_DECR --
-#    define PRIO_GT(a,b) (a>b)
-#    define PRIO_LT(a,b) (a<b)
-#endif
-
 int _rtapi_prio_highest(void) {
     return PRIO_HIGHEST;
 }
@@ -68,12 +54,12 @@ int _rtapi_prio_lowest(void) {
 
 int _rtapi_prio_next_higher(int prio) {
     /* next higher priority for arg */
-    prio PRIO_INCR;
+    prio++;
 
     /* return a valid priority for out of range arg */
-    if (PRIO_GT(prio,_rtapi_prio_highest()))
+    if (prio > _rtapi_prio_highest())
 	return _rtapi_prio_highest();
-    if (PRIO_GT(_rtapi_prio_lowest(),prio))
+    if (prio < _rtapi_prio_lowest())
 	return _rtapi_prio_lowest();
 
     return prio;
@@ -81,12 +67,12 @@ int _rtapi_prio_next_higher(int prio) {
 
 int _rtapi_prio_next_lower(int prio) {
     /* next lower priority for arg */
-    prio PRIO_DECR;
+    prio--;
 
     /* return a valid priority for out of range arg */
-    if (PRIO_GT(prio,_rtapi_prio_highest()))
+    if (prio > _rtapi_prio_highest())
 	return _rtapi_prio_highest();
-    if (PRIO_GT(_rtapi_prio_lowest(),prio))
+    if (prio < _rtapi_prio_lowest())
 	return _rtapi_prio_lowest();
 
     return prio;
@@ -124,8 +110,8 @@ int _rtapi_task_new(const rtapi_task_args_t *args) {
 
     // if requested priority is invalid, release lock and return error
 
-    if (PRIO_LT(args->prio,_rtapi_prio_lowest()) ||
-	PRIO_GT(args->prio,_rtapi_prio_highest())) {
+    if (args->prio < _rtapi_prio_lowest() ||
+	args->prio > _rtapi_prio_highest()) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"New task  %d  '%s:%d': invalid priority %d "
 			"(highest=%d lowest=%d)\n",

@@ -30,10 +30,6 @@
 
 
 /* rtapi_task.c */
-// Xenomai rt_task priorities are 0: lowest .. 99: highest
-#define PRIO_LOWEST 0
-#define PRIO_HIGHEST 99
-
 #define HAVE_RTAPI_TASK_DELETE_HOOK
 #define HAVE_RTAPI_TASK_STOP_HOOK
 #define HAVE_RTAPI_TASK_PAUSE_HOOK

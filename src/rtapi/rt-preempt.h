@@ -41,9 +41,6 @@
 #endif
 
 /* rtapi_task.c */
-#define PRIO_LOWEST sched_get_priority_min(SCHED_FIFO)
-#define PRIO_HIGHEST sched_get_priority_max(SCHED_FIFO)
-
 #define HAVE_RTAPI_TASK_NEW_HOOK
 #define HAVE_RTAPI_TASK_DELETE_HOOK
 #define HAVE_RTAPI_TASK_STOP_HOOK
