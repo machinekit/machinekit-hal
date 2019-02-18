@@ -118,7 +118,6 @@ AC_CONFIG_MACRO_DIR(/usr/share/aclocal)
 ##############################################################################
 # Section 2                                                                  #
 # RealTime checking                                                          #
-# Subsection 2.1 - init basic thread style params and declare m4 macros      #
 # Subsection 2.2 - documentation of threads variables to be configured       #
 # Subsection 2.3 - misc basic features:  platform, parport I/O, etc.         #
 # Subsection 2.4 - kernel detection and RT capability probing                #
@@ -126,59 +125,6 @@ AC_CONFIG_MACRO_DIR(/usr/share/aclocal)
 # Subsection 2.6 - userland PCI driver configuration                         #
 # Subsection 2.7 - pass configuration into config.h, Makefile.inc.in, etc.   #
 ##############################################################################
-
-##############################################################################
-# Subsection 2.1                                                             #
-# init basic thread style params                                             #
-# - the [_cfg_flavor_params] m4 macro lists all flavors                      #
-# - for each flavor, lists name, flavor_id and threads_source                #
-#                                                                            #
-# define several m4 macros to help manipulate the list                       #
-##############################################################################
-
-
-dnl #--------------------------------------------------------#
-dnl # list of all thread styles with FLAVOR_ID               #
-dnl #                                                        #
-dnl # each thread style needs a 3-item m4 tuple set here:    #
-dnl # flavor-name, flavor-id, threads-headers                #
-dnl #                                                        #
-dnl # flavor-name: lower-case with hyphens                   #
-dnl # flavor-id: a unique integer                            #
-dnl # threads-headers: header file from rtapi/*.h (w/o '.h') #
-dnl # mod_ext:  RTAPI module extension, .so or .ko           #
-dnl # so_ext:  ULAPI module extension, .so                   #
-dnl # flags:  see rtapi.h; combine with '|' operator, or 0   #
-dnl #                                                        #
-dnl # these are used in both Makefiles and in config.h,      #
-dnl # and are the single authoritative source for these data #
-dnl #--------------------------------------------------------#
-AC_DEFUN([_cfg_flavor_params],
-	[[[posix],[0],[rt-preempt],[.so],[.so],[0]],
-	 [[rt-preempt],[1],[rt-preempt],[.so],[.so],[0]],
-	 [[xenomai],[2],[xenomai],[.so],[.so],[FLAVOR_DOES_IO]]])
-
-
-dnl #--------------------------------------------------------#
-dnl # m4 convenience macros for accessing above data         #
-
-dnl list of all thread styles to be used in macros
-dnl   posix,rt-preempt,xenomai
-AC_DEFUN([_cfg_all_flavors],
-	m4_map_sep([m4_car],[[,]],[_cfg_flavor_params]))
-
-dnl _cfg_flavor_id(flavor):  return THREAD_FLAVOR_ID
-dnl   _cfg_flavor_id(xenomai) => 2; _cfg_flavor_id(posix) => 0
-AC_DEFUN([_cfg_flavor_tuple_id],[$2])
-AC_DEFUN([_cfg_flavor_id],
-	[m4_foreach([flav],[_cfg_flavor_params],
-	    [m4_cond(m4_car(flav),$1,
-	        m4_apply([_cfg_flavor_tuple_id],[flav]))])])
-
-dnl _cfg_flavor_upcase(flavor):  return uppercase, and dashes->underscores
-dnl   used to generate C preprocessor macro names
-dnl   _cfg_flavor_ucase(rt-preempt) => RT_PREEMPT
-AC_DEFUN([_cfg_flavor_upcase],[m4_translit([$*],[a-z-],[A-Z_])])
 
 
 ##############################################################################
@@ -194,11 +140,6 @@ AC_DEFUN([_cfg_flavor_upcase],[m4_translit([$*],[a-z-],[A-Z_])])
 
 # RT system Makefile variables defined by configure:
 #
-# BUILD_THREAD_FLAVORS
-#
-# a list of all configured threads systems to build; the complete
-# possible list is 'posix rt-preempt xenomai'
-#
 # <THREADS_SYSTEM>_THREADS_RTS
 #
 # a script like /usr/realtime/foo-config, which can be used to extract
@@ -209,24 +150,12 @@ AC_DEFUN([_cfg_flavor_upcase],[m4_translit([$*],[a-z-],[A-Z_])])
 # 'yes' or 'no' depending on whether the thread system was able to be
 # configured
 #
-# <THREADS_SYSTEM>_THREADS_FLAVOR_ID
+# THREADS_RTFLAGS
 #
-# 0..4, depending on the _cfg_flavor_params macro defined earlier;
-# this is used in config.h to set flavor-specific macros, and set in
-# cflags for any compile that #includes config.h
-#
-# <THREADS_SYSTEM>_THREADS_SOURCE
-#
-# the basename of the flavor's file in src/rtapi; this is usually the
-# name of the flavor, except in the case of posix threads, which use
-# the rt-preempt sources
-#
-# <THREADS_SYSTEM>_THREADS_RTFLAGS
-#
-# list of CFLAGS specific to the threads system; some flavors
+# list of CFLAGS specific to threads systems; some flavors
 # determine this with <THREADS_SYSTEM>_THREADS_RTS --cflags
 #
-# <THREADS_SYSTEM>_THREADS_LDFLAGS
+# THREADS_LDFLAGS
 #
 # list of LDFLAGS specific to the threads system; also obtained partly
 # from <THREADS_SYSTEM>_THREADS_RTS --ldflags
@@ -245,15 +174,6 @@ AC_DEFUN([_cfg_flavor_upcase],[m4_translit([$*],[a-z-],[A-Z_])])
 #
 # flavor macros from config.h, set appropriately for each '$(MAKE)
 # threads=<flavor> modules' run:
-
-# RTAPI_<FLAVOR>_ID
-#
-# Always present for all flavors.  Equal to
-# <FLAVOR>_THREADS_FLAVOR_ID.
-
-# RTAPI_<FLAVOR>_NAME
-#
-# Always present for all flavors.  Equal to $(threads)
 
 # GIT_VERSION
 #
@@ -971,9 +891,8 @@ test "$with_posix" = check && with_posix=yes
 test "$have_librt" = no && with_posix=no
 AC_MSG_RESULT($with_posix)
 if test "$with_posix" = yes; then
-   POSIX_THREADS_LDFLAGS="-lpthread -lrt $LIBCGROUP_LIBS"
-   POSIX_THREADS_RTFLAGS="$POSIX_THREADS_RTFLAGS -pthread $LIBCGROUP_CFLAGS"
-   BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS posix"
+   THREADS_LDFLAGS="$THREADS_RTFLAGS -lpthread -lrt $LIBCGROUP_LIBS"
+   THREADS_RTFLAGS="$THREADS_RTFLAGS -pthread $LIBCGROUP_CFLAGS"
 fi
 
 AC_MSG_CHECKING(whether to build RT_PREEMPT threads)
@@ -981,10 +900,9 @@ test "$with_rt_preempt" = check && with_rt_preempt=yes
 test "$have_librt" = no && with_rt_preempt=no
 AC_MSG_RESULT($with_rt_preempt)
 if test "$with_rt_preempt" = yes; then
-    RT_PREEMPT_THREADS_LDFLAGS="-lpthread -lrt $LIBCGROUP_LIBS"
-    RT_PREEMPT_THREADS_RTFLAGS="$RT_PREEMPT_THREADS_RTFLAGS -pthread"
-    RT_PREEMPT_THREADS_RTFLAGS="$RT_PREEMPT_THREADS_RTFLAGS $LIBCGROUP_CFLAGS"
-    BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS rt-preempt"
+    THREADS_LDFLAGS="$THREADS_LDFLAGS -lpthread -lrt $LIBCGROUP_LIBS"
+    THREADS_RTFLAGS="$THREADS_RTFLAGS -pthread"
+    THREADS_RTFLAGS="$THREADS_RTFLAGS $LIBCGROUP_CFLAGS"
     with_userland_rt_threads=yes
 fi
 
@@ -1045,7 +963,7 @@ if test "$with_xenomai" != no -o "$with_xenomai_kernel" != no; then
 fi
 
 if test -n "$XENOMAI_THREADS_RTS"; then
-    # XENOMAI_THREADS_RTFLAGS:  test runtime library & get flags
+    # THREADS_RTFLAGS:  test runtime library & get flags
     LIBS_hold="$LIBS"
     CFLAGS_hold="$CFLAGS"
     CPPFLAGS_hold="$CPPFLAGS"
@@ -1070,7 +988,7 @@ if test "$with_xenomai" != no -o "$with_xenomai_kernel" != no; then
     if test "$host_cpu" != x86_64; then
         flags="$flags -fno-stack-protector"
     fi
-    XENOMAI_THREADS_RTFLAGS="$XENOMAI_THREADS_RTFLAGS $flags"
+    THREADS_RTFLAGS+="$THREADS_RTFLAGS $flags"
     # xenomai kernel math options
     flags="-ffast-math -mhard-float"
     if test "$($XENOMAI_THREADS_RTS --arch)" = x86; then
@@ -1084,16 +1002,13 @@ if test "$with_xenomai" != no -o "$with_xenomai_kernel" != no; then
     # ldflags
     flags="$($XENOMAI_THREADS_RTS --ldflags)"
     AC_PRUNE_DEFAULT_LDFLAGS(flags)
-    XENOMAI_THREADS_LDFLAGS="$XENOMAI_THREADS_LDFLAGS $flags"
+    THREADS_LDFLAGS+="$XENOMAI_THREADS_LDFLAGS $flags"
 fi
 
 AC_MSG_CHECKING(whether to build Xenomai userland threads)
 test "$with_xenomai" = check && with_xenomai=yes
 test -z "$XENOMAI_THREADS_RTS" && with_xenomai=no
-if test $with_xenomai = yes; then
-    BUILD_THREAD_FLAVORS="$BUILD_THREAD_FLAVORS xenomai"
-    with_userland_rt_threads=yes
-elif test "$xenomai_from_cmdline" = yes; then
+if test $with_xenomai = no -a "$xenomai_from_cmdline" = yes; then
     AC_MSG_ERROR([Requested '--with-xenomai', but unable to configure])
 fi
 AC_MSG_RESULT($with_xenomai)
@@ -1299,31 +1214,8 @@ AC_SUBST(TARGET_PLATFORM_ZEDBOARD,$target_platform_zedboard_val)
 ############################################################
 # thread-specific -DDEFINE and Makefile.inc variables
 
-# List of threads flavors
-AC_SUBST([BUILD_THREAD_FLAVORS])
-
-
-# POSIX settings
-if test "$with_posix" = yes; then
-    AC_DEFINE([HAVE_POSIX_THREADS],[],[Build POSIX threads])
-fi
-AC_SUBST([HAVE_POSIX_THREADS],[$with_posix])
-AC_SUBST([POSIX_THREADS_FLAVOR_ID],_cfg_flavor_id(posix))
-AC_SUBST([POSIX_THREADS_SOURCE],[rt-preempt])
-AC_SUBST([POSIX_THREADS_RTFLAGS])
-AC_SUBST([POSIX_THREADS_LDFLAGS])
-AC_SUBST([POSIX_THREADS_RTS],[])
-
-# RT_PREEMPT settings
-if test "$with_rt_preempt" = yes; then
-    AC_DEFINE([HAVE_RT_PREEMPT_THREADS],[],[Build RT_PREEMPT threads])
-fi
-AC_SUBST([HAVE_RT_PREEMPT_THREADS],[$with_rt_preempt])
-AC_SUBST([RT_PREEMPT_THREADS_FLAVOR_ID],_cfg_flavor_id(rt-preempt))
-AC_SUBST([RT_PREEMPT_THREADS_SOURCE],[rt-preempt])
-AC_SUBST([RT_PREEMPT_THREADS_RTFLAGS])
-AC_SUBST([RT_PREEMPT_THREADS_LDFLAGS])
-AC_SUBST([RT_PREEMPT_THREADS_RTS],[])
+AC_SUBST([THREADS_RTFLAGS])
+AC_SUBST([THREADS_LDFLAGS])
 
 # Xenomai general settings
 if test "$XENOMAI_V2" = true; then
@@ -1337,10 +1229,6 @@ if test "$with_xenomai" = yes; then
     AC_DEFINE([HAVE_XENOMAI_THREADS],[],[Build Xenomai userland threads])
 fi
 AC_SUBST([HAVE_XENOMAI_THREADS],[$with_xenomai])
-AC_SUBST([XENOMAI_THREADS_FLAVOR_ID],_cfg_flavor_id(xenomai))
-AC_SUBST([XENOMAI_THREADS_SOURCE],[xenomai])
-AC_SUBST([XENOMAI_THREADS_RTFLAGS])
-AC_SUBST([XENOMAI_THREADS_LDFLAGS])
 AC_SUBST([XENOMAI_THREADS_RTS])
 AC_SUBST([PRECISE_MULTILIB_BUG],[$PRECISE_MULTILIB_BUG])
 
@@ -1919,17 +1807,6 @@ AC_SUBST(BUILD_DOCS)
 # multiple places. Keep screwball constructs out of this, and it can
 # be used in both kernel space and user space.
 
-dnl _cfg_thread_flavor_macros():  define thread flavor IDs
-dnl   and set RTAPI_<FLAVOR> & THREADS_HEADERS macros
-AC_DEFUN([_cfg_thread_flavor_macros],[dnl
-m4_foreach([_cfg_flavor],[_cfg_all_flavors],[dnl
-[#]define RTAPI_[]_cfg_flavor_upcase(_cfg_flavor)[]_ID dnl
-_cfg_flavor_id(_cfg_flavor)
-[#]define RTAPI_[]_cfg_flavor_upcase(_cfg_flavor)[]_NAME dnl
-"_cfg_flavor"
-])
-])
-
 
 AH_TOP([/********************************************************************
 * Description: config.h
@@ -1978,23 +1855,12 @@ AH_TOP([/********************************************************************
 // can be overridden by an option to rtapi_msgd
 #define HAL_STACKSIZE           32768
 
-// a pseudo-flavor id to indicate ulapi<flavor>.so is not yet loaded
-// not a build target, just a state indicator for ulapi_autoload.c
-#define RTAPI_NOTLOADED_NAME  "not-yet-loaded"
-#define RTAPI_NOTLOADED_ID    99
-
 // format of zeroMQ IPC socket pathnames
 // pass: RUNDIR, rtapi_instance, service name, uuid
 // service name is: log, rtapi, halrcomp etc
 #define ZMQIPC_FORMAT "ipc://%s/%d.%s.%s"
 
-]
-// flavor IDs for the various threads systems
-// and conditional to set thread system macros
-// alter these in configure.ac Subsection 2.0
-dnl this needs to be unquoted
-_cfg_thread_flavor_macros
-)
+])
 
 AH_VERBATIM([_GNU_SOURCE],
 [/* Enable GNU extensions on systems that have them.  */
@@ -2036,22 +1902,6 @@ AH_BOTTOM(#endif
 
 AC_MSG_NOTICE([Building rtapi.ini generator script])
 cp ../scripts/gen-rtapi.ini.sh.in.tmpl ../scripts/gen-rtapi.ini.sh.in
-
-cat >> ../scripts/gen-rtapi.ini.sh.in <<EOFOUTER
-cat <<EOF
-m4_foreach([_cfg_flavor],[_cfg_all_flavors],[dnl
-
-
-#################################################
-# _cfg_flavor flavor section
-#
-@<:@flavor_[]_cfg_flavor@:>@
-# These values do not normally need to be changed.
-rtapi_app=@EMC2_LIBEXEC_DIR@/rtapi_app_[]_cfg_flavor
-RTS=@_cfg_flavor_upcase(_cfg_flavor)_THREADS_RTS@
-])
-EOF
-EOFOUTER
 
 ##############################################################################
 # Section 6 - Check for tcl/tk support                                       #

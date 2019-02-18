@@ -288,7 +288,7 @@ int rtapi_task_resume(int task_id) {
     if (task->magic != TASK_MAGIC)
 	return -EINVAL;
 
-    if (flavor_descriptor->resume_hook)
+    if (flavor_descriptor->task_resume_hook)
         return flavor_descriptor->task_resume_hook(task,task_id);
 
     return -ENOSYS;

@@ -66,13 +66,6 @@ ECHO=@true
 VECHO=true
 endif
 
-#ifneq ($(BUILD_THREAD_FLAVORS),)
-#@mkdir -p ../rtlib/modules \
-#for f in $(BUILD_THREAD_FLAVORS); do \
-#    ln -s ../rtlib/modules ../rtlib/$$f; \
-#done;
-#endif
-
 BUILD_KBUILD = no
 
 # extract the version from the kernel source version.h
@@ -92,9 +85,6 @@ endif
 export PYTHONPATH
 else
 include $(BASEPWD)/Makefile.inc
-endif
-ifeq ($(BUILD_THREAD_FLAVORS),)
-$(error Makefile.inc must specify 'BUILD_THREAD_FLAVORS' and other variables)
 endif
 
 # default target:  put before everything else
@@ -625,7 +615,6 @@ HEADERS := \
     rtapi/triple-buffer.h \
     rtapi/multiframe.h \
     rtapi/rtapi_mbarrier.h \
-    rtapi/$(THREADS_SOURCE).h \
     rtapi/shmdrv/shmdrv.h
 
 
@@ -634,6 +623,7 @@ HEADERS := \
 .PHONY: headers
 HEADERS := $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
 headers: $(HEADERS)
+$(info HEADERS = $(HEADERS))
 
 # install header files as part of the build
 TARGETS += headers
@@ -722,9 +712,6 @@ clean: depclean modclean docclean
 	find . -name '*.o' |xargs rm -f
 	-rm -rf objects
 	-rm -f $(TARGETS)
-	for flav in $(BUILD_THREAD_FLAVORS); do \
-	    rm -rf ../lib/$$flav; \
-	done
 	-rm -rf ../rtlib ../libexec
 	rm -f ../etc/linuxcnc/rtapi.ini
 	-rm -f $(COPY_CONFIGS)
@@ -745,8 +732,7 @@ ifeq ($(BUILD_DRIVERS),yes)
 setuid:
 	$(call fix_perms,../libexec/pci_read)
 	$(call fix_perms,../libexec/pci_write)
-	$(foreach f,$(BUILD_THREAD_FLAVORS),\
-	    $(call fix_perms,../libexec/rtapi_app_$(f));)
+	$(call fix_perms,../libexec/rtapi_app)
 # check system configuration:  logging, ulimits, udev
 	@-../scripts/check-system-configuration.sh $(CHECK_KFLAV_SWITCH)
 else
@@ -1022,16 +1008,10 @@ endif
 	# RTAPI modules:  install userland flavor .so modules into
 	# e.g. /usr/lib/linuxcnc/modules
 
-	##TODO: change $$flavor to modules for install
-
-	for flavor in $(BUILD_THREAD_FLAVORS); do \
-	    if test $${flavor%-kernel} = $${flavor}; then \
-		echo Installing modules for userland flavor $$flavor; \
-		$(DIR) $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)/$$flavor; \
-		$(FILE) ../rtlib/$$flavor/* \
-		    $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)/$$flavor; \
-	    fi; \
-	done
+	echo Installing modules
+	$(DIR) $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)/modules
+	$(FILE) ../rtlib/modules/* \
+		    $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)/modules
 
 endif # ! RUN_IN_PLACE
 
@@ -1213,12 +1193,10 @@ RTDEPS := $(sort $(patsubst $(OBJDIR)/%.o,$(DEPDIR)/%.d, $(RTOBJS)))
 
 modules:
 ifeq ($(RUN_IN_PLACE)+$(BUILD_DRIVERS),yes+yes)
-	for f in $(BUILD_THREAD_FLAVORS); do \
-	    test -f ../libexec/rtapi_app_$$f -a \
-		    \( 0`stat -c %u ../libexec/rtapi_app_$$f 2>/dev/null` \
-			-ne 0 -o ! -u ../libexec/rtapi_app_$$f \) \
+	test -f ../libexec/rtapi_app -a \
+	    \( 0`stat -c %u ../libexec/rtapi_app 2>/dev/null` \
+			-ne 0 -o ! -u ../libexec/rtapi_app \) \
 		&& need_setuid=1; \
-	done; \
 	test "$$need_setuid" = 1 && \
 	    $(VECHO) -n "You now need to run 'sudo make setuid' " && \
 	    $(VECHO) "in order to run in place." || true

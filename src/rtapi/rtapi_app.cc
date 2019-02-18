@@ -77,6 +77,7 @@ using namespace google::protobuf;
 #include "rtapi_global.h"
 #include "rtapi_compat.h"
 #include "rtapi_export.h"
+#include "rtapi_flavor.h"  // flavor_descriptor
 #include "hal.h"
 #include "hal_priv.h"
 #include "shmdrv.h"
@@ -126,12 +127,12 @@ static void remove_module(std::string name);
 static struct rusage rusage;
 static unsigned long minflt, majflt;
 static int instance_id;
-flavor_ptr flavor;
 static int use_drivers = 0;
 static int foreground;
 static int debug;
 static int signal_fd;
 static bool interrupted;
+static rtapi_flavor_id_t flavor = RTAPI_FLAVOR_UNCONFIGURED_ID;
 static bool trap_signals = true;
 int shmdrv_loaded;
 long page_size;
@@ -519,7 +520,7 @@ static int do_load_cmd(int instance,
       name = name.substr(name.find_last_of("/") + 1);
 
     if (modules.count(name) == 0) {
-        strncpy(module_path, (path + flavor->mod_ext).c_str(),
+        strncpy(module_path, (path + ".so").c_str(),
                 PATH_MAX);
         modinfo_t mi = modinfo_t();
 
@@ -745,7 +746,7 @@ static int rtapi_request(zloop_t *loop, zsock_t *socket, void *arg)
 	char buffer[LINELEN];
 	snprintf(buffer, sizeof(buffer),
 		 "pid=%d flavor=%s gcc=%s git=%s",
-		 getpid(),flavor->name,  __VERSION__, GIT_VERSION);
+		 getpid(),flavor_descriptor->name,  __VERSION__, GIT_VERSION);
 	pbreply.add_note(buffer);
 	pbreply.set_retcode(0);
 	break;
@@ -1084,18 +1085,15 @@ static int mainloop(size_t  argc, char **argv)
     rtapi_set_logtag("rtapi_app");
     rtapi_set_msg_level(global_data->rt_msg_level);
 
-    // obtain handle on flavor descriptor as detected by rtapi_msgd
-    flavor = flavor_byid(global_data->rtapi_thread_flavor);
-    if (flavor == NULL) {
+    // check that flavor is configured
+    if (! flavor_is_configured()) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"FATAL - invalid flavor id: %d\n",
-			global_data->rtapi_thread_flavor);
-	global_data->rtapi_app_pid = 0;
+			"FATAL:  Flavor unconfigured\n");
 	exit(EXIT_FAILURE);
     }
 
     // make sure we're setuid root when we need to
-    if (use_drivers || (flavor->flags & FLAVOR_DOES_IO)) {
+    if (use_drivers || (flavor_descriptor->flags & FLAVOR_DOES_IO)) {
 	if (geteuid() != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "rtapi_app:%d need to"
@@ -1235,7 +1233,7 @@ static int mainloop(size_t  argc, char **argv)
 
     // report success
     rtapi_print_msg(RTAPI_MSG_INFO, "rtapi_app:%d ready flavor=%s gcc=%s git=%s",
-		    instance_id, flavor->name,  __VERSION__, GIT_VERSION);
+		    instance_id, flavor_descriptor->name,  __VERSION__, GIT_VERSION);
 
     // the RT stack is now set up and good for use
     global_data->rtapi_app_pid = getpid();
@@ -1265,7 +1263,7 @@ static int configure_memory(void)
     unsigned int i, pagesize;
     char *buf;
 
-    if (global_data->rtapi_thread_flavor != RTAPI_POSIX_ID) {
+    if (use_drivers || (flavor_descriptor->flags & FLAVOR_DOES_IO)) {
 	// Realtime tweak requires privs
 	/* Lock all memory. This includes all current allocations (BSS/data)
 	 * and future allocations. */
@@ -1382,37 +1380,9 @@ static int harden_rt()
 	}
     }
 
-    if (flavor->flavor_id == RTAPI_XENOMAI_ID) {
-	int retval = user_in_xenomai_group();
-
-	switch (retval) {
-	case 1:
-	    // {
-	    // 	gid_t xg = xenomai_gid();
-	    // 	do_setuid();
-	    // 	if (setegid(xg))
-	    // 	    rtapi_print_msg(RTAPI_MSG_ERR,
-	    // 			    "setegid(%d): %s", xg, strerror(errno));
-	    // 	undo_setuid();
-	    // 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    // 			"xg=%d egid now %d", xg, getegid());
-	    // }
-	    break;
-	case 0:
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "this user is not member of group xenomai");
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "please 'sudo adduser <username>  xenomai',"
-			    " logout and login again");
-	    return -1;
-
-	default:
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "cannot determine if this user is a member of group xenomai: %s",
-			    strerror(-retval));
-	    return -1;
-	}
-    }
+    // Check that configured flavor can run
+    // FIXME is this redundant?  Where is this configured?
+    flavor_descriptor->can_run_flavor();
 
 #if defined(__x86_64__) || defined(__i386__)
 
@@ -1421,7 +1391,7 @@ static int harden_rt()
     // guaranteed the process executing e.g. hal_parport's rtapi_app_main is
     // the same process which starts the RT threads, causing hal_parport
     // thread functions to fail on inb/outb
-    if (use_drivers || (flavor->flags & FLAVOR_DOES_IO)) {
+    if (use_drivers || (flavor_descriptor->flags & FLAVOR_DOES_IO)) {
 	if (iopl(3) < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "cannot gain I/O privileges - "
@@ -1501,14 +1471,13 @@ int main(int argc, char **argv)
 	    break;
 
 	case 'f':
-	    if ((flavor = flavor_byname(optarg)) == NULL) {
+	    if ((flavor = flavor_byname(optarg)) == RTAPI_FLAVOR_UNCONFIGURED_ID) {
 		fprintf(stderr, "no such flavor: '%s' -- valid flavors are:\n",
 			optarg);
-		flavor_ptr f = flavors;
-		while (f->name) {
-		    fprintf(stderr, "\t%s\n", f->name);
-		    f++;
-		}
+		flavor_descriptor_ptr f = NULL;
+                const char * name;
+                while ((name = flavor_names(&f)))
+                    fprintf(stderr, "\t%s\n", name);
 		exit(1);
 	    }
 	    break;
@@ -1574,6 +1543,19 @@ int main(int argc, char **argv)
 	}
     }
 #endif
+
+    // Set flavor
+    if (flavor == RTAPI_FLAVOR_UNCONFIGURED_ID)
+        flavor = default_flavor();
+    if (flavor_byid(flavor) == NULL) {
+        fprintf(stderr,"rtapi_app: Unable to install flavor\n");
+        exit(1);
+    }
+    if (!install_flavor(flavor)) {
+        fprintf(stderr,"rtapi_app: Unable to install flavor '%s'\n",
+                flavor_byid(flavor)->name);
+    }
+
 
     // the actual checking for setuid happens in harden_rt() (if needed)
     if (!foreground && (getuid() > 0)) {

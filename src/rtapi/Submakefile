@@ -14,14 +14,16 @@ INCLUDES += rtapi rtapi_export
 	@mkdir -p ../include/shmdrv
 	$(Q)cp  $^ $@
 
+HEADERS += \
+	rtapi/rtapi_flavor.h \
+	rtapi/rt-preempt.h \
+	rtapi/xenomai.h
+
 ##########################################
 # Clean up
 modclean:  modclean-rtapi
 modclean-rtapi:
-	for flav in $(BUILD_THREAD_FLAVORS); do \
-	    rm -f ../lib/ulapi-$$flav.so; \
-	    rm -f ../libexec/rtapi_app_$$flav; \
-	done
+	rm -f ../libexec/rtapi_app
 .PHONY:  modclean-rtapi
 
 
@@ -30,7 +32,7 @@ modclean-rtapi:
 
 # Sources/objects included in both RTAPI and ULAPI, both kbuild and
 # user threads
-XXAPI_COMMON_SRCS := \
+XXAPI_COMMON_SRCS := $(patsubst %, rtapi/%, \
 	rtapi_support.c \
 	rtapi_hexdump.c \
 	rtapi_common.c \
@@ -38,7 +40,8 @@ XXAPI_COMMON_SRCS := \
 	rtapi_shmem.c \
 	rtapi_time.c \
 	rtapi_exception.c \
-	rtapi_heap.c
+	rtapi_heap.c \
+	)
 
 # rtapi_compat needs to know where rtapi.ini lives
 %/rtapi_compat.o:  \
@@ -46,55 +49,29 @@ XXAPI_COMMON_SRCS := \
 %/rtapi_compat.o:  \
 	EXTRA_CFLAGS += -DEMC2_SYSTEM_CONFIG_DIR=\"$(EMC2_SYSTEM_CONFIG_DIR)\"
 
-# ULAPI:  ../lib/ulapi$THREADSTYLE.so (TBD)
-#
-# List of sources whose objects objects/rtapi/*.o link into
-# ../lib/ulapi$THREADSTYLE.soiblinuxcnchal.so;
-#
+##################################################################
+#                 The ulapi library
+##################################################################
+
 ULAPI_SRCS := \
-	$(patsubst %,rtapi/%,$(XXAPI_COMMON_SRCS)) \
-	rtapi/ulapi_main.c
-
-# resolved at loadtime
-$(call TOOBJSDEPS, $(ULAPI_SRCS)): EXTRAFLAGS += -fPIC
-
-
-ULAPISO := ../rtlib/ulapi.so
-
-$(ULAPISO): ../lib/liblinuxcnchal.so ../lib/liblinuxcncshm.so \
-		$(call TOOBJS, $(ULAPI_SRCS))
-	$(ECHO) Creating shared object $(notdir $@)
-	@rm -f $@
-	$(Q)$(CC) $(LDFLAGS)  -Wl,-soname,$(notdir $@) -shared \
-	    -o $@ $^ $(ULAPISO_LIBS) \
-	../lib/liblinuxcncshm.so \
-	../lib/liblinuxcnchal.so
-
-USERSRCS += $(ULAPI_SRCS)
-TARGETS += $(ULAPISO)
-
-##################################################################
-#                 The ulapi autoload library
-#
-# provides ULAPI with loading-on-first-reference of RTAPI methods
-##################################################################
-
-ULAPI_AUTOLOAD_SRCS := \
 	rtapi/ulapi_autoload.c \
 	rtapi/rtapi_compat.c \
 	rtapi/rtapi_hexdump.c \
 	rtapi/rtapi_support.c \
-	machinetalk/lib/syslog_async.c
+	machinetalk/lib/syslog_async.c \
+	$(XXAPI_COMMON_SRCS) \
+	rtapi/ulapi_main.c
 
-USERSRCS += $(ULAPI_AUTOLOAD_SRCS)
+USERSRCS += $(ULAPI_SRCS)
 
-ULAPI_AUTOLOAD_LIB := ../lib/liblinuxcnculapi.so
+ULAPI_LIB := ../lib/liblinuxcnculapi.so
 
-$(call TOOBJSDEPS, $(ULAPI_AUTOLOAD_SRCS)): EXTRAFLAGS += -DULAPI -fPIC
+$(call TOOBJSDEPS, $(ULAPI_SRCS)): EXTRAFLAGS += -DULAPI -fPIC
 
-$(ULAPI_AUTOLOAD_LIB).0: $(call TOOBJS, $(ULAPI_AUTOLOAD_SRCS)) \
+$(ULAPI_LIB).0: $(call TOOBJS, $(ULAPI_SRCS)) \
 	../lib/liblinuxcncini.so \
-	../lib/liblinuxcncshm.so
+	../lib/liblinuxcncshm.so \
+	../lib/liblinuxcnchal.so
 	$(ECHO) Creating shared library $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
@@ -102,18 +79,16 @@ $(ULAPI_AUTOLOAD_LIB).0: $(call TOOBJS, $(ULAPI_AUTOLOAD_SRCS)) \
 	    -Wl,-soname,$(notdir $@) -shared \
 	    -o $@ $^ -ldl
 
-TARGETS += $(ULAPI_AUTOLOAD_LIB) $(ULAPI_AUTOLOAD_LIB).0
+TARGETS += $(ULAPI_LIB) $(ULAPI_LIB).0
 
 ##################################################################
 #                 rtapi_app - now all thread styles
 ##################################################################
-# rtapi_app_<flavor>
+# rtapi_app
 #
-# A matching rtapi_app_<flavor> is built for each userland thread
-# flavor at the same time as RTAPI module flavor builds.
+# One rtapi_app is built for all userland thread flavors.
 #
-# rtapi_app_<flavor> requires two sources plus one already in
-# ulapi.so.
+# rtapi_app requires two sources plus one already in ulapi.so.
 
 # rtapi_app symbols, and the "RT space" (components loaded via dlopen(3))
 #------------------------------------------------------------------------
@@ -134,7 +109,7 @@ TARGETS += $(ULAPI_AUTOLOAD_LIB) $(ULAPI_AUTOLOAD_LIB).0
 # API functions and no accidential symbol resolution can happen.
 #
 # Note these 'RT objects' (really shared libraries) run in the context of
-# the rtapi_app_<flavor> process and hence shares symbols between rtapi_app
+# the rtapi_app process and hence shares symbols between rtapi_app
 # and the RT objects. This introduces the chance that symbols used and
 # (and maybe accidentially exported by) rtapi_app are carried over into
 # the symbol set seen by the RT objects.
@@ -196,12 +171,19 @@ TARGETS += $(ULAPI_AUTOLOAD_LIB) $(ULAPI_AUTOLOAD_LIB).0
 
 
 RTAPI_APP_SRCS := \
+	$(XXAPI_COMMON_SRCS) \
+	rtapi/rtapi_flavor.c \
 	rtapi/rtapi_app.cc \
 	rtapi/rtapi_compat.c \
 	rtapi/rtapi_hexdump.c \
 	rtapi/rtapi_support.c \
-	rtapi/rtapi_flavor.c \
-	rtapi/rt-preempt.c
+	rtapi/rt-preempt.c \
+	rtapi/rtapi_compat.c \
+	machinetalk/support/nanopb.c \
+	machinetalk/nanopb/pb_decode.c \
+	machinetalk/nanopb/pb_encode.c \
+	machinetalk/nanopb/pb_common.c
+
 
 ifeq ($(HAVE_XENOMAI_THREADS),yes)
 RTAPI_APP_SRCS += rtapi/xenomai.c
@@ -220,7 +202,19 @@ $(call TOOBJSDEPS, rtapi/rtapi_app.cc): \
 $(call TOOBJSDEPS, rtapi/rtapi_app.cc): \
 	../include/machinetalk/protobuf/message.pb.h
 
-../libexec/rtapi_app_%: \
+ifeq ($(USERMODE_PCI),yes)
+
+# compile userland PCI support with udev cflags if any
+$(call TOOBJSDEPS, rtapi/rtapi_pci.c): EXTRAFLAGS += $(LIBUDEV_CFLAGS)
+
+# link userland PCI support into rtapi_app
+RTAPI_APP_SRCS += rtapi/rtapi_pci.c
+
+# userland PCI support needs -ludev for rtapi.so
+../libexec/rtapi_app:  LDFLAGS += $(LIBUDEV_LIBS)
+endif
+
+../libexec/rtapi_app: \
 	$(call TOOBJS, $(RTAPI_APP_SRCS)) \
 	../lib/liblinuxcncini.so.0 \
 	../lib/liblinuxcncshm.so \
@@ -235,73 +229,13 @@ $(call TOOBJSDEPS, rtapi/rtapi_app.cc): \
 	    -o $@ \
 	    $^ \
 	    $(LDFLAGS) \
-	    $($(THREADS)_THREADS_LDFLAGS) \
+	    $(THREADS_LDFLAGS) \
 	    $(PROTOBUF_LIBS) $(CZMQ_LIBS) $(LTTNG_UST_LIBS) \
 	    -lstdc++ -ldl -luuid
 
 #	$(LIBBACKTRACE) # already linked into libmtalk
 
-modules:  $(patsubst %, ../libexec/rtapi_app_%, $(BUILD_THREAD_FLAVORS))
-
-##################################################################
-#                 USERLAND THREAD STYLES
-##################################################################
-#
-# FIXME This needs to be folded into rtapi_app.
-#
-# The `rtapi_<threads>.<ext>` module was separate from rtapi_app
-# because e.g. `rtapi_app_rtai` could run against multiple kernel
-# versions by loading different `rtapi.ko` modules from the correct
-# directory.  Now that kthreads are gone, there's only one possible
-# `rtapi.so` module per `rtapi_app`, so these should be folded
-# together.
-
-rtapi-objs := \
-	$(patsubst %.c, rtapi/%.o, \
-	    $(XXAPI_COMMON_SRCS) \
-	    rtapi_main.c \
-	    rtapi_compat.c \
-	) \
-	machinetalk/support/nanopb.o \
-	machinetalk/nanopb/pb_decode.o \
-	machinetalk/nanopb/pb_encode.o \
-	machinetalk/nanopb/pb_common.o
-
-ifeq ($(USERMODE_PCI),yes)
-
-# compile userland PCI support with udev cflags if any
-$(call TOOBJSDEPS, rtapi/rtapi_pci.c): EXTRAFLAGS += $(LIBUDEV_CFLAGS)
-
-# link in userland PCI support into rtapi.so
-rtapi-objs += rtapi/rtapi_pci.o
-
-# userland PCI support needs -ludev for rtapi.so
-RTAPI_MODULE_EXTRA_LDFLAGS += $(LIBUDEV_LIBS)
-endif
-
-# - RT_PREEMPT + POSIX
-ifeq ($(HAVE_RT_PREEMPT_THREADS),yes)
-rtapi_rt-preempt-objs := $(rtapi-objs) rtapi/rt-preempt.o
-$(addprefix $(OBJDIR)/,$(rtapi_rt-preempt-objs)): \
-	EXTRA_CFLAGS += $(RT_PREEMPT_THREADS_RTFLAGS)
-$(RTLIBDIR)/rtapi_rt-preempt.so:  EXTRA_LDFLAGS += \
-	$(RTAPI_MODULE_EXTRA_LDFLAGS) $(RT_PREEMPT_THREADS_LDFLAGS)
-$(RTLIBDIR)/rtapi_rt-preempt.so:  \
-	$(addprefix $(OBJDIR)/,$(rtapi_rt-preempt-objs))
-obj-m += rtapi_rt-preempt.o
-endif
-
-# - Xenomai
-ifeq ($(HAVE_XENOMAI_THREADS),yes)
-rtapi_xenomai-objs := $(rtapi-objs) rtapi/xenomai.o
-$(addprefix $(OBJDIR)/,$(rtapi_xenomai-objs)): \
-	EXTRA_CFLAGS += $(XENOMAI_THREADS_RTFLAGS)
-$(RTLIBDIR)/rtapi_xenomai.so:  EXTRA_LDFLAGS += \
-	$(RTAPI_MODULE_EXTRA_LDFLAGS) $(XENOMAI_THREADS_LDFLAGS)
-$(RTLIBDIR)/rtapi_xenomai.so:  \
-	$(addprefix $(OBJDIR)/,$(rtapi_xenomai-objs))
-obj-m += rtapi_xenomai.o
-endif
+modules:  ../libexec/rtapi_app
 
 ##################################################################
 #                     the kdetect test program

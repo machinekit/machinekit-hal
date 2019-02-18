@@ -213,7 +213,6 @@ extern int  _next_handle(void);
 #endif
 
 // set first thing in rtapi_app_main
-extern int shmdrv_loaded;
 extern long page_size;  // for munmap
 
 /* rtapi_task.c */

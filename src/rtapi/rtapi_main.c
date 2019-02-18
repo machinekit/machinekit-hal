@@ -43,10 +43,6 @@
 #include "rtapi_heap.h"
 #include "shmdrv.h"  /* common shm driver API */
 
-MODULE_AUTHOR("Michael Haberler");
-MODULE_DESCRIPTION("RTAPI module support - userland threads");
-MODULE_LICENSE("GPL");
-
 // mostly for argument compatibility with kernel thread flavors
 int rtapi_instance;                             // instance id, visible throughout RTAPI
 RTAPI_MP_INT(rtapi_instance, "instance ID");

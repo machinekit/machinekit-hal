@@ -50,6 +50,7 @@
 #include "halcmd_commands.h"
 #include "halcmd_rtapiapp.h"
 #include "rtapi_hexdump.h"
+#include "rtapi_flavor.h"      // flavor_descriptor
 
 #include <../include/machinetalk/protobuf/types.npb.h>
 
@@ -2477,7 +2478,7 @@ static void print_thread_stats(hal_thread_t *tptr)
     halcmd_output("\nLowlevel thread statistics for '%s':\n\n",
 		  ho_name(tptr));
 
-    rtapi_print_thread_stats(tptr->task_id);
+    flavor_descriptor->print_thread_stats_hook(tptr->task_id);
 }
 
 static int print_thread_entry(hal_object_ptr o, foreach_args_t *args)

@@ -214,7 +214,7 @@ int posix_task_new_hook(task_data *task, int task_id) {
 }
 
 int posix_task_delete_hook(task_data *task, int task_id) {
-    int err;
+    int err_cancel, err_join;
     void *returncode;
 
     /* Signal thread termination and wait for the thread to exit. */
@@ -224,22 +224,22 @@ int posix_task_delete_hook(task_data *task, int task_id) {
 	// pthread_cancel() will get the thread out of any blocking system
 	// calls listed under 'Cancellation points' in man 7 pthreads
 	// read(), poll() being important ones
-	err = pthread_cancel(extra_task_data[task_id].thread);
-	if (err)
+	err_cancel = pthread_cancel(extra_task_data[task_id].thread);
+	if (err_cancel)
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "pthread_cancel() on RT thread '%s': %d %s\n",
-			    task->name, err, strerror(err));
-	err = pthread_join(extra_task_data[task_id].thread, &returncode);
-	if (err)
+			    task->name, err_cancel, strerror(err_cancel));
+	err_join = pthread_join(extra_task_data[task_id].thread, &returncode);
+	if (err_join)
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "pthread_join() on RT thread '%s': %d %s\n",
-			    task->name, err, strerror(err));
+			    task->name, err_join, strerror(err_join));
     }
     /* Free the thread stack. */
     free(extra_task_data[task_id].stackaddr);
     extra_task_data[task_id].stackaddr = NULL;
 
-    return &returncode;
+    return err_cancel || err_join;
 }
 
 static int realtime_set_affinity(task_data *task) {
@@ -620,7 +620,7 @@ flavor_descriptor_t flavor_rt_prempt_descriptor = {
     .task_stop_hook = posix_task_stop_hook,
     .task_pause_hook = NULL,
     .wait_hook = posix_wait_hook,
-    .resume_hook = NULL,
+    .task_resume_hook = NULL,
     .delay_hook = posix_delay_hook,
     .get_time_hook = NULL,
 #if !defined(__i386__) && !defined(__x86_64__)
@@ -649,7 +649,7 @@ flavor_descriptor_t flavor_posix_descriptor = {
     .task_stop_hook = posix_task_stop_hook,
     .task_pause_hook = NULL,
     .wait_hook = posix_wait_hook,
-    .resume_hook = NULL,
+    .task_resume_hook = NULL,
     .delay_hook = posix_delay_hook,
     .get_time_hook = NULL,
 #if !defined(__i386__) && !defined(__x86_64__)

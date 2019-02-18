@@ -498,7 +498,13 @@ int kernel_is_xenomai()
 
 int xenomai_can_run_flavor()
 {
-    return kernel_is_xenomai();
+    if (! kernel_is_xenomai())
+        return 0;
+
+    if (! xenomai_flavor_check())
+        return 0;
+
+    return 1;
 }
 
 int xenomai_gid()
@@ -565,6 +571,7 @@ int xenomi_flavor_check(void) {
 		    strerror(-retval));
 	    exit(EXIT_FAILURE);
     }
+    return retval;
 }
 
 

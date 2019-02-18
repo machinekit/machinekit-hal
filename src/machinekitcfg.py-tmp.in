@@ -77,7 +77,6 @@ class Config(object):
         self.BUILD_DRIVERS="@BUILD_DRIVERS@"
         self.SUBST="@BUILD_DRIVERS@"
         self.MACHINEKIT_INI="@MACHINEKIT_INI@"
-        self.BUILD_THREAD_FLAVORS="@BUILD_THREAD_FLAVORS@"
 
         # Directories
         self.prefix="@prefix@"
