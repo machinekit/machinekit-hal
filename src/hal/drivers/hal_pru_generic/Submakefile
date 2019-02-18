@@ -1,13 +1,6 @@
 ifdef TARGET_PLATFORM_BEAGLEBONE
 
-# These are actually the same location but the package
-# build needs to set a path relative to the Makefile,
-# from whence it will be copied to debian/tmp
-ifeq ($(RUN_IN_PLACE),yes)
-PRUBINDIR := $(EMC2_HOME)/rtlib/prubin
-else
 PRUBINDIR := ../rtlib/prubin
-endif
 
 # support for ARM335x PRU (Programmable Realtime Unit) components and
 SUPPORT_DIR := hal/support
@@ -65,6 +58,17 @@ install_prubin:
 #	#  Copy .bin and .dbg symlinks to the rtlib/modules directory
 	$(DIR) $(DESTDIR)$(EMC2_RTLIB_DIR)
 	cp -a $(RTLIBDIR)/*.bin $(RTLIBDIR)/*.dbg $(DESTDIR)$(EMC2_RTLIB_DIR)
+
+install:  install_prubin
+
+install_prubin:
+	$(DIR) $(DESTDIR)$(EMC2_RTLIB_DIR)/prubin
+#	#  Copy .bin and .dbg files to the rtlib/prubin directory
+	$(FILE) $(PRUBINDIR)/*.bin $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)/prubin
+	$(FILE) $(PRUBINDIR)/*.dbg $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)/prubin
+#	#  Copy .bin and .dbg symlinks to the rtlib/modules directory
+	$(FILE) ../rtlib/*.bin $(DESTDIR)$(EMC2_RTLIB_DIR)
+	$(FILE) ../rtlib/*.dbg $(DESTDIR)$(EMC2_RTLIB_DIR)
 
 install:  install_prubin
 

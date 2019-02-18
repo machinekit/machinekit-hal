@@ -201,10 +201,6 @@ AC_CONFIG_MACRO_DIR(/usr/share/aclocal)
 # ./configure will attempt to configure driver building unless
 # explicitly disabled with '--disable-drivers'.
 #
-# To reduce the surprise factor of a simulator config suddenly talking
-# to ports, drivers will be disabled by default for posix threads and
-# enabled for others in rtapi.ini.
-#
 # reflected in config.h as follows:
 # /* build hardware drivers */
 # #define BUILD_DRIVERS /**/
@@ -546,11 +542,6 @@ else
     fi
 fi
 
-if test $TARGET_PLATFORM_PC = true; then
-	echo "*** TARGET_PLATFORM_PC=true ***"
-	touch ../debian/platform_pc
-fi
-
 
 # Print messages about what platforms are to be enabled or disabled
 AC_MSG_CHECKING(platform-pc)
@@ -820,26 +811,7 @@ AC_PYTHON_MODULE(pyftpdlib.servers, failed to import pyftpdlib.servers
 # - Sanity checks and configuration generation                               #
 ##############################################################################
 
-# By default, build all flavors.  If a --with-<flavor> arg is found,
-# do not build all by default.
-all_flavors_default=yes
-
-# Set to 'yes' when either xenomai or rt-preempt will be built
-with_userland_rt_threads=no
-
 AC_PRESERVE_HELP_ORDER()
-AC_ARG_WITH(posix,
-    [AS_HELP_STRING([--with-posix],
-        [build POSIX (simulator) non-realtime threads modules
-        (enabled by default)])],
-    [test $withval = yes && all_flavors_default=no],
-    [with_posix=check])
-
-AC_ARG_WITH(rt-preempt,
-    [AS_HELP_STRING([--with-rt-preempt],
-        [build RT_PREEMPT threads modules])],
-    [test $withval = yes && all_flavors_default=no],
-    [with_rt_preempt=check])
 
 AC_ARG_WITH(xenomai,
     [AS_HELP_STRING([--with-xenomai],
@@ -848,69 +820,7 @@ AC_ARG_WITH(xenomai,
      test $withval = yes && all_flavors_default=no],
     [with_xenomai=check])
 
-# If a --with-<flavor> flag was found, disable all flavors not
-# explicitly enabled
-if test $all_flavors_default = no; then
-    for f in posix rt_preempt xenomai; do
-        if eval "test \$with_$f = check"; then
-	    eval "with_$f=no"
-	fi
-    done
-fi
-
-
-##############################################################################
-# POSIX and RT_PREEMPT flavor checks
-if test "$with_rt_preempt" != no -o "$with_posix" != no; then
-    LIBS_hold=$LIBS
-    LIBS="$LIBS -lrt"
-
-    AC_MSG_CHECKING(-lrt for RT_PREEMPT and POSIX)
-    AC_LINK_IFELSE([AC_LANG_PROGRAM([[
-	#include <time.h>
-	#include <sched.h>
-	#include <sys/mman.h>
-    ]],
-    [[
-	struct timespec t;
-	clock_gettime(CLOCK_MONOTONIC ,&t);
-	clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &t, NULL);
-    ]])],
-    [
-        have_librt=yes
-        AC_MSG_RESULT(ok)],
-    [
-        have_librt=no
-        AC_MSG_RESULT(failed)
-    ])
-    LIBS=$LIBS_hold
-fi
-
-AC_MSG_CHECKING(whether to build POSIX threads)
-test "$with_posix" = check && with_posix=yes
-test "$have_librt" = no && with_posix=no
-AC_MSG_RESULT($with_posix)
-if test "$with_posix" = yes; then
-   THREADS_LDFLAGS="$THREADS_RTFLAGS -lpthread -lrt $LIBCGROUP_LIBS"
-   THREADS_RTFLAGS="$THREADS_RTFLAGS -pthread $LIBCGROUP_CFLAGS"
-fi
-
-AC_MSG_CHECKING(whether to build RT_PREEMPT threads)
-test "$with_rt_preempt" = check && with_rt_preempt=yes
-test "$have_librt" = no && with_rt_preempt=no
-AC_MSG_RESULT($with_rt_preempt)
-if test "$with_rt_preempt" = yes; then
-    THREADS_LDFLAGS="$THREADS_LDFLAGS -lpthread -lrt $LIBCGROUP_LIBS"
-    THREADS_RTFLAGS="$THREADS_RTFLAGS -pthread"
-    THREADS_RTFLAGS="$THREADS_RTFLAGS $LIBCGROUP_CFLAGS"
-    with_userland_rt_threads=yes
-fi
-
-
-##############################################################################
-# Xenomai flavor checks, both userland and kthreads
-
-if test "$with_xenomai" != no -o "$with_xenomai_kernel" != no; then
+if test "$with_xenomai" != no; then
     # XENOMAI_THREADS_RTS:  look for the xeno-config executable
     XENOMAI_THREADS_RTS=''
     if test "$xeno_config_from_cmdline" = yes; then
@@ -980,7 +890,7 @@ if test -n "$XENOMAI_THREADS_RTS"; then
     CPPFLAGS="$CPPFLAGS_hold"
 fi
 
-if test "$with_xenomai" != no -o "$with_xenomai_kernel" != no; then
+if test "$with_xenomai" != no; then
     flags="$($XENOMAI_THREADS_RTS --cflags)"
     # Xenomai docs recommend turning off CONFIG_CC_STACKPROTECTOR
     # on all arches but x86_64; this causes missing symbols without

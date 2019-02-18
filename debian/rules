@@ -150,10 +150,6 @@ install: build
 	(cd debian/extras && cp -a * ../tmp)
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) V=$(DH_VERBOSE) $@)
 	mkdir -p debian/tmp/usr/lib/linuxcnc/modules debian/tmp/usr/include/linuxcnc
-	## temp symlinks until all paths resolved
-#	ln -sf debian/tmp/usr/lib/linuxcnc/modules debian/tmp/usr/lib/linuxcnc/posix
-#	ln -sf debian/tmp/usr/lib/linuxcnc/modules debian/tmp/usr/lib/linuxcnc/rt-preempt
-#	ln -sf debian/tmp/usr/lib/linuxcnc/modules debian/tmp/usr/lib/linuxcnc/xenomai
 	cp lib/*.a debian/tmp/usr/lib
 	## if they weren't there we don't care if rm fails
 	rm -f debian/tmp/usr/share/applications/linuxcnc-usermanual*.desktop
@@ -176,33 +172,7 @@ endif
 	cp src/rtapi/shmdrv/limits.d-machinekit.conf \
 	    debian/tmp/etc/security/limits.d/machinekit.conf
 
-	cp debian/machinekit-posix.install.in debian/machinekit-posix.install
-	cp debian/machinekit-rt-preempt.install.in debian/machinekit-rt-preempt.install
-	cp debian/machinekit-xenomai.install.in debian/machinekit-xenomai.install
-
-	if (grep ^USERMODE_PCI=yes src/Makefile.inc -q); then \
-	    echo "usr/include/linuxcnc/userpci/*.h" >> debian/machinekit-posix.install; \
-	    echo "usr/include/linuxcnc/userpci/*.h" >> debian/machinekit-rt-preempt.install; \
-	    echo "usr/include/linuxcnc/userpci/*.h" >> debian/machinekit-xenomai.install; \
-	fi
-
-	## only want prubin for armhf builds ##
-	if [ -f debian/platform_pc ] ; then \
-	    cat debian/posix-postinst-pc.add >> debian/machinekit-posix.postinst; \
-	    cat debian/rt-preempt-postinst-pc.add >> debian/machinekit-rt-preempt.postinst; \
-	    cat debian/xenomai-postinst-pc.add >> debian/machinekit-xenomai.postinst; \
-	    rm -f debian/platform_pc; \
-	else \
-	    mkdir -p debian/tmp/usr/lib/linuxcnc/prubin; \
-	    cp rtlib/prubin/* debian/tmp/usr/lib/linuxcnc/prubin; \
-	    cat debian/posix-postinst-arm.add >> debian/machinekit-posix.postinst; \
-	    cat debian/rt-preempt-postinst-arm.add >> debian/machinekit-rt-preempt.postinst; \
-	    cat debian/xenomai-postinst-arm.add >> debian/machinekit-xenomai.postinst; \
-	    echo "usr/lib/linuxcnc/prubin/*" >> debian/machinekit-posix.install; \
-	    echo "usr/lib/linuxcnc/prubin/*" >> debian/machinekit-rt-preempt.install; \
-	    echo "usr/lib/linuxcnc/prubin/*" >> debian/machinekit-xenomai.install; \
-	fi
-
+	mkdir -p debian/tmp/usr/lib/linuxcnc/prubin
 
 	dh_install --sourcedir=debian/tmp --fail-missing -Xusr/bin/pasm
 
