@@ -27,11 +27,9 @@
 
 #include "config.h"
 
-#if defined(USERMODE_PCI)
 #include <sys/io.h>
 #include <rtapi.h>
 #include <rtapi/rtapi_pci.h>
-#endif
 
 #include "rtapi.h"
 #include "rtapi_app.h"

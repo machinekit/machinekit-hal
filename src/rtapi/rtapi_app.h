@@ -25,9 +25,8 @@
   get full of ifdefs.
 */
 
-#if defined(USERMODE_PCI)
 #include "userpci/module.h"
-#endif
+
 /*  Turn the first instance of rtapi_app_* into a function declaration, then
     export the symbol, then re-create the function definition.  This way the
     symbol is only exported if the function exists in the code, and we don't

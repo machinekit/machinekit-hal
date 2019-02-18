@@ -179,10 +179,8 @@ RTAPI_LIB_SRCS := \
 	machinetalk/nanopb/pb_encode.c \
 	machinetalk/nanopb/pb_common.c
 
-ifeq ($(USERMODE_PCI),yes)
 # link userland PCI support into rtapi_app
 RTAPI_LIB_SRCS += rtapi/rtapi_pci.c
-endif
 
 ifeq ($(HAVE_XENOMAI_THREADS),yes)
 RTAPI_LIB_SRCS += rtapi/flavor/xenomai.c
@@ -207,17 +205,15 @@ endif
 
 $(call TOOBJSDEPS, rtapi/rtapi_app.cc): \
 	EXTRAFLAGS = $(PROTOBUF_CFLAGS) $(CZMQ_CFLAGS) $(LTTNG_UST_CFLAGS)
+
 $(call TOOBJSDEPS, rtapi/rtapi_app.cc): \
 	../include/machinetalk/protobuf/message.pb.h
 
-ifeq ($(USERMODE_PCI),yes)
+$(call TOOBJSDEPS, rtapi/flavor/rt-preempt.c): \
+	EXTRAFLAGS += $(LIBCGROUP_CFLAGS)
 
-# compile userland PCI support with udev cflags if any
+# compile userland PCI support with udev cflags
 $(call TOOBJSDEPS, rtapi/rtapi_pci.c): EXTRAFLAGS += $(LIBUDEV_CFLAGS)
-
-# userland PCI support needs -ludev for rtapi.so
-../libexec/rtapi_app:  LDFLAGS += $(LIBUDEV_LIBS)
-endif
 
 ../libexec/rtapi_app: \
 	$(addprefix $(OBJDIR)/,$(RTAPI_LIB_OBJS)) \
@@ -235,7 +231,7 @@ endif
 	    -o $@ \
 	    $^ \
 	    $(LDFLAGS) \
-	    $(THREADS_LDFLAGS) \
+	    $(THREADS_LDFLAGS) $(LIBUDEV_LIBS) $(LIBCGROUP_LIBS) \
 	    $(PROTOBUF_LIBS) $(CZMQ_LIBS) $(LTTNG_UST_LIBS) \
 	    -lstdc++ -ldl -luuid
 

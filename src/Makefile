@@ -833,9 +833,9 @@ ifeq ($(BUILD_EMCWEB),yes)
 		$(DESTDIR)$(datadir)/linuxcnc/doc-root/js \
 		$(DESTDIR)$(datadir)/linuxcnc/doc-root/res
 endif
-ifeq ($(USERMODE_PCI),yes)
 	$(DIR)	$(DESTDIR)$(includedir)/linuxcnc/userpci
-endif
+#	# Create machinekit->linuxcnc symlink in /usr/share
+	ln -s linuxcnc $(DESTDIR)$(datadir)/machinekit
 
 install-kernel-indep: install-dirs
 	$(FILE) objects/*.msg $(DESTDIR)$(tcldir)/msgs
@@ -867,9 +867,7 @@ endif
 #	# don't run ldconfig under fakeroot (silence dpkg-build warning)
 	-test -n "$$FAKED_MODE" || ldconfig $(DESTDIR)$(libdir)
 	$(FILE) $(HEADERS) $(DESTDIR)$(includedir)/linuxcnc/
-ifeq ($(USERMODE_PCI),yes)
 	$(FILE) $(USERPCI_HEADERS) $(DESTDIR)$(includedir)/linuxcnc/userpci
-endif
 	$(FILE) $(DOCS_HELP) $(DESTDIR)$(docdir)
 	$(TREE) $(NC_FILES) $(DESTDIR)$(ncfilesdir)
 	$(EXE) ../nc_files/M101 $(DESTDIR)$(ncfilesdir)

@@ -112,16 +112,7 @@ endif
 #endif
 ####################################################
 
-# Gnu make 'expression' syntax is pathetic. What were these guys smoking?
-# turn on by default
 BUILD_HOSTMOT2=yes
-ifeq ($(USERMODE_PCI),yes)
-# reconfirm our intent..
-BUILD_HOSTMOT2=yes
-else
-#except if USERMODE_PCI isn't set
-BUILD_HOSTMOT2=no
-endif
 
 ifeq ($(BUILD_HOSTMOT2),yes)
 $(eval $(call c_comp_build_rules,hal/drivers/mesa-hostmot2/hm2_eth.o))

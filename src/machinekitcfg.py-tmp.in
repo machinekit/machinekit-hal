@@ -141,9 +141,7 @@ class Config(object):
         self.TARGET_PLATFORM_BEAGLEBONE = "@TARGET_PLATFORM_BEAGLEBONE@"
         self.TARGET_PLATFORM_RASPBERRY = "@TARGET_PLATFORM_RASPBERRY@"
 
-        self.USERMODE_PCI="@USERMODE_PCI@"
-
-        #libudev for if USERMODE_PCI==yes
+        # libudev
         self.LIBUDEV_CFLAGS="@LIBUDEV_CFLAGS@"
         self.LIBUDEV_LIBS="@LIBUDEV_LIBS@"
 

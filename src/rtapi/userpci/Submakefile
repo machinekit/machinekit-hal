@@ -12,7 +12,6 @@ $(USERPCI_HEADERS): ../include/userpci/%.h: rtapi/userpci/%.h
 	@mkdir -p ../include/userpci
 	cp  $^ $@
 
-ifeq ($(USERMODE_PCI),yes)
 # These headers need to remain in the 'userpci' subdirectory
 SUBDIRECTORY_HEADERS += $(USERPCI_HEADERS)
 INSTALL_DIRS += ../include/userpci
@@ -26,7 +25,6 @@ setsserial-objs +=			  \
     rtapi/userpci/device.o		  \
     rtapi/userpci/firmware.o		  \
     rtapi/userpci/string.o
-endif
 
 clean: userpci-clean
 userpci-clean:

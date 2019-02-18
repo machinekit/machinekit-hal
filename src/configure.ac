@@ -927,7 +927,6 @@ AC_MSG_RESULT($with_xenomai)
 ##############################################################################
 # Subsection 2.6                                                             #
 # Hardware driver detection                                                  #
-# - Configure usermode PCI drivers                                           #
 # - Configure libudev                                                        #
 ##############################################################################
 
@@ -942,58 +941,9 @@ fi
 AC_MSG_RESULT($with_drivers)
 
 
-AC_ARG_ENABLE(usermode-pci,
-    [AS_HELP_STRING([--enable-usermode-pci],
-	[Build PCI drivers with usermode PCI support])],
-    [with_usermode_pci=$enableval],
-    [with_usermode_pci=check])
-# record what was requested on the command line
-if test $with_usermode_pci = yes; then
-    usermode_pci_requested_cmdline=yes
-else
-    usermode_pci_requested_cmdline=no
-fi
-if test $with_drivers = yes -a $with_usermode_pci != no; then
-    usermode_pci_disabled_cmdline=no
-else
-    usermode_pci_disabled_cmdline=yes
-fi
+# test usability of libudev, needed by drivers
+PKG_CHECK_MODULES(LIBUDEV, libudev, with_libudev=yes, with_libudev=no)
 
-# test usability of libudev, needed by userland drivers
-with_libudev=no
-if test "$with_drivers" = "yes" -a $with_usermode_pci != no; then
-   PKG_CHECK_MODULES(LIBUDEV, libudev, with_libudev=yes, with_libudev=no)
-fi
-
-AC_MSG_CHECKING(whether to build usermode PCI hardware drivers)
-if test "$usermode_pci_disabled_cmdline" = yes; then
-    # user explicitly disabled either userland drivers or all drivers
-    with_usermode_pci=no
-    AC_MSG_RESULT([disabled by user])
-elif test "$with_usermode_pci" = check -a $with_userland_rt_threads = no; then
-    with_usermode_pci=no
-    AC_MSG_RESULT([default disabled for no userland RT threads])
-elif test $with_libudev = no; then
-    with_usermode_pci=no
-    AC_MSG_RESULT([no; depends on libudev])
-elif test "$with_usermode_pci" = check -a $with_userland_rt_threads = yes; then
-    with_usermode_pci=yes
-    AC_MSG_RESULT([default enabled for userland RT threads])
-else
-    # catchall
-    AC_MSG_RESULT($with_usermode_pci)
-fi
-# if --with-usermode-pci was specified on the cmdline but is
-# unavailable, consider it an error
-test $usermode_pci_requested_cmdline = yes -a $with_usermode_pci = no && \
-    AC_MSG_ERROR([Usermode PCI drivers requested but unavailable])
-# if xenomai or rt-preempt will be built and userland drivers were
-# not explicitly disabled but will not be built, issue a warning
-test $with_usermode_pci = no \
-        -a $usermode_pci_disabled_cmdline = no \
-        -a $with_userland_rt_threads = yes && \
-        $TARGET_PLATFORM_PC && \
-    AC_MSG_WARN([Usermode PCI drivers will not be available])
 
 ##############################################################################
 # Subsection 2.7                                                             #
@@ -1065,10 +1015,6 @@ AC_SUBST([USE_SSL])
 AC_SUBST([USE_UUID])
 AC_SUBST([USE_LIBCGROUP])
 
-if test "$with_usermode_pci" = yes; then
-   AC_DEFINE([USERMODE_PCI], [], [build PCI drivers with usermode PCI support])
-fi
-AC_SUBST([USERMODE_PCI],[$with_usermode_pci])
 AC_SUBST(LIBUDEV_CFLAGS)
 AC_SUBST(LIBUDEV_LIBS)
 AC_DEFINE(HAVE_LIBUDEV, [], [libudev installed and available])
@@ -1140,7 +1086,6 @@ if test "$with_xenomai" = yes; then
 fi
 AC_SUBST([HAVE_XENOMAI_THREADS],[$with_xenomai])
 AC_SUBST([XENOMAI_THREADS_RTS])
-AC_SUBST([PRECISE_MULTILIB_BUG],[$PRECISE_MULTILIB_BUG])
 
 # while we are at it, drop a git scent mark
 GIT_VERSION=unknown
