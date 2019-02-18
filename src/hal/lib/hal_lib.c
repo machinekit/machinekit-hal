@@ -65,6 +65,7 @@
 #include "hal_iring.h"
 
 #include "rtapi_string.h"
+#include "rtapi_flavor.h"       // flavor_descriptor
 #ifdef RTAPI
 #include "rtapi_app.h"
 /* module information */
@@ -182,11 +183,9 @@ unsigned char hal_get_lock()
 
 int rtapi_app_main(void)
 {
-    rtapi_switch = rtapi_get_handle();
-
     // sanity: these must have been inited before by the
     // respective rtapi.so/.ko module
-    CHECK_NULL(rtapi_switch);
+    HAL_ASSERT(flavor_is_configured());
     CHECK_NULL(global_data);
 
     HALDBG("initializing RT hal_lib support");

@@ -253,6 +253,7 @@ endef
 SUBMAKEFILES := $(patsubst %,%/Submakefile,$(SUBDIRS))
 #$(info SUBMAKEFILES=$(SUBMAKEFILES))
 -include $(wildcard $(SUBMAKEFILES))
+$(info All Submakefiles included)
 
 # This checks that all the things listed in USERSRCS are either C files
 # or C++ files
@@ -623,7 +624,6 @@ HEADERS := \
 .PHONY: headers
 HEADERS := $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
 headers: $(HEADERS)
-$(info HEADERS = $(HEADERS))
 
 # install header files as part of the build
 TARGETS += headers
@@ -862,7 +862,6 @@ endif
 	$(EXE) ../scripts/linuxcncmkdesktop $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
 	cp --no-dereference $(filter ../lib/%.so, $(TARGETS)) $(DESTDIR)$(libdir)
-	$(FILE) ../rtlib/ulapi-*.so $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)
 #	# don't run ldconfig under fakeroot (silence dpkg-build warning)
 	-test -n "$$FAKED_MODE" || ldconfig $(DESTDIR)$(libdir)
 	$(FILE) $(HEADERS) $(DESTDIR)$(includedir)/linuxcnc/
@@ -1115,7 +1114,7 @@ TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), $(OBJDIR)/$(file))
 # Module building
 EXTRA_CFLAGS += -fPIC
 
-RTOBJS := $(sort $(foreach mod,$(obj-m),$(call TORTOBJS,$(mod))))
+RTOBJS += $(sort $(foreach mod,$(obj-m),$(call TORTOBJS,$(mod))))
 
 RTDEPS := $(sort $(patsubst $(OBJDIR)/%.o,$(DEPDIR)/%.d, $(RTOBJS)))
 

@@ -31,10 +31,6 @@
 
 #include "cpuinfo.c"
 
-#if !defined(BUILD_SYS_USER_DSO)
-#error "This driver is for usermode threads only"
-#endif
-
 #if !defined(TARGET_PLATFORM_RASPBERRY)
 #error "This driver is for the Raspberry Pi platform only"
 #endif

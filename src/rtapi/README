@@ -1,7 +1,7 @@
 README for RTAPI				-*-auto-fill-*-
 
-RTAPI is a wrapper API that allows realtime programs to use either
-RTLinux or RTAI with no code changes.
+RTAPI is a wrapper API that allows realtime programs to use
+RT_PREEMPT, POSIX or Xenomai threads with no code changes.
 
 Files:
 
@@ -10,10 +10,6 @@ README          : this file
 rtapi.h         : decls for the generic RTAPI functions.
 rtapi_app.h     : decls for the kernel modules
 rtapi_common.h  : Collection of typedefs, etc,  used internally by RTAPI.
-procfs_macros.h : Macros used to implement the /proc interface
-rtapi_proc.h    : more stuff implementing the /proc interface
-$(THREADS).h	: Thread system-specific headers
-$(THREADS).c	: Thread system-specific definitions, esp. RTAPI hooks
 
 
 ../../Makefile.inc    : contains compile-time flags, etc.

@@ -39,21 +39,6 @@ SUPPORT_BEGIN_DECLS
 
 extern long int simple_strtol(const char *nptr, char **endptr, int base);
 
-
-// simple interface to hal_create_thread()/hal_thread_delete()
-// through /proc/rtapi/hal/rtapicmd (kernel threadstyles only)
-//
-// to start a thread, write 'newthread' <threadname> <period> <fp> <cpu>'
-// example:
-//    echo newthread servo-thread 1000000 1 -1 >/proc/rtapi/hal/rtapicmd
-//
-// to delete a thread, write 'delthread <threadname>'
-//    echo delthread servo-thread >/proc/rtapi/hal/rtapicmd
-//
-// HAL return values are reflected in the return value to write()
-//
-#define PROCFS_RTAPICMD "/proc/rtapi/hal/rtapicmd"
-
 // whatever is written is printf-style
 int rtapi_fs_write(const char *path, const char *format, ...);
 
@@ -64,26 +49,6 @@ int rtapi_fs_write(const char *path, const char *format, ...);
 // filename is printf-style
 int rtapi_fs_read(char *buf, const size_t maxlen, const char *name, ...);
 
-
-int run_shell(char *format, ...);
-
-//extern int procfs_cmd(const char *path, const char *format, ...);
-
-// kernel tests in rtapi_compat.c
-extern int kernel_is_xenomai();
-extern int kernel_is_rtpreempt();
-
-// return the Xenomai group id from
-// /sys/module/xeno_nucleus/parameters/xenomai_gid or -1
-extern int xenomai_gid();
-
-// if the linuxCNC user is'nt member of the xenomai group,
-// most xenomai system calls will fail
-extern int user_in_xenomai_group();
-
-// return the instance ID of a kernel threads instance
-// by consulting /proc/rtapi/instance
-extern int kernel_instance_id();
 
 /*
  * Look up a parameter value in rtapi.ini [global] section.  Returns 0 if

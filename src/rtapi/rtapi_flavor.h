@@ -1,6 +1,10 @@
 #ifndef RTAPI_FLAVOR_H
 #define RTAPI_FLAVOR_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "rtapi_common.h"
 // Put these in order of preference
 typedef enum RTAPI_FLAVOR_ID {
@@ -17,6 +21,8 @@ typedef enum RTAPI_FLAVOR_ID {
 #define  FLAVOR_DOES_IO        RTAPI_BIT(0) // userland: whether iopl() needs to be called
 
 typedef int (*rtapi_can_run_flavor_t)(void);
+typedef void (*rtapi_exception_handler_hook_t)(
+    int type, rtapi_exception_detail_t *detail, int level);
 typedef void (*rtapi_module_init_hook_t)(void);
 typedef void (*rtapi_module_exit_hook_t)(void);
 typedef int (*rtapi_task_update_stats_hook_t)(void);
@@ -39,8 +45,10 @@ typedef struct {
     const char *name;
     const int flavor_id;
     const unsigned long flags;
+    const unsigned has_rt;
     const int time_no_clock_monotonic;
     const rtapi_can_run_flavor_t can_run_flavor;
+    const rtapi_exception_handler_hook_t exception_handler_hook;
     const rtapi_module_init_hook_t module_init_hook;
     const rtapi_module_exit_hook_t module_exit_hook;
     const rtapi_task_update_stats_hook_t task_update_stats_hook;
@@ -63,12 +71,16 @@ typedef flavor_descriptor_t * flavor_descriptor_ptr;
 
 extern flavor_descriptor_ptr flavor_descriptor;
 
-int install_flavor(rtapi_flavor_id_t flavor_id);
-rtapi_flavor_id_t flavor_byname(const char *flavorname);
-rtapi_flavor_id_t default_flavor(void);
-int flavor_is_configured(void);
-flavor_descriptor_ptr flavor_byid(rtapi_flavor_id_t flavor_id);
-const char * flavor_names(flavor_descriptor_ptr * fd);
+extern int install_flavor(rtapi_flavor_id_t flavor_id);
+extern rtapi_flavor_id_t flavor_byname(const char *flavorname);
+extern rtapi_flavor_id_t default_flavor(void);
+extern int flavor_is_configured(void);
+extern flavor_descriptor_ptr flavor_byid(rtapi_flavor_id_t flavor_id);
+extern const char * flavor_names(flavor_descriptor_ptr * fd);
+
+#ifdef __cplusplus
+}
+#endif
 
 
 #endif

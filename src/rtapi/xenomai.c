@@ -40,6 +40,11 @@
 
 #define XENO_GID_SYSFS "/sys/module/xeno_nucleus/parameters/xenomai_gid"
 
+// Access the xenomai_stats_t thread status object
+#define FTS(ts) ((xenomai_stats_t)ts->flavor)
+// Access the xenomai_exception_t thread exception detail object
+#define FED(detail) ((xenomai_exception_t)detail.flavor)
+
 /*  RTAPI task functions  */
 RT_TASK ostask_array[RTAPI_MAX_TASKS + 1];
 
@@ -79,17 +84,17 @@ int xenomai_task_update_stats_hook(void)
     rtapi_threadstatus_t *ts = &global_data->thread_status[task_id];
 
 #ifdef XENOMAI_V2
-    ts->flavor.xeno.modeswitches = rtinfo.modeswitches;
-    ts->flavor.xeno.ctxswitches = rtinfo.ctxswitches;
-    ts->flavor.xeno.pagefaults = rtinfo.pagefaults;
-    ts->flavor.xeno.exectime = rtinfo.exectime;
-    ts->flavor.xeno.status = rtinfo.status;
+    FTS(fts).modeswitches = rtinfo.modeswitches;
+    FTS(fts).ctxswitches = rtinfo.ctxswitches;
+    FTS(fts).pagefaults = rtinfo.pagefaults;
+    FTS(fts).exectime = rtinfo.exectime;
+    FTS(fts).status = rtinfo.status;
 #else
-    ts->flavor.xeno.modeswitches = rtinfo.stat.msw;
-    ts->flavor.xeno.ctxswitches = rtinfo.stat.csw;
-    ts->flavor.xeno.pagefaults = rtinfo.stat.pf;
-    ts->flavor.xeno.exectime = rtinfo.stat.xtime;
-    ts->flavor.xeno.status = rtinfo.stat.status;
+    FTS(fts).modeswitches = rtinfo.stat.msw;
+    FTS(fts).ctxswitches = rtinfo.stat.csw;
+    FTS(fts).pagefaults = rtinfo.stat.pf;
+    FTS(fts).exectime = rtinfo.stat.xtime;
+    FTS(fts).status = rtinfo.stat.status;
 #endif
 
     ts->num_updates++;
@@ -374,7 +379,7 @@ int xenomai_wait_hook(const int flags) {
 
 	rtapi_exception_detail_t detail = {0};
 	rtapi_threadstatus_t *ts = &global_data->thread_status[task_id];
-	rtapi_exception_t type;
+	xenomai_exception_id_t type;
 
 	// exception descriptor
 	detail.task_id = task_id;
@@ -385,11 +390,11 @@ int xenomai_wait_hook(const int flags) {
 	case -ETIMEDOUT:
 	    // release point was missed
 
-	    detail.flavor.xeno.overruns = overruns;
+	    FED(detail).overruns = overruns;
 
 	    // update thread status in global_data
-	    ts->flavor.xeno.wait_errors++;
-	    ts->flavor.xeno.total_overruns += overruns;
+	    FTS(fts).wait_errors++;
+	    FTS(fts).total_overruns += overruns;
 	    type = XU_ETIMEDOUT;
 	    break;
 
@@ -551,10 +556,21 @@ int user_in_xenomai_group()
     return 0;
 }
 
-int xenomi_flavor_check(void) {
+int xenomai_flavor_check(void) {
     // catch installation error: user not in xenomai group
-    int retval = user_in_xenomai_group()
+    int retval = user_in_xenomai_group();
 
+    if (sizeof(xenomai_stats_t) > MAX_FLAVOR_THREADSTATUS_SIZE) {
+        fprintf(stderr, "BUG:  MAX_FLAVOR_THREADSTATUS_SIZE too "
+                "small for Xenomai\n");
+        exit(1);
+    }
+
+    if (sizeof(xenomai_exception_t) > MAX_FLAVOR_EXCEPTION_SIZE) {
+        fprintf(stderr, "BUG:  MAX_FLAVOR_EXCEPTION_SIZE too "
+                "small for Xenomai\n");
+        exit(1);
+    }
 
     switch (retval) {
 	case 1:  // yes
@@ -575,7 +591,7 @@ int xenomi_flavor_check(void) {
 }
 
 
-void print_thread_stats(int task_id)
+void xenomai_print_thread_stats(int task_id)
 {
     rtapi_threadstatus_t *ts =
 	&global_data->thread_status[task_id];
@@ -587,33 +603,87 @@ void print_thread_stats(int task_id)
 	rtapi_print("other_err=%d\n", ts->api_errors);
     }
 
-    rtapi_print("    wait_errors=%d\t",
-                ts->flavor.xeno.wait_errors);
-    rtapi_print("overruns=%d\t",
-                ts->flavor.xeno.total_overruns);
-    rtapi_print("modeswitches=%d\t",
-                ts->flavor.xeno.modeswitches);
-    rtapi_print("contextswitches=%d\n",
-                ts->flavor.xeno.ctxswitches);
-    rtapi_print("    pagefaults=%d\t",
-                ts->flavor.xeno.pagefaults);
-    rtapi_print("exectime=%llduS\t",
-                ts->flavor.xeno.exectime/1000);
-    rtapi_print("status=0x%x\n",
-                ts->flavor.xeno.status);
+    rtapi_print("    wait_errors=%d\t", FTS(fts).wait_errors);
+    rtapi_print("overruns=%d\t", FTS(fts).total_overruns);
+    rtapi_print("modeswitches=%d\t", FTS(fts).modeswitches);
+    rtapi_print("contextswitches=%d\n", FTS(fts).ctxswitches);
+    rtapi_print("    pagefaults=%d\t", FTS(fts).pagefaults);
+    rtapi_print("exectime=%llduS\t", FTS(fts).exectime/1000);
+    rtapi_print("status=0x%x\n", FTS(fts).status);
     rtapi_print("\n");
 }
 
+
+void xenomai_exception_handler_hook(int type,
+                                    rtapi_exception_detail_t *detail,
+                                    int level)
+{
+    switch ((xenomai_exception_id_t)type) {
+        // Timing violations
+	case XU_ETIMEDOUT:
+            rtapi_print_msg(level,
+			    "%d: Unexpected realtime delay on RT thread %d ",
+                            type, detail->task_id);
+            xenomai_print_thread_stats(detail->task_id);
+	    break;
+	    // Xenomai User errors
+	case XU_SIGXCPU:	// Xenomai Domain switch
+	    rtapi_print_msg(level,
+			    "%d: Xenomai Domain switch for thread %d",
+			    type, detail->task_id);
+	    xenomai_print_thread_stats(detail->task_id);
+	    break;
+	case XU_EWOULDBLOCK:
+	    rtapi_print_msg(level,
+			    "API usage bug: rt_task_set_periodic() not called: "
+			    "thread %d - errno %d",
+			    detail->task_id,
+			    detail->error_code);
+	    break;
+
+	case XU_EINTR:
+	    rtapi_print_msg(level,
+			    "API usage bug: rt_task_unblock() called before"
+			    " release point: thread %d -errno %d",
+			    detail->task_id,
+			    detail->error_code);
+	    break;
+
+	case XU_EPERM:
+	    rtapi_print_msg(level,
+			    "API usage bug: cannot call service from current"
+			    " context: thread %d - errno %d",
+			    detail->task_id,
+			    detail->error_code);
+	    break;
+
+	case XU_UNDOCUMENTED:
+	    rtapi_print_msg(level,
+			    "%d: unspecified Xenomai error: thread %d - errno %d",
+			    type,
+			    detail->task_id,
+			    detail->error_code);
+	    break;
+ 
+	default:
+	    rtapi_print_msg(level,
+			    "%d: unspecified exception detail=%p ts=%p",
+			    type, detail, ts);
+   }
+}
 
 flavor_descriptor_t flavor_rt_prempt_descriptor = {
     .name = "xenomai",
     .flavor_id = RTAPI_XENOMAI_ID,
     .flags = FLAVOR_DOES_IO,
+    .has_rt = 1,
     .time_no_clock_monotonic = 1,
     .can_run_flavor = xenomai_can_run_flavor,
+    .exception_handler_hook = xenomai_exception_handler_hook,
     .module_init_hook = xenomai_module_init_hook,
     .module_exit_hook = xenomai_module_exit_hook,
     .task_update_stats_hook = xenomai_update_stats_hook,
+    .print_thread_stats_hook = xenomai_print_thread_stats,
     .task_new_hook = NULL,
     .task_delete_hook = xenomai_task_delete_hook,
     .task_start_hook = xenomai_task_start_hook,

@@ -20,6 +20,7 @@
 #include "motion.h"
 #include "mot_priv.h"
 #include "rtapi_math.h"
+#include "rtapi_flavor.h"       // flavor_descriptor
 #include "tp.h"
 #include "tc.h"
 #include "motion_debug.h"
@@ -254,7 +255,7 @@ extern int emcmotController(void *arg,  const hal_funct_args_t *fa)
     emcmot_hal_data->last_period_ns = this_run * 1e6 / cpu_khz;
 #endif
 
-    if(!priming && (rtapi_switch->thread_flavor_id != RTAPI_POSIX_ID)) {
+    if(!priming && flavor_descriptor->has_rt) {
         // we have CYCLE_HISTORY samples, so check for this call being 
         // anomolously late
         int i;

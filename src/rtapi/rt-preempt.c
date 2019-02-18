@@ -52,6 +52,11 @@
 // if this exists, and contents is '1', it's RT_PREEMPT
 #define PREEMPT_RT_SYSFS "/sys/kernel/realtime"
 
+// Access the rtpreempt_stats_t thread status object
+#define FTS(ts) ((rtpreempt_stats_t *)&(ts->flavor))
+// Access the rtpreempt_exception_t thread exception detail object
+#define FED(detail) ((rtpreempt_exception_t)detail.flavor)
+
 /* Lock for task_array and module_array allocations */
 static pthread_key_t task_key;
 static pthread_once_t task_key_once = PTHREAD_ONCE_INIT;
@@ -141,17 +146,17 @@ int posix_task_update_stats_hook(void)
 
     rtapi_threadstatus_t *ts = &global_data->thread_status[task_id];
 
-    ts->flavor.rtpreempt.utime_usec = ru.ru_utime.tv_usec;
-    ts->flavor.rtpreempt.utime_sec  = ru.ru_utime.tv_sec;
+    FTS(ts)->utime_usec = ru.ru_utime.tv_usec;
+    FTS(ts)->utime_sec  = ru.ru_utime.tv_sec;
 
-    ts->flavor.rtpreempt.stime_usec = ru.ru_stime.tv_usec;
-    ts->flavor.rtpreempt.stime_sec  = ru.ru_stime.tv_sec;
+    FTS(ts)->stime_usec = ru.ru_stime.tv_usec;
+    FTS(ts)->stime_sec  = ru.ru_stime.tv_sec;
 
-    ts->flavor.rtpreempt.ru_minflt = ru.ru_minflt;
-    ts->flavor.rtpreempt.ru_majflt = ru.ru_majflt;
-    ts->flavor.rtpreempt.ru_nsignals = ru.ru_nsignals;
-    ts->flavor.rtpreempt.ru_nivcsw = ru.ru_nivcsw;
-    ts->flavor.rtpreempt.ru_nivcsw = ru.ru_nivcsw;
+    FTS(ts)->ru_minflt = ru.ru_minflt;
+    FTS(ts)->ru_majflt = ru.ru_majflt;
+    FTS(ts)->ru_nsignals = ru.ru_nsignals;
+    FTS(ts)->ru_nivcsw = ru.ru_nivcsw;
+    FTS(ts)->ru_nivcsw = ru.ru_nivcsw;
 
     ts->num_updates++;
 
@@ -356,8 +361,7 @@ static void *realtime_thread(void *arg) {
                         task->name, task->cgname);
     }
     if (!(task->flags & TF_NONRT)) {
-	if (realtime_set_priority(task) &&
-            global_data->rtapi_thread_flavor == RTAPI_POSIX_ID) {
+	if (realtime_set_priority(task) && !flavor_descriptor->has_rt) {
             // This requires privs - tell user how to obtain them
 	    rtapi_print_msg(
                 RTAPI_MSG_ERR,
@@ -396,9 +400,9 @@ static void *realtime_thread(void *arg) {
 	} else {
 	    rtapi_threadstatus_t *ts =
 		&global_data->thread_status[task_id(task)];
-	    ts->flavor.rtpreempt.startup_ru_nivcsw = ru.ru_nivcsw;
-	    ts->flavor.rtpreempt.startup_ru_minflt = ru.ru_minflt;
-	    ts->flavor.rtpreempt.startup_ru_majflt = ru.ru_majflt;
+	    FTS(ts)->startup_ru_nivcsw = ru.ru_nivcsw;
+	    FTS(ts)->startup_ru_minflt = ru.ru_minflt;
+	    FTS(ts)->startup_ru_majflt = ru.ru_majflt;
 	}
     }
 
@@ -488,9 +492,9 @@ int posix_wait_hook(const int flags) {
 	rtapi_threadstatus_t *ts =
 	    &global_data->thread_status[task_id(task)];
 
-	ts->flavor.rtpreempt.wait_errors++;
+	FTS(ts)->wait_errors++;
 
-        if (global_data->rtapi_thread_flavor == RTAPI_POSIX_ID) {
+        if (!flavor_descriptor->has_rt) {
             rtapi_exception_detail_t detail = {0};
             detail.task_id = task_id(task);
 
@@ -564,14 +568,26 @@ int kernel_is_rtpreempt()
     return retval;
 }
 
-int rtpreempt_can_run_flavor()
-{
-    return kernel_is_rtpreempt();
-}
-
 int posix_can_run_flavor()
 {
+    if (sizeof(rtpreempt_stats_t) > MAX_FLAVOR_THREADSTATUS_SIZE) {
+        fprintf(stderr, "BUG:  MAX_FLAVOR_THREADSTATUS_SIZE too "
+                "small for POSIX/RT_PREEMPT threads\n");
+        exit(1);
+    }
+
+    if (sizeof(rtpreempt_exception_t) > MAX_FLAVOR_EXCEPTION_SIZE) {
+        fprintf(stderr, "BUG:  MAX_FLAVOR_EXCEPTION_SIZE too "
+                "small for POSIX/RT_PREEMPT threads\n");
+        exit(1);
+    }
+
     return 1;
+}
+
+int rtpreempt_can_run_flavor()
+{
+    return posix_can_run_flavor() && kernel_is_rtpreempt();
 }
 
 
@@ -581,35 +597,58 @@ void print_thread_stats(int task_id)
 	&global_data->thread_status[task_id];
 
     rtapi_print("    wait_errors=%d\t",
-                ts->flavor.rtpreempt.wait_errors);
+                FTS(ts)->wait_errors);
     rtapi_print("usercpu=%lduS\t",
-                ts->flavor.rtpreempt.utime_sec * 1000000 +
-                ts->flavor.rtpreempt.utime_usec);
+                FTS(ts)->utime_sec * 1000000 +
+                FTS(ts)->utime_usec);
     rtapi_print("syscpu=%lduS\t",
-                ts->flavor.rtpreempt.stime_sec * 1000000 +
-                ts->flavor.rtpreempt.stime_usec);
+                FTS(ts)->stime_sec * 1000000 +
+                FTS(ts)->stime_usec);
     rtapi_print("nsigs=%ld\n",
-                ts->flavor.rtpreempt.ru_nsignals);
+                FTS(ts)->ru_nsignals);
     rtapi_print("    ivcsw=%ld\t",
-                ts->flavor.rtpreempt.ru_nivcsw -
-                ts->flavor.rtpreempt.startup_ru_nivcsw);
+                FTS(ts)->ru_nivcsw -
+                FTS(ts)->startup_ru_nivcsw);
     rtapi_print("    minflt=%ld\t",
-                ts->flavor.rtpreempt.ru_minflt -
-                ts->flavor.rtpreempt.startup_ru_minflt);
+                FTS(ts)->ru_minflt -
+                FTS(ts)->startup_ru_minflt);
     rtapi_print("    majflt=%ld\n",
-                ts->flavor.rtpreempt.ru_majflt -
-                ts->flavor.rtpreempt.startup_ru_majflt);
+                FTS(ts)->ru_majflt -
+                FTS(ts)->startup_ru_majflt);
     rtapi_print("\n");
 }
 
 
+void rtpreempt_exception_handler_hook(int type,
+                                      rtapi_exception_detail_t *detail,
+                                      int level)
+{
+    rtapi_threadstatus_t *ts = &global_data->thread_status[detail->task_id];
+    switch ((rtpreempt_exception_id_t)type) {
+        // Timing violations
+	case RTP_DEADLINE_MISSED:
+	     rtapi_print_msg(level,
+			    "%d: Unexpected realtime delay on RT thread %d ",
+			     type, detail->task_id);
+	    print_thread_stats(detail->task_id);
+	    break;
+
+	default:
+	    rtapi_print_msg(level,
+			    "%d: unspecified exception detail=%p ts=%p",
+			    type, detail, ts);
+
+    }
+}
 
 flavor_descriptor_t flavor_rt_prempt_descriptor = {
     .name = "rt-preempt",
-    .flavor_id = RTAPI_RT_PREEMPT_ID,
+    .flavor_id = RTAPI_FLAVOR_RT_PREEMPT_ID,
     .flags = FLAVOR_DOES_IO,
+    .has_rt = 1,
     .time_no_clock_monotonic = 0,
     .can_run_flavor = rtpreempt_can_run_flavor,
+    .exception_handler_hook = rtpreempt_exception_handler_hook,
     .module_init_hook = NULL,
     .module_exit_hook = NULL,
     .task_update_stats_hook = NULL,
@@ -635,10 +674,12 @@ flavor_descriptor_t flavor_rt_prempt_descriptor = {
 
 flavor_descriptor_t flavor_posix_descriptor = {
     .name = "posix",
-    .flavor_id = RTAPI_POSIX_ID,
+    .flavor_id = RTAPI_FLAVOR_POSIX_ID,
     .flags = 0,
+    .has_rt = 0,
     .time_no_clock_monotonic = 0,
     .can_run_flavor = posix_can_run_flavor,
+    .exception_handler_hook = NULL,
     .module_init_hook = NULL,
     .module_exit_hook = NULL,
     .task_update_stats_hook = NULL,

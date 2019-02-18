@@ -2,7 +2,7 @@
 #define RTAPI_H
 
 /** RTAPI is a library providing a uniform API for several real time
-    operating systems.  As of ver 2.0, RTLinux and RTAI are supported.
+    operating systems.
 */
 /********************************************************************
 * Description:  rtapi.h
@@ -185,7 +185,6 @@ static inline shmoff_t shm_off(const void *base, const void *p) {
 /***********************************************************************
 *                    INIT AND EXIT FUNCTIONS                           *
 ************************************************************************/
-/* implemented in $THREADS.c (rt-preempt.c, xenomai.c, etc.) */
 
 /** 'rtapi_init() sets up the RTAPI.  It must be called by any
     module that intends to use the API, before any other RTAPI

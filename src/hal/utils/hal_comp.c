@@ -71,7 +71,7 @@ hal_comp_t *halg_xinitfv(const int use_hal_mutex,
 
     // sanity: these must have been inited before by the
     // respective rtapi.so/.ko module
-    PCHECK_NULL(rtapi_switch);
+    HAL_ASSERT(flavor_is_configured());
 
     if ((dtor != NULL) && (ctor == NULL)) {
 	HALFAIL_NULL(EINVAL,"component '%s': NULL constructor doesnt make"

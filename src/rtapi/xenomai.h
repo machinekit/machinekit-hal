@@ -21,4 +21,44 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ********************************************************************/
 
+typedef enum {
+    XU_EXCEPTION_NONE=0,
+
+    XU_SIGXCPU,       // RT task switched to secondary domain
+    XU_SIGXCPU_BUG,   // same, but failed to identify RT thread
+    XU_ETIMEDOUT,     // release point was missed
+    XU_EWOULDBLOCK,   // rt_task_wait_period() without previous rt_task_set_periodic()
+    XU_EINTR,         // rt_task_unblock() called before release point
+    XU_EPERM,         // cannot rt_task_wait_period() from this context
+    XU_UNDOCUMENTED,  // unknown error code
+
+    XU_EXCEPTION_LAST,
+
+} xenomai_exception_id_t;
+
+typedef struct {
+    // passed by ref from rt_task_wait_period()
+    unsigned long overruns;
+} xenomai_exception_t;
+
+
+typedef struct {
+    // as reported by rt_task_inquire()
+    // filled in by rtapi_thread_updatestats(task_id) RTAPI call (TBD)
+    int modeswitches;
+    int ctxswitches;
+    int pagefaults;
+    long long exectime;    // Execution time in primary mode in nanoseconds.
+    unsigned status;       // T_BLOCKED etc.
+
+    // errors returned by rt_task_wait_period():
+    // set by -ETIMEDOUT:
+    int wait_errors; 	// total times the release point was missed
+    int total_overruns;	// running count of the above
+    // the -EWOULDBLOCK and -EINTR returns are API violations
+    // and increment api_errors
+
+    // all others increment other_errors
+} xenomai_stats_t;
+
 extern flavor_descriptor_t flavor_xenomai_descriptor;

@@ -16,8 +16,7 @@ INCLUDES += rtapi rtapi_export
 
 HEADERS += \
 	rtapi/rtapi_flavor.h \
-	rtapi/rt-preempt.h \
-	rtapi/xenomai.h
+	rtapi/rt-preempt.h
 
 ##########################################
 # Clean up
@@ -56,7 +55,6 @@ XXAPI_COMMON_SRCS := $(patsubst %, rtapi/%, \
 ULAPI_SRCS := \
 	rtapi/ulapi_autoload.c \
 	rtapi/rtapi_compat.c \
-	rtapi/rtapi_hexdump.c \
 	rtapi/rtapi_support.c \
 	machinetalk/lib/syslog_async.c \
 	$(XXAPI_COMMON_SRCS) \
@@ -170,24 +168,34 @@ TARGETS += $(ULAPI_LIB) $(ULAPI_LIB).0
 # could resolve first instead of with the RT symbol space, which is undesirable.
 
 
-RTAPI_APP_SRCS := \
+RTAPI_LIB_SRCS := \
 	$(XXAPI_COMMON_SRCS) \
+	rtapi/rtapi_compat.c \
 	rtapi/rtapi_flavor.c \
-	rtapi/rtapi_app.cc \
-	rtapi/rtapi_compat.c \
-	rtapi/rtapi_hexdump.c \
-	rtapi/rtapi_support.c \
 	rtapi/rt-preempt.c \
-	rtapi/rtapi_compat.c \
+	rtapi/rtapi_main.c \
 	machinetalk/support/nanopb.c \
 	machinetalk/nanopb/pb_decode.c \
 	machinetalk/nanopb/pb_encode.c \
 	machinetalk/nanopb/pb_common.c
 
+ifeq ($(USERMODE_PCI),yes)
+# link userland PCI support into rtapi_app
+RTAPI_LIB_SRCS += rtapi/rtapi_pci.c
+endif
 
 ifeq ($(HAVE_XENOMAI_THREADS),yes)
-RTAPI_APP_SRCS += rtapi/xenomai.c
+RTAPI_LIB_SRCS += rtapi/xenomai.c
+HEADERS += rtapi/xenomai.h
 endif
+
+# Build RTAPI_LIB_SRCS with -DRTAPI
+RTAPI_LIB_OBJS := $(patsubst %.c,%.o,$(RTAPI_LIB_SRCS))
+RTOBJS += $(addprefix $(OBJDIR)/,$(RTAPI_LIB_OBJS))
+
+
+RTAPI_APP_SRCS := \
+	rtapi/rtapi_app.cc
 
 USERSRCS += $(RTAPI_APP_SRCS)
 
@@ -207,14 +215,12 @@ ifeq ($(USERMODE_PCI),yes)
 # compile userland PCI support with udev cflags if any
 $(call TOOBJSDEPS, rtapi/rtapi_pci.c): EXTRAFLAGS += $(LIBUDEV_CFLAGS)
 
-# link userland PCI support into rtapi_app
-RTAPI_APP_SRCS += rtapi/rtapi_pci.c
-
 # userland PCI support needs -ludev for rtapi.so
 ../libexec/rtapi_app:  LDFLAGS += $(LIBUDEV_LIBS)
 endif
 
 ../libexec/rtapi_app: \
+	$(addprefix $(OBJDIR)/,$(RTAPI_LIB_OBJS)) \
 	$(call TOOBJS, $(RTAPI_APP_SRCS)) \
 	../lib/liblinuxcncini.so.0 \
 	../lib/liblinuxcncshm.so \
@@ -236,25 +242,6 @@ endif
 #	$(LIBBACKTRACE) # already linked into libmtalk
 
 modules:  ../libexec/rtapi_app
-
-##################################################################
-#                     the kdetect test program
-##################################################################
-RTAPI_KDETECT_SRCS =  rtapi/rtapi_kdetect.c
-USERSRCS += $(RTAPI_KDETECT_SRCS)
-RTAPI_KDETECT_OBJS := \
-	$(call TOOBJS, $(RTAPI_KDETECT_SRCS))
-
-$(call TOOBJSDEPS, $(RTAPI_KDETECT_SRCS)): \
-	EXTRAFLAGS += -DTEST
-
-# Build target
-../libexec/kdetect: $(RTAPI_KDETECT_OBJS)  ../lib/liblinuxcnchal.so
-	$(ECHO) Linking $(notdir $@)
-	@mkdir -p $(dir $@)
-	$(Q)$(CC)  $(LDFLAGS) -o $@ $^ -lrt -ldl
-
-TARGETS += ../libexec/kdetect
 
 ##################################################################
 #                     the rtapi message demon

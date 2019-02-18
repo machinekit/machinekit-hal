@@ -22,5 +22,42 @@
 
 #include "rtapi_flavor.h"
 
+typedef enum {
+    RTP_EXCEPTION_NONE=0,
+
+    RTP_DEADLINE_MISSED, // clock_gettime(CLOCK_MONOTONIC) returned 'too late'
+
+    RTP_EXCEPTION_LAST,
+
+} rtpreempt_exception_id_t;
+
+typedef struct {
+    // RTP_SIGNAL: unhandled signal: siginfo_t reference
+    // currently unused - signals handled in rtapi_app
+    void *siginfo;
+} rtpreempt_exception_t;
+
+typedef struct {
+
+    int wait_errors; // RT deadline missed
+
+    // filled in by rtapi_thread_update_stats() RTAPI method
+    long utime_sec;      // user CPU time used
+    long utime_usec;
+
+    long stime_sec;      // system CPU time used
+    long stime_usec;
+
+    long ru_minflt;        // page reclaims (soft page faults)
+    long ru_majflt;        // page faults (hard page faults)
+    long ru_nsignals;      // signals received
+    long ru_nivcsw;        // involuntary context switches
+
+    long startup_ru_minflt; // page fault counts at end of
+    long startup_ru_majflt; // initalisation
+    long startup_ru_nivcsw; //
+
+} rtpreempt_stats_t;
+
 extern flavor_descriptor_t flavor_rt_prempt_descriptor;
 extern flavor_descriptor_t flavor_posix_descriptor;

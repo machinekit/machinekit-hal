@@ -18,7 +18,6 @@
 
 
 #include <stdio.h>		// snprintf
-#include <dlfcn.h>              // for dlopen/dlsym ulapi-$THREADSTYLE.so
 #include <assert.h>
 #include <limits.h>             // PATH_MAX
 #include <stdlib.h>		// exit()

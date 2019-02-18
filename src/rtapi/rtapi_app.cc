@@ -168,7 +168,6 @@ static AvahiCzmqPoll *av_loop;
 
 // NB: do _not_ call any rtapi_* methods before these variables are set
 // except for rtapi_msg* and friends.
-global_data_t *global_data;
 static const char *rpath;
 static int init_actions(int instance);
 static void exit_actions(int instance);
