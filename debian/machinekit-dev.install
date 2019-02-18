@@ -1,6 +1,3 @@
-#usr/lib/linuxcnc/xenomai
-usr/lib/linuxcnc/ulapi-xenomai.so
-usr/libexec/linuxcnc/rtapi_app_xenomai
 usr/include/linuxcnc/*.hh
 usr/include/linuxcnc/*.h
 usr/lib/*.a

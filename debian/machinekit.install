@@ -20,8 +20,8 @@ usr/lib/python*/*/fdm/config/*.py
 usr/libexec/linuxcnc/pci_read
 usr/libexec/linuxcnc/pci_write
 usr/libexec/linuxcnc/inivar
-usr/libexec/linuxcnc/flavor
 usr/libexec/linuxcnc/rtapi_msgd
+usr/libexec/linuxcnc/rtapi_app
 usr/share/axis/images/*
 usr/share/axis/tcl/*
 usr/share/glade3
@@ -30,6 +30,7 @@ usr/share/doc/linuxcnc/xlinuxcnc.asciidoc
 usr/share/doc/linuxcnc/tklinuxcnc.asciidoc
 usr/share/doc/linuxcnc/README.axis
 usr/share/linuxcnc/*
+usr/share/machinekit
 usr/share/linuxcnc/stepconf/*.glade
 usr/share/locale/*/LC_MESSAGES/*.mo
 usr/share/gtksourceview-2.0/

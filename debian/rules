@@ -38,17 +38,11 @@ SHLIBDEPS_X += libcanterp.so.0 librs274.so.0
 # several libs that aren't used (but several that are needed)
 SHLIBDEPS_X += halmeter classicladder halscope
 
-# Enable/disable thread flavors; all flavors disabled by default
-THREADS_POSIX = --without-posix
-THREADS_RT_PREEMPT = --without-rt-preempt
-THREADS_XENOMAI = --without-xenomai
-
-# Kernel threads need a list of configured header source directories
-# for each architecture
-#
-# Multiples should be space-separated
-#
+# Cross-compile variables
 DEB_HOST_ARCH := $(shell dpkg-architecture -qDEB_HOST_ARCH)
+
+# Pick up dynamically-configured variables, like Xenomai
+-include rules.include
 
 # Parallel make
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
@@ -87,9 +81,6 @@ build-stamp: debian/control
 	    ./configure --prefix=/usr \
 	    --build=$(DEB_BUILD_MULTIARCH) \
 	    --host=$(DEB_HOST_MULTIARCH) \
-	    $(THREADS_POSIX) \
-	    $(THREADS_RT_PREEMPT) \
-	    $(THREADS_XENOMAI) \
 	    --sysconfdir=/etc \
 	    --mandir=/usr/share/man \
 	    --enable-emcweb
@@ -109,9 +100,6 @@ ifneq ($(wildcard src/configure src/Makefile.inc),)
 	    ./configure --prefix=/usr \
 	    --build=$(DEB_BUILD_MULTIARCH) \
 	    --host=$(DEB_HOST_MULTIARCH) \
-	    $(THREADS_POSIX) \
-	    $(THREADS_RT_PREEMPT) \
-	    $(THREADS_XENOMAI) \
 	    --sysconfdir=/etc \
 	    --mandir=/usr/share/man \
 	    --enable-emcweb
