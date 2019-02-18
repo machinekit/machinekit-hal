@@ -57,6 +57,10 @@
 // Access the rtpreempt_exception_t thread exception detail object
 #define FED(detail) ((rtpreempt_exception_t)detail.flavor)
 
+// Check the exception and stats struct sizes
+ASSERT_SIZE_WITHIN(rtpreempt_exception_t, MAX_FLAVOR_EXCEPTION_SIZE);
+ASSERT_SIZE_WITHIN(rtpreempt_stats_t, MAX_FLAVOR_THREADSTATUS_SIZE);
+
 /* Lock for task_array and module_array allocations */
 static pthread_key_t task_key;
 static pthread_once_t task_key_once = PTHREAD_ONCE_INIT;
@@ -98,7 +102,7 @@ long long int posix_get_clocks_hook(void)
 
 
 #ifdef RTAPI
-void posix_module_init_hook(void)
+int posix_module_init_hook(void)
 {
     int ret;
 
@@ -109,9 +113,10 @@ void posix_module_init_hook(void)
     else
         rtapi_print_msg(RTAPI_MSG_INFO, "libcgroup initialization failed: (%d) %s\n",
                         ret, cgroup_strerror(ret));
+    return ret;
 }
 #else
-void posix_module_init_hook(void) {}
+int posix_module_init_hook(void) { return 0; }
 #endif
 
 #ifdef RTAPI
@@ -570,24 +575,12 @@ int kernel_is_rtpreempt()
 
 int posix_can_run_flavor()
 {
-    if (sizeof(rtpreempt_stats_t) > MAX_FLAVOR_THREADSTATUS_SIZE) {
-        fprintf(stderr, "BUG:  MAX_FLAVOR_THREADSTATUS_SIZE too "
-                "small for POSIX/RT_PREEMPT threads\n");
-        exit(1);
-    }
-
-    if (sizeof(rtpreempt_exception_t) > MAX_FLAVOR_EXCEPTION_SIZE) {
-        fprintf(stderr, "BUG:  MAX_FLAVOR_EXCEPTION_SIZE too "
-                "small for POSIX/RT_PREEMPT threads\n");
-        exit(1);
-    }
-
     return 1;
 }
 
 int rtpreempt_can_run_flavor()
 {
-    return posix_can_run_flavor() && kernel_is_rtpreempt();
+    return kernel_is_rtpreempt();
 }
 
 
@@ -644,12 +637,10 @@ void rtpreempt_exception_handler_hook(int type,
 flavor_descriptor_t flavor_rt_prempt_descriptor = {
     .name = "rt-preempt",
     .flavor_id = RTAPI_FLAVOR_RT_PREEMPT_ID,
-    .flags = FLAVOR_DOES_IO,
-    .has_rt = 1,
-    .time_no_clock_monotonic = 0,
+    .flags = FLAVOR_DOES_IO + FLAVOR_IS_RT,
     .can_run_flavor = rtpreempt_can_run_flavor,
     .exception_handler_hook = rtpreempt_exception_handler_hook,
-    .module_init_hook = NULL,
+    .module_init_hook = posix_module_init_hook,
     .module_exit_hook = NULL,
     .task_update_stats_hook = NULL,
     .print_thread_stats_hook = print_thread_stats,
@@ -676,8 +667,6 @@ flavor_descriptor_t flavor_posix_descriptor = {
     .name = "posix",
     .flavor_id = RTAPI_FLAVOR_POSIX_ID,
     .flags = 0,
-    .has_rt = 0,
-    .time_no_clock_monotonic = 0,
     .can_run_flavor = posix_can_run_flavor,
     .exception_handler_hook = NULL,
     .module_init_hook = NULL,

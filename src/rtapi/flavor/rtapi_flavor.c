@@ -1,8 +1,13 @@
 #include <stdlib.h> // getenv
 #include <stdio.h>  // fprintf
 
+#ifdef ULAPI
+#include "ulapi.h"
+#endif
+#ifdef RTAPI
 #include "rtapi_flavor.h"
 #include "rt-preempt.h"
+#endif
 #ifdef HAVE_XENOMAI_THREADS
 #include "xenomai.h"
 #endif
@@ -10,6 +15,9 @@
 flavor_descriptor_ptr flavor_descriptor = NULL;
 
 static flavor_descriptor_ptr flavor_list[] = {
+#ifdef ULAPI
+    &flavor_ulapi_descriptor,
+#endif
 #ifdef RTAPI
 #  ifdef HAVE_XENOMAI_THREADS
     &flavor_xenomai_descriptor,
@@ -76,7 +84,8 @@ rtapi_flavor_id_t default_flavor(void)
 
     // Find best flavor
     for (flavor = flavor_list; flavor != NULL; flavor++) {
-        if ((*flavor)->flavor_id > flavor_id && (*flavor)->can_run_flavor())
+        if ((*flavor)->flavor_id > flavor_id &&
+            ((*flavor)->can_run_flavor == NULL || (*flavor)->can_run_flavor()))
             flavor_id = (*flavor)->flavor_id;
     }
     if (!flavor_id) {

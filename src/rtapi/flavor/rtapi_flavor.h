@@ -18,12 +18,28 @@ typedef enum RTAPI_FLAVOR_ID {
 } rtapi_flavor_id_t;
 
 
-#define  FLAVOR_DOES_IO        RTAPI_BIT(0) // userland: whether iopl() needs to be called
+// Flavor features:  flavor_descriptor_t.flags bits for configuring flavor
+// - Handy accessor
+#define FLAVOR_FEATURE(f) (flavor_descriptor->flags & f)
+// - Whether iopl() needs to be called
+#define  FLAVOR_DOES_IO                    RTAPI_BIT(0)
+// - Whether flavor has hard real-time latency
+#define  FLAVOR_IS_RT                      RTAPI_BIT(1)
+// - Whether flavor has hard real-time latency
+#define  FLAVOR_TIME_NO_CLOCK_MONOTONIC    RTAPI_BIT(2)
+// - Whether flavor runs outside RTAPI threads
+#define  FLAVOR_NOT_RTAPI                  RTAPI_BIT(3)
+
+// The exception code puts structs in shm in an opaque blob; this is used to
+// check the allocated storage is large enough
+// https://stackoverflow.com/questions/807244/
+#define ASSERT_SIZE_WITHIN(type, size) \
+    typedef char assertion_failed_##type##_[2*!!(sizeof(type) <= size)-1]
 
 typedef int (*rtapi_can_run_flavor_t)(void);
 typedef void (*rtapi_exception_handler_hook_t)(
     int type, rtapi_exception_detail_t *detail, int level);
-typedef void (*rtapi_module_init_hook_t)(void);
+typedef int (*rtapi_module_init_hook_t)(void);
 typedef void (*rtapi_module_exit_hook_t)(void);
 typedef int (*rtapi_task_update_stats_hook_t)(void);
 typedef void (*rtapi_print_thread_stats_hook_t)(int task_id);
