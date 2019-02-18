@@ -13,6 +13,8 @@ INIVAR=@EMC2_LIBEXEC_DIR@/inivar
 PIDOF=@PIDOF@
 PS=@PS@
 AWK=@AWK@
+rtapi_msgd=@EMC2_LIBEXEC_DIR@/rtapi_msgd
+rtapi_app=@EMC2_LIBEXEC_DIR@/rtapi_app
 
 # if not overridden by user, point MACHINEKIT_INI to installed default:
 if [ -z "$MACHINEKIT_INI" ]; then
@@ -32,31 +34,11 @@ fi
 
 # Helper function to get variables from config
 getvar() {
-    # getvar <variable> [ --flavor ]
-    # set variable from rtapi_ini;
-    # with --flavor, if $FLAVOR is set, look in the [flavor_$FLAVOR] section
+    # getvar <variable>
+    # set variable from rtapi_ini
     var=$1
-    flav_var=$2
-
-    if test "$flav_var" = "--flavor" -a ! -z "$FLAVOR"; then
-	SEC="-sec flavor_$FLAVOR"
-    else
-	SEC=""
-    fi
-
-    eval "$var='$($INIVAR -var $var -ini $RTAPI_INI $SEC 2>/dev/null)'"
+    eval "$var='$($INIVAR -var $var -ini $RTAPI_INI 2>/dev/null)'"
 }
-
-# Fill in other variable values
-#
-# Executables
-getvar flavor
-getvar rtapi_msgd
-#getvar halcmd
-
-# Flavor configuration
-FLAVOR=$($flavor)
-getvar rtapi_app --flavor
 
 # catch this common error early on:
 if ! test -u ${rtapi_app}
@@ -172,7 +154,7 @@ Load(){
     "${cmd[@]}" || (
 	e=$?; echo "rtapi_msgd startup failed - aborting" >&2; exit $e)
 
-    # rtapi_app_<flavor>
+    # rtapi_app
     local cmd=(${rtapi_app} --instance=$MK_INSTANCE $RTAPI_APP_OPTS)
     if [ $DEBUG -gt 0 ] ; then
 	echo "rtapi_app command:  ${cmd[@]}" >&2
@@ -238,7 +220,7 @@ Unload(){
 CheckUnloaded(){
 
     # if msgd:$MK_INSTANCE is still around, this might still be a running instance
-    # after all - this applies to all flavors - msgd is always there, so cop out
+    # after all - msgd is always there, so cop out
 
 
     if CheckRunningProcs msgd:$MK_INSTANCE; then
