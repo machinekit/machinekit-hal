@@ -115,11 +115,8 @@ int lib_mem_id = -1;	/* RTAPI shmem ID for library module */
 // to run before any HAL/RTAPI activity starts, and until after it ends.
 // RTAPI cannot execute without the global segment existing and attached.
 
-// depending on ULAP/ vs RTAPI and thread system (userland vs kthreads)
-// the way how
-// pointer to the global data segment, initialized by calling the
-// the ulapi.so ulapi_main() method (ULAPI) or by external reference
-// to the instance module (kernel modes)
+// The pointer to the global data segment is initialized by calling
+// rtapi_module_init()
 
 
 // defined(RTAPI)
@@ -231,9 +228,6 @@ static void  __attribute__ ((destructor))  ulapi_hal_lib_cleanup(void)
     HALDBG("lib_module_id=%d", lib_module_id);
     if (lib_module_id > -1)
 	hal_exit(lib_module_id);
-
-    // shut down ULAPI
-    ulapi_cleanup();
 }
 #endif
 

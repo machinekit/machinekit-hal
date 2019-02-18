@@ -85,7 +85,7 @@ objects/%.c: %.comp ../bin/comp
 define comp_build_rules
 $$(patsubst $$(dir $(1))%.comp,%-objs,$(1)) := \
     $$(patsubst %.comp,objects/%.o,$(1))
-$$(patsubst $(dir $(1))%.comp,$(RTLIBDIR)/%$(MODULE_EXT),$(1)): \
+$$(patsubst $(dir $(1))%.comp,$(RTLIBDIR)/%.so,$(1)): \
     $(OBJDIR)/objects/$$(patsubst %.comp,%.o,$(1))
 
 endef
@@ -107,7 +107,10 @@ $(eval $(foreach comp,$(MSG_COMPS),$(call comp_build_rules,$(comp))))
 HALSTREAMERSRCS := hal/components/streamer_usr.c
 USERSRCS += $(HALSTREAMERSRCS)
 
-../bin/halstreamer: $(call TOOBJS, $(HALSTREAMERSRCS)) ../lib/liblinuxcnchal.so.0
+../bin/halstreamer: \
+		$(call TOOBJS, $(HALSTREAMERSRCS)) \
+		../lib/liblinuxcnchal.so.0 \
+		../lib/liblinuxcnculapi.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/halstreamer
@@ -115,7 +118,10 @@ TARGETS += ../bin/halstreamer
 HALSAMPLERSRCS := hal/components/sampler_usr.c
 USERSRCS += $(HALSAMPLERSRCS)
 
-../bin/halsampler: $(call TOOBJS, $(HALSAMPLERSRCS)) ../lib/liblinuxcnchal.so.0
+../bin/halsampler: \
+		$(call TOOBJS, $(HALSAMPLERSRCS)) \
+		../lib/liblinuxcnchal.so.0 \
+		../lib/liblinuxcnculapi.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/halsampler

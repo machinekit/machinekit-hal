@@ -23,6 +23,7 @@
 #include "rtapi.h"
 #include "rtapi_common.h"
 #include "rtapi_compat.h"
+#include "shmdrv.h"  /* common shm driver API */
 #include "ring.h"
 
 /* these pointers are initialized at startup to point
@@ -43,13 +44,21 @@ task_data *task_array =  local_rtapi_data.task_array;
 shmem_data *shmem_array = local_rtapi_data.shmem_array;
 module_data *module_array = local_rtapi_data.module_array;
 
-// RTAPI:
-// global_data is exported by rtapi_module.c (kthreads)
-// or rtapi_main.c (uthreads)
-// ULAPI: exported in ulapi_autoload.c
-extern global_data_t *global_data;
+int rtapi_instance;                             // instance id, visible throughout RTAPI
 
-int shmdrv_loaded;  // set in rtapi_app_main, and ulapi_main
+global_data_t *global_data = NULL;              // visible to all RTAPI modules
+struct rtapi_heap *global_heap = NULL;
+
+ringbuffer_t rtapi_message_buffer;   // error ring access strcuture
+
+#ifdef ULAPI
+// use 'ULAPI_DEBUG=<level> <hal binary/Python>' to trace ulapi loading
+static int ulapi_debug = RTAPI_MSG_NONE;
+#endif
+
+#define LOGTAG (FLAVOR_FEATURE(FLAVOR_NOT_RTAPI) ? "ULAPI" : "RTAPI")
+
+int shmdrv_loaded;  // set in rtapi_app_main FIXME
 long page_size;     // set in rtapi_app_main
 
 void rtapi_autorelease_mutex(void *variable)
@@ -124,10 +133,116 @@ void init_rtapi_data(rtapi_data_t * data)
 }
 
 /***********************************************************************
+*                    MODULE INIT FUNCTIONS                             *
+************************************************************************/
+
+int rtapi_module_init()
+{
+    int retval;
+    int size  = 0;
+
+#ifdef ULAPI
+    // Set the rtapi_instance global for HAL library instances;
+    // rtapi_instance set in rtapi_app.cc for RTAPI instances
+    char *instance = getenv("MK_INSTANCE");
+    if (instance != NULL)
+	rtapi_instance = atoi(instance);
+
+    char *debug_env = getenv("ULAPI_DEBUG");
+    if (debug_env)
+	ulapi_debug = atoi(debug_env);
+    rtapi_set_msg_level(ulapi_debug);
+#endif
+
+    int globalkey = OS_KEY(GLOBAL_KEY, rtapi_instance);
+
+    shm_common_init();
+
+    // tag messages originating from RT proper
+    rtapi_set_logtag(LOGTAG);
+
+    // flavor
+    rtapi_print_msg(RTAPI_MSG_DBG,"%s:%d  %s %s init\n",
+                    LOGTAG,
+		    rtapi_instance,
+		    flavor_descriptor->name,
+		    GIT_VERSION);
+
+    // attach to global segment which rtapi_msgd owns and already
+    // has set up:
+    retval = shm_common_new(globalkey, &size,
+			    rtapi_instance, (void **) &global_data, 0);
+
+    if (retval ==  -ENOENT) {
+	// the global_data segment does not exist.
+	rtapi_print_msg(RTAPI_MSG_ERR,
+			"%s:%d ERROR: global segment 0x%x does not exist"
+			" (rtapi_msgd not started?)\n",
+			LOGTAG, rtapi_instance, globalkey);
+	return -EBUSY;
+    }
+    if (retval < 0) {
+	 rtapi_print_msg(RTAPI_MSG_ERR,
+			 "%s:%d ERROR: shm_common_new() failed key=0x%x %s\n",
+                         LOGTAG, rtapi_instance, globalkey, strerror(-retval));
+	 return retval;
+    }
+    if (size < sizeof(global_data_t)) {
+	 rtapi_print_msg(RTAPI_MSG_ERR,
+			 "%s:%d ERROR: unexpected global shm size:"
+			 " expected: >%zu actual:%d\n",
+			 LOGTAG, rtapi_instance, sizeof(global_data_t), size);
+	 return -EINVAL;
+    }
+
+    // good to use global_data from here on
+
+    // this heap is inited in rtapi_msgd.cc
+    // make it accessible in RTAPI
+    global_heap = &global_data->heap;
+
+    // make the message ringbuffer accessible
+    ringbuffer_init(shm_ptr(global_data, global_data->rtapi_messages_ptr),
+		    &rtapi_message_buffer);
+    rtapi_message_buffer.header->refcount++; // rtapi is 'attached'
+
+    // flavor
+    init_rtapi_data(rtapi_data);
+
+    if (flavor_descriptor->module_init_hook)
+        retval = flavor_descriptor->module_init_hook();
+
+    return retval;
+}
+
+int rtapi_app_main()
+{
+    return rtapi_module_init();
+}
+
+void rtapi_app_exit(void)
+{
+    if (flavor_descriptor->module_exit_hook)
+        flavor_descriptor->module_exit_hook();
+
+    rtapi_message_buffer.header->refcount--;
+
+    rtapi_print_msg(RTAPI_MSG_DBG,"%s:%d exit\n", LOGTAG, rtapi_instance);
+
+    rtapi_data = NULL;
+}
+
+/***********************************************************************
 *                    INIT AND EXIT FUNCTIONS                           *
 ************************************************************************/
 
 int rtapi_init(const char *modname) {
+#ifdef ULAPI
+    // Load ULAPI if global_data hasn't been set up yet
+    if (global_data == NULL)
+        rtapi_module_init();
+#endif
+
     return rtapi_next_handle();
 }
 
@@ -135,7 +250,6 @@ int rtapi_exit(int module_id) {
     /* do nothing for ULAPI */
     return 0;
 }
-
 
 
 /***********************************************************************
@@ -193,7 +307,7 @@ rtapi_exception_handler_t rtapi_set_exception(rtapi_exception_handler_t h)
 }
 #endif
 
-// defined and initialized in rtapi_module.c (kthreads), rtapi_main.c (userthreads)
+// defined and initialized in rtapi_main.c (userthreads)
 extern ringbuffer_t rtapi_message_buffer;   // error ring access strcuture
 
 int  rtapi_next_handle(void)

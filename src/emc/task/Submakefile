@@ -39,6 +39,7 @@ USERSRCS += $(MILLTASKSRCS)
 	../lib/liblinuxcncini.so.0 \
 	../lib/libposemath.so.0 \
 	../lib/liblinuxcnchal.so.0 \
+	../lib/liblinuxcnculapi.so.0 \
 	../lib/libpyplugin.so.0 \
 	../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)

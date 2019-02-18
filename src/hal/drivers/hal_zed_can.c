@@ -59,7 +59,7 @@
 
   and add
     ifeq ($(TARGET_PLATFORM),zedboard)
-    $(RTLIBDIR)/hal_zedcan$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_zedcan-objs))
+    $(RTLIBDIR)/hal_zedcan.so: $(addprefix $(OBJDIR)/,$(hal_zedcan-objs))
     endif
   in the '# build kernel RTAPI modules' section
 

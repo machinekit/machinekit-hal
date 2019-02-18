@@ -34,8 +34,6 @@
 #include "hal.h"
 #include "hal_priv.h"
 
-global_data_t *global_data;
-rtapi_data_t *rtapi_data;
 hal_data_t *hal_data;
 
 int shmdrv_loaded;

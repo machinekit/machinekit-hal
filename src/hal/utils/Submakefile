@@ -12,6 +12,7 @@ $(call TOOBJSDEPS, hal/utils/halsh.c) : EXTRAFLAGS += $(TCL_CFLAGS)
 ../tcl/hal.so: $(call TOOBJS, $(HALSHSRCS)) \
 	../lib/liblinuxcncini.so.0 \
 	../lib/liblinuxcnchal.so.0 \
+	../lib/liblinuxcnculapi.so.0 \
 	../lib/libmachinetalk-pb2++.so.0 \
 	../lib/libmtalk.so.0 \
 	../lib/librtapi_math.so.0
@@ -25,6 +26,7 @@ $(call TOOBJSDEPS, $(HALCMDCCSRCS)) : EXTRAFLAGS =  \
 ../bin/halcmd: $(call TOOBJS, $(HALCMDSRCS))  $(call TOOBJS, $(HALCMDCCSRCS)) \
 	../lib/liblinuxcncini.so.0 \
 	../lib/liblinuxcnchal.so.0 \
+	../lib/liblinuxcnculapi.so.0 \
 	../lib/libmachinetalk-pb2++.so.0 \
 	../lib/libmtalk.so.0 \
 	../lib/librtapi_math.so.0
@@ -51,7 +53,10 @@ HALMETERSRCS := \
 
 USERSRCS += $(HALMETERSRCS)
 
-../bin/halmeter: $(call TOOBJS, $(HALMETERSRCS)) ../lib/liblinuxcnchal.so.0
+../bin/halmeter: \
+		$(call TOOBJS, $(HALMETERSRCS)) \
+		../lib/liblinuxcnchal.so.0 \
+		../lib/liblinuxcnculapi.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^  $(GTK_LIBS)
 TARGETS += ../bin/halmeter
@@ -68,8 +73,9 @@ HALSCOPESRCS := \
 USERSRCS += $(HALSCOPESRCS)
 
 ../bin/halscope: $(call TOOBJS, $(HALSCOPESRCS)) \
-	../lib/liblinuxcnchal.so.0 \
-	../lib/librtapi_math.so.0
+		../lib/liblinuxcnchal.so.0 \
+		../lib/liblinuxcnculapi.so.0 \
+		../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(GTK_LIBS)
 TARGETS += ../bin/halscope

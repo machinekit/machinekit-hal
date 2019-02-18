@@ -50,13 +50,13 @@ objects/%.c: %.icomp ../bin/instcomp
 
 # Generate rules for building i_component.so files
 # abs_s32-objs := objects/hal/i_components/abs_s32.o
-# $(RTLIBDIR)/abs_s32$(MODULE_EXT): $(OBJDIR)/objects/hal/i_components/abs_s32.o
+# $(RTLIBDIR)/abs_s32.so: $(OBJDIR)/objects/hal/i_components/abs_s32.o
 #
 # example:  $$(call icomp_build_rules hal/i_components/abs_s32.comp)
 define icomp_build_rules
 $$(patsubst $(HALICOMPDIR)/%.icomp,%-objs,$(1)) := \
     objects/$$(patsubst %.icomp,%.o,$(1))
-$$(patsubst $(HALICOMPDIR)/%.icomp,$(RTLIBDIR)/%$(MODULE_EXT),$(1)): \
+$$(patsubst $(HALICOMPDIR)/%.icomp,$(RTLIBDIR)/%.so,$(1)): \
     $(OBJDIR)/objects/$$(patsubst %.icomp,%.o,$(1))
 
 endef

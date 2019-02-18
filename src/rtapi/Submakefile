@@ -1,4 +1,4 @@
-INCLUDES += rtapi rtapi_export
+INCLUDES += rtapi rtapi_export rtapi/flavor
 
 # this covers the userpci and shmdrv directories too, in a bit cludgy way
 ../include/%.h: ./rtapi/%.h
@@ -14,9 +14,14 @@ INCLUDES += rtapi rtapi_export
 	@mkdir -p ../include/shmdrv
 	$(Q)cp  $^ $@
 
+../include/%.h: ./rtapi/flavor/%.h
+	$(ECHO) Copying header file $@
+	@mkdir -p ../include/flavor
+	$(Q)cp  $^ $@
+
 HEADERS += \
-	rtapi/rtapi_flavor.h \
-	rtapi/rt-preempt.h
+	rtapi/flavor/rtapi_flavor.h \
+	rtapi/flavor/rt-preempt.h
 
 ##########################################
 # Clean up
@@ -29,8 +34,7 @@ modclean-rtapi:
 ##########################################
 # defaults for all thread styles
 
-# Sources/objects included in both RTAPI and ULAPI, both kbuild and
-# user threads
+# Sources/objects included in both RTAPI and ULAPI
 XXAPI_COMMON_SRCS := $(patsubst %, rtapi/%, \
 	rtapi_support.c \
 	rtapi_hexdump.c \
@@ -40,6 +44,8 @@ XXAPI_COMMON_SRCS := $(patsubst %, rtapi/%, \
 	rtapi_time.c \
 	rtapi_exception.c \
 	rtapi_heap.c \
+	rtapi_compat.c \
+	flavor/rtapi_flavor.c \
 	)
 
 # rtapi_compat needs to know where rtapi.ini lives
@@ -53,12 +59,10 @@ XXAPI_COMMON_SRCS := $(patsubst %, rtapi/%, \
 ##################################################################
 
 ULAPI_SRCS := \
-	rtapi/ulapi_autoload.c \
-	rtapi/rtapi_compat.c \
-	rtapi/rtapi_support.c \
+	rtapi/flavor/ulapi.c \
 	machinetalk/lib/syslog_async.c \
-	$(XXAPI_COMMON_SRCS) \
-	rtapi/ulapi_main.c
+	rtapi/rtapi_hexdump.c \
+	$(XXAPI_COMMON_SRCS)
 
 USERSRCS += $(ULAPI_SRCS)
 
@@ -68,8 +72,7 @@ $(call TOOBJSDEPS, $(ULAPI_SRCS)): EXTRAFLAGS += -DULAPI -fPIC
 
 $(ULAPI_LIB).0: $(call TOOBJS, $(ULAPI_SRCS)) \
 	../lib/liblinuxcncini.so \
-	../lib/liblinuxcncshm.so \
-	../lib/liblinuxcnchal.so
+	../lib/liblinuxcncshm.so
 	$(ECHO) Creating shared library $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
@@ -170,10 +173,7 @@ TARGETS += $(ULAPI_LIB) $(ULAPI_LIB).0
 
 RTAPI_LIB_SRCS := \
 	$(XXAPI_COMMON_SRCS) \
-	rtapi/rtapi_compat.c \
-	rtapi/rtapi_flavor.c \
-	rtapi/rt-preempt.c \
-	rtapi/rtapi_main.c \
+	rtapi/flavor/rt-preempt.c \
 	machinetalk/support/nanopb.c \
 	machinetalk/nanopb/pb_decode.c \
 	machinetalk/nanopb/pb_encode.c \
@@ -185,8 +185,8 @@ RTAPI_LIB_SRCS += rtapi/rtapi_pci.c
 endif
 
 ifeq ($(HAVE_XENOMAI_THREADS),yes)
-RTAPI_LIB_SRCS += rtapi/xenomai.c
-HEADERS += rtapi/xenomai.h
+RTAPI_LIB_SRCS += rtapi/flavor/xenomai.c
+HEADERS += rtapi/flavor/xenomai.h
 endif
 
 # Build RTAPI_LIB_SRCS with -DRTAPI

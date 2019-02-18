@@ -87,6 +87,7 @@ TARGETS += ../bin/linuxcnclcd
 	../lib/liblinuxcncini.so.0 \
 	../lib/libnml.so.0 \
 	../lib/liblinuxcnchal.so.0 \
+	../lib/liblinuxcnculapi.so.0 \
 	../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CXX) $(LDFLAGS) -o $@ $^ 

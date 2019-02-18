@@ -949,21 +949,6 @@ extern int rtapi_instance;
 
 extern long int simple_strtol(const char *nptr, char **endptr, int base);
 
-#ifdef ULAPI
-// the ulapi constructor and destructor
-// these attach/detach the rtapi shm segments to/from ULAPI
-typedef int  (*ulapi_main_t)(int, int, global_data_t *);
-typedef int (*ulapi_exit_t)(int);
-extern int ulapi_main(int instance, int flavor, global_data_t *global);
-extern int ulapi_exit(int instance);
-
-//  ULAPI cleanup. Call the exit handler and unload ulapi-<flavor>.so.
-extern void ulapi_cleanup(void);
-
-extern int ulapi_loaded(void);
-
-#endif
-
 // elf section name where capability strings reside
 #define RTAPI_TAGS  ".rtapi_tags"
 

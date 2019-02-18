@@ -45,11 +45,7 @@ INCLUDES += hal/drivers
 	$(Q)cp  $^ $@
 
 # build instructions for the hal_p260c module
-obj-m += hal_p260c.o
-# the list of parts
-hal_p260c-objs := hal/drivers/hal_p260c.o
-
-$(RTLIBDIR)/hal_p260c$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_p260c-objs))
+$(eval $(call c_comp_build_rules,hal/drivers/hal_p260c.o))
 
 # C-language components
 ifeq ($(BUILD_DRIVERS),yes)

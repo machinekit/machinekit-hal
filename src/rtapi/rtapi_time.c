@@ -60,7 +60,7 @@ long int rtapi_clock_set_period(long int nsecs) {
 	return -EINVAL;
     }
 
-    if (flavor_descriptor->time_no_clock_monotonic)
+    if (FLAVOR_FEATURE(FLAVOR_TIME_NO_CLOCK_MONOTONIC))
         period = nsecs;
     else {
         clock_getres(CLOCK_MONOTONIC, &res);

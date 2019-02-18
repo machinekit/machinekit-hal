@@ -27,22 +27,7 @@ HALLIBSRCS := $(HALLIBDIR)/hal_lib.c \
 	$(HALLIBDIR)/hal_object.c \
 	$(HALLIBDIR)/hal_object_selectors.c \
 	$(HALLIBDIR)/hal_accessor.c \
-	$(HALLIBDIR)/hal_iring.c \
-	rtapi/rtapi_heap.c \
-	rtapi/ulapi_main.c \
-	rtapi/rtapi_support.c \
-	rtapi/rtapi_hexdump.c \
-	rtapi/rtapi_common.c \
-	rtapi/rtapi_task.c \
-	rtapi/rtapi_shmem.c \
-	rtapi/rtapi_time.c \
-	rtapi/rtapi_exception.c \
-	rtapi/rtapi_common.c \
-	rtapi/rtapi_flavor.c \
-	rtapi/rt-preempt.c
-ifeq ($(HAVE_XENOMAI_THREADS),yes)
-HALLIBSRCS += rtapi/xenomai.c
-endif
+	$(HALLIBDIR)/hal_iring.c
 
 # protobuf support functions which depend on HAL - on RT host only
 HALLIBMTALK_SRCS := $(addprefix $(HALLIBDIR)/, \
@@ -75,18 +60,14 @@ HALLIB := ../lib/liblinuxcnchal.so
 
 $(HALLIB).0: \
 	$(call TOOBJS, $(HALLIBSRCS)) \
-	$(call TOOBJS, $(ULAPI_AUTOLOAD_SRCS)) \
 	$(call TOOBJS, $(SHMDRVAPISRCS)) \
 	$(call TOOBJS, $(HALLIBMTALK_SRCS)) \
 	$(call TOOBJS, $(LIBINISRCS)) \
-	$(call TOOBJS, machinetalk/lib/syslog_async.c) \
+	$(ULAPI_LIB).0 \
 	$(LIBS)/libmachinetalk-pb2++.so
 	$(ECHO) Creating shared library $(notdir $@)
-	@mkdir -p ../lib \
-	@mkdir -p ../rtlib/modules; \
-	ln -sf ../rtlib/modules ../rtlib/posix; \
-	ln -sf ../rtlib/modules ../rtlib/rt-preempt; \
-	ln -sf ../rtlib/modules ../rtlib/xenomai;
+	@mkdir -p ../lib
+	@mkdir -p ../rtlib/modules
 	@rm -f $@
 	$(Q)$(CC) $(LDFLAGS) -Wl,-rpath,$(EMC2_RTLIB_DIR) \
 	    -Wl,-soname,$(notdir $@) -shared \
@@ -124,4 +105,4 @@ hal_lib-objs += hal/lib/hal_object_selectors.o
 hal_lib-objs += hal/lib/hal_accessor.o
 hal_lib-objs += hal/lib/hal_iring.o
 
-$(RTLIBDIR)/hal_lib$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_lib-objs))
+$(RTLIBDIR)/hal_lib.so: $(addprefix $(OBJDIR)/,$(hal_lib-objs))
