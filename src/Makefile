@@ -324,9 +324,6 @@ endif
 # see configure.ac GIT_CONFIG_SHA for the configure-time string
 GIT_BUILD_SHA := $(shell ../scripts/get-git-sha)
 
-# complain if SHA's dont match
-$(info $(shell  ../scripts/check-build-vs-configure-sha))
-
 # Compilation options.	Perhaps some of these should come from Makefile.inc? (CXXFLAGS now does)
 INTEGER_OVERFLOW_FLAGS := $(call cc-option,-fwrapv) $(call cc-option, -fno-strict-overflow)
 OPT :=  $(INTEGER_OVERFLOW_FLAGS)
