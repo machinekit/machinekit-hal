@@ -19,9 +19,15 @@ INCLUDES += rtapi rtapi_export rtapi/flavor
 	@mkdir -p ../include/flavor
 	$(Q)cp  $^ $@
 
+ifeq ($(HAVE_XENOMAI_THREADS),yes)
+XENOMAI_SRC = rtapi/flavor/xenomai.c
+XENOMAI_HEADER = rtapi/flavor/xenomai.h
+endif
+
 HEADERS += \
 	rtapi/flavor/rtapi_flavor.h \
-	rtapi/flavor/rt-preempt.h
+	rtapi/flavor/rt-preempt.h \
+	$(XENOMAI_HEADER)
 
 ##########################################
 # Clean up
@@ -174,6 +180,7 @@ TARGETS += $(ULAPI_LIB) $(ULAPI_LIB).0
 RTAPI_LIB_SRCS := \
 	$(XXAPI_COMMON_SRCS) \
 	rtapi/flavor/rt-preempt.c \
+	$(XENOMAI_SRC) \
 	machinetalk/support/nanopb.c \
 	machinetalk/nanopb/pb_decode.c \
 	machinetalk/nanopb/pb_encode.c \
@@ -182,14 +189,8 @@ RTAPI_LIB_SRCS := \
 # link userland PCI support into rtapi_app
 RTAPI_LIB_SRCS += rtapi/rtapi_pci.c
 
-ifeq ($(HAVE_XENOMAI_THREADS),yes)
-RTAPI_LIB_SRCS += rtapi/flavor/xenomai.c
-HEADERS += rtapi/flavor/xenomai.h
-endif
-
 # Build RTAPI_LIB_SRCS with -DRTAPI
-RTAPI_LIB_OBJS := $(patsubst %.c,%.o,$(RTAPI_LIB_SRCS))
-RTOBJS += $(addprefix $(OBJDIR)/,$(RTAPI_LIB_OBJS))
+RTSRCS += $(RTAPI_LIB_SRCS)
 
 
 RTAPI_APP_SRCS := \
@@ -286,3 +287,21 @@ TARGETS += ../libexec/rtapi_msgd
 	@mkdir -p $(dir $@)
 	bash $< > $@
 TARGETS += ../etc/linuxcnc/rtapi.ini
+
+
+##################################################################
+#                     C unit tests
+##################################################################
+
+# ULAPI: use -DULAPI XXAPI_COMMON_SRCS
+$(eval $(call setup_test,rtapi/tests/rtapi_flavor, ULAPI,\
+  $(XXAPI_COMMON_SRCS) machinetalk/lib/syslog_async.c rtapi/flavor/ulapi.c,\
+  , \
+  ../lib/liblinuxcncshm.so ../lib/liblinuxcncini.so))
+
+# RTAPI: use -DRTAPI XXAPI_COMMON_SRCS; link in pthreads and libcgroup
+$(eval $(call setup_test,rtapi/tests/rtapi_flavor, RTAPI,\
+  machinetalk/lib/syslog_async.c rtapi/flavor/ulapi.c, \
+  $(XXAPI_COMMON_SRCS) rtapi/flavor/rt-preempt.c $(XENOMAI_SRC), \
+  ../lib/liblinuxcncshm.so ../lib/liblinuxcncini.so, \
+  -pthread $(LIBCGROUP_LIBS)))

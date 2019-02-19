@@ -87,12 +87,12 @@ typedef flavor_descriptor_t * flavor_descriptor_ptr;
 
 extern flavor_descriptor_ptr flavor_descriptor;
 
-extern int install_flavor(rtapi_flavor_id_t flavor_id);
+extern const char * flavor_names(flavor_descriptor_ptr ** fd);
 extern rtapi_flavor_id_t flavor_byname(const char *flavorname);
-extern rtapi_flavor_id_t default_flavor(void);
-extern int flavor_is_configured(void);
 extern flavor_descriptor_ptr flavor_byid(rtapi_flavor_id_t flavor_id);
-extern const char * flavor_names(flavor_descriptor_ptr * fd);
+extern rtapi_flavor_id_t flavor_default(void);
+extern int flavor_is_configured(void);
+extern int flavor_install(rtapi_flavor_id_t flavor_id);
 
 #ifdef __cplusplus
 }
