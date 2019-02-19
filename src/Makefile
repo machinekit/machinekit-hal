@@ -217,6 +217,7 @@ endif
 INCLUDES := .
 
 USERSRCS :=
+RTSRCS :=
 PROGRAMS :=
 
 # When used like $(call TOxxx, ...) these turn a list of source files
@@ -232,6 +233,9 @@ TODEPS = $(patsubst %.cc,depends/%$(2).d,$(patsubst %.c,depends/%$(2).d,$(1)))
 #TODEPS = $(patsubst %.cc,objects/%.d,$(patsubst %.c,objects/%.d,$(1)))
 
 TOOBJSDEPS = $(call TOOBJS,$(1),$(2)) $(call TODEPS, $(1),$(2))
+
+# Same, but for RT objects in OBJDIR, compiled with -DRTAPI
+TORTOBJS = $(patsubst %.cc,$(OBJDIR)/%$(2).o,$(patsubst %.c,$(OBJDIR)/%$(2).o,$(1)))
 
 # This macro generates build rules for C components
 # Example call & resulting rules:
@@ -250,6 +254,45 @@ endef
 # Debugging
 #$$(info $(call c_comp_build_rules,hal/components/encoderv2.o))
 
+###############################################################################
+# C unit test setup
+#
+# This macro generates rules for C unit tests; e.g.
+#
+# $(eval $(call setup_test, \
+#     dir/test_src, RTAPI, dir/ulapi_srcs.c, dir/rtapi_srcs.c), ../lib/lib.so, -lfoo)
+#
+# expands to:
+#
+# RTSRCS += dir/main_src.c
+# objects/dir/test_src_RTAPI: \
+#		objects/dir/ulapi_srcs.o \
+#		$(OBJDIR)/dir/rtapi_srcs.o $(OBJDIR)/dir/test_src.o \
+#		../lib/lib.so
+#	@mkdir -p objects/dir
+#	@echo Linking test objects/dir/test_src_RTAPI
+#	$(Q)gcc -o objects/dir/test_src_RTAPI -g -DRTAPI \
+#		$(OBJDIR)/dir/test_src.o \
+#		objects/dir/ulapi_srcs.o $(OBJDIR)/dir/rtapi_srcs.o \
+#		../lib/lib.so -lfoo
+# CMOCKA_TESTS +=  dir/test_src_RTAPI
+#
+# ...and does the equivalent for ULAPI as well.
+
+define setup_test
+$$(if $$(filter RTAPI,$(2)),RTSRCS,USERSRCS) += $(1).c
+objects/$(1)_$(strip $(2)): \
+		$$(call $$(if $$(filter RTAPI,$(2)),TORTOBJS,TOOBJS), $(1).c) \
+		$$(call TOOBJS, $(3)) $$(call TORTOBJS, $(4)) $(5)
+	@mkdir -p objects/$$(dir $(1))
+	@echo Linking test objects/$(1)_$(strip $(2))
+	$(Q)gcc -o $$@ -g $$^ -lcmocka $(6)
+CMOCKA_TESTS += $(1)_$(strip $(2))
+
+endef
+
+###############################################################################
+
 SUBMAKEFILES := $(patsubst %,%/Submakefile,$(SUBDIRS))
 #$(info SUBMAKEFILES=$(SUBMAKEFILES))
 -include $(wildcard $(SUBMAKEFILES))
@@ -264,7 +307,7 @@ $(call ASSERT_EMPTY,$(filter-out %.c %.cc %.p %.js  %.ph %.proto, $(USERSRCS)))
 else
 $(call ASSERT_EMPTY,$(filter-out %.c %.cc %.js %.proto, $(USERSRCS)))
 endif
-$(call ASSERT_EMPTY,$(filter-out %.c %.proto, $(RTSRCS)))
+$(call ASSERT_EMPTY,$(filter-out %.c, $(RTSRCS)))
 
 ifeq ($(BUILD_PYTHON),yes)
 $(call TOOBJS,$(PYSRCS)) : EXTRAFLAGS += -fPIC $(call cc-option,-fno-strict-aliasing)
@@ -377,7 +420,7 @@ $(sort $(CUSEROBJS_BUILD)) : objects/%_build.o: %.c
 		$< -o $@
 
 $(sort $(CXXUSEROBJS)) : objects/%.o: %.cc
-	$(ECHO) Compiling $<
+	$(ECHO) Compiling ++ $<
 	@mkdir -p $(dir $@)
 	@rm -f $@
 	$(Q)$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $(EXTRAFLAGS) \
@@ -1105,14 +1148,17 @@ $(eval $(call c_comp_build_rules,hal/icomp-example/icomp.o))
 # clashes with component in i_components
 $(eval $(call c_comp_build_rules,hal/icomp-example/lutn-demo.o))
 
-TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), $(OBJDIR)/$(file))
+TOCOMPRTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), $(OBJDIR)/$(file))
 
 #######################################################################################################
 
 # Module building
 EXTRA_CFLAGS += -fPIC
 
-RTOBJS += $(sort $(foreach mod,$(obj-m),$(call TORTOBJS,$(mod))))
+# Non-module RT objects
+RTOBJS = $(call TORTOBJS,$(RTSRCS))
+# Module RT objects
+RTOBJS += $(sort $(foreach mod,$(obj-m),$(call TOCOMPRTOBJS,$(mod))))
 
 RTDEPS := $(sort $(patsubst $(OBJDIR)/%.o,$(DEPDIR)/%.d, $(RTOBJS)))
 
@@ -1323,3 +1369,14 @@ cscope/man/:
 NOSETESTS := $(wildcard ../nosetests/*.py)
 nosetest:
 	$(foreach var,$(NOSETESTS),nosetests -v $(var);)
+
+###############################################################################
+# C unit tests
+#
+# Run with `make cmocka_tests`
+
+cmocka_tests:  $(addprefix objects/, $(CMOCKA_TESTS))
+	@for test in $^; do \
+	    echo "\nRunning test $$test"; \
+	    $$test; \
+	done
