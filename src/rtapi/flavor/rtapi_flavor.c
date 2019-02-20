@@ -140,14 +140,19 @@ flavor_descriptor_ptr flavor_default(void)
 
 void flavor_install(flavor_descriptor_ptr flavor)
 {
+    if (flavor_descriptor != NULL) {
+        fprintf(stderr, "FATAL:  Flavor '%s' already configured\n",
+                flavor_descriptor->name);
+        EXIT_NORV(103);
+    }
     if (!flavor_can_run_flavor(flavor)) {
         fprintf(stderr, "FATAL:  Flavor '%s' cannot run\n", flavor->name);
-        EXIT_NORV(103);
+        EXIT_NORV(104);
     }
     flavor_descriptor = flavor;
 }
 
 int flavor_is_configured(void)
 {
-    return flavor_descriptor->flavor_id != RTAPI_FLAVOR_UNCONFIGURED_ID;
+    return flavor_descriptor != NULL;
 }

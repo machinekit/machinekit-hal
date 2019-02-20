@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 // Set this to print verbose debug messages
-int debug_tests = 0;
+int debug_tests = 1;
 #define DEBUG(args...)                                         \
     do { if (debug_tests) fprintf(stderr, args); } while (0)
 
@@ -270,6 +270,65 @@ static void test_flavor_default(void **state)
         test_flavor_default_runner(td++);
 }
 
+/******************************************************************/
+// Tests for flavor_install
+
+#ifdef RTAPI
+char * flav_req = "posix";
+#else // ULAPI
+char * flav_req = "ulapi";
+#endif
+
+static void test_flavor_install_already_configured(void **state)
+{
+    // Simulate flavor already configured
+    flavor_descriptor = flavor_byname(flav_req);
+
+    // Request to install a flavor
+    flavor_install(flavor_byname(flav_req));
+
+    // Check error
+    assert_int_equal(flavor_mocking_err, 103);
+}
+
+static void test_flavor_install_unrunnable(void **state)
+{
+    // Simulate unconfigured flavor
+    flavor_descriptor = NULL;
+
+    // Mock can_run_flavor() return value
+    expect_function_call(__wrap_flavor_can_run_flavor);
+    expect_value(__wrap_flavor_can_run_flavor, f, flavor_byname(flav_req));
+    will_return(__wrap_flavor_can_run_flavor, 0);
+
+    // Request unrunnable flavor
+    flavor_install(flavor_byname(flav_req));
+
+    // Check error
+    assert_int_equal(flavor_mocking_err, 104);
+}
+
+static void test_flavor_install_success(void **state)
+{
+    // Simulate unconfigured flavor
+    flavor_descriptor = NULL;
+
+    // Mock can_run_flavor() return value
+    expect_function_call(__wrap_flavor_can_run_flavor);
+    expect_value(__wrap_flavor_can_run_flavor, f, flavor_byname(flav_req));
+    will_return(__wrap_flavor_can_run_flavor, 1);
+
+    // Request runnable flavor
+    flavor_install(flavor_byname(flav_req));
+
+    // Check flavor
+    assert_non_null(flavor_descriptor);
+    assert_int_equal(strcmp(flavor_descriptor->name, flav_req), 0);
+}
+
+/******************************************************************/
+// Test runner
+
 int main(void)
 {
     // Tell functions we're in test mode
@@ -303,6 +362,9 @@ int main(void)
         cmocka_unit_test(test_flavor_default),
         cmocka_unit_test(test_flavor_default),
 #       endif
+        cmocka_unit_test(test_flavor_install_already_configured),
+        cmocka_unit_test(test_flavor_install_unrunnable),
+        cmocka_unit_test(test_flavor_install_success),
     };
 
     return cmocka_run_group_tests_name("rtapi_flavor tests", tests, NULL, NULL);    
