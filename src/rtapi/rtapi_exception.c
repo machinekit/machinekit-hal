@@ -56,13 +56,13 @@ static int rtapi_default_rt_exception_handler(int type,
 {
     static int error_printed = 0;
     int level = (error_printed == 0) ? RTAPI_MSG_ERR : RTAPI_MSG_WARN;
+    int res;
 
     if (error_printed < MAX_RT_ERRORS) {
 	error_printed++;
 
-        if (flavor_descriptor->exception_handler_hook)
-            flavor_descriptor->exception_handler_hook(type, detail, level);
-        else
+        res = flavor_exception_handler_hook(NULL, type, detail, level);
+        if (res == -ENOSYS) // Unimplemented
 	    rtapi_print_msg(level,
 			    "%d: unspecified exception detail=%p ts=%p",
 			    type, detail, ts);

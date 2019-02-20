@@ -2478,7 +2478,7 @@ static void print_thread_stats(hal_thread_t *tptr)
     halcmd_output("\nLowlevel thread statistics for '%s':\n\n",
 		  ho_name(tptr));
 
-    flavor_descriptor->print_thread_stats_hook(tptr->task_id);
+    flavor_task_print_thread_stats_hook(NULL, tptr->task_id);
 }
 
 static int print_thread_entry(hal_object_ptr o, foreach_args_t *args)
@@ -2543,7 +2543,7 @@ static void print_thread_info(char **patterns)
 {
     if (scriptmode == 0) {
 	halcmd_output("Realtime Threads (flavor: %s, currently %s) :\n",
-		      flavor_descriptor->name,
+		      flavor_name(NULL),
 		      (hal_data->threads_running > 0) ? "running" : "stopped");
 	halcmd_output("     Period  FP CPU   Name                                          "
 		      "Time  Max-Time util  max  jitter-95%%     flags\n");

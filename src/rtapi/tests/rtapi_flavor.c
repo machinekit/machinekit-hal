@@ -3,6 +3,11 @@
 #include <cmocka.h>
 #include <stdio.h>
 
+// Set this to print verbose debug messages
+int debug_tests = 0;
+#define DEBUG(args...)                                         \
+    do { if (debug_tests) fprintf(stderr, args); } while (0)
+
 /******************************************************************/
 // Tests for flavor_names
 
@@ -68,15 +73,23 @@ static flavor_by_test_data_t flavor_by_test_data[] = {
 
 static void test_flavor_byname(void **state)
 {
-    int id;
+    flavor_descriptor_ptr flavor;
     flavor_by_test_data_t * td_ptr = flavor_by_test_data;
     for (; td_ptr->id >= 0; td_ptr++) {
-        id = flavor_byname(td_ptr->name);
-        /* printf("name=%s; id=%d; res id is %d\n", td_ptr->name, td_ptr->id, id); */
+        DEBUG("name=%s; id=%d\n", td_ptr->name, td_ptr->id);
+        flavor = flavor_byname(td_ptr->name);
+
+        if (td_ptr->id == 0 || strcmp(td_ptr->name, "bogus") == 0) {
+            // Bogus name, or not compiled in
+            assert_null(flavor);
+            continue;
+        }
+
+        assert_non_null(flavor);
         if (td_ptr->id > 0 && strcmp(td_ptr->name,"bogus") != 0)
-            assert_int_equal(id, td_ptr->id);
+            assert_int_equal(flavor->flavor_id, td_ptr->id);
         else
-            assert_int_equal(id, 0);
+            assert_int_equal(flavor->flavor_id, 0);
     }
 }
 
@@ -86,11 +99,8 @@ static void test_flavor_byid(void **state)
     flavor_by_test_data_t * td_ptr = flavor_by_test_data;
     for (; td_ptr->id >= 0; td_ptr++) {
         f = flavor_byid(td_ptr->id);
-        /* printf("name=%s; id=%d; f is %p\n", td_ptr->name, td_ptr->id, f); */
         if (td_ptr->id > 0 && strcmp(td_ptr->name,"bogus") != 0) {
             assert_non_null(f);
-            /* if (f) */
-            /*     printf("f->flavor_id\n", f->flavor_id); */
             assert_int_equal(f->flavor_id, td_ptr->id);
             assert_string_equal(f->name, td_ptr->name);
         } else
@@ -99,14 +109,201 @@ static void test_flavor_byid(void **state)
     }
 }
 
+/******************************************************************/
+// Tests for flavor_default
+
+// Test inputs
+typedef struct {
+    char* getenv_ret; // Return value of getenv("FLAVOR")
+    int ret;  // Returned flavor ID
+    int exit;  // Exit error code
+    // Return values of flavor_can_run_flavor(flavor) functions
+    int ulapi_cannot_run; // Just to test the flow
+    int posix_cannot_run; // Just to test the flow
+    int rtpreempt_can_run;
+    int xenomai_can_run;
+} flavor_default_test_data_t;
+
+static flavor_default_test_data_t flavor_default_test_data[] = {
+#ifdef RTAPI
+    // Flavor from environment variable:  Success
+    { .getenv_ret = "posix", .ret = 2 },
+    { .getenv_ret = "rt-preempt", .rtpreempt_can_run = 1, .ret = 3 },
+    // Flavor from environment variable:  No such flavor exit 100
+    { .getenv_ret = "ulapi", .exit = 100 }, // No such flavor
+    { .getenv_ret = "bogus", .exit = 100 },
+    // Flavor from environment variable:  Cannot run exit 101
+    { .getenv_ret = "rt-preempt", .rtpreempt_can_run = 0, .exit = 101 },
+    { .getenv_ret = "posix", .posix_cannot_run = 1, .exit = 101 },
+    // Choose best default:  Success
+    { .ret = 2 }, // Worst case scenario:  posix
+    { .getenv_ret = "", .ret = 2 }, // $FLAVOR set to empty
+    { .rtpreempt_can_run = 1, .ret = 3 },  // RT_PREEMPT can_run
+#  ifdef HAVE_XENOMAI_THREADS
+    { .xenomai_can_run = 1, .ret = 4 },  // Xenomai can_run
+    { .rtpreempt_can_run = 1, .xenomai_can_run = 1, .ret = 4 }, // Both can_run
+#  endif
+    // Choose best default:  No runnable flavors exit 102
+    { .posix_cannot_run = 1, .exit = 102 }, // Impossible
+
+#else // ULAPI
+    // Flavor from environment variable:  Success
+    { .getenv_ret = "ulapi", .ret = 1 },
+    // Flavor from environment variable:  No such flavor exit 100
+    { .getenv_ret = "posix", .exit = 100 },
+    { .getenv_ret = "bogus", .exit = 100 },
+    // Flavor from environment variable:  Cannot run exit 101
+    { .getenv_ret = "ulapi", .ulapi_cannot_run = 1, .exit = 101 },
+    // Choose best default:  Success
+    { .ret = 1 },
+    { .getenv_ret = "", .ret = 1 }, // $FLAVOR set to empty
+    // Choose best default:  No runnable flavors exit 102
+    { .ulapi_cannot_run = 1, .exit = 102 },
+#endif
+    { .getenv_ret = "END" }, // Marks end of tests
+};
+
+// Mock functions
+int __wrap_flavor_can_run_flavor(flavor_descriptor_ptr f)
+{
+    int ret = mock();
+    if (f == NULL)
+        DEBUG("mock:  flavor_can_run_flavor(NULL) = %d\n", ret);
+    else
+        DEBUG("mock:  flavor_can_run_flavor('%s') = %d\n", f->name, ret);
+    function_called();
+    /* check_expected(f->flavor_id); */
+    check_expected_ptr(f);
+    return ret;
+}
+
+char *__wrap_getenv(const char *name)
+{
+    // From <stdlib.h>
+    function_called();
+    check_expected_ptr(name);
+    char* ret = mock_ptr_type(char *);
+    DEBUG("mock:  getenv(%s) = '%s'\n", name, ret);
+    return ret;
+}
+
+static void test_flavor_default_runner(flavor_default_test_data_t *td)
+{
+    flavor_descriptor_ptr flavor;
+    DEBUG("test:  Setting up ret = %d\n", td->ret);
+
+    // getenv("FLAVOR") should always be called; returns test data
+    DEBUG("test:  mock getenv(FLAVOR) = '%s'\n", td->getenv_ret);
+    expect_function_call(__wrap_getenv);
+    expect_string(__wrap_getenv, name, "FLAVOR");
+    will_return(__wrap_getenv, td->getenv_ret);
+
+    if (td->getenv_ret && td->getenv_ret[0]) {
+        // $FLAVOR is set in environment
+        if (td->ret > 0 || td->exit == 101)
+            // Get flavor_descriptor for tests where $FLAVOR is valid 
+            flavor = flavor_byname(td->getenv_ret);
+
+        if (td->ret > 0) {
+            DEBUG("test:  mock flavor_can_run_flavor(%s) = 1\n", flavor->name);
+            expect_function_call(__wrap_flavor_can_run_flavor);
+            expect_value(__wrap_flavor_can_run_flavor, f, flavor);
+            will_return(__wrap_flavor_can_run_flavor, 1);
+        }
+        if (td->exit == 101) {
+            DEBUG("test:  mock flavor_can_run_flavor('%s') = 0\n",
+                  td->getenv_ret);
+            expect_function_call(__wrap_flavor_can_run_flavor);
+            expect_value(__wrap_flavor_can_run_flavor, f, flavor);
+            will_return(__wrap_flavor_can_run_flavor, 0);
+        }
+    } else {
+        // No $FLAVOR set; pick best available
+#       ifdef ULAPI
+        expect_function_call(__wrap_flavor_can_run_flavor);
+        DEBUG("test:  mock flavor_can_run_flavor('ulapi') = %d\n",
+              !td->ulapi_cannot_run);
+        expect_value(__wrap_flavor_can_run_flavor, f, flavor_byname("ulapi"));
+        will_return(__wrap_flavor_can_run_flavor, !td->ulapi_cannot_run);
+#       else // RTAPI
+        expect_function_calls(__wrap_flavor_can_run_flavor, 2);
+        DEBUG("test:  mock flavor_can_run_flavor('posix') = %d\n",
+              !td->posix_cannot_run);
+        expect_value(__wrap_flavor_can_run_flavor, f, flavor_byname("posix"));
+        will_return(__wrap_flavor_can_run_flavor, !td->posix_cannot_run);
+        DEBUG("test:  mock flavor_can_run_flavor('rt-preempt') = %d\n",
+              td->rtpreempt_can_run);
+        expect_value(__wrap_flavor_can_run_flavor, f, flavor_byname("rt-preempt"));
+        will_return(__wrap_flavor_can_run_flavor, td->rtpreempt_can_run);
+#         ifdef HAVE_XENOMAI_THREADS
+        expect_function_call(__wrap_flavor_can_run_flavor);
+        DEBUG("test:  mock flavor_can_run_flavor('xenomai') = %d\n",
+              td->xenomai_can_run);
+        expect_value(__wrap_flavor_can_run_flavor, f, flavor_byname("xenomai"));
+        will_return(__wrap_flavor_can_run_flavor, td->xenomai_can_run);
+#         endif
+#       endif
+    }
+
+    // Run the function
+    flavor = flavor_default();
+
+    // Check result
+    if (flavor) // Success
+        assert_int_equal(flavor->flavor_id, td->ret);
+    else  // Failure
+        assert_int_equal(flavor_mocking_err, td->exit);
+}
+
+// This increments over the tests
+typedef flavor_default_test_data_t * flavor_default_test_data_ptr;
+flavor_default_test_data_ptr td = flavor_default_test_data;
+
+static void test_flavor_default(void **state)
+{
+    // Walk through the list of tests and call runner
+    if (td->getenv_ret != NULL && strcmp(td->getenv_ret, "END") == 0)
+        // End of tests
+        skip();
+    else
+        // Run the next test & increment test case
+        test_flavor_default_runner(td++);
+}
 
 int main(void)
 {
+    // Tell functions we're in test mode
+    flavor_mocking = 1;
+
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_flavor_names),
         cmocka_unit_test(test_flavor_byname),
         cmocka_unit_test(test_flavor_byid),
+#       ifdef RTAPI // Ugh
+        cmocka_unit_test(test_flavor_default),
+        cmocka_unit_test(test_flavor_default),
+        cmocka_unit_test(test_flavor_default),
+        cmocka_unit_test(test_flavor_default),
+        cmocka_unit_test(test_flavor_default),
+        cmocka_unit_test(test_flavor_default),
+        cmocka_unit_test(test_flavor_default),
+        cmocka_unit_test(test_flavor_default),
+        cmocka_unit_test(test_flavor_default),
+#         ifdef HAVE_XENOMAI_THREADS
+        cmocka_unit_test(test_flavor_default),
+        cmocka_unit_test(test_flavor_default),
+#         endif
+        cmocka_unit_test(test_flavor_default),
+#       else // ULAPI
+        cmocka_unit_test(test_flavor_default),
+        cmocka_unit_test(test_flavor_default),
+        cmocka_unit_test(test_flavor_default),
+        cmocka_unit_test(test_flavor_default),
+        cmocka_unit_test(test_flavor_default),
+        cmocka_unit_test(test_flavor_default),
+        cmocka_unit_test(test_flavor_default),
+#       endif
     };
 
-    return cmocka_run_group_tests(tests, NULL, NULL);    
+    return cmocka_run_group_tests_name("rtapi_flavor tests", tests, NULL, NULL);    
 }

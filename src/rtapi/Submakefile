@@ -52,6 +52,7 @@ XXAPI_COMMON_SRCS := $(patsubst %, rtapi/%, \
 	rtapi_heap.c \
 	rtapi_compat.c \
 	flavor/rtapi_flavor.c \
+	flavor/rtapi_flavor_hook_wrappers.c \
 	)
 
 # rtapi_compat needs to know where rtapi.ini lives
@@ -179,6 +180,7 @@ TARGETS += $(ULAPI_LIB) $(ULAPI_LIB).0
 
 RTAPI_LIB_SRCS := \
 	$(XXAPI_COMMON_SRCS) \
+	rtapi/rtapi_pci.c \
 	rtapi/flavor/rt-preempt.c \
 	$(XENOMAI_SRC) \
 	machinetalk/support/nanopb.c \
@@ -186,12 +188,8 @@ RTAPI_LIB_SRCS := \
 	machinetalk/nanopb/pb_encode.c \
 	machinetalk/nanopb/pb_common.c
 
-# link userland PCI support into rtapi_app
-RTAPI_LIB_SRCS += rtapi/rtapi_pci.c
-
 # Build RTAPI_LIB_SRCS with -DRTAPI
 RTSRCS += $(RTAPI_LIB_SRCS)
-
 
 RTAPI_APP_SRCS := \
 	rtapi/rtapi_app.cc
@@ -217,7 +215,7 @@ $(call TOOBJSDEPS, rtapi/flavor/rt-preempt.c): \
 $(call TOOBJSDEPS, rtapi/rtapi_pci.c): EXTRAFLAGS += $(LIBUDEV_CFLAGS)
 
 ../libexec/rtapi_app: \
-	$(addprefix $(OBJDIR)/,$(RTAPI_LIB_OBJS)) \
+	$(call TORTOBJS, $(RTAPI_LIB_SRCS)) \
 	$(call TOOBJS, $(RTAPI_APP_SRCS)) \
 	../lib/liblinuxcncini.so.0 \
 	../lib/liblinuxcncshm.so \
@@ -297,11 +295,14 @@ TARGETS += ../etc/linuxcnc/rtapi.ini
 $(eval $(call setup_test,rtapi/tests/rtapi_flavor, ULAPI,\
   $(XXAPI_COMMON_SRCS) machinetalk/lib/syslog_async.c rtapi/flavor/ulapi.c,\
   , \
-  ../lib/liblinuxcncshm.so ../lib/liblinuxcncini.so))
+  ../lib/liblinuxcncshm.so ../lib/liblinuxcncini.so, \
+  , \
+  flavor_can_run_flavor getenv))
 
 # RTAPI: use -DRTAPI XXAPI_COMMON_SRCS; link in pthreads and libcgroup
 $(eval $(call setup_test,rtapi/tests/rtapi_flavor, RTAPI,\
   machinetalk/lib/syslog_async.c rtapi/flavor/ulapi.c, \
   $(XXAPI_COMMON_SRCS) rtapi/flavor/rt-preempt.c $(XENOMAI_SRC), \
   ../lib/liblinuxcncshm.so ../lib/liblinuxcncini.so, \
-  -pthread $(LIBCGROUP_LIBS)))
+  -pthread $(LIBCGROUP_LIBS), \
+  flavor_can_run_flavor getenv))

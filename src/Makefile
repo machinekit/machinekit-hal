@@ -260,7 +260,8 @@ endef
 # This macro generates rules for C unit tests; e.g.
 #
 # $(eval $(call setup_test, \
-#     dir/test_src, RTAPI, dir/ulapi_srcs.c, dir/rtapi_srcs.c), ../lib/lib.so, -lfoo)
+#     dir/test_src, RTAPI, dir/ulapi_srcs.c, dir/rtapi_srcs.c), ../lib/lib.so, \
+#    -lfoo, wrap_funct)
 #
 # expands to:
 #
@@ -274,11 +275,12 @@ endef
 #	$(Q)gcc -o objects/dir/test_src_RTAPI -g -DRTAPI \
 #		$(OBJDIR)/dir/test_src.o \
 #		objects/dir/ulapi_srcs.o $(OBJDIR)/dir/rtapi_srcs.o \
-#		../lib/lib.so -lfoo
+#		../lib/lib.so -lfoo -Wl,--wrap=wrap_funct
 # CMOCKA_TESTS +=  dir/test_src_RTAPI
 #
 # ...and does the equivalent for ULAPI as well.
 
+WL_WRAP = -Wl,--wrap=
 define setup_test
 $$(if $$(filter RTAPI,$(2)),RTSRCS,USERSRCS) += $(1).c
 objects/$(1)_$(strip $(2)): \
@@ -286,7 +288,7 @@ objects/$(1)_$(strip $(2)): \
 		$$(call TOOBJS, $(3)) $$(call TORTOBJS, $(4)) $(5)
 	@mkdir -p objects/$$(dir $(1))
 	@echo Linking test objects/$(1)_$(strip $(2))
-	$(Q)gcc -o $$@ -g $$^ -lcmocka $(6)
+	$(Q)gcc -o $$@ -g $$^ -lcmocka $(6) $$(addprefix $$(WL_WRAP),$(7))
 CMOCKA_TESTS += $(1)_$(strip $(2))
 
 endef

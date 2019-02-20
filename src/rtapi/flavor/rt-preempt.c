@@ -510,7 +510,7 @@ int posix_wait_hook(const int flags) {
     return 0;
 }
 
-void posix_delay_hook(long int nsec)
+void posix_task_delay_hook(long int nsec)
 {
     struct timespec t;
 
@@ -584,7 +584,7 @@ int rtpreempt_can_run_flavor()
 }
 
 
-void print_thread_stats(int task_id)
+void rtpreempt_print_thread_stats(int task_id)
 {
     rtapi_threadstatus_t *ts =
 	&global_data->thread_status[task_id];
@@ -623,7 +623,7 @@ void rtpreempt_exception_handler_hook(int type,
 	     rtapi_print_msg(level,
 			    "%d: Unexpected realtime delay on RT thread %d ",
 			     type, detail->task_id);
-	    print_thread_stats(detail->task_id);
+	    rtpreempt_print_thread_stats(detail->task_id);
 	    break;
 
 	default:
@@ -643,15 +643,15 @@ flavor_descriptor_t flavor_rt_prempt_descriptor = {
     .module_init_hook = posix_module_init_hook,
     .module_exit_hook = NULL,
     .task_update_stats_hook = NULL,
-    .print_thread_stats_hook = print_thread_stats,
+    .task_print_thread_stats_hook = rtpreempt_print_thread_stats,
     .task_new_hook = posix_task_new_hook,
     .task_delete_hook = posix_task_delete_hook,
     .task_start_hook = posix_task_start_hook,
     .task_stop_hook = posix_task_stop_hook,
     .task_pause_hook = NULL,
-    .wait_hook = posix_wait_hook,
+    .task_wait_hook = posix_wait_hook,
     .task_resume_hook = NULL,
-    .delay_hook = posix_delay_hook,
+    .task_delay_hook = posix_task_delay_hook,
     .get_time_hook = NULL,
 #if !defined(__i386__) && !defined(__x86_64__)
     .get_clocks_hook = posix_get_clocks_hook,
@@ -672,15 +672,15 @@ flavor_descriptor_t flavor_posix_descriptor = {
     .module_init_hook = NULL,
     .module_exit_hook = NULL,
     .task_update_stats_hook = NULL,
-    .print_thread_stats_hook = print_thread_stats,
+    .task_print_thread_stats_hook = rtpreempt_print_thread_stats,
     .task_new_hook = posix_task_new_hook,
     .task_delete_hook = posix_task_delete_hook,
     .task_start_hook = posix_task_start_hook,
     .task_stop_hook = posix_task_stop_hook,
     .task_pause_hook = NULL,
-    .wait_hook = posix_wait_hook,
+    .task_wait_hook = posix_wait_hook,
     .task_resume_hook = NULL,
-    .delay_hook = posix_delay_hook,
+    .task_delay_hook = posix_task_delay_hook,
     .get_time_hook = NULL,
 #if !defined(__i386__) && !defined(__x86_64__)
     .get_clocks_hook = posix_get_clocks_hook,

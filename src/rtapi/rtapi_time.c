@@ -60,7 +60,7 @@ long int rtapi_clock_set_period(long int nsecs) {
 	return -EINVAL;
     }
 
-    if (FLAVOR_FEATURE(FLAVOR_TIME_NO_CLOCK_MONOTONIC))
+    if (flavor_feature(NULL, FLAVOR_TIME_NO_CLOCK_MONOTONIC))
         period = nsecs;
     else {
         clock_getres(CLOCK_MONOTONIC, &res);
@@ -81,7 +81,7 @@ void rtapi_delay(long int nsec)
     if (nsec > max_delay) {
 	nsec = max_delay;
     }
-    flavor_descriptor->delay_hook(nsec);
+    flavor_task_delay_hook(NULL, nsec);
 }
 
 
@@ -95,27 +95,27 @@ long int rtapi_delay_max(void)
 /* The following functions are common to both RTAPI and ULAPI */
 
 long long int rtapi_get_time(void) {
-    if (flavor_descriptor->get_time_hook)
-        return flavor_descriptor->get_time_hook();
-    else {
+    long long int res;
+
+    res = flavor_get_time_hook(NULL);
+    if (res == -ENOSYS) { // Unimplemented
         struct timespec ts;
         clock_gettime(CLOCK_MONOTONIC, &ts);
-        return ts.tv_sec * 1000000000LL + ts.tv_nsec;
+        res = ts.tv_sec * 1000000000LL + ts.tv_nsec;
     }
+    return res;
 }
 
 long long int rtapi_get_clocks(void) {
-    if (flavor_descriptor->get_clocks_hook)
-        return flavor_descriptor->get_clocks_hook();
-    else {
-        long long int retval;
-
+    long long int res;
+    res = flavor_get_clocks_hook(NULL);
+    if (res == -ENOSYS) { // Unimplemented
         /* This returns a result in clocks instead of nS, and needs to be
            used with care around CPUs that change the clock speed to save
            power and other disgusting, non-realtime oriented behavior.
            But at least it doesn't take a week every time you call it.  */
 
-        rdtscll(retval);
-        return retval;
+        rdtscll(res);
     }
+    return res;
 }

@@ -474,7 +474,7 @@ int xenomai_task_self_hook(void) {
 ************************************************************************/
 
 #ifdef RTAPI
-void xenomai_delay_hook(long int nsec)
+void xenomai_task_delay_hook(long int nsec)
 {
     long long int release = rt_timer_read() + nsec;
     while (rt_timer_read() < release);
@@ -674,15 +674,15 @@ flavor_descriptor_t flavor_xenomai_descriptor = {
     .module_init_hook = xenomai_module_init_hook,
     .module_exit_hook = xenomai_module_exit_hook,
     .task_update_stats_hook = xenomai_update_stats_hook,
-    .print_thread_stats_hook = xenomai_print_thread_stats,
+    .task_print_thread_stats_hook = xenomai_print_thread_stats,
     .task_new_hook = NULL,
     .task_delete_hook = xenomai_task_delete_hook,
     .task_start_hook = xenomai_task_start_hook,
     .task_stop_hook = xenomai_task_stop_hook,
-    .task_pause_hook = xenomai_task_resume_hook;
-    .wait_hook = xenomai_wait_hook,
-    .resume_hook = xenomai_resume_hook,
-    .delay_hook = xenomai_delay_hook,
+    .task_pause_hook = xenomai_task_pause_hook;
+    .task_wait_hook = xenomai_wait_hook,
+    .task_resume_hook = xenomai_task_resume_hook,
+    .task_delay_hook = xenomai_task_delay_hook,
     .get_time_hook = xenomai_get_time_hook,
     .get_clocks_hook = xenomai_get_clocks_hook,
     .task_self_hook = xenomai_task_self_hook,

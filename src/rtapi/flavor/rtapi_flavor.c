@@ -12,8 +12,27 @@
 #include "xenomai.h"
 #endif
 
+// Help for unit test mocking
+int flavor_mocking = 0;  // Signal from tests
+int flavor_mocking_err = 0; // Pass error to tests
+// - Mock exit(status), returning NULL and passing error out of band
+#define EXIT_NULL(status) do {                                          \
+        if (flavor_mocking) {                                           \
+            flavor_mocking_err = status; return NULL;                   \
+        } else exit(status);                                            \
+    } while (0)
+// - Mock exit(status), returning (nothing) and passing error out of band
+#define EXIT_NORV(status) do {                                          \
+        if (flavor_mocking) {                                           \
+            flavor_mocking_err = status; return;                        \
+        } else exit(status);                                            \
+    } while (0)
+
+
+// Global flavor descriptor gets set after a flavor is chosen
 flavor_descriptor_ptr flavor_descriptor = NULL;
 
+// List of flavors compiled in
 static flavor_descriptor_ptr flavor_list[] = {
 #ifdef ULAPI
     &flavor_ulapi_descriptor,
@@ -27,6 +46,7 @@ static flavor_descriptor_ptr flavor_list[] = {
 #endif
     NULL
 };
+
 
 const char * flavor_names(flavor_descriptor_ptr ** fd)
 {
@@ -47,14 +67,14 @@ const char * flavor_names(flavor_descriptor_ptr ** fd)
     return name;
 }
 
-rtapi_flavor_id_t flavor_byname(const char *flavorname)
+flavor_descriptor_ptr flavor_byname(const char *flavorname)
 {
     flavor_descriptor_ptr * i;
     for (i = flavor_list; *i != NULL; i++) {
-	if (!strcasecmp(flavorname, (*i)->name))
-	    return (*i)->flavor_id;
+        if (!strcasecmp(flavorname, (*i)->name))
+            break;
     }
-    return RTAPI_FLAVOR_UNCONFIGURED_ID;
+    return *i;
 }
 
 flavor_descriptor_ptr flavor_byid(rtapi_flavor_id_t flavor_id)
@@ -67,57 +87,64 @@ flavor_descriptor_ptr flavor_byid(rtapi_flavor_id_t flavor_id)
     return *i;
 }
 
-rtapi_flavor_id_t flavor_default(void)
+flavor_descriptor_ptr flavor_default(void)
 {
     const char *fname = getenv("FLAVOR");
-    flavor_descriptor_ptr * flavor = NULL;
-    rtapi_flavor_id_t flavor_id = 0;
+    flavor_descriptor_ptr * flavor_handle = NULL;
+    flavor_descriptor_ptr flavor = NULL;
 
-    // Return flavor passed through environment
-    if (fname) {
-        flavor_id = flavor_byname(fname);
-	if (flavor_id == RTAPI_FLAVOR_UNCONFIGURED_ID) {
+    if (fname && fname[0]) {
+        // $FLAVOR set in environment:  verify it or fail
+        flavor = flavor_byname(fname);
+	if (flavor == NULL) {
 	    fprintf(stderr,
-		    "FLAVOR=%s: no such flavor -- valid flavors are:\n",
+		    "FATAL:  No such flavor '%s'; valid flavors are\n",
 		    fname);
-            for (flavor=NULL; (fname=flavor_names(&flavor)); )
-		fprintf(stderr, "\t%s\n", (*flavor)->name);
-	    exit(1);
+            for (flavor_handle=NULL; (fname=flavor_names(&flavor_handle)); )
+		fprintf(stderr, "FATAL:      %s\n", (*flavor_handle)->name);
+	    EXIT_NULL(100);
 	}
-        fprintf(stderr, "Picked default flavor '%s' (from environment)\n",
-                (*flavor)->name);
-        return (*flavor)->flavor_id;
-    }
+        if (!flavor_can_run_flavor(flavor)) {
+            fprintf(stderr, "FATAL:  Flavor '%s' from environment cannot run\n",
+                    fname);
+            EXIT_NULL(101);
+        } else {
+            fprintf(stderr,
+                    "INFO:  Picked flavor '%s' id %d (from environment)\n",
+                    flavor->name, flavor->flavor_id);
+            return flavor;
+        }
 
-    // Find best flavor
-    for (flavor = flavor_list; *flavor != NULL; flavor++) {
-        if ((*flavor)->flavor_id > flavor_id
-            && ((*flavor)->can_run_flavor == NULL
-                || (*flavor)->can_run_flavor())) {
-            flavor_id = (*flavor)->flavor_id;
-            break;
+    } else {
+        // Find best flavor automatically
+        flavor = NULL;
+        for (flavor_handle = flavor_list;
+             *flavor_handle != NULL;
+             flavor_handle++) {
+            // Best is highest ID that can run
+            if ( (!flavor || (*flavor_handle)->flavor_id > flavor->flavor_id)
+                 && flavor_can_run_flavor(*flavor_handle) )
+                flavor = (*flavor_handle);
+        }
+        if (!flavor) {
+            // This should never happen:  POSIX can always run
+            fprintf(stderr, "ERROR:  Unable to find runnable flavor\n");
+            EXIT_NULL(102);
+        } else {
+            fprintf(stderr, "INFO:  Picked default flavor '%s' automatically\n",
+                    flavor->name);
+            return flavor;
         }
     }
-    if (!flavor_id) {
-        // This should never happen:  POSIX can always run
-        fprintf(stderr, "ERROR:  Unable to find runnable flavor\n");
-        exit(1);
-    }
-    fprintf(stderr, "Picked default flavor '%s' automatically\n",
-            (*flavor)->name);
-    return flavor_id;
 }
 
-int flavor_install(rtapi_flavor_id_t flavor_id)
+void flavor_install(flavor_descriptor_ptr flavor)
 {
-    flavor_descriptor_ptr * i;
-    for (i = flavor_list; *i != NULL; i++) {
-        if ((*i)->flavor_id == flavor_id)
-            break;
+    if (!flavor_can_run_flavor(flavor)) {
+        fprintf(stderr, "FATAL:  Flavor '%s' cannot run\n", flavor->name);
+        EXIT_NORV(103);
     }
-    if (i != NULL)
-        flavor_descriptor = *i;
-    return i != NULL;
+    flavor_descriptor = flavor;
 }
 
 int flavor_is_configured(void)

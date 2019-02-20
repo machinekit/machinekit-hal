@@ -56,7 +56,7 @@ ringbuffer_t rtapi_message_buffer;   // error ring access strcuture
 static int ulapi_debug = RTAPI_MSG_NONE;
 #endif
 
-#define LOGTAG (FLAVOR_FEATURE(FLAVOR_NOT_RTAPI) ? "ULAPI" : "RTAPI")
+#define LOGTAG (flavor_feature(NULL, FLAVOR_NOT_RTAPI) ? "ULAPI" : "RTAPI")
 
 int shmdrv_loaded;  // set in rtapi_app_main FIXME
 long page_size;     // set in rtapi_app_main
@@ -209,8 +209,7 @@ int rtapi_module_init()
     // flavor
     init_rtapi_data(rtapi_data);
 
-    if (flavor_descriptor->module_init_hook)
-        retval = flavor_descriptor->module_init_hook();
+    retval = flavor_module_init_hook(NULL);
 
     return retval;
 }
@@ -222,8 +221,7 @@ int rtapi_app_main()
 
 void rtapi_app_exit(void)
 {
-    if (flavor_descriptor->module_exit_hook)
-        flavor_descriptor->module_exit_hook();
+    flavor_module_exit_hook(NULL);
 
     rtapi_message_buffer.header->refcount--;
 
@@ -275,10 +273,7 @@ int rtapi_exit(int module_id) {
 #ifdef RTAPI
 int rtapi_task_update_stats(void)
 {
-    if (flavor_descriptor->task_update_stats_hook)
-        return flavor_descriptor->task_update_stats_hook();
-    else
-        return -ENOSYS;  // not implemented in this flavor
+    return flavor_task_update_stats_hook(NULL);
 }
 #endif
 /***********************************************************************

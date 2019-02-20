@@ -130,7 +130,6 @@ static int foreground;
 static int debug;
 static int signal_fd;
 static bool interrupted;
-static rtapi_flavor_id_t flavor = RTAPI_FLAVOR_UNCONFIGURED_ID;
 static bool trap_signals = true;
 int shmdrv_loaded;
 long page_size;
@@ -1087,7 +1086,7 @@ static int mainloop(size_t  argc, char **argv)
     }
 
     // make sure we're setuid root when we need to
-    if (use_drivers || FLAVOR_FEATURE(FLAVOR_DOES_IO)) {
+    if (use_drivers || flavor_feature(NULL, FLAVOR_DOES_IO)) {
 	if (geteuid() != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "rtapi_app:%d need to"
@@ -1257,7 +1256,7 @@ static int configure_memory(void)
     unsigned int i, pagesize;
     char *buf;
 
-    if (use_drivers || FLAVOR_FEATURE(FLAVOR_DOES_IO)) {
+    if (use_drivers || flavor_feature(NULL, FLAVOR_DOES_IO)) {
 	// Realtime tweak requires privs
 	/* Lock all memory. This includes all current allocations (BSS/data)
 	 * and future allocations. */
@@ -1385,7 +1384,7 @@ static int harden_rt()
     // guaranteed the process executing e.g. hal_parport's rtapi_app_main is
     // the same process which starts the RT threads, causing hal_parport
     // thread functions to fail on inb/outb
-    if (use_drivers || FLAVOR_FEATURE(FLAVOR_DOES_IO)) {
+    if (use_drivers || flavor_feature(NULL, FLAVOR_DOES_IO)) {
 	if (iopl(3) < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "cannot gain I/O privileges - "
@@ -1428,7 +1427,7 @@ int main(int argc, char **argv)
     uuid_unparse(process_uuid, process_uuid_str);
     int option = LOG_NDELAY;
 
-
+    flavor_descriptor_ptr flavor = NULL;
 
     while (1) {
 	int option_index = 0;
@@ -1465,13 +1464,13 @@ int main(int argc, char **argv)
 	    break;
 
 	case 'f':
-	    if ((flavor = flavor_byname(optarg)) == RTAPI_FLAVOR_UNCONFIGURED_ID) {
+	    if ((flavor = flavor_byname(optarg)) == NULL) {
 		fprintf(stderr, "no such flavor: '%s' -- valid flavors are:\n",
 			optarg);
-		flavor_descriptor_ptr f = NULL;
-                const char * name;
-                while ((name = flavor_names(&f)))
-                    fprintf(stderr, "\t%s\n", name);
+		flavor_descriptor_ptr * flavor_handle;
+                const char * fname;
+                for (flavor_handle=NULL; (fname=flavor_names(&flavor_handle)); )
+                    fprintf(stderr, "      %s\n", fname);
 		exit(1);
 	    }
 	    break;
@@ -1539,17 +1538,8 @@ int main(int argc, char **argv)
 #endif
 
     // Set flavor
-    if (flavor == RTAPI_FLAVOR_UNCONFIGURED_ID)
-        flavor = default_flavor();
-    if (flavor_byid(flavor) == NULL) {
-        fprintf(stderr,"rtapi_app: Unable to install flavor\n");
-        exit(1);
-    }
-    if (!install_flavor(flavor)) {
-        fprintf(stderr,"rtapi_app: Unable to install flavor '%s'\n",
-                flavor_byid(flavor)->name);
-    }
-
+    if (!flavor) flavor = flavor_default();  // Exits on error
+    flavor_install(flavor);  // Exits on error
 
     // the actual checking for setuid happens in harden_rt() (if needed)
     if (!foreground && (getuid() > 0)) {

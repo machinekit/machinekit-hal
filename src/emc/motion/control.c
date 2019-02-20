@@ -255,7 +255,7 @@ extern int emcmotController(void *arg,  const hal_funct_args_t *fa)
     emcmot_hal_data->last_period_ns = this_run * 1e6 / cpu_khz;
 #endif
 
-    if(!priming && flavor_descriptor->has_rt) {
+    if(!priming && flavor_feature(NULL, FLAVOR_IS_RT)) {
         // we have CYCLE_HISTORY samples, so check for this call being 
         // anomolously late
         int i;
