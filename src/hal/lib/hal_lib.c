@@ -139,7 +139,6 @@ int lib_mem_id = -1;	/* RTAPI shmem ID for library module */
     grabbed the hal_data mutex.
 */
 
-
 /***********************************************************************
 *                  PUBLIC (API) FUNCTION CODE                          *
 ************************************************************************/
@@ -196,7 +195,6 @@ int rtapi_app_main(void)
 void rtapi_app_exit(void)
 {
     HALDBG("removing RT hal_lib support");
-    hal_proc_clean();
     halg_exit_thread(1, NULL);
     // this halg_exit() will unload hal_lib and detach the HAL shm segment
     // to avoid the chicken-and-egg problem of locking hal_data, and

@@ -82,7 +82,6 @@ typedef struct {
     // this is set once on startup by rtapi_msgd and is to be considered a constant
     // throughout the session:
     int instance_id;
-    int rtapi_thread_flavor;
 
     // runtime parameters
     int rt_msg_level;              // message level for RT

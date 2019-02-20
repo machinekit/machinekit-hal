@@ -153,12 +153,6 @@ hal_comp_t *halg_xinitfv(const int use_hal_mutex,
 		HALFAIL_NULL(retval,
 			     "could not init HAL shared memory rc=%d", retval);
 	    }
-	    retval = hal_proc_init();
-	    if (retval) {
-		rtapi_exit(lib_module_id);
-		lib_module_id = -1;
-		HALFAIL_NULL(retval, "could not init /proc files");
-	    }
 #endif
 	    // record hal_lib comp_id
 	    lib_module_id = comp_id;
