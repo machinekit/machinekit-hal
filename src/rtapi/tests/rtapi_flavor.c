@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 // Set this to print verbose debug messages
-int debug_tests = 1;
+int debug_tests = 0;
 #define DEBUG(args...)                                         \
     do { if (debug_tests) fprintf(stderr, args); } while (0)
 
