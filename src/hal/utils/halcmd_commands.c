@@ -4357,7 +4357,7 @@ int do_newthread_cmd(char *name, char *args[])
 	    continue;
 	}
 	if (sscanf(s, "cgname=%s", cgname) == 1)
-		continue;
+            continue;
 	char *cp = s;
 	per = strtol(s, &cp, 0);
 	if ((*cp != '\0') && (!isspace(*cp))) {
