@@ -246,7 +246,7 @@ TORTOBJS = $(patsubst %.cc,$(OBJDIR)/%$(2).o,$(patsubst %.c,$(OBJDIR)/%$(2).o,$(
 #     hal/components/encoder.o hal/components/othersrc.o
 define c_comp_build_rules
 obj-m += $$(patsubst $$(dir $(1))%.o,%.o,$(1))
-$$(patsubst $$(dir $(1))%.o,%-objs,$(1)) := $(1) $(2)
+$$(patsubst $$(dir $(1))%.o,%-objs,$(1)) += $(1) $(2)
 $$(patsubst $$(dir $(1))%.o,$(RTLIBDIR)/%.so,$(1)): \
     $$(addprefix $(OBJDIR)/,$(1) $(2))
 

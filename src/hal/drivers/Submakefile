@@ -140,6 +140,9 @@ $(eval $(call c_comp_build_rules,hal/drivers/mesa-hostmot2/hostmot2.o,\
     hal/drivers/mesa-hostmot2/nano_soc_adc.o \
     hal/drivers/mesa-hostmot2/capsense.o \
     hal/drivers/mesa-hostmot2/bitfile.o   \
+    rtapi/userpci/device.o		  \
+    rtapi/userpci/firmware.o		  \
+    rtapi/userpci/string.o                \
 ))
 $(eval $(call c_comp_build_rules,hal/drivers/mesa-hostmot2/hm2_7i43.o,\
     hal/drivers/mesa-hostmot2/hm2_7i43.o  \
@@ -155,7 +158,11 @@ $(eval $(call c_comp_build_rules,hal/drivers/mesa-hostmot2/hm2_pci.o, \
 $(eval $(call c_comp_build_rules,hal/drivers/mesa-hostmot2/hm2_test.o, \
     hal/drivers/mesa-hostmot2/bitfile.o   \
 ))
-$(eval $(call c_comp_build_rules,hal/drivers/mesa-hostmot2/setsserial.o))
+$(eval $(call c_comp_build_rules,hal/drivers/mesa-hostmot2/setsserial.o, \
+    rtapi/userpci/device.o		  \
+    rtapi/userpci/firmware.o		  \
+    rtapi/userpci/string.o                \
+))
 $(eval $(call c_comp_build_rules,hal/drivers/mesa-hostmot2/hm2_pci.o, \
     hal/drivers/mesa-hostmot2/bitfile.o   \
 ))
