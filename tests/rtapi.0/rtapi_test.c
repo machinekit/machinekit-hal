@@ -21,11 +21,16 @@
 #include <assert.h>
 #include "rtapi.h"
 #include "syslog_async.h"
+#include <errno.h>
 
 int main()
 {
     int comp_id = rtapi_init("testmod");
 
+    if (comp_id == -EBUSY) {
+        printf("rtapi_init() failed: -EBUSY\n");
+        exit(1);
+    }
     if (comp_id < 0) {
 	printf("rtapi_init() failed: %d\n", comp_id);
 	exit(1);
