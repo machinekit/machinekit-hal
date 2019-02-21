@@ -229,6 +229,7 @@ int posix_task_delete_hook(task_data *task, int task_id) {
 
     /* Signal thread termination and wait for the thread to exit. */
     if (!extra_task_data[task_id].deleted) {
+        rtapi_print_msg(RTAPI_MSG_DBG, "Deleting RT thread '%s'\n", task->name);
 	extra_task_data[task_id].deleted = 1;
 
 	// pthread_cancel() will get the thread out of any blocking system
@@ -366,22 +367,27 @@ static void *realtime_thread(void *arg) {
                         task->name, task->cgname);
     }
     if (!(task->flags & TF_NONRT)) {
-	if (realtime_set_priority(task) &&
-            !(flavor_descriptor->flags && FLAVOR_IS_RT)) {
-            // This requires privs - tell user how to obtain them
-	    rtapi_print_msg(
-                RTAPI_MSG_ERR,
-                "to get non-preemptive scheduling with POSIX threads,");
-	    rtapi_print_msg(
-                RTAPI_MSG_ERR,
-                "you need to run "
-                "'sudo setcap cap_sys_nice=pe libexec/rtapi_app_posix'");
-	    rtapi_print_msg(
-                RTAPI_MSG_ERR,
-                "your might have to install setcap "
-                "(e.g.'sudo apt-get install libcap2-bin') to do this.");
-        } else
-	    goto error;
+	if ((ret = realtime_set_priority(task))) {
+            if (!(flavor_descriptor->flags && FLAVOR_IS_RT)) {
+                // This requires privs - tell user how to obtain them
+                rtapi_print_msg(
+                    RTAPI_MSG_ERR,
+                    "to get non-preemptive scheduling with POSIX threads,");
+                rtapi_print_msg(
+                    RTAPI_MSG_ERR,
+                    "you need to run "
+                    "'sudo setcap cap_sys_nice=pe libexec/rtapi_app_posix'");
+                rtapi_print_msg(
+                    RTAPI_MSG_ERR,
+                    "you might have to install setcap "
+                    "(e.g.'sudo apt-get install libcap2-bin') to do this.");
+            } else {
+                rtapi_print_msg(
+                    RTAPI_MSG_ERR, "Task %s realtime_set_priority() failed %d",
+                    task->name, ret);
+                goto error;
+            }
+        }
     }
 
     /* We're done initializing. Open the barrier. */
@@ -424,6 +430,7 @@ static void *realtime_thread(void *arg) {
     return NULL;
  error:
     /* Signal that we're dead and open the barrier. */
+    rtapi_print_msg(RTAPI_MSG_ERR,"Deleting task %s\n", task->name);
     extra_task_data[task_id(task)].deleted = 1;
     pthread_barrier_wait(&extra_task_data[task_id(task)].thread_init_barrier);
     return NULL;
@@ -433,28 +440,48 @@ int posix_task_start_hook(task_data *task, int task_id) {
     pthread_attr_t attr;
     int retval;
 
+#define TRY_OR_ERR(func_call, func_name)                                \
+    do {                                                                \
+        if ((retval = func_call)) {                                     \
+            rtapi_print_msg(RTAPI_MSG_ERR, "Thread %s %s() failed %d\n", \
+                            task->name, func_name, retval);             \
+            return -retval;                                             \
+        }                                                               \
+    } while (0)
+
     extra_task_data[task_id].deleted = 0;
 
-    pthread_barrier_init(&extra_task_data[task_id].thread_init_barrier,
-			 NULL, 2);
-    pthread_attr_init(&attr);
-    pthread_attr_setstack(&attr, extra_task_data[task_id].stackaddr,
-			  task->stacksize);
+    TRY_OR_ERR(pthread_barrier_init(
+                   &extra_task_data[task_id].thread_init_barrier, NULL, 2),
+               "pthread_barrier_init");
+
+    TRY_OR_ERR(pthread_attr_init(&attr), "pthread_attr_init");
+
+    TRY_OR_ERR(pthread_attr_setstack(
+                   &attr, extra_task_data[task_id].stackaddr, task->stacksize),
+               "pthread_attr_setstack");
+
     rtapi_print_msg(RTAPI_MSG_DBG,
 		    "About to pthread_create task %d\n", task_id);
     retval = pthread_create(&extra_task_data[task_id].thread,
-			    &attr, realtime_thread, (void *)task);
-    rtapi_print_msg(RTAPI_MSG_DBG,"Created task %d\n", task_id);
-    pthread_attr_destroy(&attr);
+                            &attr, realtime_thread, (void *)task);
+
+    rtapi_print_msg(RTAPI_MSG_DBG,
+                    "Created task %s (%d)\n", task->name, task_id);
+    TRY_OR_ERR(pthread_attr_destroy(&attr), "pthread_attr_destroy");
     if (retval) {
-	pthread_barrier_destroy
-	    (&extra_task_data[task_id].thread_init_barrier);
-	rtapi_print_msg(RTAPI_MSG_ERR, "Failed to create realtime thread\n");
-	return -ENOMEM;
+        rtapi_print_msg(RTAPI_MSG_ERR, "Thread %s pthread_create() failed; "
+                        "cleaning up\n", task->name);
+	TRY_OR_ERR(pthread_barrier_destroy
+                   (&extra_task_data[task_id].thread_init_barrier),
+               "pthread_barrier_destroy");
+	return -retval;
     }
     /* Wait for the thread to do basic initialization. */
     pthread_barrier_wait(&extra_task_data[task_id].thread_init_barrier);
-    pthread_barrier_destroy(&extra_task_data[task_id].thread_init_barrier);
+    TRY_OR_ERR(pthread_barrier_destroy(
+                   &extra_task_data[task_id].thread_init_barrier),
+               "pthread_barrier_destroy");
     if (extra_task_data[task_id].deleted) {
 	/* The thread died in the init phase. */
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -462,7 +489,7 @@ int posix_task_start_hook(task_data *task, int task_id) {
 	return -ENOMEM;
     }
     rtapi_print_msg(RTAPI_MSG_DBG,
-		    "Task %d finished its basic init\n", task_id);
+                    "Task %s (%d) finished basic init\n", task->name, task_id);
 
     return 0;
 }

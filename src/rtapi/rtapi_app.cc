@@ -573,6 +573,8 @@ static int do_load_cmd(int instance,
     if (name.find_last_of("/") != string::npos)
       name = name.substr(name.find_last_of("/") + 1);
 
+    rtapi_print_msg(RTAPI_MSG_DBG, "Loading from %s\n", path.c_str()); // FIXME
+
     if (modules.count(name) == 0) {
         strncpy(module_path, (path + ".so").c_str(),
                 PATH_MAX);
