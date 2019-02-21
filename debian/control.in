@@ -52,9 +52,9 @@ Depends: make, g++, tcl8.6, tk8.6,
    yapps2-runtime
 Section: libs
 Description: PC based motion controller for real-time Linux
-Machinekit is the next-generation Enhanced Machine Controller which
-provides motion control for CNC machine tools and robotic
-applications (milling, cutting, routing, etc.).
-.
-This package includes files needed to build new realtime components and
-alternate front-ends for machinekit
+ Machinekit is the next-generation Enhanced Machine Controller which
+ provides motion control for CNC machine tools and robotic
+ applications (milling, cutting, routing, etc.).
+ .
+ This package includes files needed to build new realtime components and
+ alternate front-ends for machinekit
