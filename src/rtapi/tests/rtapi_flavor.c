@@ -9,6 +9,32 @@ int debug_tests = 0;
     do { if (debug_tests) fprintf(stderr, args); } while (0)
 
 /******************************************************************/
+// Mock functions
+
+int __wrap_flavor_can_run_flavor(flavor_descriptor_ptr f)
+{
+    int ret = mock();
+    if (f == NULL)
+        DEBUG("mock:  flavor_can_run_flavor(NULL) = %d\n", ret);
+    else
+        DEBUG("mock:  flavor_can_run_flavor('%s') = %d\n", f->name, ret);
+    function_called();
+    /* check_expected(f->flavor_id); */
+    check_expected_ptr(f);
+    return ret;
+}
+
+char *__wrap_getenv(const char *name)
+{
+    // From <stdlib.h>
+    function_called();
+    check_expected_ptr(name);
+    char* ret = mock_ptr_type(char *);
+    DEBUG("mock:  getenv(%s) = '%s'\n", name, ret);
+    return ret;
+}
+
+/******************************************************************/
 // Tests for flavor_names
 
 // Number of flavors
@@ -32,9 +58,34 @@ static void test_flavor_names(void **state)
     const char* fname;
     int count = 0;
 
-    for (f=NULL; (fname=flavor_names(&f)); count++)
+    // Set up mock calls to flavor_can_run_flavor():  all runnable
+    expect_function_calls(__wrap_flavor_can_run_flavor, FLAVOR_NAMES_COUNT);
+    will_return_count(__wrap_flavor_can_run_flavor, 1, FLAVOR_NAMES_COUNT);
+    for (count = 0; count < FLAVOR_NAMES_COUNT; count++)
+        expect_value(__wrap_flavor_can_run_flavor, f,
+                     flavor_byname(expected_flavor_names[count]));
+
+    for (count=0; (fname=flavor_names(&f)); count++)
         assert_string_equal(fname, *(expected_name_ptr++));
     assert_int_equal(count, FLAVOR_NAMES_COUNT);
+}
+
+static void test_flavor_names_unrunnable(void **state)
+{
+    flavor_descriptor_ptr * f = NULL;
+    int count = 0;
+
+    // Set up mock calls to flavor_can_run_flavor():  all unrunnable
+    expect_function_calls(__wrap_flavor_can_run_flavor, FLAVOR_NAMES_COUNT);
+    will_return_count(__wrap_flavor_can_run_flavor, 0, FLAVOR_NAMES_COUNT);
+    for (count = 0; count < FLAVOR_NAMES_COUNT; count++)
+        expect_value(__wrap_flavor_can_run_flavor, f,
+                     flavor_byname(expected_flavor_names[count]));
+
+    // Shouldn't get any names
+    for (count=0; flavor_names(&f); count++)
+        fail();
+    assert_int_equal(count, 0);
 }
 
 /******************************************************************/
@@ -163,34 +214,10 @@ static flavor_default_test_data_t flavor_default_test_data[] = {
     { .getenv_ret = "END" }, // Marks end of tests
 };
 
-// Mock functions
-int __wrap_flavor_can_run_flavor(flavor_descriptor_ptr f)
-{
-    int ret = mock();
-    if (f == NULL)
-        DEBUG("mock:  flavor_can_run_flavor(NULL) = %d\n", ret);
-    else
-        DEBUG("mock:  flavor_can_run_flavor('%s') = %d\n", f->name, ret);
-    function_called();
-    /* check_expected(f->flavor_id); */
-    check_expected_ptr(f);
-    return ret;
-}
-
-char *__wrap_getenv(const char *name)
-{
-    // From <stdlib.h>
-    function_called();
-    check_expected_ptr(name);
-    char* ret = mock_ptr_type(char *);
-    DEBUG("mock:  getenv(%s) = '%s'\n", name, ret);
-    return ret;
-}
-
 static void test_flavor_default_runner(flavor_default_test_data_t *td)
 {
     flavor_descriptor_ptr flavor;
-    DEBUG("test:  Setting up ret = %d\n", td->ret);
+    DEBUG("test:  Setting up ret = %d, exit = %d\n", td->ret, td->exit);
 
     // getenv("FLAVOR") should always be called; returns test data
     DEBUG("test:  mock getenv(FLAVOR) = '%s'\n", td->getenv_ret);
@@ -209,6 +236,16 @@ static void test_flavor_default_runner(flavor_default_test_data_t *td)
             expect_function_call(__wrap_flavor_can_run_flavor);
             expect_value(__wrap_flavor_can_run_flavor, f, flavor);
             will_return(__wrap_flavor_can_run_flavor, 1);
+        }
+        if (td->exit == 100) {
+            // We don't care about these calls, for printing valid flavors
+            // before exit; not critical to function and hard to mock
+            DEBUG("test:  mock flavor_can_run_flavor('%s') = 0 (any)\n",
+                  td->getenv_ret);
+            expect_function_call_any(__wrap_flavor_can_run_flavor);
+            expect_any_count(__wrap_flavor_can_run_flavor, f,
+                             FLAVOR_NAMES_COUNT);
+            will_return_always(__wrap_flavor_can_run_flavor, 1);
         }
         if (td->exit == 101) {
             DEBUG("test:  mock flavor_can_run_flavor('%s') = 0\n",
@@ -336,6 +373,7 @@ int main(void)
 
     const struct CMUnitTest tests[] = {
         cmocka_unit_test(test_flavor_names),
+        cmocka_unit_test(test_flavor_names_unrunnable),
         cmocka_unit_test(test_flavor_byname),
         cmocka_unit_test(test_flavor_byid),
 #       ifdef RTAPI // Ugh

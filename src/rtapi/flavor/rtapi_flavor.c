@@ -51,12 +51,14 @@ static flavor_descriptor_ptr flavor_list[] = {
 const char * flavor_names(flavor_descriptor_ptr ** fd)
 {
     const char * name;
-    if (*fd == NULL)
-        // Init to beginning of list
-        *fd = flavor_list;
-    else
-        // Go to next in list
-        (*fd)++;
+    do {
+        if (*fd == NULL)
+            // Init to beginning of list
+            *fd = flavor_list;
+        else
+            // Go to next in list
+            (*fd)++;
+    } while (**fd != NULL && !flavor_can_run_flavor(**fd));
 
     if (**fd == NULL)
         // End of list; no name
