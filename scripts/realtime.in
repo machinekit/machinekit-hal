@@ -32,6 +32,12 @@ if ! test -x "$INIVAR"; then
     exit 1
 fi
 
+# Catch this common error early on for RIP builds
+if test "$($INIVAR -var RUN_IN_PLACE -ini $RTAPI_INI)" = yes \
+        -a ! -u ${rtapi_app}; then
+    echo "Warning - ${rtapi_app} not setuid; run 'sudo make setuid'" >&2
+fi
+
 # Helper function to get variables from config
 getvar() {
     # getvar <variable>
@@ -39,13 +45,6 @@ getvar() {
     var=$1
     eval "$var='$($INIVAR -var $var -ini $RTAPI_INI 2>/dev/null)'"
 }
-
-# catch this common error early on:
-if ! test -u ${rtapi_app}
-then
-    echo Warning - ${rtapi_app} not setuid >&2
-    echo "'sudo make setuid' missing?" >&2
-fi
 
 if [ "$HAL_SIZE" == "" ]  ; then
     getvar HAL_SIZE
