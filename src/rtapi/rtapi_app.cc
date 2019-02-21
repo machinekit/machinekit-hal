@@ -88,6 +88,7 @@ using namespace google::protobuf;
 
 #define BACKGROUND_TIMER 1000
 #define HALMOD   "hal_lib"
+#define RTAPIMOD "rtapi"
 
 using namespace std;
 

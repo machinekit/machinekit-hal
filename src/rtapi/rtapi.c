@@ -56,7 +56,11 @@ ringbuffer_t rtapi_message_buffer;   // error ring access strcuture
 static int ulapi_debug = RTAPI_MSG_NONE;
 #endif
 
-#define LOGTAG (flavor_feature(NULL, FLAVOR_NOT_RTAPI) ? "ULAPI" : "RTAPI")
+#ifdef RTAPI
+#define LOGTAG "ULAPI"
+#else
+#define LOGTAG "RTAPI"
+#endif
 
 int shmdrv_loaded;  // set in rtapi_app_main FIXME
 long page_size;     // set in rtapi_app_main
@@ -165,7 +169,7 @@ int rtapi_module_init()
     rtapi_print_msg(RTAPI_MSG_DBG,"%s:%d  %s %s init\n",
                     LOGTAG,
 		    rtapi_instance,
-		    flavor_descriptor->name,
+		    flavor_name(NULL),
 		    GIT_VERSION);
 
     // attach to global segment which rtapi_msgd owns and already
@@ -309,3 +313,8 @@ int  rtapi_next_handle(void)
 {
     return rtapi_add_and_fetch(1, &global_data->next_handle);
 }
+
+#ifdef RTAPI
+EXPORT_SYMBOL(rtapi_app_main);
+EXPORT_SYMBOL(rtapi_app_exit);
+#endif
