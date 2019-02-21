@@ -298,3 +298,21 @@ int rtapi_task_pll_set_correction(long value) {
 
 
 #endif  /* RTAPI */
+
+
+#ifdef RTAPI
+EXPORT_SYMBOL(rtapi_prio_highest);
+EXPORT_SYMBOL(rtapi_prio_lowest);
+EXPORT_SYMBOL(rtapi_prio_next_higher);
+EXPORT_SYMBOL(rtapi_prio_next_lower);
+EXPORT_SYMBOL(rtapi_task_new);
+EXPORT_SYMBOL(rtapi_task_delete);
+EXPORT_SYMBOL(rtapi_task_start);
+EXPORT_SYMBOL(rtapi_task_stop);
+EXPORT_SYMBOL(rtapi_task_pause);
+EXPORT_SYMBOL(rtapi_wait);
+EXPORT_SYMBOL(rtapi_task_resume);
+EXPORT_SYMBOL(rtapi_task_self);
+EXPORT_SYMBOL(rtapi_task_pll_get_reference);
+EXPORT_SYMBOL(rtapi_task_pll_set_correction);
+#endif

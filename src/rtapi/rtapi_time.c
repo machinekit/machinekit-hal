@@ -119,3 +119,11 @@ long long int rtapi_get_clocks(void) {
     }
     return res;
 }
+
+#ifdef RTAPI
+EXPORT_SYMBOL(rtapi_clock_set_period);
+EXPORT_SYMBOL(rtapi_delay);
+EXPORT_SYMBOL(rtapi_delay_max);
+EXPORT_SYMBOL(rtapi_get_time);
+EXPORT_SYMBOL(rtapi_get_clocks);
+#endif

@@ -375,3 +375,18 @@ size_t rtapi_heap_status(struct rtapi_heap *h,
 	}
     }
 }
+
+
+#ifdef RTAPI
+EXPORT_SYMBOL(rtapi_malloc);
+EXPORT_SYMBOL(rtapi_malloc_aligned);
+EXPORT_SYMBOL(rtapi_free);
+EXPORT_SYMBOL(rtapi_allocsize);
+EXPORT_SYMBOL(rtapi_calloc);
+EXPORT_SYMBOL(rtapi_realloc);
+EXPORT_SYMBOL(rtapi_heap_walk_freelist);
+EXPORT_SYMBOL(rtapi_heap_addmem);
+EXPORT_SYMBOL(rtapi_heap_init);
+EXPORT_SYMBOL(rtapi_heap_setflags);
+EXPORT_SYMBOL(rtapi_heap_status);
+#endif

@@ -315,6 +315,17 @@ int  rtapi_next_handle(void)
 }
 
 #ifdef RTAPI
+EXPORT_SYMBOL(rtapi_instance);
+EXPORT_SYMBOL(global_data);
+EXPORT_SYMBOL(global_heap);
+EXPORT_SYMBOL(rtapi_autorelease_mutex);
+EXPORT_SYMBOL(init_rtapi_data);
+EXPORT_SYMBOL(rtapi_module_init);
 EXPORT_SYMBOL(rtapi_app_main);
 EXPORT_SYMBOL(rtapi_app_exit);
+EXPORT_SYMBOL(rtapi_init);
+EXPORT_SYMBOL(rtapi_exit);
+EXPORT_SYMBOL(rtapi_task_update_stats);
+EXPORT_SYMBOL(rtapi_set_exception);
+EXPORT_SYMBOL(rtapi_next_handle);
 #endif

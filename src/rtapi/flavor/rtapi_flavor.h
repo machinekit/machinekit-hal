@@ -17,6 +17,8 @@ extern "C" {
 // - Whether flavor runs outside RTAPI threads
 #define  FLAVOR_NOT_RTAPI                  RTAPI_BIT(3)
 
+#define MAX_FLAVOR_NAME_LEN 20
+
 // The exception code puts structs in shm in an opaque blob; this is used to
 // check the allocated storage is large enough
 // https://stackoverflow.com/questions/807244/
@@ -87,12 +89,17 @@ extern "C" {
     extern flavor_descriptor_ptr flavor_descriptor;
 
     // Wrappers around flavor_descriptor
-    extern const char * flavor_names(flavor_descriptor_ptr ** fd);
-    extern flavor_descriptor_ptr flavor_byname(const char *flavorname);
+    typedef const char * (flavor_names_t)(flavor_descriptor_ptr ** fd);
+    extern flavor_names_t flavor_names;
+    typedef flavor_descriptor_ptr (flavor_byname_t)(const char *flavorname);
+    extern flavor_byname_t flavor_byname;
     extern flavor_descriptor_ptr flavor_byid(rtapi_flavor_id_t flavor_id);
-    extern flavor_descriptor_ptr flavor_default(void);
-    extern int flavor_is_configured(void);
-    extern void flavor_install(flavor_descriptor_ptr flavor_id);
+    typedef flavor_descriptor_ptr (flavor_default_t)(void);
+    extern flavor_default_t flavor_default;
+    typedef int (flavor_is_configured_t)(void);
+    extern flavor_is_configured_t flavor_is_configured;
+    typedef void (flavor_install_t)(flavor_descriptor_ptr flavor_id);
+    extern flavor_install_t flavor_install;
 
     // Wrappers for functions in the flavor_descriptor_t
     extern int flavor_can_run_flavor(flavor_descriptor_ptr f);
@@ -127,9 +134,11 @@ extern "C" {
         flavor_descriptor_ptr f, long value);
 
     // Accessors for flavor_descriptor
-    extern const char * flavor_name(flavor_descriptor_ptr f);
+    typedef const char * (flavor_name_t)(flavor_descriptor_ptr f);
+    extern flavor_name_t flavor_name;
     extern int flavor_id(flavor_descriptor_ptr f);
-    extern int flavor_feature(flavor_descriptor_ptr f, int feature);
+    typedef int (flavor_feature_t)(flavor_descriptor_ptr f, int feature);
+    extern flavor_feature_t flavor_feature;
 
     // Help for unit test mocking
     extern int flavor_mocking;

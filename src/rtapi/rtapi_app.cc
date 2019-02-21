@@ -157,22 +157,78 @@ static FILE *inifp;
 static AvahiCzmqPoll *av_loop;
 #endif
 
-// the following two variables, despite extern, are in fact private to rtapi_app
-// in the sense that they are not visible in the RT space (the namespace
-// of dlopen'd modules); these are supposed to be 'ships in the night'
-// relative to any symbols exported by rtapi_app.
-//
+// RTAPI flavor functions are dynamically linked in through rtapi.so
+// - Pointers to functions
+flavor_name_t * flavor_name_ptr;
+flavor_names_t * flavor_names_ptr;
+flavor_is_configured_t * flavor_is_configured_ptr;
+flavor_feature_t * flavor_feature_ptr;
+flavor_byname_t * flavor_byname_ptr;
+flavor_default_t * flavor_default_ptr;
+flavor_install_t * flavor_install_ptr;
+// - Keep track of whether pointers have been set
+static int have_flavor_funcs = 0;
+// - For storing the `-f` option until flavors are ready to be configured
+static char flavor_name_opt[MAX_FLAVOR_NAME_LEN] = {0};
+
 // global_data is set in attach_global_segment() which was already
 // created by rtapi_msgd
-
-// NB: do _not_ call any rtapi_* methods before these variables are set
-// except for rtapi_msg* and friends.
+global_data_t *global_data;
 static const char *rpath;
 static int init_actions(int instance);
 static void exit_actions(int instance);
 static int harden_rt(void);
 static void stderr_rtapi_msg_handler(msg_level_t level, const char *fmt, va_list ap);
 static int record_instparms(char *fname, modinfo_t &mi);
+
+static void configure_flavor(machinetalk::Container &pbreply)
+{
+
+    // Retrieve the flavor_*_ptr() addresses so rtapi flavor functions can be
+    // called.
+    if (have_flavor_funcs) return;  // Already did this
+
+    // Load pointers
+#    define GET_FLAVOR_FUNC(name) do {                          \
+        name ## _ptr = (name ## _t *)dlsym(mi.handle, #name);   \
+        if (name ## _ptr == NULL) {                             \
+            const char *err = dlerror();                        \
+            if (err) note_printf(pbreply, "BUG: %s:", err);     \
+        }                                                       \
+        assert(name ## _ptr != NULL);                           \
+    } while (0)
+
+    modinfo_t &mi = modules[RTAPIMOD];
+
+    dlerror();
+    GET_FLAVOR_FUNC(flavor_name);
+    GET_FLAVOR_FUNC(flavor_names);
+    GET_FLAVOR_FUNC(flavor_is_configured);
+    GET_FLAVOR_FUNC(flavor_feature);
+    GET_FLAVOR_FUNC(flavor_byname);
+    GET_FLAVOR_FUNC(flavor_default);
+    GET_FLAVOR_FUNC(flavor_install);
+
+    flavor_descriptor_ptr flavor = NULL;
+    if (flavor_name_opt[0]) {
+        // Configure flavor from -f cmdline arg
+        if ((flavor = (*flavor_byname_ptr)(flavor_name_opt)) == NULL) {
+            fprintf(stderr, "No such flavor '%s'; valid flavors are:\n",
+                    flavor_name_opt);
+            flavor_descriptor_ptr * f_handle;
+            const char * fname;
+            for (f_handle=NULL; (fname=(*flavor_names_ptr)(&f_handle)); )
+                fprintf(stderr, "      %s\n", fname);
+            exit(1);
+        }
+    } else {
+        // Configure flavor from environment or automatically
+        flavor = (*flavor_default_ptr)();  // Exits on error
+    }
+    (*flavor_install_ptr)(flavor);  // Exits on error
+    have_flavor_funcs = 1;  // Don't run this again
+}
+
 
 static int do_one_item(char item_type_char,
 		       const string &param_name,
@@ -534,8 +590,9 @@ static int do_load_cmd(int instance,
         // so they can be replayed before newinst
         record_instparms(module_path, mi);
 
-        int (*start)(void) = DLSYM<int(*)(void)>(mi.handle, "rtapi_app_main");
-        if (!start) {
+        int (*rtapi_app_main_dlsym)(void) =
+            DLSYM<int(*)(void)>(mi.handle, "rtapi_app_main");
+        if (!rtapi_app_main_dlsym) {
             note_printf(pbreply, "%s: dlsym: %s\n",
                         name.c_str(), dlerror());
             return -1;
@@ -548,9 +605,14 @@ static int do_load_cmd(int instance,
             return -1;
         }
 
+        // Configure flavor, needed even before `rtapi_app_main_dlsym()` runs
+        // next.  This runs at every module load, but only does anything after
+        // RTAPIMOD, the first module loaded.
+        configure_flavor(pbreply);
+
         // need to call rtapi_app_main with as root
         // RT thread creation and hardening requires this
-        if ((result = start()) < 0) {
+        if ((result = rtapi_app_main_dlsym()) < 0) {
             note_printf(pbreply, "rtapi_app_main(%s): %d %s\n",
                         name.c_str(), result, strerror(-result));
             return result;
@@ -630,6 +692,10 @@ static int init_actions(int instance)
     int retval;
 
     machinetalk::Container reply;
+
+    retval =  do_load_cmd(instance, RTAPIMOD, pbstringarray_t(), reply);
+    if (retval)
+	return retval;
     if ((retval = do_load_cmd(instance, HALMOD, pbstringarray_t(), reply)))
 	return retval;
 
@@ -745,7 +811,7 @@ static int rtapi_request(zloop_t *loop, zsock_t *socket, void *arg)
 	char buffer[LINELEN];
 	snprintf(buffer, sizeof(buffer),
 		 "pid=%d flavor=%s gcc=%s git=%s",
-		 getpid(),flavor_descriptor->name,  __VERSION__, GIT_VERSION);
+		 getpid(), (*flavor_name_ptr)(NULL),  __VERSION__, GIT_VERSION);
 	pbreply.add_note(buffer);
 	pbreply.set_retcode(0);
 	break;
@@ -1084,15 +1150,17 @@ static int mainloop(size_t  argc, char **argv)
     rtapi_set_logtag("rtapi_app");
     rtapi_set_msg_level(global_data->rt_msg_level);
 
-    // check that flavor is configured
-    if (! flavor_is_configured()) {
+    // load rtapi and hal_lib
+    // - After this, it's safe to run any flavor_* stuff
+    if (init_actions(rtapi_instance_loc)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"FATAL:  Flavor unconfigured\n");
-	exit(EXIT_FAILURE);
+			"init_actions() failed\n");
+	global_data->rtapi_app_pid = 0;
+	exit(1);
     }
 
     // make sure we're setuid root when we need to
-    if (use_drivers || flavor_feature(NULL, FLAVOR_DOES_IO)) {
+    if (use_drivers || (*flavor_feature_ptr)(NULL, FLAVOR_DOES_IO)) {
 	if (geteuid() != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "rtapi_app:%d need to"
@@ -1111,14 +1179,6 @@ static int mainloop(size_t  argc, char **argv)
 			rtapi_instance_loc);
 	global_data->rtapi_app_pid = 0;
 	exit(retval);
-    }
-
-    // load rtapi and hal_lib
-    if (init_actions(rtapi_instance)) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"init_actions() failed\n");
-	global_data->rtapi_app_pid = 0;
-	exit(1);
     }
 
     // block all signal delivery through signal handler
@@ -1231,8 +1291,9 @@ static int mainloop(size_t  argc, char **argv)
 #endif
 
     // report success
-    rtapi_print_msg(RTAPI_MSG_INFO, "rtapi_app:%d ready flavor=%s gcc=%s git=%s",
-		    rtapi_instance_loc, flavor_descriptor->name,  __VERSION__, GIT_VERSION);
+    rtapi_print_msg(
+        RTAPI_MSG_INFO, "rtapi_app:%d ready flavor=%s gcc=%s git=%s",
+        rtapi_instance_loc, (*flavor_name_ptr)(NULL), __VERSION__, GIT_VERSION);
 
     // the RT stack is now set up and good for use
     global_data->rtapi_app_pid = getpid();
@@ -1262,7 +1323,7 @@ static int configure_memory(void)
     unsigned int i, pagesize;
     char *buf;
 
-    if (use_drivers || flavor_feature(NULL, FLAVOR_DOES_IO)) {
+    if (use_drivers || (*flavor_feature_ptr)(NULL, FLAVOR_DOES_IO)) {
 	// Realtime tweak requires privs
 	/* Lock all memory. This includes all current allocations (BSS/data)
 	 * and future allocations. */
@@ -1386,7 +1447,7 @@ static int harden_rt()
     // guaranteed the process executing e.g. hal_parport's rtapi_app_main is
     // the same process which starts the RT threads, causing hal_parport
     // thread functions to fail on inb/outb
-    if (use_drivers || flavor_feature(NULL, FLAVOR_DOES_IO)) {
+    if (use_drivers || (*flavor_feature_ptr)(NULL, FLAVOR_DOES_IO)) {
 	if (iopl(3) < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "cannot gain I/O privileges - "
@@ -1429,8 +1490,6 @@ int main(int argc, char **argv)
     uuid_unparse(process_uuid, process_uuid_str);
     int option = LOG_NDELAY;
 
-    flavor_descriptor_ptr flavor = NULL;
-
     while (1) {
 	int option_index = 0;
 	int curind = optind;
@@ -1466,15 +1525,7 @@ int main(int argc, char **argv)
 	    break;
 
 	case 'f':
-	    if ((flavor = flavor_byname(optarg)) == NULL) {
-		fprintf(stderr, "no such flavor: '%s' -- valid flavors are:\n",
-			optarg);
-		flavor_descriptor_ptr * flavor_handle;
-                const char * fname;
-                for (flavor_handle=NULL; (fname=flavor_names(&flavor_handle)); )
-                    fprintf(stderr, "      %s\n", fname);
-		exit(1);
-	    }
+            strncpy(flavor_name_opt, optarg, MAX_FLAVOR_NAME_LEN);
 	    break;
 
 	case 'U':
@@ -1538,10 +1589,6 @@ int main(int argc, char **argv)
 	}
     }
 #endif
-
-    // Set flavor
-    if (!flavor) flavor = flavor_default();  // Exits on error
-    flavor_install(flavor);  // Exits on error
 
     // the actual checking for setuid happens in harden_rt() (if needed)
     if (!foreground && (getuid() > 0)) {

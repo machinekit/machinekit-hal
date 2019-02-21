@@ -174,3 +174,8 @@ int flavor_feature(flavor_descriptor_ptr f, int feature)
     SET_FLAVOR_DESCRIPTOR_DEFAULT();
     return (f->flags & feature);
 }
+
+#ifdef RTAPI
+EXPORT_SYMBOL(flavor_name);
+EXPORT_SYMBOL(flavor_feature);
+#endif

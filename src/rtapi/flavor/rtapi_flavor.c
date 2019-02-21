@@ -158,3 +158,11 @@ int flavor_is_configured(void)
 {
     return flavor_descriptor != NULL;
 }
+
+#ifdef RTAPI
+EXPORT_SYMBOL(flavor_names);
+EXPORT_SYMBOL(flavor_is_configured);
+EXPORT_SYMBOL(flavor_byname);
+EXPORT_SYMBOL(flavor_default);
+EXPORT_SYMBOL(flavor_install);
+#endif
