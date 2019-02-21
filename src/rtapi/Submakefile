@@ -111,7 +111,8 @@ $(call TORTOBJS, rtapi/flavor/rt-preempt.c): \
 	EXTRAFLAGS += $(LIBCGROUP_CFLAGS)
 
 # userland PCI support needs -ludev for rtapi.so
-$(RTLIBDIR)/rtapi.so: EXTRA_LDFLAGS += $(LIBUDEV_LIBS) $(RT_LDFLAGS)
+$(RTLIBDIR)/rtapi.so: EXTRA_LDFLAGS += \
+	$(LIBUDEV_LIBS) $(RT_LDFLAGS) $(LIBCGROUP_LIBS)
 
 ##################################################################
 #                        rtapi_app
@@ -233,7 +234,7 @@ $(call TOOBJSDEPS, rtapi/rtapi_app.cc): \
 	    -o $@ \
 	    $^ \
 	    $(LDFLAGS) \
-	    $(THREADS_LDFLAGS) $(LIBUDEV_LIBS) $(LIBCGROUP_LIBS) \
+	    $(THREADS_LDFLAGS) $(LIBUDEV_LIBS) \
 	    $(PROTOBUF_LIBS) $(CZMQ_LIBS) $(LTTNG_UST_LIBS) \
 	    -lstdc++ -ldl -luuid
 
