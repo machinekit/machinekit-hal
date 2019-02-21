@@ -24,7 +24,7 @@
 #include "config.h"		// build configuration
 #include "rtapi.h"		// these functions
 #include "rtapi_common.h"	// these functions
-#include "rtapi_flavor.h"       // flavor_descriptor
+#include "rtapi_flavor.h"       // flavor_*
 
 #include <time.h>		// clock_getres(), clock_gettime()
 

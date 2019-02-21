@@ -108,7 +108,7 @@ int flavor_task_resume_hook(
     if (f->task_resume_hook)
         return f->task_resume_hook(task, task_id);
     else
-        return 0;
+        return -ENOSYS; // Unimplemented
 }
 void flavor_task_delay_hook(flavor_descriptor_ptr f, long int nsec)
 {
@@ -135,17 +135,26 @@ long long int flavor_get_clocks_hook(flavor_descriptor_ptr f)
 int flavor_task_self_hook(flavor_descriptor_ptr f)
 {
     SET_FLAVOR_DESCRIPTOR_DEFAULT();
-    return f->task_self_hook();
+    if (flavor_descriptor->task_self_hook)
+        return f->task_self_hook();
+    else
+        return -ENOSYS;
 }
 long long flavor_task_pll_get_reference_hook(flavor_descriptor_ptr f)
 {
     SET_FLAVOR_DESCRIPTOR_DEFAULT();
-    return f->task_pll_get_reference_hook();
+    if (flavor_descriptor->task_pll_get_reference_hook)
+        return f->task_pll_get_reference_hook();
+    else
+        return 0;
 }
 int flavor_task_pll_set_correction_hook(flavor_descriptor_ptr f, long value)
 {
     SET_FLAVOR_DESCRIPTOR_DEFAULT();
-    return f->task_pll_set_correction_hook(value);
+    if (flavor_descriptor->task_pll_set_correction_hook)
+        return f->task_pll_set_correction_hook(value);
+    else
+        return 0;
 }
 
 const char * flavor_name(flavor_descriptor_ptr f)

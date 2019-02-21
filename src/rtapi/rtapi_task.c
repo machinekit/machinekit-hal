@@ -31,7 +31,7 @@
 #include "config.h"		// build configuration
 #include "rtapi.h"		// these functions
 #include "rtapi_common.h"	// RTAPI macros and decls
-#include "rtapi_flavor.h"       // flavor_descriptor
+#include "rtapi_flavor.h"       // flavor_*
 
 /*
   These functions are completely different between each userland
@@ -156,7 +156,7 @@ int rtapi_task_new(const rtapi_task_args_t *args) {
 	     "%s:%d", args->name, rtapi_instance);
     task->name[sizeof(task->name) - 1] = '\0';
 
-    /* userland threads: flavor_descriptor->task_new_hook() should perform any
+    /* userland threads: flavor_task_new_hook() should perform any
        thread system-specific tasks, and return task_id or an error code back to
        the caller (how do we know the diff between an error and a
        task_id???).  */
@@ -280,33 +280,20 @@ int rtapi_task_resume(int task_id) {
     if (task->magic != TASK_MAGIC)
 	return -EINVAL;
 
-    if (flavor_descriptor->task_resume_hook)
-        return flavor_descriptor->task_resume_hook(task,task_id);
-
-    return -ENOSYS;
+    return flavor_task_resume_hook(NULL, task, task_id);
 }
 
 
 int rtapi_task_self(void) {
-    if (flavor_descriptor->task_self_hook)
-        return flavor_descriptor->task_self_hook();
-    else
-        /* not implemented */
-        return -EINVAL;
+    return flavor_task_self_hook(NULL);
 }
 
 long long rtapi_task_pll_get_reference(void) {
-    if (flavor_descriptor->task_pll_get_reference_hook)
-        return flavor_descriptor->task_pll_get_reference_hook();
-    else
-        return 0;
+    return flavor_task_pll_get_reference_hook(NULL);
 }
 
 int rtapi_task_pll_set_correction(long value) {
-    if (flavor_descriptor->task_pll_set_correction_hook)
-        return flavor_descriptor->task_pll_set_correction_hook(value);
-    else
-        return 0;
+    return flavor_task_pll_set_correction_hook(NULL, value);
 }
 
 

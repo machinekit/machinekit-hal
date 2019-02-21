@@ -77,7 +77,7 @@ using namespace google::protobuf;
 #include "rtapi_global.h"
 #include "rtapi_compat.h"
 #include "rtapi_export.h"
-#include "rtapi_flavor.h"  // flavor_descriptor
+#include "rtapi_flavor.h"  // flavor_*
 #include "hal.h"
 #include "hal_priv.h"
 #include "shmdrv.h"
@@ -1373,10 +1373,6 @@ static int harden_rt()
 			    errno,strerror(errno));
 	}
     }
-
-    // Check that configured flavor can run
-    // FIXME is this redundant?  Where is this configured?
-    flavor_descriptor->can_run_flavor();
 
 #if defined(__x86_64__) || defined(__i386__)
 

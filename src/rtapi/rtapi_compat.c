@@ -98,7 +98,6 @@ int get_rtapi_config(char *result, const char *param, int n)
     return 0;
 }
 
-//int procfs_cmd(const char *path, const char *format, ...)
 // whatever is written is printf-style
 int rtapi_fs_write(const char *path, const char *format, ...)
 {
