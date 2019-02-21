@@ -1036,14 +1036,13 @@ install-python: install-dirs
 endif
 
 install-kernel-dep: install-dirs
-	$(SETUID) ../libexec/rtapi_app_* $(DESTDIR)$(EMC2_LIBEXEC_DIR)
+	$(SETUID) ../libexec/rtapi_app $(DESTDIR)$(EMC2_LIBEXEC_DIR)
 ifeq ($(BUILD_DRIVERS),yes)
 	$(SETUID) ../libexec/pci_write $(DESTDIR)$(EMC2_LIBEXEC_DIR)
 	$(SETUID) ../libexec/pci_read $(DESTDIR)$(EMC2_LIBEXEC_DIR)
 endif
 	$(EXE) ../libexec/inivar $(DESTDIR)$(EMC2_LIBEXEC_DIR)
 	$(EXE) ../libexec/rtapi_msgd $(DESTDIR)$(EMC2_LIBEXEC_DIR)
-	$(EXE) ../libexec/flavor $(DESTDIR)$(EMC2_LIBEXEC_DIR)
 	$(FILE) ../etc/linuxcnc/rtapi.ini $(DESTDIR)$(sysconfdir)/linuxcnc
 
 	# RTAPI modules:  install userland flavor .so modules into

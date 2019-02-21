@@ -37,6 +37,9 @@ SHLIBDEPS_X += libcanterp.so.0 librs274.so.0
 # halmeter classicladder halscope link to $(GTK_LIBS), which includes
 # several libs that aren't used (but several that are needed)
 SHLIBDEPS_X += halmeter classicladder halscope
+#
+# mb2hal gs2_vfd hy_vfd link to libglib-2.0.so.0; similar to above
+SHLIBDEPS_X += mb2hal gs2_vfd hy_vfd
 
 # Cross-compile variables
 DEB_HOST_ARCH := $(shell dpkg-architecture -qDEB_HOST_ARCH)
