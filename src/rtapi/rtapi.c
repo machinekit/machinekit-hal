@@ -156,6 +156,9 @@ int rtapi_module_init()
     if (debug_env)
 	ulapi_debug = atoi(debug_env);
     rtapi_set_msg_level(ulapi_debug);
+
+    // Set up the ulapi flavor
+    flavor_install(flavor_byname("ulapi"));
 #endif
 
     int globalkey = OS_KEY(GLOBAL_KEY, rtapi_instance);
