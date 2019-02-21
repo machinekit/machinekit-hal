@@ -170,17 +170,17 @@ int get_elf_section(const char *const fname, const char *section_name, void **de
     struct stat st;
 
     if (stat(fname, &st) != 0) {
-	perror("stat");
+	perror("rtapi_compat.c:  get_elf_section() stat");
 	return -1;
     }
     int fd = open(fname, O_RDONLY);
     if (fd < 0) {
-	perror("open");
+	perror("rtapi_compat.c:  get_elf_section() open");
 	return fd;
     }
     char *p = mmap(0, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
     if (p == NULL) {
-	perror("mmap");
+	perror("rtapi_compat.c:  get_elf_section() mmap");
     close(fd);
 	return -1;
     }
@@ -202,7 +202,7 @@ int get_elf_section(const char *const fname, const char *section_name, void **de
 		    if (dest) {
 			*dest = malloc(size);
 			if (*dest == NULL) {
-			    perror("malloc");
+			    perror("rtapi_compat.c:  get_elf_section() malloc");
 			    size = -1;
 			    break;
 			}
@@ -230,7 +230,7 @@ int get_elf_section(const char *const fname, const char *section_name, void **de
 		    if (dest) {
 			*dest = malloc(size);
 			if (*dest == NULL) {
-			    perror("malloc");
+			    perror("rtapi_compat.c:  get_elf_section() malloc");
 			    size = -1;
 			    break;
 			}
@@ -264,7 +264,7 @@ const char **get_caps(const char *const fname)
 
     const char **rv = malloc(sizeof(char*) * (n+1));
     if (rv == NULL) {
-	perror("malloc");
+	perror("rtapi_compat.c:  get_caps() malloc");
 	return NULL;
     }
     n = 0;
@@ -307,7 +307,7 @@ int rtapi_get_tags(const char *mod_name)
     char *cp1 = "";
 
     if (get_rtapi_config(modpath,"RTLIB_DIR",PATH_MAX) != 0) {
-        perror("cant get  RTLIB_DIR ?\n");
+        perror("rtapi_compat.c:  Can't get  RTLIB_DIR");
         return -1;
     }
     strcat(modpath,"/modules/");
