@@ -110,12 +110,21 @@ long long int rtapi_get_clocks(void) {
     long long int res;
     res = flavor_get_clocks_hook(NULL);
     if (res == -ENOSYS) { // Unimplemented
+
+#     ifdef MSR_H_USABLE
         /* This returns a result in clocks instead of nS, and needs to be
            used with care around CPUs that change the clock speed to save
            power and other disgusting, non-realtime oriented behavior.
            But at least it doesn't take a week every time you call it.  */
-
         rdtscll(res);
+#     elif defined(__i386__) || defined(__x86_64__)
+        __asm__ __volatile__("rdtsc" : "=A" (res));
+#     else
+        // Needed for e.g. ARM
+        struct timespec ts;
+        clock_gettime(CLOCK_MONOTONIC, &ts);
+        res = ts.tv_sec * 1000000000LL + ts.tv_nsec;
+#     endif
     }
     return res;
 }

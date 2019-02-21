@@ -90,16 +90,6 @@ extra_task_data_t extra_task_data[RTAPI_MAX_TASKS + 1];
 int have_cg;  // true when libcgroup initialized successfully
 #endif  /* RTAPI */
 
-#if !defined(__i386__) && !defined(__x86_64__)
-long long int posix_get_clocks_hook(void)
-{
-    struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    return ts.tv_sec * 1000000000LL + ts.tv_nsec;
-}
-
-#endif
-
 
 #ifdef RTAPI
 int posix_module_init_hook(void)
@@ -685,11 +675,7 @@ flavor_descriptor_t flavor_rt_prempt_descriptor = {
     .task_resume_hook = NULL,
     .task_delay_hook = posix_task_delay_hook,
     .get_time_hook = NULL,
-#if !defined(__i386__) && !defined(__x86_64__)
-    .get_clocks_hook = posix_get_clocks_hook,
-#else
     .get_clocks_hook = NULL,
-#endif
     .task_self_hook = posix_task_self_hook,
     .task_pll_get_reference_hook = posix_task_pll_get_reference_hook,
     .task_pll_set_correction_hook = posix_task_pll_set_correction_hook
@@ -714,11 +700,7 @@ flavor_descriptor_t flavor_posix_descriptor = {
     .task_resume_hook = NULL,
     .task_delay_hook = posix_task_delay_hook,
     .get_time_hook = NULL,
-#if !defined(__i386__) && !defined(__x86_64__)
-    .get_clocks_hook = posix_get_clocks_hook,
-#else
     .get_clocks_hook = NULL,
-#endif
     .task_self_hook = posix_task_self_hook,
     .task_pll_get_reference_hook = posix_task_pll_get_reference_hook,
     .task_pll_set_correction_hook = posix_task_pll_set_correction_hook

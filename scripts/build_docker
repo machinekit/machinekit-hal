@@ -57,10 +57,10 @@ esac
 # Distro-specific:
 case ${TAG} in
     *_8)
-	PKG_CONFIGURE_ARGS="-prx"   # Enable Xenomai
+	PKG_CONFIGURE_ARGS="-x"   # Enable Xenomai
 	;;
     *)
-	PKG_CONFIGURE_ARGS="-pr"    # Build posix and preempt-rt threads
+        : # Nothing to do
 	;;
 esac
 
@@ -144,7 +144,7 @@ case $CMD in
 	    (
 		cd src;
 		./autogen.sh;
-		./configure --host=\$HOST_MULTIARCH --with-posix;
+		./configure --host=\$HOST_MULTIARCH;
 	    )
 
             # Build
@@ -176,7 +176,7 @@ esac
 ###########################################################
 # Update new container image and add custom /etc/passwd
 
-docker pull ${IMAGE}:${TAG}
+test -n "$DOCKER_NO_PULL" || docker pull ${IMAGE}:${TAG}
 
 if test ${UID_GID/:*/} != 1000; then
     echo "Updating /etc/passwd for UID $TRAVIS_UID" >&2
