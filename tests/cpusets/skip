@@ -10,8 +10,8 @@ set -e
 # Assert the cgtools are available
 which cgcreate >&/dev/null
 
-# Assert we're running POSIX threads
-test "$(flavor)" = posix -o "$(flavor)" = rt-preempt
+# Assert we're not running Xenomai threads
+test ! -e /sys/module/xeno_nucleus
 
 # Attempt to set up a cgroup with cpuset controller
 #

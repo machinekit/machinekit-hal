@@ -76,7 +76,7 @@ $(eval $(call c_comp_build_rules,emc/kinematics/scarakins.o, \
 	libnml/posemath/sincos.o \
 ))
 $(eval $(call c_comp_build_rules,emc/kinematics/cubic.o, \
-	emc/motion/motion.o \
+	emc/motion/motmod.o \
 	emc/motion/command.o \
 	emc/motion/control.o \
 	emc/motion/homing.o \

@@ -73,7 +73,7 @@ po/linuxcnc.pot: hal/utils/meter.c \
     hal/utils/scope_disp.c \
     hal/utils/scope_files.c \
     hal/utils/miscgtk.c
-po/linuxcnc.pot: emc/motion/control.c emc/motion/command.c emc/motion/motion.c emc/motion/homing.c
+po/linuxcnc.pot: emc/motion/control.c emc/motion/command.c emc/motion/motmod.c emc/motion/homing.c
 
 po/linuxcnc.pot: $(TCLSRCS)
 po/linuxcnc.pot: $(PYI18NSRCS)

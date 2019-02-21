@@ -25,7 +25,7 @@
 
 AC_PREREQ(2.53)
 AC_INIT([LinuxCNC],[m4_normalize(esyscmd(cat ../VERSION))],[emc-developers@lists.sourceforge.net])
-AC_CONFIG_SRCDIR(emc/motion/motion.c)
+AC_CONFIG_SRCDIR(emc/motion/motmod.c)
 if test "$srcdir" != "."; then
     AC_MSG_ERROR([Building outside of srcdir is not supported])
 fi

@@ -6,3 +6,16 @@ INCLUDES += emc/motion
 ../include/%.hh: ./emc/motion/%.hh
 	$(ECHO) Copying header file $@
 	$(Q)cp $^ $@
+
+$(eval $(call c_comp_build_rules,emc/motion/motmod.o, \
+	emc/kinematics/cubic.o \
+	emc/motion/command.o \
+	emc/motion/control.o \
+	emc/motion/homing.o \
+	emc/motion/emcmotglb.o \
+	emc/motion/emcmotutil.o \
+	emc/motion/stashf.o \
+	emc/motion/dbuf.o \
+	libnml/posemath/_posemath.o \
+	libnml/posemath/sincos.o \
+))
