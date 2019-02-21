@@ -310,7 +310,7 @@ int rtapi_get_tags(const char *mod_name)
         perror("cant get  RTLIB_DIR ?\n");
         return -1;
     }
-    strcat(modpath,"/");
+    strcat(modpath,"/modules/");
     strcat(modpath,mod_name);
     strcat(modpath, ".so");
 
