@@ -770,7 +770,7 @@ clean: depclean modclean docclean
 # So that nothing is built as root, this rule does not depend on the touched
 # files (Note that files in depends/ might be rebuilt, and there's little that
 # can be done about it)
-fix_perms = test -f $(1) && chown root $(1) && chmod 4750 $(1) || true
+fix_perms = test ! -f $(1) || (chown root $(1) && chmod 4750 $(1))
 
 ifeq ($(BUILD_DRIVERS),yes)
 setuid:
@@ -778,7 +778,7 @@ setuid:
 	$(call fix_perms,../libexec/pci_write)
 	$(call fix_perms,../libexec/rtapi_app)
 # check system configuration:  logging, ulimits, udev
-	@-../scripts/check-system-configuration.sh $(CHECK_KFLAV_SWITCH)
+	@-../scripts/check-system-configuration.sh
 else
 setuid:
 	@echo "'make setuid' is not needed if hardware drivers are not used"
