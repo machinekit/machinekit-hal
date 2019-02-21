@@ -126,6 +126,7 @@ static void remove_module(std::string name);
 
 static struct rusage rusage;
 static unsigned long minflt, majflt;
+static int rtapi_instance_loc;
 static int use_drivers = 0;
 static int foreground;
 static int debug;
@@ -655,20 +656,20 @@ static int init_actions(int instance)
 static int attach_global_segment()
 {
     int retval = 0;
-    int globalkey = OS_KEY(GLOBAL_KEY, rtapi_instance);
+    int globalkey = OS_KEY(GLOBAL_KEY, rtapi_instance_loc);
     int size = 0;
     int tries = 10; // 5 sec deadline for msgd/globaldata to come up
 
     shm_common_init();
     do {
 	retval = shm_common_new(globalkey, &size,
-				rtapi_instance, (void **) &global_data, 0);
+				rtapi_instance_loc, (void **) &global_data, 0);
 	if (retval < 0) {
 	    tries--;
 	    if (tries == 0) {
 		syslog_async(LOG_ERR,
 		       "rtapi_app:%d: ERROR: cannot attach global segment key=0x%x %s\n",
-		       rtapi_instance, globalkey, strerror(-retval));
+		       rtapi_instance_loc, globalkey, strerror(-retval));
 		return retval;
 	    }
 	    struct timespec ts = {0, 500 * 1000 * 1000}; //ms
@@ -679,7 +680,7 @@ static int attach_global_segment()
     if (size < (int) sizeof(global_data_t)) {
 	syslog_async(LOG_ERR,
 	       "rtapi_app:%d global segment size mismatch: expect >%zu got %d\n",
-	       rtapi_instance, sizeof(global_data_t), size);
+	       rtapi_instance_loc, sizeof(global_data_t), size);
 	return -EINVAL;
     }
 
@@ -689,12 +690,16 @@ static int attach_global_segment()
 	if (tries == 0) {
 	    syslog_async(LOG_ERR,
 		   "rtapi_app:%d: ERROR: global segment magic not changing to ready: magic=0x%x\n",
-		   rtapi_instance, global_data->magic);
+		   rtapi_instance_loc, global_data->magic);
 	    return -EINVAL;
 	}
 	struct timespec ts = {0, 500 * 1000 * 1000}; //ms
 	nanosleep(&ts, NULL);
     }
+    syslog_async(LOG_DEBUG,
+                 "rtapi_app:%d: Attached global segment magic=0x%x\n",
+                 rtapi_instance_loc, global_data->magic);
+
     return retval;
 }
 
@@ -996,7 +1001,7 @@ static int s_handle_signal(zloop_t *loop, zmq_pollitem_t *poller, void *arg)
 	rtapi_print_msg(RTAPI_MSG_INFO,
 			"signal %d - '%s' received, exiting",
 			fdsi.ssi_signo, strsignal(fdsi.ssi_signo));
-	exit_actions(rtapi_instance);
+	exit_actions(rtapi_instance_loc);
 	interrupted = true; // make mainloop exit
 	if (global_data)
 	    global_data->rtapi_app_pid = 0;
@@ -1019,7 +1024,7 @@ s_handle_timer(zloop_t *loop, int  timer_id, void *args)
     if (global_data->rtapi_msgd_pid == 0) {
 	// cant log this via rtapi_print, since msgd is gone
 	syslog_async(LOG_ERR,"rtapi_msgd went away, exiting\n");
-	exit_actions(rtapi_instance);
+	exit_actions(rtapi_instance_loc);
 	if (global_data)
 	    global_data->rtapi_app_pid = 0;
 	exit(EXIT_FAILURE);
@@ -1035,7 +1040,7 @@ static int mainloop(size_t  argc, char **argv)
     static char proctitle[20];
 
     // set new process name
-    snprintf(proctitle, sizeof(proctitle), "rtapi:%d",rtapi_instance);
+    snprintf(proctitle, sizeof(proctitle), "rtapi:%d",rtapi_instance_loc);
     size_t argv0_len = strlen(argv[0]);
     size_t procname_len = strlen(proctitle);
     size_t max_procname_len = (argv0_len > procname_len) ?
@@ -1092,7 +1097,7 @@ static int mainloop(size_t  argc, char **argv)
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "rtapi_app:%d need to"
 			    " 'sudo make setuid' to access I/O?\n",
-			    rtapi_instance);
+			    rtapi_instance_loc);
 	    global_data->rtapi_app_pid = 0;
 	    exit(EXIT_FAILURE);
 	}
@@ -1103,7 +1108,7 @@ static int mainloop(size_t  argc, char **argv)
 	rtapi_print_msg(RTAPI_MSG_ERR,
 			"rtapi_app:%d failed to setup "
 			"realtime environment - 'sudo make setuid' missing?\n",
-			rtapi_instance);
+			rtapi_instance_loc);
 	global_data->rtapi_app_pid = 0;
 	exit(retval);
     }
@@ -1171,7 +1176,7 @@ static int mainloop(size_t  argc, char **argv)
     {	// always bind the IPC socket
 	char uri[LINELEN];
 	snprintf(uri, sizeof(uri), ZMQIPC_FORMAT,
-		 RUNDIR, rtapi_instance, "rtapi", service_uuid);
+		 RUNDIR, rtapi_instance_loc, RTAPIMOD, service_uuid);
 	mode_t prev = umask(S_IROTH | S_IWOTH | S_IXOTH);
 	if ((z_port = zsock_bind(z_command, "%s", uri )) < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,  "cannot bind IPC socket '%s' - %s\n",
@@ -1202,7 +1207,7 @@ static int mainloop(size_t  argc, char **argv)
 	if (!(av_loop = avahi_czmq_poll_new(z_loop))) {
 	    rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app:%d: zeroconf: "
 			    "Failed to create avahi event loop object.",
-			    rtapi_instance);
+			    rtapi_instance_loc);
 	    return -1;
 	} else {
 	    char name[255];
@@ -1218,7 +1223,7 @@ static int mainloop(size_t  argc, char **argv)
 							av_loop);
 	    if (rtapi_publisher == NULL) {
 		rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_app:%d: failed to start zeroconf publisher",
-				rtapi_instance);
+				rtapi_instance_loc);
 		return -1;
 	    }
 	}
@@ -1227,7 +1232,7 @@ static int mainloop(size_t  argc, char **argv)
 
     // report success
     rtapi_print_msg(RTAPI_MSG_INFO, "rtapi_app:%d ready flavor=%s gcc=%s git=%s",
-		    rtapi_instance, flavor_descriptor->name,  __VERSION__, GIT_VERSION);
+		    rtapi_instance_loc, flavor_descriptor->name,  __VERSION__, GIT_VERSION);
 
     // the RT stack is now set up and good for use
     global_data->rtapi_app_pid = getpid();
@@ -1350,7 +1355,7 @@ static int harden_rt()
 	if ((fscanf(fd, "%d", &flag) == 1) && (flag == 0)) {
 	    rtapi_print_msg(RTAPI_MSG_WARN,
 			    "rtapi:%d: cannot create core dumps - /proc/sys/fs/suid_dumpable contains 0",
-			    rtapi_instance);
+			    rtapi_instance_loc);
 	    rtapi_print_msg(RTAPI_MSG_WARN,
 			    "you might have to run 'echo 1 > /proc/sys/fs/suid_dumpable'"
 			    " as root to enable rtapi_app core dumps");
@@ -1457,7 +1462,7 @@ int main(int argc, char **argv)
 	    break;
 
 	case 'I':
-	    rtapi_instance = atoi(optarg);
+	    rtapi_instance_loc = atoi(optarg);
 	    break;
 
 	case 'f':
