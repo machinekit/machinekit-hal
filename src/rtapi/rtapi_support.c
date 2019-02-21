@@ -108,7 +108,7 @@ int vs_ringlogfv(const msg_level_t level,
 	    rtapi_mutex_give(&rtapi_message_buffer.header->wmutex);
     } else {
 	// early startup, global_data & log ring not yet initialized
-	// depending on context, log the message in an appropriate way:
+	// log the message to both stderr and syslog
 
 	static int log_opened;
 	if (!log_opened) {
@@ -118,13 +118,17 @@ int vs_ringlogfv(const msg_level_t level,
 		log_opened = 1;
 	    }
 	}
-#ifdef USE_STDERR
+
 	if (!strchr(msg.buf, '\n'))
 	    strcat(msg.buf,"\n");
 	fprintf(stderr,
-#else
+	       "%d:%s:%d:%s %s",
+	       level,
+	       tag,
+	       pid,
+	       origins[origin & 3],
+	       msg.buf);
         syslog_async(rtapi2syslog(level),
-#endif
 	       "%d:%s:%d:%s %s",
 	       level,
 	       tag,

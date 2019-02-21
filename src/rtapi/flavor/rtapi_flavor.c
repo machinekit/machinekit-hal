@@ -1,5 +1,4 @@
 #include <stdlib.h> // getenv
-#include <stdio.h>  // fprintf
 
 #ifdef ULAPI
 #include "ulapi.h"
@@ -16,16 +15,16 @@
 int flavor_mocking = 0;  // Signal from tests
 int flavor_mocking_err = 0; // Pass error to tests
 // - Mock exit(status), returning NULL and passing error out of band
-#define EXIT_NULL(status) do {                                          \
-        if (flavor_mocking) {                                           \
-            flavor_mocking_err = status; return NULL;                   \
-        } else exit(status);                                            \
+#define EXIT_NULL(status) do {                          \
+        if (flavor_mocking) {                           \
+            flavor_mocking_err = status; return NULL;   \
+        } else exit(status);                            \
     } while (0)
 // - Mock exit(status), returning (nothing) and passing error out of band
-#define EXIT_NORV(status) do {                                          \
-        if (flavor_mocking) {                                           \
-            flavor_mocking_err = status; return;                        \
-        } else exit(status);                                            \
+#define EXIT_NORV(status) do {                          \
+        if (flavor_mocking) {                           \
+            flavor_mocking_err = status; return;        \
+        } else exit(status);                            \
     } while (0)
 
 
@@ -99,21 +98,21 @@ flavor_descriptor_ptr flavor_default(void)
         // $FLAVOR set in environment:  verify it or fail
         flavor = flavor_byname(fname);
 	if (flavor == NULL) {
-	    fprintf(stderr,
-		    "FATAL:  No such flavor '%s'; valid flavors are\n",
-		    fname);
+	    rtapi_print_msg(RTAPI_MSG_ERR, "FATAL:  No such flavor '%s';"
+                            " valid flavors are\n", fname);
             for (flavor_handle=NULL; (fname=flavor_names(&flavor_handle)); )
-		fprintf(stderr, "FATAL:      %s\n", (*flavor_handle)->name);
+		rtapi_print_msg(RTAPI_MSG_ERR, "FATAL:      %s\n",
+                                (*flavor_handle)->name);
 	    EXIT_NULL(100);
 	}
         if (!flavor_can_run_flavor(flavor)) {
-            fprintf(stderr, "FATAL:  Flavor '%s' from environment cannot run\n",
-                    fname);
+            rtapi_print_msg(RTAPI_MSG_ERR, "FATAL:  Flavor '%s' from"
+                            " environment cannot run\n", fname);
             EXIT_NULL(101);
         } else {
-            fprintf(stderr,
-                    "INFO:  Picked flavor '%s' id %d (from environment)\n",
-                    flavor->name, flavor->flavor_id);
+            rtapi_print_msg(RTAPI_MSG_INFO,
+                            "INFO:  Picked flavor '%s' id %d (from environment)\n",
+                            flavor->name, flavor->flavor_id);
             return flavor;
         }
 
@@ -130,11 +129,12 @@ flavor_descriptor_ptr flavor_default(void)
         }
         if (!flavor) {
             // This should never happen:  POSIX can always run
-            fprintf(stderr, "ERROR:  Unable to find runnable flavor\n");
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                            "ERROR:  Unable to find runnable flavor\n");
             EXIT_NULL(102);
         } else {
-            fprintf(stderr, "INFO:  Picked default flavor '%s' automatically\n",
-                    flavor->name);
+            rtapi_print_msg(RTAPI_MSG_INFO, "INFO:  Picked default flavor '%s'"
+                            " automatically\n", flavor->name);
             return flavor;
         }
     }
@@ -143,15 +143,17 @@ flavor_descriptor_ptr flavor_default(void)
 void flavor_install(flavor_descriptor_ptr flavor)
 {
     if (flavor_descriptor != NULL) {
-        fprintf(stderr, "FATAL:  Flavor '%s' already configured\n",
-                flavor_descriptor->name);
+        rtapi_print_msg(RTAPI_MSG_ERR, "FATAL:  Flavor '%s' already"
+                        " configured\n", flavor_descriptor->name);
         EXIT_NORV(103);
     }
     if (!flavor_can_run_flavor(flavor)) {
-        fprintf(stderr, "FATAL:  Flavor '%s' cannot run\n", flavor->name);
+        rtapi_print_msg(RTAPI_MSG_ERR, "FATAL:  Flavor '%s' cannot run\n",
+                        flavor->name);
         EXIT_NORV(104);
     }
     flavor_descriptor = flavor;
+    rtapi_print_msg(RTAPI_MSG_DBG, "Installed flavor '%s'\n", flavor->name);
 }
 
 int flavor_is_configured(void)
