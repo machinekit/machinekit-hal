@@ -14,9 +14,7 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-#ifdef ULAPI
-#include <stdlib.h>
-#endif
+#include <stdlib.h>             // strtol
 
 #include "rtapi_flavor.h"
 #include "config.h"
@@ -317,6 +315,11 @@ int  rtapi_next_handle(void)
     return rtapi_add_and_fetch(1, &global_data->next_handle);
 }
 
+long int simple_strtol(const char *nptr, char **endptr, int base) {
+    return strtol(nptr, endptr, base);
+}
+
+
 #ifdef RTAPI
 EXPORT_SYMBOL(rtapi_instance);
 EXPORT_SYMBOL(global_data);
@@ -331,4 +334,5 @@ EXPORT_SYMBOL(rtapi_exit);
 EXPORT_SYMBOL(rtapi_task_update_stats);
 EXPORT_SYMBOL(rtapi_set_exception);
 EXPORT_SYMBOL(rtapi_next_handle);
+EXPORT_SYMBOL(simple_strtol);
 #endif
