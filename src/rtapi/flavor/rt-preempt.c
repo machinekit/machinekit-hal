@@ -340,8 +340,12 @@ static void *realtime_thread(void *arg) {
 		    task_id(task), extra_task_data[task_id(task)].tid,
 		    (task->flags & TF_NONRT) ? "non-RT" : "RT");
 
-    if (realtime_set_affinity(task))
+    if ((ret = realtime_set_affinity(task))) {
+        rtapi_print_msg(
+            RTAPI_MSG_ERR, "Task '%s' realtime_set_affinity() failed %d\n",
+            task->name, ret);
 	goto error;
+    }
 
     // cgroup cpuset
     if (task->cgname && task->cgname[0]) {
