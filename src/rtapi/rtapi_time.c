@@ -32,12 +32,6 @@
 // find a useable time stamp counter
 #ifdef MSR_H_USABLE
 #include <asm/msr.h>
-#elif defined(__i386__) || defined(__x86_64__)
-#define rdtscll(val) \
-         __asm__ __volatile__("rdtsc" : "=A" (val))
-#else
-#error No implementation of rtapi_get_clocks available
-#define rdtscll(val) (val)=0
 #endif
 
 long int max_delay = DEFAULT_MAX_DELAY;
