@@ -241,9 +241,16 @@ void rtapi_app_exit(void)
 
 int rtapi_init(const char *modname) {
 #ifdef ULAPI
+    int res;
+
     // Load ULAPI if global_data hasn't been set up yet
-    if (global_data == NULL)
-        rtapi_module_init();
+    if (global_data == NULL && (res = rtapi_module_init())) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "FATAL:  Failed to initialize module '%s'\n", modname);
+        return res;
+    }
+        rtapi_print_msg(RTAPI_MSG_DBG,
+                        "Module '%s' finished ULAPI init\n", modname);
 #endif
 
     return rtapi_next_handle();
