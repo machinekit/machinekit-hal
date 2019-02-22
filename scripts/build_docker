@@ -156,7 +156,6 @@ case $CMD in
 	    echo -e 'ANNOUNCE_IPV4=0\nANNOUNCE_IPV6=0' >> \
 		etc/linuxcnc/machinekit.ini;
 	    tail -2 etc/linuxcnc/machinekit.ini;
-	    flavor;
 
             # Run regression tests
 	    ${RUN_TESTS} ${TEST_ARGS}"
