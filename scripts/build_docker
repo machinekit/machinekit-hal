@@ -12,7 +12,7 @@
 CMD=${CMD:-shell}
 IMAGE=${IMAGE:-dovetailautomata/mk-cross-builder}
 TAG=${TAG:-amd64_9}
-JOBS=${JOBS:-2}
+JOBS=${JOBS:-$(nproc)}
 BUILD_SOURCE=${BUILD_SOURCE:-true}  # update Changelog & source pkg
 
 # CL arguments
