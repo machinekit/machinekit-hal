@@ -145,7 +145,9 @@ RUN test $DISTRO_VER -gt 8 \
         echo "Extracting compiler to /opt/" && \
         tar xCf /opt ${WORKD}/${TXZ} && \
         ln -snf ${DIR} /opt/gcc-linaro-hf && \
-        rm -rf ${WORKD}; \
+        rm -rf ${WORKD} && \
+        ln -s ../../bin/ccache /usr/lib/ccache/arm-linux-gnueabihf-gcc && \
+        ln -s ../../bin/ccache /usr/lib/ccache/arm-linux-gnueabihf-g++ ; \
     }
 
 ###########################################
