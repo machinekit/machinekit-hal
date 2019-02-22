@@ -777,8 +777,6 @@ setuid:
 	$(call fix_perms,../libexec/pci_read)
 	$(call fix_perms,../libexec/pci_write)
 	$(call fix_perms,../libexec/rtapi_app)
-# check system configuration:  logging, ulimits, udev
-	@-../scripts/check-system-configuration.sh
 else
 setuid:
 	@echo "'make setuid' is not needed if hardware drivers are not used"
