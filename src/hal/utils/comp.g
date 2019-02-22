@@ -654,7 +654,7 @@ def build_usr(tempdir, filename, mode, origfilename):
     makefile = os.path.join(tempdir, "Makefile")
     f = open(makefile, "w")
     print >>f, "%s: %s" % (binname, filename)
-    print >>f, "\t$(CC) $(EXTRA_CFLAGS) -URTAPI -U__MODULE__ -DULAPI -Os %s -o $@ $< -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -llinuxcnchal %s" % (
+    print >>f, "\t$(CC) $(EXTRA_CFLAGS) -URTAPI -U__MODULE__ -DULAPI -Os %s -o $@ $< -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -llinuxcnchal -llinuxcnculapi %s" % (
         options.get("extra_compile_args", ""),
         options.get("extra_link_args", ""))
     print >>f, "include %s" % find_modinc()
@@ -678,6 +678,7 @@ def build_rt(tempdir, filename, mode, origfilename):
     print >>f, "include %s" % find_modinc()
     print >>f, "EXTRA_CFLAGS += -I%s" % os.path.abspath(os.path.dirname(origfilename))
     print >>f, "EXTRA_CFLAGS += -I%s" % os.path.abspath('.')
+    print >>f, "EXTRA_CFLAGS += -DRTAPI -L$(LIBDIR) -llinuxcnchal"
     f.close()
     if mode == INSTALL:
         target = "modules install"
