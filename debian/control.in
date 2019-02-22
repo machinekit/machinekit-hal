@@ -18,7 +18,7 @@ Build-Depends: debhelper (>= 6),
     python-protobuf (>= 2.4.1), libprotoc-dev (>= 2.4.1),
     python-simplejson, libtk-img, libboost-thread-dev,
     python-pyftpdlib, tcl8.6-dev, tk8.6-dev, libcgroup-dev,
-    python-gst-1.0 | python-gst-0.10,
+    python-gst-1.0 | python-gst0.10,
     python-imaging | python-pil,
     python-imaging-tk | python-pil.imagegtk   @BUILD_DEPS@
 Standards-Version: 2.1.0
