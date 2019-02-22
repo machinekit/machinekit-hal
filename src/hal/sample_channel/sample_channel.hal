@@ -1,0 +1,35 @@
+#  nanopb protobuf descriptors needed for protobuf de/encoding in RT
+loadrt pbmsgs
+
+# signal generator so we have something to see
+loadrt siggen
+
+# create sample_channel instance with pins and ring
+# give the type of pins to be created with: samples=bfusUSf
+# tell max cycles the ring should be able to contain by: cycles=100
+newinst sample_channel_pb sampler --- samples=bfusUSf cycles=100
+
+# create fast (1 ms) thread
+newthread fast 1000000 fp
+# create slow (0.5 second) thread so we can inspect with a python reader on the ring
+newthread slow 500000000 fp
+
+# add function to thread
+addf sampler.record_sample slow
+addf siggen.0.update fast
+
+setp sampler.in-bit.1 1
+setp sampler.in-flt.1 3.14159265359
+setp sampler.in-u32.1 123456
+setp sampler.in-s32.1 -654321
+
+#connect sine signal to 2nd float pin
+net sine siggen.0.sine sampler.in-flt.2
+
+#set low frequency so we can see some changes in the samples
+setp siggen.0.frequency 0.125
+
+# this will record the pin sample to the ring each time the function is called
+setp sampler.record 1
+
+start
