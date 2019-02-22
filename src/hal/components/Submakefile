@@ -74,7 +74,7 @@ objects/%.c: %.comp ../bin/comp
 	@mkdir -p $(dir $@)
 	$(Q)../bin/comp --require-license -o $@ $<
 
-# Generate rules for building component.so files
+# Generate rules for building component.so files from component.comp files
 #
 # example:  $$(call comp_build_rules,hal/components,hal/components/logic.comp)
 # produces rules:
