@@ -77,12 +77,11 @@ int flavor_task_start_hook(
     SET_FLAVOR_DESCRIPTOR_DEFAULT();
     return f->task_start_hook(task, task_id);
 }
-void flavor_task_stop_hook(
+int flavor_task_stop_hook(
     flavor_descriptor_ptr f, task_data *task, int task_id)
 {
     SET_FLAVOR_DESCRIPTOR_DEFAULT();
-    if (f->task_stop_hook)
-        f->task_stop_hook(task, task_id);
+    return f->task_stop_hook(task, task_id);
 }
 int flavor_task_pause_hook(
     flavor_descriptor_ptr f, task_data *task, int task_id)

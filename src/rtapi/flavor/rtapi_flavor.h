@@ -47,7 +47,7 @@ extern "C" {
     typedef int (*rtapi_task_new_hook_t)(task_data *task, int task_id);
     typedef int (*rtapi_task_delete_hook_t)(task_data *task, int task_id);
     typedef int (*rtapi_task_start_hook_t)(task_data *task, int task_id);
-    typedef void (*rtapi_task_stop_hook_t)(task_data *task, int task_id);
+    typedef int (*rtapi_task_stop_hook_t)(task_data *task, int task_id);
     typedef int (*rtapi_task_pause_hook_t)(task_data *task, int task_id);
     typedef int (*rtapi_task_wait_hook_t)(const int flags);
     typedef int (*rtapi_task_resume_hook_t)(task_data *task, int task_id);
@@ -117,7 +117,7 @@ extern "C" {
         flavor_descriptor_ptr f, task_data *task, int task_id);
     extern int flavor_task_start_hook(
         flavor_descriptor_ptr f, task_data *task, int task_id);
-    extern void flavor_task_stop_hook(
+    extern int flavor_task_stop_hook(
         flavor_descriptor_ptr f, task_data *task, int task_id);
     extern int flavor_task_pause_hook(
         flavor_descriptor_ptr f, task_data *task, int task_id);

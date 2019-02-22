@@ -488,8 +488,9 @@ int posix_task_start_hook(task_data *task, int task_id) {
     return 0;
 }
 
-void posix_task_stop_hook(task_data *task, int task_id) {
+int posix_task_stop_hook(task_data *task, int task_id) {
     extra_task_data[task_id].destroyed = 1;
+    return 0;
 }
 
 int posix_wait_hook(const int flags) {

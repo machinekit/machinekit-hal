@@ -59,13 +59,15 @@ RT_TASK *ostask_self[RTAPI_MAX_TASKS + 1];
 
 #endif // RTAPI
 
+int xenomai_task_self_hook(void);
+
 /***********************************************************************
 *                           RT thread statistics update                *
 ************************************************************************/
 #ifdef RTAPI
 int xenomai_task_update_stats_hook(void)
 {
-    int task_id = _rtapi_task_self();
+    int task_id = xenomai_task_self_hook();
 
     // paranoia
     if ((task_id < 0) || (task_id > RTAPI_MAX_TASKS)) {
@@ -673,13 +675,13 @@ flavor_descriptor_t flavor_xenomai_descriptor = {
     .exception_handler_hook = xenomai_exception_handler_hook,
     .module_init_hook = xenomai_module_init_hook,
     .module_exit_hook = xenomai_module_exit_hook,
-    .task_update_stats_hook = xenomai_update_stats_hook,
+    .task_update_stats_hook = xenomai_task_update_stats_hook,
     .task_print_thread_stats_hook = xenomai_print_thread_stats,
     .task_new_hook = NULL,
     .task_delete_hook = xenomai_task_delete_hook,
     .task_start_hook = xenomai_task_start_hook,
     .task_stop_hook = xenomai_task_stop_hook,
-    .task_pause_hook = xenomai_task_pause_hook;
+    .task_pause_hook = xenomai_task_pause_hook,
     .task_wait_hook = xenomai_wait_hook,
     .task_resume_hook = xenomai_task_resume_hook,
     .task_delay_hook = xenomai_task_delay_hook,
