@@ -50,7 +50,10 @@ commands can help.  Run them from inside a container (see above).
 
 Machinekit dependencies are auto-generated from the Machinekit source
 tree `debian/` directory.  When those files are updated, the
-`configure` and `control*.in` files should be copied here.
+`configure` and `control.in` files should be copied here.
+
+        cp $(MK_REPO)/debian/configure debian/
+        cp $(MK_REPO)/debian/control.in debian/
 
 ## Building locally
 
