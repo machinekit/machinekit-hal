@@ -36,6 +36,8 @@ typedef struct {
     // currently unused - signals handled in rtapi_app
     void *siginfo;
 } rtpreempt_exception_t;
+// Check the exception struct size
+ASSERT_SIZE_WITHIN(rtpreempt_exception_t, MAX_FLAVOR_EXCEPTION_SIZE);
 
 typedef struct {
 
@@ -58,6 +60,8 @@ typedef struct {
     long startup_ru_nivcsw; //
 
 } rtpreempt_stats_t;
+// Check the stats struct size
+ASSERT_SIZE_WITHIN(rtpreempt_stats_t, MAX_FLAVOR_THREADSTATUS_SIZE);
 
 extern flavor_descriptor_t flavor_rt_prempt_descriptor;
 extern flavor_descriptor_t flavor_posix_descriptor;

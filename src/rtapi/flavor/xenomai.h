@@ -21,6 +21,8 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ********************************************************************/
 
+#include "rtapi_flavor.h"
+
 typedef enum {
     XU_EXCEPTION_NONE=0,
 
@@ -40,7 +42,8 @@ typedef struct {
     // passed by ref from rt_task_wait_period()
     unsigned long overruns;
 } xenomai_exception_t;
-
+// Check the exception struct size
+ASSERT_SIZE_WITHIN(xenomai_exception_t, MAX_FLAVOR_EXCEPTION_SIZE);
 
 typedef struct {
     // as reported by rt_task_inquire()
@@ -60,5 +63,7 @@ typedef struct {
 
     // all others increment other_errors
 } xenomai_stats_t;
+// Check the stats struct size
+ASSERT_SIZE_WITHIN(xenomai_stats_t, MAX_FLAVOR_THREADSTATUS_SIZE);
 
 extern flavor_descriptor_t flavor_xenomai_descriptor;

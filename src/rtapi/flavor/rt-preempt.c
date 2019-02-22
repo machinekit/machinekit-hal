@@ -57,10 +57,6 @@
 // Access the rtpreempt_exception_t thread exception detail object
 #define FED(detail) ((rtpreempt_exception_t)detail.flavor)
 
-// Check the exception and stats struct sizes
-ASSERT_SIZE_WITHIN(rtpreempt_exception_t, MAX_FLAVOR_EXCEPTION_SIZE);
-ASSERT_SIZE_WITHIN(rtpreempt_stats_t, MAX_FLAVOR_THREADSTATUS_SIZE);
-
 /* Lock for task_array and module_array allocations */
 static pthread_key_t task_key;
 static pthread_once_t task_key_once = PTHREAD_ONCE_INIT;

@@ -24,6 +24,7 @@
 #include "config.h"
 #include "rtapi.h"
 #include "rtapi_common.h"
+#include "xenomai.h"
 
 #include <sys/mman.h>			/* munlockall() */
 #define XENOMAI_INCLUDE(header) <XENOMAI_SKIN/header>
@@ -31,6 +32,7 @@
 #include XENOMAI_INCLUDE(timer.h)	/* rt_timer_*() */
 #include <signal.h>			/* sigaction/SIGXCPU handling */
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>		        // getpid()
 #include <sched.h>			// cpu sets
 
@@ -38,16 +40,20 @@
 #include XENOMAI_INCLUDE(mutex.h)
 #include <stdlib.h>		// abort()
 
+// really in nucleus/heap.h but we rather get away with minimum include files
+#ifndef XNHEAP_DEV_NAME
+#define XNHEAP_DEV_NAME  "/dev/rtheap"
+#endif
+#define XENO_GID_SYSFS "/sys/module/xeno_nucleus/parameters/xenomai_gid"
+
+// These exist on Xenomai but not on RTAI
+#define PROC_IPIPE_XENOMAI "/proc/ipipe/Xenomai"
 #define XENO_GID_SYSFS "/sys/module/xeno_nucleus/parameters/xenomai_gid"
 
 // Access the xenomai_stats_t thread status object
-#define FTS(ts) ((xenomai_stats_t)ts->flavor)
+#define FTS(ts) ((xenomai_stats_t *)&(ts->flavor))
 // Access the xenomai_exception_t thread exception detail object
-#define FED(detail) ((xenomai_exception_t)detail.flavor)
-
-// Check the exception and stats struct sizes
-ASSERT_SIZE_WITHIN(xenomai_exception_t, MAX_FLAVOR_EXCEPTION_SIZE);
-ASSERT_SIZE_WITHIN(xenomai_stats_t, MAX_FLAVOR_THREADSTATUS_SIZE);
+#define FTED(detail) ((xenomai_exception_t *)&(detail.flavor))
 
 /*  RTAPI task functions  */
 RT_TASK ostask_array[RTAPI_MAX_TASKS + 1];
@@ -90,17 +96,17 @@ int xenomai_task_update_stats_hook(void)
     rtapi_threadstatus_t *ts = &global_data->thread_status[task_id];
 
 #ifdef XENOMAI_V2
-    FTS(fts).modeswitches = rtinfo.modeswitches;
-    FTS(fts).ctxswitches = rtinfo.ctxswitches;
-    FTS(fts).pagefaults = rtinfo.pagefaults;
-    FTS(fts).exectime = rtinfo.exectime;
-    FTS(fts).status = rtinfo.status;
+    FTS(ts)->modeswitches = rtinfo.modeswitches;
+    FTS(ts)->ctxswitches = rtinfo.ctxswitches;
+    FTS(ts)->pagefaults = rtinfo.pagefaults;
+    FTS(ts)->exectime = rtinfo.exectime;
+    FTS(ts)->status = rtinfo.status;
 #else
-    FTS(fts).modeswitches = rtinfo.stat.msw;
-    FTS(fts).ctxswitches = rtinfo.stat.csw;
-    FTS(fts).pagefaults = rtinfo.stat.pf;
-    FTS(fts).exectime = rtinfo.stat.xtime;
-    FTS(fts).status = rtinfo.stat.status;
+    FTS(ts)->modeswitches = rtinfo.stat.msw;
+    FTS(ts)->ctxswitches = rtinfo.stat.csw;
+    FTS(ts)->pagefaults = rtinfo.stat.pf;
+    FTS(ts)->exectime = rtinfo.stat.xtime;
+    FTS(ts)->status = rtinfo.stat.status;
 #endif
 
     ts->num_updates++;
@@ -397,11 +403,11 @@ int xenomai_wait_hook(const int flags) {
 	case -ETIMEDOUT:
 	    // release point was missed
 
-	    FED(detail).overruns = overruns;
+	    FTED(detail)->overruns = overruns;
 
 	    // update thread status in global_data
-	    FTS(fts).wait_errors++;
-	    FTS(fts).total_overruns += overruns;
+	    FTS(ts)->wait_errors++;
+	    FTS(ts)->total_overruns += overruns;
 	    type = XU_ETIMEDOUT;
 	    break;
 
@@ -508,6 +514,8 @@ int kernel_is_xenomai()
 	    (stat(XENO_GID_SYSFS, &sb) == 0));
 }
 
+int xenomai_flavor_check(void);
+
 int xenomai_can_run_flavor()
 {
     if (! kernel_is_xenomai())
@@ -598,13 +606,13 @@ void xenomai_print_thread_stats(int task_id)
 	rtapi_print("other_err=%d\n", ts->api_errors);
     }
 
-    rtapi_print("    wait_errors=%d\t", FTS(fts).wait_errors);
-    rtapi_print("overruns=%d\t", FTS(fts).total_overruns);
-    rtapi_print("modeswitches=%d\t", FTS(fts).modeswitches);
-    rtapi_print("contextswitches=%d\n", FTS(fts).ctxswitches);
-    rtapi_print("    pagefaults=%d\t", FTS(fts).pagefaults);
-    rtapi_print("exectime=%llduS\t", FTS(fts).exectime/1000);
-    rtapi_print("status=0x%x\n", FTS(fts).status);
+    rtapi_print("    wait_errors=%d\t", FTS(ts)->wait_errors);
+    rtapi_print("overruns=%d\t", FTS(ts)->total_overruns);
+    rtapi_print("modeswitches=%d\t", FTS(ts)->modeswitches);
+    rtapi_print("contextswitches=%d\n", FTS(ts)->ctxswitches);
+    rtapi_print("    pagefaults=%d\t", FTS(ts)->pagefaults);
+    rtapi_print("exectime=%llduS\t", FTS(ts)->exectime/1000);
+    rtapi_print("status=0x%x\n", FTS(ts)->status);
     rtapi_print("\n");
 }
 
@@ -613,6 +621,7 @@ void xenomai_exception_handler_hook(int type,
                                     rtapi_exception_detail_t *detail,
                                     int level)
 {
+    rtapi_threadstatus_t *ts = &global_data->thread_status[detail->task_id];
     switch ((xenomai_exception_id_t)type) {
         // Timing violations
 	case XU_ETIMEDOUT:
@@ -669,7 +678,7 @@ void xenomai_exception_handler_hook(int type,
 
 flavor_descriptor_t flavor_xenomai_descriptor = {
     .name = "xenomai",
-    .flavor_id = RTAPI_XENOMAI_ID,
+    .flavor_id = RTAPI_FLAVOR_XENOMAI_ID,
     .flags = FLAVOR_DOES_IO + FLAVOR_IS_RT + FLAVOR_TIME_NO_CLOCK_MONOTONIC,
     .can_run_flavor = xenomai_can_run_flavor,
     .exception_handler_hook = xenomai_exception_handler_hook,

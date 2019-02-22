@@ -22,8 +22,8 @@ extern "C" {
 // The exception code puts structs in shm in an opaque blob; this is used to
 // check the allocated storage is large enough
 // https://stackoverflow.com/questions/807244/
-#define ASSERT_SIZE_WITHIN(type, size)                                  \
-    typedef char assertion_failed_##type##_[2*!!(sizeof(type) <= size)-1]
+#define ASSERT_SIZE_WITHIN(type, size)                                \
+   typedef char assertion_failed_##type##_[2*!!(sizeof(type) <= size)-1]
 
 
 // Put these in order of preference
