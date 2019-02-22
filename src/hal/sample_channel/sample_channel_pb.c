@@ -199,10 +199,6 @@ static int record_sample(void *arg, const hal_funct_args_t *fa)
                 tx_sample.has_v_int64 = true;
                 tx_sample.v_int64 = get_s64_value(ip->pins_in[i]);
                 break;
-            case HAL_TYPE_MAX:
-            case HAL_TYPE_UNSPECIFIED:
-                // should not happen, already checked
-                break;
             }
             // copied from pbring.c and adapted as needed
             // sample message has been filled and can now be sent off.
