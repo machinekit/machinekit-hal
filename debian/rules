@@ -44,9 +44,6 @@ SHLIBDEPS_X += mb2hal gs2_vfd hy_vfd
 # Cross-compile variables
 DEB_HOST_ARCH := $(shell dpkg-architecture -qDEB_HOST_ARCH)
 
-# Pick up dynamically-configured variables, like Xenomai
--include rules.include
-
 # Parallel make
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
     NUMJOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))

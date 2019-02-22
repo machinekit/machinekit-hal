@@ -17,10 +17,7 @@ Build-Depends: debhelper (>= 6),
     libprotobuf-dev (>= 2.4.1), protobuf-compiler (>= 2.4.1),
     python-protobuf (>= 2.4.1), libprotoc-dev (>= 2.4.1),
     python-simplejson, libtk-img, libboost-thread-dev,
-    python-pyftpdlib, tcl8.6-dev, tk8.6-dev, libcgroup-dev,
-    python-gst-1.0 | python-gst0.10,
-    python-imaging | python-pil,
-    python-imaging-tk | python-pil.imagegtk   @BUILD_DEPS@
+    python-pyftpdlib, tcl8.6-dev, tk8.6-dev, libcgroup-dev @BUILD_DEPS@
 Standards-Version: 2.1.0
 
 Package: machinekit
@@ -38,6 +35,9 @@ Depends: ${shlibs:Depends}, machinekit-rt-threads, tcl8.6, tk8.6,
     python-avahi, python-simplejson, python-pyftpdlib,
     python-pydot, xdot,
     tclreadline, bc, procps, psmisc, cgroup-tools,
+    python-gst-1.0 | python-gst0.10,
+    python-imaging | python-pil,
+    python-imaging-tk | python-pil.imagegtk,
     uuid-runtime @DEPS@
 Description: PC based motion controller for real-time Linux
  Machinekit is the next-generation Enhanced Machine Controller which

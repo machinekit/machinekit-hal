@@ -73,7 +73,6 @@ usage() {
     test -z "$1" || echo "$1"
     echo "Usage:  $0 [ arg ... ]"
     echo "   arg:    function:"
-    echo "   -x      build Xenomai threads"
     echo "   -c      rewrite changelog to set package version from git commit"
     echo "   -s      create source tarball for non binary package builds"
     } >&2
@@ -109,26 +108,29 @@ case "$DISTRO_CODENAME" in
         : # Nothing
         ;;
     stretch|jessie|sid)
-        BUILD_DEPS+=", python-gtksourceview2"
+        DEPS+=", python-gtksourceview2"
         ;;
     *)
-        BUILD_DEPS+=", python-gtksourceview2"
+        DEPS+=", python-gtksourceview2"
         ;;
 esac
 
 # Configure Xenomai threads
 configure_xenomai() {
+    if ! dpkg-query -W | grep -q libxenomai-dev; then
+        echo "Not configuring Xenomai:  libxenomai-dev package not found" >&2
+        return
+    fi
+
     echo "debian/control:  Adding xenomai threads configuration" >&2
     # Be sure the -dev files only appear once
     BUILD_DEPS+=", libxenomai-dev"
     DEPS+=", xenomai-runtime"
-    echo "THREADS_XENOMAI = --with-xenomai" > rules.include
 }
 
 # read command line options
-while getopts xcsh ARG; do
+while getopts csh ARG; do
     case $ARG in
-    x) configure_xenomai ;;
     c) do_changelog ;;  # set new changelog with package versions from git
     s) do_source_tarball ;; # create tarball for non binary builds
     h) usage ;;
@@ -137,6 +139,7 @@ while getopts xcsh ARG; do
 done
 
 # Set control Build-Depends:
+configure_xenomai
 cp control.in control
 sed >control <control.in \
     -e "s/@BUILD_DEPS@/${BUILD_DEPS}/" \
