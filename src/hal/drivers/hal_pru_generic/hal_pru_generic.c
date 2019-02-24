@@ -217,11 +217,11 @@ int rtapi_app_main(void)
     hpg->config.name         = modname;
     hpg->config.halname      = halname;
 
-    rtapi_print("num_pwmgens : %d\n",num_pwmgens);
-    rtapi_print("num_stepgens: %d\n",num_stepgens);
-    rtapi_print("num_encoders: %d\n",num_encoders);
+    rtapi_print_msg(RTAPI_MSG_DBG, "num_pwmgens : %d\n",num_pwmgens);
+    rtapi_print_msg(RTAPI_MSG_DBG, "num_stepgens: %d\n",num_stepgens);
+    rtapi_print_msg(RTAPI_MSG_DBG, "num_encoders: %d\n",num_encoders);
 
-    rtapi_print("Init pwm\n");
+    rtapi_print_msg(RTAPI_MSG_DBG, "Init pwm\n");
     // Initialize various functions and generate PRU data ram contents
     if ((retval = hpg_pwmgen_init(hpg))) {
         HPG_ERR("ERROR: pwmgen init failed: %d\n", retval);
@@ -229,14 +229,14 @@ int rtapi_app_main(void)
         return -1;
     }
 
-    rtapi_print("Init stepgen\n");
+    rtapi_print_msg(RTAPI_MSG_DBG, "Init stepgen\n");
     if ((retval = hpg_stepgen_init(hpg))) {
         HPG_ERR("ERROR: stepgen init failed: %d\n", retval);
         hal_exit(comp_id);
         return -1;
     }
 
-    rtapi_print("Init encoder\n");
+    rtapi_print_msg(RTAPI_MSG_DBG, "Init encoder\n");
     if ((retval = hpg_encoder_init(hpg))) {
         HPG_ERR("ERROR: encoder init failed: %d\n", retval);
         hal_exit(comp_id);
@@ -394,12 +394,12 @@ int pru_init(int pru, char *filename, int disabled, hal_pru_generic_t *hpg) {
     if ((retval = assure_module_loaded(UIO_PRUSS)))
     return retval;
 
-rtapi_print("prussdrv_init\n");
+rtapi_print_msg(RTAPI_MSG_DBG, "prussdrv_init\n");
     // Allocate and initialize memory
     prussdrv_init ();
 
     // opens an event out and initializes memory mapping
-rtapi_print("prussdrv_open\n");
+rtapi_print_msg(RTAPI_MSG_DBG, "prussdrv_open\n");
     if (prussdrv_open(event > -1 ? event : PRU_EVTOUT_0) < 0)
     return -1;
 
@@ -407,17 +407,17 @@ rtapi_print("prussdrv_open\n");
     pruss = &prussdrv;
 
     // Map PRU's INTC
-rtapi_print("prussdrv_pruintc_init\n");
+rtapi_print_msg(RTAPI_MSG_DBG, "prussdrv_pruintc_init\n");
     if (prussdrv_pruintc_init(&pruss_intc_initdata) < 0)
     return -1;
 
     // Maps the PRU DRAM memory to input pointer
-rtapi_print("prussdrv_map_prumem\n");
+rtapi_print_msg(RTAPI_MSG_DBG, "prussdrv_map_prumem\n");
     if (prussdrv_map_prumem(pru ? PRUSS0_PRU1_DATARAM : PRUSS0_PRU0_DATARAM,
             (void **) &pru_data_ram) < 0)
     return -1;
 
-rtapi_print("PRU data ram mapped\n");
+rtapi_print_msg(RTAPI_MSG_DBG, "PRU data ram mapped\n");
     rtapi_print_msg(RTAPI_MSG_DBG, "%s: PRU data ram mapped at %p\n",
             modname, pru_data_ram);
 
