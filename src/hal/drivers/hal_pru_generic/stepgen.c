@@ -594,7 +594,7 @@ int hpg_stepgen_init(hal_pru_generic_t *hpg){
     if (hpg->config.num_stepgens <= 0)
         return 0;
 
-rtapi_print("hpg_stepgen_init\n");
+rtapi_print_msg(RTAPI_MSG_DBG, "hpg_stepgen_init\n");
 
     hpg->stepgen.num_instances = hpg->config.num_stepgens;
 
