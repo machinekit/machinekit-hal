@@ -136,7 +136,7 @@ int hpg_pwmgen_init(hal_pru_generic_t *hpg){
     if (hpg->config.num_pwmgens <= 0)
         return 0;
 
-rtapi_print("hpg_pwm_init\n");
+rtapi_print_msg(RTAPI_MSG_DBG, "hpg_pwm_init\n");
 
     // FIXME: Support multiple PWMs like so:  num_pwmgens=3,4,2,5
     // hpg->pwmgen.num_instances = hpg->config.num_pwmgens;
