@@ -15,13 +15,12 @@ overlay cape-bone-iio
  P8_18 in #gpio2.01 
  P8_19 low #gpio0.22 J3.PWM1-Heater
  P8_20 out #gpio1.31 E_ENA
- P8_21 out #gpio1.30 E_DIR
+ P8_21 out #gpio1.30 E_DIR Used in PRU
  P8_25 out #gpio1.00 STATUS_LED
- P8_27 out #gpio2.22 Z_Step
+ P8_27 out #gpio2.22 Z_Step Used in PRU
  P8_28 out #gpio2.24 Z_Ena
- P8_29 out #gpio2.23 Z_Dir
- P8_29 out #gpio2.23 Z_Dir
- P8_30 out #gpio0.10 E_Step
+ P8_29 out #gpio2.23 Z_Dir Used in PRU
+ P8_30 out #gpio0.10 E_Step Used in PRU
  P8_31 in #gpio0.10 X_Min
  P8_32 in #gpio0.11 X_Max
  P8_33 in #gpio0.09 Y_Max
@@ -29,14 +28,14 @@ overlay cape-bone-iio
  P8_36 out #gpio2.16 J4.PWM
  P8_37 in #gpio2.14 Z_Max
  P8_38 in #gpio2.15 Z_Min
- P8_39 out #gpio2.12 Z_Min
+ P8_39 out #gpio2.12 Y_Dir Used in PRU
  P8_40 out #gpio2.13 Y_Ena
  P8_41 out #gpio2.10 X_Ena
- P8_42 out #gpio2.11 Y_Step
- P8_43 out #gpio2.08 X_Step
- P8_44 out #gpio2.09 X_Dir
- P8_45 low #gpio2.06 PWM1
- P8_46 low #gpio2.07 PWM0
+ P8_42 out #gpio2.11 Y_Step Used in PRU
+ P8_43 out #gpio2.08 X_Step Used in PRU
+ P8_44 out #gpio2.09 X_Dir Used in PRU
+ P8_45 low #gpio2.06 PWM1 Used in PRU
+ P8_46 low #gpio2.07 PWM0 Used in PRU
  P9_14 low #gpio1.18 J4.PWM2-Heater
 # P9_36 in #THRM2
 # P9_38 in #THRM1

@@ -18,8 +18,6 @@
 # causing problems.  You may wish to do this for documentation or to make
 # sure the pin starts with a known value as soon as possible.
 
-#sudo $(which config-pin) -f - <<- EOF ## from setup.sh
-
 overlay cape-universal
 overlay cape-bone-iio
 #overlay cape-univ-emmc
@@ -45,4 +43,3 @@ P9_15 out # gpio1.16 Z_Step Used by PRU
 #P9_22 out # gpio0.2 SCK
 P9_23 out # gpio1.17 Z_Dir Used by PRU
 
-#EOF from setup.sh
