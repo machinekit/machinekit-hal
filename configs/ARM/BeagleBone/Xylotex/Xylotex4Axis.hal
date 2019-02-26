@@ -35,7 +35,7 @@ loadrt trivkins
 loadrt tp
 
 # motion controller, get name and thread periods from ini file
-loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=trivkins
+loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES  tp=tp kins=trivkins
 
 # load low-level drivers (must not include pins used by PRU)
 loadrt hal_bb_gpio output_pins=807,813,819,826,914,913,911 input_pins=809,810,814,818
@@ -57,7 +57,7 @@ addf motion-controller                    servo-thread
 addf pid.0.do-pid-calcs                   servo-thread
 addf pid.1.do-pid-calcs                   servo-thread
 addf pid.2.do-pid-calcs                   servo-thread
-#addf pid.3.do-pid-calcs                   servo-thread
+addf pid.3.do-pid-calcs                   servo-thread
 addf limit1.0                             servo-thread
 addf limit1.1                             servo-thread
 addf hpg.update                           servo-thread
@@ -232,6 +232,57 @@ net both-home-z => axis.2.neg-lim-sw-in
 net both-home-z => axis.2.pos-lim-sw-in
 #setp bb_gpio.p8.in-18.invert 1
 
+# ################
+# A [3] Axis
+# ################
+# axis enable chain
+newsig emcmot.03.enable bit
+sets emcmot.03.enable FALSE
+
+net emcmot.03.enable <= axis.3.amp-enable-out
+net emcmot.03.enable => hpg.stepgen.03.enable pid.3.enable
+
+# position command and feedback
+net emcmot.03.pos-cmd axis.3.motor-pos-cmd => pid.3.command
+net emcmot.03.vel-cmd axis.3.joint-vel-cmd => pid.3.command-deriv
+net motor.03.pos-fb <= hpg.stepgen.03.position-fb axis.3.motor-pos-fb pid.3.feedback
+net motor.03.command pid.3.output hpg.stepgen.03.velocity-cmd
+setp pid.3.error-previous-target true
+setp pid.3.maxerror .001
+
+# timing parameters
+setp hpg.stepgen.03.dirsetup        [AXIS_3]DIRSETUP
+setp hpg.stepgen.03.dirhold         [AXIS_3]DIRHOLD
+
+setp hpg.stepgen.03.steplen         [AXIS_3]STEPLEN
+setp hpg.stepgen.03.stepspace       [AXIS_3]STEPSPACE
+
+setp hpg.stepgen.03.position-scale  [AXIS_3]SCALE
+
+setp hpg.stepgen.03.maxvel          [AXIS_3]STEPGEN_MAX_VEL
+setp hpg.stepgen.03.maxaccel        [AXIS_3]STEPGEN_MAX_ACC
+
+setp hpg.stepgen.03.control-type    1
+setp hpg.stepgen.03.stepinvert      [AXIS_3]STEP_INVERT
+#setp hpg.stepgen.03.step_type       0
+setp hpg.stepgen.03.steppin         911
+setp hpg.stepgen.03.dirpin          913
+
+# set PID loop gains from inifile
+setp pid.3.Pgain [AXIS_3]P
+setp pid.3.Igain [AXIS_3]I
+setp pid.3.Dgain [AXIS_3]D
+setp pid.3.bias [AXIS_3]BIAS
+setp pid.3.FF0 [AXIS_3]FF0
+setp pid.3.FF1 [AXIS_3]FF1
+setp pid.3.FF2 [AXIS_3]FF2
+setp pid.3.deadband [AXIS_3]DEADBAND
+setp pid.3.maxoutput [AXIS_3]MAX_OUTPUT
+
+
+# Add A home switch input
+#net home-a bb_gpio.p9.in-41 => axis.3.home-sw-in
+
 # ##################################################
 # Standard I/O - EStop, Enables, Limit Switches, Etc
 # ##################################################
@@ -255,7 +306,7 @@ net tool-change-loop iocontrol.0.tool-change => iocontrol.0.tool-changed
 
 # this input signal must be active LOW to allow the system to energize.
 # this should be fed through an NC STOP type switch from DB25-1 to DB25-10
-net estop-in bb_gpio.p8.in-09 => iocontrol.0.emc-enable-in
+#net estop-in bb_gpio.p8.in-09 => iocontrol.0.emc-enable-in
 #setp bb_gpio.p8.in-09.invert 1
 #newsig test bit
 #sets test 1
