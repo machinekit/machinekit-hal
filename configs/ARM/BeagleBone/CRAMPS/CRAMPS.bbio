@@ -12,14 +12,14 @@ P8_08 in #X Min
 P8_09 in #Y Max
 P8_10 in #Y Min
 P8_11 low #FET 1 : Heated Bed
-P8_12 low #X Dir
-P8_13 low #X Step
-P8_14 low #Y Dir
-P8_15 low #Y Step
+P8_12 low #X Dir Used in PRU
+P8_13 low #X Step Used in PRU
+P8_14 low #Y Dir Used in PRU
+P8_15 low #Y Step Used in PRU
 P8_16 high #eMMC Enable
 P8_17 in #Estop In
-P8_18 low #Z Dir
-P8_19 low #Z Step
+P8_18 low #Z Dir Used in PRU
+P8_19 low #Z Step Used in PRU
 #P8_20 default
 #P8_21 default
 #P8_22 low #Servo 4
@@ -28,13 +28,13 @@ P8_19 low #Z Step
 #P8_25 low #Servo 1
 P8_26 high #Estop out
 P9_11 in #Z Max
-P9_12 low #E0 Dir
+P9_12 low #E0 Dir Used in PRU
 P9_13 in #Z Min
 P9_14 high #Axis Enable, act. low
 P9_15 low #FET 2 : E0
-P9_16 low #E0 Step
-P9_17 low #E1 Step
-P9_18 low #E1 Dir
+P9_16 low #E0 Step Used in PRU
+P9_17 low #E1 Step Used in PRU
+P9_18 low #E1 Dir Used in PRU
 P9_21 low #FET 4 : E1
 P9_22 low #FET 6
 P9_23 low #Machine Power
