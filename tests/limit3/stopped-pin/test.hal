@@ -1,0 +1,29 @@
+setexact_for_test_suite_only
+
+# Load comps
+loadrt threads name1=t period1=1000000
+loadrt sampler cfg=ffbb depth=2048
+loadrt comp names=stop,load
+loadrt limit3
+
+addf stop.funct t
+addf limit3.0 t
+addf sampler.0 t
+
+# Ramp up velocity
+setp limit3.0.in 100000
+setp limit3.0.maxv 500
+setp limit3.0.maxa 1000
+
+# Clear 'start' at pos. 80
+setp stop.in1 80
+
+# Finish plumbing
+net out     limit3.0.out     => sampler.0.pin.0 => stop.in0
+net vel     limit3.0.out-vel => sampler.0.pin.1
+net stop    stop.out         => sampler.0.pin.2 => limit3.0.start
+net stopped limit3.0.stopped => sampler.0.pin.3
+
+# Go
+start
+loadusr -w halsampler -t -n 900

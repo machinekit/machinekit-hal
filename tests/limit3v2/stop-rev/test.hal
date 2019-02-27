@@ -1,0 +1,34 @@
+setexact_for_test_suite_only
+
+# Load comps
+loadrt threads name1=t period1=1000000
+loadrt sampler cfg=f depth=4096
+#loadrt sampler cfg=fb depth=4096
+loadrt comp names=stop,load
+newinst limit3v2 limit3.0
+loadrt scale names=neg
+
+# Ramp up velocity
+setp limit3.0.in -100000
+setp limit3.0.maxv 500
+setp limit3.0.maxa 1000
+
+# Clear 'start' at pos. 80
+setp stop.in0 -80
+
+# Invert output for sampler
+setp neg.gain -1
+
+# Finish plumbing
+net out limit3.0.out => stop.in1 => neg.in
+net stop stop.out => limit3.0.start
+#net stop stop.out => limit3.0.start => sampler.0.pin.1
+net out-neg neg.out => sampler.0.pin.0
+addf stop.funct t
+addf limit3.0 t
+addf neg.funct t
+addf sampler.0 t
+
+# Go
+start
+loadusr -w halsampler -t -n 800

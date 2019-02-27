@@ -5,9 +5,16 @@ less than maxa per second squared.  When the signal is a position,
 this means that the position, velocity, and acceleration are limited.""";
 pin in float in;
 pin out float out;
+pin out float out_vel;
+pin out bit stopped;
+pin out float out_acc;
 pin in bit load=0
     """When TRUE, immediately set \\fBout\\fB to \\fBin\\fR, ignoring maxv
 and maxa""";
+pin in bit start=1
+    """When FALSE, stop, reducing velocity to zero as quickly as possible,
+respecting acceleration limits and ignoring input (overidden by \\fBload\\fR
+pin)""";
 pin in float min_=-1e20;
 pin in float max_=1e20;
 pin in float maxv=1e20;
@@ -26,10 +33,13 @@ license "GPL";
 
 #define SET_NEXT_STATE(_out, _in)			\
     do {						\
+        out_acc = ((_out-out)/fperiod-out_vel)/fperiod; \
+        out_vel = (_out-out)/fperiod;                   \
+        stopped = (rtapi_fabs(out_vel) < EPSILON);      \
 	out_old = out;					\
 	out = _out;					\
 	in_pos_old = _in;				\
-	return 0;						\
+	return 0;					\
     } while (0)
 
 #define VALID_NEXT(pos) ((pos) <= max_pos && (pos) >= min_pos)
@@ -52,7 +62,6 @@ FUNCTION(_) {
     double out_pos_max, out_pos_min, in_pos_max, in_pos_min;
     double ach_pos_min, ach_pos_max;
 
-    double out_vel = (out-out_old)/fperiod;
     double goal_pos_min, goal_pos_max, goal_pos_cur;
     double pos_diff, vel_diff, goal_pos_prev;
     double t, ti, a, v, s;
@@ -74,9 +83,8 @@ FUNCTION(_) {
 
     // 1.  Calculate distances and times to stop and match input velocity
     //
-    // Input and output velocity
+    // Input velocity
     in_vel = (in - in_pos_old) / fperiod;
-    out_vel = (out - out_old) / fperiod;
     //
     // Most negative/positive velocity reachable in one period
     min_vel = rtapi_fmax(VF_GIVEN_VI_A_T(out_vel, -maxa, fperiod), -maxv);
@@ -105,15 +113,25 @@ FUNCTION(_) {
     in_pos_max = in + in_vel * in_vel_time_max;
     in_pos_min = in + in_vel * in_vel_time_min;
 
-    // 2. Choose the current goal:  input signal, max limit or min limit
+    // 2. Choose the current goal:  stop, input signal, max limit or min limit
     //
-    // Min/Max limits:
-    // - assume we're stopping at a limit by default
+    // Min/Max limits, stop:
+    // - assume we're stopping by default
     vel_diff = -out_vel;
     ach_pos_min = stop_pos_min;
     ach_pos_max = stop_pos_max;
+    // - is the start pin cleared?
+    if (!start)
+        if (out > stop_pos_min && out < stop_pos_max)
+            goal_pos_min = goal_pos_max = goal_pos_cur = goal_pos_prev = out;
+        else if (stop_time_max < stop_time_min)
+            goal_pos_min = goal_pos_max = goal_pos_cur = goal_pos_prev =
+                stop_pos_max;
+        else
+            goal_pos_min = goal_pos_max = goal_pos_cur = goal_pos_prev =
+                stop_pos_min;
     // - are we headed to crash into a min/max limit?
-    if (stop_pos_max > max_ + EPSILON && !VALID_NEXT(max_))
+    else if (stop_pos_max > max_ + EPSILON && !VALID_NEXT(max_))
 	goal_pos_min = goal_pos_max = goal_pos_cur = goal_pos_prev = max_;
     else if (stop_pos_min < min_ - EPSILON && !VALID_NEXT(min_))
 	goal_pos_min = goal_pos_max = goal_pos_cur = goal_pos_prev = min_;

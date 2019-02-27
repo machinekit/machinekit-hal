@@ -27,6 +27,7 @@
 #include "config.h"
 #include "rtapi.h"
 #include "rtapi_common.h"
+#include <libcgroup.h>
 
 /***********************************************************************
 *                           TASK FUNCTIONS                             *
@@ -67,6 +68,8 @@ typedef struct {
 } extra_task_data_t;
 
 extra_task_data_t extra_task_data[RTAPI_MAX_TASKS + 1];
+
+int have_cg;  // true when libcgroup initialized successfully
 #endif  /* RTAPI */
 
 #ifdef HAVE_RTAPI_GET_CLOCKS_HOOK
@@ -89,6 +92,23 @@ int _rtapi_exit(int module_id) {
     return 0;
 }
 
+
+#ifdef RTAPI
+void _rtapi_module_init_hook(void)
+{
+    int ret;
+
+    // Initialize libcgroup
+    have_cg = !(ret = cgroup_init());
+    if (have_cg)
+        rtapi_print_msg(RTAPI_MSG_INFO, "libcgroup initialization succeded\n");
+    else
+        rtapi_print_msg(RTAPI_MSG_INFO, "libcgroup initialization failed: (%d) %s\n",
+                        ret, cgroup_strerror(ret));
+}
+#else
+void _rtapi_module_init_hook(void) {}
+#endif
 
 #ifdef RTAPI
 
@@ -288,6 +308,8 @@ static int realtime_set_priority(task_data *task) {
 
 static void *realtime_thread(void *arg) {
     task_data *task = arg;
+    int ret;
+    const char *const cgcontrollers[2] = {"cpuset", NULL};
 
     rtapi_set_task(task);
 
@@ -308,6 +330,30 @@ static void *realtime_thread(void *arg) {
 
     if (realtime_set_affinity(task))
 	goto error;
+
+    // cgroup cpuset
+    if (task->cgname && task->cgname[0]) {
+        if (!have_cg) {
+            rtapi_print_msg(
+                RTAPI_MSG_ERR, "Task '%s' requested cgroup '%s', "
+                "but cgroups failed to initialize\n",
+                task->name, task->cgname);
+            goto error;
+        }
+
+        if ((ret = cgroup_change_cgroup_path(
+                 task->cgname,
+                 extra_task_data[task_id(task)].tid,
+                 cgcontrollers))) {
+	    rtapi_print_msg(RTAPI_MSG_ERR,
+                            "Error changing cpuset of task '%s' to '%s': %s\n",
+                            task->name, task->cgname, cgroup_strerror(ret));
+            goto error;
+        }
+        rtapi_print_msg(RTAPI_MSG_DBG,
+                        "Moved task '%s' to cpuset '%s'",
+                        task->name, task->cgname);
+    }
     if (!(task->flags & TF_NONRT)) {
 	if (realtime_set_priority(task)) {
 #ifdef RTAPI_POSIX // This requires privs - tell user how to obtain them

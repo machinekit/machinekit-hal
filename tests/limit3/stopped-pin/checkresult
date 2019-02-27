@@ -1,0 +1,43 @@
+#!/usr/bin/python2
+
+# Verify that limit3.stopped pin works
+
+import sys
+
+def near(a, b):
+    return abs(a-b) < 0.00001
+
+result_filename = sys.argv[1]
+result_file = open(result_filename, 'r')
+retval = 0
+
+start_low_sample = 400 # when output reaches 80
+stopped_hi_sample = 799 # when output reaches 160
+
+for line in result_file.readlines():
+    # Read columns:  one int, two floats, two bits
+    nums = line.split()
+    sample = int(nums[0])
+    out = float(nums[1])
+    vel = float(nums[2])
+    start = int(nums[3])
+    stopped = int(nums[4])
+
+    # Verify that start pin clears at the right time
+    if sample < start_low_sample and not start:
+        print "sample %d:  start cleared at position %.3f" % (sample, out)
+        retval = 1
+    elif sample >= start_low_sample and start:
+        print "sample %d:  start set at position %.3f" % (sample, out)
+        retval = 1
+
+    # Verify that stopped pin sets after output reaches 160
+    if sample < stopped_hi_sample and stopped:
+        print "sample %d:  stopped at position %.3f" % (sample, out)
+        retval = 1
+    elif sample >= stopped_hi_sample and not stopped:
+        print "sample %d:  not stopped at position %.3f" % (sample, out)
+        retval = 1
+
+
+sys.exit(retval)

@@ -150,8 +150,8 @@ void configure_gpio_port(int n) {
     gpio_ports[n]->datain_reg = gpio_ports[n]->gpio_addr + GPIO_DATAIN;
 
 
-    rtapi_print(
-	"memmapped gpio port %d to %p, oe: %p, set: %p, clr: %p\n",
+   rtapi_print_msg(
+	    RTAPI_MSG_DBG, "memmapped gpio port %d to %p, oe: %p, set: %p, clr: %p\n",
 	n, gpio_ports[n]->gpio_addr, gpio_ports[n]->oe_reg,
 	gpio_ports[n]->setdataout_reg, gpio_ports[n]->clrdataout_reg);
 
@@ -349,8 +349,8 @@ int rtapi_app_main(void) {
 	    bbpin->port = gpio_ports[gpio_num];
 
 	    configure_pin(bbpin, 'U');
-	    rtapi_print(
-		"pin %d maps to pin %d-%d, mode %d\n", pin, bbpin->port_num,
+	    rtapi_print_msg(
+	    	RTAPI_MSG_DBG, "pin %d maps to pin %d-%d, mode %d\n", pin, bbpin->port_num,
 		bbpin->pin_num, bbpin->claimed);
 	}
     }

@@ -188,7 +188,9 @@ int rtapi_ping(int instance)
     return reply.retcode();
 }
 
-int rtapi_newthread(int instance, const char *name, int period, int cpu, int use_fp, int flags)
+int rtapi_newthread(
+    int instance, const char *name, int period, int cpu,
+    char *cgname, int use_fp, int flags)
 {
     machinetalk::RTAPICommand *cmd;
     command.Clear();
@@ -200,6 +202,7 @@ int rtapi_newthread(int instance, const char *name, int period, int cpu, int use
     cmd->set_cpu(cpu);
     cmd->set_use_fp(use_fp);
     cmd->set_flags(flags);
+    cmd->set_cgname(cgname);
 
     int retval = rtapi_rpc(z_command, command, reply);
     if (retval)
@@ -303,4 +306,3 @@ void rtapi_cleanup()
         z_command = NULL;
     }
 }
-

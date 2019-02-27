@@ -257,6 +257,7 @@ $(call TOOBJSDEPS, rtapi/$(threads)/rtapi_app.cc): EXTRAFLAGS = \
 	    -o $@ \
 	    $^ \
 	    $(LDFLAGS) \
+	    $($(THREADS)_THREADS_LDFLAGS) \
 	    $(PROTOBUF_LIBS) $(CZMQ_LIBS) $(LTTNG_UST_LIBS) \
 	    -lstdc++ -ldl -luuid
 
@@ -354,6 +355,9 @@ RTAPI_MSGD_SRCS =  \
 	rtapi/rtapi_support.c
 
 RTAPI_MSGD_OBJS := $(call TOOBJS, $(RTAPI_MSGD_SRCS))
+
+$(call TOOBJS, rtapi/rtapi_msgd.cc): \
+	CXXFLAGS += -DGIT_BUILD_SHA=\"'$(GIT_BUILD_SHA)'\"
 
 RTAPI_MSGD_CFLAGS := \
 	$(PROTOBUF_CFLAGS) $(CZMQ_CFLAGS) $(AVAHI_CFLAGS)

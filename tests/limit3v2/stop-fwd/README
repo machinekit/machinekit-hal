@@ -1,0 +1,4 @@
+This tests the 'start' pin.  It replicates the motion in
+../limit-accel-and-max, since it sets the same max accel and velocity,
+and begins slowing down when input exceeds 80, and as such can reuse
+the same 'expected' output.

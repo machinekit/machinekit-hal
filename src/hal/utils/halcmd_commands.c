@@ -1229,9 +1229,8 @@ int loadrt(const int use_halmutex, char *mod_path, char *args[])
 
     retval = rtapi_loadrt(rtapi_instance, mod_path, (const char **)args);
     if ( retval != 0 ) {
-	halcmd_error("insmod failed, returned %d:\n%s\n"
-		     "See %s for more information.\n",
-		     retval, rtapi_rpcerror(), logpath);
+	halcmd_error("insmod failed, returned %d:\n%s\n",
+		     retval, rtapi_rpcerror());
 	return -1;
     }
 
@@ -4390,6 +4389,7 @@ int do_newthread_cmd(char *name, char *args[])
     int i, retval;
     bool use_fp = false;
     int cpu = -1;
+    char cgname[LINELEN] = {0};
     char *s;
     int per = 1000000;
     int flags = 0;
@@ -4413,6 +4413,8 @@ int do_newthread_cmd(char *name, char *args[])
 	    flags |= TF_NOWAIT;
 	    continue;
 	}
+	if (sscanf(s, "cgname=%s", cgname) == 1)
+		continue;
 	char *cp = s;
 	per = strtol(s, &cp, 0);
 	if ((*cp != '\0') && (!isspace(*cp))) {
@@ -4427,7 +4429,8 @@ int do_newthread_cmd(char *name, char *args[])
 	halcmd_info("specifying 'nowait' without 'posix' makes it easy to lock up RT\n");
     }
 
-    retval = rtapi_newthread(rtapi_instance, name, per, cpu, (int)use_fp, flags);
+    retval = rtapi_newthread(rtapi_instance, name, per, cpu, cgname,
+                             (int)use_fp, flags);
     if (retval)
 	halcmd_error("rc=%d: %s\n",retval,rtapi_rpcerror());
 
@@ -4669,4 +4672,3 @@ static void print_help_commands(void)
     printf("  echo, unecho        Echo commands from stdin to stderr\n");
     printf("  quit, exit          Exit from halcmd\n");
 }
-
