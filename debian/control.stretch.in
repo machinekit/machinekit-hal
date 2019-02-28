@@ -1,4 +1,4 @@
-Source: machinekit
+Source: machinekit-hal
 Section: misc
 Priority: extra
 Maintainer: John Morris <john@dovetail-automata.com>
@@ -39,14 +39,14 @@ Standards-Version: 2.1.0
 # alternate front-ends for machinekit
 #########################################################################
 
-Package: machinekit
+Package: machinekit-hal
 Breaks: linuxcnc
 Replaces: linuxcnc
 Architecture: any
 Depends: ${shlibs:Depends}, machinekit-rt-threads, tcl8.6, tk8.6,
     bwidget (>= 1.7), libtk-img (>=1.13),
     ${python:Depends}, ${misc:Depends},
-    python-tk, python-imaging, python-imaging-tk,
+    python-tk, python-pil, python-pil.imagetk,
     python-gnome2, python-glade2,
     python-numpy, python-gtksourceview2,
     python-vte, python-xlib, python-gtkglext1, python-configobj,

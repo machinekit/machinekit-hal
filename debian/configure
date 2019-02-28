@@ -181,12 +181,26 @@ HAVE_KTHREADS_FLAVOR=false
 # Determine tcl/tk version
 do_tcl_tk_version "$TCL_TK_VER"
 
+## situation at 20092018
+## python-gst1.0 backported to Jessie + Stretch
+## python-gtksourceview2 not available for Buster but is for Sid, meaning gladevcp widgets keep working.
+## python-pil and python-pil.imagegtk active for Sid replacing python-imaging and python-imaging-tk
+## however selecting python-imaging and python-imaging-tk in Stretch actually
+## results in python-pil and python-pil.imagegtk being installed, so will probably completely backport soon.
 
-# delete old files
-rm -f machinekit-hal-{rtai,xenomai}-kernel-*.install
+## Keep individual control files, so they can easily be amended as things change
 
 # copy base templates into place
-cp control.in control
+if [ "$DISTRO_CODENAME" == "stretch" ]; then
+    cp control.stretch.in control
+elif [ "$DISTRO_CODENAME" == "buster" ]; then
+    cp control.buster.in control
+elif [ "$DISTRO_CODENAME" == "sid" ]; then
+    cp control.sid.in control
+else  # Jessie
+    cp control.in control
+fi
+
 echo "debian/control:  copied base template" >&2
 
 cp postinst.in machinekit-hal-posix.postinst
