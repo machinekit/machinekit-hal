@@ -39,7 +39,7 @@ Standards-Version: 2.1.0
 # alternate front-ends for machinekit
 #########################################################################
 
-Package: machinekit
+Package: machinekit-hal
 Breaks: linuxcnc
 Replaces: linuxcnc
 Architecture: any
