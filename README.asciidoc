@@ -30,7 +30,7 @@ ubiquitous platforms like phones or tablets.
 
 == Getting Machinekit
 
-The easiest way to get up-and-running is to install Debian Wheezy and get the binary packages. 
+The easiest way to get up-and-running is to install Debian Stretch and get the binary packages. 
 
 Please go to link:http://www.machinekit.io/[www.machinekit.io] for this and all other information, 
 including documentation.
