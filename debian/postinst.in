@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/bash
 # postinst script for machinekit-hal
 
 touch /var/log/linuxcnc.log
