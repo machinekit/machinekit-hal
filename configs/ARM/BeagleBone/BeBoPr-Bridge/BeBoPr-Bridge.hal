@@ -7,7 +7,8 @@
 # ########################################
 
 # Launch the setup script to make sure hardware setup looks good
-loadusr -w ./setup.bridge.sh
+#loadusr -w ./setup.bridge.sh
+loadusr -w ./setup.sh
 loadusr -w config-pin -f ./BeBoPr-Bridge.bbio
 
 
@@ -39,7 +40,7 @@ loadusr -Wn Therm ./ReadTemp.py -n Therm --num_chan 2 -t 1 1 -a 4 5
 # ################################################
 # THREADS
 # ################################################
-# hpg = [PRUCONF](DRIVER)
+
 addf hpg.capture-position                 servo-thread
 addf bb_gpio.read                         servo-thread
 addf motion-command-handler               servo-thread
