@@ -88,10 +88,10 @@ setp hpg.stepgen.00.maxvel          [AXIS_0]STEPGEN_MAX_VEL
 setp hpg.stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAX_ACC
 
 #setp hpg.stepgen.00.step_type       0
-# P8.43 PRU1.out2
-setp hpg.stepgen.00.steppin         843
-# P8.44 PRU1.out4
-setp hpg.stepgen.00.dirpin          844
+# P8.12 PRU1.out2
+setp hpg.stepgen.00.steppin         812
+# P8.11 PRU1.out4
+setp hpg.stepgen.00.dirpin          811
 
 
 # ################
@@ -127,10 +127,10 @@ setp hpg.stepgen.01.maxvel          [AXIS_1]STEPGEN_MAX_VEL
 setp hpg.stepgen.01.maxaccel        [AXIS_1]STEPGEN_MAX_ACC
 
 #setp hpg.stepgen.01.step_type       0
-# P8.42 PRU1.out5
-setp hpg.stepgen.01.steppin         842
-# P8.39 PRU1.out6
-setp hpg.stepgen.01.dirpin          839
+# P8.16 PRU1.out5
+setp hpg.stepgen.01.steppin         816
+# P8.15 PRU1.out6
+setp hpg.stepgen.01.dirpin          815
 
 
 # ################
@@ -166,10 +166,10 @@ setp hpg.stepgen.02.maxvel          [AXIS_2]STEPGEN_MAX_VEL
 setp hpg.stepgen.02.maxaccel        [AXIS_2]STEPGEN_MAX_ACC
 
 #setp hpg.stepgen.02.step_type       0
-# P8.27 PRU1.out8
-setp hpg.stepgen.02.steppin         827
-# P8.29 PRU1.out9
-setp hpg.stepgen.02.dirpin          829
+# P9.15 PRU1.out8
+setp hpg.stepgen.02.steppin         915
+# P9.23 PRU1.out9
+setp hpg.stepgen.02.dirpin          923
 
 
 # ################
@@ -205,10 +205,10 @@ setp hpg.stepgen.03.maxvel          [AXIS_3]STEPGEN_MAX_VEL
 setp hpg.stepgen.03.maxaccel        [AXIS_3]STEPGEN_MAX_ACC
 
 #setp hpg.stepgen.03.step_type       0
-# P8.30 GPIO2.25
-setp hpg.stepgen.03.steppin         830
-# P8.21 GPIO1.30
-setp hpg.stepgen.03.dirpin          821
+# P9.22 GPIO0.02
+setp hpg.stepgen.03.steppin         922
+# P9.21 GPIO0.03
+setp hpg.stepgen.03.dirpin          921
 
 
 # ##################################################
@@ -223,14 +223,15 @@ net tool-prep-loop iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 net tool-change-loop iocontrol.0.tool-change => iocontrol.0.tool-changed
 
 # Axis enable signals
-net emcmot.00.enable => bb_gpio.p9.out-18
+#net emcmot.00.enable => bb_gpio.p9.out-18
+net emcmot.00.enable => bb_gpio.p9.out-18 bb_gpio.p9.out-17 bb_gpio.p9.out-26 bb_gpio.p9.out-24
 setp bb_gpio.p9.out-18.invert 1
-net emcmot.01.enable => bb_gpio.p9.out-17
-setp bb_gpio.p9.out-17.invert 1
-net emcmot.02.enable => bb_gpio.p9.out-26
-setp bb_gpio.p9.out-26.invert 1
-net emcmot.03.enable => bb_gpio.p9.out-24
-setp bb_gpio.p9.out-24.invert 1
+#net emcmot.01.enable => bb_gpio.p9.out-17
+#setp bb_gpio.p9.out-17.invert 1
+#net emcmot.02.enable => bb_gpio.p9.out-26
+#setp bb_gpio.p9.out-26.invert 1
+#net emcmot.03.enable => bb_gpio.p9.out-24
+#setp bb_gpio.p9.out-24.invert 1
 
 # Machine power (BeBoPr Enable)
 # Enable tied to system Reset_n line (P9.10)
