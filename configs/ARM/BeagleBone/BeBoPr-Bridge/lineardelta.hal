@@ -7,13 +7,14 @@
 # ########################################
 
 # Launch the setup script to make sure hardware setup looks good
-loadusr -w ./setup.bridge.sh
+#loadusr -w ./setup.bridge.sh
+loadusr -w ./setup.sh
+loadusr -w config-pin -f ./BeBoPr-Bridge.bbio
 
 
 # ###################################
 # Core EMC/HAL Loads
 # ###################################
-
 # kinematics
 #loadrt trivkins
 loadrt lineardeltakins
@@ -27,8 +28,7 @@ setp lineardeltakins.R [MACHINE]DELTA_R
 loadrt tp
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[TRAJ]AXES tp=tp kins=lineardeltakins
 
-# load low-level drivers
-#loadrt hal_bb_gpio output_pins=107,126,217,218,224,226 input_pins=108,109,110,114,117,118
+# load low-level drivers (Must not include pins used in PRU)
 loadrt hal_bb_gpio output_pins=807,826,917,918,924,926 input_pins=808,809,810,814,817,818
 loadrt [PRUCONF](DRIVER) prucode=$(HAL_RTMOD_DIR)/[PRUCONF](PRUBIN) [PRUCONF](CONFIG)
 loadrt pid count=2
@@ -68,12 +68,9 @@ addf sum2.1                               servo-thread
 # ######################################################
 # Axis-of-motion Specific Configs (not the GUI)
 # ######################################################
-
-
 # ################
 # X [0] Axis = column C
 # ################
-
 # axis enable chain
 newsig emcmot.00.enable bit
 sets emcmot.00.enable FALSE
@@ -103,10 +100,10 @@ setp hpg.stepgen.00.maxvel          [AXIS_0]STEPGEN_MAX_VEL
 setp hpg.stepgen.00.maxaccel        [AXIS_0]STEPGEN_MAX_ACC
 
 #setp hpg.stepgen.00.step_type       0
-# P8.43 PRU1.out2
-setp hpg.stepgen.00.steppin         843
-# P8.44 PRU1.out4
-setp hpg.stepgen.00.dirpin          844
+# P8.12 PRU1.out2
+setp hpg.stepgen.00.steppin         812
+# P8.11 PRU1.out4
+setp hpg.stepgen.00.dirpin          811
 
 # because column C is connected to the X-axis output
 # the bebopr-bridge signal needs to be X-max means P8.9
@@ -146,10 +143,10 @@ setp hpg.stepgen.01.maxvel          [AXIS_1]STEPGEN_MAX_VEL
 setp hpg.stepgen.01.maxaccel        [AXIS_1]STEPGEN_MAX_ACC
 
 #setp hpg.stepgen.01.step_type       0
-# P8.42 PRU1.out5
-setp hpg.stepgen.01.steppin         842
-# P8.39 PRU1.out6
-setp hpg.stepgen.01.dirpin          839
+# P8.16 PRU1.out5
+setp hpg.stepgen.01.steppin         816
+# P8.15 PRU1.out6
+setp hpg.stepgen.01.dirpin          815
 
 
 # because column A is connected to the Y-axis output
@@ -190,10 +187,10 @@ setp hpg.stepgen.02.maxvel          [AXIS_2]STEPGEN_MAX_VEL
 setp hpg.stepgen.02.maxaccel        [AXIS_2]STEPGEN_MAX_ACC
 
 #setp hpg.stepgen.02.step_type       0
-# P8.27 PRU1.out8
-setp hpg.stepgen.02.steppin         827
-# P8.29 PRU1.out9
-setp hpg.stepgen.02.dirpin          829
+# P9.15 PRU1.out8
+setp hpg.stepgen.02.steppin         915
+# P9.23 PRU1.out9
+setp hpg.stepgen.02.dirpin          923
 
 # because column B is connected to the Z-axis output
 # the bebopr-bridge signal needs to be Z-max means P8.18
@@ -233,10 +230,10 @@ setp hpg.stepgen.03.maxvel          [AXIS_3]STEPGEN_MAX_VEL
 setp hpg.stepgen.03.maxaccel        [AXIS_3]STEPGEN_MAX_ACC
 
 #setp hpg.stepgen.03.step_type       0
-# P8.30 GPIO2.25
-setp hpg.stepgen.03.steppin         830
-# P8.21 GPIO1.30
-setp hpg.stepgen.03.dirpin          821
+# P9.22 GPIO0.02
+setp hpg.stepgen.03.steppin         922
+# P9.21 GPIO0.03
+setp hpg.stepgen.03.dirpin          921
 
 
 # ##################################################
@@ -251,14 +248,15 @@ net tool-prep-loop iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 net tool-change-loop iocontrol.0.tool-change => iocontrol.0.tool-changed
 
 # Axis enable signals
-net emcmot.00.enable => bb_gpio.p9.out-18
+#net emcmot.00.enable => bb_gpio.p9.out-18
+net emcmot.00.enable => bb_gpio.p9.out-18 bb_gpio.p9.out-17 bb_gpio.p9.out-26 bb_gpio.p9.out-24
 setp bb_gpio.p9.out-18.invert 1
-net emcmot.01.enable => bb_gpio.p9.out-17
-setp bb_gpio.p9.out-17.invert 1
-net emcmot.02.enable => bb_gpio.p9.out-26
-setp bb_gpio.p9.out-26.invert 1
-net emcmot.03.enable => bb_gpio.p9.out-24
-setp bb_gpio.p9.out-24.invert 1
+#net emcmot.01.enable => bb_gpio.p9.out-17
+#setp bb_gpio.p9.out-17.invert 1
+#net emcmot.02.enable => bb_gpio.p9.out-26
+#setp bb_gpio.p9.out-26.invert 1
+#net emcmot.03.enable => bb_gpio.p9.out-24
+#setp bb_gpio.p9.out-24.invert 1
 
 # Machine power (BeBoPr Enable)
 # Enable tied to system Reset_n line (P9.10)
