@@ -67,10 +67,11 @@ esac
 # Distro specific warnings level
 case ${TAG} in
     *_8|*_9)
-	WERROR_FLAG="-Werror"
+	WERROR_FLAG=""  # Remove for now until possible to satisfy 32 and 64 bit
+			# with same data type and have rtapi_pci work
 	;;
     *)
-	WERROR_FLAG=""    # Buster and above have many as yet unresolved warnings
+	WERROR_FLAG=""  # Buster and above have many as yet unresolved warnings
 	;;
 esac
 
