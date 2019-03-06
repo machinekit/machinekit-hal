@@ -653,8 +653,7 @@ int pci_enable_device(struct pci_dev *dev)
     FILE *stream;
     char path[256];
     int i,r;
-    void *L1, *L2;
-    unsigned long L3;
+    unsigned long long L1, L2, L3;
 
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI_PCI: Enabling Device %s\n", dev->dev_name);
 
@@ -682,11 +681,11 @@ int pci_enable_device(struct pci_dev *dev)
         
     /* ...and read in the data */
     for (i=0; i < 6; i++) {
-        r=fscanf(stream, "%p %p %lu", &L1, &L2, &L3);
+	r=fscanf(stream, "%Lx %Lx %Lx", &L1, &L2, &L3);
         if (r != 3) {
-		    rtapi_print_msg(RTAPI_MSG_ERR,"Failed to parse \"%s\"\n", path);
+	    rtapi_print_msg(RTAPI_MSG_ERR,"Failed to parse \"%s\"\n", path);
             fclose(stream);
-		    return -1;
+	    return -1;
         }
         dev->resource[i].start = (void*) L1;
         dev->resource[i].end   = (void*) L2;
