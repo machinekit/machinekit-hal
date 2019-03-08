@@ -150,6 +150,12 @@ RUN test $DISTRO_VER -gt 8 \
         ln -s ../../bin/ccache /usr/lib/ccache/arm-linux-gnueabihf-g++ ; \
     }
 
+# - Qemu for emulating armhf on amd64
+RUN if test $DEBIAN_ARCH = armhf; then \
+        apt-get install -y qemu binfmt-support qemu-user-static \
+        && apt-get clean; \
+    fi
+
 ###########################################
 # Packagecloud.io
 
