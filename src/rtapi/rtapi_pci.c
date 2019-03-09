@@ -682,7 +682,7 @@ int pci_enable_device(struct pci_dev *dev)
         
     /* ...and read in the data */
     for (i=0; i < 6; i++) {
-        r=fscanf(stream, "%p %p %lu", &L1, &L2, &L3);
+        r=fscanf(stream, "%p %p %lx", &L1, &L2, &L3);
         if (r != 3) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,"Failed to parse \"%s\"\n", path);
             fclose(stream);
