@@ -1,4 +1,8 @@
 #!/bin/bash -e
+#
+# send_status.sh
+#
+# Upload info about pass/fail status
 
 cd ~/
 if [ -f ~/no_sftp ]; then
@@ -18,14 +22,12 @@ else
     FILE+="failed"
 fi
 
-    touch ${FILE}
-    cat >sftp_cmds <<EOF
+touch ${FILE}
+cat >sftp_cmds <<EOF
 cd shared/info
 put ${FILE}
 bye
 EOF
 
-    sshpass -p ${SFTP_PASSWD} sftp -P ${SFTP_PORT} -o StrictHostKeyChecking=no \
-        -oBatchMode=no -b sftp_cmds ${SFTP_USER}@${SFTP_ADDR}
-
-fi
+sshpass -p ${SFTP_PASSWD} sftp -P ${SFTP_PORT} -o StrictHostKeyChecking=no \
+	-oBatchMode=no -b sftp_cmds ${SFTP_USER}@${SFTP_ADDR}

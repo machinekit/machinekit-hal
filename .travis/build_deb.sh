@@ -43,7 +43,7 @@ RELEASE="1${UPSTREAM}.git${SHA1SHORT}~1${DISTRO}"
 # Generate debian/changelog entry
 #
 # https://www.debian.org/doc/debian-policy/ch-source.html#s-dpkgchangelog
-mv debian/changelog debian/changelog.old
+rm -f debian/changelog
 cat > debian/changelog <<EOF
 machinekit-hal (${VERSION}-${RELEASE}) ${DEBIAN_SUITE}; urgency=low
 
@@ -54,10 +54,13 @@ machinekit-hal (${VERSION}-${RELEASE}) ${DEBIAN_SUITE}; urgency=low
 
 EOF
 cat debian/changelog # debug output
-cat debian/changelog.old >> debian/changelog
+cat debian/changelog.in >> debian/changelog
+
+# Whilst using arceye/mk-builder docker image, need -d switch
+# because new czmq4 libs were parachuted in and not installed onto the chroot fs
 
 # build unsigned packages and sources on amd64
-DEBUILD_OPTS+=" -eDEB_BUILD_OPTIONS=parallel=${JOBS} -us -uc -j${JOBS}"
+DEBUILD_OPTS+=" -eDEB_BUILD_OPTIONS=parallel=${JOBS} -us -uc -d -j${JOBS}"
 if test ${MARCH} = 64; then
     # create upstream tarball only on amd64
     (
@@ -67,7 +70,7 @@ if test ${MARCH} = 64; then
     )
 else
     # the rest will be binaries only
-    DEBUILD_OPTS+=" -b"
+    DEBUILD_OPTS+=" -d -b"
 fi
 
 case "${FLAV}" in

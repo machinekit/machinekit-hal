@@ -122,9 +122,6 @@ case $CMD in
             -e DPKG_CFLAGS="${DPKG_CFLAGS} ${WERROR_FLAG}"
 	)
 
-	# Set changelog location
-	# BUILD_OPTS+=" --changes-option=-ldebian/changelog.new"
-
 	BUILD_CL=( bash -xec "
             # configure source package
             debian/configure ${PKG_CONFIGURE_ARGS};

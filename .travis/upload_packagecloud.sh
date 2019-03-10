@@ -25,11 +25,14 @@ if [ "${TRAVIS_TEST_RESULT}" -eq 0 ] && [ "${TRAVIS_PULL_REQUEST}" = "false" ] \
     # have already been uploaded
     if [ "${FLAV}" == "rt_preempt" ] || [ "${FLAV}" == "xenomai" ]; then
         rm -f ${TRAVIS_BUILD_DIR}/deploy/machinekit_*
+#        rm -f ${TRAVIS_BUILD_DIR}/deploy/machinekit-dev* ## no more machinekit-dev packages
     fi
 
     package_cloud push ${repo} ${TRAVIS_BUILD_DIR}/deploy/*deb
     if [ "${MARCH}" = "64" ]; then
         package_cloud push ${repo} ${TRAVIS_BUILD_DIR}/deploy/*dsc
     fi
+else
+    echo "Package upload skipped"
 fi    
 
