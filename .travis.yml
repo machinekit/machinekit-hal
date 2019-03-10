@@ -47,9 +47,6 @@ cache: ccache
 services:
   - docker
 
-before_install:
-  - .travis/check_sftp.sh
-
 env:
   global:
     - IMAGE=${IMAGE:-dovetailautomata/mk-cross-builder}
@@ -92,12 +89,8 @@ script:
   - scripts/build_docker -i $IMAGE -t $TAG -c $CMD
 
 after_success:
-  - .travis/send_binaries.sh
   # Upload packages to packagecloud.io
   - test -z "$PACKAGECLOUD_USER" || gem install package_cloud
   - test -z "$PACKAGECLOUD_USER" || scripts/build_packagecloud_upload
   # Show ccache stats
   - ccache -s
-
-after_script:
-  - .travis/send_status.sh
