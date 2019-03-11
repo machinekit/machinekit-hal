@@ -80,9 +80,13 @@ RUN apt-get -y install \
 	multistrap \
 	debian-keyring \
 	debian-archive-keyring \
-	python-restkit \
 	python-apt \
 	rubygems \
+    && { \
+	test $DISTRO_VER -ge 10 \
+	    || apt-get install -y \
+		python-restkit; \
+        } \
     && apt-get clean
 
 # Dev tools
@@ -111,21 +115,24 @@ RUN apt-get install -y \
     && apt-get clean
 
 # - amd64 -> i386 multiarch/multilib compiles
-RUN test $DISTRO_VER -gt 8 \
-    ||{ apt-get install -y \
+RUN if test $DISTRO_VER -eq 8; then \
+        apt-get install -y \
 	    binutils-i586-linux-gnu \
 	    gcc-4.9-multilib \
-	    g++-4.9-multilib \
-	&& apt-get clean; \
-    }
-RUN test $DISTRO_VER -eq 8 \
-    ||{ apt-get install -y \
+	    g++-4.9-multilib; \
+    elif test $DISTRO_VER -eq 9; then \
+        apt-get install -y \
 	    binutils-multiarch \
 	    gcc-6-multilib \
 	    g++-6-multilib \
-	    libgcc-6-dev:$DEBIAN_ARCH \
-        && apt-get clean; \
-    }
+	    libgcc-6-dev:$DEBIAN_ARCH; \
+    else \
+        apt-get install -y \
+	    binutils-multiarch \
+	    gcc-8-multilib \
+	    g++-8-multilib \
+	    libgcc-8-dev:$DEBIAN_ARCH; \
+    fi
 
 # - Linaro gcc cross compiler for armhf
 RUN test $DISTRO_VER -gt 8 \
@@ -256,7 +263,7 @@ RUN if test $DISTRO_VER -eq 8; then \
     && ( cd /tmp/debs && dpkg-scanpackages -m . > /tmp/debs/Packages )
 
 # Add deps repo to apt sources for native builds
-RUN if test $DEBIAN_ARCH = amd64; then \
+RUN if test $DISTRO_VER -le 9 -a $DEBIAN_ARCH = amd64; then \
 	echo "deb file:///tmp/debs ./" > /etc/apt/sources.list.d/local.list \
 	&& apt-get update; \
     fi
@@ -266,12 +273,22 @@ RUN if test $DEBIAN_ARCH = amd64; then \
 # Machinekit:  Host arch build environment
 
 # Native arch:  Install build dependencies
-RUN test -n "$SYS_ROOT" \
-    || { \
-        apt-get install -y  -o Apt::Get::AllowUnauthenticated=true \
-            machinekit-build-deps \
+RUN if test -z "$SYS_ROOT"; then \
+        if test $DISTRO_VER -le 9; then \
+	    apt-get install -y  -o Apt::Get::AllowUnauthenticated=true \
+		machinekit-build-deps; \
+        else \
+	    apt-get install -y /tmp/debs/machinekit-build-deps_*.deb; \
+	fi \
 	&& apt-get clean; \
-    }
+    fi
+
+# Patch multistrap on Buster
+# https://github.com/volumio/Build/issues/348#issuecomment-462271607
+RUN if test $DISTRO_VER -eq 10; then \
+        sed -i /usr/sbin/multistrap \
+	    -e '/AllowUnauthenticated/ s/"$/ -o Acquire::AllowInsecureRepositories=true"/'; \
+    fi
 
 # Foreign arch:  Build "sysroot"
 # - Select and unpack build dependency packages
@@ -335,6 +352,21 @@ RUN test -z "$SYS_ROOT" \
 	ln -sf /usr/include.build/x86_64-linux-gnu $SYS_ROOT/usr/include; \
     }
 
+# On Buster, fix krb5-dev .pc files in sysroot
+RUN if test $DISTRO_VER -eq 10 -a -n "$SYS_ROOT"; then \
+        cd /sysroot/usr/lib/${HOST_MULTIARCH}/pkgconfig/mit-krb5 && \
+        for i in *; do \
+	    rm ../$i \
+	    && ln -s mit-krb5/$i ../$i; \
+	done; \
+    fi
+# On Buster, the libczmq.pc file requires libsystemd but the
+# libczmq-dev package doesn't require libsystemd-dev; take care of
+# native case (sysroot case taken care of in multistrap config)
+RUN if test $DISTRO_VER -eq 10 -a -z "$SYS_ROOT"; then \
+        apt-get install -y libsystemd-dev \
+        && apt-get clean; \
+    fi
 
 ###########################################
 # Set up environment
