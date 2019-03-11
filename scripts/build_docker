@@ -3,15 +3,12 @@
 # Build/cross-build packages and test Machinekit-HAL in Docker
 #
 # This script can be run manually or in Travis CI
-#
-# NB. for Buster builds, IMAGE needs to be set to 'arceye/mk-cross-builder'
-# and tag to amd64_10, armhf_10 or i386_10
 
 ###########################################################
 # Configuration from environment, CL args and defaults
 CMD=${CMD:-shell}
 IMAGE=${IMAGE:-dovetailautomata/mk-cross-builder}
-TAG=${TAG:-amd64_9}
+TAG=${TAG:-amd64_10}
 JOBS=${JOBS:-$(nproc)}
 BUILD_SOURCE=${BUILD_SOURCE:-true}  # update Changelog & source pkg
 
