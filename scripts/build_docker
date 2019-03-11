@@ -173,7 +173,9 @@ esac
 ###########################################################
 # Update new container image and add custom /etc/passwd
 
-docker pull ${IMAGE}:${TAG}
+if test -z "$NO_PULL"; then
+    docker pull ${IMAGE}:${TAG}
+fi
 
 if test ${UID_GID/:*/} != 1000; then
     echo "Updating /etc/passwd for UID $TRAVIS_UID" >&2
