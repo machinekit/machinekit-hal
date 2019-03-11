@@ -223,14 +223,8 @@ RUN test $DISTRO_VER -gt 8 \
 
 # add Machinekit package archive
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 43DDF224
-# FIXME temporary for stretch
-RUN if test $DISTRO_CODENAME = stretch; then \
-        echo "deb http://deb.mgware.co.uk $DISTRO_CODENAME main" > \
-            /etc/apt/sources.list.d/machinekit.list; \
-    else \
-	echo "deb http://deb.machinekit.io/debian $DISTRO_CODENAME main" > \
-            /etc/apt/sources.list.d/machinekit.list; \
-    fi
+RUN echo "deb http://deb.machinekit.io/debian $DISTRO_CODENAME main" > \
+            /etc/apt/sources.list.d/machinekit.list
 
 ###################################################################
 # Machinekit:  Install dependency packages
