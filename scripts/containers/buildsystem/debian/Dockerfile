@@ -229,7 +229,7 @@ RUN test $DISTRO_VER -gt 8 \
 # Machinekit:  Configure apt
 
 # add Machinekit package archive
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 43DDF224
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 31B5958F43DDF224
 RUN echo "deb http://deb.machinekit.io/debian $DISTRO_CODENAME main" > \
             /etc/apt/sources.list.d/machinekit.list
 
