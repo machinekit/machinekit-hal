@@ -796,7 +796,6 @@ install-python: install-dirs
 	$(EXE) ../bin/mklauncher $(DESTDIR)$(bindir)
 	$(EXE) ../bin/configserver $(DESTDIR)$(bindir)
 	$(EXE) ../bin/videoserver $(DESTDIR)$(bindir)
-	$(EXE) ../bin/yapps $(DESTDIR)$(bindir)
 endif
 
 install-kernel-dep: install-dirs
