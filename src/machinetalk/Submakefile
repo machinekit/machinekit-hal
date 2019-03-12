@@ -303,6 +303,7 @@ PROTO_JS_SRCS +=$(JSGEN)/nanopb.js
 
 # the nanopb plugin executable
 ../lib/python/$(NAMESPACEDIR)/protoc-gen-nanopb: $(NANOPB)/generator/protoc-gen-nanopb
+	@mkdir -p ../lib/python/$(NAMESPACEDIR)/
 	cp $^ $@
 	chmod 755 $@
 
