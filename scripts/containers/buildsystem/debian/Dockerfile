@@ -381,6 +381,7 @@ ENV HOME=/home/${USER}
 ENV SHELL=/bin/bash
 ENV PATH=/usr/lib/ccache:/opt/gcc-linaro-hf/bin:/usr/sbin:/usr/bin:/sbin:/bin
 RUN echo "${USER}:x:${UID}:${GID}::${HOME}:${SHELL}" >> /etc/passwd
+RUN echo "${USER}:*:17967:0:99999:7:::" >> /etc/shadow
 RUN echo "${USER}:x:${GID}:" >> /etc/group
 
 # Customize the run environment to your taste
