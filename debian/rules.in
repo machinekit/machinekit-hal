@@ -141,7 +141,7 @@ endif
 
 install: build
 
-	## have to test after build or Makefile.inc will not exist ##
+#	# have to test after build or Makefile.inc will not exist ##
 	cp debian/machinekit-hal-posix.install.in debian/machinekit-hal-posix.install
 	cp debian/machinekit-hal-rt-preempt.install.in debian/machinekit-hal-rt-preempt.install
 	cp debian/machinekit-hal-xenomai.install.in debian/machinekit-hal-xenomai.install
@@ -152,7 +152,7 @@ install: build
 	    echo "usr/include/linuxcnc/userpci/*.h" >> debian/machinekit-hal-xenomai.install; \
 	fi
 
-	## only want this for armhf builds ##
+#	# only want this for armhf builds ##
 	if [ ! -f debian/platform_pc ] ; then \
 	    echo "usr/lib/linuxcnc/prubin/*" >> debian/machinekit-hal-posix.install; \
 	    echo "usr/lib/linuxcnc/prubin/*" >> debian/machinekit-hal-rt-preempt.install; \
@@ -172,7 +172,7 @@ install: build
 	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/linuxcnc \
 	    debian/tmp/usr/include/linuxcnc/machinetalk/nanopb \
 	    debian/tmp/usr/include/linuxcnc/machinetalk/protobuf 
-	
+
 
 #ifneq (,$(wildcard debian/machinekit-*-kernel-*.install))
 	mkdir -p debian/tmp/etc/udev/rules.d
@@ -183,7 +183,7 @@ install: build
 	cp src/rtapi/shmdrv/limits.d-machinekit.conf \
 	    debian/tmp/etc/security/limits.d/machinekit.conf
 
-	## only want this for armhf builds too ##
+#	# only want this for armhf builds too ##
 	if [ -f debian/platform_pc ] ; then \
 	    rm -f debian/platform_pc; \
 	else \
@@ -213,7 +213,7 @@ binary-arch: build install
 	dh_compress -X.pdf -X.txt -X.hal -X.ini -X.clp -X.var -X.nml \
 	    -X.tbl -X.xml -Xsample-configs
 	dh_fixperms -X/linuxcnc_module_helper -X/rtapi_app_
-	dh_python2 --ignore-shebangs --no-guessing-versions --no-ext-rename
+	dh_python2 --ignore-shebangs --no-guessing-versions
 	dh_makeshlibs
 	dh_installdeb
 

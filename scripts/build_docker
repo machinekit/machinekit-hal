@@ -3,15 +3,12 @@
 # Build/cross-build packages and test Machinekit-HAL in Docker
 #
 # This script can be run manually or in Travis CI
-#
-# NB. for Buster builds, IMAGE needs to be set to 'arceye/mk-cross-builder'
-# and tag to amd64_10, armhf_10 or i386_10
 
 ###########################################################
 # Configuration from environment, CL args and defaults
 CMD=${CMD:-shell}
 IMAGE=${IMAGE:-dovetailautomata/mk-cross-builder}
-TAG=${TAG:-amd64_9}
+TAG=${TAG:-amd64_10}
 JOBS=${JOBS:-$(nproc)}
 BUILD_SOURCE=${BUILD_SOURCE:-true}  # update Changelog & source pkg
 
@@ -122,9 +119,6 @@ case $CMD in
             -e DPKG_CFLAGS="${DPKG_CFLAGS} ${WERROR_FLAG}"
 	)
 
-	# Set changelog location
-	# BUILD_OPTS+=" --changes-option=-ldebian/changelog.new"
-
 	BUILD_CL=( bash -xec "
             # configure source package
             debian/configure ${PKG_CONFIGURE_ARGS};
@@ -179,7 +173,9 @@ esac
 ###########################################################
 # Update new container image and add custom /etc/passwd
 
-docker pull ${IMAGE}:${TAG}
+if test -z "$NO_PULL"; then
+    docker pull ${IMAGE}:${TAG}
+fi
 
 if test ${UID_GID/:*/} != 1000; then
     echo "Updating /etc/passwd for UID $TRAVIS_UID" >&2
