@@ -123,5 +123,4 @@ TARGETS += ../bin/comp ../bin/instcomp
 objects/%.py: %.g
 	@mkdir -p $(dir $@)
 	$(ECHO) Parsing python $<
-	$(Q)yapps2 $< $@
-	@# `from __future__` lines not allowed after first line of file
+	$(Q)$(YAPPS2) $< $@

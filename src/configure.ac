@@ -2430,6 +2430,16 @@ then
     AC_MSG_ERROR([fuser not found])
 fi
 
+AC_PATH_PROG(YAPPS2, yapps2, "none")
+if test $YAPPS2 = "none"; then
+    AC_PATH_PROG(YAPPS, yapps, "none")
+    if test $YAPPS = "none"; then
+        AC_MSG_ERROR([No yapps2 or yapps executable found])
+    else
+        YAPPS2=$YAPPS
+    fi
+fi
+
 # MANDB empty is handled in doc/Submakefile
 AC_PATH_PROG(MANDB, mandb, "")
 
@@ -2468,6 +2478,7 @@ AC_ARG_WITH(insmod,
     [
             INSMOD="$EMC2_BIN_DIR/linuxcnc_module_helper insert"
     ])
+
 
 ##############################################################################
 # Subsection 3.5 - check for programs needed to build documentation          #
