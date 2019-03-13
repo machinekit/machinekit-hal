@@ -342,6 +342,13 @@ RUN apt-get install -y \
         netcat-openbsd \
         tcl8.6 tk8.6 \
         cgroup-tools \
+    && if test $DISTRO_VER -le 9; then \
+	    apt-get install -y \
+		yapps2-runtime yapps2; \
+       else \
+	    apt-get install -y \
+		python-yapps yapps2; \
+       fi \
     && apt-get clean
 
 # Monkey-patch entire /usr/include, and re-add build-arch headers
