@@ -183,6 +183,7 @@ if test ${UID_GID/:*/} != 1000; then
     docker build -t ${IMAGE}:${NEWTAG} - <<EOF
 FROM ${IMAGE}:${TAG}
 RUN sed -i "s/\${USER}:x:\${UID}:/\${USER}:x:${UID_GID/:*/}:/" /etc/passwd
+RUN echo '${USER}:*:17967:0:99999:7:::' >> /etc/shadow
 ENV UID=${UID_GID/:*/}
 EOF
 else
