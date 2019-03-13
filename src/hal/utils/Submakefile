@@ -7,17 +7,17 @@ HALCMDSRCS += hal/utils/halcmd_completion.c
 endif
 USERSRCS += $(sort $(HALCMDSRCS) $(HALCMDCCSRCS)) ##$(HALSHSRCS)
 
-#$(call TOOBJSDEPS, $(HALSHSRCS)) : EXTRAFLAGS = -fPIC
-#$(call TOOBJSDEPS, hal/utils/halsh.c) : EXTRAFLAGS += $(TCL_CFLAGS)
-#../tcl/hal.so: $(call TOOBJS, $(HALSHSRCS)) \
-#	../lib/liblinuxcncini.so.0 \
-#	../lib/liblinuxcnchal.so.0 \
-#	../lib/libmachinetalk-pb2++.so.0 \
-#	../lib/libmtalk.so.0 \
-#	../lib/librtapi_math.so.0
-#	$(ECHO) Linking $(notdir $@)
-#	$(Q)$(CC) $(LDFLAGS) -shared $^  $(TCL_LIBS) -o $@
-#TARGETS += ../tcl/hal.so
+$(call TOOBJSDEPS, $(HALSHSRCS)) : EXTRAFLAGS = -fPIC
+$(call TOOBJSDEPS, hal/utils/halsh.c) : EXTRAFLAGS += $(TCL_CFLAGS)
+../tcl/hal.so: $(call TOOBJS, $(HALSHSRCS)) \
+	../lib/liblinuxcncini.so.0 \
+	../lib/liblinuxcnchal.so.0 \
+	../lib/libmachinetalk-pb2++.so.0 \
+	../lib/libmtalk.so.0 \
+	../lib/librtapi_math.so.0
+	$(ECHO) Linking $(notdir $@)
+	$(Q)$(CC) $(LDFLAGS) -shared $^  $(TCL_LIBS) -o $@
+TARGETS += ../tcl/hal.so
 
 $(call TOOBJSDEPS, $(HALCMDCCSRCS)) : EXTRAFLAGS =  \
 	$(PROTOBUF_CFLAGS) $(CZMQ_CFLAGS) -fPIC
