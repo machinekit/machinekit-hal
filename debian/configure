@@ -118,12 +118,11 @@ esac
 # Configure Xenomai threads
 configure_xenomai() {
     if ! dpkg-query -W | grep -q libxenomai-dev; then
-        echo "Not configuring Xenomai:  libxenomai-dev package not found" >&2
+        echo "Not configuring build for Xenomai (no libxenomai-dev package)" >&2
         return
     fi
 
     echo "debian/control:  Adding xenomai threads configuration" >&2
-    # Be sure the -dev files only appear once
     BUILD_DEPS+=", libxenomai-dev"
     DEPS+=", xenomai-runtime"
 }
