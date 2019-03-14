@@ -107,6 +107,7 @@ RUN apt-get install -y \
 	pkg-config \
 	qemu-user-static \
 	linux-libc-dev:armhf \
+        dh-python \
     && { \
         test $DISTRO_VER -lt 9 \
         || apt-get install -y \
