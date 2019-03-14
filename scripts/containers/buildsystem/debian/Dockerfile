@@ -1,16 +1,28 @@
-FROM @BASE_IMAGE@
+ARG BASE_IMAGE
+
+FROM ${BASE_IMAGE}
 MAINTAINER John Morris <john@zultron.com>
 
 ###################################################################
 # Build configuration settings
 
-@ENV_DEBIAN_ARCH@
-@ENV_HOST_MULTIARCH@
-@ENV_DISTRO_CODENAME@
-@ENV_DISTRO_VER@
-@ENV_SYS_ROOT@
-@ENV_EXTRA_FLAGS@
-@ENV_LDEMULATION@
+# - Passed in from hooks/build script based on Docker tag
+ARG DEBIAN_ARCH
+ARG HOST_MULTIARCH
+ARG DISTRO_CODENAME
+ARG DISTRO_VER
+ARG SYS_ROOT
+ARG EXTRA_FLAGS
+ARG LDEMULATION
+
+# - Set in container environment
+ENV DEBIAN_ARCH=${DEBIAN_ARCH}
+ENV HOST_MULTIARCH=${HOST_MULTIARCH}
+ENV DISTRO_CODENAME=${DISTRO_CODENAME}
+ENV DISTRO_VER=${DISTRO_VER}
+ENV SYS_ROOT=${SYS_ROOT}
+ENV EXTRA_FLAGS=${EXTRA_FLAGS}
+ENV LDEMULATION=${LDEMULATION}
 
 ###################################################################
 # Generic apt configuration
@@ -68,9 +80,13 @@ RUN apt-get -y install \
 	multistrap \
 	debian-keyring \
 	debian-archive-keyring \
-	python-restkit \
 	python-apt \
 	rubygems \
+    && { \
+	test $DISTRO_VER -ge 10 \
+	    || apt-get install -y \
+		python-restkit; \
+        } \
     && apt-get clean
 
 # Dev tools
@@ -91,6 +107,7 @@ RUN apt-get install -y \
 	pkg-config \
 	qemu-user-static \
 	linux-libc-dev:armhf \
+        dh-python \
     && { \
         test $DISTRO_VER -lt 9 \
         || apt-get install -y \
@@ -99,21 +116,24 @@ RUN apt-get install -y \
     && apt-get clean
 
 # - amd64 -> i386 multiarch/multilib compiles
-RUN test $DISTRO_VER -gt 8 \
-    ||{ apt-get install -y \
+RUN if test $DISTRO_VER -eq 8; then \
+        apt-get install -y \
 	    binutils-i586-linux-gnu \
 	    gcc-4.9-multilib \
-	    g++-4.9-multilib \
-	&& apt-get clean; \
-    }
-RUN test $DISTRO_VER -eq 8 \
-    ||{ apt-get install -y \
+	    g++-4.9-multilib; \
+    elif test $DISTRO_VER -eq 9; then \
+        apt-get install -y \
 	    binutils-multiarch \
 	    gcc-6-multilib \
 	    g++-6-multilib \
-	    libgcc-6-dev:$DEBIAN_ARCH \
-        && apt-get clean; \
-    }
+	    libgcc-6-dev:$DEBIAN_ARCH; \
+    else \
+        apt-get install -y \
+	    binutils-multiarch \
+	    gcc-8-multilib \
+	    g++-8-multilib \
+	    libgcc-8-dev:$DEBIAN_ARCH; \
+    fi
 
 # - Linaro gcc cross compiler for armhf
 RUN test $DISTRO_VER -gt 8 \
@@ -133,8 +153,16 @@ RUN test $DISTRO_VER -gt 8 \
         echo "Extracting compiler to /opt/" && \
         tar xCf /opt ${WORKD}/${TXZ} && \
         ln -snf ${DIR} /opt/gcc-linaro-hf && \
-        rm -rf ${WORKD}; \
+        rm -rf ${WORKD} && \
+        ln -s ../../bin/ccache /usr/lib/ccache/arm-linux-gnueabihf-gcc && \
+        ln -s ../../bin/ccache /usr/lib/ccache/arm-linux-gnueabihf-g++ ; \
     }
+
+# - Qemu for emulating armhf on amd64
+RUN if test $DEBIAN_ARCH = armhf; then \
+        apt-get install -y qemu binfmt-support qemu-user-static \
+        && apt-get clean; \
+    fi
 
 ###########################################
 # Packagecloud.io
@@ -202,15 +230,9 @@ RUN test $DISTRO_VER -gt 8 \
 # Machinekit:  Configure apt
 
 # add Machinekit package archive
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 43DDF224
-# FIXME temporary for stretch
-RUN if test $DISTRO_CODENAME = stretch; then \
-        echo "deb http://deb.mgware.co.uk $DISTRO_CODENAME main" > \
-            /etc/apt/sources.list.d/machinekit.list; \
-    else \
-	echo "deb http://deb.machinekit.io/debian $DISTRO_CODENAME main" > \
-            /etc/apt/sources.list.d/machinekit.list; \
-    fi
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 31B5958F43DDF224
+RUN echo "deb http://deb.machinekit.io/debian $DISTRO_CODENAME main" > \
+            /etc/apt/sources.list.d/machinekit.list
 
 ###################################################################
 # Machinekit:  Install dependency packages
@@ -222,9 +244,9 @@ RUN if test $DISTRO_CODENAME = stretch; then \
 #     FIXME download parts from upstream
 ADD debian/ /tmp/debian/
 RUN if test $DISTRO_VER = 8; then \
-	MK_CROSS_BUILDER=1 /tmp/debian/configure -prx; \
+	MK_CROSS_BUILDER=1 /tmp/debian/configure -x; \
     else \
-	MK_CROSS_BUILDER=1 /tmp/debian/configure -pr; \
+	MK_CROSS_BUILDER=1 /tmp/debian/configure; \
     fi
 
 # Directory for `mk-build-deps` apt repository
@@ -242,7 +264,7 @@ RUN if test $DISTRO_VER -eq 8; then \
     && ( cd /tmp/debs && dpkg-scanpackages -m . > /tmp/debs/Packages )
 
 # Add deps repo to apt sources for native builds
-RUN if test $DEBIAN_ARCH = amd64; then \
+RUN if test $DISTRO_VER -le 9 -a $DEBIAN_ARCH = amd64; then \
 	echo "deb file:///tmp/debs ./" > /etc/apt/sources.list.d/local.list \
 	&& apt-get update; \
     fi
@@ -252,12 +274,22 @@ RUN if test $DEBIAN_ARCH = amd64; then \
 # Machinekit:  Host arch build environment
 
 # Native arch:  Install build dependencies
-RUN test -n "$SYS_ROOT" \
-    || { \
-        apt-get install -y  -o Apt::Get::AllowUnauthenticated=true \
-            machinekit-build-deps \
+RUN if test -z "$SYS_ROOT"; then \
+        if test $DISTRO_VER -le 9; then \
+	    apt-get install -y  -o Apt::Get::AllowUnauthenticated=true \
+		machinekit-build-deps; \
+        else \
+	    apt-get install -y /tmp/debs/machinekit-build-deps_*.deb; \
+	fi \
 	&& apt-get clean; \
-    }
+    fi
+
+# Patch multistrap on Buster
+# https://github.com/volumio/Build/issues/348#issuecomment-462271607
+RUN if test $DISTRO_VER -eq 10; then \
+        sed -i /usr/sbin/multistrap \
+	    -e '/AllowUnauthenticated/ s/"$/ -o Acquire::AllowInsecureRepositories=true"/'; \
+    fi
 
 # Foreign arch:  Build "sysroot"
 # - Select and unpack build dependency packages
@@ -311,6 +343,13 @@ RUN apt-get install -y \
         netcat-openbsd \
         tcl8.6 tk8.6 \
         cgroup-tools \
+    && if test $DISTRO_VER -le 9; then \
+	    apt-get install -y \
+		yapps2-runtime yapps2; \
+       else \
+	    apt-get install -y \
+		python-yapps yapps2; \
+       fi \
     && apt-get clean
 
 # Monkey-patch entire /usr/include, and re-add build-arch headers
@@ -321,6 +360,21 @@ RUN test -z "$SYS_ROOT" \
 	ln -sf /usr/include.build/x86_64-linux-gnu $SYS_ROOT/usr/include; \
     }
 
+# On Buster, fix krb5-dev .pc files in sysroot
+RUN if test $DISTRO_VER -eq 10 -a -n "$SYS_ROOT"; then \
+        cd /sysroot/usr/lib/${HOST_MULTIARCH}/pkgconfig/mit-krb5 && \
+        for i in *; do \
+	    rm ../$i \
+	    && ln -s mit-krb5/$i ../$i; \
+	done; \
+    fi
+# On Buster, the libczmq.pc file requires libsystemd but the
+# libczmq-dev package doesn't require libsystemd-dev; take care of
+# native case (sysroot case taken care of in multistrap config)
+RUN if test $DISTRO_VER -eq 10 -a -z "$SYS_ROOT"; then \
+        apt-get install -y libsystemd-dev \
+        && apt-get clean; \
+    fi
 
 ###########################################
 # Set up environment
@@ -335,9 +389,8 @@ ENV HOME=/home/${USER}
 ENV SHELL=/bin/bash
 ENV PATH=/usr/lib/ccache:/opt/gcc-linaro-hf/bin:/usr/sbin:/usr/bin:/sbin:/bin
 RUN echo "${USER}:x:${UID}:${GID}::${HOME}:${SHELL}" >> /etc/passwd
+RUN echo "${USER}:*:17967:0:99999:7:::" >> /etc/shadow
 RUN echo "${USER}:x:${GID}:" >> /etc/group
-# Put this last so the Docker cache isn't dirtied constantly
-ENV CONTAINER_REV=@CONTAINER_REV@
 
 # Customize the run environment to your taste
 # - bash prompt
