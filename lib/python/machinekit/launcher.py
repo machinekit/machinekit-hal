@@ -121,7 +121,8 @@ def load_hal_file(filename, ini=None):
             config.load_ini(ini)
         globals_ = {}
         with open(filename, 'r') as f:
-            exec(f.read(), globals_)
+            data = compile(f.read(), filename, 'exec')
+            exec(data, globals_)
     else:
         command = 'halcmd'
         if ini is not None:
