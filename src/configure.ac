@@ -2809,41 +2809,41 @@ EOFOUTER
 # so testing is done by finding tclConfig.sh and tkConfig.sh                 #
 # if the search fails the traditional check is done                          #
 ##############################################################################
-#SC_PATH_TCLCONFIG
-#SC_LOAD_TCLCONFIG
-#TCL_CFLAGS="$TCL_INCLUDE_SPEC -DUSE_TCL_STUBS"
-#TCL_LIBS="$TCL_STUB_LIB_SPEC"
-#AC_PRUNE_DEFAULT_LDFLAGS(TCL_LIBS)
+SC_PATH_TCLCONFIG
+SC_LOAD_TCLCONFIG
+TCL_CFLAGS="$TCL_INCLUDE_SPEC -DUSE_TCL_STUBS"
+TCL_LIBS="$TCL_STUB_LIB_SPEC"
+AC_PRUNE_DEFAULT_LDFLAGS(TCL_LIBS)
 
-#SC_PATH_TKCONFIG
-#SC_LOAD_TKCONFIG
-#TK_CFLAGS="$TK_INCLUDE_SPEC $TK_XINCLUDES"
-#TK_LIBS="$TK_LIBS $TK_LIB_SPEC"
-#AC_PRUNE_DEFAULT_LDFLAGS(TK_LIBS)
+SC_PATH_TKCONFIG
+SC_LOAD_TKCONFIG
+TK_CFLAGS="$TK_INCLUDE_SPEC $TK_XINCLUDES"
+TK_LIBS="$TK_LIBS $TK_LIB_SPEC"
+AC_PRUNE_DEFAULT_LDFLAGS(TK_LIBS)
 
-#AC_PATH_PROGS(WISH,[wish${TCL_VERSION} wish], [wish],
-#     [path="$TCL_EXEC_PREFIX/bin:$PATH"])
-#AC_PATH_PROGS(TCLSH,[tclsh${TCL_VERSION} tclsh], [tclsh],
-#     [path="$TCL_EXEC_PREFIX/bin:$PATH"])
+AC_PATH_PROGS(WISH,[wish${TCL_VERSION} wish], [wish],
+     [path="$TCL_EXEC_PREFIX/bin:$PATH"])
+AC_PATH_PROGS(TCLSH,[tclsh${TCL_VERSION} tclsh], [tclsh],
+     [path="$TCL_EXEC_PREFIX/bin:$PATH"])
 
-#HAVE_WORKING_BLT=no
-#AC_MSG_CHECKING([for BLT using tclsh8.5])
-#if (test -f $TCL_EXEC_PREFIX/bin/tclsh8.5) && (echo ['if [catch {package require BLT}] { exit 1; } else { exit 0; }'] | tclsh8.5); then
-#    AC_MSG_RESULT([found])
-#    HAVE_WORKING_BLT=yes
-#else
-#    AC_MSG_RESULT([not found])
-#fi
-#
-#AC_SUBST([TCL_DBGX])
-#AC_SUBST([TK_DBGX])
-#AC_SUBST([TCL_CFLAGS])
-#AC_SUBST([TK_CFLAGS])
-#AC_SUBST([TCL_LIBS])
-#AC_SUBST([TK_LIBS])
-#AC_SUBST([WISH])
-#AC_SUBST([TCLSH])
-#AC_SUBST([HAVE_WORKING_BLT])
+HAVE_WORKING_BLT=no
+AC_MSG_CHECKING([for BLT using tclsh8.5])
+if (test -f $TCL_EXEC_PREFIX/bin/tclsh8.5) && (echo ['if [catch {package require BLT}] { exit 1; } else { exit 0; }'] | tclsh8.5); then
+    AC_MSG_RESULT([found])
+    HAVE_WORKING_BLT=yes
+else
+    AC_MSG_RESULT([not found])
+fi
+
+AC_SUBST([TCL_DBGX])
+AC_SUBST([TK_DBGX])
+AC_SUBST([TCL_CFLAGS])
+AC_SUBST([TK_CFLAGS])
+AC_SUBST([TCL_LIBS])
+AC_SUBST([TK_LIBS])
+AC_SUBST([WISH])
+AC_SUBST([TCLSH])
+AC_SUBST([HAVE_WORKING_BLT])
 
 ##############################################################################
 # Section 7 - Miscelaneous support                                           #
