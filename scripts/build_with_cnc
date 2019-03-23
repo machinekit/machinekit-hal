@@ -1,0 +1,54 @@
+#!/bin/bash
+
+MKHAL_DIR=$(pwd)
+
+cd src
+
+./autogen.sh
+
+./configure
+
+make -j $(nproc)
+
+sudo make setuid
+
+cd ../
+
+git clone https://github.com/machinekit/machinekit-cnc ;
+
+cd machinekit-cnc/src
+
+./autogen.sh
+
+./configure --with-machinekit-hal=$MKHAL_DIR
+
+make -j $(nproc)
+
+cd ../
+
+cp -f bin/* $MKHAL_DIR/bin ;
+cp -f -R configs $MKHAL_DIR ;
+cp -f -L -R include/* $MKHAL_DIR/include ;
+cp -f -L -R lib/*  $MKHAL_DIR/lib ;
+cp -f -R nc_files $MKHAL_DIR ;
+cp -f -R rtlib/* $MKHAL_DIR/rtlib ;
+cp -f -R share/* $MKHAL_DIR/share ;
+sed -i 's|\/machinekit-cnc||g' tcl/linuxcnc.tcl ;
+cp -f -R tcl/* $MKHAL_DIR/tcl ;
+cp -f -R www $MKHAL_DIR ;
+
+cp -f machinekit* $MKHAL_DIR ;
+
+mkdir -p scripts/stash ;
+mv scripts/build_docker scripts/stash ;
+mv scripts/build_source_package scripts/stash ;
+sed -i 's|\/machinekit-cnc||g' scripts/linuxcnc ;
+cp -f scripts/* $MKHAL_DIR/scripts > /dev/null 2>&1 ;
+
+cd ../
+
+. ./scripts/rip-environment 
+
+echo "********************************"
+echo "Ready to run full machinekit RIP"
+echo "********************************"
