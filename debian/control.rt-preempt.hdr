@@ -1,0 +1,5 @@
+
+Package: machinekit-hal-rt-preempt
+Architecture: any
+Provides:  machinekit-hal
+Conflicts: machinekit

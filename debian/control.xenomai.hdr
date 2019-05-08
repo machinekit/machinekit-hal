@@ -1,0 +1,5 @@
+
+Package: machinekit-hal-xenomai
+Architecture: any
+Provides:  machinekit-hal
+Conflicts: machinekit
