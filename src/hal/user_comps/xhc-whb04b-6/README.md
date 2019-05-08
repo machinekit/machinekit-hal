@@ -255,7 +255,7 @@ which is the report ID. The data **exclusive report ID** reads as follows:
 |:------------------------|:---------|:------------|:------------------------|
 |reset                    | 0x01     | RESET       | *Macro-11*              |
 |stop                     | 0x02     | STOP        | *Macro-12*              |
-|start                    | 0x03     | Start       | Pause                   |
+|start                    | 0x03     | Start/Pause | *Macro-13*                   |
 |feed_plus                | 0x04     | Feed+       | Macro-1                 |
 |feed_minus               | 0x05     | Feed-       | Macro-2                 |
 |spindle_plus             | 0x06     | Spindle+    | Macro-3                 |
@@ -266,9 +266,9 @@ which is the report ID. The data **exclusive report ID** reads as follows:
 |spindle_on_off           | 0x0b     | S-ON/OFF    | Macro-8                 |
 |function                 | 0x0c     | Fn          | Fn                      |
 |probe_z                  | 0x0d     | Probe-Z     | Macro-9                 |
-|macro10                  | 0x10     | Macro-10    | *Macro-13*              |
-|manual_pulse_generator   | 0x0e     | MPG         | *Macro-14*              |
-|step_continuous          | 0x0f     | STEP        | Continuous              |
+|macro10                  | 0x10     | Macro-10    | Macro-14                |
+|manual_pulse_generator   | 0x0e     | MPG/Con     | Macro-15                |
+|step_continuous          | 0x0f     | STEP        | Macro-16                |
 |&lt;no button pressed&gt;| 0x00     | &lt;NA&gt;  | &lt;NA&gt;              |
 
 |  Feed Rotary Button Name    | Key Code | Button Text | Button Alternative Text |
