@@ -1,0 +1,6 @@
+
+Package: machinekit-hal-xenomai
+Architecture: any
+Provides:  machinekit-hal
+Conflicts: machinekit
+Suggests: hostmot2-firmware-all [!armhf]
