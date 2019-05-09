@@ -1,3 +1,4 @@
+    ,linux-image-rt-686-pae [i386], linux-image-rt-amd64 [amd64]
 Description: HAL stack split from Machinekit
  .
  This package provides components and drivers that run on a realtime
