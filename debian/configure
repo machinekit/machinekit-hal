@@ -43,21 +43,21 @@ guess_arch_from_kver() {
 }
 
 do_posix() {
-    cat control.posix.hdr control.$DISTRO_CODENAME.in control.posix.ftr >> control
+    cat control.d/control.posix.hdr control.d/control.$DISTRO_CODENAME.in control.d/control.posix.ftr >> control
     echo "debian/control:  added POSIX threads package" >&2
     rules_enable_threads posix
     HAVE_FLAVOR=true
 }
 
 do_rt-preempt() {
-    cat control.rt-preempt.hdr control.$DISTRO_CODENAME.in control.rt-preempt.ftr >> control
+    cat control.d/control.rt-preempt.hdr control.d/control.$DISTRO_CODENAME.in control.d/control.rt-preempt.ftr >> control
     echo "debian/control:  added RT_PREEMPT threads package" >&2
     rules_enable_threads rt-preempt
     HAVE_FLAVOR=true
 }
 
 do_xenomai() {
-    cat control.xenomai.hdr control.$DISTRO_CODENAME.in control.xenomai.ftr >> control
+    cat control.d/control.xenomai.hdr control.d/control.$DISTRO_CODENAME.in control.d/control.xenomai.ftr >> control
 #    sed -i "s|yapps2-runtime|yapps2-runtime, xenomai-runtime|" control
     echo "debian/control:  added xenomai threads package for Jessie" >&2
     # Be sure the -dev files only appear once
@@ -140,7 +140,7 @@ DEPS= # List of Depends
 HAVE_FLAVOR=false
 HAVE_KTHREADS_FLAVOR=false
 
-cp control.in control
+cp control.d/control.in control
 echo "debian/control:  copied base template" >&2
 
 cp postinst.in machinekit-hal-posix.postinst
