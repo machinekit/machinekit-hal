@@ -26,4 +26,4 @@ usr/lib/*.so
 usr/lib/linuxcnc/ulapi-rt-preempt.so
 usr/lib/tcltk/linuxcnc/hal.so
 usr/share/linuxcnc/Makefile.*
-usr/share/linuxcnc/udev/90-xhc.rules
+usr/share/linuxcnc/udev/*.rules
