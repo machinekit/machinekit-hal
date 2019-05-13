@@ -1540,9 +1540,8 @@ void de0_nano_soc_adc_read(hostmot2_t *hm2);
 //
 
 int hm2_capsense_parse_md(hostmot2_t *hm2, int md_index);
-//int hm2_capsense_setup(hostmot2_t *hm2);
 void hm2_capsense_read(hostmot2_t *hm2);
-//void hm2_capsense_allocate_pins(hostmot2_t *hm2);
+void hm2_capsense_write(hostmot2_t *hm2);
 
 
 
