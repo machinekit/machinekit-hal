@@ -1105,7 +1105,7 @@ typedef struct {
 typedef struct {
     struct {
         hal_u32_t *capsense_hysteresis;
-    } param;
+    } pin;
 } hm2_capsense_module_global_t;
 
 typedef struct {
