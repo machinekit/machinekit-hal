@@ -137,6 +137,8 @@ static int hm2_write(void *void_hm2, const hal_funct_args_t *fa) {
     hm2_led_write(hm2);	      // Update on-board LEDs
 
     hm2_raw_write(hm2);
+
+    hm2_capsense_write(hm2); // handles set hysteresis in capsense mksocfpga hm2 core
     return 0;
 }
 
