@@ -192,6 +192,7 @@ SUBDIRS := \
 	machinetalk/lib \
 	machinetalk/config-service \
 	machinetalk/haltalk \
+	machinetalk/mkwrapper \
 	machinetalk/mklauncher \
 	machinetalk/videoserver \
 	\
@@ -544,7 +545,7 @@ HEADERS := \
     rtapi/shmdrv/shmdrv.h
 
 
-    
+
 ## the "headers" target installs all the header files in ../include
 .PHONY: headers
 HEADERS := $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
@@ -794,6 +795,7 @@ install-python: install-dirs
 	$(FILE) ../lib/python/machinetalk/protobuf/*.py $(DESTDIR)$(SITEPY)/machinetalk/protobuf/
 	$(FILE) ../lib/python/drivers/*.py $(DESTDIR)$(SITEPY)/drivers
 	$(FILE) ../lib/python/gladevcp/*.* $(DESTDIR)$(SITEPY)/gladevcp
+	$(EXE) ../bin/mkwrapper $(DESTDIR)$(bindir)
 	$(EXE) ../bin/mklauncher $(DESTDIR)$(bindir)
 	$(EXE) ../bin/configserver $(DESTDIR)$(bindir)
 	$(EXE) ../bin/videoserver $(DESTDIR)$(bindir)
