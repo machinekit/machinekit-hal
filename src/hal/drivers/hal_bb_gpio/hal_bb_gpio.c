@@ -269,10 +269,12 @@ int rtapi_app_main(void) {
 	    int pin = strtol(token, NULL, 10);
 	    bb_gpio_pin *bbpin;
 
-	    // Fixup old pin numbering scheme:
-	    // P8/P9 was 1xx/2xx, now 8xx/9xx
-	    if (pin < 300)
-		pin += 700;
+            if (board_id == BEAGLEBONE) {
+                // Fixup old pin numbering scheme:
+                // P8/P9 was 1xx/2xx, now 8xx/9xx
+                if (pin < 300)
+                    pin += 700;
+            }
 
 	    if (pin < HLO_FIRSTPIN || pin > (HHI_LASTPIN) ||
 		(pin > (HLO_LASTPIN) && pin < HHI_FIRSTPIN)) {
