@@ -25,24 +25,24 @@
 #include "hal.h"
 #include "hostmot2.h"
 
-int hm2_bspi_parse_md(hostmot2_t *hm2, int md_index) 
+int hm2_bspi_parse_md(hostmot2_t *hm2, int md_index)
 {
     // All this function actually does is allocate memory
-    // and give the bspi modules names. 
-    
-    
-    // 
+    // and give the bspi modules names.
+
+
+    //
     // some standard sanity checks
     //
-    
+
     int i, j, r = -EINVAL;
     hm2_module_descriptor_t *md = &hm2->md[md_index];
-    
+
     if (!hm2_md_is_consistent_or_complain(hm2, md_index, 0, 3, 0x40, 0x0007)) {
         HM2_ERR("inconsistent Module Descriptor!\n");
         return -EINVAL;
     }
-    
+
     if (hm2->bspi.num_instances != 0) {
         HM2_ERR(
                 "found duplicate Module Descriptor for %s (inconsistent "
@@ -51,7 +51,7 @@ int hm2_bspi_parse_md(hostmot2_t *hm2, int md_index)
                 );
         return -EINVAL;
     }
-    
+
     if (hm2->config.num_bspis > md->instances) {
         HM2_ERR(
                 "config defines %d bspis, but only %d are available, "
@@ -61,29 +61,29 @@ int hm2_bspi_parse_md(hostmot2_t *hm2, int md_index)
                 );
         return -EINVAL;
     }
-    
+
     if (hm2->config.num_bspis == 0) {
         return 0;
     }
-    
-    // 
+
+    //
     // looks good, start initializing
-    // 
-    
+    //
+
     if (hm2->config.num_bspis == -1) {
         hm2->bspi.num_instances = md->instances;
     } else {
         hm2->bspi.num_instances = hm2->config.num_bspis;
     }
-    
-    hm2->bspi.instance = (hm2_bspi_instance_t *)hal_malloc(hm2->bspi.num_instances 
+
+    hm2->bspi.instance = (hm2_bspi_instance_t *)hal_malloc(hm2->bspi.num_instances
                                                      * sizeof(hm2_bspi_instance_t));
     if (hm2->bspi.instance == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail0;
     }
-    
+
     for (i = 0 ; i < hm2->bspi.num_instances ; i++){
         hm2_bspi_instance_t *chan = &hm2->bspi.instance[i];
         chan->clock_freq = md->clock_freq;
@@ -97,7 +97,7 @@ int hm2_bspi_parse_md(hostmot2_t *hm2, int md_index)
         for (j = 0 ; j < 16 ; j++ ){
             chan->addr[j] = chan->base_address + j * sizeof(u32);
         }
-        
+
     }
     return hm2->bspi.num_instances;
 fail0:
@@ -117,7 +117,7 @@ void hm2_bspi_force_write(hostmot2_t *hm2)
 }
 
 EXPORT_SYMBOL_GPL(hm2_tram_add_bspi_frame);
-int hm2_tram_add_bspi_frame(char *name, int chan, u32 **wbuff, u32 **rbuff) 
+int hm2_tram_add_bspi_frame(char *name, int chan, u32 **wbuff, u32 **rbuff)
 {
     hostmot2_t *hm2;
     int i, r;
@@ -127,7 +127,7 @@ int hm2_tram_add_bspi_frame(char *name, int chan, u32 **wbuff, u32 **rbuff)
         return -1;
     }
     if (hm2->bspi.instance[i].conf_flag[chan] != true){
-        HM2_ERR("The selected write channel (%i) on bspi instance %s.\n" 
+        HM2_ERR("The selected write channel (%i) on bspi instance %s.\n"
                 "Has not been configured.\n", chan, name);
         return -1;
     }
@@ -140,7 +140,7 @@ int hm2_tram_add_bspi_frame(char *name, int chan, u32 **wbuff, u32 **rbuff)
     } else {
         HM2_ERR("SPI frame must have a write entry for channel (%i) on %s.\n", chan, name);
         return -1;
-    }    
+    }
     if (rbuff != NULL){
         // Don't add a read entry for a no-echo channel
         if(!(hm2->bspi.instance[i].cd[chan] & 0x80000000)) {
@@ -151,7 +151,7 @@ int hm2_tram_add_bspi_frame(char *name, int chan, u32 **wbuff, u32 **rbuff)
             }
         }
     }
-    
+
     return 0;
 }
 
@@ -170,7 +170,7 @@ int hm2_allocate_bspi_tram(char* name)
         HM2_ERR("Failed to register TRAM for BSPI %s\n", name);
         return -1;
     }
-    
+
     return 0;
 }
 
@@ -178,7 +178,7 @@ EXPORT_SYMBOL_GPL(hm2_bspi_write_chan);
 int hm2_bspi_write_chan(char* name, int chan, u32 val)
 {
     hostmot2_t *hm2;
-    u32 buff;
+    u32 buff = val;
     int i, r;
     i = hm2_get_bspi(&hm2, name);
     if (i < 0){
@@ -186,7 +186,7 @@ int hm2_bspi_write_chan(char* name, int chan, u32 val)
         return -1;
     }
     if (hm2->bspi.instance[i].conf_flag[chan] != true){
-        HM2_ERR("The selected write channel (%i) on bspi instance %s.\n" 
+        HM2_ERR("The selected write channel (%i) on bspi instance %s.\n"
                 "Has not been configured.\n", chan, name);
         return -1;
     }
@@ -194,7 +194,7 @@ int hm2_bspi_write_chan(char* name, int chan, u32 val)
     if (r < 0) {
         HM2_ERR("BSPI: hm2->llio->write failure %s\n", name);
     }
-    
+
     return r;
 }
 
@@ -212,7 +212,7 @@ int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz,
         return -1;
     }
     if (chan<0 || chan > 15){
-        HM2_ERR("BSPI %s: Channel number (%i) is out of range, BSPI only" 
+        HM2_ERR("BSPI %s: Channel number (%i) is out of range, BSPI only"
                 "supports channels 0-15\n", name, chan);
         return -1;
     }
@@ -232,7 +232,7 @@ int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz,
         return -1;
     }
     board_mhz = hm2->bspi.instance[i].clock_freq / 1e6;
-    
+
     // reduce clock rate of the FPGA isn't fast enough
     if (mhz > board_mhz/2){
         mhz=board_mhz/2;
@@ -242,10 +242,10 @@ int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz,
         |  (clear != 0) << 30
         | ((delay <= 0)? 0x10 : (u32)((delay*board_mhz/1000.0)-1) & 0x1f) << 24
         | (cs & 0xF) << 16
-        | (((u16)(board_mhz / (mhz * 2) - 1) & 0xF)) << 8
+        | (((u16)(board_mhz / (mhz * 2) - 1) & 0xFF)) << 8
         | (cpha != 0) << 7
         | (cpol != 0) << 6
-        | (((u16)(bits - 1)) & 0x1F);
+        | (((u16)(bits - 1)) & 0x3F);
     HM2_DBG("BSPI %s Channel %i setup %x\n", name, chan, buff);
     hm2->bspi.instance[i].cd[chan] = buff;
     hm2->bspi.instance[i].conf_flag[chan] = true;
@@ -260,15 +260,15 @@ void hm2_bspi_print_module(hostmot2_t *hm2){
     HM2_PRINT("    version: %d\n", hm2->bspi.version);
     HM2_PRINT("    channel configurations\n");
     for (i = 0; i < hm2->bspi.num_instances; i ++) {
-        HM2_PRINT("    clock_frequency: %d Hz (%s MHz)\n", 
-                  hm2->bspi.instance[i].clock_freq, 
+        HM2_PRINT("    clock_frequency: %d Hz (%s MHz)\n",
+                  hm2->bspi.instance[i].clock_freq,
                   hm2_hz_to_mhz(hm2->bspi.instance[i].clock_freq));
         HM2_PRINT("    instance %d:\n", i);
         HM2_PRINT("    HAL name = %s\n", hm2->bspi.instance[i].name);
         for (j = 0; j < 16 ; j++){
-            HM2_PRINT("         frame %i config = %08x\n", j, 
+            HM2_PRINT("         frame %i config = %08x\n", j,
                       hm2->bspi.instance[i].cd[j]);
-            HM2_PRINT("                address = %08x\n", 
+            HM2_PRINT("                address = %08x\n",
                       hm2->bspi.instance[i].addr[j]);
         }
     }
@@ -283,12 +283,12 @@ int hm2_bspi_set_read_function(char *name, int (*func)(void *subdata), void *sub
         HM2_ERR_NO_LL("Can not find BSPI instance %s.\n", name);
         return -1;
     }
-    if (func == NULL) { 
+    if (func == NULL) {
         HM2_ERR("Invalid function pointer passed to "
                 "hm2_bspi_set_read_function.\n");
         return -1;
     }
-    if (subdata == NULL) { 
+    if (subdata == NULL) {
         HM2_ERR("Invalid data pointer passed to "
                 "hm2_bspi_set_read_function.\n");
         return -1;
@@ -307,12 +307,12 @@ int hm2_bspi_set_write_function(char *name, int (*func)(void *subdata), void *su
         HM2_ERR_NO_LL("Can not find BSPI instance %s.\n", name);
         return -1;
     }
-    if (func == NULL) { 
+    if (func == NULL) {
         HM2_ERR("Invalid function pointer passed to "
                 "hm2_bspi_set_write_function.\n");
         return -1;
     }
-    if (subdata == NULL) { 
+    if (subdata == NULL) {
         HM2_ERR("Invalid data pointer passed to "
                 "hm2_bspi_set_write_function.\n");
         return -1;
@@ -322,7 +322,7 @@ int hm2_bspi_set_write_function(char *name, int (*func)(void *subdata), void *su
     return 0;
 }
 
-    
+
 void hm2_bspi_process_tram_read(hostmot2_t *hm2, long period)
 {
     int i, r;
@@ -353,7 +353,7 @@ void hm2_bspi_prepare_tram_write(hostmot2_t *hm2, long period)
     }
 }
 
-// The following standard Hostmot2 functions are not currently used by bspi. 
+// The following standard Hostmot2 functions are not currently used by bspi.
 
 void hm2_bspi_cleanup(hostmot2_t *hm2)
 {
