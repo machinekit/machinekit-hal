@@ -2233,8 +2233,8 @@ if test "xyes" = "x$RUN_IN_PLACE"; then
     EMC2_ICON=$EMC2_HOME/machinekiticon.png
     EMC2_BIN_DIR=$EMC2_HOME/bin
     EMC2_LIBEXEC_DIR=$EMC2_HOME/libexec
-#    EMC2_TCL_DIR=$EMC2_HOME/tcl
-#    EMC2_TCL_LIB_DIR=$EMC2_HOME/tcl
+    EMC2_TCL_DIR=$EMC2_HOME/tcl
+    EMC2_TCL_LIB_DIR=$EMC2_HOME/tcl
     EMC2_LANG_DIR=$EMC2_HOME/src/objects
     EMC2_PO_DIR=$EMC2_HOME/share/locale
     EMC2_HELP_DIR=$EMC2_HOME/help
@@ -2251,8 +2251,8 @@ else
     EMC2_SCRIPT=$EMC2_BIN_DIR/emc
     EMC2_SUFFIX=""
     EMC2_ICON=machinekiticon
-#    EMC2_TCL_DIR=${prefix}/lib/tcltk/linuxcnc
-#    EMC2_TCL_LIB_DIR=${prefix}/lib/tcltk/linuxcnc
+    EMC2_TCL_DIR=${prefix}/lib/tcltk/linuxcnc
+    EMC2_TCL_LIB_DIR=${prefix}/lib/tcltk/linuxcnc
     EMC2_LANG_DIR=${prefix}/share/linuxcnc/tcl/msgs
     EMC2_PO_DIR=${prefix}/share/locale
     EMC2_HELP_DIR=${prefix}/share/doc/linuxcnc
@@ -2284,8 +2284,8 @@ AC_DEFINE_UNQUOTED([GIT_CONFIG_SHA], "$GIT_CONFIG_SHA", [SHA valid when configur
 AC_SUBST([EMC2_SYSTEM_CONFIG_DIR])
 AC_SUBST([EMC2_BIN_DIR])
 AC_SUBST([EMC2_LIBEXEC_DIR])
-#AC_SUBST([EMC2_TCL_DIR])
-#AC_SUBST([EMC2_TCL_LIB_DIR])
+AC_SUBST([EMC2_TCL_DIR])
+AC_SUBST([EMC2_TCL_LIB_DIR])
 AC_SUBST([EMC2_HELP_DIR])
 AC_SUBST([EMC2_RTLIB_DIR])
 AC_SUBST([EMC2_LANG_DIR])
