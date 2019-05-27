@@ -429,6 +429,7 @@ INFILES = \
 	Makefile.inc \
 	Makefile.modinc \
 	../scripts/halrun \
+	../scripts/haltcl \
 	../scripts/rip-environment
 
 $(INFILES): %: %.in config.status
@@ -746,7 +747,7 @@ endif
 install-kernel-indep: install-dirs
 	$(EXE) ../scripts/realtime $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/halrun $(DESTDIR)$(bindir)
-
+	$(EXE) ../scripts/haltcl $(DESTDIR)$(bindir)
 	$(EXE) $(filter ../bin/%,$(TARGETS)) $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
 	cp --no-dereference $(filter ../lib/%.so, $(TARGETS)) $(DESTDIR)$(libdir)
