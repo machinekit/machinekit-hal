@@ -2270,6 +2270,15 @@ class LinuxCNCWrapper(object):
                 else:
                     self.send_command_wrong_params(identity)
 
+            elif self.rx.type == MT_EMC_TASK_PLAN_SYNCH:
+                if self.rx.HasField('interp_name'):
+                    if self.rx.interp_name == 'execute':
+                        self.command.synch_interpreter()
+                        if self.rx.HasField('ticket'):
+                            self.wait_complete(identity, self.rx.ticket)
+                else:
+                    self.send_command_wrong_params(identity)
+
             elif self.rx.type == MT_EMC_MOTION_ADAPTIVE:
                 if self.rx.HasField(
                     'emc_command_params'
