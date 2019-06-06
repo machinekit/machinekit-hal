@@ -189,7 +189,7 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
         }
         break;
 
-        case HM2_GTAG_DBSPI: // Not Supported Currently
+        case HM2_GTAG_DBSPI:
             switch (sec_pin) {
                 case 0x2: return "Serial Out";
                 case 0x3: return "Clock";
@@ -210,7 +210,7 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
                 case 0x1: return "RX Data";
             }
             break;
-        case HM2_GTAG_UART_TX:    
+        case HM2_GTAG_UART_TX:
             switch (sec_pin) {
                 case 0x1: return "TX Data";
                 case 0x2: return "Drv Enable";
@@ -222,7 +222,7 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
                 case 0x1: return "RX Data";
             }
             break;
-        case HM2_GTAG_PKTUART_TX:    
+        case HM2_GTAG_PKTUART_TX:
             switch (sec_pin) {
                 case 0x1: return "TX Data";
                 case 0x2: return "Drv Enable";
@@ -279,7 +279,7 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
                 case 0x4: return "TestClk";
             }
             break;
-            
+
         case HM2_GTAG_HM2DPLL:
             switch (sec_pin) {
                 case 0x1: return "Sync In Pin";
@@ -290,7 +290,7 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
                 case 0x6: return "Timer 4 Pin";
             }
             break;
-            
+
         case HM2_GTAG_CAPSENSE:
             switch (sec_pin) {
                 case 1: return "Charge Out Pin";
@@ -357,7 +357,7 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
     int addr;
 
     const u8 DB25[] = {1,14,2,15,3,16,4,17,5,6,7,8,9,10,11,12,13};
-    
+
     hm2->num_pins = hm2->idrom.io_width;
     hm2->pin = kmalloc(sizeof(hm2_pin_t) * hm2->num_pins, GFP_KERNEL);
     if (hm2->pin == NULL) {
@@ -371,7 +371,7 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
         u32 d;
 
         if (!hm2->llio->read(hm2->llio, addr, &d, sizeof(u32))) {
-            HM2_ERR("error reading Pin Descriptor %d (at 0x%04x)\n", i, addr); 
+            HM2_ERR("error reading Pin Descriptor %d (at 0x%04x)\n", i, addr);
             return -EIO;
         }
 
@@ -401,18 +401,18 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
         }
 
         pin->gtag = pin->primary_tag;
-        
+
         pin->port_num = i / hm2->idrom.port_width;
-        
-        if ((pin->port_num < 0 ) 
+
+        if ((pin->port_num < 0 )
             || (pin->port_num >= hm2->llio->num_ioport_connectors)){
             HM2_ERR("hm2_read_pin_descriptors: Calculated port number (%d) is "
                     "invalid\n", pin->port_pin );
             return -EINVAL;
         }
-        
+
         pin->bit_num = i % hm2->idrom.port_width;
-        
+
         if ((pin->bit_num < 0 ) || (pin->bit_num > 31)){
             HM2_ERR("hm2_read_pin_descriptors: Calculated bit number (%d) is "
                     "invalid\n", pin->bit_num );
@@ -436,7 +436,7 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
         else {
             pin->port_pin = i + 1;
         }
-        
+
         addr += 4;
     }
 
@@ -451,8 +451,8 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
 
 
 void hm2_set_pin_source(hostmot2_t *hm2, int pin_number, int source) {
-    
-    if ((pin_number < 0) 
+
+    if ((pin_number < 0)
         || (pin_number >= hm2->num_pins)
         || (hm2->ioport.num_instances <= 0)) {
         HM2_ERR("hm2_set_pin_source: invalid pin number %d\n", pin_number);
@@ -478,7 +478,7 @@ void hm2_set_pin_source(hostmot2_t *hm2, int pin_number, int source) {
 
 void hm2_set_pin_direction(hostmot2_t *hm2, int pin_number, int direction) {
 
-    if ((pin_number < 0) 
+    if ((pin_number < 0)
         || (pin_number >= hm2->num_pins)
         || (hm2->ioport.num_instances <= 0)) {
         HM2_ERR("hm2_set_pin_direction: invalid pin number %d\n", pin_number);
@@ -502,9 +502,9 @@ void hm2_print_pin_usage(hostmot2_t *hm2) {
     HM2_PRINT("%d I/O Pins used:\n", hm2->num_pins);
 
     for (i = 0; i < hm2->num_pins; i ++) {
-        
+
         hm2_pin_t *pin = &(hm2->pin[i]);
-        
+
         if (pin->gtag == pin->sec_tag) {
             if(pin->sec_unit & 0x80)
                 HM2_PRINT(
@@ -568,24 +568,24 @@ static void hm2_pins_allocate_all(hostmot2_t *hm2, int gtag, int num_instances) 
 void hm2_configure_pins(hostmot2_t *hm2) {
     int i;
 
-    // 
+    //
     // the bits in the alt_source register of the ioport function say
     // whether *output* data comes from the primary source (ioport
     // function) (0) or the secondary source (1)
-    // 
+    //
     // the bits in the data direction register say whether the pins are
     // inputs (0) or outputs (1)
-    // 
+    //
     // if a pin is marked as an input in the ddr, it can be used for its
     // function (encoder, say) *and* as a digital input pin without
     // conflict
-    // 
+    //
     // Each function instance that is not disabled by the relevant
     // num_<functions> modparam has all its pins marked 1 in the alt_source
     // register.  The driver uses this to to keep track of which pins are
     // "allocated" to functions and which pins are available for use as
     // gpios.
-    // 
+    //
 
     // everything defaults to GPIO input...
     for (i = 0; i < hm2->num_pins; i ++) {
@@ -612,6 +612,7 @@ void hm2_configure_pins(hostmot2_t *hm2) {
     hm2_pins_allocate_all(hm2, HM2_GTAG_PWMGEN,  hm2->pwmgen.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_TPPWM,  hm2->tp_pwmgen.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_BSPI,  hm2->bspi.num_instances);
+    hm2_pins_allocate_all(hm2, HM2_GTAG_DBSPI,  hm2->dbspi.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_UART_RX,  hm2->uart.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_UART_TX ,  hm2->uart.num_instances);
     hm2_pins_allocate_all(hm2, HM2_GTAG_PKTUART_RX,  hm2->pktuart.num_instances);

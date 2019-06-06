@@ -172,7 +172,7 @@ char **argv_split(gfp_t gfp, const char *str, int *argcp);
 #define HM2_GTAG_MUXED_ENCODER     (12)
 #define HM2_GTAG_MUXED_ENCODER_SEL (13)
 #define HM2_GTAG_BSPI              (14)
-#define HM2_GTAG_DBSPI             (15) // Not supported
+#define HM2_GTAG_DBSPI             (15)
 #define HM2_GTAG_DPLL              (16) // Not supported
 #define HM2_GTAG_MUXED_ENCODER_M   (17) // Not supported
 #define HM2_GTAG_MUXED_ENC_SEL_M   (18) // Not supported
@@ -855,6 +855,36 @@ typedef struct {
 } hm2_bspi_t;
 
 //
+// Buffered SPI with decoded cs transciever
+//
+
+typedef struct {
+    u32 cd[16];
+    u16 addr[16];
+    int conf_flag[16];
+    u16 cd_addr;
+    u16 count_addr;
+    hal_u32_t *count;
+    int num_frames;
+    u32 clock_freq;
+    u16 base_address;
+    u32 register_stride;
+    u32 instance_stride;
+    char name[HAL_NAME_LEN+1];
+    void *read_function;
+    void *write_function;
+    void *subdata;
+} hm2_dbspi_instance_t;
+
+typedef struct {
+    int version;
+    int num_instances;
+    hm2_dbspi_instance_t *instance;
+    u8 instances;
+    u8 num_registers;
+} hm2_dbspi_t;
+
+//
 // UART
 //
 
@@ -1161,6 +1191,7 @@ typedef struct {
         int num_leds;
         int num_sserials;
         int num_bspis;
+        int num_dbspis;
         int num_uarts;
         int num_pktuarts;
         int num_dplls;
@@ -1208,6 +1239,7 @@ typedef struct {
     hm2_stepgen_t stepgen;
     hm2_sserial_t sserial;
     hm2_bspi_t bspi;
+    hm2_dbspi_t dbspi;
     hm2_uart_t uart;
     hm2_pktuart_t pktuart;
     hm2_ioport_t ioport;
@@ -1261,6 +1293,7 @@ void hm2_print_modules(hostmot2_t *hm2);
 // functions to get handles to components by name
 hm2_sserial_remote_t *hm2_get_sserial(hostmot2_t **hm2, char *name);
 int hm2_get_bspi(hostmot2_t **hm2, char *name);
+int hm2_get_dbspi(hostmot2_t **hm2, char *name);
 int hm2_get_uart(hostmot2_t **hm2, char *name);
 int hm2_get_pktuart(hostmot2_t **hm2, char *name);
 
@@ -1436,9 +1469,29 @@ int hm2_bspi_write_chan(char* name, int chan, u32 val);
 int hm2_allocate_bspi_tram(char* name);
 int hm2_tram_add_bspi_frame(char *name, int chan, u32 **wbuff, u32 **rbuff);
 int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz,
-int delay, int cpol, int cpha, int clear, int echo);
+int delay, int cpol, int cpha, int noclear, int noecho, int samplelate);
 int hm2_bspi_set_read_function(char *name, int (*func)(void *subdata), void *subdata);
 int hm2_bspi_set_write_function(char *name, int (*func)(void *subdata), void *subdata);
+
+//
+// Buffered SPI with cs decoder functions
+//
+
+int  hm2_dbspi_parse_md(hostmot2_t *hm2, int md_index);
+void hm2_dbspi_print_module(hostmot2_t *hm2);
+void hm2_dbspi_cleanup(hostmot2_t *hm2);
+void hm2_dbspi_write(hostmot2_t *hm2);
+void hm2_dbspi_force_write(hostmot2_t *hm2);
+void hm2_dbspi_prepare_tram_write(hostmot2_t *hm2, long period);
+void hm2_dbspi_process_tram_read(hostmot2_t *hm2, long period);
+int hm2_allocate_dbspi_tram(char* name);
+int hm2_dbspi_write_chan(char* name, int chan, u32 val);
+int hm2_allocate_dbspi_tram(char* name);
+int hm2_tram_add_dbspi_frame(char *name, int chan, u32 **wbuff, u32 **rbuff);
+int hm2_dbspi_setup_chan(char *name, int chan, int cs, int bits, float mhz,
+int delay, int cpol, int cpha, int noclear, int noecho, int samplelate);
+int hm2_dbspi_set_read_function(char *name, int (*func)(void *subdata), void *subdata);
+int hm2_dbspi_set_write_function(char *name, int (*func)(void *subdata), void *subdata);
 
 //
 // UART functions

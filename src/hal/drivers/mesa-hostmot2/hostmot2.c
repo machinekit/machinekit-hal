@@ -92,6 +92,7 @@ static int hm2_read(void *void_hm2, const hal_funct_args_t *fa) {
     hm2_stepgen_process_tram_read(hm2, period);
     hm2_sserial_process_tram_read(hm2, period);
     hm2_bspi_process_tram_read(hm2, period);
+    hm2_dbspi_process_tram_read(hm2, period);
     hm2_absenc_process_tram_read(hm2, period);
     //UARTS need to be explicity handled by an external component
 
@@ -117,6 +118,7 @@ static int hm2_write(void *void_hm2, const hal_funct_args_t *fa) {
     hm2_stepgen_prepare_tram_write(hm2, period);
     hm2_sserial_prepare_tram_write(hm2, period);
     hm2_bspi_prepare_tram_write(hm2, period);
+    hm2_dbspi_prepare_tram_write(hm2, period);
     hm2_watchdog_prepare_tram_write(hm2);
     //UARTS and PktUARTS need to be explicity handled by an external component
     hm2_tram_write(hm2);
@@ -204,6 +206,22 @@ int hm2_get_bspi(hostmot2_t** hm2, char *name){
     return -1;
 }
 
+// FIXME: It would be nice if this was more generic
+EXPORT_SYMBOL_GPL(hm2_get_dbspi);
+int hm2_get_dbspi(hostmot2_t** hm2, char *name){
+    struct list_head *ptr;
+    int i;
+    list_for_each(ptr, &hm2_list) {
+        *hm2 = list_entry(ptr, hostmot2_t, list);
+        if ((*hm2)->dbspi.num_instances > 0) {
+            for (i = 0; i < (*hm2)->dbspi.num_instances ; i++) {
+                if (!strcmp((*hm2)->dbspi.instance[i].name, name)) {return i;}
+            }
+        }
+    }
+    return -1;
+}
+
 EXPORT_SYMBOL_GPL(hm2_get_uart);
 int hm2_get_uart(hostmot2_t** hm2, char *name){
     struct list_head *ptr;
@@ -283,6 +301,7 @@ const char *hm2_get_general_function_name(int gtag) {
         case HM2_GTAG_MUXED_ENCODER_SEL: return "Muxed Encoder Select";
         case HM2_GTAG_SMARTSERIAL:     return "Smart Serial Interface";
         case HM2_GTAG_BSPI:            return "Buffered SPI Interface";
+        case HM2_GTAG_DBSPI:            return "Buffered SPI Interface with decoded cs";
         case HM2_GTAG_UART_RX:         return "UART Receive Channel";
         case HM2_GTAG_UART_TX:         return "UART Transmit Channel";
         case HM2_GTAG_PKTUART_RX:      return "PktUART Receive Channel";
@@ -360,6 +379,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
     hm2->config.num_stepgens = -1;
     hm2->config.stepgen_width = 2; // To avoid nasty surprises with table mode
     hm2->config.num_bspis = -1;
+    hm2->config.num_dbspis = -1;
     hm2->config.num_uarts = -1;
     hm2->config.num_pktuarts = -1;
     hm2->config.num_dplls = -1;
@@ -458,6 +478,10 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
             token += 10;
             hm2->config.num_bspis = simple_strtol(token, NULL, 0);
 
+        } else if (strncmp(token, "num_dbspis=", 10) == 0) {
+            token += 10;
+            hm2->config.num_dbspis = simple_strtol(token, NULL, 0);
+
         } else if (strncmp(token, "num_uarts=", 10) == 0) {
             token += 10;
             hm2->config.num_uarts = simple_strtol(token, NULL, 0);
@@ -517,6 +541,7 @@ static int hm2_parse_config_string(hostmot2_t *hm2, char *config_string) {
             hm2->config.sserial_modes[3]);
     HM2_DBG("    num_stepgens=%d\n", hm2->config.num_stepgens);
     HM2_DBG("    num_bspis=%d\n", hm2->config.num_bspis);
+    HM2_DBG("    num_dbspis=%d\n", hm2->config.num_bspis);
     HM2_DBG("    num_uarts=%d\n", hm2->config.num_uarts);
     HM2_DBG("    num_pktuarts=%d\n", hm2->config.num_pktuarts);
     HM2_DBG("    num_dplls=%d\n",    hm2->config.num_dplls);
@@ -978,6 +1003,10 @@ static int hm2_parse_module_descriptors(hostmot2_t *hm2) {
                 md_accepted = hm2_bspi_parse_md(hm2, md_index);
                 break;
 
+            case HM2_GTAG_DBSPI:
+                md_accepted = hm2_dbspi_parse_md(hm2, md_index);
+                break;
+
             case HM2_GTAG_UART_RX:
             case HM2_GTAG_UART_TX:
                 md_accepted = hm2_uart_parse_md(hm2, md_index);
@@ -1072,6 +1101,7 @@ static void hm2_cleanup(hostmot2_t *hm2) {
     hm2_led_cleanup(hm2);
     hm2_sserial_cleanup(hm2);
     hm2_bspi_cleanup(hm2);
+    hm2_dbspi_cleanup(hm2);
     hm2_fwid_cleanup(hm2);
 
     // free all the tram entries
@@ -1091,6 +1121,7 @@ void hm2_print_modules(hostmot2_t *hm2) {
     hm2_sserial_print_module(hm2);
     hm2_stepgen_print_module(hm2);
     hm2_bspi_print_module(hm2);
+    hm2_dbspi_print_module(hm2);
     hm2_ioport_print_module(hm2);
     hm2_watchdog_print_module(hm2);
 }
@@ -1819,5 +1850,6 @@ void hm2_force_write(hostmot2_t *hm2) {
     hm2_tp_pwmgen_force_write(hm2);
     hm2_sserial_force_write(hm2);
     hm2_bspi_force_write(hm2);
+    hm2_dbspi_force_write(hm2);
     hm2_dpll_force_write(hm2);
 }

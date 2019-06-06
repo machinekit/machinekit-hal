@@ -25,10 +25,10 @@
 #include "hal.h"
 #include "hostmot2.h"
 
-int hm2_bspi_parse_md(hostmot2_t *hm2, int md_index)
+int hm2_dbspi_parse_md(hostmot2_t *hm2, int md_index)
 {
     // All this function actually does is allocate memory
-    // and give the bspi modules names.
+    // and give the dbspi modules names.
 
 
     //
@@ -43,7 +43,7 @@ int hm2_bspi_parse_md(hostmot2_t *hm2, int md_index)
         return -EINVAL;
     }
 
-    if (hm2->bspi.num_instances != 0) {
+    if (hm2->dbspi.num_instances != 0) {
         HM2_ERR(
                 "found duplicate Module Descriptor for %s (inconsistent "
                 "firmware), not loading driver\n",
@@ -52,17 +52,17 @@ int hm2_bspi_parse_md(hostmot2_t *hm2, int md_index)
         return -EINVAL;
     }
 
-    if (hm2->config.num_bspis > md->instances) {
+    if (hm2->config.num_dbspis > md->instances) {
         HM2_ERR(
-                "config defines %d bspis, but only %d are available, "
+                "config defines %d dbspis, but only %d are available, "
                 "not loading driver\n",
-                hm2->config.num_bspis,
+                hm2->config.num_dbspis,
                 md->instances
                 );
         return -EINVAL;
     }
 
-    if (hm2->config.num_bspis == 0) {
+    if (hm2->config.num_dbspis == 0) {
         return 0;
     }
 
@@ -70,24 +70,24 @@ int hm2_bspi_parse_md(hostmot2_t *hm2, int md_index)
     // looks good, start initializing
     //
 
-    if (hm2->config.num_bspis == -1) {
-        hm2->bspi.num_instances = md->instances;
+    if (hm2->config.num_dbspis == -1) {
+        hm2->dbspi.num_instances = md->instances;
     } else {
-        hm2->bspi.num_instances = hm2->config.num_bspis;
+        hm2->dbspi.num_instances = hm2->config.num_dbspis;
     }
 
-    hm2->bspi.instance = (hm2_bspi_instance_t *)hal_malloc(hm2->bspi.num_instances
-                                                     * sizeof(hm2_bspi_instance_t));
-    if (hm2->bspi.instance == NULL) {
+    hm2->dbspi.instance = (hm2_dbspi_instance_t *)hal_malloc(hm2->dbspi.num_instances
+                                                     * sizeof(hm2_dbspi_instance_t));
+    if (hm2->dbspi.instance == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail0;
     }
 
-    for (i = 0 ; i < hm2->bspi.num_instances ; i++){
-        hm2_bspi_instance_t *chan = &hm2->bspi.instance[i];
+    for (i = 0 ; i < hm2->dbspi.num_instances ; i++){
+        hm2_dbspi_instance_t *chan = &hm2->dbspi.instance[i];
         chan->clock_freq = md->clock_freq;
-        r = rtapi_snprintf(chan->name, sizeof(chan->name), "%s.bspi.%01d", hm2->llio->name, i);
+        r = rtapi_snprintf(chan->name, sizeof(chan->name), "%s.dbspi.%01d", hm2->llio->name, i);
         HM2_PRINT("created Buffered SPI function %s.\n", chan->name);
         chan->base_address = md->base_address + i * md->instance_stride;
         chan->register_stride = md->register_stride;
@@ -99,16 +99,16 @@ int hm2_bspi_parse_md(hostmot2_t *hm2, int md_index)
         }
 
     }
-    return hm2->bspi.num_instances;
+    return hm2->dbspi.num_instances;
 fail0:
     return r;
 }
 
-void hm2_bspi_force_write(hostmot2_t *hm2)
+void hm2_dbspi_force_write(hostmot2_t *hm2)
 {
     int i, j;
-    for (i = 0 ; i < hm2->bspi.num_instances ; i++){
-        hm2_bspi_instance_t chan = hm2->bspi.instance[i];
+    for (i = 0 ; i < hm2->dbspi.num_instances ; i++){
+        hm2_dbspi_instance_t chan = hm2->dbspi.instance[i];
         // write the channel descriptors
         for (j = 15 ; j >=0 ; j--){
             hm2->llio->write(hm2->llio, chan.cd_addr, &(chan.cd[j]), sizeof(u32));
@@ -116,23 +116,23 @@ void hm2_bspi_force_write(hostmot2_t *hm2)
     }
 }
 
-EXPORT_SYMBOL_GPL(hm2_tram_add_bspi_frame);
-int hm2_tram_add_bspi_frame(char *name, int chan, u32 **wbuff, u32 **rbuff)
+EXPORT_SYMBOL_GPL(hm2_tram_add_dbspi_frame);
+int hm2_tram_add_dbspi_frame(char *name, int chan, u32 **wbuff, u32 **rbuff)
 {
     hostmot2_t *hm2;
     int i, r;
-    i = hm2_get_bspi(&hm2, name);
+    i = hm2_get_dbspi(&hm2, name);
     if (i < 0){
-        HM2_ERR_NO_LL("Can not find BSPI instance %s.\n", name);
+        HM2_ERR_NO_LL("Can not find DBSPI instance %s.\n", name);
         return -1;
     }
-    if (hm2->bspi.instance[i].conf_flag[chan] != true){
-        HM2_ERR("The selected write channel (%i) on bspi instance %s.\n"
+    if (hm2->dbspi.instance[i].conf_flag[chan] != true){
+        HM2_ERR("The selected write channel (%i) on dbspi instance %s.\n"
                 "Has not been configured.\n", chan, name);
         return -1;
     }
     if (wbuff != NULL) {
-        r = hm2_register_tram_write_region(hm2,hm2->bspi.instance[i].addr[chan], sizeof(u32),wbuff);
+        r = hm2_register_tram_write_region(hm2,hm2->dbspi.instance[i].addr[chan], sizeof(u32),wbuff);
         if (r < 0) {
             HM2_ERR("Failed to add TRAM write entry for %s.\n", name);
             return -1;
@@ -143,8 +143,8 @@ int hm2_tram_add_bspi_frame(char *name, int chan, u32 **wbuff, u32 **rbuff)
     }
     if (rbuff != NULL){
         // Don't add a read entry for a no-echo channel
-        if(!(hm2->bspi.instance[i].cd[chan] & 0x80000000)) {
-            r = hm2_register_tram_read_region(hm2,hm2->bspi.instance[i].addr[0], sizeof(u32),rbuff);
+        if(!(hm2->dbspi.instance[i].cd[chan] & 0x80000000)) {
+            r = hm2_register_tram_read_region(hm2,hm2->dbspi.instance[i].addr[0], sizeof(u32),rbuff);
             if (r < 0) {
                 HM2_ERR( "Failed to add TRAM read entry for %s\n", name);
                 return -1;
@@ -155,75 +155,75 @@ int hm2_tram_add_bspi_frame(char *name, int chan, u32 **wbuff, u32 **rbuff)
     return 0;
 }
 
-EXPORT_SYMBOL_GPL(hm2_allocate_bspi_tram);
-int hm2_allocate_bspi_tram(char* name)
+EXPORT_SYMBOL_GPL(hm2_allocate_dbspi_tram);
+int hm2_allocate_dbspi_tram(char* name)
 {
     hostmot2_t *hm2;
     int i, r;
-    i = hm2_get_bspi(&hm2, name);
+    i = hm2_get_dbspi(&hm2, name);
     if (i < 0){
-        HM2_ERR_NO_LL("Can not find BSPI instance %s.\n", name);
+        HM2_ERR_NO_LL("Can not find DBSPI instance %s.\n", name);
         return -1;
     }
     r = hm2_allocate_tram_regions(hm2);
     if (r < 0) {
-        HM2_ERR("Failed to register TRAM for BSPI %s\n", name);
+        HM2_ERR("Failed to register TRAM for DBSPI %s\n", name);
         return -1;
     }
 
     return 0;
 }
 
-EXPORT_SYMBOL_GPL(hm2_bspi_write_chan);
-int hm2_bspi_write_chan(char* name, int chan, u32 val)
+EXPORT_SYMBOL_GPL(hm2_dbspi_write_chan);
+int hm2_dbspi_write_chan(char* name, int chan, u32 val)
 {
     hostmot2_t *hm2;
     u32 buff = val;
     int i, r;
-    i = hm2_get_bspi(&hm2, name);
+    i = hm2_get_dbspi(&hm2, name);
     if (i < 0){
-        HM2_ERR_NO_LL("Can not find BSPI instance %s.\n", name);
+        HM2_ERR_NO_LL("Can not find DBSPI instance %s.\n", name);
         return -1;
     }
-    if (hm2->bspi.instance[i].conf_flag[chan] != true){
-        HM2_ERR("The selected write channel (%i) on bspi instance %s.\n"
+    if (hm2->dbspi.instance[i].conf_flag[chan] != true){
+        HM2_ERR("The selected write channel (%i) on dbspi instance %s.\n"
                 "Has not been configured.\n", chan, name);
         return -1;
     }
-    r = hm2->llio->write(hm2->llio, hm2->bspi.instance[i].addr[chan], &buff, sizeof(u32));
+    r = hm2->llio->write(hm2->llio, hm2->dbspi.instance[i].addr[chan], &buff, sizeof(u32));
     if (r < 0) {
-        HM2_ERR("BSPI: hm2->llio->write failure %s\n", name);
+        HM2_ERR("DBSPI: hm2->llio->write failure %s\n", name);
     }
 
     return r;
 }
 
-EXPORT_SYMBOL_GPL(hm2_bspi_setup_chan);
-int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz,
+EXPORT_SYMBOL_GPL(hm2_dbspi_setup_chan);
+int hm2_dbspi_setup_chan(char *name, int chan, int cs, int bits, float mhz,
                         int delay, int cpol, int cpha, int noclear, int noecho, int samplelate)
 {
     hostmot2_t *hm2;
     u32 buff;
     int i;
     float board_mhz;
-    i = hm2_get_bspi(&hm2, name);
+    i = hm2_get_dbspi(&hm2, name);
     if (i < 0){
-        HM2_ERR_NO_LL("Can not find BSPI instance %s.\n", name);
+        HM2_ERR_NO_LL("Can not find DBSPI instance %s.\n", name);
         return -1;
     }
     if (chan<0 || chan > 15){
-        HM2_ERR("BSPI %s: Channel number (%i) is out of range, BSPI only"
+        HM2_ERR("DBSPI %s: Channel number (%i) is out of range, DBSPI only"
                 "supports channels 0-15\n", name, chan);
         return -1;
     }
     if (cs > 15 || cs < 0){
-        HM2_ERR("BSPI %s: Chip Select for channel %i (%i) out of range, only "
+        HM2_ERR("DBSPI %s: Chip Select for channel %i (%i) out of range, only "
                 "values 0 - 15 are accepted\n", name, chan, cs);
         return -1;
     }
     if (bits > 64 || bits < 1){
-        HM2_ERR("BSPI %s: Number of bits for chan %i (%i) is out of range, "
-                "BSPI only supports 1-64 bits\n", name, chan, bits);
+        HM2_ERR("DBSPI %s: Number of bits for chan %i (%i) is out of range, "
+                "DBSPI only supports 1-64 bits\n", name, chan, bits);
         return -1;
     }
     if (delay < 0 || delay > 1e6){
@@ -231,7 +231,7 @@ int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz,
                 "rather implausible for an SPI device. Exiting.\n", delay, chan);
         return -1;
     }
-    board_mhz = hm2->bspi.instance[i].clock_freq / 1e6;
+    board_mhz = hm2->dbspi.instance[i].clock_freq / 1e6;
 
     // reduce clock rate of the FPGA isn't fast enough
     if (mhz > board_mhz/2){
@@ -247,120 +247,120 @@ int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz,
         | (cpha != 0) << 7
         | (cpol != 0) << 6
         | (((u16)(bits - 1)) & 0x3F);
-    HM2_DBG("BSPI %s Channel %i setup %x\n", name, chan, buff);
-    hm2->bspi.instance[i].cd[chan] = buff;
-    hm2->bspi.instance[i].conf_flag[chan] = true;
-    hm2_bspi_force_write(hm2);
+    HM2_DBG("DBSPI %s Channel %i setup %x\n", name, chan, buff);
+    hm2->dbspi.instance[i].cd[chan] = buff;
+    hm2->dbspi.instance[i].conf_flag[chan] = true;
+    hm2_dbspi_force_write(hm2);
     return 0;
 }
 
-void hm2_bspi_print_module(hostmot2_t *hm2){
+void hm2_dbspi_print_module(hostmot2_t *hm2){
     int i,j;
-    HM2_PRINT("Buffered SPI: %d\n", hm2->bspi.num_instances);
-    if (hm2->bspi.num_instances <= 0) return;
-    HM2_PRINT("    version: %d\n", hm2->bspi.version);
+    HM2_PRINT("Buffered SPI: %d\n", hm2->dbspi.num_instances);
+    if (hm2->dbspi.num_instances <= 0) return;
+    HM2_PRINT("    version: %d\n", hm2->dbspi.version);
     HM2_PRINT("    channel configurations\n");
-    for (i = 0; i < hm2->bspi.num_instances; i ++) {
+    for (i = 0; i < hm2->dbspi.num_instances; i ++) {
         HM2_PRINT("    clock_frequency: %d Hz (%s MHz)\n",
-                  hm2->bspi.instance[i].clock_freq,
-                  hm2_hz_to_mhz(hm2->bspi.instance[i].clock_freq));
+                  hm2->dbspi.instance[i].clock_freq,
+                  hm2_hz_to_mhz(hm2->dbspi.instance[i].clock_freq));
         HM2_PRINT("    instance %d:\n", i);
-        HM2_PRINT("    HAL name = %s\n", hm2->bspi.instance[i].name);
+        HM2_PRINT("    HAL name = %s\n", hm2->dbspi.instance[i].name);
         for (j = 0; j < 16 ; j++){
             HM2_PRINT("         frame %i config = %08x\n", j,
-                      hm2->bspi.instance[i].cd[j]);
+                      hm2->dbspi.instance[i].cd[j]);
             HM2_PRINT("                address = %08x\n",
-                      hm2->bspi.instance[i].addr[j]);
+                      hm2->dbspi.instance[i].addr[j]);
         }
     }
 }
 
-EXPORT_SYMBOL_GPL(hm2_bspi_set_read_function);
-int hm2_bspi_set_read_function(char *name, int (*func)(void *subdata), void *subdata){
+EXPORT_SYMBOL_GPL(hm2_dbspi_set_read_function);
+int hm2_dbspi_set_read_function(char *name, int (*func)(void *subdata), void *subdata){
     hostmot2_t *hm2;
     int i;
-    i = hm2_get_bspi(&hm2, name);
+    i = hm2_get_dbspi(&hm2, name);
     if (i < 0){
-        HM2_ERR_NO_LL("Can not find BSPI instance %s.\n", name);
+        HM2_ERR_NO_LL("Can not find DBSPI instance %s.\n", name);
         return -1;
     }
     if (func == NULL) {
         HM2_ERR("Invalid function pointer passed to "
-                "hm2_bspi_set_read_function.\n");
+                "hm2_dbspi_set_read_function.\n");
         return -1;
     }
     if (subdata == NULL) {
         HM2_ERR("Invalid data pointer passed to "
-                "hm2_bspi_set_read_function.\n");
+                "hm2_dbspi_set_read_function.\n");
         return -1;
     }
-    hm2->bspi.instance[i].read_function = func;
-    hm2->bspi.instance[i].subdata = subdata;
+    hm2->dbspi.instance[i].read_function = func;
+    hm2->dbspi.instance[i].subdata = subdata;
     return 0;
 }
 
-EXPORT_SYMBOL_GPL(hm2_bspi_set_write_function);
-int hm2_bspi_set_write_function(char *name, int (*func)(void *subdata), void *subdata){
+EXPORT_SYMBOL_GPL(hm2_dbspi_set_write_function);
+int hm2_dbspi_set_write_function(char *name, int (*func)(void *subdata), void *subdata){
     hostmot2_t *hm2;
     int i;
-    i = hm2_get_bspi(&hm2, name);
+    i = hm2_get_dbspi(&hm2, name);
     if (i < 0){
-        HM2_ERR_NO_LL("Can not find BSPI instance %s.\n", name);
+        HM2_ERR_NO_LL("Can not find DBSPI instance %s.\n", name);
         return -1;
     }
     if (func == NULL) {
         HM2_ERR("Invalid function pointer passed to "
-                "hm2_bspi_set_write_function.\n");
+                "hm2_dbspi_set_write_function.\n");
         return -1;
     }
     if (subdata == NULL) {
         HM2_ERR("Invalid data pointer passed to "
-                "hm2_bspi_set_write_function.\n");
+                "hm2_dbspi_set_write_function.\n");
         return -1;
     }
-    hm2->bspi.instance[i].write_function = func;
-    hm2->bspi.instance[i].subdata = subdata;
+    hm2->dbspi.instance[i].write_function = func;
+    hm2->dbspi.instance[i].subdata = subdata;
     return 0;
 }
 
 
-void hm2_bspi_process_tram_read(hostmot2_t *hm2, long period)
+void hm2_dbspi_process_tram_read(hostmot2_t *hm2, long period)
 {
     int i, r;
     int (*func)(void *subdata);
-    for (i = 0 ; i < hm2->bspi.num_instances ; i++ ){
-        func = hm2->bspi.instance[i].read_function;
+    for (i = 0 ; i < hm2->dbspi.num_instances ; i++ ){
+        func = hm2->dbspi.instance[i].read_function;
         if (func != NULL){
-            r = func(hm2->bspi.instance[i].subdata);
+            r = func(hm2->dbspi.instance[i].subdata);
             if(r < 0)
-                HM2_ERR("BSPI read function @%p failed (returned %d)\n",
+                HM2_ERR("DBSPI read function @%p failed (returned %d)\n",
                         func, r);
         }
     }
 }
 
-void hm2_bspi_prepare_tram_write(hostmot2_t *hm2, long period)
+void hm2_dbspi_prepare_tram_write(hostmot2_t *hm2, long period)
 {
     int i, r;
     int (*func)(void *subdata);
-    for (i = 0 ; i < hm2->bspi.num_instances ; i++ ){
-        func = hm2->bspi.instance[i].write_function;
+    for (i = 0 ; i < hm2->dbspi.num_instances ; i++ ){
+        func = hm2->dbspi.instance[i].write_function;
         if (func != NULL){
-            r = func(hm2->bspi.instance[i].subdata);
+            r = func(hm2->dbspi.instance[i].subdata);
             if(r < 0)
-                HM2_ERR("BSPI read function @%p failed (returned %d)\n",
+                HM2_ERR("DBSPI read function @%p failed (returned %d)\n",
                         func, r);
         }
     }
 }
 
-// The following standard Hostmot2 functions are not currently used by bspi.
+// The following standard Hostmot2 functions are not currently used by dbspi.
 
-void hm2_bspi_cleanup(hostmot2_t *hm2)
+void hm2_dbspi_cleanup(hostmot2_t *hm2)
 {
 }
 
-void hm2_bspi_write(hostmot2_t *hm2)
+void hm2_dbspi_write(hostmot2_t *hm2)
 {
 }
 
