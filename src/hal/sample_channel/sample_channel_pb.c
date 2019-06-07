@@ -401,6 +401,7 @@ static int instantiate_sample_channel_pb(const int argc, const char **argv)
     int inst_id=0, i=0, j=0, cycles=0, pin_i=0, commas=0;
     char samples[MAX_PINS];
     char pname[HAL_MAX_NAME_LEN];
+    char full_pname[HAL_MAX_NAME_LEN];
     char pinnames[(MAX_PINS * HAL_NAME_LEN) + (MAX_PINS - 1)];
     bool has_samples_string=false, has_cycles_string=false, has_pinnames_string=false;
     // pointers to character in string
@@ -521,13 +522,18 @@ static int instantiate_sample_channel_pb(const int argc, const char **argv)
         {
             // get first part of string into the pinnames array
             strncpy(pname, idx_prev, idx-idx_prev);
+            // make sure we have terminating char, because content can be garbage
+            pname[idx-idx_prev] = '\0';
+            hal_print_msg(RTAPI_MSG_DBG,
+                "%s: %s: pinname = %s", compname, name, pname);
             if (pname[0] == '\0')
             {
                 hal_print_msg(RTAPI_MSG_ERR,
                     "%s: %s: ERROR: pin name is empty", compname, name);
                 return -1;
             }
-            sprintf(pname, "%s.%s", name, pname);
+            sprintf(full_pname, "%s.%s", name, pname);
+            strcpy(ip->pinnames[pin_i], full_pname);
             hal_print_msg(RTAPI_MSG_DBG,
                 "%s: %s: pinname = %s", compname, name, ip->pinnames[pin_i]);
             idx_prev = idx + 1;
@@ -536,8 +542,8 @@ static int instantiate_sample_channel_pb(const int argc, const char **argv)
         }
         // the remaining part, after removing commas and pin names should not be empty
         strcpy(pname, idx_prev);
-        sprintf(pname, "%s.%s", name, pname);
-        strcpy(ip->pinnames[pin_i], pname);
+        sprintf(full_pname, "%s.%s", name, pname);
+        strcpy(ip->pinnames[pin_i], full_pname);
 	}
 
     // create the ring
