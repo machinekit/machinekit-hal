@@ -83,6 +83,7 @@ struct inst_data{
     hal_data_u		*pins_in[MAX_PINS];	// pin: array of sample values
     hal_u32_t 		*send_fail;		    // error counter on the send side
     hal_u32_t       *dropped;           // dropped sampled due to full ring;
+    char            pinnames[MAX_PINS][HAL_NAME_LEN];  //contains names
   
     // the ringbuffer
     ringbuffer_t    sample_ring;
@@ -321,10 +322,21 @@ static int export_pins(struct inst_data *ip, const char *name)
             "%s: new pin name %s.in%d-%s", compname, name, indexes[idx],
                 pin_type);
         // create sample pins
-        if ((retval = hal_pin_newf(type, HAL_IN, (void **) &ip->pins_in[i],
-                comp_id, "%s.in-%s.%d", name, pin_type, indexes[idx])) < 0) {
-            return retval;
+        if ( ip->pinnames[0] == '\0' )
+        {
+            if ((retval = hal_pin_newf(type, HAL_IN, (void **) &ip->pins_in[i],
+                    comp_id, "%s.in-%s.%d", name, pin_type, indexes[idx])) < 0) {
+                return retval;
+            }
         }
+        else
+        {
+            if ((retval = hal_pin_newf(type, HAL_IN, (void **) &ip->pins_in[i],
+                    comp_id, "%s.%s", name, ip->pinnames[i])) < 0) {
+                return retval;
+            }
+        }
+        
 	}
     // create misc pins
     if (((retval = hal_pin_bit_newf(HAL_IN, &(ip->record), comp_id,
@@ -380,9 +392,12 @@ static int instantiate_sample_channel_pb(const int argc, const char **argv)
 {
     struct inst_data *ip;
     const char *name = argv[1];
-    int inst_id=0, i=0, j=0, cycles=0;
+    int inst_id=0, i=0, j=0, cycles=0, pin_i=0, commas=0;
     char samples[MAX_PINS];
-    bool has_samples_string=false, has_cycles_string=false;
+    char pinnames[(MAX_PINS * HAL_NAME_LEN) + (MAX_PINS - 1)];
+    bool has_samples_string=false, has_cycles_string=false, has_pinnames_string=false;
+    // pointers to character in string
+    char *idx, *idx_prev;
 
     // parse arguments
     for(i = 2; i < argc; i++)
@@ -400,6 +415,12 @@ static int instantiate_sample_channel_pb(const int argc, const char **argv)
             cycles = atoi(&argument[7]);
             hal_print_msg(RTAPI_MSG_DBG, "cycles = %d", cycles);
             has_cycles_string = true;
+        }
+        else if((strstr(argument, "pinnames=")) != NULL)
+        {
+            strcpy(pinnames, &argument[9]);
+            hal_print_msg(RTAPI_MSG_DBG, "pinnames = %s", pinnames);
+            has_pinnames_string = true;
         }
 	}
     // exit if no samples
@@ -426,6 +447,35 @@ static int instantiate_sample_channel_pb(const int argc, const char **argv)
             "%s: %s: ERROR: sample pins string is void\n", compname, name);
 	    return -1;
 	}
+    // check pinnames basic sanity, needs to have samples-1 commas
+    if (has_pinnames_string)
+    {
+
+        // get first part of string into the pinnames array
+        if (pinnames[0] == '\0')
+        {
+            hal_print_msg(RTAPI_MSG_ERR,
+                "%s: %s: ERROR: empty pin name found, check pinnames argument\n",
+                compname, name);
+            return -1;
+        }
+        // return the first occurence of a comma
+        idx = strchr(pinnames, ',');
+        while (idx!=NULL)
+        {
+            commas += 1;
+            idx = strchr(idx + 1, ',');
+        }
+
+        if ((commas + 1) != strlen(samples))
+        {
+            hal_print_msg(RTAPI_MSG_ERR,
+                "%s: %s: ERROR: pinnames string found, but amount does not match with samples\n",
+                compname, name);
+            return -1;
+        }
+	}
+
     // instantiate component
     if ((inst_id = hal_inst_create(name, comp_id,
 				  sizeof(struct inst_data),
@@ -452,6 +502,34 @@ static int instantiate_sample_channel_pb(const int argc, const char **argv)
     }
     hal_print_msg(RTAPI_MSG_DBG,
         "%s: %s: ip->samples_cfg is %s", compname, name, ip->samples_cfg);
+
+    // copy pinnames in instance pinnames array, rough sanity check has been done
+    if (has_pinnames_string)
+    {
+        // return the first occurence of a comma
+        idx_prev = pinnames;
+        idx = strchr(pinnames, ',');
+        pin_i = 0;
+        while (idx!=NULL)
+        {
+            // get first part of string into the pinnames array
+            strncpy(ip->pinnames[pin_i], idx_prev, idx-idx_prev);
+            hal_print_msg(RTAPI_MSG_DBG,
+                "%s: %s: pinname = %s.%s", compname, name, name, ip->pinnames[pin_i]);
+            if (ip->pinnames[pin_i][0] == '\0')
+            {
+                hal_print_msg(RTAPI_MSG_ERR,
+                    "%s: %s: ERROR: pin name is empty", compname, name);
+                return -1;
+            }
+            idx_prev = idx + 1;
+            pin_i += 1;
+            idx = strchr(idx_prev, ',');
+        }
+        // the remaining part, after removing commas and pin names should not be empty
+        strcpy(ip->pinnames[pin_i], idx_prev);
+	}
+
     // create the ring
 	if ( create_ring(ip, name) < 0 ) {
 	    hal_print_msg(RTAPI_MSG_ERR,
