@@ -261,6 +261,7 @@ static int export_pins(struct inst_data *ip, const char *name)
     int indexes[6] = {0,0,0,0,0,0};
     char *pin_type;
     char character = '-';
+    char pname[HAL_MAX_NAME_LEN];
     hal_type_t type = HAL_TYPE_UNSPECIFIED;
 
     // some debug output
@@ -318,23 +319,17 @@ static int export_pins(struct inst_data *ip, const char *name)
                 return -1;
         }
         indexes[idx]++;
-        hal_print_msg(RTAPI_MSG_DBG,
-            "%s: new pin name %s.in%d-%s", compname, name, indexes[idx],
-                pin_type);
-        // create sample pins
-        if ( ip->pinnames[0] == '\0' )
+        // create sample pins names
+        if ( *ip->pinnames[i] == '\0' )
         {
-            if ((retval = hal_pin_newf(type, HAL_IN, (void **) &ip->pins_in[i],
-                    comp_id, "%s.in-%s.%d", name, pin_type, indexes[idx])) < 0) {
-                return retval;
-            }
+            sprintf(pname, "in-%s.%d", pin_type, indexes[idx]);
+            strcpy(ip->pinnames[i], pname);
+            hal_print_msg(RTAPI_MSG_DBG,
+                "%s: new pin name %s", compname, pname);
         }
-        else
-        {
-            if ((retval = hal_pin_newf(type, HAL_IN, (void **) &ip->pins_in[i],
-                    comp_id, "%s.%s", name, ip->pinnames[i])) < 0) {
-                return retval;
-            }
+        if ((retval = hal_pin_newf(type, HAL_IN, (void **) &ip->pins_in[i],
+                comp_id, "%s.%s", name, ip->pinnames[i])) < 0) {
+            return retval;
         }
         
 	}
