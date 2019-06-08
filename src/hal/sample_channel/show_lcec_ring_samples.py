@@ -5,7 +5,7 @@
 # halrun -I sample_channel.hal
 #
 # terminal 2
-# python2 show_sampler_ring_samples.py
+# python2 show_lcec_ring_sample.py
 #
 # change pin values in hal in terminal 1
 
@@ -15,7 +15,7 @@ from machinetalk.protobuf.sample_pb2 import Sample
 from machinetalk.protobuf.types_pb2 import *
 
 # provide the name to attach to
-name = "sampler.ring"
+name = "lcec.0.1.ring"
 sample = 0
 pinname = ""
 try:
@@ -48,7 +48,7 @@ try:
                 v = s.v_int64
                 t = "s64"
             # print out something meaningfull
-            if (s.HasField("v_int64") == True):
+            if (s.HasField("v_string") == True):
                 pinname = s.v_string
             print("time: %s\nPin %s of type %s = %s" % (s.timestamp, pinname, t, v))
             # consume the sample

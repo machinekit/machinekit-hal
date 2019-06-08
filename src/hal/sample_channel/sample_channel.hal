@@ -9,6 +9,8 @@ loadrt siggen
 # tell max cycles the ring should be able to contain by: cycles=100
 newinst sample_channel_pb sampler --- samples=bfusUSf cycles=100
 
+newinst sample_channel_pb lcec.0.1 --- samples=bff pinnames=food,bar,bazooka cycles=100
+
 # create fast (1 ms) thread
 newthread fast 1000000 fp
 # create slow (0.5 second) thread so we can inspect with a python reader on the ring
@@ -16,6 +18,8 @@ newthread slow 500000000 fp
 
 # add function to thread
 addf sampler.record_sample slow
+addf lcec.0.1.record_sample slow
+
 addf siggen.0.update fast
 
 setp sampler.in-bit.1 1
@@ -26,10 +30,17 @@ setp sampler.in-s32.1 -654321
 #connect sine signal to 2nd float pin
 net sine siggen.0.sine sampler.in-flt.2
 
+setp lcec.0.1.food 1
+setp lcec.0.1.bazooka 1.1
+
+#connect cosine signal to 2nd float pin
+net cosine siggen.0.cosine lcec.0.1.bar
+
 #set low frequency so we can see some changes in the samples
 setp siggen.0.frequency 0.125
 
 # this will record the pin sample to the ring each time the function is called
 setp sampler.record 1
+setp lcec.0.1.record 1
 
 start
