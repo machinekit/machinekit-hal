@@ -7,9 +7,9 @@ loadrt siggen
 # create sample_channel instance with pins and ring
 # give the type of pins to be created with: samples=bfusUSf
 # tell max cycles the ring should be able to contain by: cycles=100
-newinst sample_channel_pb sampler --- samples=bfusUSf cycles=100
+newinst sample_channel_pb sampler -- samples=bfusUSf cycles=100
 
-newinst sample_channel_pb lcec.0.1 --- samples=bff pinnames=food,bar,bazooka cycles=100
+newinst sample_channel_pb lcec.0.1 -- samples=bff pinnames=food,bar,bazooka cycles=100
 
 # create fast (1 ms) thread
 newthread fast 1000000 fp
