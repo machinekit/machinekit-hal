@@ -5,7 +5,7 @@
 # halrun -I sample_channel.hal
 #
 # terminal 2
-# python2 show_hal_sample.py
+# python2 show_sampler_ring_samples.py
 #
 # change pin values in hal in terminal 1
 
@@ -17,6 +17,7 @@ from machinetalk.protobuf.types_pb2 import *
 # provide the name to attach to
 name = "sampler.ring"
 sample = 0
+pinname = ""
 try:
     # attach to existing ring
     r = hal.Ring(name)
@@ -47,7 +48,9 @@ try:
                 v = s.v_int64
                 t = "s64"
             # print out something meaningfull
-            print("time: %s\n%s -> %s" % (s.timestamp, t, v))
+            if (s.HasField("v_string") == True):
+                pinname = s.v_string
+            print("time: %s\nPin %s of type %s = %s" % (s.timestamp, pinname, t, v))
             # consume the sample
             r.shift()
         time.sleep(0.01)

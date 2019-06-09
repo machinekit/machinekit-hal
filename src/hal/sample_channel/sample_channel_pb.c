@@ -25,6 +25,15 @@
     Ring:
     * sampler.ring
 
+    Optionally:
+    * you can name the pins at instantiation time like so:
+      newinst sample_channel_pb sampler --- samples=bff pinnames=foo,bar,baz cycles=10
+    
+      this will than create the following pins of types:
+      sampler.foo -> bit
+      sampler.bar -> float
+      sampler.baz -> float
+
     Author: Bas de Bruijn <bdebruijnATluminizeDOTnl>
     License: GPL Version 2
 
@@ -83,6 +92,7 @@ struct inst_data{
     hal_data_u		*pins_in[MAX_PINS];	// pin: array of sample values
     hal_u32_t 		*send_fail;		    // error counter on the send side
     hal_u32_t       *dropped;           // dropped sampled due to full ring;
+    char            pinnames[MAX_PINS][HAL_NAME_LEN];  //contains names
   
     // the ringbuffer
     ringbuffer_t    sample_ring;
@@ -171,6 +181,8 @@ static int record_sample(void *arg, const hal_funct_args_t *fa)
             machinetalk_Sample tx_sample = machinetalk_Sample_init_zero;
             tx_sample.has_timestamp = true;
             tx_sample.timestamp = fa_thread_start_time(fa);
+            tx_sample.has_v_string = true;
+            strcpy(tx_sample.v_string, ip->pinnames[i]);
             switch (ip->samples_cfg[i])
             {
             case 'b':
@@ -260,6 +272,7 @@ static int export_pins(struct inst_data *ip, const char *name)
     int indexes[6] = {0,0,0,0,0,0};
     char *pin_type;
     char character = '-';
+    char pname[HAL_MAX_NAME_LEN];
     hal_type_t type = HAL_TYPE_UNSPECIFIED;
 
     // some debug output
@@ -317,14 +330,19 @@ static int export_pins(struct inst_data *ip, const char *name)
                 return -1;
         }
         indexes[idx]++;
-        hal_print_msg(RTAPI_MSG_DBG,
-            "%s: new pin name %s.in%d-%s", compname, name, indexes[idx],
-                pin_type);
-        // create sample pins
+        // create sample pins names
+        if ( *ip->pinnames[i] == '\0' )
+        {
+            sprintf(pname, "%s.in-%s.%d", name, pin_type, indexes[idx]);
+            strcpy(ip->pinnames[i], pname);
+            hal_print_msg(RTAPI_MSG_DBG,
+                "%s: new pin name %s", name, pname);
+        }
         if ((retval = hal_pin_newf(type, HAL_IN, (void **) &ip->pins_in[i],
-                comp_id, "%s.in-%s.%d", name, pin_type, indexes[idx])) < 0) {
+                comp_id, ip->pinnames[i])) < 0) {
             return retval;
         }
+        
 	}
     // create misc pins
     if (((retval = hal_pin_bit_newf(HAL_IN, &(ip->record), comp_id,
@@ -380,9 +398,14 @@ static int instantiate_sample_channel_pb(const int argc, const char **argv)
 {
     struct inst_data *ip;
     const char *name = argv[1];
-    int inst_id=0, i=0, j=0, cycles=0;
+    int inst_id=0, i=0, j=0, cycles=0, pin_i=0, commas=0;
     char samples[MAX_PINS];
-    bool has_samples_string=false, has_cycles_string=false;
+    char pname[HAL_MAX_NAME_LEN];
+    char full_pname[HAL_MAX_NAME_LEN];
+    char pinnames[(MAX_PINS * HAL_NAME_LEN) + (MAX_PINS - 1)];
+    bool has_samples_string=false, has_cycles_string=false, has_pinnames_string=false;
+    // pointers to character in string
+    char *idx, *idx_prev;
 
     // parse arguments
     for(i = 2; i < argc; i++)
@@ -400,6 +423,12 @@ static int instantiate_sample_channel_pb(const int argc, const char **argv)
             cycles = atoi(&argument[7]);
             hal_print_msg(RTAPI_MSG_DBG, "cycles = %d", cycles);
             has_cycles_string = true;
+        }
+        else if((strstr(argument, "pinnames=")) != NULL)
+        {
+            strcpy(pinnames, &argument[9]);
+            hal_print_msg(RTAPI_MSG_DBG, "pinnames = %s", pinnames);
+            has_pinnames_string = true;
         }
 	}
     // exit if no samples
@@ -426,6 +455,35 @@ static int instantiate_sample_channel_pb(const int argc, const char **argv)
             "%s: %s: ERROR: sample pins string is void\n", compname, name);
 	    return -1;
 	}
+    // check pinnames basic sanity, needs to have samples-1 commas
+    if (has_pinnames_string)
+    {
+
+        // get first part of string into the pinnames array
+        if (pinnames[0] == '\0')
+        {
+            hal_print_msg(RTAPI_MSG_ERR,
+                "%s: %s: ERROR: empty pin name found, check pinnames argument\n",
+                compname, name);
+            return -1;
+        }
+        // return the first occurence of a comma
+        idx = strchr(pinnames, ',');
+        while (idx!=NULL)
+        {
+            commas += 1;
+            idx = strchr(idx + 1, ',');
+        }
+
+        if ((commas + 1) != strlen(samples))
+        {
+            hal_print_msg(RTAPI_MSG_ERR,
+                "%s: %s: ERROR: pinnames string found, but amount does not match with samples\n",
+                compname, name);
+            return -1;
+        }
+	}
+
     // instantiate component
     if ((inst_id = hal_inst_create(name, comp_id,
 				  sizeof(struct inst_data),
@@ -452,6 +510,42 @@ static int instantiate_sample_channel_pb(const int argc, const char **argv)
     }
     hal_print_msg(RTAPI_MSG_DBG,
         "%s: %s: ip->samples_cfg is %s", compname, name, ip->samples_cfg);
+
+    // copy pinnames in instance pinnames array, rough sanity check has been done
+    if (has_pinnames_string)
+    {
+        // return the first occurence of a comma
+        idx_prev = pinnames;
+        idx = strchr(pinnames, ',');
+        pin_i = 0;
+        while (idx!=NULL)
+        {
+            // get first part of string into the pinnames array
+            strncpy(pname, idx_prev, idx-idx_prev);
+            // make sure we have terminating char, because content can be garbage
+            pname[idx-idx_prev] = '\0';
+            hal_print_msg(RTAPI_MSG_DBG,
+                "%s: %s: pinname = %s", compname, name, pname);
+            if (pname[0] == '\0')
+            {
+                hal_print_msg(RTAPI_MSG_ERR,
+                    "%s: %s: ERROR: pin name is empty", compname, name);
+                return -1;
+            }
+            sprintf(full_pname, "%s.%s", name, pname);
+            strcpy(ip->pinnames[pin_i], full_pname);
+            hal_print_msg(RTAPI_MSG_DBG,
+                "%s: %s: pinname = %s", compname, name, ip->pinnames[pin_i]);
+            idx_prev = idx + 1;
+            pin_i += 1;
+            idx = strchr(idx_prev, ',');
+        }
+        // the remaining part, after removing commas and pin names should not be empty
+        strcpy(pname, idx_prev);
+        sprintf(full_pname, "%s.%s", name, pname);
+        strcpy(ip->pinnames[pin_i], full_pname);
+	}
+
     // create the ring
 	if ( create_ring(ip, name) < 0 ) {
 	    hal_print_msg(RTAPI_MSG_ERR,
