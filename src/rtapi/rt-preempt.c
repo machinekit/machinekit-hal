@@ -283,7 +283,7 @@ static int realtime_set_affinity(task_data *task) {
 			task_id(task), task->name, use_cpu, strerror(errno));
 	return -EINVAL;
     }
-    rtapi_print_msg(RTAPI_MSG_DBG,
+    rtapi_print_msg(RTAPI_MSG_INFO,
 		    "realtime_set_affinity(): task %s assigned to CPU %d\n", 
 		    task->name, use_cpu);
     return 0;
@@ -350,7 +350,7 @@ static void *realtime_thread(void *arg) {
                             task->name, task->cgname, cgroup_strerror(ret));
             goto error;
         }
-        rtapi_print_msg(RTAPI_MSG_DBG,
+        rtapi_print_msg(RTAPI_MSG_INFO,
                         "Moved task '%s' to cpuset '%s'",
                         task->name, task->cgname);
     }
