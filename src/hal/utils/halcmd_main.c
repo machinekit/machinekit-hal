@@ -61,8 +61,6 @@
 #include <search.h>
 #include <inifile.h>
 
-#define CMD_BUF_LEN 200
-
 static int get_input(FILE *srcfile, char *buf, size_t bufsize);
 static void print_help_general(int showR);
 static int release_HAL_mutex(void);
@@ -88,7 +86,7 @@ int main(int argc, char **argv)
     int filemode = 0;
     char *filename = NULL;
     FILE *srcfile = NULL;
-    char raw_buf[CMD_BUF_LEN+1];
+    char raw_buf[MAX_CMD_LEN+1];
     int linenumber = 1;
     char *cf=NULL, *cw=NULL, *cl=NULL;
     char *uri = NULL; // NULL - use service discovery
@@ -281,17 +279,17 @@ int main(int argc, char **argv)
         return 1;
     }
     {
-	char cmdline[CMD_BUF_LEN];
+	char cmdline[MAX_CMD_LEN];
 	cmdline[0] = '\0';
 	int i, len = 0;
 	for (i=1; i < argc; i++) {
 	    len += strlen(argv[i]) + 1;
-	    if (len < CMD_BUF_LEN) {
+	    if (len < MAX_CMD_LEN) {
 		strcat(cmdline, argv[i]);
 		strcat(cmdline, " ");
 	    }
 	    else {
-		fprintf(stderr, "halcmd commandline exceeds %i chars", CMD_BUF_LEN);
+		fprintf(stderr, "halcmd commandline exceeds %i chars", MAX_CMD_LEN);
 		exit(-1);
 	    }
 	}
@@ -317,7 +315,7 @@ int main(int argc, char **argv)
         }
     } else {
 	/* read command line(s) from 'srcfile' */
-	while (get_input(srcfile, raw_buf, CMD_BUF_LEN)) {
+	while (get_input(srcfile, raw_buf, MAX_CMD_LEN)) {
 	    char *tokens[MAX_TOK+1];
 	    halcmd_set_linenumber(linenumber++);
 	    /* remove comments, do var substitution, and tokenise */
