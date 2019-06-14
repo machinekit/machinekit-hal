@@ -13,6 +13,7 @@ if ! [ -e config.h ]; then
 	./configure
 fi
 
+make clean
 make -j $(nproc)
 
 sudo make setuid
@@ -34,6 +35,7 @@ if ! [ -e config.h ]; then
 	./configure --with-machinekit-hal=$MKHAL_DIR
 fi
 
+make clean
 make -j $(nproc)
 
 cd ../
