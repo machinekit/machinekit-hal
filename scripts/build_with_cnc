@@ -16,7 +16,11 @@ sudo make setuid
 
 cd ../
 
-git clone https://github.com/machinekit/machinekit-cnc ;
+if [ -e machinekit-cnc ]; then
+	echo "Using existing machinekit-cnc checkout."
+else
+	git clone https://github.com/machinekit/machinekit-cnc
+fi
 
 cd machinekit-cnc/src
 
