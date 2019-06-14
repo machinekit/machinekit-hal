@@ -39,11 +39,8 @@ cp -f -R www $MKHAL_DIR ;
 
 cp -f machinekit* $MKHAL_DIR ;
 
-mkdir -p scripts/stash ;
-mv scripts/build_docker scripts/stash ;
-mv scripts/build_source_package scripts/stash ;
 sed -i 's|\/machinekit-cnc||g' scripts/linuxcnc ;
-cp -f scripts/* $MKHAL_DIR/scripts > /dev/null 2>&1 ;
+tar c --exclude=build_docker --exclude=build_source_package  scripts/* | ( cd "$MKHAL_DIR/" && tar x --verbose )
 
 cd ../
 
