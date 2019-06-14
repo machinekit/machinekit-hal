@@ -6,9 +6,12 @@ MKHAL_DIR=$(pwd)
 
 cd src
 
-./autogen.sh
-
-./configure
+if ! [ -e configure ]; then
+	./autogen.sh
+fi
+if ! [ -e config.h ]; then
+	./configure
+fi
 
 make -j $(nproc)
 
@@ -24,9 +27,12 @@ fi
 
 cd machinekit-cnc/src
 
-./autogen.sh
-
-./configure --with-machinekit-hal=$MKHAL_DIR
+if ! [ -e configure ]; then
+	./autogen.sh
+fi
+if ! [ -e config.h ]; then
+	./configure --with-machinekit-hal=$MKHAL_DIR
+fi
 
 make -j $(nproc)
 
