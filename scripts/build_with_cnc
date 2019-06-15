@@ -1,49 +1,60 @@
 #!/bin/bash
 
-MKHAL_DIR=$(pwd)
+set -e
+
+MKHAL_DIR="$(pwd)"
 
 cd src
 
-./autogen.sh
+if ! [ -e configure ]; then
+	./autogen.sh
+fi
+if ! [ -e config.h ]; then
+	./configure
+fi
 
-./configure
-
-make -j $(nproc)
+make clean
+make -j "$(nproc)"
 
 sudo make setuid
 
 cd ../
 
-git clone https://github.com/machinekit/machinekit-cnc ;
+if [ -e machinekit-cnc ]; then
+	echo "Using existing machinekit-cnc checkout."
+else
+	git clone https://github.com/machinekit/machinekit-cnc
+fi
 
 cd machinekit-cnc/src
 
-./autogen.sh
+if ! [ -e configure ]; then
+	./autogen.sh
+fi
+if ! [ -e config.h ]; then
+	./configure --with-machinekit-hal="$MKHAL_DIR"
+fi
 
-./configure --with-machinekit-hal=$MKHAL_DIR
-
-make -j $(nproc)
+make clean
+make -j "$(nproc)"
 
 cd ../
 
-cp -f bin/* $MKHAL_DIR/bin ;
-cp -f -R configs $MKHAL_DIR ;
-cp -f -L -R include/* $MKHAL_DIR/include ;
-cp -f -L -R lib/*  $MKHAL_DIR/lib ;
-cp -f -R nc_files $MKHAL_DIR ;
-cp -f -R rtlib/* $MKHAL_DIR/rtlib ;
-cp -f -R share/* $MKHAL_DIR/share ;
+cp -f bin/* "$MKHAL_DIR"/bin ;
+cp -f -R configs "$MKHAL_DIR" ;
+cp -f -L -R include/* "$MKHAL_DIR"/include ;
+cp -f -L -R lib/*  "$MKHAL_DIR"/lib ;
+cp -f -R nc_files "$MKHAL_DIR" ;
+cp -f -R rtlib/* "$MKHAL_DIR"/rtlib ;
+cp -f -R share/* "$MKHAL_DIR"/share ;
 sed -i 's|\/machinekit-cnc||g' tcl/linuxcnc.tcl ;
-cp -f -R tcl/* $MKHAL_DIR/tcl ;
-cp -f -R www $MKHAL_DIR ;
+cp -f -R tcl/* "$MKHAL_DIR"/tcl ;
+cp -f -R www "$MKHAL_DIR" ;
 
-cp -f machinekit* $MKHAL_DIR ;
+cp -f machinekit* "$MKHAL_DIR" ;
 
-mkdir -p scripts/stash ;
-mv scripts/build_docker scripts/stash ;
-mv scripts/build_source_package scripts/stash ;
 sed -i 's|\/machinekit-cnc||g' scripts/linuxcnc ;
-cp -f scripts/* $MKHAL_DIR/scripts > /dev/null 2>&1 ;
+tar c --exclude=build_docker --exclude=build_source_package  scripts/* | ( cd "$MKHAL_DIR/" && tar x --verbose )
 
 cd ../
 
