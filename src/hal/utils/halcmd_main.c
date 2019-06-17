@@ -314,39 +314,42 @@ int main(int argc, char **argv)
             }
         }
     } else {
-	/* read command line(s) from 'srcfile' */
-	while (get_input(srcfile, raw_buf, MAX_CMD_LEN)) {
-	    char *tokens[MAX_TOK+1];
-	    halcmd_set_linenumber(linenumber++);
-	    /* remove comments, do var substitution, and tokenise */
-	    retval = halcmd_preprocess_line(raw_buf, tokens);
-        if(echo_mode) { 
-            halcmd_echo("%s\n", raw_buf);
+        /* read command line(s) from 'srcfile' */
+        while (1) {
+            char *tokens[MAX_TOK+1];
+            halcmd_set_linenumber(linenumber++);
+            if (!get_input(srcfile, raw_buf, MAX_CMD_LEN)) {
+                break;
+            }
+            /* remove comments, do var substitution, and tokenise */
+            retval = halcmd_preprocess_line(raw_buf, tokens);
+            if (echo_mode) { 
+                halcmd_echo("%s\n", raw_buf);
+            }
+            if (retval == 0) {
+                /* the "quit" command is not handled by parse_line() */
+                if ( ( strcasecmp(tokens[0],"quit") == 0 ) ||
+                     ( strcasecmp(tokens[0],"exit") == 0 ) ) {
+                    break;
+                }
+                /* process command */
+                retval = halcmd_parse_cmd(tokens);
+            }
+            /* did a signal happen while we were busy? */
+            if ( halcmd_done ) {
+                /* treat it as an error */
+                errorcount++;
+                /* exit from loop */
+                break;
+            }
+            if ( retval != 0 ) {
+                errorcount++;
+            }
+            if (( errorcount > 0 ) && ( keep_going == 0 )) {
+                /* exit from loop */
+                break;
+            }
         }
-	    if (retval == 0) {
-		/* the "quit" command is not handled by parse_line() */
-		if ( ( strcasecmp(tokens[0],"quit") == 0 ) ||
-		     ( strcasecmp(tokens[0],"exit") == 0 ) ) {
-		    break;
-		}
-		/* process command */
-		retval = halcmd_parse_cmd(tokens);
-	    }
-	    /* did a signal happen while we were busy? */
-	    if ( halcmd_done ) {
-		/* treat it as an error */
-		errorcount++;
-		/* exit from loop */
-		break;
-	    }
-	    if ( retval != 0 ) {
-		errorcount++;
-	    }
-	    if (( errorcount > 0 ) && ( keep_going == 0 )) {
-		/* exit from loop */
-		break;
-	    }
-	}
     }
     /* all done */
     if (!scriptmode && srcfile == stdin && isatty(0)) {
@@ -458,6 +461,21 @@ static void print_help_general(int showR)
     printf("  help command   Prints detailed help for 'command'\n\n");
 }
 
+static int halcmd_fgets_notrunc(char *s, int size, FILE *stream)
+{
+    char lastchar;
+
+    if (fgets(s, size, stream) == NULL)
+        return 0;
+    lastchar = s[strlen(s) - 1];
+    if (lastchar != '\n' && lastchar != '\r' && !feof(stream)) {
+        halcmd_error("The hal file command line is too long (>=%d).\n",
+                     size - 1);
+        exit(1); /* line too long. Do not truncate. */
+    }
+    return 1;
+}
+
 #ifdef HAVE_READLINE
 #include "halcmd_completion.h"
 
@@ -471,26 +489,33 @@ static int get_input(FILE *srcfile, char *buf, size_t bufsize) {
             first_time = 0;
         }
         rlbuf = readline("halcmd: ");
-        if(!rlbuf) return 0;
+        if (!rlbuf)
+            return 0;
+        if (strlen(rlbuf) >= bufsize) {
+            halcmd_error("The hal command line is too long (>=%d).\n",
+                         (int)bufsize);
+            return 0; /* line too long. Do not truncate. */
+        }
         strncpy(buf, rlbuf, bufsize);
         buf[bufsize-1] = 0;
         free(rlbuf);
 
-        if(*buf) add_history(buf);
+        if (*buf)
+            add_history(buf);
 
         return 1;
     }
     if(prompt_mode) {
 	    fprintf(stdout, scriptmode ? "%%\n" : "halcmd: "); fflush(stdout);
     }
-    return fgets(buf, bufsize, srcfile) != NULL;
+    return halcmd_fgets_notrunc(buf, bufsize, srcfile);
 }
 #else
 static int get_input(FILE *srcfile, char *buf, size_t bufsize) {
     if(prompt_mode) {
 	    fprintf(stdout, scriptmode ? "%%\n" : "halcmd: "); fflush(stdout);
     }
-    return fgets(buf, bufsize, srcfile) != NULL;
+    return halcmd_fgets_notrunc(buf, bufsize, srcfile);
 }
 #endif
 
