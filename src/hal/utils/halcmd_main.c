@@ -314,39 +314,42 @@ int main(int argc, char **argv)
             }
         }
     } else {
-	/* read command line(s) from 'srcfile' */
-	while (get_input(srcfile, raw_buf, MAX_CMD_LEN)) {
-	    char *tokens[MAX_TOK+1];
-	    halcmd_set_linenumber(linenumber++);
-	    /* remove comments, do var substitution, and tokenise */
-	    retval = halcmd_preprocess_line(raw_buf, tokens);
-        if(echo_mode) { 
-            halcmd_echo("%s\n", raw_buf);
+        /* read command line(s) from 'srcfile' */
+        while (1) {
+            char *tokens[MAX_TOK+1];
+            halcmd_set_linenumber(linenumber++);
+            if (!get_input(srcfile, raw_buf, MAX_CMD_LEN)) {
+                break;
+            }
+            /* remove comments, do var substitution, and tokenise */
+            retval = halcmd_preprocess_line(raw_buf, tokens);
+            if (echo_mode) { 
+                halcmd_echo("%s\n", raw_buf);
+            }
+            if (retval == 0) {
+                /* the "quit" command is not handled by parse_line() */
+                if ( ( strcasecmp(tokens[0],"quit") == 0 ) ||
+                     ( strcasecmp(tokens[0],"exit") == 0 ) ) {
+                    break;
+                }
+                /* process command */
+                retval = halcmd_parse_cmd(tokens);
+            }
+            /* did a signal happen while we were busy? */
+            if ( halcmd_done ) {
+                /* treat it as an error */
+                errorcount++;
+                /* exit from loop */
+                break;
+            }
+            if ( retval != 0 ) {
+                errorcount++;
+            }
+            if (( errorcount > 0 ) && ( keep_going == 0 )) {
+                /* exit from loop */
+                break;
+            }
         }
-	    if (retval == 0) {
-		/* the "quit" command is not handled by parse_line() */
-		if ( ( strcasecmp(tokens[0],"quit") == 0 ) ||
-		     ( strcasecmp(tokens[0],"exit") == 0 ) ) {
-		    break;
-		}
-		/* process command */
-		retval = halcmd_parse_cmd(tokens);
-	    }
-	    /* did a signal happen while we were busy? */
-	    if ( halcmd_done ) {
-		/* treat it as an error */
-		errorcount++;
-		/* exit from loop */
-		break;
-	    }
-	    if ( retval != 0 ) {
-		errorcount++;
-	    }
-	    if (( errorcount > 0 ) && ( keep_going == 0 )) {
-		/* exit from loop */
-		break;
-	    }
-	}
     }
     /* all done */
     if (!scriptmode && srcfile == stdin && isatty(0)) {
