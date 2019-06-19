@@ -27,20 +27,8 @@ function githelper() {
 
     case $GIT_BRANCH in
         master)
-            GIT_TAG_GLOB="v2.7*"
+            GIT_TAG_GLOB="master*"
             DEB_COMPONENT="master"
-            ;;
-        2.6)
-            GIT_TAG_GLOB="v2.6*"
-            DEB_COMPONENT="2.6"
-            ;;
-        v2.5_branch)
-            GIT_TAG_GLOB="v2.5*"
-            DEB_COMPONENT="v2.5_branch"
-            ;;
-        v2.4_branch)
-            GIT_TAG_GLOB="v2.4*"
-            DEB_COMPONENT="v2.4_branch"
             ;;
         *)
             GIT_TAG_GLOB="*"
