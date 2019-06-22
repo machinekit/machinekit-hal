@@ -49,7 +49,9 @@ services:
 
 env:
   global:
-    - IMAGE=${IMAGE:-dovetailautomata/mk-cross-builder}
+    # FIXME testing PR #222 https://github.com/machinekit/machinekit-hal/pull/222
+    # - IMAGE=${IMAGE:-dovetailautomata/mk-cross-builder}
+    - IMAGE=${IMAGE:-zultron/mk-cross-builder}
     - MK_PACKAGE_VERBOSE=${MK_PACKAGE_VERBOSE:-false}
     - JOBS=${JOBS:-2}
     - TEST_DEBUG=false

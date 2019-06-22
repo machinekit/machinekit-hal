@@ -7,7 +7,9 @@
 ###########################################################
 # Configuration from environment, CL args and defaults
 CMD=${CMD:-shell}
-IMAGE=${IMAGE:-dovetailautomata/mk-cross-builder}
+# FIXME testing PR #222 https://github.com/machinekit/machinekit-hal/pull/222
+#IMAGE=${IMAGE:-dovetailautomata/mk-cross-builder}
+IMAGE=${IMAGE:-zultron/mk-cross-builder}
 TAG=${TAG:-amd64_10}
 JOBS=${JOBS:-$(nproc)}
 BUILD_SOURCE=${BUILD_SOURCE:-true}  # update Changelog & source pkg
