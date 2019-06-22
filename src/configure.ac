@@ -980,18 +980,12 @@ AC_ARG_ENABLE(dev,
 # NML
 ##############################################################################
 
-PKG_CHECK_MODULES([CK], [ck >= 0.4.6],
-    [
-	AC_DEFINE(HAVE_CK, [], [concurrencykit found])
-	# needed for kbuild:
-        CK_INCLUDE=`pkg-config --cflags-only-I ck`
-        USE_CK=yes
-	AC_MSG_RESULT([concurrencykit found - configuring to use ck])
-    ],
-    [
-        USE_CK=no
-	AC_MSG_ERROR([ concurrencykit not found - please install package libck0 ])
-    ])
+PKG_CHECK_MODULES(
+    [CK],
+    [ck >= 0.4.6],
+    [AC_DEFINE(HAVE_CK, [], [Use concurrencykit])],
+    [true],  dnl libck is optional
+    )
 
 
 PKG_CHECK_MODULES([CZMQ], [libczmq > 4.0],
