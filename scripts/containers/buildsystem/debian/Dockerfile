@@ -277,7 +277,8 @@ RUN if test $DISTRO_VER -le 9 -a $DEBIAN_ARCH = amd64; then \
 
 # Native arch:  Install build dependencies
 RUN if test -z "$SYS_ROOT"; then \
-        if test $DISTRO_VER -le 9; then \
+        apt-get update \
+        && if test $DISTRO_VER -le 9; then \
 	    apt-get install -y  -o Apt::Get::AllowUnauthenticated=true \
 		machinekit-build-deps; \
         else \
