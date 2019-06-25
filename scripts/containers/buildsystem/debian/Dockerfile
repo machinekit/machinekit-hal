@@ -237,17 +237,19 @@ RUN echo "deb http://deb.machinekit.io/debian $DISTRO_CODENAME main" > \
 ###################################################################
 # Machinekit:  Install dependency packages
 
+# Xenomai threads still supported on Jessie
+RUN if test $DISTRO_CODENAME = jessie -a -z "$SYS_ROOT"; then \
+        apt-get install -y libxenomai-dev \
+        && apt-get clean; \
+    fi
+
 ##############################
 # Machinekit:  Configure multistrap
 
 # Set up debian/control for `mk-build-deps`
 #     FIXME download parts from upstream
 ADD debian/ /tmp/debian/
-RUN if test $DISTRO_VER = 8; then \
-	MK_CROSS_BUILDER=1 /tmp/debian/configure -x; \
-    else \
-	MK_CROSS_BUILDER=1 /tmp/debian/configure; \
-    fi
+RUN MK_CROSS_BUILDER=1 /tmp/debian/configure
 
 # Directory for `mk-build-deps` apt repository
 RUN mkdir /tmp/debs && \
@@ -275,7 +277,8 @@ RUN if test $DISTRO_VER -le 9 -a $DEBIAN_ARCH = amd64; then \
 
 # Native arch:  Install build dependencies
 RUN if test -z "$SYS_ROOT"; then \
-        if test $DISTRO_VER -le 9; then \
+        apt-get update \
+        && if test $DISTRO_VER -le 9; then \
 	    apt-get install -y  -o Apt::Get::AllowUnauthenticated=true \
 		machinekit-build-deps; \
         else \
