@@ -976,9 +976,17 @@ AC_ARG_ENABLE(dev,
 
 ##############################################################################
 # Subsection 2.3.1                                                           #
-# protobuf, zmq, websockets, json, uriparse, avahi-client packages           #
+# CK, protobuf, zmq, websockets, json, uriparse, avahi-client packages           #
 # NML
 ##############################################################################
+
+PKG_CHECK_MODULES(
+    [CK],
+    [ck >= 0.4.6],
+    [AC_DEFINE(HAVE_CK, [], [Use concurrencykit])],
+    [true],  dnl libck is optional
+    )
+
 
 PKG_CHECK_MODULES([CZMQ], [libczmq > 4.0],
     [

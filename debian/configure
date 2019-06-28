@@ -166,6 +166,10 @@ while getopts csprxd:?h ARG; do
     esac
 done
 
+if test "$DISTRO_CODENAME" != jessie; then
+    BUILD_DEPS+='libck-dev, '
+fi
+
 # Set control Build-Depends:
 sed -i control \
     -e "s/@BUILD_DEPS@/${BUILD_DEPS}/" \
@@ -174,4 +178,3 @@ echo "debian/control:  add final Build-Depends: list" >&2
 
 # Warn if no flavor configured
 $HAVE_FLAVOR || usage "WARNING:  No thread flavors configured"
-	
