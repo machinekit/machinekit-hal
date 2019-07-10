@@ -1,6 +1,0 @@
-
-Package: machinekit-hal-rt-preempt
-Architecture: any
-Provides:  machinekit-hal
-Conflicts: machinekit, machinekit-hal-posix, machinekit-hal-xenomai
-Suggests: hostmot2-firmware-all [!armhf]

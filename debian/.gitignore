@@ -1,9 +1,8 @@
 # files generated from debian/configure
 /control
-/rules
 /files
 /configure.cmdline
-/machinekit*.install
+/rules.include
 /changelog
 
 # directory artifacts
