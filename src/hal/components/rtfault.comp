@@ -11,10 +11,8 @@ license "GPL";
 ;;
 
 #include "rtapi.h"
-#if defined(BUILD_SYS_USER_DSO)
 #include <time.h>
 #include <stdio.h>
-#endif
 #include <stdbool.h>
 static bool previous_fault;
 static int n;
@@ -23,9 +21,8 @@ FUNCTION(_) {
     if (previous_fault ^ fault) {
 	n = count;
     }
-    previous_fault = fault;  
+    previous_fault = fault;
     if (n) {
-#if defined(BUILD_SYS_USER_DSO)
 	// printf() eventually calls write(), which will cause
 	// a Xenomai domain switch
 
@@ -33,12 +30,5 @@ FUNCTION(_) {
 	if (delay)
 	    nanosleep(&nap, NULL);
 	printf("fault # %d\n", n--);
-#else
-	do {
-	    rtapi_delay(delay * 1000 * 1000);
-	    n--;
-	} while (n > 0);
-	rtapi_print_msg(RTAPI_MSG_ERR, "RT delay ..\n");
-#endif
     }
 }

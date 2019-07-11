@@ -29,14 +29,9 @@ SHLIBDEPS_X :=  # add patterns here
 #     "can't extract name and version from library name 'libtk8.6.so'
 SHLIBDEPS_X += linuxcnc.so _togl.so
 #
-# libcanterp.so.0 and librs274.so.0: hack for now:  see
-# https://github.com/machinekit/machinekit/issues/324
-#     "symbol ... used by ... found in none of the libraries"
-SHLIBDEPS_X += libcanterp.so.0 librs274.so.0
-#
-# halmeter classicladder halscope link to $(GTK_LIBS), which includes
+# halmeter halscope link to $(GTK_LIBS), which includes
 # several libs that aren't used (but several that are needed)
-SHLIBDEPS_X += halmeter classicladder halscope
+SHLIBDEPS_X += halmeter halscope
 #
 # mb2hal gs2_vfd hy_vfd link to libglib-2.0.so.0; similar to above
 SHLIBDEPS_X += mb2hal gs2_vfd hy_vfd
@@ -121,6 +116,7 @@ ifneq ($(wildcard src/configure src/Makefile.inc),)
 	    src/configure \
 	    src/machinekitcfg.py-tmp
 	rm -rf src/autom4te.cache etc
+
 endif
 
 #	# Remove package artifacts
@@ -128,25 +124,6 @@ endif
 
 
 install: build
-
-#	# have to test after build or Makefile.inc will not exist ##
-	cp debian/machinekit-hal-posix.install.in debian/machinekit-hal-posix.install
-	cp debian/machinekit-hal-rt-preempt.install.in debian/machinekit-hal-rt-preempt.install
-	cp debian/machinekit-hal-xenomai.install.in debian/machinekit-hal-xenomai.install
-
-	if (grep ^USERMODE_PCI=yes src/Makefile.inc -q); then \
-	    echo "usr/include/linuxcnc/userpci/*.h" >> debian/machinekit-hal-posix.install; \
-	    echo "usr/include/linuxcnc/userpci/*.h" >> debian/machinekit-hal-rt-preempt.install; \
-	    echo "usr/include/linuxcnc/userpci/*.h" >> debian/machinekit-hal-xenomai.install; \
-	fi
-
-#	# only want this for armhf builds ##
-	if [ ! -f debian/platform_pc ] ; then \
-	    echo "usr/lib/linuxcnc/prubin/*" >> debian/machinekit-hal-posix.install; \
-	    echo "usr/lib/linuxcnc/prubin/*" >> debian/machinekit-hal-rt-preempt.install; \
-	    echo "usr/lib/linuxcnc/prubin/*" >> debian/machinekit-hal-xenomai.install; \
-	fi
-
 	dh_testdir
 	dh_testroot
 	dh_prep
@@ -157,23 +134,22 @@ install: build
 	mkdir -p debian/tmp
 	(cd debian/extras && cp -a * ../tmp)
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) V=$(DH_VERBOSE) $@)
-	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/linuxcnc \
+	mkdir -p \
+	    debian/tmp/usr/lib/linuxcnc/modules \
+	    debian/tmp/usr/include/linuxcnc \
 	    debian/tmp/usr/include/linuxcnc/machinetalk/nanopb \
-	    debian/tmp/usr/include/linuxcnc/machinetalk/protobuf 
+	    debian/tmp/usr/include/linuxcnc/machinetalk/protobuf
 
-
-#ifneq (,$(wildcard debian/machinekit-*-kernel-*.install))
-	mkdir -p debian/tmp/etc/udev/rules.d
-	cp src/rtapi/shmdrv/shmdrv.rules \
-	    debian/tmp/etc/udev/rules.d/50-shmdrv.rules
-#endif
 	mkdir -p debian/tmp/etc/security/limits.d
 	cp src/rtapi/shmdrv/limits.d-machinekit.conf \
 	    debian/tmp/etc/security/limits.d/machinekit.conf
 
 	mkdir -p debian/tmp/usr/lib/linuxcnc/prubin
 
-	dh_install --sourcedir=debian/tmp --fail-missing -Xusr/bin/pasm
+	dh_install --sourcedir=debian/tmp -Xusr/bin/pasm --fail-missing -v
+	# Eventually this will replace the above
+	# dh_install -Xusr/bin/pasm -v
+	# dh_missing --fail-missing
 
 # Build architecture-independent files here.
 binary-indep: build install
@@ -196,8 +172,6 @@ binary-arch: build install
 	dh_makeshlibs
 	dh_installdeb
 
-	cat debian/machinekit-hal-posix/DEBIAN/shlibs debian/shlibs.pre > \
-	    debian/shlibs.local
         #enable buster builds to work with problematic shlib deps in current packages
 	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info \
             $(foreach p, $(SHLIBDEPS_X), -X $(p)) -X hal.so
@@ -205,6 +179,7 @@ binary-arch: build install
 
 	dh_md5sums
 	dh_builddeb
+
 
 binary: binary-indep binary-arch
 .PHONY: build clean binary-indep binary-arch binary install

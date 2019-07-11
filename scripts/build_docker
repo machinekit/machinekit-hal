@@ -51,16 +51,6 @@ case ${TAG} in
     *) echo "Warning:  unknown tag '${TAG}'" >&2 ;;
 esac
 
-# Distro-specific:
-case ${TAG} in
-    *_8)
-	PKG_CONFIGURE_ARGS="-prx"   # Enable Xenomai
-	;;
-    *)
-	PKG_CONFIGURE_ARGS="-pr"    # Build posix and preempt-rt threads
-	;;
-esac
-
 # Distro specific warnings level
 case ${TAG} in
     *_8|*_9)
@@ -121,7 +111,7 @@ case $CMD in
 
 	BUILD_CL=( bash -xec "
             # configure source package
-            debian/configure ${PKG_CONFIGURE_ARGS};
+            debian/configure;
 
             # update Changelog and build source package
             $SCRIPT_DIR/build_source_package $BUILD_SOURCE
@@ -141,7 +131,7 @@ case $CMD in
 	    (
 		cd src;
 		./autogen.sh;
-		./configure --host=\$HOST_MULTIARCH --with-posix;
+		./configure --host=\$HOST_MULTIARCH;
 	    )
 
             # Build
@@ -153,7 +143,6 @@ case $CMD in
 	    echo -e 'ANNOUNCE_IPV4=0\nANNOUNCE_IPV6=0' >> \
 		etc/linuxcnc/machinekit.ini;
 	    tail -2 etc/linuxcnc/machinekit.ini;
-	    flavor;
 
             # Run regression tests
 	    ${RUN_TESTS} ${TEST_ARGS}"

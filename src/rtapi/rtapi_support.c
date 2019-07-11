@@ -10,17 +10,17 @@
 *               RTAPI starts up
 *
 *     Copyright 2006-2013 Various Authors
-* 
+*
 *     This program is free software; you can redistribute it and/or modify
 *     it under the terms of the GNU General Public License as published by
 *     the Free Software Foundation; either version 2 of the License, or
 *     (at your option) any later version.
-* 
+*
 *     This program is distributed in the hope that it will be useful,
 *     but WITHOUT ANY WARRANTY; without even the implied warranty of
 *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 *     GNU General Public License for more details.
-* 
+*
 *     You should have received a copy of the GNU General Public License
 *     along with this program; if not, write to the Free Software
 *     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -31,23 +31,11 @@
 #include "rtapi.h"
 #include "shmdrv.h"
 #include "ring.h"
-#if defined(BUILD_SYS_USER_DSO) || defined(ULAPI)
 #include "syslog_async.h"
 #ifndef SYSLOG_FACILITY
 #define SYSLOG_FACILITY LOG_LOCAL1  // where all rtapi/ulapi logging goes
 #endif
-#endif
 #define RTPRINTBUFFERLEN 256
-
-#ifdef MODULE
-#include "rtapi_app.h"
-
-#include <stdarg.h>		/* va_* */
-#include <linux/kernel.h>	/* kernel's vsnprintf */
-
-#define MSG_ORIGIN MSG_KERNEL
-
-#else  /* user land */
 
 #include <stdio.h>		/* libc's vsnprintf() */
 #include <sys/types.h>
@@ -57,7 +45,6 @@
 #define MSG_ORIGIN MSG_RTUSER
 #else
 #define MSG_ORIGIN MSG_ULAPI
-#endif
 #endif
 
 static int get_msg_level(void);
@@ -121,9 +108,8 @@ int vs_ringlogfv(const msg_level_t level,
 	    rtapi_mutex_give(&rtapi_message_buffer.header->wmutex);
     } else {
 	// early startup, global_data & log ring not yet initialized
-	// depending on context, log the message in an appropriate way:
+	// log the message to both stderr and syslog
 
-#if defined(BUILD_SYS_USER_DSO) || defined(ULAPI)
 	static int log_opened;
 	if (!log_opened) {
 	    log_opened = async_log_open();
@@ -132,17 +118,17 @@ int vs_ringlogfv(const msg_level_t level,
 		log_opened = 1;
 	    }
 	}
-#ifdef USE_STDERR
+
 	if (!strchr(msg.buf, '\n'))
 	    strcat(msg.buf,"\n");
 	fprintf(stderr,
-#else
+	       "%d:%s:%d:%s %s",
+	       level,
+	       tag,
+	       pid,
+	       origins[origin & 3],
+	       msg.buf);
         syslog_async(rtapi2syslog(level),
-#endif
-#endif
-#if defined(RTAPI) && defined(BUILD_SYS_KBUILD)
-	printk(
-#endif
 	       "%d:%s:%d:%s %s",
 	       level,
 	       tag,
@@ -157,10 +143,8 @@ void default_rtapi_msg_handler(msg_level_t level, const char *fmt,
 			       va_list ap)
 {
     static pid_t rtapi_pid;
-#if !defined(BUILD_SYS_KBUILD) && !defined(MODULE)
     if (rtapi_pid == 0)
 	rtapi_pid = getpid();
-#endif
     vs_ringlogfv(level, rtapi_pid, MSG_ORIGIN, logtag, fmt, ap);
 }
 
@@ -178,7 +162,7 @@ void rtapi_set_msg_handler(rtapi_msg_handler_t handler) {
 }
 
 // rtapi_get_msg_level and rtapi_set_msg_level moved here
-// since they access the global segment 
+// since they access the global segment
 // which might not exist during first use
 // assure we can use message levels before global_data is set up
 
@@ -246,7 +230,7 @@ void rtapi_print(const char *fmt, ...) {
 void rtapi_print_msg(int level, const char *fmt, ...) {
     va_list args;
 
-    if ((level <= rtapi_get_msg_level()) && 
+    if ((level <= rtapi_get_msg_level()) &&
 	(rtapi_get_msg_level() != RTAPI_MSG_NONE)) {
 	va_start(args, fmt);
 	rtapi_msg_handler(level, fmt, args);

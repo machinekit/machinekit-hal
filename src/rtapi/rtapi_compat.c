@@ -43,250 +43,7 @@
 #include <elf.h>                // get_rpath()
 #include <link.h>
 
-// really in nucleus/heap.h but we rather get away with minimum include files
-#ifndef XNHEAP_DEV_NAME
-#define XNHEAP_DEV_NAME  "/dev/rtheap"
-#endif
-
-// if this exists, and contents is '1', it's RT_PREEMPT
-#define PREEMPT_RT_SYSFS "/sys/kernel/realtime"
-
-// Exists on RTAI and Xenomai
-#define PROC_IPIPE "/proc/ipipe"
-
-// These exist on Xenomai but not on RTAI
-#define PROC_IPIPE_XENOMAI "/proc/ipipe/Xenomai"
-#define XENO_GID_SYSFS "/sys/module/xeno_nucleus/parameters/xenomai_gid"
-
-// static storage of kernel module directory
-static char kmodule_dir[PATH_MAX];
-
 static FILE *rtapi_inifile = NULL;
-
-static int check_rtapi_lib(char *name);
-
-int kernel_is_xenomai()
-{
-    struct stat sb;
-
-    return ((stat(XNHEAP_DEV_NAME, &sb) == 0) &&
-	    (stat(PROC_IPIPE_XENOMAI, &sb) == 0) &&
-	    (stat(XENO_GID_SYSFS, &sb) == 0));
-}
-
-int kernel_is_rtai()
-{
-    struct stat sb;
-
-    return ((stat(PROC_IPIPE, &sb) == 0) && 
-	    (stat(PROC_IPIPE_XENOMAI, &sb) != 0) &&
-	    (stat(XENO_GID_SYSFS, &sb) != 0));
-}
-
-int kernel_is_rtpreempt()
-{
-    FILE *fd;
-    int retval = 0;
-
-    if ((fd = fopen(PREEMPT_RT_SYSFS,"r")) != NULL) {
-	int flag;
-	retval = ((fscanf(fd, "%d", &flag) == 1) && (flag));
-	fclose(fd);
-    }
-    return retval;
-}
-
-int xenomai_gid()
-{
-    FILE *fd;
-    int gid = -1;
-
-    if ((fd = fopen(XENO_GID_SYSFS,"r")) != NULL) {
-	if (fscanf(fd, "%d", &gid) != 1) {
-	    fclose(fd);
-	    return -EBADF; // garbage in sysfs device
-	} else {
-	    fclose(fd);
-	    return gid;
-	}
-    }
-    return -ENOENT; // sysfs device cant be opened
-}
-
-int user_in_xenomai_group()
-{
-    int numgroups, i;
-    gid_t *grouplist;
-    int gid = xenomai_gid();
-
-    if (gid < 0)
-	return gid;
-
-    numgroups = getgroups(0,NULL);
-    grouplist = (gid_t *) calloc( numgroups, sizeof(gid_t));
-    if (grouplist == NULL)
-	return -ENOMEM;
-    if (getgroups( numgroups, grouplist) > 0) {
-	for (i = 0; i < numgroups; i++) {
-	    if (grouplist[i] == (unsigned) gid) {
-		free(grouplist);
-		return 1;
-	    }
-	}
-    } else {
-	free(grouplist);
-	return errno;
-    }
-    return 0;
-}
-
-
-// there is no easy way to determine the RTAPI instance id
-// of a kernel threads RTAPI instance, which is why this
-// parameter is made visible through a procfs entry.
-int kernel_instance_id()
-{
-    FILE *fd;
-    int retval = -1;
-
-    if ((fd = fopen("/proc/rtapi/instance","r")) != NULL) {
-	int flag;
-	if (fscanf(fd, "%d", &flag) == 1) {
-	    retval = flag;
-	}
-	fclose(fd);
-    }
-    return retval;
-}
-
-flavor_t flavors[] = {
-    { .name = RTAPI_POSIX_NAME,
-      .mod_ext = ".so",
-      .so_ext = ".so",
-      .build_sys = "user-dso",
-      .flavor_id = RTAPI_POSIX_ID,
-      .flags = POSIX_FLAVOR_FLAGS // FLAVOR_USABLE
-    },
-    { .name = "sim", // alias for above- old habíts die hard
-      .mod_ext = ".so",
-      .so_ext = ".so",
-      .build_sys = "user-dso",
-      .flavor_id = RTAPI_POSIX_ID,
-      .flags = POSIX_FLAVOR_FLAGS
-    },
-    { .name = RTAPI_RT_PREEMPT_NAME,
-      .mod_ext = ".so",
-      .so_ext = ".so",
-      .build_sys = "user-dso",
-      .flavor_id = RTAPI_RT_PREEMPT_ID,
-      .flags = RTPREEMPT_FLAVOR_FLAGS
-    },
-     { .name = RTAPI_XENOMAI_NAME,
-      .mod_ext = ".so",
-      .so_ext = ".so",
-      .build_sys = "user-dso",
-      .flavor_id = RTAPI_XENOMAI_ID,
-      .flags = XENOMAI_FLAVOR_FLAGS
-    },
-    { .name = RTAPI_RTAI_KERNEL_NAME,
-      .mod_ext = ".ko",
-      .so_ext = ".so",
-      .build_sys = "kbuild",
-      .flavor_id = RTAPI_RTAI_KERNEL_ID,
-      .flags = RTAI_KERNEL_FLAVOR_FLAGS
-    },
-
-    { .name = RTAPI_XENOMAI_KERNEL_NAME,
-      .mod_ext = ".ko",
-      .so_ext = ".so",
-      .build_sys = "kbuild",
-      .flavor_id = RTAPI_XENOMAI_KERNEL_ID,
-      .flags =  XENOMAI_KERNEL_FLAVOR_FLAGS
-    },
-
-    { .name = RTAPI_NOTLOADED_NAME,
-      .mod_ext = "",
-      .so_ext = "",
-      .build_sys = "n/a",
-      .flavor_id = RTAPI_NOTLOADED_ID,
-      .flags = 0
-    },
-
-    { .name = NULL, // list sentinel
-      .flavor_id = -1,
-      .flags = 0
-    }
-};
-
-flavor_ptr flavor_byname(const char *flavorname)
-{
-    flavor_ptr f = flavors;
-    while (f->name) {
-	if (!strcasecmp(flavorname, f->name))
-	    return f;
-	f++;
-    }
-    return NULL;
-}
-
-flavor_ptr flavor_byid(int flavor_id)
-{
-    flavor_ptr f = flavors;
-    while (f->name) {
-	if (flavor_id == f->flavor_id)
-	    return f;
-	f++;
-    }
-    return NULL;
-}
-
-flavor_ptr default_flavor(void)
-{
-    char *fname = getenv("FLAVOR");
-    flavor_ptr f, flavor;
-
-    if (fname) {
-	if ((flavor = flavor_byname(fname)) == NULL) {
-	    fprintf(stderr, 
-		    "FLAVOR=%s: no such flavor -- valid flavors are:\n",
-		    fname);
-	    f = flavors;
-	    while (f->name) {
-		fprintf(stderr, "\t%s\n", f->name);
-		f++;
-	    }
-	    exit(1);
-	}
-	/* make sure corresponding rtapi lib is also present */
-	if (check_rtapi_lib(fname))
-	    return flavor;
-	else
-	    exit(1);
-    }
-
-    if (kernel_is_rtai()) {
-	f = flavor_byid(RTAPI_RTAI_KERNEL_ID); 
-	if (check_rtapi_lib((char *)f->name))
-	    return f;
-    }
-    if (kernel_is_xenomai()) {
-	/* check for userspace first */
-	f = flavor_byid(RTAPI_XENOMAI_ID); 
-	if (check_rtapi_lib((char *)f->name))
-	    return f;
-	/* else look for xenomai_kernel */
-	f = flavor_byid(RTAPI_XENOMAI_KERNEL_ID); 
-	if (check_rtapi_lib((char *)f->name))
-	    return f;
-    }
-    if (kernel_is_rtpreempt()) {
-	f = flavor_byid(RTAPI_RT_PREEMPT_ID); 
-	if (check_rtapi_lib((char *)f->name))
-	    return f;
-    }
-    return flavor_byid(RTAPI_POSIX_ID);
-}
-
 
 void check_rtapi_config_open()
 {
@@ -311,31 +68,24 @@ void check_rtapi_config_open()
     }
 }
 
-char *get_rtapi_param(const char *flavor, const char *param)
+char *get_rtapi_param(const char *param)
 {
     char *val;
-    char buf[RTAPI_NAME_LEN+8];    // strlen("flavor_") + RTAPI_NAME_LEN + 1
 
     // Open rtapi_inifile if it hasn't been already
     check_rtapi_config_open();
-
-    sprintf(buf, "flavor_%s", flavor);
-    val = (char *) iniFind(rtapi_inifile, param, buf);
-
-    if (val==NULL)
-	val = (char *) iniFind(rtapi_inifile, param, "global");
+    val = (char *) iniFind(rtapi_inifile, param, "global");
 
     return val;
 }
 
 int get_rtapi_config(char *result, const char *param, int n)
 {
-    /* Read a parameter value from rtapi.ini.  First try the flavor
-       section, then the global section.  Copy max n-1 bytes into
-       result buffer.  */
+    /* Read a parameter value from rtapi.ini.  Copy max n-1 bytes into result
+       buffer.  */
     char *val;
 
-    val = get_rtapi_param(default_flavor()->name, param);
+    val = get_rtapi_param(param);
 
     // Return if nothing found
     if (val==NULL) {
@@ -348,141 +98,6 @@ int get_rtapi_config(char *result, const char *param, int n)
     return 0;
 }
 
-int check_rtapi_lib(char *name)
-{
-    /* Check if the corresponding rtapi lib for a particular 
-	flavor is present */
-    char *val;
-    char fname[PATH_MAX];
-    struct stat sb;
-
-    val = get_rtapi_param(name, "RTLIB_DIR");
-
-    if (val==NULL) {
-	return 0;
-    }
-
-    snprintf(fname, PATH_MAX,"%s/ulapi-%s.so", val, name);
-
-    /* check if rtapi lib exists */
-    return (stat(fname, &sb) == 0);
-}
-
-// NB. compiler warnings re possible data truncation or overrun
-// So long as a buffer of size PATH_MAX _plus_ extra formatting
-// is being copied into another buffer of size PATH_MAX,
-// you either restrict to size PATH_MAX and risk truncation or 
-// do not restrict and risk segfault on buffer overrun.
-// Would require too much work to remove warnings at this time.
-
-int module_path(char *result, const char *basename)
-{
-    /* Find a kernel module's path */
-    struct stat sb;
-    char buf[PATH_MAX];
-    char rtlib_result[PATH_MAX];
-    int has_rtdir;
-    struct utsname uts;
-	
-    // Initialize kmodule_dir, only once
-    if (kmodule_dir[0] == 0) {
-	uname(&uts);
-
-	get_rtapi_config(buf,"RUN_IN_PLACE",4);
-	if (strncmp(buf,"yes",3) == 0) {
-	    // Complete RTLIB_DIR should be <RTLIB_DIR>/<flavor>/<uname -r>
-	    if (get_rtapi_config(buf,"RTLIB_DIR",PATH_MAX) != 0)
-		return -ENOENT;
-
-	    if (strcmp(default_flavor()->build_sys,"user-dso") == 0) {
-		// point user threads to a common directory
-		snprintf(kmodule_dir,PATH_MAX,"%s/userland/%s",
-			 buf, uts.release);
-	    } else {
-		// kthreads each have their own directory
-		snprintf(kmodule_dir,PATH_MAX,"%s/%s/%s",
-			 buf, default_flavor()->name, uts.release);
-	    }
-	} else {
-	    // Complete RTLIB_DIR should be /lib/modules/<uname -r>/linuxcnc
-	    snprintf(kmodule_dir, PATH_MAX,
-		     "/lib/modules/%s/linuxcnc", uts.release);
-	}
-    }
-
-    // Look for module in kmodule_dir/RTLIB_DIR
-    snprintf(result, PATH_MAX, "%s/%s.ko", kmodule_dir, basename);
-    if ((stat(result, &sb) == 0)  && (S_ISREG(sb.st_mode)))
-	return 0;
-
-    // Not found; save result for possible later diagnostic msg
-    strcpy(rtlib_result,result);
-
-    // Check RTDIR as well (RTAI)
-    has_rtdir = (get_rtapi_config(buf, "RTDIR", PATH_MAX) == 0 && buf[0] != 0);
-    if (has_rtdir) {
-	snprintf(result, PATH_MAX, "%s/%s.ko", buf, basename);
-	if ((stat(result, &sb) == 0)  && (S_ISREG(sb.st_mode)))
-	    return 0;
-    }
-
-    // Module not found
-    fprintf(stderr, "module '%s.ko' not found in directory\n\t%s\n",
-	    basename, kmodule_dir);
-    if (has_rtdir)
-	fprintf(stderr, "\tor directory %s\n", buf);
-
-    return -ENOENT;
-}
-
-int is_module_loaded(const char *module)
-{
-    FILE *fd;
-    char line[100];
-    int len = strlen(module);
-
-    fd = fopen("/proc/modules", "r");
-    if (fd == NULL) {
-	fprintf(stderr, "module_loaded: ERROR: cannot read /proc/modules\n");
-        return -1;
-    }
-    while (fgets(line, sizeof(line), fd)) {
-        if (!strncmp(line, module, len)) {
-            fclose(fd);
-            return 1;
-        }
-    }
-    fclose(fd);
-    return 0;
-}
-
-int run_module_helper(const char *format, ...)
-{
-    char mod_helper[PATH_MAX+100];
-
-    if (get_rtapi_config(mod_helper, "linuxcnc_module_helper", PATH_MAX) != 0) {
-        fprintf(stderr, "load_module: ERROR: failed to read "
-		"linuxcnc_module_helper path from rtapi config\n");
-	return -1;
-    }
-    strcat(mod_helper, " ");
-
-    int n = strlen(mod_helper);
-    va_list args;
-    int retval;
-
-    va_start(args, format);
-    retval = vsnprintf(&mod_helper[n], sizeof(mod_helper) - n, format, args);
-    va_end(args);
-
-    if (retval < 0 ) {
-	fprintf(stderr, "run_module_helper: invalid arguments\n");
-	return retval;
-    }
-    return system(mod_helper);
-}
-
-//int procfs_cmd(const char *path, const char *format, ...)
 // whatever is written is printf-style
 int rtapi_fs_write(const char *path, const char *format, ...)
 {
@@ -555,17 +170,17 @@ int get_elf_section(const char *const fname, const char *section_name, void **de
     struct stat st;
 
     if (stat(fname, &st) != 0) {
-	perror("stat");
+	perror("rtapi_compat.c:  get_elf_section() stat");
 	return -1;
     }
     int fd = open(fname, O_RDONLY);
     if (fd < 0) {
-	perror("open");
+	perror("rtapi_compat.c:  get_elf_section() open");
 	return fd;
     }
     char *p = mmap(0, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
     if (p == NULL) {
-	perror("mmap");
+	perror("rtapi_compat.c:  get_elf_section() mmap");
     close(fd);
 	return -1;
     }
@@ -587,7 +202,7 @@ int get_elf_section(const char *const fname, const char *section_name, void **de
 		    if (dest) {
 			*dest = malloc(size);
 			if (*dest == NULL) {
-			    perror("malloc");
+			    perror("rtapi_compat.c:  get_elf_section() malloc");
 			    size = -1;
 			    break;
 			}
@@ -615,7 +230,7 @@ int get_elf_section(const char *const fname, const char *section_name, void **de
 		    if (dest) {
 			*dest = malloc(size);
 			if (*dest == NULL) {
-			    perror("malloc");
+			    perror("rtapi_compat.c:  get_elf_section() malloc");
 			    size = -1;
 			    break;
 			}
@@ -649,7 +264,7 @@ const char **get_caps(const char *const fname)
 
     const char **rv = malloc(sizeof(char*) * (n+1));
     if (rv == NULL) {
-	perror("malloc");
+	perror("rtapi_compat.c:  get_caps() malloc");
 	return NULL;
     }
     n = 0;
@@ -691,26 +306,15 @@ int rtapi_get_tags(const char *mod_name)
     int result = 0, n = 0;
     char *cp1 = "";
 
-    flavor_ptr flavor = default_flavor();
-
-    if (kernel_threads(flavor)) {
-	if (module_path(modpath, mod_name) < 0) {
-	    perror("module_path");
-	    return -1;
-	}
-    } else {
-	if (get_rtapi_config(modpath,"RTLIB_DIR",PATH_MAX) != 0) {
-	    perror("cant get  RTLIB_DIR ?\n");
-	    return -1;
-	}
-	strcat(modpath,"/");
-	strcat(modpath, flavor->name);
-	strcat(modpath,"/");
-	strcat(modpath,mod_name);
-	strcat(modpath, flavor->mod_ext);
+    if (get_rtapi_config(modpath,"RTLIB_DIR",PATH_MAX) != 0) {
+        perror("rtapi_compat.c:  Can't get  RTLIB_DIR");
+        return -1;
     }
-    const char **caps = get_caps(modpath);
+    strcat(modpath,"/modules/");
+    strcat(modpath,mod_name);
+    strcat(modpath, ".so");
 
+    const char **caps = get_caps(modpath);
     char **p = (char **)caps;
     while (p && *p && strlen(*p)) {
 	cp1 = *p++;
@@ -723,41 +327,8 @@ int rtapi_get_tags(const char *mod_name)
     return result;
 }
 
-// lifted from hm2_ether.c by Michael Geszkiewicz  and Jeff Epler
-int run_shell(char *format, ...)
-{
-    char command[PATH_MAX];
-    va_list args;
-    int retval;
-
-    va_start(args, format);
-    retval = vsnprintf(command, sizeof(command), format, args);
-    va_end(args);
-
-    if (retval < 0) {
-    perror("vsnprintf");
-    return retval;
-    }
-    char *const argv[] = {"sh", "-c", command, NULL};
-    pid_t pid;
-    retval = posix_spawn(&pid, "/bin/sh", NULL, NULL, argv, environ);
-    if(retval < 0)
-    perror("posix_spawn");
-
-    int status;
-    waitpid(pid, &status, 0);
-    if (WIFEXITED(status))
-    return WEXITSTATUS(status);
-    else if (WIFSTOPPED(status))
-    return WTERMSIG(status)+128;
-    else
-    return status;
-}
-
 // those are ok to use from userland RT modules:
-#if defined(BUILD_SYS_USER_DSO) && defined(RTAPI)
-EXPORT_SYMBOL(run_shell);
-EXPORT_SYMBOL(is_module_loaded);
+#if defined(RTAPI)
 EXPORT_SYMBOL(rtapi_fs_read);
 EXPORT_SYMBOL(rtapi_fs_write);
 #endif

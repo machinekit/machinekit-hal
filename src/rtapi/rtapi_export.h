@@ -1,16 +1,16 @@
 /********************************************************************
 *     Copyright 2006-2013 Various Authors
-* 
+*
 *     This program is free software; you can redistribute it and/or modify
 *     it under the terms of the GNU General Public License as published by
 *     the Free Software Foundation; either version 2 of the License, or
 *     (at your option) any later version.
-* 
+*
 *     This program is distributed in the hope that it will be useful,
 *     but WITHOUT ANY WARRANTY; without even the implied warranty of
 *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 *     GNU General Public License for more details.
-* 
+*
 *     You should have received a copy of the GNU General Public License
 *     along with this program; if not, write to the Free Software
 *     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -25,7 +25,6 @@
 #define RTAPI_IP_SYMPREFIX "rtapi_instinfo_"
 
 
-#if defined(BUILD_SYS_USER_DSO)
 #define MODULE_INFO1(t, a, c) __attribute__((section(".modinfo"))) \
     t rtapi_info_##a = c; EXPORT_SYMBOL(rtapi_info_##a);
 #define MODULE_INFO2(t, a, b, c) __attribute__((section(".modinfo"))) \
@@ -49,9 +48,6 @@
     t rtapi_instinfo_##a##_##b = c; EXPORT_SYMBOL(rtapi_instinfo_##a##_##b);
 #define INSTANCE_PARM(v,t) INSTANCE_INFO2(const char*, type, v, t) INSTANCE_INFO2(void*, address, v, &v)
 #define INSTANCE_PARM_DESC(v,t) INSTANCE_INFO2(const char*, description, v, t)
-
-
-#endif
 
 
 #endif //RTAPI_EXPORT_H

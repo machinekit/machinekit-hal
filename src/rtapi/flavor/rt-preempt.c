@@ -3,8 +3,8 @@
 *
 *               This file, 'rt-preempt.c', implements the unique
 *               functions for the RT_PREEMPT thread system.
-* 
-* Copyright (C) 2012, 2013 Michael Büsch <m AT bues DOT CH>, 
+*
+* Copyright (C) 2012, 2013 Michael Büsch <m AT bues DOT CH>,
 *                          John Morris <john AT zultron DOT com>,
 *                          Michael Haberler <license AT mah DOT priv DOT at>
 *
@@ -12,22 +12,28 @@
 * modify it under the terms of the GNU Lesser General Public
 * License as published by the Free Software Foundation; either
 * version 2.1 of the License, or (at your option) any later version.
-* 
+*
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 * Lesser General Public License for more details.
-* 
+*
 * You should have received a copy of the GNU Lesser General Public
 * License along with this library; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 *
 ********************************************************************/
 
-#include "config.h"
+
+#include "rtapi_flavor.h"
+#include "rt-preempt.h"
 #include "rtapi.h"
 #include "rtapi_common.h"
 #include <libcgroup.h>
+
+#include "config.h"
+#include <sched.h>		// sched_get_priority_*()
+#include <pthread.h>		/* pthread_* */
 
 /***********************************************************************
 *                           TASK FUNCTIONS                             *
@@ -43,11 +49,19 @@
 #include <syscall.h>            // syscall(SYS_gettid);
 #include <sys/prctl.h>          // prctl(PR_SET_NAME)
 
+// if this exists, and contents is '1', it's RT_PREEMPT
+#define PREEMPT_RT_SYSFS "/sys/kernel/realtime"
+
+// Access the rtpreempt_stats_t thread status object
+#define FTS(ts) ((rtpreempt_stats_t *)&(ts->flavor))
+// Access the rtpreempt_exception_t thread exception detail object
+#define FED(detail) ((rtpreempt_exception_t)detail.flavor)
+
 /* Lock for task_array and module_array allocations */
 static pthread_key_t task_key;
 static pthread_once_t task_key_once = PTHREAD_ONCE_INIT;
 
-int _rtapi_task_self_hook(void);
+int posix_task_self_hook(void);
 
 
 typedef struct {
@@ -72,29 +86,9 @@ extra_task_data_t extra_task_data[RTAPI_MAX_TASKS + 1];
 int have_cg;  // true when libcgroup initialized successfully
 #endif  /* RTAPI */
 
-#ifdef HAVE_RTAPI_GET_CLOCKS_HOOK
-long long int _rtapi_get_clocks_hook(void)
-{
-    struct timespec ts;
-    clock_gettime(CLOCK_MONOTONIC, &ts);
-    return ts.tv_sec * 1000000000LL + ts.tv_nsec;
-}
-
-#endif
-
-
-int _rtapi_init(const char *modname) {
-    return _rtapi_next_handle();
-}
-
-int _rtapi_exit(int module_id) {
-    /* do nothing for ULAPI */
-    return 0;
-}
-
 
 #ifdef RTAPI
-void _rtapi_module_init_hook(void)
+int posix_module_init_hook(void)
 {
     int ret;
 
@@ -105,9 +99,10 @@ void _rtapi_module_init_hook(void)
     else
         rtapi_print_msg(RTAPI_MSG_INFO, "libcgroup initialization failed: (%d) %s\n",
                         ret, cgroup_strerror(ret));
+    return ret;
 }
 #else
-void _rtapi_module_init_hook(void) {}
+int posix_module_init_hook(void) { return 0; }
 #endif
 
 #ifdef RTAPI
@@ -119,14 +114,14 @@ static inline int task_id(task_data *task) {
 /***********************************************************************
 *                           RT thread statistics update                *
 ************************************************************************/
-int _rtapi_task_update_stats_hook(void)
+int posix_task_update_stats_hook(void)
 {
-    int task_id = _rtapi_task_self_hook();
+    int task_id = posix_task_self_hook();
 
     // paranoia
     if ((task_id < 0) || (task_id > RTAPI_MAX_TASKS)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"_rtapi_task_update_stats_hook: BUG -"
+			"rtapi_task_update_stats_hook: BUG -"
 			" task_id out of range: %d\n",
 			task_id);
 	return -ENOENT;
@@ -142,17 +137,17 @@ int _rtapi_task_update_stats_hook(void)
 
     rtapi_threadstatus_t *ts = &global_data->thread_status[task_id];
 
-    ts->flavor.rtpreempt.utime_usec = ru.ru_utime.tv_usec;
-    ts->flavor.rtpreempt.utime_sec  = ru.ru_utime.tv_sec;
+    FTS(ts)->utime_usec = ru.ru_utime.tv_usec;
+    FTS(ts)->utime_sec  = ru.ru_utime.tv_sec;
 
-    ts->flavor.rtpreempt.stime_usec = ru.ru_stime.tv_usec;
-    ts->flavor.rtpreempt.stime_sec  = ru.ru_stime.tv_sec;
+    FTS(ts)->stime_usec = ru.ru_stime.tv_usec;
+    FTS(ts)->stime_sec  = ru.ru_stime.tv_sec;
 
-    ts->flavor.rtpreempt.ru_minflt = ru.ru_minflt;
-    ts->flavor.rtpreempt.ru_majflt = ru.ru_majflt;
-    ts->flavor.rtpreempt.ru_nsignals = ru.ru_nsignals;
-    ts->flavor.rtpreempt.ru_nivcsw = ru.ru_nivcsw;
-    ts->flavor.rtpreempt.ru_nivcsw = ru.ru_nivcsw;
+    FTS(ts)->ru_minflt = ru.ru_minflt;
+    FTS(ts)->ru_majflt = ru.ru_majflt;
+    FTS(ts)->ru_nsignals = ru.ru_nsignals;
+    FTS(ts)->ru_nivcsw = ru.ru_nivcsw;
+    FTS(ts)->ru_nivcsw = ru.ru_nivcsw;
 
     ts->num_updates++;
 
@@ -199,7 +194,7 @@ static task_data *rtapi_this_task() {
     return (task_data *)pthread_getspecific(task_key);
 }
 
-int _rtapi_task_new_hook(task_data *task, int task_id) {
+int posix_task_new_hook(task_data *task, int task_id) {
     void *stackaddr;
 
     stackaddr = malloc(task->stacksize);
@@ -214,31 +209,34 @@ int _rtapi_task_new_hook(task_data *task, int task_id) {
     return task_id;
 }
 
-void _rtapi_task_delete_hook(task_data *task, int task_id) {
-    int err;
+int posix_task_delete_hook(task_data *task, int task_id) {
+    int err_cancel, err_join;
     void *returncode;
 
     /* Signal thread termination and wait for the thread to exit. */
     if (!extra_task_data[task_id].deleted) {
+        rtapi_print_msg(RTAPI_MSG_DBG, "Deleting RT thread '%s'\n", task->name);
 	extra_task_data[task_id].deleted = 1;
 
 	// pthread_cancel() will get the thread out of any blocking system
 	// calls listed under 'Cancellation points' in man 7 pthreads
 	// read(), poll() being important ones
-	err = pthread_cancel(extra_task_data[task_id].thread);
-	if (err)
+	err_cancel = pthread_cancel(extra_task_data[task_id].thread);
+	if (err_cancel)
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "pthread_cancel() on RT thread '%s': %d %s\n",
-			    task->name, err, strerror(err));
-	err = pthread_join(extra_task_data[task_id].thread, &returncode);
-	if (err)
+			    task->name, err_cancel, strerror(err_cancel));
+	err_join = pthread_join(extra_task_data[task_id].thread, &returncode);
+	if (err_join)
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "pthread_join() on RT thread '%s': %d %s\n",
-			    task->name, err, strerror(err));
+			    task->name, err_join, strerror(err_join));
     }
     /* Free the thread stack. */
     free(extra_task_data[task_id].stackaddr);
     extra_task_data[task_id].stackaddr = NULL;
+
+    return err_cancel || err_join;
 }
 
 static int realtime_set_affinity(task_data *task) {
@@ -249,7 +247,7 @@ static int realtime_set_affinity(task_data *task) {
 			   sizeof(set), &set);
     if (task->cpu > -1) { // CPU set explicitly
 	if (!CPU_ISSET(task->cpu, &set)) {
-	    rtapi_print_msg(RTAPI_MSG_ERR, 
+	    rtapi_print_msg(RTAPI_MSG_ERR,
 			    "RTAPI: ERROR: realtime_set_affinity(%s): "
 			    "CPU %d not available\n",
 			    task->name, task->cpu);
@@ -283,8 +281,8 @@ static int realtime_set_affinity(task_data *task) {
 			task_id(task), task->name, use_cpu, strerror(errno));
 	return -EINVAL;
     }
-    rtapi_print_msg(RTAPI_MSG_INFO,
-		    "realtime_set_affinity(): task %s assigned to CPU %d\n", 
+    rtapi_print_msg(RTAPI_MSG_DBG,
+		    "realtime_set_affinity(): task %s assigned to CPU %d\n",
 		    task->name, use_cpu);
     return 0;
 }
@@ -328,8 +326,12 @@ static void *realtime_thread(void *arg) {
 		    task_id(task), extra_task_data[task_id(task)].tid,
 		    (task->flags & TF_NONRT) ? "non-RT" : "RT");
 
-    if (realtime_set_affinity(task))
+    if ((ret = realtime_set_affinity(task))) {
+        rtapi_print_msg(
+            RTAPI_MSG_ERR, "Task '%s' realtime_set_affinity() failed %d\n",
+            task->name, ret);
 	goto error;
+    }
 
     // cgroup cpuset
     if (task->cgname && task->cgname[0]) {
@@ -350,23 +352,32 @@ static void *realtime_thread(void *arg) {
                             task->name, task->cgname, cgroup_strerror(ret));
             goto error;
         }
-        rtapi_print_msg(RTAPI_MSG_INFO,
+        rtapi_print_msg(RTAPI_MSG_DBG,
                         "Moved task '%s' to cpuset '%s'",
                         task->name, task->cgname);
     }
     if (!(task->flags & TF_NONRT)) {
-	if (realtime_set_priority(task)) {
-#ifdef RTAPI_POSIX // This requires privs - tell user how to obtain them
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "to get non-preemptive scheduling with POSIX threads,");
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "you need to run 'sudo setcap cap_sys_nice=pe libexec/rtapi_app_posix'");
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "your might have to install setcap (e.g.'sudo apt-get install libcap2-bin') to do this.");
-#else
-	    goto error;
-#endif
-	}
+	if ((ret = realtime_set_priority(task))) {
+            if (!(flavor_descriptor->flags && FLAVOR_IS_RT)) {
+                // This requires privs - tell user how to obtain them
+                rtapi_print_msg(
+                    RTAPI_MSG_ERR,
+                    "to get non-preemptive scheduling with POSIX threads,");
+                rtapi_print_msg(
+                    RTAPI_MSG_ERR,
+                    "you need to run "
+                    "'sudo setcap cap_sys_nice=pe libexec/rtapi_app_posix'");
+                rtapi_print_msg(
+                    RTAPI_MSG_ERR,
+                    "you might have to install setcap "
+                    "(e.g.'sudo apt-get install libcap2-bin') to do this.");
+            } else {
+                rtapi_print_msg(
+                    RTAPI_MSG_ERR, "Task %s realtime_set_priority() failed %d",
+                    task->name, ret);
+                goto error;
+            }
+        }
     }
 
     /* We're done initializing. Open the barrier. */
@@ -376,7 +387,7 @@ static void *realtime_thread(void *arg) {
     _rtapi_advance_time(&extra_task_data[task_id(task)].next_time,
 		       task->period + task->pll_correction, 0);
 
-    _rtapi_task_update_stats_hook(); // inital stats update
+    posix_task_update_stats_hook(); // inital stats update
 
     /* The task should not pagefault at all. So record initial counts now.
      * Note that currently we _do_ receive a few pagefaults in the
@@ -391,9 +402,9 @@ static void *realtime_thread(void *arg) {
 	} else {
 	    rtapi_threadstatus_t *ts =
 		&global_data->thread_status[task_id(task)];
-	    ts->flavor.rtpreempt.startup_ru_nivcsw = ru.ru_nivcsw;
-	    ts->flavor.rtpreempt.startup_ru_minflt = ru.ru_minflt;
-	    ts->flavor.rtpreempt.startup_ru_majflt = ru.ru_majflt;
+	    FTS(ts)->startup_ru_nivcsw = ru.ru_nivcsw;
+	    FTS(ts)->startup_ru_minflt = ru.ru_minflt;
+	    FTS(ts)->startup_ru_majflt = ru.ru_majflt;
 	}
     }
 
@@ -409,37 +420,58 @@ static void *realtime_thread(void *arg) {
     return NULL;
  error:
     /* Signal that we're dead and open the barrier. */
+    rtapi_print_msg(RTAPI_MSG_ERR,"Deleting task %s\n", task->name);
     extra_task_data[task_id(task)].deleted = 1;
     pthread_barrier_wait(&extra_task_data[task_id(task)].thread_init_barrier);
     return NULL;
 }
 
-int _rtapi_task_start_hook(task_data *task, int task_id) {
+int posix_task_start_hook(task_data *task, int task_id) {
     pthread_attr_t attr;
     int retval;
 
+#define TRY_OR_ERR(func_call, func_name)                                \
+    do {                                                                \
+        if ((retval = func_call)) {                                     \
+            rtapi_print_msg(RTAPI_MSG_ERR, "Thread %s %s() failed %d\n", \
+                            task->name, func_name, retval);             \
+            return -retval;                                             \
+        }                                                               \
+    } while (0)
+
     extra_task_data[task_id].deleted = 0;
 
-    pthread_barrier_init(&extra_task_data[task_id].thread_init_barrier,
-			 NULL, 2);
-    pthread_attr_init(&attr);
-    pthread_attr_setstack(&attr, extra_task_data[task_id].stackaddr,
-			  task->stacksize);
+    TRY_OR_ERR(pthread_barrier_init(
+                   &extra_task_data[task_id].thread_init_barrier, NULL, 2),
+               "pthread_barrier_init");
+
+    TRY_OR_ERR(pthread_attr_init(&attr), "pthread_attr_init");
+
+    TRY_OR_ERR(pthread_attr_setstack(
+                   &attr, extra_task_data[task_id].stackaddr, task->stacksize),
+               "pthread_attr_setstack");
+
     rtapi_print_msg(RTAPI_MSG_DBG,
 		    "About to pthread_create task %d\n", task_id);
     retval = pthread_create(&extra_task_data[task_id].thread,
-			    &attr, realtime_thread, (void *)task);
-    rtapi_print_msg(RTAPI_MSG_DBG,"Created task %d\n", task_id);
-    pthread_attr_destroy(&attr);
+                            &attr, realtime_thread, (void *)task);
+
+    rtapi_print_msg(RTAPI_MSG_DBG,
+                    "Created task %s (%d)\n", task->name, task_id);
+    TRY_OR_ERR(pthread_attr_destroy(&attr), "pthread_attr_destroy");
     if (retval) {
-	pthread_barrier_destroy
-	    (&extra_task_data[task_id].thread_init_barrier);
-	rtapi_print_msg(RTAPI_MSG_ERR, "Failed to create realtime thread\n");
-	return -ENOMEM;
+        rtapi_print_msg(RTAPI_MSG_ERR, "Thread %s pthread_create() failed; "
+                        "cleaning up\n", task->name);
+	TRY_OR_ERR(pthread_barrier_destroy
+                   (&extra_task_data[task_id].thread_init_barrier),
+               "pthread_barrier_destroy");
+	return -retval;
     }
     /* Wait for the thread to do basic initialization. */
     pthread_barrier_wait(&extra_task_data[task_id].thread_init_barrier);
-    pthread_barrier_destroy(&extra_task_data[task_id].thread_init_barrier);
+    TRY_OR_ERR(pthread_barrier_destroy(
+                   &extra_task_data[task_id].thread_init_barrier),
+               "pthread_barrier_destroy");
     if (extra_task_data[task_id].deleted) {
 	/* The thread died in the init phase. */
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -447,16 +479,17 @@ int _rtapi_task_start_hook(task_data *task, int task_id) {
 	return -ENOMEM;
     }
     rtapi_print_msg(RTAPI_MSG_DBG,
-		    "Task %d finished its basic init\n", task_id);
+                    "Task %s (%d) finished basic init\n", task->name, task_id);
 
     return 0;
 }
 
-void _rtapi_task_stop_hook(task_data *task, int task_id) {
+int posix_task_stop_hook(task_data *task, int task_id) {
     extra_task_data[task_id].destroyed = 1;
+    return 0;
 }
 
-int _rtapi_wait_hook(const int flags) {
+int posix_wait_hook(const int flags) {
     struct timespec ts;
     task_data *task = rtapi_this_task();
 
@@ -478,25 +511,25 @@ int _rtapi_wait_hook(const int flags) {
 	// timing went wrong:
 
 	// update stats counters in thread status
-	_rtapi_task_update_stats_hook();
+	posix_task_update_stats_hook();
 
 	rtapi_threadstatus_t *ts =
 	    &global_data->thread_status[task_id(task)];
 
-	ts->flavor.rtpreempt.wait_errors++;
+	FTS(ts)->wait_errors++;
 
-#ifndef RTAPI_POSIX
-	rtapi_exception_detail_t detail = {0};
-	detail.task_id = task_id(task);
+        if (!(flavor_descriptor->flags && FLAVOR_IS_RT)) {
+            rtapi_exception_detail_t detail = {0};
+            detail.task_id = task_id(task);
 
-	if (rt_exception_handler)
-	    rt_exception_handler(RTP_DEADLINE_MISSED, &detail, ts);
-#endif
+            if (rt_exception_handler)
+                rt_exception_handler(RTP_DEADLINE_MISSED, &detail, ts);
+        }
     }
     return 0;
 }
 
-void _rtapi_delay_hook(long int nsec)
+void posix_task_delay_hook(long int nsec)
 {
     struct timespec t;
 
@@ -506,7 +539,7 @@ void _rtapi_delay_hook(long int nsec)
 }
 
 
-int _rtapi_task_self_hook(void) {
+int posix_task_self_hook(void) {
     int n;
 
     /* ask OS for pointer to its data for the current pthread */
@@ -524,15 +557,15 @@ int _rtapi_task_self_hook(void) {
     return -EINVAL;
 }
 
-long long _rtapi_task_pll_get_reference_hook(void) {
-    int task_id = _rtapi_task_self_hook();
+long long posix_task_pll_get_reference_hook(void) {
+    int task_id = posix_task_self_hook();
     if (task_id < 0) return 0;
     return extra_task_data[task_id].next_time.tv_sec * 1000000000LL
         + extra_task_data[task_id].next_time.tv_nsec;
 }
 
-int _rtapi_task_pll_set_correction_hook(long value) {
-    int task_id = _rtapi_task_self_hook();
+int posix_task_pll_set_correction_hook(long value) {
+    int task_id = posix_task_self_hook();
     task_data *task = &task_array[task_id];
     if (task <= 0) return -EINVAL;
     if (value > task->pll_correction_limit)
@@ -545,5 +578,129 @@ int _rtapi_task_pll_set_correction_hook(long value) {
     /*                 task_id, value); */
     return 0;
 }
+
+int kernel_is_rtpreempt()
+{
+    FILE *fd;
+    int retval = 0;
+
+    if ((fd = fopen(PREEMPT_RT_SYSFS,"r")) != NULL) {
+	int flag;
+	retval = ((fscanf(fd, "%d", &flag) == 1) && (flag));
+	fclose(fd);
+    }
+    return retval;
+}
+
+int posix_can_run_flavor()
+{
+    return 1;
+}
+
+int rtpreempt_can_run_flavor()
+{
+    return kernel_is_rtpreempt();
+}
+
+
+void rtpreempt_print_thread_stats(int task_id)
+{
+    rtapi_threadstatus_t *ts =
+	&global_data->thread_status[task_id];
+
+    rtapi_print("    wait_errors=%d\t",
+                FTS(ts)->wait_errors);
+    rtapi_print("usercpu=%lduS\t",
+                FTS(ts)->utime_sec * 1000000 +
+                FTS(ts)->utime_usec);
+    rtapi_print("syscpu=%lduS\t",
+                FTS(ts)->stime_sec * 1000000 +
+                FTS(ts)->stime_usec);
+    rtapi_print("nsigs=%ld\n",
+                FTS(ts)->ru_nsignals);
+    rtapi_print("    ivcsw=%ld\t",
+                FTS(ts)->ru_nivcsw -
+                FTS(ts)->startup_ru_nivcsw);
+    rtapi_print("    minflt=%ld\t",
+                FTS(ts)->ru_minflt -
+                FTS(ts)->startup_ru_minflt);
+    rtapi_print("    majflt=%ld\n",
+                FTS(ts)->ru_majflt -
+                FTS(ts)->startup_ru_majflt);
+    rtapi_print("\n");
+}
+
+
+void rtpreempt_exception_handler_hook(int type,
+                                      rtapi_exception_detail_t *detail,
+                                      int level)
+{
+    rtapi_threadstatus_t *ts = &global_data->thread_status[detail->task_id];
+    switch ((rtpreempt_exception_id_t)type) {
+        // Timing violations
+	case RTP_DEADLINE_MISSED:
+	     rtapi_print_msg(level,
+			    "%d: Unexpected realtime delay on RT thread %d ",
+			     type, detail->task_id);
+	    rtpreempt_print_thread_stats(detail->task_id);
+	    break;
+
+	default:
+	    rtapi_print_msg(level,
+			    "%d: unspecified exception detail=%p ts=%p",
+			    type, detail, ts);
+
+    }
+}
+
+flavor_descriptor_t flavor_rt_prempt_descriptor = {
+    .name = "rt-preempt",
+    .flavor_id = RTAPI_FLAVOR_RT_PREEMPT_ID,
+    .flags = FLAVOR_DOES_IO + FLAVOR_IS_RT,
+    .can_run_flavor = rtpreempt_can_run_flavor,
+    .exception_handler_hook = rtpreempt_exception_handler_hook,
+    .module_init_hook = posix_module_init_hook,
+    .module_exit_hook = NULL,
+    .task_update_stats_hook = NULL,
+    .task_print_thread_stats_hook = rtpreempt_print_thread_stats,
+    .task_new_hook = posix_task_new_hook,
+    .task_delete_hook = posix_task_delete_hook,
+    .task_start_hook = posix_task_start_hook,
+    .task_stop_hook = posix_task_stop_hook,
+    .task_pause_hook = NULL,
+    .task_wait_hook = posix_wait_hook,
+    .task_resume_hook = NULL,
+    .task_delay_hook = posix_task_delay_hook,
+    .get_time_hook = NULL,
+    .get_clocks_hook = NULL,
+    .task_self_hook = posix_task_self_hook,
+    .task_pll_get_reference_hook = posix_task_pll_get_reference_hook,
+    .task_pll_set_correction_hook = posix_task_pll_set_correction_hook
+};
+
+flavor_descriptor_t flavor_posix_descriptor = {
+    .name = "posix",
+    .flavor_id = RTAPI_FLAVOR_POSIX_ID,
+    .flags = 0,
+    .can_run_flavor = posix_can_run_flavor,
+    .exception_handler_hook = NULL,
+    .module_init_hook = posix_module_init_hook,
+    .module_exit_hook = NULL,
+    .task_update_stats_hook = NULL,
+    .task_print_thread_stats_hook = rtpreempt_print_thread_stats,
+    .task_new_hook = posix_task_new_hook,
+    .task_delete_hook = posix_task_delete_hook,
+    .task_start_hook = posix_task_start_hook,
+    .task_stop_hook = posix_task_stop_hook,
+    .task_pause_hook = NULL,
+    .task_wait_hook = posix_wait_hook,
+    .task_resume_hook = NULL,
+    .task_delay_hook = posix_task_delay_hook,
+    .get_time_hook = NULL,
+    .get_clocks_hook = NULL,
+    .task_self_hook = posix_task_self_hook,
+    .task_pll_get_reference_hook = posix_task_pll_get_reference_hook,
+    .task_pll_set_correction_hook = posix_task_pll_set_correction_hook
+};
 
 #endif /* RTAPI */

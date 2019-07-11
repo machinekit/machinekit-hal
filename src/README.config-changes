@@ -64,7 +64,8 @@ arise during merge, also with the consequence of an even more incoherent set of 
 
 Build system: there are two styles, 'kbuild' (kernel modules) and 'user-dso' (userland shared objects). The thread style implies a build system: posix, xenomai, rt-preempt imply 'user-dso', the others imply 'kbuild'.
 
-Building hardware drivers can be controlled with --enable-drivers. It is default 'yes' except for --with-threads=posix. Some hardware drivers will build as kernel modules only, some as user shared objects, some may build as both; in that case the Submakefile needs to test for BUILD_SYS having the proper value.
+Building hardware drivers can be controlled with --enable-drivers. It
+is default 'yes'.
 
 The cpp symbols 'SIM', 'SIMULATOR', and 'RTAPI_SIM' have been removed as they do not make sense any more. A simulator configuration is '--with-threads=posix', which is now implied by --enable-simulator.
 
@@ -73,8 +74,6 @@ The shell/Makefile variables are:
 THREADS= one of: POSIX, RT_PREEMPT, XENOMAI, XENOMAI_KERNEL, RTAI
 
 BUILD_DRIVERS=yes or no
-
-BUILD_SYSTEM=kbuild or user-dso
 
 
 THREADS is reflected in config.h as one of the following defined:
@@ -92,13 +91,6 @@ RTAPI_RTAI
 
 
 BUILD_DRIVERS is conditionally defined in config.h too.
-
-
-BUILD_SYSTEM is reflected in config.h as either
-
-BUILD_SYSTEM_KBUILD or
-
-BUILD_SYSTEM_USER_DSO defined.
 
 == hal_parport ==
 

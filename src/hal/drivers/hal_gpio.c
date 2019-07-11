@@ -9,7 +9,7 @@
 * some code  taken from the bcm2835 library by::
 *
 * Author: Mike McCauley (mikem@open.com.au)
-* Copyright (C) 2011 Mike McCauley    
+* Copyright (C) 2011 Mike McCauley
 * see http://www.open.com.au/mikem/bcm2835/
 * Copyright (c) 2012 Ben Croston - cpuinfo.*
 *
@@ -18,7 +18,7 @@ s********************************************************************/
 
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_bitops.h"	
+#include "rtapi_bitops.h"
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
                                 /* this also includes config.h */
 #include "hal.h"		/* HAL public API decls */
@@ -30,9 +30,6 @@ s********************************************************************/
 #define BCM2709_PERI_BASE   0x3F000000
 #define BCM2709_GPIO_BASE   (BCM2709_PERI_BASE + 0x200000)
 
-#if !defined(BUILD_SYS_USER_DSO)
-#error "This driver is for usermode threads only"
-#endif
 #if !defined(TARGET_PLATFORM_RASPBERRY)
 #error "This driver is for the Raspberry and Raspberry2 platforms only"
 #endif
@@ -182,7 +179,7 @@ static int setup_gpiomem_access(void)
 
 static int  setup_gpio_access(int rev, int ncores)
 {
-  // open /dev/mem 
+  // open /dev/mem
   if ((mem_fd = open("/dev/mem", O_RDWR|O_SYNC) ) < 0) {
       rtapi_print_msg(RTAPI_MSG_ERR,"HAL_GPIO: can't open /dev/mem:  %d - %s",
 		      errno, strerror(errno));
@@ -198,7 +195,7 @@ static int  setup_gpio_access(int rev, int ncores)
 
   if (gpio == MAP_FAILED) {
     rtapi_print_msg(RTAPI_MSG_ERR,
-		    "HAL_GPIO: mmap failed: %d - %s\n", 
+		    "HAL_GPIO: mmap failed: %d - %s\n",
 		    errno, strerror(errno));
     return -1;;
   }
@@ -229,7 +226,7 @@ int rtapi_app_main(void)
     char *endptr;
 
     if ((rev = get_rpi_revision()) < 0) {
-      rtapi_print_msg(RTAPI_MSG_ERR, 
+      rtapi_print_msg(RTAPI_MSG_ERR,
 		      "unrecognized Raspberry revision, see /proc/cpuinfo\n");
       return -EINVAL;
     }
@@ -284,7 +281,7 @@ int rtapi_app_main(void)
     }
     dir_map = strtoul(dir, &endptr,0);
     if (*endptr) {
-	rtapi_print_msg(RTAPI_MSG_ERR, 
+	rtapi_print_msg(RTAPI_MSG_ERR,
 			"HAL_GPIO: dir=%s - trailing garbage: '%s'\n",
 			dir, endptr);
 	return -1;
@@ -296,7 +293,7 @@ int rtapi_app_main(void)
     }
     exclude_map = strtoul(exclude, &endptr,0);
     if (*endptr) {
-	rtapi_print_msg(RTAPI_MSG_ERR, 
+	rtapi_print_msg(RTAPI_MSG_ERR,
 			"HAL_GPIO: exclude=%s - trailing garbage: '%s'\n",
 			exclude, endptr);
 	return -1;
@@ -332,7 +329,7 @@ int rtapi_app_main(void)
     }
     if (retval < 0) {
       rtapi_print_msg(RTAPI_MSG_ERR,
-		      "HAL_GPIO: ERROR: pin %d export failed with err=%i\n", 
+		      "HAL_GPIO: ERROR: pin %d export failed with err=%i\n",
 		      n,retval);
       hal_exit(comp_id);
       return -1;
@@ -375,10 +372,10 @@ static void write_port(void *arg, long period)
   int n;
 
   for (n = 0; n < npins; n++) {
-    if (exclude_map & RTAPI_BIT(n)) 
+    if (exclude_map & RTAPI_BIT(n))
       continue;
     if (dir_map & RTAPI_BIT(n)) {
-      if (*(port_data[n])) { 
+      if (*(port_data[n])) {
 	bcm2835_gpio_set(gpios[n]);
       } else {
 	bcm2835_gpio_clr(gpios[n]);

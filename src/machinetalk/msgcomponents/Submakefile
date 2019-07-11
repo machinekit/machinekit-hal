@@ -7,8 +7,7 @@ MSGCOMP_DIR=machinetalk/msgcomponents
 
 RTFLAGS +=   $(PROTO_NANOPB_CFLAGS)
 
-obj-m += pbmsgs.o
-pbmsgs-objs := \
+$(eval $(call c_comp_build_rules,machinetalk/msgcomponents/pbmsgs.o, \
 	$(MSGCOMP_DIR)/pbmsgs.o	\
 	$(PBGEN)/$(NAMESPACEDIR)/canon.npb.o \
 	$(PBGEN)/$(NAMESPACEDIR)/emcclass.npb.o \
@@ -27,18 +26,10 @@ pbmsgs-objs := \
 	$(PBGEN)/$(NAMESPACEDIR)/ros.npb.o \
 	$(PBGEN)/$(NAMESPACEDIR)/sample.npb.o \
 	$(PBGEN)/$(NAMESPACEDIR)/jplan.npb.o \
-	$(PBGEN)/$(NAMESPACEDIR)/value.npb.o
+	$(PBGEN)/$(NAMESPACEDIR)/value.npb.o \
+))
 
-
-#obj-m += pbring.o
-#pbring-objs := $(MSGCOMP_DIR)/pbring.o
-
-
-ifneq "$(filter normal user-dso,$(BUILD_SYS))" ""
-$(RTLIBDIR)/pbmsgs$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pbmsgs-objs))
-#$(RTLIBDIR)/pbring$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(pbring-objs))
-endif
-
+#$$(eval $(call c_comp_build_rules,machinetalk/msgcomponents/pbring.o))
 
 ../include/%.h: ./$(MSGCOMP_DIR)/%.h
 	$(ECHO) Copying header file $@

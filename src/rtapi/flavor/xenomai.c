@@ -22,15 +22,17 @@
 ********************************************************************/
 
 #include "config.h"
-#include "xenomai-common.h"
 #include "rtapi.h"
 #include "rtapi_common.h"
+#include "xenomai.h"
 
 #include <sys/mman.h>			/* munlockall() */
+#define XENOMAI_INCLUDE(header) <XENOMAI_SKIN/header>
 #include XENOMAI_INCLUDE(task.h)	/* RT_TASK, rt_task_*() */
 #include XENOMAI_INCLUDE(timer.h)	/* rt_timer_*() */
 #include <signal.h>			/* sigaction/SIGXCPU handling */
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>		        // getpid()
 #include <sched.h>			// cpu sets
 
@@ -38,43 +40,45 @@
 #include XENOMAI_INCLUDE(mutex.h)
 #include <stdlib.h>		// abort()
 
+// really in nucleus/heap.h but we rather get away with minimum include files
+#ifndef XNHEAP_DEV_NAME
+#define XNHEAP_DEV_NAME  "/dev/rtheap"
+#endif
+#define XENO_GID_SYSFS "/sys/module/xeno_nucleus/parameters/xenomai_gid"
+
+// These exist on Xenomai but not on RTAI
+#define PROC_IPIPE_XENOMAI "/proc/ipipe/Xenomai"
+#define XENO_GID_SYSFS "/sys/module/xeno_nucleus/parameters/xenomai_gid"
+
+// Access the xenomai_stats_t thread status object
+#define FTS(ts) ((xenomai_stats_t *)&(ts->flavor))
+// Access the xenomai_exception_t thread exception detail object
+#define FTED(detail) ((xenomai_exception_t *)&(detail.flavor))
+
 /*  RTAPI task functions  */
 RT_TASK ostask_array[RTAPI_MAX_TASKS + 1];
 
 // this is needed due to the weirdness of the rt_task_self return value -
-// it does _not_ match the address of the RT_TASK structure it was 
+// it does _not_ match the address of the RT_TASK structure it was
 // created with
 RT_TASK *ostask_self[RTAPI_MAX_TASKS + 1];
 
 #endif // RTAPI
 
-/* rtapi_init() and rtapi_exit() */
-
-/***********************************************************************
-*                    INIT AND EXIT FUNCTIONS                           *
-************************************************************************/
-
-int _rtapi_init(const char *modname) {
-
-    return _rtapi_next_handle();
-}
-
-int _rtapi_exit(int module_id) {
-  return 0;
-}
+int xenomai_task_self_hook(void);
 
 /***********************************************************************
 *                           RT thread statistics update                *
 ************************************************************************/
 #ifdef RTAPI
-int _rtapi_task_update_stats_hook(void)
+int xenomai_task_update_stats_hook(void)
 {
-    int task_id = _rtapi_task_self();
+    int task_id = xenomai_task_self_hook();
 
     // paranoia
     if ((task_id < 0) || (task_id > RTAPI_MAX_TASKS)) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"_rtapi_task_update_stats_hook: BUG -"
+			"rtapi_task_update_stats_hook: BUG -"
 			" task_id out of range: %d\n",
 			task_id);
 	return -ENOENT;
@@ -92,17 +96,17 @@ int _rtapi_task_update_stats_hook(void)
     rtapi_threadstatus_t *ts = &global_data->thread_status[task_id];
 
 #ifdef XENOMAI_V2
-    ts->flavor.xeno.modeswitches = rtinfo.modeswitches;
-    ts->flavor.xeno.ctxswitches = rtinfo.ctxswitches;
-    ts->flavor.xeno.pagefaults = rtinfo.pagefaults;
-    ts->flavor.xeno.exectime = rtinfo.exectime;
-    ts->flavor.xeno.status = rtinfo.status;
+    FTS(ts)->modeswitches = rtinfo.modeswitches;
+    FTS(ts)->ctxswitches = rtinfo.ctxswitches;
+    FTS(ts)->pagefaults = rtinfo.pagefaults;
+    FTS(ts)->exectime = rtinfo.exectime;
+    FTS(ts)->status = rtinfo.status;
 #else
-    ts->flavor.xeno.modeswitches = rtinfo.stat.msw;
-    ts->flavor.xeno.ctxswitches = rtinfo.stat.csw;
-    ts->flavor.xeno.pagefaults = rtinfo.stat.pf;
-    ts->flavor.xeno.exectime = rtinfo.stat.xtime;
-    ts->flavor.xeno.status = rtinfo.stat.status;
+    FTS(ts)->modeswitches = rtinfo.stat.msw;
+    FTS(ts)->ctxswitches = rtinfo.stat.csw;
+    FTS(ts)->pagefaults = rtinfo.stat.pf;
+    FTS(ts)->exectime = rtinfo.stat.xtime;
+    FTS(ts)->status = rtinfo.stat.status;
 #endif
 
     ts->num_updates++;
@@ -139,7 +143,7 @@ extern rtapi_exception_handler_t rt_exception_handler;
 // trampoline to current handler
 static void signal_handler(int sig, siginfo_t *si, void *uctx)
 {
-    int task_id = _rtapi_task_update_stats_hook();
+    int task_id = xenomai_task_update_stats_hook();
     if (task_id > -1) {
 	rtapi_threadstatus_t *ts = &global_data->thread_status[task_id];
 
@@ -161,7 +165,7 @@ static void signal_handler(int sig, siginfo_t *si, void *uctx)
 *                           rtapi_main.c                               *
 ************************************************************************/
 #ifdef RTAPI
-void _rtapi_module_init_hook(void)
+int xenomai_module_init_hook(void)
 {
 
 #ifdef USE_SIGXCPU
@@ -176,12 +180,13 @@ void _rtapi_module_init_hook(void)
     // see _rtapi_task_wrapper()
     if (sigaction(SIGXCPU, &sig_act, (struct sigaction *) NULL))
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"_rtapi_module_init_hook(sigaction): %d %s\n",
+			"rtapi_module_init_hook(sigaction): %d %s\n",
 			errno, strerror(errno));
 #endif
+    return 0;
 }
 
-void _rtapi_module_exit_hook(void)
+void xenomai_module_exit_hook(void)
 {
 #ifdef USE_SIGXCPU
     struct sigaction sig_act;
@@ -191,13 +196,13 @@ void _rtapi_module_exit_hook(void)
     sig_act.sa_handler = SIG_IGN;
     if (sigaction(SIGXCPU, &sig_act, (struct sigaction *) NULL))
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"_rtapi_module_exit_hook(sigaction): %d %s\n",
+			"rtapi_module_exit_hook(sigaction): %d %s\n",
 			errno, strerror(errno));
 #endif
 }
 #else
-void _rtapi_module_init_hook(void) {}
-void _rtapi_module_exit_hook(void) {}
+int rtapi_module_init_hook(void) { return 0; }
+void rtapi_module_exit_hook(void) {}
 #endif
 
 
@@ -206,7 +211,7 @@ void _rtapi_module_exit_hook(void) {}
 ************************************************************************/
 
 #ifdef RTAPI
-int _rtapi_task_delete_hook(task_data *task, int task_id) {
+int xenomai_task_delete_hook(task_data *task, int task_id) {
     int retval = 0;
 
     if ((retval = rt_task_delete( &ostask_array[task_id] )) < 0) {
@@ -257,7 +262,7 @@ void _rtapi_task_wrapper(void * task_id_hack) {
     rt_task_set_mode(0, T_WARNSW, NULL);
 #endif
 
-    _rtapi_task_update_stats_hook(); // initial recording
+    xenomai_task_update_stats_hook(); // initial recording
 
  #ifdef TRIGGER_SIGXCPU_ONCE
     // enable this for testing only:
@@ -271,16 +276,16 @@ void _rtapi_task_wrapper(void * task_id_hack) {
 
     /* call the task function with the task argument */
     (task->taskcode) (task->arg);
-    
+
     /* if the task ever returns, we record that fact */
     task->state = ENDED;
     rtapi_print_msg(RTAPI_MSG_ERR,
-		    "ERROR: reached end of wrapper for task %d '%s'\n", 
+		    "ERROR: reached end of wrapper for task %d '%s'\n",
 		    task_id, task->name);
 }
 
 
-int _rtapi_task_start_hook(task_data *task, int task_id) {
+int xenomai_task_start_hook(task_data *task, int task_id) {
     int which_cpu = 0;
     int uses_fpu = 0;
     int retval;
@@ -310,7 +315,7 @@ int _rtapi_task_start_hook(task_data *task, int task_id) {
 
     int prio = (task->flags & TF_NONRT) ? 0 :task->prio;
 
-    if ((retval = rt_task_create (&ostask_array[task_id], task->name, 
+    if ((retval = rt_task_create (&ostask_array[task_id], task->name,
 				  task->stacksize, prio,
 				  uses_fpu | which_cpu | T_JOINABLE)
 	 ) != 0) {
@@ -337,7 +342,7 @@ int _rtapi_task_start_hook(task_data *task, int task_id) {
     return 0;
 }
 
-int _rtapi_task_stop_hook(task_data *task, int task_id) {
+int xenomai_task_stop_hook(task_data *task, int task_id) {
     int retval;
 
     if ((retval = rt_task_delete( &ostask_array[task_id] )) < 0) {
@@ -349,15 +354,15 @@ int _rtapi_task_stop_hook(task_data *task, int task_id) {
     return 0;
 }
 
-int _rtapi_task_pause_hook(task_data *task, int task_id) {
+int xenomai_task_pause_hook(task_data *task, int task_id) {
     return rt_task_suspend( &ostask_array[task_id] );
 }
 
-int _rtapi_task_resume_hook(task_data *task, int task_id) {
+int xenomai_task_resume_hook(task_data *task, int task_id) {
     return rt_task_resume( &ostask_array[task_id] );
 }
 
-int _rtapi_wait_hook(const int flags) {
+int xenomai_wait_hook(const int flags) {
 
     if (flags & TF_NOWAIT)
 	return 0;
@@ -369,7 +374,7 @@ int _rtapi_wait_hook(const int flags) {
 	// something went wrong:
 
 	// update stats counters in thread status
-	int task_id = _rtapi_task_update_stats_hook();
+	int task_id = xenomai_task_update_stats_hook();
 
 
 	// paranoid, but you never know; this index off and
@@ -387,7 +392,7 @@ int _rtapi_wait_hook(const int flags) {
 
 	rtapi_exception_detail_t detail = {0};
 	rtapi_threadstatus_t *ts = &global_data->thread_status[task_id];
-	rtapi_exception_t type;
+	xenomai_exception_id_t type;
 
 	// exception descriptor
 	detail.task_id = task_id;
@@ -398,11 +403,11 @@ int _rtapi_wait_hook(const int flags) {
 	case -ETIMEDOUT:
 	    // release point was missed
 
-	    detail.flavor.xeno.overruns = overruns;
+	    FTED(detail)->overruns = overruns;
 
 	    // update thread status in global_data
-	    ts->flavor.xeno.wait_errors++;
-	    ts->flavor.xeno.total_overruns += overruns;
+	    FTS(ts)->wait_errors++;
+	    FTS(ts)->total_overruns += overruns;
 	    type = XU_ETIMEDOUT;
 	    break;
 
@@ -446,7 +451,7 @@ int _rtapi_wait_hook(const int flags) {
     return 0;
 }
 
-int _rtapi_task_self_hook(void) {
+int xenomai_task_self_hook(void) {
     RT_TASK *ptr;
     int n;
 
@@ -477,14 +482,14 @@ int _rtapi_task_self_hook(void) {
 ************************************************************************/
 
 #ifdef RTAPI
-void _rtapi_delay_hook(long int nsec)
+void xenomai_task_delay_hook(long int nsec)
 {
     long long int release = rt_timer_read() + nsec;
     while (rt_timer_read() < release);
 }
 #endif
 
-long long int _rtapi_get_time_hook(void) {
+long long int xenomai_get_time_hook(void) {
     /* The value returned will represent a count of jiffies if the
        native skin is bound to a periodic time base (see
        CONFIG_XENO_OPT_NATIVE_PERIOD), or nanoseconds otherwise.  */
@@ -496,6 +501,202 @@ long long int _rtapi_get_time_hook(void) {
    other disgusting, non-realtime oriented behavior.  But at least it
    doesn't take a week every time you call it.
 */
-long long int _rtapi_get_clocks_hook(void) {
+long long int xenomai_get_clocks_hook(void) {
     return rt_timer_read();
 }
+
+int kernel_is_xenomai()
+{
+    struct stat sb;
+
+    return ((stat(XNHEAP_DEV_NAME, &sb) == 0) &&
+	    (stat(PROC_IPIPE_XENOMAI, &sb) == 0) &&
+	    (stat(XENO_GID_SYSFS, &sb) == 0));
+}
+
+int xenomai_flavor_check(void);
+
+int xenomai_can_run_flavor()
+{
+    if (! kernel_is_xenomai())
+        return 0;
+
+    if (! xenomai_flavor_check())
+        return 0;
+
+    return 1;
+}
+
+int xenomai_gid()
+{
+    FILE *fd;
+    int gid = -1;
+
+    if ((fd = fopen(XENO_GID_SYSFS,"r")) != NULL) {
+	if (fscanf(fd, "%d", &gid) != 1) {
+	    fclose(fd);
+	    return -EBADF; // garbage in sysfs device
+	} else {
+	    fclose(fd);
+	    return gid;
+	}
+    }
+    return -ENOENT; // sysfs device cant be opened
+}
+
+int user_in_xenomai_group()
+{
+    int numgroups, i;
+    gid_t *grouplist;
+    int gid = xenomai_gid();
+
+    if (gid < 0)
+	return gid;
+
+    numgroups = getgroups(0,NULL);
+    grouplist = (gid_t *) calloc( numgroups, sizeof(gid_t));
+    if (grouplist == NULL)
+	return -ENOMEM;
+    if (getgroups( numgroups, grouplist) > 0) {
+	for (i = 0; i < numgroups; i++) {
+	    if (grouplist[i] == (unsigned) gid) {
+		free(grouplist);
+		return 1;
+	    }
+	}
+    } else {
+	free(grouplist);
+	return errno;
+    }
+    return 0;
+}
+
+int xenomai_flavor_check(void) {
+    // catch installation error: user not in xenomai group
+    int retval = user_in_xenomai_group();
+
+    switch (retval) {
+	case 1:  // yes
+	    break;
+	case 0:
+	    fprintf(stderr, "this user is not member of group xenomai\n");
+	    fprintf(stderr, "please 'sudo adduser <username>  xenomai',"
+		    " logout and login again\n");
+	    exit(EXIT_FAILURE);
+
+	default:
+	    fprintf(stderr, "cannot determine if this user "
+		    "is a member of group xenomai: %s\n",
+		    strerror(-retval));
+	    exit(EXIT_FAILURE);
+    }
+    return retval;
+}
+
+
+void xenomai_print_thread_stats(int task_id)
+{
+    rtapi_threadstatus_t *ts =
+	&global_data->thread_status[task_id];
+
+    // generic statistics counters
+    rtapi_print("    updates=%d\t", ts->num_updates);
+    if (ts->num_updates) {
+	rtapi_print("api_err=%d\t", ts->api_errors);
+	rtapi_print("other_err=%d\n", ts->api_errors);
+    }
+
+    rtapi_print("    wait_errors=%d\t", FTS(ts)->wait_errors);
+    rtapi_print("overruns=%d\t", FTS(ts)->total_overruns);
+    rtapi_print("modeswitches=%d\t", FTS(ts)->modeswitches);
+    rtapi_print("contextswitches=%d\n", FTS(ts)->ctxswitches);
+    rtapi_print("    pagefaults=%d\t", FTS(ts)->pagefaults);
+    rtapi_print("exectime=%llduS\t", FTS(ts)->exectime/1000);
+    rtapi_print("status=0x%x\n", FTS(ts)->status);
+    rtapi_print("\n");
+}
+
+
+void xenomai_exception_handler_hook(int type,
+                                    rtapi_exception_detail_t *detail,
+                                    int level)
+{
+    rtapi_threadstatus_t *ts = &global_data->thread_status[detail->task_id];
+    switch ((xenomai_exception_id_t)type) {
+        // Timing violations
+	case XU_ETIMEDOUT:
+            rtapi_print_msg(level,
+			    "%d: Unexpected realtime delay on RT thread %d ",
+                            type, detail->task_id);
+            xenomai_print_thread_stats(detail->task_id);
+	    break;
+	    // Xenomai User errors
+	case XU_SIGXCPU:	// Xenomai Domain switch
+	    rtapi_print_msg(level,
+			    "%d: Xenomai Domain switch for thread %d",
+			    type, detail->task_id);
+	    xenomai_print_thread_stats(detail->task_id);
+	    break;
+	case XU_EWOULDBLOCK:
+	    rtapi_print_msg(level,
+			    "API usage bug: rt_task_set_periodic() not called: "
+			    "thread %d - errno %d",
+			    detail->task_id,
+			    detail->error_code);
+	    break;
+
+	case XU_EINTR:
+	    rtapi_print_msg(level,
+			    "API usage bug: rt_task_unblock() called before"
+			    " release point: thread %d -errno %d",
+			    detail->task_id,
+			    detail->error_code);
+	    break;
+
+	case XU_EPERM:
+	    rtapi_print_msg(level,
+			    "API usage bug: cannot call service from current"
+			    " context: thread %d - errno %d",
+			    detail->task_id,
+			    detail->error_code);
+	    break;
+
+	case XU_UNDOCUMENTED:
+	    rtapi_print_msg(level,
+			    "%d: unspecified Xenomai error: thread %d - errno %d",
+			    type,
+			    detail->task_id,
+			    detail->error_code);
+	    break;
+ 
+	default:
+	    rtapi_print_msg(level,
+			    "%d: unspecified exception detail=%p ts=%p",
+			    type, detail, ts);
+   }
+}
+
+flavor_descriptor_t flavor_xenomai_descriptor = {
+    .name = "xenomai",
+    .flavor_id = RTAPI_FLAVOR_XENOMAI_ID,
+    .flags = FLAVOR_DOES_IO + FLAVOR_IS_RT + FLAVOR_TIME_NO_CLOCK_MONOTONIC,
+    .can_run_flavor = xenomai_can_run_flavor,
+    .exception_handler_hook = xenomai_exception_handler_hook,
+    .module_init_hook = xenomai_module_init_hook,
+    .module_exit_hook = xenomai_module_exit_hook,
+    .task_update_stats_hook = xenomai_task_update_stats_hook,
+    .task_print_thread_stats_hook = xenomai_print_thread_stats,
+    .task_new_hook = NULL,
+    .task_delete_hook = xenomai_task_delete_hook,
+    .task_start_hook = xenomai_task_start_hook,
+    .task_stop_hook = xenomai_task_stop_hook,
+    .task_pause_hook = xenomai_task_pause_hook,
+    .task_wait_hook = xenomai_wait_hook,
+    .task_resume_hook = xenomai_task_resume_hook,
+    .task_delay_hook = xenomai_task_delay_hook,
+    .get_time_hook = xenomai_get_time_hook,
+    .get_clocks_hook = xenomai_get_clocks_hook,
+    .task_self_hook = xenomai_task_self_hook,
+    .task_pll_get_reference_hook = NULL,
+    .task_pll_set_correction_hook = NULL
+};

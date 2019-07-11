@@ -6,7 +6,6 @@ cdef extern from "rtapi.h":
 
         int instance_id
         char *instance_name
-        int rtapi_thread_flavor
 
         int rt_msg_level
         int user_msg_level

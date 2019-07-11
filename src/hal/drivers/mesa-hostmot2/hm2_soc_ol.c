@@ -91,10 +91,6 @@ see configs/hm2-soc-stepper/irqtest.hal for a usage example
 /* #error "This driver is for the socfpga platform only" */
 /* #endif */
 
-#if !defined(BUILD_SYS_USER_DSO)
-#error "This driver is for usermode threads only"
-#endif
-
 #include "rtapi.h"
 #include "rtapi_app.h"
 #include "rtapi_string.h"
@@ -502,7 +498,7 @@ static int instantiate(const int argc, char* const *argv)
     void *blob = NULL;
 
     LL_PRINT("loading Mesa AnyIO HostMot2 socfpga overlay driver version " HM2_SOCFPGA_VERSION "\n");
-    
+
     if(debug){
         for(x = 0; x < argc; x++){
             LL_DBG("argv[%d] = %s\n", x, argv[x]);
@@ -517,20 +513,20 @@ static int instantiate(const int argc, char* const *argv)
     int inst_id = hal_inst_create(name, comp_id, sizeof(hm2_soc_t), (void **)&brd);
     if (inst_id < 0)
         return -1;
-    
+
     /********************************************************************************
     // Initialise and fill inst array values first
     //
     // Then zero or void instparam values or they will be passed to next instance
     // If they are boolean, just zeroing to the default is sufficient
     //
-    // If they are a value within a value range, you should void it to -1, 
+    // If they are a value within a value range, you should void it to -1,
     // so that the instantiation code can insert the default value if it finds -1
     //
-    // Alternatively it could flag an error if it means at least one previous 
+    // Alternatively it could flag an error if it means at least one previous
     // instance exists and this value cannot be valid ( see num )
     **********************************************************************************/
-    
+
     brd->name = name;
     brd->config = NULL;
     brd->descriptor = NULL;
@@ -561,13 +557,13 @@ static int instantiate(const int argc, char* const *argv)
         LL_ERR("num set to -1 by previous instance.  Set a valid board number");
         return -1;
     }
-    else 
+    else
         brd->num = num;
     // void parameters
     no_init_llio = 0;
     num = -1;
     debug = 0;
-    
+
     // read a custom fwid message if given
     if (brd->descriptor != NULL) {
         struct stat st;

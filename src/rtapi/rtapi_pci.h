@@ -1,7 +1,7 @@
 /********************************************************************
 * Description:  rtapi_pci.h
-*               This file, 'rtapi_pci.h', exports the 
-*               usermode PCI functions 
+*               This file, 'rtapi_pci.h', exports the
+*               usermode PCI functions
 *
 *
 * Copyright (C) 2012 - 2013 Charles Steinkuehler <charles AT steinkuehler DOT net>
@@ -31,7 +31,6 @@
 /***********************************************************************
 *                        PCI DEVICE SUPPORT                            *
 ************************************************************************/
-#if defined(BUILD_SYS_USER_DSO)
 
 /*---------------------------------------------------------------------**
 ** Structures and defines that should be pulled in from <linux/pci.h>  **
@@ -61,8 +60,8 @@ struct pci_dev {
     unsigned short  subsystem_vendor;
     unsigned short  subsystem_device;
     unsigned int    t_class;          /* 3 bytes: (base,sub,prog-if) */
-    struct pci_resource   
-                    resource[6];    /* Device BARs */    
+    struct pci_resource
+                    resource[6];    /* Device BARs */
     void *driver_data;              /* Data private to the driver */
 };
 
@@ -148,76 +147,40 @@ void __iomem * rtapi_pci_ioremap(struct rtapi_pcidev *dev, int bar, size_t size)
 extern
 void rtapi_pci_iounmap(struct rtapi_pcidev *dev, void __iomem *mmio);
 
-#endif /* BUILD_SYS_USER_DSO */
-
 static inline
 __u8 rtapi_pci_readb(const void __iomem *mmio)
 {
-#ifdef BUILD_SYS_USER_DSO
 	return *((volatile const __u8 __iomem *)mmio);
-#else
-	return readb(mmio);
-#endif
 }
 
 static inline
 __u16 rtapi_pci_readw(const void __iomem *mmio)
 {
-#ifdef BUILD_SYS_USER_DSO
 	return *((volatile const __u16 __iomem *)mmio);
-#else
-	return readw(mmio);
-#endif
 }
 
 static inline
 __u32 rtapi_pci_readl(const void __iomem *mmio)
 {
-#ifdef BUILD_SYS_USER_DSO
 	return *((volatile const __u32 __iomem *)mmio);
-#else
-	return readl(mmio);
-#endif
 }
 
 static inline
 void rtapi_pci_writeb(void __iomem *mmio, unsigned int offset, __u8 value)
 {
-#ifdef BUILD_SYS_USER_DSO
 	*((volatile __u8 __iomem *)mmio) = value;
-#else
-	writeb(value, mmio);
-#endif
 }
 
 static inline
 void rtapi_pci_writew(void __iomem *mmio, unsigned int offset, __u16 value)
 {
-#ifdef BUILD_SYS_USER_DSO
 	*((volatile __u16 __iomem *)mmio) = value;
-#else
-	writew(value, mmio);
-#endif
 }
 
 static inline
 void rtapi_pci_writel(void __iomem *mmio, unsigned int offset, __u32 value)
 {
-#ifdef BUILD_SYS_USER_DSO
 	*((volatile __u32 __iomem *)mmio) = value;
-#else
-	writel(value, mmio);
-#endif
 }
-
-/* Some kernels don't have pci_ioremap_bar */
-#ifndef BUILD_SYS_USER_DSO
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,32)
-void __iomem *pci_ioremap_bar(struct pci_dev *pdev, int bar)
-{
-	return ioremap_nocache(pci_resource_start(pdev, bar), pci_resource_len(pdev, bar));
-}
-#endif
-#endif
 
 #endif // RTAPI_PCI_H

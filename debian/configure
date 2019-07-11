@@ -4,13 +4,12 @@
 #
 # Configure source package dependencies
 
-# List of supported kernel arches for kthreads
-KTHREAD_ARCHES="i386 amd64"
-if test -x /usr/bin/lsb_release; then
-    DISTRO_ID=$(lsb_release -is)  # Debian or Ubuntu
-    DISTRO_RELEASE=$(lsb_release -rs)   # 8.1, 14.04, etc.
-    DISTRO_CODENAME=$(lsb_release -cs) # wheezy | jessie | stretch | buster
-fi
+# Distro info
+#
+# This should run on non-Debian distros; lsb_release is only used for
+# TCL/TK version detection, which can be passed in through the '-t
+# VERSION' switch
+DISTRO_CODENAME=$(lsb_release -cs) # jessie | stretch | buster
 
 # Work out of the debian/ directory
 cd "$(dirname $0)"
@@ -26,7 +25,7 @@ echo $0 $* > configure.cmdline
 
 do_changelog() {
     DISTRO_UC="$(echo $DISTRO_CODENAME | sed 's/^[[:space:]]*//g' |
-         sed -e 's/\b\(.\)/\u\1/g')"
+        sed -e 's/\b\(.\)/\u\1/g')"
     DISTRO_LC="$(echo $DISTRO_CODENAME | sed 's/^[[:space:]]*//g')"
     MKVERSION="$(git show HEAD:VERSION | cut -d ' ' -f 1).$(
         git rev-list --count master)-1.git$(
@@ -84,24 +83,29 @@ test "$1" != --help || usage
 # These need to be in a certain order:
 # - Base template copy first
 # - do_<flavor> functions next
-# - replace BUILD_DEPS and *_KERNEL_HEADERS last
+# - replace BUILD_DEPS last
 #   (when lists are fully populated)
 
 # set defaults
 BUILD_DEPS=  # List of Build-Depends
-DEPS= # List of Depends
-HAVE_FLAVOR=false
-HAVE_KTHREADS_FLAVOR=false
+DEPS=        # List of Depends
+
+## copy base templates into place
 
 case "$DISTRO_CODENAME" in
     buster)
-        : # Nothing
+        BUILD_DEPS+=', libck-dev'
         ;;
-    stretch|jessie|sid)
+    stretch|sid)
+        DEPS+=", python-gtksourceview2"
+        BUILD_DEPS+=', libck-dev'
+        ;;
+    jessie)
         DEPS+=", python-gtksourceview2"
         ;;
     *)
         DEPS+=", python-gtksourceview2"
+        BUILD_DEPS+=', libck-dev'
         ;;
 esac
 
@@ -127,13 +131,8 @@ while getopts csh ARG; do
     esac
 done
 
-if test "$DISTRO_CODENAME" != jessie; then
-    BUILD_DEPS+='libck-dev, '
-fi
-
 # Set control Build-Depends:
 configure_xenomai
-cp control.in control
 sed >control <control.in \
     -e "s/@BUILD_DEPS@/${BUILD_DEPS}/" \
     -e "s/@DEPS@/${DEPS}/"

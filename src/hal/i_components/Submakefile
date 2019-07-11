@@ -14,11 +14,6 @@ CONVERTERS :=  \
     conv_u64_float.icomp conv_u64_bit.icomp conv_u64_s64.icomp \
     conv_u64_s64.icomp conv_u64_u32.icomp conv_s64_s32.icomp conv_s64_u32.icomp
 
-ifeq ($(BUILD_KBUILD),yes)
-ICOMPS := $(patsubst $(BASEPWD)/%,%,$(wildcard \
-	$(BASEPWD)/$(HALICOMPDIR)/*.icomp ))
-include $(patsubst %.icomp, $(BASEPWD)/halcomp-srcs/%.mak, $(ICOMPS))
-else
 ICOMPS := $(sort $(wildcard $(HALICOMPDIR)/*.icomp)  \
 	$(addprefix hal/i_components/, $(CONVERTERS)))
 
@@ -32,17 +27,9 @@ ifeq ($(BUILD_DOCS),yes)
     .PHONY: i_docpages
 endif
 
-ifeq ($(TRIVIAL_BUILD)+$(BUILD_THREAD_MODULES),no+yes)
--include $(patsubst %.icomp, $(BASEPWD)/halcomp-srcs/%.mak,\
-	$(ICOMPS))
-endif # TRIVIAL_BUILD == no
-endif
 
-
-ifeq ($(BUILD_THREAD_MODULES),yes)
 obj-m += \
 	$(patsubst hal/i_components/%.icomp, %.o, $(ICOMPS))
-endif
 
 ICOMP_DOCPAGES := $(patsubst $(HALICOMPDIR)/%.icomp, ../man/man9/%.asciidoc, \
 	$(ICOMPS))
@@ -55,29 +42,25 @@ $(ICOMP_DOCPAGES): ../man/man9/%.asciidoc: $(HALICOMPDIR)/%.icomp ../bin/instcom
 	--frontmatter="edit-branch: $(EDIT_BRANCH)" 	\
 		-o $@ $<
 
-ifeq ($(BUILD_ALL_FLAVORS),yes)
-# .c and .mak files are identical for all flavors
-#
-# in the top-level make, build them once in a common location
-halcomp-srcs/%.c: %.icomp ../bin/instcomp
+# build them once in a common location
+objects/%.c: %.icomp ../bin/instcomp
 	$(ECHO) "Preprocessing $(notdir $<)"
 	@mkdir -p $(dir $@)
 	$(Q)../bin/instcomp --require-license -o $@ $<
 
-halcomp-srcs/%.mak: %.icomp $(HALICOMP_SUBMAKEFILE)
-	$(ECHO) "Generating icomp build rules for $(notdir $<)"
-	@mkdir -p $(dir $@)
-	$(Q)echo "$(notdir $*)-objs := halcomp-srcs/$*.o" > $@.tmp
-	$(Q)echo "\$$(RTLIBDIR)/$(notdir $*)\$$(MODULE_EXT): \\" >> $@.tmp
-	$(Q)echo "    \$$(OBJDIR)/halcomp-srcs/$*.o" >> $@.tmp
-	$(Q)mv -f $@.tmp $@
+# Generate rules for building i_component.so files
+# abs_s32-objs := objects/hal/i_components/abs_s32.o
+# $(RTLIBDIR)/abs_s32.so: $(OBJDIR)/objects/hal/i_components/abs_s32.o
+#
+# example:  $$(call icomp_build_rules hal/i_components/abs_s32.comp)
+define icomp_build_rules
+$$(patsubst $(HALICOMPDIR)/%.icomp,%-objs,$(1)) := \
+    objects/$$(patsubst %.icomp,%.o,$(1))
+$$(patsubst $(HALICOMPDIR)/%.icomp,$(RTLIBDIR)/%.so,$(1)): \
+    $(OBJDIR)/objects/$$(patsubst %.icomp,%.o,$(1))
 
-# Generate .c and .mak files before the modules target
-modules: $(patsubst %.icomp, halcomp-srcs/%.c, \
-	$(ICOMPS) )
-modules: $(patsubst %.icomp, halcomp-srcs/%.mak, \
-	$(ICOMPS))
-endif # BUILD_ALL_FLAVORS == yes
+endef
+$(eval $(foreach icomp,$(ICOMPS),$(call icomp_build_rules,$(icomp))))
 
 # Regenerate conv_*.icomp when below rules are touched
 $(addprefix hal/i_components/, $(CONVERTERS)): hal/i_components/Submakefile
