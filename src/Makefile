@@ -121,8 +121,6 @@ INCLUDE_PREFIX = .
 # as a "substitute at assignment time" variable
 TARGETS :=
 PYTARGETS :=
-# Add to this list directories to be created during 'make install'
-INSTALL_DIRS :=
 
 # Submakefiles from each of these directories will be included if they exist
 SUBDIRS := \
@@ -699,8 +697,7 @@ install-dirs:
 		$(DESTDIR)$(sysconfdir)/rsyslog.d \
 		$(DESTDIR)$(sysconfdir)/security/limits.d \
 		$(DESTDIR)$(sysconfdir)/udev/rules.d \
-		$(DESTDIR)$(sampleconfsdir) \
-		$(addprefix $(DESTDIR), $(INSTALL_DIRS))
+		$(DESTDIR)$(sampleconfsdir)
 ifeq ($(BUILD_EMCWEB),yes)
 	$(DIR)	$(DESTDIR)$(datadir)/linuxcnc/doc-root/css/images \
 		$(DESTDIR)$(datadir)/linuxcnc/doc-root/js \

@@ -14,7 +14,6 @@ $(USERPCI_HEADERS): ../include/userpci/%.h: rtapi/userpci/%.h
 
 # These headers need to remain in the 'userpci' subdirectory
 SUBDIRECTORY_HEADERS += $(USERPCI_HEADERS)
-INSTALL_DIRS += ../include/userpci
 
 clean: userpci-clean
 userpci-clean:
