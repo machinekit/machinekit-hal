@@ -90,7 +90,7 @@ $(ULAPI_LIB).0: $(call TOOBJS, $(ULAPI_SRCS)) \
 TARGETS += $(ULAPI_LIB) $(ULAPI_LIB).0
 
 ##################################################################
-#                       rtapi.so
+#               rtapi.so and flavor modules
 ##################################################################
 
 $(eval $(call c_comp_build_rules,rtapi/rtapi.o,$(patsubst %.c,%.o,\
@@ -113,6 +113,19 @@ $(call TORTOBJS, rtapi/flavor/rt-preempt.c): \
 # userland PCI support needs -ludev for rtapi.so
 $(RTLIBDIR)/rtapi.so: EXTRA_LDFLAGS += \
 	$(LIBUDEV_LIBS) $(RT_LDFLAGS) $(LIBCGROUP_LIBS)
+
+ifeq ($(HAVE_XENOMAI_THREADS),yes)
+# Build xenomai_loader.so linked to Xenmai libs
+$(eval $(call c_comp_build_rules,rtapi/flavor/xenomai_loader.o))
+$(RTLIBDIR)/xenomai_loader.so: \
+	EXTRA_LDFLAGS += $(XENOMAI_LDFLAGS)
+
+# Set Xenomai CFLAGS
+$(call TORTOBJS, $(XENOMAI_SRC)): \
+	EXTRA_CFLAGS += $(XENOMAI_RTFLAGS)
+$(call TORTOBJS, rtapi/flavor/xenomai_loader.c): \
+	EXTRA_CFLAGS += $(XENOMAI_RTFLAGS)
+endif
 
 ##################################################################
 #                        rtapi_app

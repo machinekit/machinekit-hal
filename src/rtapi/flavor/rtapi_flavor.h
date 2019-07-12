@@ -64,24 +64,24 @@ extern "C" {
         const rtapi_flavor_id_t flavor_id;
         const unsigned long flags;
         const rtapi_can_run_flavor_t can_run_flavor;
-        const rtapi_exception_handler_hook_t exception_handler_hook;
-        const rtapi_module_init_hook_t module_init_hook;
-        const rtapi_module_exit_hook_t module_exit_hook;
-        const rtapi_task_update_stats_hook_t task_update_stats_hook;
-        const rtapi_print_thread_stats_hook_t task_print_thread_stats_hook;
-        const rtapi_task_new_hook_t task_new_hook;
-        const rtapi_task_delete_hook_t task_delete_hook;
-        const rtapi_task_start_hook_t task_start_hook;
-        const rtapi_task_stop_hook_t task_stop_hook;
-        const rtapi_task_pause_hook_t task_pause_hook;
-        const rtapi_task_wait_hook_t task_wait_hook;
-        const rtapi_task_resume_hook_t task_resume_hook;
-        const rtapi_delay_hook_t task_delay_hook;
-        const rtapi_get_time_hook_t get_time_hook;
-        const rtapi_get_clocks_hook_t get_clocks_hook;
-        const rtapi_task_self_hook_t task_self_hook;
-        const rtapi_task_pll_get_reference_hook_t task_pll_get_reference_hook;
-        const rtapi_task_pll_set_correction_hook_t task_pll_set_correction_hook;
+        rtapi_exception_handler_hook_t exception_handler_hook;
+        rtapi_module_init_hook_t module_init_hook;
+        rtapi_module_exit_hook_t module_exit_hook;
+        rtapi_task_update_stats_hook_t task_update_stats_hook;
+        rtapi_print_thread_stats_hook_t task_print_thread_stats_hook;
+        rtapi_task_new_hook_t task_new_hook;
+        rtapi_task_delete_hook_t task_delete_hook;
+        rtapi_task_start_hook_t task_start_hook;
+        rtapi_task_stop_hook_t task_stop_hook;
+        rtapi_task_pause_hook_t task_pause_hook;
+        rtapi_task_wait_hook_t task_wait_hook;
+        rtapi_task_resume_hook_t task_resume_hook;
+        rtapi_delay_hook_t task_delay_hook;
+        rtapi_get_time_hook_t get_time_hook;
+        rtapi_get_clocks_hook_t get_clocks_hook;
+        rtapi_task_self_hook_t task_self_hook;
+        rtapi_task_pll_get_reference_hook_t task_pll_get_reference_hook;
+        rtapi_task_pll_set_correction_hook_t task_pll_set_correction_hook;
     } flavor_descriptor_t;
     typedef flavor_descriptor_t * flavor_descriptor_ptr;
 
@@ -139,6 +139,9 @@ extern "C" {
     extern int flavor_id(flavor_descriptor_ptr f);
     typedef int (flavor_feature_t)(flavor_descriptor_ptr f, int feature);
     extern flavor_feature_t flavor_feature;
+
+    // Prototype for plugin flavor descriptor updater
+    typedef void (*plugin_flavor_descriptor_updater_t)(flavor_descriptor_ptr);
 
     // Help for unit test mocking
     extern int flavor_mocking;

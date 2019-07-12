@@ -885,7 +885,7 @@ if test "$with_xenomai" != no; then
 fi
 
 if test -n "$XENOMAI_THREADS_RTS"; then
-    # THREADS_RTFLAGS:  test runtime library & get flags
+    # XENOMAI_RTFLAGS:  test runtime library & get flags
     LIBS_hold="$LIBS"
     CFLAGS_hold="$CFLAGS"
     CPPFLAGS_hold="$CPPFLAGS"
@@ -910,7 +910,7 @@ if test "$with_xenomai" != no; then
     if test "$host_cpu" != x86_64; then
         flags="$flags -fno-stack-protector"
     fi
-    THREADS_RTFLAGS+="$THREADS_RTFLAGS $flags"
+    XENOMAI_RTFLAGS="$flags"
     # xenomai kernel math options
     flags="-ffast-math -mhard-float"
     if test "$($XENOMAI_THREADS_RTS --arch)" = x86; then
@@ -924,7 +924,7 @@ if test "$with_xenomai" != no; then
     # ldflags
     flags="$($XENOMAI_THREADS_RTS --ldflags)"
     AC_PRUNE_DEFAULT_LDFLAGS(flags)
-    THREADS_LDFLAGS+="$XENOMAI_THREADS_LDFLAGS $flags"
+    XENOMAI_LDFLAGS+="$XENOMAI_THREADS_LDFLAGS $flags"
 fi
 
 AC_MSG_CHECKING(whether to build Xenomai userland threads)
@@ -1102,6 +1102,8 @@ if test "$with_xenomai" = yes; then
 fi
 AC_SUBST([HAVE_XENOMAI_THREADS],[$with_xenomai])
 AC_SUBST([XENOMAI_THREADS_RTS])
+AC_SUBST([XENOMAI_RTFLAGS])
+AC_SUBST([XENOMAI_LDFLAGS])
 
 # while we are at it, drop a git scent mark
 GIT_VERSION=unknown
