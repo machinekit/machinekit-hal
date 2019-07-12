@@ -860,7 +860,7 @@ int main(int argc, char **argv)
     } else {
 	syslog_async(LOG_INFO,
 		     "startup pid=%d "
-		     "rtlevel=%d usrlevel=%d halsize=%d shm=%s cc=%s %s  version=%s",
+		     "rtlevel=%d usrlevel=%d halsize=%d cc=%s %s  version=%s",
 		     getpid(),
 		     global_data->rt_msg_level,
 		     global_data->user_msg_level,
