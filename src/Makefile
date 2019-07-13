@@ -66,13 +66,6 @@ ECHO=@true
 VECHO=true
 endif
 
-BUILD_KBUILD = no
-
-# extract the version from the kernel source version.h
-ifneq ($(KERNELDIR),)
-KERNEL_VERS = $(shell $(BASEPWD)/../scripts/kernel-vers.sh $(KERNELDIR))
-endif
-
 ifeq ($(BASEPWD),)
 BASEPWD := $(shell pwd)
 export BASEPWD
