@@ -155,7 +155,7 @@ FindRunningProcs() {
     if test -z "$all"; then
 	return  # No procs named $proc_name found at all
     fi
-    local live="$(ps -p "$all" -o pid=,s= | ${AWK} '$2 != "Z" {print $1}')"
+    local live="$(ps -p "$all" -o pid= -o s= | ${AWK} '$2 != "Z" {print $1}')"
     if test -z "$live"; then
 	return  # No non-zombie procs named $proc_name found
     fi
