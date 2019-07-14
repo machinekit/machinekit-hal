@@ -77,9 +77,12 @@ cdef class RtapiModule:
         shmid = rtapi_shmem_new(key, self._id, size)
         if shmid < 0:
             raise RuntimeError("shm segment 0x%x/%d does not exist" % (key,key))
-        retval = rtapi_shmem_getptr(shmid, &ptr, &size);
+        retval = rtapi_shmem_getptr(shmid, &ptr);
         if retval < 0:
             raise RuntimeError("getptr shm 0x%x/%d failed %d" % (key,key,retval))
+        retval = rtapi_shmem_getsize(shmid, &size);
+        if retval < 0:
+            raise RuntimeError("getsize shm 0x%x/%d failed %d" % (key,key,retval))
         return memoryview(mview(<long>ptr, size))
 
     property name:
