@@ -33,7 +33,8 @@ cdef extern from "rtapi.h":
 
     int rtapi_shmem_new(int key, int module_id, unsigned long int size)
     int rtapi_shmem_delete(int shmem_id, int module_id)
-    int rtapi_shmem_getptr(int shmem_id, void **ptr, unsigned long int *size)
+    int rtapi_shmem_getptr(int shmem_id, void **ptr)
+    int rtapi_shmem_getsize(int shmem_id, unsigned long int *size)
 
     ctypedef int msg_level_t
     ctypedef void(*rtapi_msg_handler_t)(msg_level_t level, const char *fmt, va_list ap)

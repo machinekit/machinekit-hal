@@ -867,11 +867,16 @@ extern int rtapi_shmem_delete_inst(int shmem_id, int instance, int module_id);
 /** 'rtapi_shmem_getptr()' sets '*ptr' to point to shared memory block
     associated with 'shmem_id'.  Returns a status code.  May be called
     from user code, init/cleanup code, or realtime tasks.
-
-    If non-NULL, *size is set to the size of the shared memory block.
 */
 
-extern int rtapi_shmem_getptr(int shmem_id, void **ptr, unsigned long int *size);
+extern int rtapi_shmem_getptr(int shmem_id, void **ptr);
+
+/** 'rtapi_shmem_getsize()' sets '*size' to the size of the shared memory block
+    associated with 'shmem_id'.  Returns a status code.  May be called from user
+    code, init/cleanup code, or realtime tasks.
+*/
+
+extern int rtapi_shmem_getsize(int shmem_id, unsigned long int *size);
 
 extern int rtapi_shmem_getptr_inst(int shmem_id, int instance, void **ptr, unsigned long int *size);
 

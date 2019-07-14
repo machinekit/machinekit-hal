@@ -968,7 +968,8 @@ static int pyshm_init(PyObject *_self, PyObject *args, PyObject *kw) {
 	return -1;
     }
     // retrieve the size - relevant in the 'attach' case:
-    int retval = rtapi_shmem_getptr(self->shm_id, &self->buf, &self->size);
+    int retval = rtapi_shmem_getptr_inst(
+        self->shm_id, rtapi_instance, &self->buf, &self->size);
     if (retval < 0) {
 	pyrtapi_error(self->shm_id);
 	return -1;

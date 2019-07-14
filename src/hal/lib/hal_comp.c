@@ -133,7 +133,7 @@ hal_comp_t *halg_xinitfv(const int use_hal_mutex,
 	    }
 	    // retrieve address of HAL shared memory segment
 	    void *mem;
-	    retval = rtapi_shmem_getptr(shm_id, &mem, 0);
+	    retval = rtapi_shmem_getptr(shm_id, &mem);
 	    if (retval < 0) {
 		rtapi_exit(comp_id);
 		HALFAIL_NULL(retval,

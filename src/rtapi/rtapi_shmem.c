@@ -192,8 +192,14 @@ int rtapi_shmem_new(int userkey, int module_id, unsigned long int size) {
     return rtapi_shmem_new_inst(userkey, rtapi_instance, module_id, size);
 }
 
-int rtapi_shmem_getptr(int handle, void **ptr, unsigned long int *size) {
-    return rtapi_shmem_getptr_inst(handle, rtapi_instance, ptr, size);
+int rtapi_shmem_getptr(int handle, void **ptr) {
+    unsigned long size;
+    return rtapi_shmem_getptr_inst(handle, rtapi_instance, ptr, &size);
+}
+
+int rtapi_shmem_getsize(int handle, unsigned long int *size) {
+    void *ptr;
+    return rtapi_shmem_getptr_inst(handle, rtapi_instance, &ptr, size);
 }
 
 int rtapi_shmem_delete(int handle, int module_id) {
@@ -207,5 +213,6 @@ EXPORT_SYMBOL(rtapi_shmem_delete_inst);
 EXPORT_SYMBOL(rtapi_shmem_exists);
 EXPORT_SYMBOL(rtapi_shmem_new);
 EXPORT_SYMBOL(rtapi_shmem_getptr);
+EXPORT_SYMBOL(rtapi_shmem_getsize);
 EXPORT_SYMBOL(rtapi_shmem_delete);
 #endif
