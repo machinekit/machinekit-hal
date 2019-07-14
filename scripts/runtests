@@ -1,5 +1,8 @@
 #!/bin/bash -e
 
+# Give LCNC tests a pointer to pkg-config
+export HAL_PKG=machinekit-hal
+
 # The linuxcnc starter script sometimes tries to display X windows if
 # DISPLAY is set.  We never want that while running tests, so unset it.
 unset DISPLAY

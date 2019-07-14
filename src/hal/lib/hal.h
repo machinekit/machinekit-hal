@@ -515,6 +515,14 @@ typedef enum {
     HAL_RW = 192,
 } hal_param_dir_t;
 
+#ifdef LCNC_COMPAT
+/* Use these for x86 machines, and anything else that can write to
+   individual bytes in a machine word. */
+#include <rtapi_stdint.h>
+typedef double real_t __attribute__((aligned(8)));
+#define hal_float_t volatile real_t
+#endif
+
 /***********************************************************************
 *                      "LOCKING" FUNCTIONS                             *
 ************************************************************************/

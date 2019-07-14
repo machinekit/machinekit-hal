@@ -1255,14 +1255,23 @@ AC_SUBST(HAVE_LTTNG_UST)
 
 if test "$RUN_IN_PLACE" = "yes"; then
     prefix=${BUILD_TOPLEVEL}
+    HAL_INCLUDE_DIR=${BUILD_TOPLEVEL}/include
+    HAL_LIB_DIR=${BUILD_TOPLEVEL}/lib
+    HAL_LDFLAGS=-L${HAL_LIB_DIR}
 else
     RUN_IN_PLACE=no
     HAL_HOME=$prefix
+    HAL_INCLUDE_DIR=${prefix}/include/machinekit
+    HAL_LIB_DIR=
+    HAL_LDFLAGS=
 fi
 
 ###################################
 
 AC_SUBST([RUN_IN_PLACE])
+AC_SUBST([HAL_INCLUDE_DIR])
+AC_SUBST([HAL_LIB_DIR])
+AC_SUBST([HAL_LDFLAGS])
 
 fe () {
     # Fully expand argument.  Example:
@@ -1879,6 +1888,7 @@ AC_CONFIG_FILES([../scripts/rip-environment], [chmod +x ../scripts/rip-environme
 AC_CONFIG_FILES([../scripts/realtime], [chmod +x ../scripts/realtime])
 AC_CONFIG_FILES(Makefile.inc)
 AC_CONFIG_FILES(Makefile.modinc)
+AC_CONFIG_FILES(../share/pkgconfig/machinekit-hal.pc)
 AC_CONFIG_FILES(machinekitcfg.py-tmp)
 AC_CONFIG_FILES(../scripts/machinekit.ini.tmpl)
 AC_OUTPUT

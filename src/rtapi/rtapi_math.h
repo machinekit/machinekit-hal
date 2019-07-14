@@ -50,6 +50,30 @@ extern double rtapi_ceil(double);
 extern double rtapi_floor(double);
 extern double rtapi_cbrt(double);
 
+#ifdef LCNC_COMPAT
+#define sin(x) rtapi_sin(x)
+#define cos(x) rtapi_cos(x)
+#define tan(x) rtapi_tan(x)
+#define sqrt(x) rtapi_sqrt(x)
+#define fabs(x) rtapi_fabs(x)
+#define atan(x) rtapi_atan(x)
+#define atan2(y,x) rtapi_atan2(y,x)
+#define asin(x) rtapi_asin(x)
+#define acos(x) rtapi_acos(x)
+#define pow(x,y) rtapi_pow(x,y)
+#define fmin(x,y) rtapi_fmin(x,y)
+#define fmax(x,y) rtapi_fmax(x,y)
+#define fmod(x,y) rtapi_fmod(x,y)
+#define hypot(x,y) rtapi_hypot(x,y)
+#define rint(x) rtapi_rint(x)
+#define scalbn(x,ebp) rtapi_scalbn(x,ebp)
+#define finite(x) rtapi_finite(x)
+#define copysign(x,y) rtapi_copysign(x,y)
+#define ceil(x) rtapi_ceil(x)
+#define floor(x) rtapi_floor(x)
+#define cbrt(x) rtapi_cbrt(x)
+#endif
+
 #ifdef __cplusplus
 }
 #endif
@@ -57,6 +81,12 @@ extern double rtapi_cbrt(double);
 #define rtapi_frexp(p,q) __builtin_frexp((p),(q))
 #define rtapi_isnan(x) __builtin_isnan((x))
 #define rtapi_signbit(x) __builtin_signbit((x))
+
+#ifdef LCNC_COMPAT
+#define frexp(x,exp) rtapi_frexp(x,exp)
+#define isnan(x) rtapi_isnan(x)
+#define signbit(x) rtapi_signbit(x)
+#endif
 
 #ifndef M_PIl
 #define M_PIl		3.1415926535897932384626433832795029L  /* pi */

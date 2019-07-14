@@ -60,6 +60,13 @@ else
     PYTHONPATH=$HAL_HOME/lib/python:"$PYTHONPATH"
 fi
 
+if [ -z "PKG_CONFIG_PATH" ]; then
+    PKG_CONFIG_PATH=$HAL_HOME/share/pkgconfig
+else
+    PKG_CONFIG_PATH=$HAL_HOME/share/pkgconfig:${PKG_CONFIG_PATH}
+fi
+
+
 if [ -z "$MANPATH" ]; then
     if type -path manpath > /dev/null 2>&1; then
 	MANPATH=$HAL_HOME/man:"$(manpath)"
