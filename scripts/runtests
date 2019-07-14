@@ -42,7 +42,6 @@ run_and_log() {
     outpipe=pipe-stdout-$$
 
     # create two named pipes (and ensure they're cleaned up)
-    trap "rm -f $errpipe $outpipe; exit" EXIT
     mkfifo $errpipe $outpipe
 
     # start a 'tee' reading from each named pipe and echoing to stdout and
@@ -190,9 +189,9 @@ run_tests () {
     echo "Runtest: $NUM tests run, $SUCC successful, $FAIL failed + $XFAIL expected"
     if [ $FAIL -ne 0 ]; then
 	echo "Failed: $FAIL_NAMES"
-	exit 1;
+	cleanup_and_exit 1;
     else
-	exit 0;
+	cleanup_and_exit 0;
     fi
 }
 
@@ -221,8 +220,23 @@ if test "$1" = "-l"; then
     exit $?
 fi
 
+
+cleanup_and_exit() {
+    # Remove signal handler and exit
+    trap - ${EXIT_HANDLER_SIGNALS} EXIT
+    rm -rf $TMPDIR $testdir/pipe-std{out,err}-* $errpipe $outpipe
+    exit $1
+}
+
+exit_handler() {
+    test -z "$*" || echo "$*" >&2
+    cleanup_and_exit 1
+}
+
 TMPDIR=`mktemp -d /tmp/runtest.XXXXXX`
-trap "rm -rf $TMPDIR" 0 1 2 3 9 15
+EXIT_HANDLER_SIGNALS="1 2 3 9 15"
+trap "exit_handler Caught interrupt" $EXIT_HANDLER_SIGNALS
+trap "exit_handler" EXIT
 
 CLEAN_ONLY=0
 NOCLEAN=0
@@ -252,3 +266,5 @@ if [ $CLEAN_ONLY -eq 1 ]; then
 else
     run_tests "$@"
 fi
+
+cleanup_and_exit $?
