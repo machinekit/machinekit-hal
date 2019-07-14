@@ -149,12 +149,12 @@ AC_CONFIG_MACRO_DIR(/usr/share/aclocal)
 # 'yes' or 'no' depending on whether the thread system was able to be
 # configured
 #
-# THREADS_RTFLAGS
+# <THREADS_SYSTEM>_RTFLAGS
 #
 # list of CFLAGS specific to threads systems; some flavors
 # determine this with <THREADS_SYSTEM>_THREADS_RTS --cflags
 #
-# THREADS_LDFLAGS
+# <THREADS_SYSTEM>_LDFLAGS
 #
 # list of LDFLAGS specific to the threads system; also obtained partly
 # from <THREADS_SYSTEM>_THREADS_RTS --ldflags
@@ -1105,9 +1105,6 @@ AC_SUBST(TARGET_PLATFORM_ZEDBOARD,$target_platform_zedboard_val)
 
 ############################################################
 # thread-specific -DDEFINE and Makefile.inc variables
-
-AC_SUBST([THREADS_RTFLAGS])
-AC_SUBST([THREADS_LDFLAGS])
 
 # Xenomai general settings
 if test "$XENOMAI_V2" = true; then

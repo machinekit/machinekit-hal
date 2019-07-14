@@ -255,7 +255,7 @@ $(call TOOBJSDEPS, rtapi/rtapi_app.cc): \
 	    -o $@ \
 	    $^ \
 	    $(LDFLAGS) \
-	    $(THREADS_LDFLAGS) $(LIBUDEV_LIBS) \
+	    $(LIBUDEV_LIBS) \
 	    $(PROTOBUF_LIBS) $(CZMQ_LIBS) $(LTTNG_UST_LIBS) \
 	    -lstdc++ -ldl -luuid
 

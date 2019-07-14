@@ -783,7 +783,7 @@ CONFILES=$(addsuffix /$(1), $(filter-out $(COMMON) $(CONF),\
 
 #################################################################################################################
 
-EXTRA_CFLAGS = $(RTFLAGS) \
+EXTRA_CFLAGS += \
         $(ARCH_CFLAGS) \
 	-D__MODULE__ \
 	-I$(INCLUDE_PREFIX) \

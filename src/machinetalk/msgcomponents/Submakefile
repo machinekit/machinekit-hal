@@ -3,10 +3,6 @@ MSGCOMP_DIR=machinetalk/msgcomponents
 # NANOPB_CFLAGS is set in  protobuf/Submakefile
 # for msgcomponents when building an RT comp
 
-# or at least should - the reference to NANOPB_CFLAGS isnt resolved here; no idea why
-
-RTFLAGS +=   $(PROTO_NANOPB_CFLAGS)
-
 $(eval $(call c_comp_build_rules,machinetalk/msgcomponents/pbmsgs.o, \
 	$(MSGCOMP_DIR)/pbmsgs.o	\
 	$(PBGEN)/$(NAMESPACEDIR)/canon.npb.o \
@@ -28,6 +24,9 @@ $(eval $(call c_comp_build_rules,machinetalk/msgcomponents/pbmsgs.o, \
 	$(PBGEN)/$(NAMESPACEDIR)/jplan.npb.o \
 	$(PBGEN)/$(NAMESPACEDIR)/value.npb.o \
 ))
+
+$(call TORTOBJS,$(PBGEN)/$(NAMESPACEDIR)/%.npb.c): \
+	EXTRA_CFLAGS += $(PROTO_NANOPB_CFLAGS)
 
 #$$(eval $(call c_comp_build_rules,machinetalk/msgcomponents/pbring.o))
 
