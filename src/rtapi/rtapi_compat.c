@@ -24,7 +24,7 @@
 #include "config.h"
 #include "rtapi.h"
 #include "rtapi_compat.h"
-#include "inifile.h"           /* iniFind() */
+#include "mk-inifile.h"         /* iniFind() */
 
 #include <stdio.h>
 #include <unistd.h>

@@ -45,7 +45,7 @@
 #include "config.h"
 
 #ifndef NO_INI
-#include "inifile.h"		/* iniFind() */
+#include "mk-inifile.h"		/* iniFind() */
 FILE *halcmd_inifile = NULL;
 #endif
 

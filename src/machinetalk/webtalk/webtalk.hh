@@ -68,7 +68,7 @@ enum wt_log_levels {
 #define lwsl_zws(...)    _lws_log(LLL_ZWS, __VA_ARGS__)
 
 
-#include <inifile.h>
+#include <mk-inifile.h>
 #include <syslog_async.h>
 #include "mk-service.hh"
 #include "mk-zeroconf.hh"

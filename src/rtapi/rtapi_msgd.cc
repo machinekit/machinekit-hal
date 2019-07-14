@@ -49,7 +49,7 @@
 #include <vector>
 #include <poll.h>
 #include <assert.h>
-#include <inifile.h>
+#include <mk-inifile.h>
 #include <sys/resource.h>
 
 using namespace std;

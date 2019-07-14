@@ -44,7 +44,7 @@
 #include <hal_priv.h>
 #include <hal_group.h>
 #include <hal_rcomp.h>
-#include <inifile.h>
+#include <mk-inifile.h>
 #include <syslog_async.h>
 
 #include "mk-service.hh"

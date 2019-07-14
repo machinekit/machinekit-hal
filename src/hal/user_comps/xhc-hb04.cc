@@ -33,7 +33,7 @@
 #include <stdarg.h>
 
 #include <hal.h>
-#include <inifile.hh>
+#include <mk-inifile.hh>
 
 #include "config.h"
 

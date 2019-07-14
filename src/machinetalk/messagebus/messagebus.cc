@@ -46,7 +46,7 @@
 #include <setup_signals.h>
 #include <mk-zeroconf.hh>
 #include <select_interface.h>
-#include <inifile.h>
+#include <mk-inifile.h>
 #include <inihelp.hh>
 
 #include <machinetalk/protobuf/message.pb.h>

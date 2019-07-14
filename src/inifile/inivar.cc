@@ -27,7 +27,7 @@
 #include <limits.h>
 
 #include "config.h"
-#include "inifile.hh"
+#include "mk-inifile.hh"
 
 // Compiler warnings
 // Copying a string of unknown length into a fixed size buffer

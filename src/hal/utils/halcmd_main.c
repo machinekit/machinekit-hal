@@ -59,7 +59,7 @@
 #include <time.h>
 #include <fnmatch.h>
 #include <search.h>
-#include <inifile.h>
+#include <mk-inifile.h>
 
 static int get_input(FILE *srcfile, char *buf, size_t bufsize);
 static void print_help_general(int showR);

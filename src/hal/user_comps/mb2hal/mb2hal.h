@@ -12,7 +12,7 @@
 #include "rtapi_string.h"
 #include "rtapi_errno.h"
 #include "hal.h"
-#include "inifile.h"
+#include "mk-inifile.h"
 
 #include <modbus.h>
 

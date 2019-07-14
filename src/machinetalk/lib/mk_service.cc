@@ -8,7 +8,7 @@
 
 #include <mk-service.hh>
 #include <mk-zeroconf.hh>
-#include <inifile.h>
+#include <mk-inifile.h>
 #include <syslog_async.h>
 
 
