@@ -867,6 +867,7 @@ hal_param_new(const char *name,
     component exists.  All parameters belonging to a component are
     removed when the component calls 'hal_exit()'.
 */
+
 /** The 'hal_param_xxx_new()' functions create a new 'parameter' object.
     A parameter is a value that is only used inside a component, but may
     need to be initialized or adjusted from outside the component to set
@@ -959,6 +960,43 @@ extern int hal_param_s32_newf(hal_param_dir_t dir,
     component exists.  All parameters belonging to a component are
     removed when the component calls 'hal_exit()'.
 */
+
+
+/***********************************************************************
+*                 PIN/SIG/PARAM GETTER FUNCTIONS                       *
+************************************************************************/
+
+/** 'hal_get_pin_value_by_name()' gets the value of any arbitrary HAL pin by
+ * pin name.
+ *
+ * The 'type' and 'data' args are pointers to the returned values.  The function
+ * returns 0 if successful, or -1 on error.  If 'connected' is non-NULL, its
+ * value will be true if a signal is connected.
+ */
+
+extern int hal_get_pin_value_by_name(
+    const char *hal_name, hal_type_t *type, hal_data_u **data, bool *connected);
+
+/** 'hal_get_signal_value_by_name()' returns the value of any arbitrary HAL
+ * signal by signal name.
+ *
+ * The 'type' and 'data' args are pointers to the returned values.  The function
+ * returns 0 if successful, or -1 on error.  If 'has_writers' is non-NULL, its
+ * value will be true if the signal has writers.
+ */
+
+extern int hal_get_signal_value_by_name(
+    const char *hal_name, hal_type_t *type, hal_data_u **data, bool *has_writers);
+
+/** 'hal_get_param_value_by_name()' returns the value of any arbitrary HAL
+ * parameter by parameter name.
+ *
+ * The 'type' and 'data' args are pointers to the returned values.  The function
+ * returns 0 if successful, or -1 on error.
+ */
+
+extern int hal_get_param_value_by_name(
+    const char *hal_name, hal_type_t *type, hal_data_u **data);
 
 
 /***********************************************************************
