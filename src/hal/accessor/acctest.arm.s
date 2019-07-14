@@ -20,7 +20,7 @@
 @ -I machinetalk/include -I machinetalk/msginfo
 @ -I machinetalk/msgcomponents -I machinetalk/webtalk -I libnml/linklist
 @ -I libnml/cms -I libnml/rcs -I libnml/inifile -I libnml/os_intf
-@ -I libnml/nml -I libnml/buffer -I libnml/posemath -I rtapi
+@ -I libnml/nml -I libnml/buffer -I rtapi
 @ -I rtapi_export -I hal/lib -I hal/vtable-example -I hal/userfunct-example
 @ -I hal/drivers -I hal/cython -I hal/accessor -imultilib .
 @ -imultiarch arm-linux-gnueabihf -D ULAPI hal/accessor/acctest.c

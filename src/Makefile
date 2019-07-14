@@ -133,7 +133,6 @@ SUBDIRS := \
 	rtapi/rtapi_math \
 	\
 	libnml/inifile \
-	libnml/posemath \
 	\
 	rtapi/examples/timer \
 	rtapi/examples/shmem \
@@ -456,10 +455,6 @@ HEADERS := \
     hal/drivers/hal_spi.h \
     libnml/inifile/inifile.h \
     libnml/inifile/inifile.hh \
-    libnml/posemath/posemath.h \
-    libnml/posemath/gotypes.h \
-    libnml/posemath/gomath.h \
-    libnml/posemath/sincos.h \
     machinetalk/build/machinetalk/protobuf/message.pb.h \
     machinetalk/build/machinetalk/protobuf/types.pb.h \
     machinetalk/build/machinetalk/protobuf/canon.npb.h \
@@ -786,14 +781,7 @@ EXTRA_CFLAGS += \
         $(ARCH_CFLAGS) \
 	-D__MODULE__ \
 	-I$(INCLUDE_PREFIX) \
-	-I$(INCLUDE_PREFIX)/libnml/linklist \
-	-I$(INCLUDE_PREFIX)/libnml/cms \
-	-I$(INCLUDE_PREFIX)/libnml/rcs \
 	-I$(INCLUDE_PREFIX)/libnml/inifile \
-	-I$(INCLUDE_PREFIX)/libnml/os_intf \
-	-I$(INCLUDE_PREFIX)/libnml/nml \
-	-I$(INCLUDE_PREFIX)/libnml/buffer \
-	-I$(INCLUDE_PREFIX)/libnml/posemath \
 	-I$(INCLUDE_PREFIX)/rtapi \
 	-I$(INCLUDE_PREFIX)/rtapi/flavor \
 	-I$(INCLUDE_PREFIX)/hal/lib \
