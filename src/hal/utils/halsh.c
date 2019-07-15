@@ -21,6 +21,8 @@
 #include "halcmd.h"
 #include "mk-inifile.h"
 
+#define BUFFERLEN 80
+
 Tcl_Interp *target_interp = NULL;
 static int pending_cr = 0;
 

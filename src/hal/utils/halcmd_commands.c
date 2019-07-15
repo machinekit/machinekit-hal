@@ -71,6 +71,8 @@
 #include <math.h> /* floorl */
 #include <czmq.h>
 
+#define BUFFERLEN 80
+
 const char *logpath = "/var/log/hal.log";
 
 static int unloadrt_comp(const char *mod_name);
