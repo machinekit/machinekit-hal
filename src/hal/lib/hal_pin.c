@@ -16,7 +16,7 @@ int hal_pin_bit_newf(hal_pin_dir_t dir,
 {
     va_list ap;
     void *p;
-    hal_data_u defval = {._b = 0};
+    hal_data_u defval = {.b = 0};
 
     va_start(ap, fmt);
     p = halg_pin_newfv(1, HAL_BIT, dir, (void**)data_ptr_addr,
@@ -30,7 +30,7 @@ int hal_pin_float_newf(hal_pin_dir_t dir,
 {
     va_list ap;
     void *p;
-    hal_data_u defval = {._f = 0.0};
+    hal_data_u defval = {.f = 0.0};
     va_start(ap, fmt);
     p = halg_pin_newfv(1, HAL_FLOAT, dir, (void**)data_ptr_addr,
 		       owner_id, defval,  fmt, ap);
@@ -43,7 +43,7 @@ int hal_pin_u32_newf(hal_pin_dir_t dir,
 {
     va_list ap;
     void *p;
-    hal_data_u defval = {._u = 0};
+    hal_data_u defval = {.u = 0};
     va_start(ap, fmt);
     p = halg_pin_newfv(1, HAL_U32, dir, (void**)data_ptr_addr, owner_id,
 		       defval,  fmt, ap);
@@ -56,7 +56,7 @@ int hal_pin_s32_newf(hal_pin_dir_t dir,
 {
     va_list ap;
     void *p;
-    hal_data_u defval = {._s = 0};
+    hal_data_u defval = {.s = 0};
     va_start(ap, fmt);
     p = halg_pin_newfv(1,HAL_S32, dir, (void**)data_ptr_addr,
 		       owner_id, defval,  fmt, ap);
@@ -69,7 +69,7 @@ int hal_pin_u64_newf(hal_pin_dir_t dir,
 {
     va_list ap;
     void *p;
-    hal_data_u defval = {._u = 0};
+    hal_data_u defval = {.u = 0};
     va_start(ap, fmt);
     p = halg_pin_newfv(1, HAL_U64, dir, (void**)data_ptr_addr, owner_id,
 		       defval,  fmt, ap);
@@ -82,7 +82,7 @@ int hal_pin_s64_newf(hal_pin_dir_t dir,
 {
     va_list ap;
     void *p;
-    hal_data_u defval = {._s = 0};
+    hal_data_u defval = {.s = 0};
     va_start(ap, fmt);
     p = halg_pin_newfv(1,HAL_S64, dir, (void**)data_ptr_addr,
 		       owner_id, defval,  fmt, ap);

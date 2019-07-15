@@ -35,26 +35,26 @@ typedef _HALTYPE_ATTRIBUTES real_t hal_float_t;
  ** This structure may hold any type of hal data
 */
 typedef union {
-    hal_bit_t _b;
-    hal_u8_t  _u8;
-    hal_s8_t  _s8;
-    hal_s32_t _s;
-    hal_u32_t _u;
-    hal_float_t _f;
-    hal_s64_t _ls;
-    hal_u64_t _lu;
+    hal_bit_t b;
+    hal_u8_t  u8;
+    hal_s8_t  s8;
+    hal_s32_t s;
+    hal_u32_t u;
+    hal_float_t f;
+    hal_s64_t ls;
+    hal_u64_t lu;
 
     // access for atomics
     // debuging & regression test use
     struct {
-	hal_u32_t _u1;
-	hal_u32_t _u2;
-    } _uint;
-    hal_u8_t _bytes[8];
+	hal_u32_t u1;
+	hal_u32_t u2;
+    } uint;
+    hal_u8_t bytes[8];
     struct { // alias as single-precision float
-	float _fs;
-	hal_u32_t _extra;
-    } _single;
+	float fs;
+	hal_u32_t extra;
+    } single;
 } hal_data_u;
 
 //rtapi_ct_assert(sizeof(hal_data_u) == sizeof(uint64_t), "BUG: size mismatch");

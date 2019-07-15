@@ -419,46 +419,46 @@ static inline void pin_set_unlinked(hal_pin_t *pin) {
 
 // strongly typed hal_data_u setters and getters, once and for all.
 static inline const hal_bit_t set_bit_value(hal_data_u *h, const hal_bit_t value) {
-    h->_b = value;
-    return h->_b;
+    h->b = value;
+    return h->b;
 }
 static inline const hal_s32_t set_s32_value(hal_data_u *h, const hal_s32_t value) {
-    h->_s = value;
-    return h->_s;
+    h->s = value;
+    return h->s;
 }
 static inline const hal_u32_t set_u32_value(hal_data_u *h, const hal_u32_t value) {
-    h->_u = value;
-    return h->_u;
+    h->u = value;
+    return h->u;
 }
 static inline const hal_s64_t set_s64_value(hal_data_u *h, const hal_s64_t value) {
-    h->_ls = value;
-    return h->_ls;
+    h->ls = value;
+    return h->ls;
 }
 static inline const hal_u64_t set_u64_value(hal_data_u *h, const hal_u64_t value) {
-    h->_lu = value;
-    return h->_lu;
+    h->lu = value;
+    return h->lu;
 }
 static inline const hal_float_t set_float_value(hal_data_u *h, const hal_float_t value) {
-    h->_f = value;
-    return h->_f;
+    h->f = value;
+    return h->f;
 }
 static inline const hal_bit_t get_bit_value(const hal_data_u *h) {
-    return h->_b;
+    return h->b;
 }
 static inline const hal_s32_t get_s32_value(const hal_data_u *h) {
-    return h->_s;
+    return h->s;
 }
 static inline const hal_u32_t get_u32_value(const hal_data_u *h) {
-    return h->_u;
+    return h->u;
 }
 static inline const hal_s64_t get_s64_value(const hal_data_u *h) {
-    return h->_ls;
+    return h->ls;
 }
 static inline const hal_u64_t get_u64_value(const hal_data_u *h) {
-    return h->_lu;
+    return h->lu;
 }
 static inline const hal_float_t get_float_value(const hal_data_u *h) {
-    return h->_f;
+    return h->f;
 }
 
 

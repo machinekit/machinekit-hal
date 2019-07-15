@@ -151,7 +151,7 @@ void hal_typefailure(const char *file,
 // export context-independent setters which are strongly typed,
 // and context-dependent accessors with a descriptor argument,
 // and an optional runtime type check
-#define PINSETTER(SETTER,  TYPE, OTYPE, LETTER, ACCESS,  CAST)	\
+#define PINSETTER(SETTER,  TYPE, OTYPE, ACCESS,  CAST)	\
 									\
     static inline const hal_##TYPE##_t					\
     _set_##TYPE##_pin(hal_pin_t *pin,					\
@@ -166,41 +166,41 @@ void hal_typefailure(const char *file,
     static inline const hal_##TYPE##_t					\
     set_##TYPE##_pin(TYPE##_pin_ptr p,					\
 		     const hal_##TYPE##_t value) {			\
-	return  _set_##TYPE##_pin((hal_pin_t *)hal_ptr(p._##LETTER##p),	\
+	return  _set_##TYPE##_pin((hal_pin_t *)hal_ptr(p.ACCESS##p),	\
 			      value);					\
     }
 
 
 // emit typed pin setters
-PINSETTER(_SETVALUE8, bit,   HAL_BIT,   b,   _b,     BITCAST);
-PINSETTER(_SETVALUE32, s32,   HAL_S32,   s,   _s,     S32CAST);
-PINSETTER(_SETVALUE32, u32,   HAL_U32,   u,   _u,     U32CAST);
-PINSETTER(_SETVALUE64, u64,   HAL_U64,   lu,  _lu,    U64CAST);
-PINSETTER(_SETVALUE64, s64,   HAL_S64,   ls,  _ls,    S64CAST);
-PINSETTER(_SETVALUEDOUBLE, float, HAL_FLOAT, f,   _f,   FLOATCAST);
+PINSETTER(_SETVALUE8, bit,   HAL_BIT,    b,     BITCAST);
+PINSETTER(_SETVALUE32, s32,   HAL_S32,   s,     S32CAST);
+PINSETTER(_SETVALUE32, u32,   HAL_U32,   u,     U32CAST);
+PINSETTER(_SETVALUE64, u64,   HAL_U64,   lu,    U64CAST);
+PINSETTER(_SETVALUE64, s64,   HAL_S64,   ls,    S64CAST);
+PINSETTER(_SETVALUEDOUBLE, float, HAL_FLOAT, f,   FLOATCAST);
 
 
-#define PINGETTER(GETTER,  TYPE, OTYPE, LETTER, ACCESS,  CAST)	\
+#define PINGETTER(GETTER,  TYPE, OTYPE, ACCESS,  CAST)	\
     static inline const hal_##TYPE##_t					\
     _get_##TYPE##_pin(const hal_pin_t *pin) {				\
 	const hal_data_u *u =						\
 	    (const hal_data_u *)hal_ptr(pin->data_ptr);			\
 	_CHECK(pin_type(pin), OTYPE)					\
-	    GETTER( pin, _##LETTER, CAST);		\
+	    GETTER( pin, ACCESS, CAST);		\
     }									\
 									\
     static inline const hal_##TYPE##_t					\
     get_##TYPE##_pin(const TYPE##_pin_ptr p) {				\
-	return _get_##TYPE##_pin((const hal_pin_t *)hal_ptr(p._##LETTER##p)); \
+	return _get_##TYPE##_pin((const hal_pin_t *)hal_ptr(p.ACCESS##p)); \
     }
 
 // emit typed pin getters
-PINGETTER(_GETVALUE8,      bit,   HAL_BIT,   b,   _b,  BITCAST);
-PINGETTER(_GETVALUE32,     s32,   HAL_S32,   s,   _s,  S32CAST);
-PINGETTER(_GETVALUE32,     u32,   HAL_U32,   u,   _u,  U32CAST);
-PINGETTER(_GETVALUE64,     u64,   HAL_U64,   lu,  _lu, U64CAST);
-PINGETTER(_GETVALUE64,     s64,   HAL_S64,   ls,  _ls, S64CAST);
-PINGETTER(_GETVALUEDOUBLE, float, HAL_FLOAT, f,   _f,  FLOATCAST);
+PINGETTER(_GETVALUE8,      bit,   HAL_BIT,   b,  BITCAST);
+PINGETTER(_GETVALUE32,     s32,   HAL_S32,   s,  S32CAST);
+PINGETTER(_GETVALUE32,     u32,   HAL_U32,   u,  U32CAST);
+PINGETTER(_GETVALUE64,     u64,   HAL_U64,   lu, U64CAST);
+PINGETTER(_GETVALUE64,     s64,   HAL_S64,   ls, S64CAST);
+PINGETTER(_GETVALUEDOUBLE, float, HAL_FLOAT, f,  FLOATCAST);
 
 // atomically increment a value (integral types only)
 // unclear how to do the equivalent of an __atomic_add_fetch
@@ -216,16 +216,16 @@ PINGETTER(_GETVALUEDOUBLE, float, HAL_FLOAT, f,   _f,  FLOATCAST);
     static inline const hal_##type##_t					\
 	 incr_##type##_pin(type##_pin_ptr p,				\
 			   const hal_##type##_t value) {		\
-        hal_pin_t *pin = (hal_pin_t *)hal_ptr(p._##tag##p);		\
+        hal_pin_t *pin = (hal_pin_t *)hal_ptr(p.tag##p);		\
 	hal_data_u *u = (hal_data_u*)hal_ptr(pin->data_ptr);		\
-	_INCREMENT(u, pin, hal_##type##_t,  _##tag, value);		\
+	_INCREMENT(u, pin, hal_##type##_t,  tag, value);		\
     }									\
 									\
     static inline const hal_##type##_t					\
     _incr_##type##_pin(hal_pin_t *pin,					\
 		       const hal_##type##_t value) {			\
 	hal_data_u *u = (hal_data_u*)hal_ptr(pin->data_ptr);		\
-	_INCREMENT(u, pin, hal_##type##_t,  _##tag, value)		\
+	_INCREMENT(u, pin, hal_##type##_t,  tag, value)		\
     }
 
 // typed pin incrementers
@@ -234,32 +234,32 @@ PIN_INCREMENTER(u32, u)
 
 
 // signal getters
-#define SIGGETTER(GETTER,  TYPE, OTYPE, LETTER, ACCESS,  CAST)	\
+#define SIGGETTER(GETTER,  TYPE, OTYPE, ACCESS,  CAST)	\
     static inline const hal_##TYPE##_t					\
     _get_##TYPE##_sig(const hal_sig_t *sig) {				\
 	_CHECK(sig_type(sig), OTYPE);					\
 	hal_data_u *u = (hal_data_u*)&sig->value;			\
-	GETTER( sig, _##LETTER, CAST);			\
+	GETTER( sig, ACCESS, CAST);			\
     }									\
 									\
     static inline const hal_##TYPE##_t					\
     get_##TYPE##_sig(const TYPE##_sig_ptr s) {				\
-    return  _get_##TYPE##_sig((const hal_sig_t *)hal_ptr(s._##LETTER##s)); \
+    return  _get_##TYPE##_sig((const hal_sig_t *)hal_ptr(s.ACCESS##s)); \
     }
 
 
 
 // emit typed signal getters
-SIGGETTER(_GETVALUE8,      bit,   HAL_BIT,   b,   _b,   BITCAST);
-SIGGETTER(_GETVALUE32,     s32,   HAL_S32,   s,   _s,   S32CAST);
-SIGGETTER(_GETVALUE32,     u32,   HAL_U32,   u,   _u,   U32CAST);
-SIGGETTER(_GETVALUE64,     u64,   HAL_U64,   lu,  _lu,  U64CAST);
-SIGGETTER(_GETVALUE64,     s64,   HAL_S64,   ls,  _ls,  S64CAST);
-SIGGETTER(_GETVALUEDOUBLE, float, HAL_FLOAT, f,   _f,   FLOATCAST);
+SIGGETTER(_GETVALUE8,      bit,   HAL_BIT,   b,   BITCAST);
+SIGGETTER(_GETVALUE32,     s32,   HAL_S32,   s,   S32CAST);
+SIGGETTER(_GETVALUE32,     u32,   HAL_U32,   u,   U32CAST);
+SIGGETTER(_GETVALUE64,     u64,   HAL_U64,   lu,  U64CAST);
+SIGGETTER(_GETVALUE64,     s64,   HAL_S64,   ls,  S64CAST);
+SIGGETTER(_GETVALUEDOUBLE, float, HAL_FLOAT, f,   FLOATCAST);
 
 
 
-#define SIGSETTER(SETTER,  TYPE, OTYPE, LETTER, ACCESS,  CAST)	\
+#define SIGSETTER(SETTER,  TYPE, OTYPE, ACCESS,  CAST)	\
     static inline const hal_##TYPE##_t					\
     _set_##TYPE##_sig(hal_sig_t *sig,					\
 		      const hal_##TYPE##_t value) {			\
@@ -272,41 +272,41 @@ SIGGETTER(_GETVALUEDOUBLE, float, HAL_FLOAT, f,   _f,   FLOATCAST);
     static inline const hal_##TYPE##_t					\
     set_##TYPE##_sig(TYPE##_sig_ptr s,					\
 		     const hal_##TYPE##_t value) {			\
-	return  _set_##TYPE##_sig((hal_sig_t *)hal_ptr(s._##LETTER##s),	\
+	return  _set_##TYPE##_sig((hal_sig_t *)hal_ptr(s.ACCESS##s),	\
 				  value);				\
     }
 
 
 // emit typed signal setters
-SIGSETTER(_SETVALUE8,      bit,   HAL_BIT,   b,   _b,   BITCAST);
-SIGSETTER(_SETVALUE32,     s32,   HAL_S32,   s,   _s,   S32CAST);
-SIGSETTER(_SETVALUE32,     u32,   HAL_U32,   u,   _u,   U32CAST);
-SIGSETTER(_SETVALUE64,     u64,   HAL_U64,   lu,  _lu,  U64CAST);
-SIGSETTER(_SETVALUE64,     s64,   HAL_S64,   ls,  _ls,  S64CAST);
-SIGSETTER(_SETVALUEDOUBLE, float, HAL_FLOAT, f,   _f,   FLOATCAST);
+SIGSETTER(_SETVALUE8,      bit,   HAL_BIT,   b,   BITCAST);
+SIGSETTER(_SETVALUE32,     s32,   HAL_S32,   s,   S32CAST);
+SIGSETTER(_SETVALUE32,     u32,   HAL_U32,   u,   U32CAST);
+SIGSETTER(_SETVALUE64,     u64,   HAL_U64,   lu,  U64CAST);
+SIGSETTER(_SETVALUE64,     s64,   HAL_S64,   ls,  S64CAST);
+SIGSETTER(_SETVALUEDOUBLE, float, HAL_FLOAT, f,   FLOATCAST);
 
 // typed NULL tests for pins and signals
 #define PINNULL(TYPE, FIELD)						\
     static inline bool TYPE##_pin_null(const TYPE##_pin_ptr p) {	\
 	return p.FIELD == 0;						\
 }
-PINNULL(bit,  _bp)
-PINNULL(s32,  _sp)
-PINNULL(u32,  _up)
-PINNULL(u64,  _lup)
-PINNULL(s64,  _lsp)
-PINNULL(float,_fp)
+PINNULL(bit,  bp)
+PINNULL(s32,  sp)
+PINNULL(u32,  up)
+PINNULL(u64,  lup)
+PINNULL(s64,  lsp)
+PINNULL(float,fp)
 
 #define SIGNULL(TYPE, FIELD)						\
     static inline bool TYPE##_sig_null(const TYPE##_sig_ptr s) {	\
 	return s.FIELD == 0;						\
 }
-SIGNULL(bit,  _bs)
-SIGNULL(s32,  _ss)
-SIGNULL(u32,  _us)
-SIGNULL(u64,  _lus)
-SIGNULL(s64,  _lss)
-SIGNULL(float,_fs)
+SIGNULL(bit,  bs)
+SIGNULL(s32,  ss)
+SIGNULL(u32,  us)
+SIGNULL(u64,  lus)
+SIGNULL(s64,  lss)
+SIGNULL(float,fs)
 
 
 // convert hal type to string
