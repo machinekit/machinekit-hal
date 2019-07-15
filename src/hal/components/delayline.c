@@ -216,6 +216,7 @@ static void write_sample_to_ring(void *arg, long period)
 		    break;
 		case HAL_TYPE_MAX:
 		case HAL_TYPE_UNSPECIFIED:
+		case HAL_TYPE_UNINITIALIZED:
 		    // an error - should fail loudly TBD
 		    ;
 		}
@@ -255,6 +256,7 @@ static void write_sample_to_ring(void *arg, long period)
 		break;
 	    case HAL_TYPE_MAX:
 	    case HAL_TYPE_UNSPECIFIED:
+            case HAL_TYPE_UNINITIALIZED:
 		// an error - should fail loudly TBD
 		;
 	    }
@@ -298,6 +300,7 @@ static inline void apply(const sample_t *s, const hal_delayline_t *hd)
 	    break;
 	case HAL_TYPE_MAX:
 	case HAL_TYPE_UNSPECIFIED:
+        case HAL_TYPE_UNINITIALIZED:
 	    // an error - should fail loudly TBD
 	    ;
 	}
@@ -490,6 +493,7 @@ static int export_delayline(int n)
 	    break;
 	case HAL_TYPE_MAX:
 	case HAL_TYPE_UNSPECIFIED:
+        case HAL_TYPE_UNINITIALIZED:
 	    // do nothing
 	    break;
 	}

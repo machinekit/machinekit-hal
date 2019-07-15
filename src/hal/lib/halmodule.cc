@@ -283,6 +283,7 @@ static PyObject *pyhal_read_common(halitem *item) {
             case HAL_FLOAT: return PyFloat_FromDouble(*(item->u->pin.f));
             case HAL_TYPE_MAX: /* fallthrough */ ;
             case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
+            case HAL_TYPE_UNINITIALIZED: /* fallthrough */ ;
         }
     } else {
         switch(item->type) {
@@ -294,6 +295,7 @@ static PyObject *pyhal_read_common(halitem *item) {
             case HAL_FLOAT: return PyFloat_FromDouble(item->u->param.f);
             case HAL_TYPE_MAX: /* fallthrough */ ;
             case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
+            case HAL_TYPE_UNINITIALIZED: /* fallthrough */ ;
         }
     }
     PyErr_Format(pyhal_error_type, "Invalid item type %d", item->type);

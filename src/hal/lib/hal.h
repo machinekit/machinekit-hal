@@ -480,6 +480,7 @@ void hal_print_error(const char *fmt, ...)
 */
 typedef enum {
     HAL_TYPE_UNSPECIFIED = -1,
+    HAL_TYPE_UNINITIALIZED = 0,
     HAL_BIT = 1,
     HAL_FLOAT = 2,
     HAL_S32 = 3,
