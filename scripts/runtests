@@ -9,16 +9,15 @@ unset DISPLAY
 export LC_ALL=C
 
 
-case "$0" in
-	*/*) MYDIR="${0%/*}" ;;
-	*) MYDIR="`type -path $0`"; MYDIR="${MYDIR%/*}"
-esac
-MYDIR=$(cd $MYDIR; pwd);
-TOPDIR=$(cd $MYDIR/..; pwd)
 export RUNTESTS="$(readlink -f $0)"
-echo "RUNTESTS=$RUNTESTS"
+TOPDIR="$(readlink -f $(dirname $RUNTESTS)/..)"
 
-. $TOPDIR/scripts/rip-environment >/dev/null
+if test -f $TOPDIR/scripts/rip-environment; then
+    . $TOPDIR/scripts/rip-environment >/dev/null
+    RIP_INSTALL=true
+else
+    RIP_INSTALL=false
+fi
 
 NUM=0
 FAIL=0; FAIL_NAMES=""
@@ -197,7 +196,7 @@ run_tests () {
 
 usage () {
     P=${0##*/}
-    cat <<EOF
+    cat <<EOF >&2
 $P: Run HAL test suite items
 
 Usage:
@@ -211,6 +210,14 @@ Usage:
     $P -v
         Show stdout and stderr (normally it's hidden).
 EOF
+
+    if test -n "$*"; then
+        echo
+        echo "ERROR:  $*" >&2
+        exit 1
+    else
+        exit 0
+    fi
 }
 
 # Special case:  we called ourself to log a run
@@ -247,8 +254,8 @@ while getopts cnvsh opt; do
     n) NOCLEAN=1 ;;
     v) VERBOSE=1 ;;
     s) STOP=1 ;;
-    h|?) usage; exit 0 ;;
-    *) usage; exit 1 ;;
+    h|?) usage ;;
+    *) usage "Unknown option '$opt'" ;;
     esac
 done
 shift $((OPTIND-1))
@@ -256,6 +263,8 @@ shift $((OPTIND-1))
 if [ $# -eq 0 ]; then
     if [ -f test.hal -o -f test.sh ]; then
         set -- .
+    elif ! $RIP_INSTALL; then
+        usage "Please specify tests"
     else
         set -- $TOPDIR/tests
     fi
