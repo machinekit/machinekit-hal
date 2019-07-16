@@ -43,7 +43,7 @@ extern double rtapi_fmod(double, double);
 extern double rtapi_hypot(double, double);
 extern double rtapi_rint(double);
 extern double rtapi_scalbn(double, int);
-extern int rtapi_finite(double);
+extern int rtapi_isfinite(double);
 extern double rtapi_copysign(double, double);
 
 extern double rtapi_ceil(double);
@@ -67,7 +67,7 @@ extern double rtapi_cbrt(double);
 #define hypot(x,y) rtapi_hypot(x,y)
 #define rint(x) rtapi_rint(x)
 #define scalbn(x,ebp) rtapi_scalbn(x,ebp)
-#define finite(x) rtapi_finite(x)
+#define isfinite(x) rtapi_isfinite(x)
 #define copysign(x,y) rtapi_copysign(x,y)
 #define ceil(x) rtapi_ceil(x)
 #define floor(x) rtapi_floor(x)

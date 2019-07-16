@@ -5,7 +5,7 @@
  *
  * Developed at SunPro, a Sun Microsystems, Inc. business.
  * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice 
+ * software is freely granted, provided that this notice
  * is preserved.
  * ====================================================
  */
@@ -15,7 +15,7 @@ static char rcsid[] = "$NetBSD: s_finite.c,v 1.8 1995/05/10 20:47:17 jtc Exp $";
 #endif
 
 /*
- * finite(x) returns 1 is x is finite, else 0;
+ * isfinite(x) returns 1 is x is isfinite, else 0;
  * no branching!
  */
 
@@ -23,9 +23,9 @@ static char rcsid[] = "$NetBSD: s_finite.c,v 1.8 1995/05/10 20:47:17 jtc Exp $";
 #include "mathP.h"
 
 #ifdef __STDC__
-	int rtapi_finite(double x)
+	int rtapi_isfinite(double x)
 #else
-	int rtapi_finite(x)
+	int rtapi_isfinite(x)
 	double x;
 #endif
 {
