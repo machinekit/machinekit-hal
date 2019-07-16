@@ -1004,6 +1004,16 @@ extern int hal_get_param_value_by_name(
 *                   EXECUTION RELATED FUNCTIONS                        *
 ************************************************************************/
 
+// argument struct for hal_create_xthread()
+typedef struct {
+    const char *name;
+    unsigned long period_nsec;
+    int uses_fp;
+    int cpu_id;
+    rtapi_thread_flags_t flags;
+    char cgname[LINELEN];
+} hal_threadargs_t;
+
 #ifdef RTAPI
 
 /** hal_export_funct() makes a realtime function provided by a
@@ -1070,11 +1080,18 @@ int hal_export_functf(void (*funct) (void *, long),
     thread ID.  On failure, returns an error code as defined
     above.  Call only from realtime init code, not from user
     space or realtime code.
-    cpu_id is intented to bind the thread explicitly to a
-    specific CPU id.
+
+    hal_create_xthread() is the extended arguments version of
+    hal_create_thread().  Its single argument is a pointer to a
+    hal_threadargs_t struct.  The struct contains the same data as
+    the hal_create_thread() function, and also passes an integer cpu_id
+    CPU affinity number (-1 for any) and rtapi_thread_flags_t flags.
 */
+
+int hal_create_xthread(const hal_threadargs_t *args);
+
 extern int hal_create_thread(const char *name, unsigned long period_nsec,
-			     int uses_fp, int cpu_id);
+			     int uses_fp);
 
 // generic. delete a named thread, or all threads if name == NULL
 int halg_exit_thread(const int use_hal_mutex, const char *name);

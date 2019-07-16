@@ -112,7 +112,14 @@ int rtapi_app_main(void)
     /* was 'period' specified in the insmod command? */
     if ((period1 > 0) && (name1 != NULL) && (*name1 != '\0')) {
 	/* create a thread */
-	retval = hal_create_thread(name1, period1, fp1, cpu1);
+        hal_threadargs_t args = {
+            .name = name1,
+            .period_nsec = period1,
+            .uses_fp = fp1,
+            .cpu_id = cpu1,
+            .flags = 0,
+        };
+	retval = hal_create_xthread(&args);
 	if (retval < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"THREADS: ERROR: could not create thread '%s'\n", name1);
@@ -124,7 +131,14 @@ int rtapi_app_main(void)
     }
     if ((period2 > 0) && (name2 != NULL) && (*name2 != '\0')) {
 	/* create a thread */
-	retval = hal_create_thread(name2, period2, fp2, cpu2);
+        hal_threadargs_t args = {
+            .name = name2,
+            .period_nsec = period2,
+            .uses_fp = fp2,
+            .cpu_id = cpu2,
+            .flags = 0,
+        };
+	retval = hal_create_xthread(&args);
 	if (retval < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"THREADS: ERROR: could not create thread '%s'\n", name2);
@@ -136,7 +150,14 @@ int rtapi_app_main(void)
     }
     if ((period3 > 0) && (name3 != NULL) && (*name3 != '\0')) {
 	/* create a thread */
-	retval = hal_create_thread(name3, period3, fp3, cpu3);
+        hal_threadargs_t args = {
+            .name = name3,
+            .period_nsec = period3,
+            .uses_fp = fp3,
+            .cpu_id = cpu3,
+            .flags = 0,
+        };
+	retval = hal_create_xthread(&args);
 	if (retval < 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"THREADS: ERROR: could not create thread '%s'\n", name3);
@@ -154,4 +175,3 @@ void rtapi_app_exit(void)
 {
     hal_exit(comp_id);
 }
-

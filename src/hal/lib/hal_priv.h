@@ -582,19 +582,6 @@ typedef struct hal_funct_entry {
     int funct_ptr;		/* pointer to function */
 } hal_funct_entry_t;
 
-// argument struct for hal_create_xthread()
-typedef struct {
-    const char *name;
-    unsigned long period_nsec;
-    int uses_fp;
-    int cpu_id;
-    rtapi_thread_flags_t flags;
-    char cgname[LINELEN];
-} hal_threadargs_t;
-
-// extended arguments version of hal_create_thread().
-int hal_create_xthread(const hal_threadargs_t *args);
-
 typedef struct hal_thread {
     halhdr_t hdr;
     int uses_fp;		/* floating point flag */

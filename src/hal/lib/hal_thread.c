@@ -283,12 +283,12 @@ int hal_create_xthread(const hal_threadargs_t *args)
 
 // HAL threads - legacy API
 int hal_create_thread(const char *name, unsigned long period_nsec,
-		      int uses_fp, int cpu_id) {
+		      int uses_fp) {
     hal_threadargs_t args = {
 	.name = name,
 	.period_nsec = period_nsec,
 	.uses_fp = uses_fp,
-	.cpu_id = cpu_id,
+	.cpu_id = -1,
 	.flags = 0,
     };
     return hal_create_xthread(&args);
