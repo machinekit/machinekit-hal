@@ -1558,10 +1558,6 @@ AH_TOP([/********************************************************************
 #define LINELEN 255
 
 /* RTAPI array sizes */
-#define RTAPI_MAX_MODULES	64
-#define RTAPI_MAX_TASKS		64
-#define RTAPI_MAX_SHMEMS	32
-
 #define MAX_INSTANCES           16
 
 // default size of the HAL data segment

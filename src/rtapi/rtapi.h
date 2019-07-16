@@ -64,7 +64,11 @@
   with previous versions.
 */
 #define RTAPI_SERIAL 3
-#include "config.h"
+
+/* RTAPI array sizes */
+#define RTAPI_MAX_MODULES	64
+#define RTAPI_MAX_TASKS		64
+#define RTAPI_MAX_SHMEMS	32
 
 #if ( !defined RTAPI ) && ( !defined ULAPI )
 #error "Please define either RTAPI or ULAPI!"
