@@ -1,5 +1,5 @@
 USER_COMP_PY = \
-	pyvcp hal_input \
+	hal_input \
 	hal_gpio_mcp23017 \
 	hal_pwm_pca9685 \
 	hal_storage \

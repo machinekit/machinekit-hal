@@ -721,7 +721,6 @@ install-python: install-dirs
 	$(EXE) ../bin/hal_temp_ads7828 $(DESTDIR)$(bindir)
 	$(EXE) ../bin/hal_temp_bbb $(DESTDIR)$(bindir)
 	$(EXE) ../bin/hal_temp_atlas $(DESTDIR)$(bindir)
-	$(EXE) ../bin/pyvcp $(DESTDIR)$(bindir)
 	$(FILE) ../tcl/hal.so $(DESTDIR)$(tcldir)
 	$(FILE) ../lib/python/*.py ../lib/python/*.so $(DESTDIR)$(SITEPY)
 	$(FILE) ../lib/python/machinekit/*.py $(DESTDIR)$(SITEPY)/machinekit/
