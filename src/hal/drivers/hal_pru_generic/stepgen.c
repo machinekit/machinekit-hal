@@ -53,11 +53,6 @@
 // Use config_module.h instead of config.h so we can use RTAPI_INC_LIST_H
 #include "config_module.h"
 
-// this probably should be an ARM335x #define
-#if !defined(TARGET_PLATFORM_BEAGLEBONE)
-#error "This driver is for the beaglebone platform only"
-#endif
-
 // #include RTAPI_INC_LIST_H
 // #include "rtapi.h"          /* RTAPI realtime OS API */
 // #include "rtapi_app.h"      /* RTAPI realtime module decls */
@@ -76,8 +71,14 @@
 #include "rtapi_math.h"
 
 #include "hal.h"
+#include "config.h"             // TARGET_PLATFORM_BEAGLEBONE
 
 #include "hal/drivers/hal_pru_generic/hal_pru_generic.h"
+
+// this probably should be an ARM335x #define
+#if !defined(TARGET_PLATFORM_BEAGLEBONE)
+#error "This driver is for the beaglebone platform only"
+#endif
 
 
 #define f_period_s ((double)(l_period_ns * 1e-9))

@@ -39,6 +39,7 @@
 #error This is intended as a userspace component only.
 #endif
 
+//#include "config.h"
 #include <rtapi.h>
 #include <hal.h>
 #include <hal_priv.h>

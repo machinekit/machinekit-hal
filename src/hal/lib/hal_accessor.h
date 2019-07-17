@@ -1,7 +1,6 @@
 #ifndef  HAL_ACCESSOR_H
 #define  HAL_ACCESSOR_H
 
-#include "config.h"  // HAVE_CK
 #include "rtapi.h"
 #include "rtapi_atomics.h"
 

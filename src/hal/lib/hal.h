@@ -1011,7 +1011,7 @@ typedef struct {
     int uses_fp;
     int cpu_id;
     rtapi_thread_flags_t flags;
-    char cgname[LINELEN];
+    char cgname[RTAPI_LINELEN];
 } hal_threadargs_t;
 
 #ifdef RTAPI

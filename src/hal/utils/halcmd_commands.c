@@ -4333,7 +4333,7 @@ int do_newthread_cmd(char *name, char *args[])
     int i, retval;
     bool use_fp = false;
     int cpu = -1;
-    char cgname[LINELEN] = {0};
+    char cgname[RTAPI_LINELEN] = {0};
     char *s;
     int per = 1000000;
     int flags = 0;

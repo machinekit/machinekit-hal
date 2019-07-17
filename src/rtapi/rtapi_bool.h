@@ -15,7 +15,6 @@
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #ifndef RTAPI_BOOL_H
 
-// Enough of this is in rtapi.h
-//#include <stdbool.h>
+#include <stdbool.h>
 
 #endif

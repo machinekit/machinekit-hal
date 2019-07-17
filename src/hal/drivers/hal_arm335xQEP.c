@@ -49,6 +49,7 @@
 #include "rtapi_app.h"
 #include "rtapi_string.h"
 #include "hal.h"
+#include "config.h"             // TARGET_PLATFORM_BEAGLEBONE
 
 #include <fcntl.h>
 #include <sys/mman.h>

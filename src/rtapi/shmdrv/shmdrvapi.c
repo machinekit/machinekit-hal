@@ -202,7 +202,7 @@ int shm_common_new(int key, int *size, int instance, void **shmptr, int create)
 
 	int shmfd, mmap_size;
 	mode_t old_umask;
-	char segment_name[LINELEN];
+	char segment_name[RTAPI_LINELEN];
 	if ((size == 0) || (*size == 0))
 	    mmap_size = 0;
 	else
@@ -270,7 +270,7 @@ int shm_common_exists(int key)
 	return retval == 0;
     } else {
 	int shmfd;
-	char segment_name[LINELEN];
+	char segment_name[RTAPI_LINELEN];
 
 	sprintf(segment_name, SHM_FMT, INSTANCE_OF(key), key);
 	if ((shmfd = shm_open(segment_name, O_RDWR,
@@ -293,7 +293,7 @@ int shm_common_unlink(int key)
 	// will do this on last detach
 	return 0;
     } else {
-	char segment_name[LINELEN];
+	char segment_name[RTAPI_LINELEN];
 
 	sprintf(segment_name, SHM_FMT, INSTANCE_OF(key), key);
 	return shm_unlink(segment_name);

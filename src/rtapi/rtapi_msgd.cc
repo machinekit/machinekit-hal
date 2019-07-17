@@ -28,6 +28,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  ********************************************************************/
 
+#include "config.h"
 #include "rtapi.h"
 #include "rtapi_compat.h"
 
@@ -67,6 +68,21 @@ using namespace std;
 #include <google/protobuf/text_format.h>
 #include <message.pb.h>
 using namespace google::protobuf;
+
+// Default size of the HAL data segment
+// can be overridden in rtapi.ini
+#define HAL_SIZE                262000
+
+// Minimum memlock limit
+// see http://wiki.linuxcnc.org/cgi-bin/wiki.pl?LockedMemory
+// edit /etc/security/limits.conf to read:
+//  *       -    memlock 20480
+#define RLIMIT_MEMLOCK_RECOMMENDED (20480*1024lu)
+
+// default size of the thread stack size passed to rtapi_task_new()
+// in hal_create_thread()
+// can be overridden by an option to rtapi_msgd
+#define HAL_STACKSIZE           32768
 
 
 #ifndef SYSLOG_FACILITY
@@ -171,7 +187,7 @@ static void usage(int argc, char **argv)
 
 pid_t pid_of(const char *fmt, ...)
 {
-    char line[LINELEN];
+    char line[RTAPI_LINELEN];
     FILE *cmd;
     pid_t pid;
     va_list ap;
@@ -238,7 +254,7 @@ static global_data_t *create_global_segment(const size_t global_size)
 	// entities (user process or kernel modules).
 	// Remove and keep going:
         // Posix shm case.
-        char segment_name[LINELEN];
+        char segment_name[RTAPI_LINELEN];
 
         if (hal_exists) {
             sprintf(segment_name, SHM_FMT, rtapi_instance, halkey);

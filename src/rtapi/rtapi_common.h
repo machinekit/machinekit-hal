@@ -86,8 +86,6 @@
 #define PRIO_LOWEST 0
 #define PRIO_HIGHEST 99
 
-// RTAPI_MAX_* moved to config.h
-
 #define DEFAULT_MAX_DELAY	10000
 
 /* random numbers used as signatures */
@@ -144,7 +142,7 @@ typedef struct {
     void *arg;			/* task argument */
     int cpu;
     rtapi_thread_flags_t flags;
-    char cgname[LINELEN];
+    char cgname[RTAPI_LINELEN];
 } task_data;
 
 typedef struct {

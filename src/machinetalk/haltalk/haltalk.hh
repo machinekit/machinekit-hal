@@ -16,8 +16,6 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "config.h"
-
 #ifndef SYSLOG_FACILITY
 #define SYSLOG_FACILITY LOG_LOCAL1  // where all rtapi/ulapi logging goes
 #endif

@@ -18,7 +18,6 @@
 #ifndef RTAPI_LIMITS_H
 #define RTAPI_LIMITS_H
 
-#include "config.h"
 #include <limits.h>
 
 #endif

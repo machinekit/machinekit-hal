@@ -599,7 +599,7 @@ typedef struct hal_thread {
                                 // root: hal_data.threads
     int cpu_id;                 /* cpu to bind on, or -1 */
     rtapi_thread_flags_t flags;             // eg Posix, nowait
-    char cgname[LINELEN];       // libcgroup name
+    char cgname[RTAPI_LINELEN];       // libcgroup name
 } hal_thread_t;
 
 

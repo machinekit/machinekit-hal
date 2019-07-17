@@ -13,6 +13,7 @@
 #include "rtapi_app.h"
 
 #include "hal.h"
+#include "config.h"             // TARGET_PLATFORM_CHIP
 
 #include <sys/types.h>
 #include <sys/stat.h>

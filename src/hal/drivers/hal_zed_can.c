@@ -80,6 +80,7 @@
 #include "rtapi_bitops.h"  // RTAPI_BIT(n)
 #include "rtapi_app.h"     //
 #include "hal.h"
+#include "config.h"             // TARGET_PLATFORM_ZEDBOARD
 
 #if !defined(TARGET_PLATFORM_ZEDBOARD)
     #error "This driver is for the Zedboard platform only"

@@ -30,6 +30,7 @@
 //
 //   6. [notyet] optional may bridge to a remote HAL instance through a remote component.
 
+#include "config.h"
 #include "haltalk.hh"
 #include <setup_signals.h>
 #include <mk-service.hh>

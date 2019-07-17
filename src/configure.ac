@@ -1557,24 +1557,6 @@ AH_TOP([/********************************************************************
    etc. Let's just have one instead of a multitude of defines all the same. */
 #define LINELEN 255
 
-/* RTAPI array sizes */
-#define MAX_INSTANCES           16
-
-// default size of the HAL data segment
-// can be overridden by the rtapi.so/ko module param hal_size=<n>
-#define HAL_SIZE                262000
-
-// minimum memlock limit
-// see http://wiki.linuxcnc.org/cgi-bin/wiki.pl?LockedMemory
-// edit /etc/security/limits.conf to read:
-//  *       -    memlock 20480
-#define RLIMIT_MEMLOCK_RECOMMENDED (20480*1024lu)
-
-// default size of the thread stack size passed to rtapi_task_new()
-// in hal_create_thread()
-// can be overridden by an option to rtapi_msgd
-#define HAL_STACKSIZE           32768
-
 // format of zeroMQ IPC socket pathnames
 // pass: RUNDIR, rtapi_instance, service name, uuid
 // service name is: log, rtapi, halrcomp etc
@@ -1873,6 +1855,7 @@ AC_SUBST([SITEPY])
 ##############################################################################
 # files that get created by ./configure                                      #
 ##############################################################################
+AC_CONFIG_HEADER(rtapi/rtapi.h)
 AC_CONFIG_FILES([../scripts/gen-rtapi.ini.sh])
 AC_CONFIG_FILES([../scripts/halrun], [chmod +x ../scripts/halrun])
 AC_CONFIG_FILES([../scripts/rip-environment], [chmod +x ../scripts/rip-environment])

@@ -432,7 +432,6 @@ default: $(INFILES)
 # files in the source tree are the ones used when building machinekit.  The copy
 # in ../include is used when building external components of machinekit.
 HEADERS := \
-    config.h \
     hal/lib/hal_accessor.h \
     hal/lib/hal_accessor_macros.h \
     hal/lib/config_module.h \
