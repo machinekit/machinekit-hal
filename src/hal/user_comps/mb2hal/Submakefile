@@ -21,7 +21,7 @@ USERSRCS += $(MB2HAL_SRCS)
 # This is how the binaries are linked.
 ../bin/mb2hal: $(call TOOBJS, $(MB2HAL_SRCS)) \
 		../lib/libhal.so.0 \
-		../lib/liblinuxcncini.so.0
+		../lib/libmkini.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)@$(CC) $(LDFLAGS) -o $@ $^ $(MB2HAL_LDFLAGS)
 

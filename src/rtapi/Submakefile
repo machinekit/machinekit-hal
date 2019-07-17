@@ -78,7 +78,7 @@ ULAPI_LIB := ../lib/libhalulapi.so
 $(call TOOBJSDEPS, $(ULAPI_SRCS)): EXTRAFLAGS += -fPIC
 
 $(ULAPI_LIB).0: $(call TOOBJS, $(ULAPI_SRCS)) \
-	../lib/liblinuxcncini.so \
+	../lib/libmkini.so \
 	../lib/liblinuxcncshm.so
 	$(ECHO) Creating shared library $(notdir $@)
 	@mkdir -p ../lib
@@ -242,7 +242,7 @@ $(call TOOBJSDEPS, rtapi/rtapi_app.cc): \
 
 ../libexec/rtapi_app: \
 	$(call TOOBJS, $(RTAPI_APP_SRCS)) \
-	../lib/liblinuxcncini.so.0 \
+	../lib/libmkini.so.0 \
 	../lib/liblinuxcncshm.so \
 	../lib/libmtalk.so.0 \
 	../lib/libmachinetalk-pb2++.so.0 \
@@ -292,7 +292,7 @@ $(call TOOBJSDEPS, $(RTAPI_MSGD_SRCS)): \
 
 ../libexec/rtapi_msgd: $(RTAPI_MSGD_OBJS) \
 	../lib/liblinuxcncshm.so \
-	../lib/liblinuxcncini.so \
+	../lib/libmkini.so \
 	../lib/libmtalk.so.0 \
 	../lib/libmachinetalk-pb2++.so
 	$(ECHO) Linking $(notdir $@)
@@ -320,7 +320,7 @@ TARGETS += ../etc/linuxcnc/rtapi.ini
 $(eval $(call setup_test,rtapi/tests/rtapi_flavor, ULAPI,\
   $(XXAPI_COMMON_SRCS) machinetalk/lib/syslog_async.c rtapi/flavor/ulapi.c,\
   , \
-  ../lib/liblinuxcncshm.so ../lib/liblinuxcncini.so, \
+  ../lib/liblinuxcncshm.so ../lib/libmkini.so, \
   , \
   flavor_can_run_flavor getenv))
 
@@ -328,6 +328,6 @@ $(eval $(call setup_test,rtapi/tests/rtapi_flavor, ULAPI,\
 $(eval $(call setup_test,rtapi/tests/rtapi_flavor, RTAPI,\
   machinetalk/lib/syslog_async.c rtapi/flavor/ulapi.c, \
   $(XXAPI_COMMON_SRCS) rtapi/flavor/rt-preempt.c $(XENOMAI_SRC), \
-  ../lib/liblinuxcncshm.so ../lib/liblinuxcncini.so, \
+  ../lib/liblinuxcncshm.so ../lib/libmkini.so, \
   -pthread $(LIBCGROUP_LIBS), \
   flavor_can_run_flavor getenv))

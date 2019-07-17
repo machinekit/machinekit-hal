@@ -1,4 +1,4 @@
-//    Header for C-linkage apis in liblinuxcncini
+//    Header for C-linkage apis in libmkini
 //    Copyright (C) 2012 Jeff Epler
 //
 //    This program is free software; you can redistribute it and/or modify

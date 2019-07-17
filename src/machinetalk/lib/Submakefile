@@ -54,7 +54,7 @@ TARGETS += ../lib/libmtalk.so ../lib/libmtalk.so.0
 
 ../lib/libmtalk.so.0: $(call TOOBJS, $(LIBMTALK_SRCS)) \
 	../lib/libmachinetalk-pb2++.so \
-	../lib/liblinuxcncini.so.0
+	../lib/libmkini.so.0
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
@@ -80,7 +80,7 @@ $(call TOOBJSDEPS, $(ZRES_SRCS)) : EXTRAFLAGS += -g -std=c++0x $(AVAHI_CFLAGS)
 ../bin/zres: $(call TOOBJS, $(ZRES_SRCS)) \
 	../lib/libmtalk.so.0 \
 	../lib/libmachinetalk-pb2++.so \
-	../lib/liblinuxcncini.so.0
+	../lib/libmkini.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^  $(AVAHI_LIBS) -lstdc++
 
@@ -96,7 +96,7 @@ TARGETS += ../bin/zres
 # ../bin/zannounce: $(call TOOBJS, $(ZANNOUNCE_SRCS)) \
 # 	../lib/libmtalk.so.0 \
 #	../lib/libmachinetalk-pb2++.so \
-#	../lib/liblinuxcncini.so.0
+#	../lib/libmkini.so.0
 # 	$(ECHO) Linking $(notdir $@)
 # 	$(Q)$(CC) $(LDFLAGS) -o $@ $^  $(AVAHI_LIBS) $(UUID_LIBS) -lstdc++
 

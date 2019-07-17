@@ -15,7 +15,7 @@ PB2CXX_PROTOLIB = ../lib/libmachinetalk-pb2++.so
 $(call TOOBJSDEPS, $(ENCDEC_SRCS)) : EXTRAFLAGS += $(ENCDEC_CXX_CFLAGS)
 
 ../bin/encdec: $(call TOOBJS, $(ENCDEC_SRCS)) \
-	$(PB2CXX_PROTOLIB)  ../lib/libmtalk.so ../lib/libmachinetalk-pb2++.so ../lib/liblinuxcncini.so
+	$(PB2CXX_PROTOLIB)  ../lib/libmtalk.so ../lib/libmachinetalk-pb2++.so ../lib/libmkini.so
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^  \
 	 $(ENCDEC_CXX_LDFLAGS)
@@ -31,7 +31,7 @@ PB2CXX_PROTOLIB = ../lib/libmachinetalk-pb2++.so
 $(call TOOBJSDEPS, $(POSITION_SRCS)) : EXTRAFLAGS += $(POSITION_CXX_CFLAGS)
 
 ../bin/position: $(call TOOBJS, $(POSITION_SRCS)) \
-	 ../lib/libmtalk.so $(PB2CXX_PROTOLIB)  ../lib/liblinuxcncini.so
+	 ../lib/libmtalk.so $(PB2CXX_PROTOLIB)  ../lib/libmkini.so
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^  \
 	 $(POSITION_CXX_LDFLAGS)
@@ -155,7 +155,7 @@ LINMOVE_CXX_CFLAGS = -g $(PROTOBUF_CFLAGS)  $(JANSSON_CFLAGS)  -DPB_FIELD_32BIT
 LINMOVE_CXX_LDFLAGS=  $(CXX_PROTOLIB) $(PROTOBUF_LIBS)  $(JANSSON_LIBS) \
 	../lib/libmtalk.so  \
 	 ../lib/libmachinetalk-pb2++.so \
-	../lib/liblinuxcncini.so \
+	../lib/libmkini.so \
 	-lstdc++
 
 $(call TOOBJSDEPS, $(LINMOVE_SRCS)) : EXTRAFLAGS += $(LINMOVE_CXX_CFLAGS)

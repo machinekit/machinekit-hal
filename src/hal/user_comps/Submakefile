@@ -76,7 +76,7 @@ $(call TOOBJSDEPS, $(XHC_HB04_SRC)) : EXTRAFLAGS += $(LIBUSB10_CFLAGS)
 		$(call TOOBJS, $(XHC_HB04_SRC)) \
 		../lib/libhal.so.0 \
 		../lib/libhalulapi.so.0 \
-		../lib/liblinuxcncini.so.0 \
+		../lib/libmkini.so.0 \
 		../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^ -lstdc++ $(LIBUSB10_LIBS)

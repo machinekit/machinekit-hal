@@ -19,7 +19,7 @@ check_tests_CFLAGS = $(CHECK_CFLAGS)
 check_tests_LDADD = ../lib/libmtalk.so.0 \
 	../lib/libmkprotobuf.so.0 \
 	../lib/libhal.so.0 \
-	../lib/liblinuxcncini.so.0
+	../lib/libmkini.so.0
 
 $(call TOOBJSDEPS, $(check_tests_SOURCES)) : EXTRAFLAGS += \
 	$(CHECK_CFLAGS) -DULAPI -fPIC -pthread
