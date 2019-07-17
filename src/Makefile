@@ -398,13 +398,11 @@ $(sort $(CXXUSEROBJS)) : objects/%.o: %.cc
 		$< -o $@
 
 ifeq ($(TRIVIAL_BUILD),no)
-configure config.h.in: configure.ac
-	@echo "*** configure.ac has changed ***" >&2
-	@echo "Not running autoconf to avoid tainting universal build" >&2
-	@echo "Please investigate or start from scratch:" >&2
-	@echo "./autogen.sh && ./configure --your-configure-args..." >&2
-	@exit 1
-	# AUTOGEN_TARGET=configure ./autogen.sh
+configure: configure.ac
+	./autogen.sh
+
+config.h.in: configure.ac
+	./autogen.sh
 
 config.status: configure
 	if [ -f config.status ]; then ./config.status --recheck; else \
