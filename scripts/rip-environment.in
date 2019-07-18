@@ -77,12 +77,6 @@ else
     MANPATH=$EMC2_HOME/man:"$MANPATH"
 fi
 
-if [ -z "$GLADE_CATALOG_PATH" ]; then
-    GLADE_CATALOG_PATH=$EMC2_HOME/lib/python/gladevcp
-else
-    GLADE_CATALOG_PATH=$EMC2_HOME/lib/python/gladevcp:"$GLADE_CATALOG_PATH"
-fi
-
 # TODO: if these completion directives give trouble for any versions
 # of bash actively in use, protect them with checks of BASH_VERSINFO
 if [ -z "$BASH_VERSINFO" ]; then
@@ -114,4 +108,4 @@ if [ -f $EMC2_HOME/src/Makefile ]; then
     build () { make -C $EMC2_HOME/src "$@"; }
 fi
 
-export PYTHONPATH MANPATH LD_LIBRARY_PATH TCLLIBPATH GLADE_CATALOG_PATH
+export PYTHONPATH LD_LIBRARY_PATH TCLLIBPATH

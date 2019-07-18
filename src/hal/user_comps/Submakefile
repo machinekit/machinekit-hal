@@ -6,8 +6,7 @@ USER_COMP_PY = \
 	hal_temp_ads7828 \
 	hal_temp_bbb \
 	hal_temp_atlas \
-	hal_gy86 \
-	gladevcp
+	hal_gy86
 
 $(patsubst %, ../bin/%, $(USER_COMP_PY)) : ../bin/%: hal/user_comps/%.py
 	@$(ECHO) Syntax checking python script $(notdir $@)

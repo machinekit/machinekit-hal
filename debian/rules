@@ -128,7 +128,6 @@ install: build
 	dh_testroot
 	dh_prep
 
-	mkdir -p debian/tmp/usr/lib/python2.7/dist-packages/gladevcp
 	dh_installdirs
 # start the install
 	mkdir -p debian/tmp
