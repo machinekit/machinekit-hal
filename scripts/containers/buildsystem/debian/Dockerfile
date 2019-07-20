@@ -280,7 +280,9 @@ RUN if test -z "$SYS_ROOT"; then \
         apt-get update \
         && if test $DISTRO_VER -le 9; then \
 	    apt-get install -y  -o Apt::Get::AllowUnauthenticated=true \
-		machinekit-build-deps; \
+		machinekit-build-deps \
+	    && sed -i /etc/apt/sources.list.d/local.list -e '/^deb/ s/^/#/' \
+	    && apt-get update ; \
         else \
 	    apt-get install -y /tmp/debs/machinekit-build-deps_*.deb; \
 	fi \
@@ -336,7 +338,8 @@ RUN test -z "$SYS_ROOT" -o $DISTRO_VER -gt 8 || \
 # Machinekit:  Build arch build environment
 
 # Install Multi-Arch: foreign dependencies
-RUN apt-get install -y \
+RUN apt-get update \
+    && apt-get install -y \
         cython \
         uuid-runtime \
         protobuf-compiler \
