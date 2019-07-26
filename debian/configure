@@ -111,8 +111,11 @@ esac
 
 # Configure Xenomai threads
 configure_xenomai() {
-    if ! dpkg-query -W | grep -q libxenomai-dev; then
-        echo "Not configuring build for Xenomai 2 (no libxenomai-dev package)" >&2
+    if test -n "$DPKG_ROOT"; then
+        DPKG_QUERY_ARGS="--admindir=$DPKG_ROOT/var/lib/dpkg"
+    fi
+    if ! dpkg-query $DPKG_QUERY_ARGS -W | grep -q libxenomai-dev; then
+        echo "Not configuring build for Xenomai (no libxenomai-dev package)" >&2
         return
     fi
 
