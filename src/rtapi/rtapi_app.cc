@@ -130,7 +130,7 @@ static int instance_id;
 flavor_ptr flavor;
 static int use_drivers = 0;
 static int foreground;
-static int debug;
+static int debug = 0;
 static int signal_fd;
 static bool interrupted;
 static bool trap_signals = true;
@@ -884,7 +884,7 @@ static int rtapi_request(zloop_t *loop, zsock_t *socket, void *arg)
 	zmsg_destroy(&r);
 	return 0;
     }
-    if (debug) {
+    if (debug > 4) {
 	string buffer;
 	if (TextFormat::PrintToString(pbreq, &buffer)) {
 	    fprintf(stderr, "request: %s\n",buffer.c_str());
@@ -1083,7 +1083,7 @@ static int rtapi_request(zloop_t *loop, zsock_t *socket, void *arg)
 			pbreply.type(),
 			reply_size);
     } else {
-	if (debug) {
+	if (debug > 4) {
 	    string buffer;
 	    if (TextFormat::PrintToString(pbreply, &buffer)) {
 		fprintf(stderr, "reply: %s\n",buffer.c_str());
@@ -1362,7 +1362,7 @@ static int mainloop(size_t  argc, char **argv)
     }
     zloop_t *z_loop = zloop_new();
     assert(z_loop);
-    zloop_set_verbose(z_loop, debug);
+    zloop_set_verbose(z_loop, (debug > 4));
 
     
     if (trap_signals) {
@@ -1618,7 +1618,7 @@ static struct option long_options[] = {
     {"ini",      required_argument, 0, 'i'},     // default: getenv(INI_FILE_NAME)
     {"drivers",   required_argument, 0, 'D'},
     {"uri",    required_argument,    0, 'U'},
-    {"debug",        no_argument,    0, 'd'},
+    {"debug", required_argument,    0, 'd'},
     {"svcuuid",   required_argument, 0, 'R'},
     {"interfaces",required_argument, 0, 'n'},
     {0, 0, 0, 0}
@@ -1650,7 +1650,7 @@ int main(int argc, char **argv)
 	    break;
 
 	case 'd':
-	    debug++;
+	    debug = atoi(optarg);
 	    break;
 
 	case 'D':
@@ -1711,12 +1711,7 @@ int main(int argc, char **argv)
     }
 
     openlog_async(argv[0], option, LOG_LOCAL1);
-    if (debug) {
-        setlogmask_async(LOG_UPTO(LOG_DEBUG));
-    }
-    else {
-        setlogmask_async(LOG_UPTO(LOG_ERR));
-    }
+    setlogmask_async(LOG_UPTO(debug + 2));
     // max out async syslog buffers for slow system in debug mode
     tunelog_async(99,10);
 

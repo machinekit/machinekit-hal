@@ -117,7 +117,7 @@ long page_size;
 static int usr_msglevel = RTAPI_MSG_INFO ;
 static int rt_msglevel = RTAPI_MSG_INFO ;
 static int halsize;
-static int debug;
+static int debug = 0;
 static int hal_thread_stack_size = HAL_STACKSIZE;
 static size_t message_ring_size = MESSAGE_RING_SIZE;
 static int hal_descriptor_alignment = 0;
@@ -751,7 +751,7 @@ static struct option long_options[] = {
     { "shmdrv_opts", required_argument, 0, 'o'},
     { "nosighdlr",   no_argument,    0, 'G'},
     { "heapdebug",   no_argument,    0, 'P'},
-
+    { "debug", required_argument,    0, 'd'},
     {0, 0, 0, 0}
 };
 
@@ -833,7 +833,7 @@ int main(int argc, char **argv)
 	    rt_msglevel = atoi(optarg);
 	    break;
 	case 'd':
-	    debug++;
+	    debug = atoi(optarg);
 	    break;
 	case 'H':
 	    halsize = atoi(optarg);
@@ -973,12 +973,7 @@ int main(int argc, char **argv)
     backtrace_init(proctitle);
 
     openlog_async(proctitle, option , SYSLOG_FACILITY);
-    if (debug) {
-        setlogmask_async(LOG_UPTO(LOG_DEBUG));
-    }
-    else {
-        setlogmask_async(LOG_UPTO(LOG_ERR));
-    }
+    setlogmask_async(LOG_UPTO(debug + 2));
     // max out async syslog buffers for slow system in debug mode
     tunelog_async(99,10);
 
