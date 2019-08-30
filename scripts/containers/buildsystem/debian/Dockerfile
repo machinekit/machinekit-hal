@@ -291,7 +291,7 @@ RUN if test -z "$SYS_ROOT"; then \
 
 # Patch multistrap on Buster
 # https://github.com/volumio/Build/issues/348#issuecomment-462271607
-RUN if test $DISTRO_VER -eq 10; then \
+RUN if test $DISTRO_VER -ge 9; then \
         sed -i /usr/sbin/multistrap \
 	    -e '/AllowUnauthenticated/ s/"$/ -o Acquire::AllowInsecureRepositories=true"/'; \
     fi
