@@ -2,16 +2,17 @@
 
 This builds Debian Docker images with tools and dependencies for
 building/cross-building Machinekit packages.  For cross-building
-`armhf` and `i386` architectures, the image contains a `multistrap`
-system root tree, and for native `amd64` builds the image contains
-needed dependencies and tools in the root filesystem.
+`armhf`, `arm64` and `i386` architectures, the image contains a
+`multistrap` system root tree, and for native `amd64` builds the image
+contains needed dependencies and tools in the root filesystem.
 
 ## Using the images
 
 - Determine `$TAG` for the desired architecture and distro
   combination.  The format is `$ARCH_$DISTRO`, where `$ARCH` may be
-  one of `amd64`, `i386`, `armhf`; `$DISTRO` may be one of `8` for
-  Jessie, `9` for Stretch, `10` for Buster; e.g. `TAG=armhf_10`.
+  one of `amd64`, `i386`, `armhf`, `arm64`; `$DISTRO` may be one of
+  `8` for Jessie, `9` for Stretch, `10` for Buster;
+  e.g. `TAG=armhf_10`.
 
 - To build Machinekit in a Docker container with cross-build tools,
   `cd` into a Machinekit source tree:
