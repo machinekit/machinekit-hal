@@ -59,8 +59,10 @@ tree `debian/` directory.  When those files are updated, the
 
 ## Building locally
 
-Build images locally using the Docker hub build hook, supplying the
-image name, e.g. `hooks/build my_docker_id/mk-cross-builder:armhf_8`.
+Build images locally with the supplied script, supplying the
+image name, e.g.:
+
+    ./build.sh my_docker_id/mk-cross-builder:arm64_10
 
 # Automated image builds and CI
 
