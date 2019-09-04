@@ -100,7 +100,6 @@ see configs/hm2-soc-stepper/irqtest.hal for a usage example
 #include "rtapi_string.h"
 #include "rtapi_hexdump.h"
 #include "rtapi_compat.h"
-#include "rtapi_io.h"
 #include "hal.h"
 #include "hal_priv.h"
 #include "hal/lib/config_module.h"

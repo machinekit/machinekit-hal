@@ -1766,6 +1766,12 @@ if test "$usermode_pci_disabled_cmdline" = yes; then
     # user explicitly disabled either userland drivers or all drivers
     with_usermode_pci=no
     AC_MSG_RESULT([disabled by user])
+elif test $with_drivers = no; then
+    with_usermode_pci=no
+    AC_MSG_RESULT([drivers disabled by user])
+elif test $TARGET_PLATFORM_PC = false; then
+    with_usermode_pci=no
+    AC_MSG_RESULT([unavailable for non-PC architecture])
 elif test "$with_usermode_pci" = check -a $with_userland_rt_threads = no; then
     with_usermode_pci=no
     AC_MSG_RESULT([default disabled for no userland RT threads])

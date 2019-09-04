@@ -99,6 +99,7 @@
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_ctype.h"	/* isspace() */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "rtapi_io.h"           /* rtapi_outb() rtapi_inb() */
 
 #include "hal.h"		/* HAL public API decls */
 

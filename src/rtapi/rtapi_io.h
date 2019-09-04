@@ -3,7 +3,9 @@
 *
 *               This file, 'rtapi_io.h', implements the i/o- related
 *               functions for realtime modules as a series of static
-*               inline functions.
+*               inline functions.  For now, it applies only to PC
+*               architecture with the `inb` and `outb` assembly
+*               instructions..
 *
 *     Copyright 2006-2013 Various Authors
 * 
@@ -24,23 +26,7 @@
 #ifndef RTAPI_IO_H
 #define RTAPI_IO_H
 
-#define RTAPI_IO		// for disabling parts of header files
-
-#include "config.h"		// build configuration
-#include "rtapi.h"		// these functions
-
-#ifdef MODULE
-#  if LINUX_VERSION_CODE > KERNEL_VERSION(2,4,17)
-#    include <asm/io.h>		/* inb(), outb() */
-#  else
-#    include <sys/io.h>		/* inb(), outb() */
-#  endif
-#else
-#  include <sys/io.h>		/* inb(), outb() */
-#endif
-
-
-#ifdef RTAPI_IO
+#include <sys/io.h>		/* inb(), outb() */
 
 /** 'rtapi_outb() writes 'byte' to 'port'.  May be called from
     init/cleanup code, and from within realtime tasks.
@@ -78,16 +64,6 @@ static inline unsigned short rtapi_inw(unsigned int port)
 {
     return inw(port);
 }
-
-#else
-
-// noops
-static inline void rtapi_outb(unsigned char byte, unsigned int port) { return; }
-static inline unsigned char rtapi_inb_hook(unsigned int port)        { return 0; };
-static inline void rtapi_outw(unsigned short word, unsigned int port){ return; }
-static inline unsigned short rtapi_inw(unsigned int port)  { return 0; };
-
-#endif
 
 
 #endif // RTAPI_IO_H

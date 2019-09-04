@@ -30,9 +30,11 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <errno.h>
+#include <stdio.h>
 #include <ifaddrs.h>
 #include <unistd.h>
 #include <spawn.h>
+#include <stdbool.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -133,7 +135,7 @@ static void clear_iptables() {
 
 static char* inet_ntoa_buf(struct in_addr in, char *buf, size_t n) {
     const char *addr = inet_ntoa(in);
-    snprintf(buf, n, "%s", addr);
+    rtapi_snprintf(buf, n, "%s", addr);
     return buf;
 }
 
@@ -146,7 +148,7 @@ static char* fetch_ifname(struct sockaddr_in srcaddr, char *buf, size_t n) {
         struct sockaddr_in *ifaddr = (struct sockaddr_in*)it->ifa_addr;
         if(ifaddr->sin_family != srcaddr.sin_family) continue;
         if(ifaddr->sin_addr.s_addr != srcaddr.sin_addr.s_addr) continue;
-        snprintf(buf, n, "%s", it->ifa_name);
+        rtapi_snprintf(buf, n, "%s", it->ifa_name);
         freeifaddrs(ifa);
         return buf;
     }
@@ -156,7 +158,7 @@ static char* fetch_ifname(struct sockaddr_in srcaddr, char *buf, size_t n) {
 }
 
 static char *vseprintf(char *buf, char *ebuf, const char *fmt, va_list ap) {
-    int result = vsnprintf(buf, ebuf-buf, fmt, ap);
+    int result = rtapi_vsnprintf(buf, ebuf-buf, fmt, ap);
     if(result < 0) return ebuf;
     else if(buf + result > ebuf) return ebuf;
     else return buf + result;

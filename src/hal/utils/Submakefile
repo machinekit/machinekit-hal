@@ -87,7 +87,7 @@ $(call TOOBJSDEPS, $(HALGTKSRCS)) : EXTRAFLAGS = $(GTK_CFLAGS)
 $(call TOOBJS, $(HALGTKSRCS)): Makefile.inc
 endif
 
-ifeq ($(BUILD_DRIVERS),yes)
+ifeq ($(USERMODE_PCI),yes)
 # normal
 #PCI_DEBUG_FLAGS =
 # debug build for now

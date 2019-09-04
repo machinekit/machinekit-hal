@@ -27,7 +27,14 @@ MSG_COMPS := $(wildcard machinetalk/msgcomponents/*.comp)
 MSG_COMP_DOCPAGES := $(patsubst machinetalk/msgcomponents/%.comp, \
 	../man/man9/%.asciidoc, $(MSG_COMPS))
 
-DRIVER_COMPS := $(wildcard hal/drivers/*.comp)
+DRIVER_COMPS := $(patsubst %,hal/drivers/%, \
+	mesa_7i65.comp \
+	mesa_uart.comp \
+        $(if $(TARGET_PLATFORM_PC), \
+	    pcl720.comp \
+	    serport.comp \
+            ) \
+	)
 
 DRIVER_COMP_DOCPAGES := $(patsubst hal/drivers/%.comp, ../man/man9/%.asciidoc, \
 	$(COMP_DRIVERS))

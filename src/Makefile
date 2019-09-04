@@ -651,8 +651,10 @@ fix_perms = test -f $(1) && chown root $(1) && chmod 4750 $(1) || true
 
 ifeq ($(BUILD_DRIVERS),yes)
 setuid:
+ifeq ($(USERMODE_PCI),yes)
 	$(call fix_perms,../libexec/pci_read)
 	$(call fix_perms,../libexec/pci_write)
+endif
 	$(foreach f,$(BUILD_THREAD_FLAVORS),\
 	    $(call fix_perms,../libexec/rtapi_app_$(f));)
 # check system configuration:  logging, ulimits, udev
@@ -804,7 +806,7 @@ endif
 
 install-kernel-dep: install-dirs
 	$(SETUID) ../libexec/rtapi_app_* $(DESTDIR)$(EMC2_LIBEXEC_DIR)
-ifeq ($(BUILD_DRIVERS),yes)
+ifeq ($(USERMODE_PCI),yes)
 	$(SETUID) ../libexec/pci_write $(DESTDIR)$(EMC2_LIBEXEC_DIR)
 	$(SETUID) ../libexec/pci_read $(DESTDIR)$(EMC2_LIBEXEC_DIR)
 endif
@@ -1330,7 +1332,6 @@ $(RTLIBDIR)/watchdog$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(watchdog-objs))
 $(RTLIBDIR)/modmath$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(modmath-objs))
 $(RTLIBDIR)/streamer$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(streamer-objs))
 $(RTLIBDIR)/sampler$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(sampler-objs))
-$(RTLIBDIR)/hal_parport$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_parport-objs))
 $(RTLIBDIR)/probe_parport$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(probe_parport-objs))
 
 ifeq ($(USERMODE_PCI),yes)
@@ -1341,6 +1342,10 @@ $(RTLIBDIR)/hm2_pci$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_pci-objs))
 $(RTLIBDIR)/setsserial$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(setsserial-objs))
 $(RTLIBDIR)/hm2_eth$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_eth-objs))
 $(RTLIBDIR)/hm2_test$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_test-objs))
+endif
+
+ifdef TARGET_PLATFORM_PC
+$(RTLIBDIR)/hal_parport$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_parport-objs))
 endif
 
 ifdef TARGET_PLATFORM_SOCFPGA

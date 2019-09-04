@@ -1035,10 +1035,6 @@ extern rtapi_exception_handler_t  _rtapi_set_exception(rtapi_exception_handler_t
 /***********************************************************************
 *                        I/O RELATED FUNCTIONS                         *
 ************************************************************************/
-// the rtapi_inb()/rtapi_outb()/rtapi_inw()/rtapi_outw() functions have
-// moved to src/rtapi/rtapi_io.h, including documentation.
-
-#include "rtapi_io.h"
 
 #if (defined(RTAPI) && defined(BUILD_DRIVERS))
 /** 'rtapi_request_region() reserves I/O memory starting at 'base',
