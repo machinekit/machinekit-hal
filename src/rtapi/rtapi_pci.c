@@ -74,7 +74,7 @@ struct rtapi_pcidev {
 **   /sys/class/                                                       **
 **   /sys/bus/                                                         **
 **---------------------------------------------------------------------*/
-#define UIO_PCI_PATH	"/sys/bus/pci/drivers/uio_pci_generic"
+#define UIO_PCI_PATH "/sys/bus/pci/drivers/uio_pci_generic"
 
 //Fixme//  Nasty global variable...only one board for now.
 struct pci_dev *one_dev = NULL;
@@ -135,7 +135,7 @@ struct rtapi_pcidev * rtapi_pci_get_device(__u16 vendor, __u16 device,
 	DIR *dir;
 	struct dirent *dirent;
 	ssize_t res;
-	char buf[256], path[256];
+	char buf[384], path[384];
 	struct rtapi_pcidev *dev = NULL;
 	int found_start = 0;
 
@@ -296,7 +296,7 @@ error:
 void rtapi_pci_put_device(struct rtapi_pcidev *dev)
 {
 	int err;
-	char buf[256];
+	char buf[384];
 
 	if (!dev)
 		return;
@@ -331,14 +331,15 @@ void * rtapi_pci_ioremap(struct rtapi_pcidev *dev, int bar, size_t size)
 {
 	//size_t pagesize;
 	void *mmio;
-	char path[256];
+	char path[384];
 
 	if (bar < 0 || bar >= sizeof(dev->mmio)) {
 		rtapi_print_msg(RTAPI_MSG_ERR, "Invalid PCI BAR %d\n", bar);
 		return NULL;
 	}
 
-	snprintf(path, sizeof(path), UIO_PCI_PATH "/%s/resource%i", dev->busid, bar);
+//	snprintf(path, (size_t)sizeof(path), UIO_PCI_PATH "/%s/resource%i", dev->busid, bar);
+	snprintf(path, 512, UIO_PCI_PATH "/%s/resource%i", dev->busid, bar);
 
 	/* Open the resource node */
 	dev->mmio[bar].fd = open(path, O_RDWR | O_SYNC);
@@ -459,7 +460,7 @@ int pci_register_driver(struct pci_driver *driver)
     struct udev_enumerate *enumerate;
     struct udev_list_entry *devices, *dev_list_entry;
     struct udev_device *udev_dev;
-    char buf[256];
+    char buf[384];
     int i, r;
     int err;
 //    DIR *dir;
@@ -589,7 +590,7 @@ void pci_unregister_driver(struct pci_driver *driver)
 void __iomem *pci_ioremap_bar(struct pci_dev *dev, int bar)
 {
 	void *mmio;
-	char path[256];
+	char path[384];
 
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI_PCI: Map BAR %i\n", bar);
 
@@ -651,7 +652,7 @@ void iounmap(volatile void __iomem *addr)
 int pci_enable_device(struct pci_dev *dev)
 {
     FILE *stream;
-    char path[256];
+    char path[384];
     int i,r;
 
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI_PCI: Enabling Device %s\n", dev->dev_name);
@@ -703,7 +704,7 @@ int pci_enable_device(struct pci_dev *dev)
 int pci_disable_device(struct pci_dev *dev)
 {
     FILE *stream;
-    char path[256];
+    char path[384];
     int r;
 
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI_PCI: Disable Device\n");
