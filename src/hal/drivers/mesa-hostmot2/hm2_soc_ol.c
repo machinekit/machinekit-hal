@@ -590,7 +590,7 @@ static int instantiate(const int argc, char* const *argv)
         }
         nread = read(fd, blob, st.st_size);
         if (nread != st.st_size) {
-            LL_ERR("reading '%s': expected %zu got %u - %s\n", brd->descriptor,
+            LL_ERR("reading '%s': expected %u got %u - %s\n", brd->descriptor,
                 (unsigned) st.st_size, nread, strerror(errno));
             return -EINVAL;
         }
