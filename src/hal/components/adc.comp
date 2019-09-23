@@ -1,0 +1,42 @@
+/*Component for interfacing 12bit ADC, single channel version. Input is raw 32bit intager output is a scaled float. Filter is simply time based for noise compensation, but will slow down the output as gain increases.*/
+
+component adc;
+
+/**
+ * Input pins 
+ */
+pin in u32 in;
+pin in float scale_gain;
+pin in bit filter_enable;
+pin in float filter_gain; /* TAU */
+
+/** 
+ * Output pins 
+ */
+pin out float out;
+
+/** Persistent variable **/
+variable double _output = 0;
+
+function _;
+
+license "GPL";
+;;
+
+FUNCTION(_)
+{
+    /* input is the first 12 bits converted to double */
+    double input = scale_gain * (double)(in & 0xFFF);
+
+    /* Init _output */
+    if (!_output)
+        _output = input;
+
+    /* lowpass filter */
+    if (filter_enable && filter_gain) {
+        _output += filter_gain * (input - _output);
+        out = _output;
+    } else {
+        out = input;
+    }
+}

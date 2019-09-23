@@ -1,0 +1,56 @@
+/*Component for interfacing 12bit ADC, 8 channel version. Input is raw 32bit intager output is a scaled float. Filter is simply time based for noise compensation, but will slow down the output as gain increases.*/
+/*This Version is untested, previous 8 channel version tested fine*/
+
+component adc8;
+
+/**
+ * Input pins 
+ */
+pin in u32 in# [8];
+pin in float scale_gain# [8];
+pin in bit filter_enable;
+pin in float filter_gain; /* TAU */
+
+/** 
+ * Output pins 
+ */
+pin out float out# [8];
+
+/** Persistent variable **/
+variable double _output [8];
+
+function _;
+
+license "GPL";
+;;
+
+FUNCTION(_)
+{
+    int i = 0;         
+
+    /* Persistent array used to track previous output values */
+    static double _output[8] = { 0,0,0,0,0,0,0,0 };
+
+    /* input is the first 12 bits converted to double */
+    double input[8] = { 0,0,0,0,0,0,0,0 };      
+
+    /* Pull first 8 bits and multiply by gain */
+    for (i = 0; i < 8; ++i)
+        input[i] = scale_gain(i) * (double)(in(i) & 0xFFF);
+    
+    /* Init _output */
+    for (; !_output[7] && i < 8; ++i)
+        _output[i] = input[i];
+
+    /* lowpass filter */
+    if (filter_enable) {
+        for(i = 0; i < 8; ++i) {
+            _output[i] += filter_gain * (input[i]-_output[i]);
+            out(i) = _output[i];
+        }
+    } else {
+        /* Assign output to holder values */
+        for (i = 0; i < 8; ++i)
+            out(i) = input[i];
+    }
+}
