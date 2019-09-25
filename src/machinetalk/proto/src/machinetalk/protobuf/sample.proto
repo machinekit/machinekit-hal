@@ -9,7 +9,6 @@ package machinetalk;
 // msgid base: 360
 
 import "machinetalk/protobuf/nanopb.proto";
-import "machinetalk/protobuf/value.proto";
 
 
 message Sample {
