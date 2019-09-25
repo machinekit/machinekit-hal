@@ -6,7 +6,7 @@
 */
 /********************************************************************
 * Description:  rtapi.h
-*               This file, 'rtapi.h', defines the RTAPI for both 
+*               This file, 'rtapi.h', defines the RTAPI for both
 *               realtime and non-realtime code.
 *
 * Author: John Kasunich, Paul Corner
@@ -14,7 +14,7 @@
 *
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change: 
+* Last change:
 ********************************************************************/
 
 /** This file, 'rtapi.h', defines the RTAPI for both realtime and
@@ -232,7 +232,7 @@ typedef int (*rtapi_exit_t)(int);
 extern int _rtapi_exit(int module_id);
 
 /** 'rtapi_next_handle()' returns a globally unique int ID
-    
+
  */
 typedef int (*rtapi_next_handle_t)(void);
 #define rtapi_next_handle()			\
@@ -689,9 +689,9 @@ extern int _rtapi_task_pll_set_correction(long value);
     Returns a 64 bit value.  The resolution of the returned value may
     be as good as one nano-second, or as poor as several microseconds.
     May be called from init/cleanup code, and from within realtime tasks.
-    
+
     Experience has shown that the implementation of this function in
-    some RTOS/Kernel combinations is horrible.  It can take up to 
+    some RTOS/Kernel combinations is horrible.  It can take up to
     several microseconds, which is at least 100 times longer than it
     should, and perhaps a thousand times longer.  Use it only if you
     MUST have results in seconds instead of clocks, and use it sparingly.
@@ -710,7 +710,7 @@ typedef long long int (*rtapi_get_time_t)(void);
     rtapi_switch->rtapi_get_time()
 extern long long int _rtapi_get_time(void);
 
-/** rtapi_get_clocks returns the current time in CPU clocks.  It is 
+/** rtapi_get_clocks returns the current time in CPU clocks.  It is
     fast, since it just reads the TSC in the CPU instead of calling a
     kernel or RTOS function.  Of course, times measured in CPU clocks
     are not as convenient, but for relative measurements this works
@@ -724,7 +724,7 @@ extern long long int _rtapi_get_time(void);
     one CPU clock, which is usually a few nanoseconds to a fraction of
     a nanosecond.
     May be called from init/cleanup code, and from within realtime tasks.
-    
+
     Note that longlong math may be poorly supported on some platforms,
     especially in kernel space. Also note that rtapi_print() will NOT
     print longlongs.  Most time measurements are relative, and should
@@ -732,7 +732,7 @@ extern long long int _rtapi_get_time(void);
     where end_time and start_time are longlong values returned from
     rtapi_get_time, and deltat is an ordinary long int (32 bits).
     This will work for times up to a second or so, depending on the
-    CPU clock frequency.  It is best used for millisecond and 
+    CPU clock frequency.  It is best used for millisecond and
     microsecond scale measurements though.
 */
 typedef long long int (*rtapi_get_clocks_t)(void);
@@ -1040,7 +1040,7 @@ extern rtapi_exception_handler_t  _rtapi_set_exception(rtapi_exception_handler_t
 
 #include "rtapi_io.h"
 
-#if (defined(RTAPI) && defined(BUILD_DRIVERS)) 
+#if (defined(RTAPI) && defined(BUILD_DRIVERS))
 /** 'rtapi_request_region() reserves I/O memory starting at 'base',
     going for 'size' bytes, for component 'name'.
 
@@ -1064,7 +1064,7 @@ extern rtapi_exception_handler_t  _rtapi_set_exception(rtapi_exception_handler_t
 #  endif
     }
 
-/** 'rtapi_release_region() releases I/O memory reserved by 
+/** 'rtapi_release_region() releases I/O memory reserved by
     'rtapi_request_region', starting at 'base' and going for 'size' bytes.
     'base' and 'size' must exactly match an earlier successful call to
     rtapi_request_region or the result is undefined.
@@ -1175,7 +1175,7 @@ typedef struct {
 // this extern is not used within RTAPI
 extern rtapi_switch_t *rtapi_switch;
 
-/** 'rtapi_get_handle()' returns a pointer to the rtapi_switch 
+/** 'rtapi_get_handle()' returns a pointer to the rtapi_switch
     structure, such that using code may refernce rtapi
     methods.
  */
