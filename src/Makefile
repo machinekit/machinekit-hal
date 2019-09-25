@@ -954,24 +954,30 @@ ifeq ($(BUILD_DRIVERS),yes)
 #ifeq ($(BUILD_SYS),kbuild)
 obj-$(CONFIG_HAL_PARPORT) += hal_parport.o
 hal_parport-objs := hal/drivers/hal_parport.o $(MATHSTUB)
-obj-$(CONFIG_PCI_8255) += pci_8255.o
-pci_8255-objs := hal/drivers/pci_8255.o
-obj-$(CONFIG_HAL_TIRO) += hal_tiro.o
-hal_tiro-objs := hal/drivers/hal_tiro.o $(MATHSTUB)
-obj-$(CONFIG_HAL_STG) += hal_stg.o
-hal_stg-objs := hal/drivers/hal_stg.o $(MATHSTUB)
 obj-$(CONFIG_HAL_VTI) += hal_vti.o
 hal_vti-objs := hal/drivers/hal_vti.o $(MATHSTUB)
 #obj-$(CONFIG_HAL_EVOREG) += hal_evoreg.o
 #hal_evoreg-objs := hal/drivers/hal_evoreg.o $(MATHSTUB)
 obj-$(CONFIG_HAL_MOTENC) += hal_motenc.o
 hal_motenc-objs := hal/drivers/hal_motenc.o $(MATHSTUB)
-obj-$(CONFIG_HAL_AX521H) += hal_ax5214h.o
-hal_ax5214h-objs := hal/drivers/hal_ax5214h.o $(MATHSTUB)
+
+ifdef TARGET_PLATFORM_PC
 obj-$(CONFIG_HAL_SPEAKER) += hal_speaker.o
 hal_speaker-objs := hal/drivers/hal_speaker.o $(MATHSTUB)
+endif
+
+ifeq ($(USERMODE_PCI),yes)
+obj-$(CONFIG_PCI_8255) += pci_8255.o
+pci_8255-objs := hal/drivers/pci_8255.o
+obj-$(CONFIG_HAL_TIRO) += hal_tiro.o
+hal_tiro-objs := hal/drivers/hal_tiro.o $(MATHSTUB)
+obj-$(CONFIG_HAL_STG) += hal_stg.o
+hal_stg-objs := hal/drivers/hal_stg.o $(MATHSTUB)
+obj-$(CONFIG_HAL_AX521H) += hal_ax5214h.o
+hal_ax5214h-objs := hal/drivers/hal_ax5214h.o $(MATHSTUB)
 obj-$(CONFIG_HAL_SKELETON) += hal_skeleton.o
 hal_skeleton-objs := hal/drivers/hal_skeleton.o $(MATHSTUB)
+endif
 
 ifdef TARGET_PLATFORM_RASPBERRY
 obj-$(CONFIG_HAL_GPIO) += hal_gpio.o
@@ -1046,28 +1052,14 @@ endif
 #endif
 ####################################################
 
-# Gnu make 'expression' syntax is pathetic. What were these guys smoking?
-# turn on by default
-BUILD_HOSTMOT2=yes
+obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_test.o setsserial.o hm2_eth.o
 ifeq ($(USERMODE_PCI),yes)
-# reconfirm our intent..
-BUILD_HOSTMOT2=yes
-else
-#except if userland and USERMODE_PCI isnt set
-ifeq ($(BUILD_SYS),user-dso)
-BUILD_HOSTMOT2=no
-endif
+obj-$(CONFIG_HOSTMOT2) += hm2_7i43.o hm2_7i90.o hm2_pci.o
 endif
 
-ifeq ($(BUILD_HOSTMOT2),yes)
-obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_7i43.o hm2_7i90.o hm2_pci.o hm2_test.o setsserial.o
-ifeq ($(BUILD_SYS),user-dso)
-obj-$(CONFIG_HOSTMOT2) += hm2_eth.o
 hm2_eth-objs  :=			  \
     hal/drivers/mesa-hostmot2/hm2_eth.o   \
     $(MATHSTUB)
-endif
-#obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_pci.o hm2_7i43.o
 hostmot2-objs +=			  \
     hal/drivers/mesa-hostmot2/hostmot2.o  \
     hal/drivers/mesa-hostmot2/backported-strings.o  \
@@ -1094,6 +1086,9 @@ hostmot2-objs +=			  \
     hal/drivers/mesa-hostmot2/nano_soc_adc.o \
     hal/drivers/mesa-hostmot2/capsense.o \
     hal/drivers/mesa-hostmot2/bitfile.o   \
+    rtapi/userpci/device.o		  \
+    rtapi/userpci/firmware.o		  \
+    rtapi/userpci/string.o		  \
     $(MATHSTUB)
 hm2_7i90-objs :=			  \
     hal/drivers/mesa-hostmot2/hm2_7i90.o  \
@@ -1113,20 +1108,18 @@ hm2_test-objs :=			  \
     $(MATHSTUB)
 setsserial-objs +=			  \
     hal/drivers/mesa-hostmot2/setsserial.o  \
+    rtapi/userpci/device.o		  \
+    rtapi/userpci/firmware.o		  \
+    rtapi/userpci/string.o                \
     $(MATHSTUB)
-endif
-
-ifeq ($(BUILD_HOSTMOT2),yes)
-obj-$(CONFIG_HOSTMOT2) += hm2_pci.o
 hm2_pci-objs  :=			  \
     hal/drivers/mesa-hostmot2/hm2_pci.o   \
     hal/drivers/mesa-hostmot2/bitfile.o   \
     $(MATHSTUB)
-endif
 
 obj-$(CONFIG_PROBE_PARPORT) += probe_parport.o
 probe_parport-objs := hal/drivers/probe_parport.o $(MATHSTUB)
-endif
+endif  # BUILD_DRIVERS=yes
 
 obj-m += scope_rt.o
 scope_rt-objs := hal/utils/scope_rt.o $(MATHSTUB)
@@ -1334,14 +1327,14 @@ $(RTLIBDIR)/streamer$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(streamer-objs))
 $(RTLIBDIR)/sampler$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(sampler-objs))
 $(RTLIBDIR)/probe_parport$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(probe_parport-objs))
 
-ifeq ($(USERMODE_PCI),yes)
 $(RTLIBDIR)/hostmot2$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hostmot2-objs))
+$(RTLIBDIR)/hm2_test$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_test-objs))
+$(RTLIBDIR)/setsserial$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(setsserial-objs))
+$(RTLIBDIR)/hm2_eth$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_eth-objs))
+ifeq ($(USERMODE_PCI),yes)
 $(RTLIBDIR)/hm2_7i43$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_7i43-objs))
 $(RTLIBDIR)/hm2_7i90$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_7i90-objs))
 $(RTLIBDIR)/hm2_pci$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_pci-objs))
-$(RTLIBDIR)/setsserial$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(setsserial-objs))
-$(RTLIBDIR)/hm2_eth$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_eth-objs))
-$(RTLIBDIR)/hm2_test$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hm2_test-objs))
 endif
 
 ifdef TARGET_PLATFORM_PC
