@@ -1,14 +1,16 @@
-/*Component for interfacing 12bit ADC, single channel version. Input is raw 32bit intager output is a scaled float. Filter is simply time based for noise compensation, but will slow down the output as gain increases.*/
+/*Component for interfacing 32bit ADC streams. Input Bit-depth is variable in case of populated bit data outside of ADC output depth. single channel version. Simple filter for noise surpression, but will slow down the output as gain increases.*/
 
-component adc;
+component vari_bit_adc;
 
 /**
  * Input pins 
  */
 pin in u32 in;
+pin in u32 bit-depth;
 pin in float scale_gain;
 pin in bit filter_enable;
 pin in float filter_gain; /* TAU */
+
 
 /** 
  * Output pins 
@@ -25,8 +27,11 @@ license "GPL";
 
 FUNCTION(_)
 {
-    /* input is the first 12 bits converted to double */
-    double input = scale_gain * (double)(in & 0xFFF);
+
+    unsigned int mask = 0xFFFFFFFF >> (32 - bit_depth);
+
+    /* input is specified bit depth converted to double */
+    double input = scale_gain * (double)(in & mask);
 
     /* Init _output */
     if (!_output)
