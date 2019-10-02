@@ -47,8 +47,9 @@ RUN sed -i /etc/apt/sources.list -e 's/httpredir.debian.org/ftp.debian.org/'
 # Add foreign arches and update OS
 
 # add foreign architectures
-RUN dpkg --add-architecture armhf
-RUN dpkg --add-architecture i386
+RUN if test -n "${SYS_ROOT}"; then \
+        dpkg --add-architecture $DEBIAN_ARCH; \
+    fi
 
 # update Debian OS
 RUN apt-get update \
@@ -106,12 +107,14 @@ RUN apt-get install -y \
 	psmisc \
 	pkg-config \
 	qemu-user-static \
-	linux-libc-dev:armhf \
+	linux-libc-dev:${DEBIAN_ARCH} \
         dh-python \
     && { \
-        test $DISTRO_VER -lt 9 \
-        || apt-get install -y \
-	    crossbuild-essential-armhf; \
+        if test $DISTRO_VER -ge 9 -a \
+	        \( $DEBIAN_ARCH = armhf -o $DEBIAN_ARCH = arm64 \); then \
+            apt-get install -y \
+	        crossbuild-essential-${DEBIAN_ARCH}; \
+        fi; \
     } \
     && apt-get clean
 
@@ -135,9 +138,8 @@ RUN if test $DISTRO_VER -eq 8; then \
 	    libgcc-8-dev:$DEBIAN_ARCH; \
     fi
 
-# - Linaro gcc cross compiler for armhf
-RUN test $DISTRO_VER -gt 8 \
-    ||{ \
+# - Linaro gcc cross compiler for armhf, Jessie only
+RUN if test $DISTRO_VER -eq 8; then \
         VER=4.9.4-2017.01 && \
         ARCH=arm-linux-gnueabihf && \
         DIR=gcc-linaro-${VER}-x86_64_${ARCH} && \
@@ -156,10 +158,10 @@ RUN test $DISTRO_VER -gt 8 \
         rm -rf ${WORKD} && \
         ln -s ../../bin/ccache /usr/lib/ccache/arm-linux-gnueabihf-gcc && \
         ln -s ../../bin/ccache /usr/lib/ccache/arm-linux-gnueabihf-g++ ; \
-    }
+    fi
 
-# - Qemu for emulating armhf on amd64
-RUN if test $DEBIAN_ARCH = armhf; then \
+# - Qemu for emulating ARM on amd64
+RUN if test $DEBIAN_ARCH = armhf -o $DEBIAN_ARCH = arm64; then \
         apt-get install -y qemu binfmt-support qemu-user-static \
         && apt-get clean; \
     fi
@@ -185,6 +187,9 @@ ENV DPKG_ROOT=$SYS_ROOT
 # armhf build root environment
 ENV ARM_HOST_MULTIARCH=arm-linux-gnueabihf
 
+# arm64
+ENV ARM64_HOST_MULTIARCH=aarch64-linux-gnu
+
 # i386 build root environment
 ENV I386_HOST_MULTIARCH=i386-linux-gnu
 
@@ -207,7 +212,9 @@ RUN test -z "$SYS_ROOT" \
         mkdir -p ${SYS_ROOT}/etc \
         && cp /etc/ld.so.conf ${SYS_ROOT}/etc/ld.so.conf \
         && echo '/lib/arm-linux-gnueabihf\n/usr/lib/arm-linux-gnueabihf' > \
-	    /etc/ld.so.conf.d/arm-linux-gnueabihf.conf; \
+	    /etc/ld.so.conf.d/arm-linux-gnueabihf.conf \
+        && echo '/lib/aarch64-linux-gnu\n/usr/lib/aarch64-linux-gnu' > \
+	    /etc/ld.so.conf.d/aarch64-linux-gnu.conf; \
     }
 # Symlink i586 binutils to i386 so ./configure can find them
 RUN test $DISTRO_VER -gt 8 || \
@@ -222,9 +229,9 @@ RUN test $DISTRO_VER -eq 8 || { \
     }
 
 # Symlink armhf-arch pkg-config, Jessie only
-RUN test $DISTRO_VER -gt 8 \
-    || ln -s pkg-config /usr/bin/${ARM_HOST_MULTIARCH}-pkg-config
-
+RUN if test $DISTRO_VER -eq 8; then \
+        ln -s pkg-config /usr/bin/${ARM_HOST_MULTIARCH}-pkg-config; \
+    fi
 
 ###################################################################
 # Machinekit:  Configure apt
@@ -280,7 +287,9 @@ RUN if test -z "$SYS_ROOT"; then \
         apt-get update \
         && if test $DISTRO_VER -le 9; then \
 	    apt-get install -y  -o Apt::Get::AllowUnauthenticated=true \
-		machinekit-build-deps; \
+		machinekit-build-deps \
+	    && sed -i /etc/apt/sources.list.d/local.list -e '/^deb/ s/^/#/' \
+	    && apt-get update ; \
         else \
 	    apt-get install -y /tmp/debs/machinekit-build-deps_*.deb; \
 	fi \
@@ -289,7 +298,7 @@ RUN if test -z "$SYS_ROOT"; then \
 
 # Patch multistrap on Buster
 # https://github.com/volumio/Build/issues/348#issuecomment-462271607
-RUN if test $DISTRO_VER -eq 10; then \
+RUN if test $DISTRO_VER -ge 9; then \
         sed -i /usr/sbin/multistrap \
 	    -e '/AllowUnauthenticated/ s/"$/ -o Acquire::AllowInsecureRepositories=true"/'; \
     fi
@@ -336,7 +345,8 @@ RUN test -z "$SYS_ROOT" -o $DISTRO_VER -gt 8 || \
 # Machinekit:  Build arch build environment
 
 # Install Multi-Arch: foreign dependencies
-RUN apt-get install -y \
+RUN apt-get update \
+    && apt-get install -y \
         cython \
         uuid-runtime \
         protobuf-compiler \
