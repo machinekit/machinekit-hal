@@ -120,7 +120,6 @@ static int printUsage(const char* programName, const char* deviceName, bool isEr
            "device's component xhc-hb04.cc. https://github.com/machinekit/machinekit/graphs/contributors "
            "gives you a more complete list of contributors."
         << "\n";
-
     if (isError)
     {
         return EXIT_FAILURE;

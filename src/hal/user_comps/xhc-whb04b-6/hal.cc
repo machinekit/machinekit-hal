@@ -561,11 +561,13 @@ void Hal::init(const MetaButtonCodes* metaButtons, const KeyCodes& keyCodes)
     newHalBit(HAL_OUT, &(memory->out.feedValueSelected_0_01), mHalCompId, "%s.halui.feed.selected-0.01",
               mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.feedValueSelected_0_1), mHalCompId, "%s.halui.feed.selected-0.1",
+
               mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.feedValueSelected_1_0), mHalCompId, "%s.halui.feed.selected-1.0",
               mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.feedValueSelected_60), mHalCompId, "%s.halui.feed.selected-60",
               mComponentPrefix);
+
     newHalBit(HAL_OUT, &(memory->out.feedValueSelected_100), mHalCompId, "%s.halui.feed.selected-100",
               mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.feedValueSelected_lead), mHalCompId, "%s.halui.feed.selected-lead",
@@ -611,6 +613,7 @@ void Hal::init(const MetaButtonCodes* metaButtons, const KeyCodes& keyCodes)
     newHalBit(HAL_OUT, &(memory->out.resetEmergencyStop), mHalCompId, "%s.halui.estop.reset", mComponentPrefix);
 
     newHalBit(HAL_IN, &(memory->in.isMachineOn), mHalCompId, "%s.halui.machine.is-on", mComponentPrefix);
+        
     newHalBit(HAL_OUT, &(memory->out.doMachineOn), mHalCompId, "%s.halui.machine.on", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.doMachineOff), mHalCompId, "%s.halui.machine.off", mComponentPrefix);
 
@@ -1092,12 +1095,12 @@ void Hal::setSpindleMinus(bool enabled)
 // ----------------------------------------------------------------------
 
 /**
- * Requests machine to go home home.
- * The task is performed via MDI command.
+ * Requests machine to do homing.
+ * The task is performed via halui command.
  */
-void Hal::requestMachineGoHome(bool enabled)
+void Hal::setMachineHomingAll(bool enabled)
 {
-    if (requestMdiMode(enabled))
+    if (requestManualMode(enabled))
     {
         if (enabled)
         {
@@ -1107,7 +1110,7 @@ void Hal::requestMachineGoHome(bool enabled)
 
     if (!enabled)
     {
-        setPin(enabled, KeyCodes::Buttons.machine_home.text);
+      setPin(enabled, KeyCodes::Buttons.machine_home.text);
     }
 }
 
@@ -1224,7 +1227,10 @@ void Hal::toggleSpindleOnOff(bool isButtonPressed)
 
 // ----------------------------------------------------------------------
 
-
+/**
+ * Puts machine into probing mode for Z axis.
+ * The task is performed via MDI code.
+ */
 void Hal::setProbeZ(bool enabled)
 {
     if (requestMdiMode(enabled))
@@ -1362,23 +1368,6 @@ void Hal::setMacro9(bool enabled)
 
 // ----------------------------------------------------------------------
 
-void Hal::requestMachineHomingAll(bool isRisingEdge)
-{
-    if (requestManualMode(isRisingEdge))
-    {
-        if (isRisingEdge)
-        {
-            *memory->out.homeAll = isRisingEdge;
-        }
-    }
-
-    if (!isRisingEdge)
-    {
-      *memory->out.homeAll = isRisingEdge;
-    }
-}
-
-// ----------------------------------------------------------------------
 
 void Hal::setMacro10(bool enabled)
 {

@@ -1177,7 +1177,7 @@ bool Pendant::onButtonPressedEvent(const MetaButtonCodes& metaButton)
     }
     else if (metaButton == KeyCodes::Meta.machine_home)
     {
-        mHal.requestMachineGoHome(true);
+        mHal.setMachineHomingAll(true);
         isHandled = true;
     }
     else if (metaButton == KeyCodes::Meta.safe_z)
@@ -1202,7 +1202,6 @@ bool Pendant::onButtonPressedEvent(const MetaButtonCodes& metaButton)
     }
     else if (metaButton == KeyCodes::Meta.macro10)
     {
-        mHal.requestMachineHomingAll(true);
         mHal.setMacro10(true);
         isHandled = true;
     }
@@ -1344,7 +1343,7 @@ bool Pendant::onButtonReleasedEvent(const MetaButtonCodes& metaButton)
     }
     else if (metaButton == KeyCodes::Meta.machine_home)
     {
-        mHal.requestMachineGoHome(false);
+        mHal.setMachineHomingAll(false);
         isHandled = true;
     }
     else if (metaButton == KeyCodes::Meta.safe_z)
@@ -1369,7 +1368,6 @@ bool Pendant::onButtonReleasedEvent(const MetaButtonCodes& metaButton)
     }
     else if (metaButton == KeyCodes::Meta.macro10)
     {
-        mHal.requestMachineHomingAll(false);
         mHal.setMacro10(false);
         isHandled = true;
     }
@@ -1780,7 +1778,7 @@ Display::Display(const ButtonsState& currentButtonsState, Hal& hal, UsbOutPackag
     mCurrentButtonsState(currentButtonsState),
     mHal(hal),
     mDisplayData(displayData),
-    mAxisPositionMethod(AxisPositionMethod::ABSOLUTE),
+    mAxisPositionMethod(AxisPositionMethod::RELATIVE),
     mActiveAxisGroup(AxisGroup::XYZ)
 {
 }
@@ -1809,15 +1807,19 @@ bool Display::onButtonPressedEvent(const MetaButtonCodes& metaButton)
                 DisplayIndicatorStepMode::StepMode::STEP);
         return true;
     }
-    else if (metaButton == KeyCodes::Meta.macro5)
+    else if (metaButton == KeyCodes::Meta.macro10)
     {
-        mAxisPositionMethod = AxisPositionMethod::ABSOLUTE;
-        return true;
-    }
-    else if (metaButton == KeyCodes::Meta.macro7)
-    {
-        mAxisPositionMethod = AxisPositionMethod::RELATIVE;
-        return true;
+        if (mAxisPositionMethod == AxisPositionMethod::RELATIVE)
+          {
+            mAxisPositionMethod = AxisPositionMethod::ABSOLUTE;
+            return true;
+          }
+        else if (mAxisPositionMethod == AxisPositionMethod::ABSOLUTE)
+           {
+             mAxisPositionMethod = AxisPositionMethod::RELATIVE;
+             return true;
+           }
+        return false;
     }
     return false;
 }
