@@ -417,7 +417,7 @@ public:
     //! \sa HalMemory::In::isMachineOn
     //! \return true if machine is on, false otherwise
     bool getIsMachineOn() const;
-
+    
     //! Writes the pendant sleeping status to hal.
     //! \sa HalMemory::Out::isPendantSleeping
     //! \param isSleeping true if sleeping, false otherwise
@@ -502,10 +502,8 @@ public:
     //! \sa setReset(bool, size_t)
     void setFunction(bool enabled);
     //! Requests machine to search home for all axis. \ref halui.home-all
-    void requestMachineHomingAll(bool isRisingEdge);
-    //! Requests machine to go home (move axis to home position).
-    void requestMachineGoHome(bool enabled);
-    //! \sa setReset(bool, size_t)
+    void setMachineHomingAll(bool enabled);
+    //! \sa setSafeZ(bool, size_t)
     void setSafeZ(bool enabled);
     //! \sa setReset(bool, size_t)
     void setWorkpieceHome(bool enabled);
