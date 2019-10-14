@@ -181,7 +181,8 @@ const char *hm2_hz_to_mhz(u32 freq_hz) {
 
     freq_mhz = freq_hz / (1000*1000);
     freq_mhz_fractional = (freq_hz / 1000) % 1000;
-    r = snprintf(mhz_str, sizeof(mhz_str), "%d.%03d", freq_mhz, freq_mhz_fractional);
+    r = rtapi_snprintf(
+        mhz_str, sizeof(mhz_str), "%d.%03d", freq_mhz, freq_mhz_fractional);
     if (r >= sizeof(mhz_str)) {
         HM2_ERR_NO_LL("too many MHz!\n");
         return "(unpresentable)";

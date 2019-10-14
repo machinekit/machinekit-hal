@@ -107,7 +107,7 @@ int rtapi_app_main(void)
 
     /* validate config info */
     for ( n = 0 ; n < MAX_SAMPLERS ; n++ ) {
-	if (( cfg[n] == NULL ) || ( *cfg == '\0' ) || ( depth[n] <= 0 )) {
+	if (( cfg[n] == NULL ) || ( *cfg == NULL ) || ( depth[n] <= 0 )) {
 	    break;
 	}
 	tmp_fifo[n].num_pins = parse_types(&(tmp_fifo[n]), cfg[n]);

@@ -153,7 +153,7 @@ install: build
 	fi
 
 #	# only want this for armhf builds ##
-	if [ ! -f debian/platform_pc ] ; then \
+	if [ "$(DEB_HOST_ARCH)" = "armhf" ] ; then \
 	    echo "usr/lib/linuxcnc/prubin/*" >> debian/machinekit-hal-posix.install; \
 	    echo "usr/lib/linuxcnc/prubin/*" >> debian/machinekit-hal-rt-preempt.install; \
 	    echo "usr/lib/linuxcnc/prubin/*" >> debian/machinekit-hal-xenomai.install; \
@@ -171,7 +171,7 @@ install: build
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) V=$(DH_VERBOSE) $@)
 	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/linuxcnc \
 	    debian/tmp/usr/include/linuxcnc/machinetalk/nanopb \
-	    debian/tmp/usr/include/linuxcnc/machinetalk/protobuf 
+	    debian/tmp/usr/include/linuxcnc/machinetalk/protobuf
 
 
 #ifneq (,$(wildcard debian/machinekit-*-kernel-*.install))
@@ -184,9 +184,7 @@ install: build
 	    debian/tmp/etc/security/limits.d/machinekit.conf
 
 #	# only want this for armhf builds too ##
-	if [ -f debian/platform_pc ] ; then \
-	    rm -f debian/platform_pc; \
-	else \
+	if [ "$(DEB_HOST_ARCH)" = "armhf" ] ; then \
 	    mkdir -p debian/tmp/usr/lib/linuxcnc/prubin; \
 	    cp rtlib/prubin/* debian/tmp/usr/lib/linuxcnc/prubin; \
 	    cat debian/posix-postinst.add >> debian/machinekit-hal-posix.postinst; \

@@ -42,7 +42,10 @@ case ${TAG} in
     armhf_*)                             # Machine arch: armhf
 	BUILD_OPTS="-a armhf"            # - Set machine arch
 	;;& # Fall through
-    i386_*|armhf_*)                      # Cross-compile/foreign arch
+    arm64_*)                             # Machine arch: arm64
+	BUILD_OPTS="-a arm64"            # - Set machine arch
+	;;& # Fall through
+    i386_*|arm*)                         # Cross-compile/foreign arch
 	BUILD_OPTS+=" -B"                # - Only build arch binary packages
 	BUILD_OPTS+=" -d"                # - Root fs missing build deps; force
 	RUN_TESTS='true'                 # - Don't run tests
@@ -205,6 +208,7 @@ set -x  # Show user the command
 # - Set hostname to $IMAGE:$TAG (replace `/` and `:` with `-`)
 # - Run build command as set above
 # hide --it
+
 exec docker run \
     --rm \
     --tty \
