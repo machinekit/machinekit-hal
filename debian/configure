@@ -28,7 +28,7 @@ do_changelog() {
         sed -e 's/\b\(.\)/\u\1/g')"
     DISTRO_LC="$(echo $DISTRO_CODENAME | sed 's/^[[:space:]]*//g')"
     MKVERSION="$(git show HEAD:VERSION | cut -d ' ' -f 1).$(
-        git rev-list --count master)-1.git$(
+        git rev-list --count HEAD)-1.git$(
         git rev-parse --short HEAD)~${DISTRO_LC}"
     COMMITTER="$(git show -s --pretty=%an $(git rev-parse --short HEAD))"
     EMAIL="$(git show -s --format='%ae' $(git rev-parse --short HEAD))"
