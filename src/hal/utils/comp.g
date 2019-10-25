@@ -878,7 +878,7 @@ def adocument(filename, outfilename, frontmatter):
             if isinstance(array, tuple):
                 f.write(" (%s=%0*d..%s)" % ("M" * sz, sz, 0, array[1]))
             else:
-                f.write(" (%s=%0*d..%0\*d)" % ("M" * sz, sz, 0, sz, array-1))
+                f.write(" (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1))
         if personality:
             f.write(" [if %s]" % personality)
         if value:
@@ -899,9 +899,9 @@ def adocument(filename, outfilename, frontmatter):
             if array:
                 sz = name.count("#")
                 if isinstance(array, tuple):
-                    f.write(" (%s=%0 * d..%s)" % ("M" * sz, sz, 0, array[1]))
+                    f.write(" (%s=%0*d..%s)" % ("M" * sz, sz, 0, array[1]))
                 else:
-                    f.write(" (%s=%0 * d..%0 * d)" % ("M" * sz, sz, 0, sz, array-1))
+                    f.write(" (%s=%0*d..%0*d)" % ("M" * sz, sz, 0, sz, array-1))
             if personality:
                 f.write(" [if %s]" % personality)
             if value:
