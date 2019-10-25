@@ -1269,7 +1269,7 @@ def adocument(filename, outfilename, frontmatter):
 	f.write("( OR\n")
 
         f.write("*<newinstname>.%s*" % to_hal(name))
-        f.write("%s %s" % type, dir)
+        f.write("%s %s" % (type, dir))
         if array:
             sz = name.count("#")
             f.write(" (%s=%s..%s)" % ("M" * sz, "0" * sz , array))
