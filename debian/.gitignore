@@ -1,18 +1,24 @@
-# files generated from debian/configure
-/control
-/rules
-/files
-/configure.cmdline
-/machinekit*.install
-/changelog
-
-# directory artifacts
-/tmp
-/machinekit*/
-
-# file artifacts
-/*substvars
-/*.debhelper
-/shlibs.local
-
-!/changelog.in
+tmp
+*.substvars
+machinekit-hal
+machinekit-hal-dev
+machinekit-hal-modules
+machinekit-hal-posix
+machinekit-hal-rt-preempt
+machinekit-hal-xenomai
+python-machinekit-hal
+*debhelper
+debhelper-build-stamp
+files
+changelog
+control
+libmk-npb1
+libmk-pb2++1
+libmkhal1
+libmkini1
+libmkshm1
+libmkulapi1
+libmtalk1
+libposemath1
+librtapi-math1
+*links

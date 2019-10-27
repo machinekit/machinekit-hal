@@ -1,0 +1,16 @@
+# vi:se ts=4 sts=4 et ai:
+from distutils.core import setup
+
+setup(name='machinekit',
+    version='${MK_VERSION_MAJOR}.${MK_VERSION_MINOR}',
+    description='Machinekit Python packages',
+    long_description='Machinekit is a platform for machine control applications.',
+    license='GPLv2',
+    url='http://www.machinekit.io',
+    platforms='POSIX',
+    package_dir={'':'${PROJECT_PYTHON_DIR}'},
+    package_data={'machinekit':['*.so'], 'hal':['*.so'], 'gladevcp':['*']},
+    packages=['machinekit', 'machinekit.protobuf', 'gladevcp', 'drivers', 'hal'],
+    py_modules=['bitfile', 'bwidget', 'gladevcp_makepins', 'hal_glib',
+        'linux_event', 'pyvcp_widgets', 'servicediscovery', 'pb2json'],
+)

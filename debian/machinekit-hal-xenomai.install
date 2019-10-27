@@ -1,0 +1,4 @@
+usr/lib/machinekit/xenomai/hal_lib.so
+usr/lib/machinekit/xenomai/rtapi.so
+usr/lib/machinekit/rtapi_app_xenomai
+usr/lib/machinekit/ulapi-xenomai.so

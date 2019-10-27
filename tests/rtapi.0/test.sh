@@ -1,12 +1,19 @@
 #!/bin/sh
 rm -f rtapi_test
 set -e
+if [ -z "$MACHINEKIT_LIB" ] || [ -z "$MACHINEKIT_INCLUDE" ]; then
+   INCLUDE=../../include
+   LIB=../../lib
+else
+   INCLUDE=${MACHINEKIT_INCLUDE}
+   LIB=${MACHINEKIT_LIB}
+fi
 gcc -g -DULAPI \
-    -I../../include \
+    -I${INCLUDE} \
     rtapi_test.c \
-    ../../lib/libmtalk.so \
-    ../../lib/liblinuxcnculapi.so \
-    ../../lib/liblinuxcnchal.so \
+    ${LIB}/libmtalk.so \
+    ${LIB}/liblinuxcnculapi.so \
+    ${LIB}/liblinuxcnchal.so \
     -o rtapi_test
 
 realtime stop

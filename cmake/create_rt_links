@@ -1,0 +1,10 @@
+#!/bin/sh -e
+
+# This script will symlink the supplied module to the corresponding flavor directory
+
+if [ "x$1" != "x" ] && [ "x$2" != "x" ] && [ "x$3" != "x" ]; then
+    mkdir -p ${DESTDIR}/$1/lib/machinekit/$2
+    ln -sf ../modules/$3.so ${DESTDIR}/$1/lib/machinekit/$2/$3.so
+else
+    exit 1
+fi

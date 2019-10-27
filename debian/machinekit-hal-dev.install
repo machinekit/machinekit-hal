@@ -1,0 +1,4 @@
+usr/bin/comp
+usr/bin/instcomp
+usr/include/machinekit
+usr/share/machinekit/Makefile.modinc

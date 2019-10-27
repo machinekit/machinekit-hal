@@ -1,2 +1,0 @@
-# XHC WHB04B-6 mpg pendant
-ATTR{idProduct}=="eb93", ATTR{idVendor}=="10ce", MODE="666", OWNER="root", GROUP="plugdev"

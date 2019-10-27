@@ -1,0 +1,53 @@
+#                                                                 -*-shell-script-*-
+# Execute this file in the context of your shell, such as with
+#  . @PROJECT_BIN_DIR@/set_env
+# and your shell environment will be properly configured to run commands like
+# comp, halcmd, halrun, icomp and python with the machinekit modules available.
+#
+
+if test $0 != "-bash"; then
+    if test $(basename $0) = "set_env"; then
+        >&2 echo "This script needs to be sourced, run as: \". $0\""
+        exit 1
+    elif test $(basename $0) = "sh"; then
+        >&2 echo "This only works for bash shell, manually export the following variables:"
+        >&2 echo "export MACHINEKIT_INI=@PROJECT_SYSCONF_DIR@/machinekit/machinekit.ini"
+        >&2 echo "export PATH=@PROJECT_LIBEXEC_DIR@:@PROJECT_BIN_DIR@:\$PATH"
+        >&2 echo "export PYTHONPATH=@PROJECT_PYTHON_DIR@:\$PYTHONPATH"
+        >&2 echo "export RTAPI_INI=@PROJECT_SYSCONF_DIR@/machinekit/rtapi.ini"
+        exit 1
+    fi
+fi
+
+# check if we are used within the build directory
+pushd $(dirname ${BASH_SOURCE[0]}) > /dev/null
+SCRIPTPATH=$(pwd)
+popd > /dev/null
+
+if [[ "$SCRIPTPATH" != "@PROJECT_BIN_DIR@" ]]; then
+    >&2 echo "This script is only useful when used"
+    >&2 echo "    within the build directory @PROJECT_BINARY_DIR@"
+    exit 1
+fi
+
+if [[ ":$PATH:" != *":@PROJECT_BIN_DIR@:"* ]]; then
+    export PATH="@PROJECT_LIBEXEC_DIR@:@PROJECT_BIN_DIR@${PATH:+":$PATH"}"
+fi
+
+export RTAPI_INI=@PROJECT_SYSCONF_DIR@/machinekit/rtapi.ini
+export MACHINEKIT_INI=@PROJECT_SYSCONF_DIR@/machinekit/machinekit.ini
+
+if [ -z "$LD_LIBRARY_PATH" ]; then
+    LD_LIBRARY_PATH=@PROJECT_LIB_DIR@
+else
+    LD_LIBRARY_PATH=@PROJECT_LIB_DIR@:"$LD_LIBRARY_PATH"
+fi
+
+if [[ ":$PYTHONPATH:" != *":@PROJECT_PYTHON_DIR@:"* ]]; then
+    export PYTHONPATH="@PROJECT_PYTHON_DIR@${PYTHONPATH:+":$PYTHONPATH"}"
+fi
+
+# needed for runtests
+export MACHINEKIT_INCLUDE=@INCLUDE_DIR@
+export MACHINEKIT_LIB=@PROJECT_LIB_DIR@
+export LD_LIBRARY_PATH

@@ -1,0 +1,78 @@
+#!/usr/bin/make -f
+# set these variables to defaults if not defined or empty
+export DH_VERBOSE := $(or $(DH_VERBOSE), 0)
+export DEB_BUILD_MAINT_OPTIONS := $(or $(DEB_BUILD_MAINT_OPTIONS), \
+                                hardening=+all)
+export DEB_CFLAGS_MAINT_APPEND := $(or $(DEB_CFLAGS_MAINT_APPEND), \
+                                -Wall -pedantic)
+export DEB_LDFLAGS_MAINT_APPEND := $(or $(DEB_LDFLAGS_MAINT_APPEND),  \
+                                -Wl,--as-needed)
+
+ifneq (,$(findstring r,$(MK_CONFIG)))
+CONFIG += -DWITH_RT_PREEMPT=yes
+USE_PREEMPT := y
+else
+CONFIG += -DWITH_RT_PREEMPT=no
+endif
+ifneq (,$(findstring x,$(MK_CONFIG)))
+CONFIG += -DWITH_XENOMAI=yes
+USE_XENOMAI := y
+else
+CONFIG += -DWITH_XENOMAI=no
+endif
+CONFIG += -DCMAKE_VERBOSE_MAKEFILE=$(DH_VERBOSE)
+
+debian/changelog:
+	scripts/build_source_package false
+
+.PHONY: configure
+configure: debian/changelog
+	@echo Configured using: \'MK_CONFIG=$(MK_CONFIG)\'
+
+.check_control:
+	@if test ! -f debian/control -a -z "$(MK_CONFIG)" ; then	\
+		echo ERROR: ' 'debian/control is not configured ;	\
+		echo '          'please run \"'MK_CONFIG=<args>' debian/rules configure\"  to setup ;	\
+		exit 1 ;	\
+	elif test -z "$(MK_CONFIG)" ; then	\
+		echo ERROR: ' 'missing MK_CONFIG variable ;	\
+		echo '          'please export or supply \"'MK_CONFIG=<args>' variable ;	\
+		exit 1 ;	\
+	else	\
+		cp debian/control.in debian/control;	\
+		test "${USE_PREEMPT}" && cat debian/control.rtpreempt >> debian/control;	\
+		test "${USE_XENOMAI}" && cat debian/control.xenomai >> debian/control;	\
+		touch $@;	\
+	fi
+
+%: .check_control debian/changelog
+	dh $@  --builddirectory=build --parallel
+
+override_dh_auto_clean:
+	dh_auto_clean
+	rm -f .check_control
+	rm -rf build CMakeCache.txt CMakeFiles CMakeScripts
+	rm -f debian/*links
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		$(CONFIG)
+
+override_dh_auto_test:
+	cmake/runtests
+
+override_dh_fixperms:
+	dh_fixperms
+	find debian -type f -name 'rtapi_app_*' -exec chmod 4755 {} \;
+
+MODULES = $(shell cd debian/tmp/usr/lib/machinekit/modules; find * -type f 2> /dev/null)
+LIBPATH := usr/lib/machinekit
+override_dh_link:
+	# create module links
+	@for a in $(MODULES); do	\
+		for b in posix rt-preempt xenomai; do	\
+			echo $(LIBPATH)/modules/$$a $(LIBPATH)/$$b/$$a >> 	\
+				debian/machinekit-hal-$$b.links;	\
+		done;	\
+	done
+	dh_link

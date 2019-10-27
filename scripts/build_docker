@@ -95,6 +95,8 @@ export TAG
 ###########################################################
 # Generate command line
 
+DO_TEST='true'
+
 declare -a BUILD_CL DOCKER_EXTRA_OPTS
 case $CMD in
     "shell"|"") # Interactive shell (default)
@@ -105,6 +107,12 @@ case $CMD in
 	    BUILD_CL=( "$@" )
 	fi
 	;;
+    "test") # RIP build and regression tests
+	if test "$TEST_DEBUG" = true; then
+	    DOCKER_EXTRA_OPTS=( -e MSGD_OPTS=-s -e DEBUG=5 )
+	fi
+    DO_TEST=$RUN_TESTS
+    ;&
     "deb") # Build Debian packages
 	DOCKER_EXTRA_OPTS=(
 	    # Used in dpkg-buildpackage
@@ -123,43 +131,24 @@ case $CMD in
 	)
 
 	BUILD_CL=( bash -xec "
-            # configure source package
-            debian/configure ${PKG_CONFIGURE_ARGS};
+            # create debian/control file
+            MK_CONFIG='${PKG_CONFIGURE_ARGS}' \
+            debian/rules configure
+
+            # install missing deps
+            sudo apt install -y cmake patchelf
+
+            # cleanup tests directory
+            rm -rf tests && git checkout -- tests
 
             # update Changelog and build source package
             $SCRIPT_DIR/build_source_package $BUILD_SOURCE
 
             # build binary packages
+            MK_CONFIG='${PKG_CONFIGURE_ARGS}' \
+            RUN_TESTS='${DO_TEST}' \
             dpkg-buildpackage -uc -us ${BUILD_OPTS} -j$JOBS
             "
-	)
-	;;
-    "test") # RIP build and regression tests
-	if test "$TEST_DEBUG" = true; then
-	    DOCKER_EXTRA_OPTS=( -e MSGD_OPTS=-s -e DEBUG=5 )
-	fi
-	TEST_ARGS="${TEST_ARGS:-tests}"
-	BUILD_CL=( bash -xec "
-            # Set up build:  \`autoconf\` and \`make\`
-	    (
-		cd src;
-		./autogen.sh;
-		./configure --host=\$HOST_MULTIARCH --with-posix;
-	    )
-
-            # Build
-	    make -C src -j${JOBS};
-
-            # Set up runtime:  setuid, environment, ini
-	    sudo make -C src setuid || true;  # Don't exit if this fails
-	    . scripts/rip-environment;
-	    echo -e 'ANNOUNCE_IPV4=0\nANNOUNCE_IPV6=0' >> \
-		etc/linuxcnc/machinekit.ini;
-	    tail -2 etc/linuxcnc/machinekit.ini;
-	    flavor;
-
-            # Run regression tests
-	    ${RUN_TESTS} ${TEST_ARGS}"
 	)
 	;;
     "docs") # Just build docs

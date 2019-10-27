@@ -1,0 +1,139 @@
+Source: machinekit-hal
+Section: misc
+Priority: extra
+Maintainer: John Morris <john@dovetail-automata.com>
+Build-Depends:  cmake, cython, dh-python,
+                debhelper (>=9), fakeroot,
+                libavahi-client-dev, libboost-python-dev,
+                libcgroup-dev, libczmq-dev, libgtk2.0-dev,
+                libjansson-dev, libmodbus-dev, libprotobuf-dev,
+                libreadline-dev, libudev-dev, libusb-1.0-0-dev,
+                libwebsockets-dev, lsb-release, patchelf, 
+                pkg-config, protobuf-compiler, python (>= 2.7),
+                python-protobuf, tcl8.6-dev, uuid-dev,
+                yapps2, yapps2-runtime | python-yapps,
+                base-files (>= 9.0) | libxenomai-dev
+Standards-Version: 4.3.0
+Homepage: http://www.machinekit.io
+X-Python-Version: >= 2.7
+
+Package: machinekit-hal
+Architecture: any
+Multi-Arch: foreign
+Conflicts: machinekit
+Suggests: avahi-daemon, hostmot2-firmware-all [!armhf]
+Depends: procps, uuid-runtime, ${misc:Depends}, ${shlibs:Depends}
+Description: Machinekit-HAL main components and libraries
+ TODO
+
+Package: machinekit-hal-modules
+Architecture: any
+Multi-Arch: foreign
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Machinekit-HAL modules
+ TODO
+
+Package: machinekit-hal-dev
+Architecture: any
+Multi-Arch: foreign
+Conflicts: machinekit
+Suggests: hostmot2-firmware-all [!armhf]
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Machinekit-HAL development files
+ TODO
+
+Package: machinekit-hal-posix
+Architecture: any
+Multi-Arch: foreign
+Conflicts: machinekit-hal-rt-preempt, machinekit-hal-xenomai
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Provides non-realtime (Posix) components
+ TODO
+
+Package: python-machinekit-hal
+Architecture: any
+Multi-Arch: foreign
+Depends: ${misc:Depends}, ${python:Depends}
+Description: Provides Machinekit-HAL python modules
+ TODO
+
+Package: librtapi-math1
+Section: libs
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Machinekit-HAL library
+ TODO
+
+Package: libposemath1
+Section: libs
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Machinekit-HAL library
+ TODO
+
+Package: libmtalk1
+Section: libs
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Machinekit-HAL library
+ TODO
+
+Package: libmk-pb2++1
+Section: libs
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Machinekit-HAL library
+ TODO
+
+Package: libmk-npb1
+Section: libs
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Machinekit-HAL library
+ TODO
+
+Package: libmkulapi1
+Section: libs
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Machinekit-HAL library
+ TODO
+
+Package: libmkshm1
+Section: libs
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Machinekit-HAL library
+ TODO
+
+Package: libmkini1
+Section: libs
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Machinekit-HAL library
+ TODO
+
+Package: libmkhal1
+Section: libs
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Machinekit-HAL library
+ TODO

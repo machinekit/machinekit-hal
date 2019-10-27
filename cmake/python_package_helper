@@ -1,0 +1,8 @@
+#!/bin/sh -e
+
+# This script will install the python packages using setup.py located at $2 
+if [ "x$1" != "x" ] && [ "x$2" != "x" ] && [ -f $2/setup.py ]; then
+	$1 $2/setup.py install --force --root=${DESTDIR}/ --no-compile -O0 --install-layout=deb
+else
+    exit 1
+fi

@@ -1,7 +1,0 @@
-Depends: libavahi-client3 (>= 0.6.16), libavahi-common3 (>= 0.6.16), libc6 (>= 2.27), libcgroup1 (>= 0.36.2), libczmq4 (>= 3.0.2), libfontconfig1 (>= 2.12.6), libfreetype6 (>= 2.2.1),
-    libgcc1 (>= 1:4.2), libgl1, libglib2.0-0 (>= 2.12.0), libjansson4 (>= 2.2), libmodbus5 (>= 3.0.2), libprotobuf17, libreadline7 (>= 6.0), libstdc++6 (>= 5.2), libtk8.6 (>= 8.6.0),
-    libudev1 (>= 183), libusb-1.0-0 (>= 2:1.0.9), libuuid1 (>= 2.16), libx11-6, libxext6, libxft2 (>> 2.1.1), libxinerama1, libxss1, libzmq5 (>= 3.2.3+dfsg), zlib1g (>= 1:1.1.4),
-    python (<< 2.8), python (>= 2.7~), python:any (<< 2.8), python:any (>= 2.7~), libboost-python1.62.0 | libboost-python1.67.0, libboost-system1.62.0 | libboost-system1.67.0,
-    libboost-thread1.62.0 | libboost-thread1.67.0,
-    bc, cgroup-tools, libtk-img (>= 1.13), procps, psmisc, python-tk, python-numpy, python-xlib,
-    python-gtkglext1, python-configobj, python-zmq, python-protobuf (>= 2.4.1), python-avahi, python-simplejson, python-pyftpdlib, tclreadline, tcl8.6, tk8.6, uuid-runtime, yapps2

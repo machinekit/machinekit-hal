@@ -1,6 +1,10 @@
 #!/bin/sh
 set -xe 
-HEADERS=$(readlink -f ../../../include)
+if [ -z "$MACHINEKIT_INCLUDE" ]; then
+    HEADERS=$(readlink -f ../../../include)
+else
+    HEADERS=${MACHINEKIT_INCLUDE}
+fi
 for i in $HEADERS/*.h; do
     case $i in
     */rtapi_app.h) continue ;;

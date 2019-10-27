@@ -107,6 +107,9 @@ cat debian/changelog.in >> debian/changelog
 if $BUILD_SOURCE; then
     set -x # Let user see what's going on
 
+    # cleanup debian/
+    debian/rules clean
+
     # create .orig tarball
     git archive HEAD | \
 	bzip2 -z | tee ../machinekit-hal_${VERSION}.orig.tar.bz2 >/dev/null

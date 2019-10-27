@@ -1,0 +1,4 @@
+usr/lib/machinekit/rt-preempt/hal_lib.so
+usr/lib/machinekit/rt-preempt/rtapi.so
+usr/lib/machinekit/rtapi_app_rt-preempt
+usr/lib/machinekit/ulapi-rt-preempt.so

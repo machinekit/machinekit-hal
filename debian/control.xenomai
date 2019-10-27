@@ -1,0 +1,8 @@
+
+Package: machinekit-hal-xenomai
+Architecture: any
+Multi-Arch: foreign
+Conflicts: machinekit-hal-posix, machinekit-hal-rt-preempt
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Provides realtime (Xenomai 2) components
+ TODO

@@ -1,0 +1,33 @@
+#!/bin/bash -e
+
+# fail if run under fakeroot and and RUN_TESTS defined
+if [ "x$FAKEROOTKEY" != "x" ] && [ "x$RUN_TESTS" != "x" ]; then
+    echo These tests cannot run under a fakeroot environment
+    exit 1
+# else skip tests if RUN_TESTS not set
+elif [ "x$RUN_TESTS" == "x" ]; then
+    echo Skipping runtests
+    exit 0
+fi
+
+if [ ! -f build/etc/machinekit/machinekit.ini.bak ]; then
+    mv build/etc/machinekit/machinekit.ini build/etc/machinekit/machinekit.ini.bak
+fi
+cat >build/etc/machinekit/machinekit.ini <<EOF
+[MACHINEKIT]
+MKUUID=a42c8c6b-4025-4f83-ba28-dad21114744a
+REMOTE=0
+ANNOUNCE_IPV4=0
+ANNOUNCE_IPV6=0
+EOF
+
+sudo chown 0:0 build/lib/machinekit/rtapi_app_posix
+sudo chmod 4755 build/lib/machinekit/rtapi_app_posix
+#sudo setcap cap_sys_nice=pe build/lib/machinekit/rtapi_app_posix
+
+source build/bin/set_env
+$RUN_TESTS tests
+result=$?
+
+mv build/etc/machinekit/machinekit.ini.bak build/etc/machinekit/machinekit.ini
+exit $result

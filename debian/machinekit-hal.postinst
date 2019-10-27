@@ -1,0 +1,61 @@
+#!/bin/sh
+# postinst script for machinekit-hal
+
+# restart services
+service udev restart 2>/dev/null || true
+service rsyslog restart 2>/dev/null || true
+
+###############################################################################
+
+INIFILE=/etc/machinekit/machinekit.ini
+NEWUUID=$(uuidgen)
+MKUUIDFILE=no
+
+# if there is an existing valid mkuuid file - use it
+if [ -f /etc/machinekit/mkuuid ]; then
+    UUID=$(echo | cat /etc/machinekit/mkuuid)
+    if [ "$UUID" = "a42c8c6b-4025-4f83-ba28-dad21114744a" ]; then
+        echo "Old void MKUUID in mkuuid $UUID - skipping"
+    else
+        echo "Valid MKUUID in mkuuid $UUID - using that"
+        NEWUUID=$UUID ;
+        MKUUIDFILE=yes
+    fi
+fi
+
+# change machinekit.ini MKUUID for new unique one.
+
+if [ -f $INIFILE ]; then
+    LINE=$(grep -F "MKUUID=" $INIFILE) ;
+    UUID=$(echo "$LINE" | cut -c 8-) ;
+    if [ "$UUID" = "a42c8c6b-4025-4f83-ba28-dad21114744a" ]; then
+        echo "Old value in $INIFILE replaced with new MKUUID $NEWUUID"
+        sed -i "s|^MKUUID=.*|MKUUID=$NEWUUID|" $INIFILE
+    else
+        if [ "$UUID" != "$NEWUUID" ] && [ $MKUUIDFILE = "yes" ]; then
+            echo "Value in mkuuid and ini files differ - using mkuuid $NEWUUID"
+            sed -i "s|^MKUUID=.*|MKUUID=$NEWUUID|" $INIFILE
+        else
+            echo "Valid value in ini file $UUID - leaving"
+        fi
+    fi
+else
+    echo "ERROR: $INIFILE not found"
+fi
+    
+# Ensure mkuuid file holds same UUID
+    
+echo "$NEWUUID" > /etc/machinekit/mkuuid
+    
+################################################################################
+
+# disable mDNS announcements if avahi-daemon is not running/installed
+
+if ! $(service avahi-daemon status >/dev/null); then
+    sed -i -e 's.^#ANNOUNCE_IPV4=1$.ANNOUNCE_IPV4=0.g' \
+           -e 's.^#ANNOUNCE_IPV6=1$.ANNOUNCE_IPV6=0.g' \
+           /etc/machinekit/machinekit.ini
+fi
+################################################################################
+
+#DEBHELPER#

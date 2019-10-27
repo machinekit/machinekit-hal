@@ -1,0 +1,63 @@
+file(GLOB files RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.icomp")
+
+unset(_gen_comp)
+# generate comps
+_mkconv("conv_float_s32" "float;s32;\"\";-2147483647-1;2147483647")
+_mkconv("conv_float_u32" "float;u32;\"\";0;2147483647")
+_mkconv("conv_bit_s32" "bit;s32;//")
+_mkconv("conv_bit_u32" "bit;u32;//")
+_mkconv("conv_s32_float" "s32;float;//")
+_mkconv("conv_s32_bit" "s32;bit;\"\";0;1")
+_mkconv("conv_s32_u32" "s32;u32;\"\";0;0")
+_mkconv("conv_u32_float" "u32;float;//")
+_mkconv("conv_u32_bit" "u32;bit;\"\";-1;1")
+_mkconv("conv_u32_s32" "u32;s32;\"\";-1;2147483647")
+_mkconv("conv_float_s64" "float;s64;\"\";-9223372036854775807-1;9223372036854775807")
+_mkconv("conv_float_u64" "float;u64;\"\";0;18446744073709551615UL")
+_mkconv("conv_bit_s64" "bit;s64;//")
+_mkconv("conv_bit_u64" "bit;u64;//")
+_mkconv("conv_s64_float" "s64;float;//")
+_mkconv("conv_s64_bit" "s64;bit;\"\";0;1")
+_mkconv("conv_u64_float" "u64;float;//")
+_mkconv("conv_u64_bit" "u64;bit;\"\";-1;1")
+_mkconv("conv_u64_s64" "u64;s64;\"\";-1;9223372036854775807")
+_mkconv("conv_s64_u64" "s64;u64;\"\";0;0")
+_mkconv("conv_s64_s32" "s64;s32;\"\";-2147483647-1;2147483647")
+_mkconv("conv_u64_u32" "u64;u32;\"\";0;4294967295UL")
+_mkconv("conv_s64_u32" "s64;u32;\"\";0;4294967295UL")
+
+unset(_gen_man)
+# create manpages
+foreach(file ${_gen_comp})
+    get_filename_component(name ${file} NAME_WE)
+    _icomp_to_man(${name} ${CMAKE_CURRENT_BINARY_DIR})
+endforeach()
+add_custom_target(man_conv2 ALL DEPENDS ${_gen_man})
+_install_man("${_gen_man}")
+
+unset(_gen_c)
+# generate c from comps
+foreach(file ${_gen_comp})
+    get_filename_component(name ${file} NAME_WE)
+    _icomp_to_c(${name} ${CMAKE_CURRENT_BINARY_DIR})
+endforeach()
+
+foreach(file ${files})
+    get_filename_component(name ${file} NAME_WE)
+    _icomp_to_c(${name})
+endforeach()
+
+# create targets from generated c files
+foreach(file ${_gen_c})
+    get_filename_component(name ${file} NAME_WE)
+    _to_rtlib(${name}.icomp ${file})
+endforeach()
+
+unset(_gen_man)
+# create manpages
+foreach(file ${files})
+    get_filename_component(name ${file} NAME_WE)
+    _icomp_to_man(${name})
+endforeach()
+add_custom_target(man_i_components ALL DEPENDS ${_gen_man})
+_install_man("${_gen_man}")
