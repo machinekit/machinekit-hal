@@ -49,7 +49,7 @@
 #include <inifile.h>
 #include <inihelp.hh>
 
-#include <machinetalk/protobuf/message.pb.h>
+#include <protobuf/message.pb.h>
 using namespace google::protobuf;
 
 #include "messagebus.hh"

@@ -44,11 +44,11 @@
 //------------------------------------------------------------------------*/
 
 /* Use config_module.h instead of config.h so we can use RTAPI_INC_LIST_H */
-#include "config_module.h"
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "rtapi_string.h"
-#include "hal.h"
+#include <config_module.h>
+#include <rtapi.h>
+#include <rtapi_app.h>
+#include <rtapi_string.h>
+#include <hal.h>
 
 #include <fcntl.h>
 #include <sys/mman.h>

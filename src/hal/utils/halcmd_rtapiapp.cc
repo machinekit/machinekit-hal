@@ -1,4 +1,4 @@
-#include "config.h"
+#include <config.h>
 #include "halcmd_rtapiapp.h"
 
 #include <czmq.h>
@@ -10,7 +10,7 @@
 #include <avahi-common/malloc.h>
 
 
-#include <message.pb.h>
+#include <protobuf/message.pb.h>
 #include <google/protobuf/text_format.h>
 
 using namespace google::protobuf;

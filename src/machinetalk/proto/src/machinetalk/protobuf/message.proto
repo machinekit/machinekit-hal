@@ -8,20 +8,20 @@ syntax = "proto2";
 package machinetalk;
 
 
-import "machinetalk/protobuf/nanopb.proto";
-import "machinetalk/protobuf/types.proto";
-import "machinetalk/protobuf/object.proto";
-import "machinetalk/protobuf/log.proto";
-import "machinetalk/protobuf/motcmds.proto";
-//import "machinetalk/protobuf/test.proto";
-import "machinetalk/protobuf/task.proto";
-import "machinetalk/protobuf/canon.proto";
-import "machinetalk/protobuf/value.proto";
-import "machinetalk/protobuf/rtapicommand.proto";
-import "machinetalk/protobuf/rtapi_message.proto";
-import "machinetalk/protobuf/config.proto";
-import "machinetalk/protobuf/preview.proto";
-import "machinetalk/protobuf/status.proto";
+import "protobuf/nanopb.proto";
+import "protobuf/types.proto";
+import "protobuf/object.proto";
+import "protobuf/log.proto";
+import "protobuf/motcmds.proto";
+//import "protobuf/test.proto";
+import "protobuf/task.proto";
+import "protobuf/canon.proto";
+import "protobuf/value.proto";
+import "protobuf/rtapicommand.proto";
+import "protobuf/rtapi_message.proto";
+import "protobuf/config.proto";
+import "protobuf/preview.proto";
+import "protobuf/status.proto";
 
 message Container {
 

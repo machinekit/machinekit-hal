@@ -19,11 +19,11 @@
 
 /* A component to stream HAL data to an LCD in a user-defined format */
 
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "rtapi_string.h"
-#include "hal.h"
-#include "rtapi_math.h"
+#include <rtapi.h>
+#include <rtapi_app.h>
+#include <rtapi_string.h>
+#include <hal.h>
+#include <rtapi_math.h>
 #include <linux/types.h>
 
 #ifdef SIM

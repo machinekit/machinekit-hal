@@ -26,7 +26,7 @@
 #include <string.h>		/* strcmp(), strcpy() */
 #include <limits.h>
 
-#include "config.h"
+#include <config.h>
 #include "inifile.hh"
 
 // Compiler warnings

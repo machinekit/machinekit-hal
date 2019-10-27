@@ -124,12 +124,12 @@
 
 #include <linux/pci.h>
 
-#include "rtapi.h"			// RTAPI realtime OS API.
-#include "rtapi_app.h"			// RTAPI realtime module decls.
+#include <rtapi.h>			// RTAPI realtime OS API.
+#include <rtapi_app.h>			// RTAPI realtime module decls.
 #if defined(BUILD_SYS_USER_DSO)
-#include "rtapi_pci.h"
+#include <rtapi_pci.h>
 #endif
-#include "hal.h"			// HAL public API decls.
+#include <hal.h>			// HAL public API decls.
 #include "motenc.h"			// Hardware dependent defines.
 
 // Module information.

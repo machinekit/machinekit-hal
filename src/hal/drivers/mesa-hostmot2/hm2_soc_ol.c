@@ -84,7 +84,7 @@ see configs/hm2-soc-stepper/irqtest.hal for a usage example
  */
 //---------------------------------------------------------------------------//
 
-#include "config.h"
+#include <config.h>
 
 // this should be an general socfpga #define
 /* #if !defined(TARGET_PLATFORM_SOCFPGA) */
@@ -95,14 +95,14 @@ see configs/hm2-soc-stepper/irqtest.hal for a usage example
 #error "This driver is for usermode threads only"
 #endif
 
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "rtapi_string.h"
-#include "rtapi_hexdump.h"
-#include "rtapi_compat.h"
-#include "hal.h"
-#include "hal_priv.h"
-#include "hal/lib/config_module.h"
+#include <rtapi.h>
+#include <rtapi_app.h>
+#include <rtapi_string.h>
+#include <rtapi_hexdump.h>
+#include <rtapi_compat.h>
+#include <hal.h>
+#include <hal_priv.h>
+#include <config_module.h>
 #include "hostmot2-lowlevel.h"
 #include "hostmot2.h"
 #include "hm2_soc_ol.h"

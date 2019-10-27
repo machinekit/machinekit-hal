@@ -1,9 +1,9 @@
 # vim: sts=4 sw=4 et
 
-cdef extern from "rtapi_bitops.h":
+cdef extern from "<rtapi_bitops.h>":
     int RTAPI_BIT(int b)
 
-cdef extern from "rtapi_compat.h":
+cdef extern from "<rtapi_compat.h>":
     cdef int  FLAVOR_DOES_IO
     cdef int  FLAVOR_KERNEL_BUILD
     cdef int  FLAVOR_RTAPI_DATA_IN_SHM

@@ -10,10 +10,10 @@
 #include <time.h>
 #include <sys/time.h>
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "hal.h"		/* HAL public API decls */
-#include "hal_priv.h"		/* HAL private API decls */
-#include "hal_ring.h"	        /* ringbuffer declarations */
+#include <rtapi.h>		/* RTAPI realtime OS API */
+#include <hal.h>		/* HAL public API decls */
+#include <hal_priv.h>		/* HAL private API decls */
+#include <hal_ring.h>	        /* ringbuffer declarations */
 
 #define MODE_RECORD 0
 #define MODE_STREAM 1

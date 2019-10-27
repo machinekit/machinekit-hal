@@ -24,10 +24,10 @@
 // # setp lut5.N.function 0xe
 
 
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "hal.h"
-#include "hal_priv.h"
+#include <rtapi.h>
+#include <rtapi_app.h>
+#include <hal.h>
+#include <hal_priv.h>
 #include "hal_accessor.h"
 
 #include <stdio.h>

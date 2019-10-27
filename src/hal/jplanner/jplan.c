@@ -1,12 +1,12 @@
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "rtapi_math.h"
-#include "hal.h"
-#include "hal_priv.h"
-#include "hal_ring.h"
+#include <rtapi.h>
+#include <rtapi_app.h>
+#include <rtapi_math.h>
+#include <hal.h>
+#include <hal_priv.h>
+#include <hal_ring.h>
 
-#include <machinetalk/build/machinetalk/protobuf/jplan.npb.h>
-#include <machinetalk/nanopb/pb_decode.h>
+#include <protobuf/jplan.npb.h>
+#include <protobuf/pb_decode.h>
 
 MODULE_AUTHOR("Michael Haberler");
 MODULE_DESCRIPTION("simple joint planner");

@@ -1,4 +1,4 @@
-cdef extern from "ring.h":
+cdef extern from "<ring.h>":
     ctypedef enum  ring_type_t:
         RINGTYPE_RECORD
         RINGTYPE_MULTIPART

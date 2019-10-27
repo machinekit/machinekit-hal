@@ -4,7 +4,7 @@ from .hal cimport *
 from .hal_priv cimport halhdr_t
 from .ring cimport ringbuffer_t
 
-cdef extern from "hal_ring.h":
+cdef extern from "<hal_ring.h>":
     ctypedef struct hal_ring_t:
         halhdr_t hdr
         int ring_id

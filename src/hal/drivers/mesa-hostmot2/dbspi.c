@@ -17,13 +17,13 @@
 //
 
 #include <stdbool.h>
-#include "config_module.h"
+#include <config_module.h>
 #include RTAPI_INC_SLAB_H
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "rtapi_string.h"
-#include "rtapi_math.h"
-#include "hal.h"
+#include <rtapi.h>
+#include <rtapi_app.h>
+#include <rtapi_string.h>
+#include <rtapi_math.h>
+#include <hal.h>
 #include "hostmot2.h"
 
 int hm2_dbspi_parse_md(hostmot2_t *hm2, int md_index)

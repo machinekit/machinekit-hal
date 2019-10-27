@@ -25,21 +25,21 @@
 //  verify that the hostmot2 driver functions as it ought.
 //
 
-#include "config.h"
+#include <config.h>
 
 #if defined(USERMODE_PCI) && defined(BUILD_SYS_USER_DSO)
 #include <sys/io.h>
 #include <rtapi.h>
-#include <rtapi/rtapi_pci.h>
+#include <rtapi_pci.h>
 #else
 #include <linux/pci.h>
 #endif
 
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "rtapi_string.h"
+#include <rtapi.h>
+#include <rtapi_app.h>
+#include <rtapi_string.h>
 
-#include "hal.h"
+#include <hal.h>
 
 #include "hostmot2.h"
 #include "hostmot2-lowlevel.h"

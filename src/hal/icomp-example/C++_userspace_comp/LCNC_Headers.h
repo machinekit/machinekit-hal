@@ -26,9 +26,9 @@
 // /usr/include/emc2
 #include <rtapi.h>
 #ifdef RTAPI
-#include "rtapi_app.h"
+#include <rtapi_app.h>
 #endif
-#include "rtapi_string.h"
+#include <rtapi_string.h>
 #include <hal.h>		
 #include <hal_priv.h>	// need to get this from source and add it
 #include <hal_accessor.h>

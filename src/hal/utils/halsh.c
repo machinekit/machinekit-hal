@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <tcl.h>
 #include "halcmd.h"
-#include "inifile.h"
+#include <inifile.h>
 
 Tcl_Interp *target_interp = NULL;
 static int pending_cr = 0;

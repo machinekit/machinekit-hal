@@ -1,10 +1,10 @@
 // HAL components API
 
-#include "config.h"
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "hal.h"		/* HAL public API decls */
-#include "hal_priv.h"		/* HAL private decls */
-#include "hal_internal.h"
+#include <config.h>
+#include <rtapi.h>		/* RTAPI realtime OS API */
+#include <hal.h>		/* HAL public API decls */
+#include <hal_priv.h>		/* HAL private decls */
+#include <hal_internal.h>
 
 #if defined(ULAPI)
 #include <sys/types.h>		/* pid_t */

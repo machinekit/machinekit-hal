@@ -34,7 +34,7 @@ static char *license = \
     information, go to www.linuxcnc.org.\n\
 ";
 
-#include "config.h"
+#include <config.h>
 #include <locale.h>
 #include <libintl.h>
 #define _(x) gettext(x)
@@ -48,10 +48,10 @@ static char *license = \
 #include <string.h>
 #include <unistd.h>	/* getopt() */
 
-#include "config.h"
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "hal.h"		/* HAL public API decls */
-#include "hal_priv.h"	/* HAL private API decls */
+#include <config.h>
+#include <rtapi.h>		/* RTAPI realtime OS API */
+#include <hal.h>		/* HAL public API decls */
+#include <hal_priv.h>		/* HAL private API decls */
 
 #include <gtk/gtk.h>
 #include "miscgtk.h"		/* generic GTK stuff */

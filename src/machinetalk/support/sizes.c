@@ -2,11 +2,11 @@
 //#include <motion.h>
 //#include <motion_debug.h>
 
-#include <machinetalk/protobuf/test.npb.h>
-#include <machinetalk/protobuf/value.npb.h>
-#include <machinetalk/protobuf/object.npb.h>
-#include <machinetalk/protobuf/message.npb.h>
-#include <machinetalk/protobuf/motcmds.npb.h>
+#include <protobuf/test.npb.h>
+#include <protobuf/value.npb.h>
+#include <protobuf/object.npb.h>
+#include <protobuf/message.npb.h>
+#include <protobuf/motcmds.npb.h>
 
 
 int main()

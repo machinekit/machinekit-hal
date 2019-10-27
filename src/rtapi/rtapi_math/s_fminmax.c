@@ -1,4 +1,4 @@
-#include "rtapi_math.h"
+#include "../rtapi_math.h"
 
 double rtapi_fmax(double __y, double __x) {
     return __y > __x ? __y : __x;

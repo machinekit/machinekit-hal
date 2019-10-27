@@ -1,4 +1,4 @@
-#include "config.h"
+#include <config.h>
 #include "hal.h"
 #include "hal_priv.h"
 #include "hal_accessor.h"

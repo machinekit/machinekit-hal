@@ -41,8 +41,8 @@
 #define HALCMD_H
 
 #include <stdio.h>
-#include "hal.h"
-#include "rtapi_compat.h"
+#include <hal.h>
+#include <rtapi_compat.h>
 
 extern int halcmd_startup(int quiet, char *uri, const char *svc_uuid);
 extern void halcmd_shutdown();

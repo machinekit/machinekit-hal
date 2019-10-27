@@ -28,7 +28,7 @@
 *     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ********************************************************************/
 
-#include "config.h"		// build configuration
+#include <config.h>		// build configuration
 #include "rtapi.h"		// these functions
 #include "rtapi_common.h"	// RTAPI macros and decls
 

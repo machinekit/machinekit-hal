@@ -28,7 +28,7 @@
 #define _GNU_SOURCE
 #endif
 
-#include "config.h"
+#include <config.h>
 #if defined(USERMODE_PCI) && defined(BUILD_SYS_USER_DSO)
 
 #include <libudev.h>

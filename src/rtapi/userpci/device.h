@@ -48,7 +48,7 @@
 #ifndef _DEVICE_H_
 #define _DEVICE_H_
 
-#include "hal.h"
+#include <hal.h>
 
 struct device {
     char    name[HAL_NAME_LEN+1];

@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "config.h"
+#include <config.h>
 
 #ifndef SYSLOG_FACILITY
 #define SYSLOG_FACILITY LOG_LOCAL1  // where all rtapi/ulapi logging goes
@@ -50,7 +50,7 @@
 #include "mk-service.hh"
 #include "mk-zeroconf.hh"
 
-#include <machinetalk/build/machinetalk/protobuf/message.pb.h>
+#include <protobuf/message.pb.h>
 namespace gpb = google::protobuf;
 
 // announced protocol versions

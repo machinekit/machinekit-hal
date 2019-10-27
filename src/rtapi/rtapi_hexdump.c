@@ -10,7 +10,7 @@
  * more details.
  */
 
-#include "config.h"
+#include <config.h>
 #include "rtapi.h"
 #include "rtapi_hexdump.h"
 

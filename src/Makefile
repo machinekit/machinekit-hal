@@ -248,7 +248,9 @@ endif
 # Each item in INCLUDES is transformed into a -I directive later on
 # The top directory is always included
 INCLUDES := .
-INCLUDES += include/
+INCLUDES += include
+# add the generated headers
+INCLUDES += ../include
 
 USERSRCS :=
 PROGRAMS :=
@@ -461,53 +463,52 @@ HEADERS := \
     hal/lib/hal_ring.h \
     hal/lib/hal_types.h \
     hal/lib/vtable.h \
-    hal/drivers/hal_spi.h \
     libnml/inifile/inifile.h \
     libnml/inifile/inifile.hh \
     libnml/posemath/posemath.h \
     libnml/posemath/gotypes.h \
     libnml/posemath/gomath.h \
     libnml/posemath/sincos.h \
-    machinetalk/build/machinetalk/protobuf/message.pb.h \
-    machinetalk/build/machinetalk/protobuf/types.pb.h \
-    machinetalk/build/machinetalk/protobuf/canon.npb.h \
-    machinetalk/build/machinetalk/protobuf/config.pb.h \
-    machinetalk/build/machinetalk/protobuf/firmware.npb.h \
-    machinetalk/build/machinetalk/protobuf/jplan.pb.h \
-    machinetalk/build/machinetalk/protobuf/sample.pb.h \
-    machinetalk/build/machinetalk/protobuf/message.npb.h \
-    machinetalk/build/machinetalk/protobuf/motcmds.pb.h \
-    machinetalk/build/machinetalk/protobuf/object.npb.h \
-    machinetalk/build/machinetalk/protobuf/preview.pb.h \
-    machinetalk/build/machinetalk/protobuf/rtapicommand.npb.h \
-    machinetalk/build/machinetalk/protobuf/rtapi_message.pb.h \
-    machinetalk/build/machinetalk/protobuf/task.npb.h \
-    machinetalk/build/machinetalk/protobuf/test.pb.h \
-    machinetalk/build/machinetalk/protobuf/value.npb.h \
-    machinetalk/build/machinetalk/protobuf/canon.pb.h \
-    machinetalk/build/machinetalk/protobuf/emcclass.npb.h \
-    machinetalk/build/machinetalk/protobuf/firmware.pb.h \
-    machinetalk/build/machinetalk/protobuf/log.npb.h \
-    machinetalk/build/machinetalk/protobuf/nanopb.npb.h \
-    machinetalk/build/machinetalk/protobuf/object.pb.h \
-    machinetalk/build/machinetalk/protobuf/ros.npb.h \
-    machinetalk/build/machinetalk/protobuf/rtapicommand.pb.h \
-    machinetalk/build/machinetalk/protobuf/status.npb.h \
-    machinetalk/build/machinetalk/protobuf/task.pb.h \
-    machinetalk/build/machinetalk/protobuf/types.npb.h \
-    machinetalk/build/machinetalk/protobuf/value.pb.h \
-    machinetalk/build/machinetalk/protobuf/config.npb.h \
-    machinetalk/build/machinetalk/protobuf/emcclass.pb.h \
-    machinetalk/build/machinetalk/protobuf/jplan.npb.h \
-    machinetalk/build/machinetalk/protobuf/sample.npb.h \
-    machinetalk/build/machinetalk/protobuf/log.pb.h \
-    machinetalk/build/machinetalk/protobuf/motcmds.npb.h \
-    machinetalk/build/machinetalk/protobuf/nanopb.pb.h \
-    machinetalk/build/machinetalk/protobuf/preview.npb.h \
-    machinetalk/build/machinetalk/protobuf/ros.pb.h \
-    machinetalk/build/machinetalk/protobuf/rtapi_message.npb.h \
-    machinetalk/build/machinetalk/protobuf/status.pb.h \
-    machinetalk/build/machinetalk/protobuf/test.npb.h \
+    machinetalk/build/protobuf/message.pb.h \
+    machinetalk/build/protobuf/types.pb.h \
+    machinetalk/build/protobuf/canon.npb.h \
+    machinetalk/build/protobuf/config.pb.h \
+    machinetalk/build/protobuf/firmware.npb.h \
+    machinetalk/build/protobuf/jplan.pb.h \
+    machinetalk/build/protobuf/sample.pb.h \
+    machinetalk/build/protobuf/message.npb.h \
+    machinetalk/build/protobuf/motcmds.pb.h \
+    machinetalk/build/protobuf/object.npb.h \
+    machinetalk/build/protobuf/preview.pb.h \
+    machinetalk/build/protobuf/rtapicommand.npb.h \
+    machinetalk/build/protobuf/rtapi_message.pb.h \
+    machinetalk/build/protobuf/task.npb.h \
+    machinetalk/build/protobuf/test.pb.h \
+    machinetalk/build/protobuf/value.npb.h \
+    machinetalk/build/protobuf/canon.pb.h \
+    machinetalk/build/protobuf/emcclass.npb.h \
+    machinetalk/build/protobuf/firmware.pb.h \
+    machinetalk/build/protobuf/log.npb.h \
+    machinetalk/build/protobuf/nanopb.npb.h \
+    machinetalk/build/protobuf/object.pb.h \
+    machinetalk/build/protobuf/ros.npb.h \
+    machinetalk/build/protobuf/rtapicommand.pb.h \
+    machinetalk/build/protobuf/status.npb.h \
+    machinetalk/build/protobuf/task.pb.h \
+    machinetalk/build/protobuf/types.npb.h \
+    machinetalk/build/protobuf/value.pb.h \
+    machinetalk/build/protobuf/config.npb.h \
+    machinetalk/build/protobuf/emcclass.pb.h \
+    machinetalk/build/protobuf/jplan.npb.h \
+    machinetalk/build/protobuf/sample.npb.h \
+    machinetalk/build/protobuf/log.pb.h \
+    machinetalk/build/protobuf/motcmds.npb.h \
+    machinetalk/build/protobuf/nanopb.pb.h \
+    machinetalk/build/protobuf/preview.npb.h \
+    machinetalk/build/protobuf/ros.pb.h \
+    machinetalk/build/protobuf/rtapi_message.npb.h \
+    machinetalk/build/protobuf/status.pb.h \
+    machinetalk/build/protobuf/test.npb.h \
     machinetalk/nanopb/pb.h \
     machinetalk/nanopb/pb_common.h \
     machinetalk/nanopb/pb_encode.h \
@@ -520,6 +521,7 @@ HEADERS := \
     rtapi/rtapi_byteorder.h \
     rtapi/rtapi_export.h \
     rtapi/rtapi_compat.h \
+    rtapi/rtapi_ctype.h \
     rtapi/rtapi_hexdump.h \
     rtapi/rtapi_int.h \
     rtapi/rtapi_kdetect.h \
@@ -531,7 +533,6 @@ HEADERS := \
     rtapi/rtapi_global.h \
     rtapi/rtapi_shmkeys.h \
     rtapi/rtapi_io.h \
-    rtapi/rtapi_ctype.h \
     rtapi/rtapi_errno.h \
     rtapi/rtapi_string.h \
     rtapi/rtapi_pci.h \
@@ -545,11 +546,29 @@ HEADERS := \
     rtapi/$(THREADS_SOURCE).h \
     rtapi/shmdrv/shmdrv.h
 
+ifdef TARGET_PLATFORM_RASPBERRY
+HEADERS += \
+    hal/drivers/hal_spi.h
+endif
+
+HEADERS_MESA := \
+    hal/drivers/mesa-hostmot2/bitfile.h \
+    hal/drivers/mesa-hostmot2/hm2_pci.h \
+    hal/drivers/mesa-hostmot2/hostmot2.h \
+    hal/drivers/mesa-hostmot2/hm2_7i43.h \
+    hal/drivers/mesa-hostmot2/hm2_soc_ol.h \
+    hal/drivers/mesa-hostmot2/lbp16.h \
+    hal/drivers/mesa-hostmot2/hm2_7i90.h \
+    hal/drivers/mesa-hostmot2/hm2_test.h \
+    hal/drivers/mesa-hostmot2/sserial.h \
+    hal/drivers/mesa-hostmot2/hm2_eth.h \
+    hal/drivers/mesa-hostmot2/hostmot2-lowlevel.h
 
 
 ## the "headers" target installs all the header files in ../include
 .PHONY: headers
 HEADERS := $(patsubst %,../include/%,$(foreach h,$(HEADERS),$(notdir $h)))
+HEADERS += $(patsubst %,../include/mesa/%,$(foreach h,$(HEADERS_MESA),$(notdir $h)))
 headers: $(HEADERS)
 
 # install header files as part of the build
@@ -642,7 +661,7 @@ clean: depclean modclean docclean
 	-rm -f hal/components/*_bin.h   # generated by pasm for bb platform
 	rm -rf ../share/linuxcnc/stepconf
 	-rm -rf ../libexec
-	-rm -f ../include/*.hh ../include/*.h
+	-rm -rf ../include/*
 
 # So that nothing is built as root, this rule does not depend on the touched
 # files (Note that files in depends/ might be rebuilt, and there's little that
@@ -777,7 +796,7 @@ install-python: install-dirs
 	$(DIR) $(DESTDIR)$(SITEPY)/machinekit
 	$(DIR) $(DESTDIR)$(SITEPY)/machinekit/nosetests
 	$(DIR) $(DESTDIR)$(SITEPY)/machinetalk
-	$(DIR) $(DESTDIR)$(SITEPY)/machinetalk/protobuf
+	$(DIR) $(DESTDIR)$(SITEPY)/protobuf
 	$(DIR) $(DESTDIR)$(SITEPY)/fdm
 	$(DIR) $(DESTDIR)$(SITEPY)/drivers
 	$(EXE) ../bin/hal_input $(DESTDIR)$(bindir)
@@ -795,7 +814,7 @@ install-python: install-dirs
 	$(FILE) ../lib/python/machinekit/nosetests/*.py $(DESTDIR)$(SITEPY)/machinekit/nosetests
 	$(FILE) ../lib/python/machinekit/*.so $(DESTDIR)$(SITEPY)/machinekit/
 	$(FILE) ../lib/python/machinetalk/*.py $(DESTDIR)$(SITEPY)/machinetalk/
-	$(FILE) ../lib/python/machinetalk/protobuf/*.py $(DESTDIR)$(SITEPY)/machinetalk/protobuf/
+	$(FILE) ../lib/python/protobuf/*.py $(DESTDIR)$(SITEPY)/protobuf/
 	$(FILE) ../lib/python/drivers/*.py $(DESTDIR)$(SITEPY)/drivers
 	$(FILE) ../lib/python/gladevcp/*.* $(DESTDIR)$(SITEPY)/gladevcp
 	$(EXE) ../bin/mkwrapper $(DESTDIR)$(bindir)
@@ -1130,13 +1149,13 @@ scope_rt-objs := hal/utils/scope_rt.o $(MATHSTUB)
 # vtexport-objs += hal/vtable-example/vcode.o
 
 obj-m += jplan.o
-jplan-objs := hal/jplanner/jplan.o machinetalk/build/machinetalk/protobuf/jplan.npb.o
+jplan-objs := hal/jplanner/jplan.o machinetalk/build/protobuf/jplan.npb.o
 
 obj-m += sample_channel_pb.o
-sample_channel_pb-objs := hal/sample_channel/sample_channel_pb.o machinetalk/build/machinetalk/protobuf/sample.npb.o
+sample_channel_pb-objs := hal/sample_channel/sample_channel_pb.o machinetalk/build/protobuf/sample.npb.o
 
 obj-m += interpolate.o
-interpolate-objs := hal/interpolator/interpolate.o machinetalk/build/machinetalk/protobuf/ros.npb.o
+interpolate-objs := hal/interpolator/interpolate.o machinetalk/build/protobuf/ros.npb.o
 
 obj-m += icomp.o
 icomp-objs := hal/icomp-example/icomp.o

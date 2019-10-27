@@ -45,7 +45,7 @@
  *  more information, go to www.linuxcnc.org.
  ********************************************************************/
 
-#include "config_module.h"
+#include <config_module.h>
 #include RTAPI_INC_DEVICE_H
 
 extern int dev_set_name(struct device *dev, const char *name) {

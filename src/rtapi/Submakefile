@@ -5,13 +5,12 @@ INCLUDES += rtapi rtapi_export
 	$(ECHO) Copying header file $@
 	$(Q)cp  $^ $@
 
-../include/%.hh: ./rtapi/%.hh
+../include/%.h: ./rtapi/shmdrv/%.h
 	$(ECHO) Copying header file $@
 	$(Q)cp  $^ $@
 
-../include/%.h: ./rtapi/shmdrv/%.h
+../include/%.hh: ./rtapi/%.hh
 	$(ECHO) Copying header file $@
-	@mkdir -p ../include/shmdrv
 	$(Q)cp  $^ $@
 
 ##########################################

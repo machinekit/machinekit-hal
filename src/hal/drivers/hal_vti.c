@@ -152,14 +152,14 @@
 	information, go to www.linuxcnc.org.
 */
 
-#include "config.h"
+#include <config.h>
 #if !defined(BUILD_SYS_USER_DSO)
 #include <asm/io.h>
 #endif
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include <rtapi.h>		/* RTAPI realtime OS API */
+#include <rtapi_app.h>		/* RTAPI realtime module decls */
 #include <linux/pci.h>
-#include "hal.h"		/* HAL public API decls */
+#include <hal.h>		/* HAL public API decls */
 #include "hal_vti.h"		/* VTI related defines */
 
 /* module information */
@@ -212,7 +212,7 @@ typedef struct {
 
 static vti_struct *vti_driver;
 #if defined(BUILD_SYS_USER_DSO)
-#include "rtapi_pci.h"
+#include <rtapi_pci.h>
 static struct rtapi_pcidev *dev = NULL;
 #else
 struct pci_dev *dev = NULL;

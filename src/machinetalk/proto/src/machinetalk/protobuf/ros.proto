@@ -4,7 +4,7 @@ package machinetalk;  // this should probably better be ros or pb:ros;
 // see README.msgid
 // msgid base: 370
 
-import "machinetalk/protobuf/nanopb.proto";
+import "protobuf/nanopb.proto";
 
 // http://docs.ros.org/jade/api/std_msgs/html/msg/Header.html
 message Time {

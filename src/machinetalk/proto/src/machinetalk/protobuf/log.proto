@@ -3,8 +3,8 @@ package machinetalk;
 // see README.msgid
 // msgid base: 400
 
-import "machinetalk/protobuf/nanopb.proto";
-import "machinetalk/protobuf/types.proto";
+import "protobuf/nanopb.proto";
+import "protobuf/types.proto";
 
 message LogMessage {
 

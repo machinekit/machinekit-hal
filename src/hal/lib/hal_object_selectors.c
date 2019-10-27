@@ -3,8 +3,8 @@
 // see hal_objects.h:halg_foreach for halg_foreach semantics
 // see hal_object_selectors.h for selector usage
 
-#include "config.h"
-#include "rtapi.h"
+#include <config.h>
+#include <rtapi.h>
 #include "hal.h"
 #include "hal_priv.h"
 #include "hal_ring.h"

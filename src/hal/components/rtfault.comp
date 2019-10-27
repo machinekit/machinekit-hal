@@ -10,7 +10,7 @@ function _;
 license "GPL";
 ;;
 
-#include "rtapi.h"
+#include <rtapi.h>
 #if defined(BUILD_SYS_USER_DSO)
 #include <time.h>
 #include <stdio.h>

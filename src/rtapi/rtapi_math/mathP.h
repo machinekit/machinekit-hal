@@ -22,7 +22,7 @@
 #else
 #include <sys/types.h>
 #endif
-#include "rtapi_byteorder.h"
+#include "../rtapi_byteorder.h"
 
 #define __P(args) args
 

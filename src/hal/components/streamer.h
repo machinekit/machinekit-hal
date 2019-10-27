@@ -9,7 +9,7 @@
 * Copyright (c) 2006 All rights reserved.
 *
 ********************************************************************/
-#include "rtapi_shmkeys.h"
+#include <rtapi_shmkeys.h>
 
 #define MAX_STREAMERS		8
 #define MAX_SAMPLERS		8

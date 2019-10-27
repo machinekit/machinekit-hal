@@ -172,10 +172,10 @@ INT_TYPE is set to level sensitive.
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/mman.h>
-#include "rtapi.h"
-#include "rtapi_bitops.h"
-#include "rtapi_app.h"
-#include "hal.h"
+#include <rtapi.h>
+#include <rtapi_bitops.h>
+#include <rtapi_app.h>
+#include <hal.h>
 
 #if !defined(BUILD_SYS_USER_DSO) 
     #error "This driver is for usermode threads only"

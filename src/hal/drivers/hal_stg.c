@@ -135,13 +135,13 @@
     information, go to www.linuxcnc.org.
 */
 
-#include "config.h"
+#include <config.h>
 #ifdef BUILD_SYS_KBUILD
 #include <asm/io.h>
 #endif 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "hal.h"		/* HAL public API decls */
+#include <rtapi.h>		/* RTAPI realtime OS API */
+#include <rtapi_app.h>		/* RTAPI realtime module decls */
+#include <hal.h>		/* HAL public API decls */
 #include "hal_stg.h"		/* STG related defines */
 #include "rtapi_io.h"           /* rtapi_outb() rtapi_inb() */
 

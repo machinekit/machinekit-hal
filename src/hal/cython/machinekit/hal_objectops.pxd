@@ -5,7 +5,7 @@ from cpython.bool  cimport bool
 from libc.stdint cimport uint8_t,uint32_t
 
 
-cdef extern from "hal_object.h":
+cdef extern from "<hal_object.h>":
 
     ctypedef union hal_object_ptr:
         halhdr_t     *hdr

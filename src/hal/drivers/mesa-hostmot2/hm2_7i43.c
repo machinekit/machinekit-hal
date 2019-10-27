@@ -17,23 +17,23 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#include "config_module.h"
+#include <config_module.h>
 
 #if defined(BUILD_SYS_KBUILD)
 #include <asm/io.h>
 #endif
 
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "rtapi_math.h"
-#include "rtapi_string.h"
+#include <rtapi.h>
+#include <rtapi_app.h>
+#include <rtapi_math.h>
+#include <rtapi_string.h>
 
-#include "hal.h"
+#include <hal.h>
 
-#include "hal/drivers/mesa-hostmot2/bitfile.h"
-#include "hal/drivers/mesa-hostmot2/hostmot2-lowlevel.h"
-#include "hal/drivers/mesa-hostmot2/hm2_7i43.h"
-#include "hal/drivers/mesa-hostmot2/hostmot2.h"
+#include "bitfile.h"
+#include "hostmot2-lowlevel.h"
+#include "hm2_7i43.h"
+#include "hostmot2.h"
 
 
 static int comp_id;

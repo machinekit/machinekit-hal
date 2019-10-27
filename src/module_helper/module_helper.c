@@ -36,7 +36,7 @@ think of a better way.
 #include <unistd.h>
 #include <limits.h>                // PATH_MAX
 
-#include "rtapi.h"
+#include <rtapi.h>
 #include "rtapi_compat.h"
 
 void error(int argc, char **argv) {

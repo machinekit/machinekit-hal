@@ -27,9 +27,9 @@
 ********************************************************************/
 
 
-#include "config.h"
+#include <config.h>
 #include "rtapi.h"
-#include "shmdrv.h"
+#include "shmdrv/shmdrv.h"
 #include "ring.h"
 #if defined(BUILD_SYS_USER_DSO) || defined(ULAPI)
 #include "syslog_async.h"

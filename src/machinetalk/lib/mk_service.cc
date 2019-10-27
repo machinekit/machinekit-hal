@@ -1,6 +1,6 @@
 
 
-#include "config.h"
+#include <config.h>
 
 #ifndef SYSLOG_FACILITY
 #define SYSLOG_FACILITY LOG_LOCAL1  // where all rtapi/ulapi logging goes

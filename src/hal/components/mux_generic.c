@@ -17,11 +17,11 @@
 
 // A generic/configurable multiplexer component
 
-#include "config.h"
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "hal.h"
-#include "hal_priv.h"
+#include <config.h>
+#include <rtapi.h>
+#include <rtapi_app.h>
+#include <hal.h>
+#include <hal_priv.h>
 
 #if defined(BUILD_SYS_USER_DSO)
 #include <stdio.h>

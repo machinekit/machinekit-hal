@@ -17,7 +17,7 @@
 #ifndef RTAPI_APP_H
 #define RTAPI_APP_H
 
-#include "config.h"
+#include <config.h>
 /*
   for Linux kernel modules, exactly one file needs to
   include <linux/module.h>. We put this in this header.

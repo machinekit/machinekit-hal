@@ -21,7 +21,7 @@
 *                           RT exception handling                      *
 ************************************************************************/
 
-#include "config.h"
+#include <config.h>
 #include "rtapi.h"
 #include "rtapi_exception.h"
 

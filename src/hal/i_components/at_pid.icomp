@@ -148,7 +148,7 @@ license "GPL v2";
 author "John Kasunich";
 ;;
 
-#include "rtapi_math.h"
+#include <rtapi_math.h>
 
 #define PI                              3.141592653589
 

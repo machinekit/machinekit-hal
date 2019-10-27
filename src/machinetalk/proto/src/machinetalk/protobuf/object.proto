@@ -5,8 +5,8 @@ syntax = "proto2";
 // msgid base: 700
 
 
-import "machinetalk/protobuf/nanopb.proto";
-import "machinetalk/protobuf/types.proto";
+import "protobuf/nanopb.proto";
+import "protobuf/types.proto";
 
 package machinetalk;
 
@@ -282,4 +282,3 @@ message Inst {
     repeated Param       param          = 17;
     repeated Function    funct          = 19;
 }
-

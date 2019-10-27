@@ -79,7 +79,7 @@ static char rcsid[] = "$NetBSD: s_log1p.c,v 1.8 1995/05/10 20:47:46 jtc Exp $";
  *	 See HP-15C Advanced Functions Handbook, p.193.
  */
 
-#include "rtapi_math.h"
+#include "../rtapi_math.h"
 #include "mathP.h"
 
 #ifdef __STDC__

@@ -32,8 +32,8 @@
 #include <rtapi_math.h>
 
 // local includes
-#include "./hal.h"
-#include "./xhc-whb04b6.h"
+#include <hal.h>
+#include "xhc-whb04b6.h"
 
 namespace XhcWhb04b6 {
 

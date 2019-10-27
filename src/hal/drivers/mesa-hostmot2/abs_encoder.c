@@ -8,18 +8,18 @@
 
 
 
-#include "config_module.h"
+#include <config_module.h>
 #include RTAPI_INC_SLAB_H
-#include "rtapi/rtapi_compat.h" //simple_strtol
+#include <rtapi_compat.h> //simple_strtol
 
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "rtapi_string.h"
-#include "rtapi_math.h"
-#include "rtapi_math64.h"
-#include "hal.h"
-#include "hal_priv.h"
-#include "hal/drivers/mesa-hostmot2/hostmot2.h"
+#include <rtapi.h>
+#include <rtapi_app.h>
+#include <rtapi_string.h>
+#include <rtapi_math.h>
+#include <rtapi_math64.h>
+#include <hal.h>
+#include <hal_priv.h>
+#include "hostmot2.h"
 
 static bool funct_flag = false;
 

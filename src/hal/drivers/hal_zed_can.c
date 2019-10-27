@@ -76,10 +76,10 @@
  \version 00
 */
 
-#include "rtapi.h"         // rtapi_print_msg()
-#include "rtapi_bitops.h"  // RTAPI_BIT(n)    
-#include "rtapi_app.h"     // 
-#include "hal.h"
+#include <rtapi.h>         // rtapi_print_msg()
+#include <rtapi_bitops.h>  // RTAPI_BIT(n)
+#include <rtapi_app.h>     //
+#include <hal.h>
 
 #if !defined(BUILD_SYS_USER_DSO) 
     #error "This driver is for usermode threads only"

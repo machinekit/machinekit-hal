@@ -171,7 +171,7 @@ install: build
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) V=$(DH_VERBOSE) $@)
 	mkdir -p debian/tmp/usr/lib debian/tmp/usr/include/linuxcnc \
 	    debian/tmp/usr/include/linuxcnc/machinetalk/nanopb \
-	    debian/tmp/usr/include/linuxcnc/machinetalk/protobuf
+	    debian/tmp/usr/include/linuxcnc/protobuf
 
 
 #ifneq (,$(wildcard debian/machinekit-*-kernel-*.install))

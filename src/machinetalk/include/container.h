@@ -34,8 +34,8 @@ extern "C"
 #define CONTAINER        _Container
 
 #elif defined(NANOPB_VERSION)
-#include <machinetalk/protobuf/types.npb.h>
-#include <machinetalk/protobuf/message.npb.h>
+#include <protobuf/types.npb.h>
+#include <protobuf/message.npb.h>
 #define MSGTYPE          machinetalk_ContainerType
 #define EMCMOT_LOWER     machinetalk_ContainerType_MT_EMCMOT_LOWER
 #define EMCMOT_UPPER     machinetalk_ContainerType_MT_EMCMOT_UPPER

@@ -1,8 +1,8 @@
 #ifndef PIN_HH
 #define PIN_HH
 
-#include "hal.h"
-#include "hal_priv.h"
+#include <hal.h>
+#include <hal_priv.h>
 #include "hal_accessor.h"
 #include <stdarg.h>
 

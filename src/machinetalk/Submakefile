@@ -35,11 +35,11 @@
 #
 # Michael Haberler 2/2013
 
-NAMESPACEDIR := machinetalk/protobuf
+NAMESPACEDIR := protobuf
 MACHINETALK := machinetalk
 MTINCLUDES := $(MACHINETALK)/include
 PBGEN := $(MACHINETALK)/build
-PROTOSRCDIR := $(MACHINETALK)/proto/src
+PROTOSRCDIR := $(MACHINETALK)/proto/src/machinetalk
 PROTODIR := $(PROTOSRCDIR)/$(NAMESPACEDIR)
 NANOPB := $(MACHINETALK)/nanopb
 NPBPROTODIR :=  $(NANOPB)/generator/proto
@@ -112,7 +112,7 @@ PROTOCXX_CXX_FLAGS := -fPIC $(PROTOBUF_CFLAGS)
 
 # NANOPB_CFLAGS are also passed to module build through
 # RTFLAGS - see hal/msgcomponents/Submakefile
-NANOPB_CFLAGS := -DPB_FIELD_32BIT '-DPB_SYSTEM_HEADER=<'$(MACHINETALK)'/include/pb-linuxcnc.h>'
+NANOPB_CFLAGS := -DPB_FIELD_32BIT '-DPB_SYSTEM_HEADER=<pb-linuxcnc.h>'
 NANOPB_OPTIONS := $(MACHINETALK)/nanopb.options
 
 # any extra flags to C compile nanopb bindings
@@ -170,9 +170,15 @@ MT_INSTALL_INCS := $(subst $(PBGEN), \
 	$(PROTO_CXX_INCS) $(PROTO_C_INCS) $(PROTO_NANOPB_C_INCS))
 
 MT_INSTALL_INCS +=  \
-	../include/machinetalk/nanopb/pb.h \
-	../include/machinetalk/nanopb/pb_encode.h \
-	../include/machinetalk/nanopb/pb_decode.h
+	../include/protobuf/pb.h \
+	../include/protobuf/pb_encode.h \
+	../include/protobuf/pb_decode.h
+
+# nanopb headers hack
+../include/protobuf/%.h: ./$(NANOPB)/%.h
+	$(ECHO) Copying header file $@
+	@mkdir -p $(dir $@)
+	$(Q)cp $(CURDIR)/$^ $@
 
 # generate emctypes.proto from emc/nml_intf/emc.hh
 #$(PBGEN)/emctypes.proto: emc/nml_intf/emc.hh $(MACHINETALK)/scripts/extract-nmltypes

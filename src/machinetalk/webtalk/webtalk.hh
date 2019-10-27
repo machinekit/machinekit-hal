@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "config.h"
+#include <config.h>
 
 #define PROXY_PORT 7681  // serves both http and ws
 
@@ -73,7 +73,7 @@ enum wt_log_levels {
 #include "mk-service.hh"
 #include "mk-zeroconf.hh"
 
-#include <machinetalk/protobuf/message.pb.h>
+#include <protobuf/message.pb.h>
 namespace gpb = google::protobuf;
 
 #include <json2pb.hh>

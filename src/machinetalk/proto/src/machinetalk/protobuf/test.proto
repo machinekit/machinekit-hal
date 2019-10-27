@@ -1,8 +1,8 @@
 syntax = "proto2";
 // use any of the below for testing and experimentation.
 
-import "machinetalk/protobuf/emcclass.proto";
-import "machinetalk/protobuf/nanopb.proto";
+import "protobuf/emcclass.proto";
+import "protobuf/nanopb.proto";
 
 package machinetalk;
 

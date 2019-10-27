@@ -25,13 +25,13 @@
 #define INT32_MAX (2147483647)
 #define UINT32_MAX (4294967295U)
 
-#include "config_module.h"
+#include <config_module.h>
 #include RTAPI_INC_LIST_H
-#include "rtapi.h"
-#include "hal.h"
-#include "sserial.h"
+#include <rtapi.h>
+#include <hal.h>
+#include <mesa/sserial.h>
 
-#include "hostmot2-lowlevel.h"
+#include <mesa/hostmot2-lowlevel.h>
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,23)
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,14)

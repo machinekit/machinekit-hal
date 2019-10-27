@@ -1,4 +1,4 @@
-#include "config.h"
+#include <config.h>
 #include "rtapi.h"
 #include "rtapi_common.h"
 

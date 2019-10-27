@@ -11,12 +11,12 @@
 //
 // see manpage delayline.9
 
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "rtapi_string.h"
-#include "hal.h"
-#include "hal_ring.h"
-#include "hal_priv.h"
+#include <rtapi.h>
+#include <rtapi_app.h>
+#include <rtapi_string.h>
+#include <hal.h>
+#include <hal_ring.h>
+#include <hal_priv.h>
 
 MODULE_AUTHOR("Bas de Bruijn");
 MODULE_DESCRIPTION("Delay line component for Machinekit HAL");

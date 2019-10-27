@@ -51,7 +51,7 @@ author "Boris Skegin";
 license "GPL";
 
 include <unistd.h>;
-include "../drivers/mesa-hostmot2/hostmot2.h";
+include <mesa/hostmot2.h>;
 
 
 pin out s32 rxbytes  "Number of Bytes received or negative Error code";

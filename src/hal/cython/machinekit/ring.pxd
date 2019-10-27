@@ -4,7 +4,7 @@ from libc.stdint cimport uint64_t, uint8_t, uint32_t, int32_t
 from libc.stddef cimport size_t
 from .rtapi cimport rtapi_atomic_type
 
-cdef extern from "ring.h":
+cdef extern from "<ring.h>":
     int RINGTYPE_RECORD
     int RINGTYPE_MULTIPART
     int RINGTYPE_STREAM
@@ -104,7 +104,7 @@ cdef extern from "ring.h":
     size_t stream_write(ringbuffer_t *ring, const char *src, ringsize_t cnt)
     void stream_write_advance(ringbuffer_t *ring, ringsize_t cnt)
 
-cdef extern from "multiframe.h":
+cdef extern from "<multiframe.h>":
     ctypedef struct msgbuffer_t:
         ringbuffer_t * ring
         void * _write

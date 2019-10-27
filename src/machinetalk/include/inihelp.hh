@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include "inifile.h"
+#include <inifile.h>
 
 #ifdef __cplusplus
 extern "C" {

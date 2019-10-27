@@ -14,7 +14,7 @@ The lowlevel driver decodes this message, and calls hm2_register() accordingly.
 // this makes the struct easier to work with in RT (decoding without
 // callbacks and malloc())
 
-import "machinetalk/protobuf/nanopb.proto";
+import "protobuf/nanopb.proto";
 
 // see README.msgid
 // msgid base: 380
