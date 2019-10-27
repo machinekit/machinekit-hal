@@ -47,7 +47,7 @@
 	information, go to www.linuxcnc.org.
 **/
 
-#include "rtapi.h"
+#include <rtapi.h>
 
 /*
 	Vigilant Technologies' board decls

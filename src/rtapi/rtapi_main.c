@@ -33,14 +33,14 @@
 #include <sys/mman.h>
 #include <sys/types.h>
 
-#include "config.h"
+#include <config.h>
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "rtapi_common.h"       /* global_data_t */
 #include "rtapi_compat.h"       /* global_data_t */
 #include "ring.h"
 #include "rtapi_heap.h"
-#include "shmdrv.h"  /* common shm driver API */
+#include "shmdrv/shmdrv.h"  /* common shm driver API */
 
 MODULE_AUTHOR("Michael Haberler");
 MODULE_DESCRIPTION("RTAPI module support - userland threads");

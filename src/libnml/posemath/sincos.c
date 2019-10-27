@@ -17,7 +17,7 @@
   21-Jan-2004  P.C. Moved across from the original EMC source tree.
 */
 
-#include "config.h"
+#include <config.h>
 
 #if defined(RTAPI) && !defined(BUILD_SYS_USER_DSO)
 #undef HAVE_SINCOS
@@ -25,7 +25,7 @@
 
 #ifndef HAVE_SINCOS
 
-#include "rtapi_math.h"
+#include <rtapi_math.h>
 #include "sincos.h"
 
 #ifndef HAVE___SINCOS

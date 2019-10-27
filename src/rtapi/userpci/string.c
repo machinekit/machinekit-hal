@@ -45,7 +45,7 @@
  *  more information, go to www.linuxcnc.org.
  *******************************************************************/
 
-#include "config_module.h"
+#include <config_module.h>
 #include RTAPI_INC_STRING_H
 #include <wordexp.h>    // wordexp (substitute for argv_split)
 

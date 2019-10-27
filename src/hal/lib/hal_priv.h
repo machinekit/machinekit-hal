@@ -701,7 +701,7 @@ typedef struct hal_vtable {
    the structs will be fully protected, with a clean shutdown and
    meaningfull error messages in case of a mismatch.
 */
-#include "rtapi_shmkeys.h"
+#include <rtapi_shmkeys.h>
 #define HAL_VER   13	/* version code */
 
 

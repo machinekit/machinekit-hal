@@ -26,11 +26,11 @@
 #include <assert.h>
 #include <inttypes.h>
 
-#include <machinetalk/include/pb-linuxcnc.h>
-#include <machinetalk/nanopb/pb_decode.h>
-#include <machinetalk/nanopb/pb_encode.h>
+#include <pb-linuxcnc.h>
+#include <protobuf/pb_decode.h>
+#include <protobuf/pb_encode.h>
 
-#include <machinetalk/include/container.h>
+#include <container.h>
 
 
 bool print_container(pb_istream_t *stream)

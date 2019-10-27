@@ -5,13 +5,13 @@ from hal_const cimport hal_type_t, hal_pin_dir_t, hal_param_dir_t
 from rtapi cimport rtapi_heap
 from cpython.bool  cimport bool
 
-cdef extern from "hal_object.h":
+cdef extern from "<hal_object.h>":
 
     ctypedef struct halhdr_t:
        pass
 
 
-cdef extern from "hal_priv.h":
+cdef extern from "<hal_priv.h>":
     int MAX_EPSILON
     int HAL_MAX_RINGS
 

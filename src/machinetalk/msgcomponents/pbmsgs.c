@@ -12,10 +12,10 @@
 //   (stanza pbmsgs-objs := ..)
 // add an PB_DESCRIPTOR(..) at the end of this file
 
-#include "config.h"		/* GIT_VERSION */
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "hal.h"		/* HAL API */
+#include <config.h>		/* GIT_VERSION */
+#include <rtapi.h>		/* RTAPI realtime OS API */
+#include <rtapi_app.h>		/* RTAPI realtime module decls */
+#include <hal.h>		/* HAL API */
 #include "pbmsgs.h"
 
 MODULE_AUTHOR("Michael Haberler");

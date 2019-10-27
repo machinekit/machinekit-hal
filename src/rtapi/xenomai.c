@@ -21,10 +21,10 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ********************************************************************/
 
-#include "config.h"
+#include <config.h>
 #include "xenomai-common.h"
-#include "rtapi.h"
-#include "rtapi_common.h"
+#include <rtapi.h>
+#include <rtapi_common.h>
 
 #include <sys/mman.h>			/* munlockall() */
 #include XENOMAI_INCLUDE(task.h)	/* RT_TASK, rt_task_*() */

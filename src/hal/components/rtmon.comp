@@ -55,7 +55,7 @@ function _ ;
 license "GPL";
 ;;
 
-#include "rtapi.h"
+#include <rtapi.h>
 #include <stdbool.h>
 
 // need a bit of trickery here	- we're accessing the (sole) instance data

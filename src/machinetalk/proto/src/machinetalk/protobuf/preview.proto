@@ -3,7 +3,7 @@ package machinetalk;
 
 // see README.msgid
 // msgid base: 800
-import "machinetalk/protobuf/nanopb.proto";
+import "protobuf/nanopb.proto";
 
 /**
  * Experimental axis/joint representation.

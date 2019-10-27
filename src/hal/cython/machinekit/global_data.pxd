@@ -1,4 +1,4 @@
-cdef extern from "rtapi.h":
+cdef extern from "<rtapi.h>":
     ctypedef struct global_data_t:
         unsigned magic
         int layout_version

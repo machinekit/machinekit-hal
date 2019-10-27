@@ -1,7 +1,7 @@
 #ifndef _HAL_TYPES_H
 #define _HAL_TYPES_H
 
-#include "rtapi.h"  // rtapi_ct_assert()
+#include <rtapi.h>  // rtapi_ct_assert()
 
 // the legacy code chose to define HAL types using 'volatile' for no good reason
 // it does not address the atomicity issue and disables some optimizations

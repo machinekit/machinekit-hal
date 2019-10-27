@@ -19,7 +19,7 @@
 #ifndef RTAPI_EXPORT_H
 #define RTAPI_EXPORT_H
 
-#include "config.h"
+#include <config.h>
 
 #define RTAPI_MP_SYMPREFIX "rtapi_info_"
 #define RTAPI_IP_SYMPREFIX "rtapi_instinfo_"

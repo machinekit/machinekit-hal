@@ -17,8 +17,8 @@
  *    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "config.h"
-#include "config_module.h"
+#include <config.h>
+#include <config_module.h>
 #include RTAPI_INC_SLAB_H
 #include RTAPI_INC_CTYPE_H
 
@@ -38,11 +38,11 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "rtapi_string.h"
+#include <rtapi.h>
+#include <rtapi_app.h>
+#include <rtapi_string.h>
 
-#include "hal.h"
+#include <hal.h>
 
 #include "hostmot2-lowlevel.h"
 #include "hostmot2.h"

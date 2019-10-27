@@ -48,7 +48,7 @@
 #ifndef CONFIG_MODULE_H
 #define CONFIG_MODULE_H
 
-#include "config.h"
+#include <config.h>
 
 /***********************************************************************
 *                      USERMODE KERNEL DEFINES                         *
@@ -70,12 +70,12 @@
 /* Usermode PCI builds */
 
 #define RTAPI_INC_CTYPE_H       <ctype.h>
-#define RTAPI_INC_DEVICE_H      "userpci/device.h"
-#define RTAPI_INC_FIRMWARE_H    "userpci/firmware.h"
-#define RTAPI_INC_GFP_H         "userpci/gfp.h"
-#define RTAPI_INC_LIST_H        "userpci/list.h"
-#define RTAPI_INC_SLAB_H        "userpci/slab.h"
-#define RTAPI_INC_STRING_H      "userpci/string.h"
+#define RTAPI_INC_DEVICE_H      <userpci/device.h>
+#define RTAPI_INC_FIRMWARE_H    <userpci/firmware.h>
+#define RTAPI_INC_GFP_H         <userpci/gfp.h>
+#define RTAPI_INC_LIST_H        <userpci/list.h>
+#define RTAPI_INC_SLAB_H        <userpci/slab.h>
+#define RTAPI_INC_STRING_H      <userpci/string.h>
 
 #else
 

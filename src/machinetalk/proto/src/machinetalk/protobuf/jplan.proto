@@ -4,7 +4,7 @@ package machinetalk;
 // see README.msgid
 // msgid base: 350
 
-import "machinetalk/protobuf/nanopb.proto";
+import "protobuf/nanopb.proto";
 
 
 message JplanJoint {

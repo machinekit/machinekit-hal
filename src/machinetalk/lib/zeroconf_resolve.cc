@@ -13,7 +13,7 @@
 #include <net/if.h>
 
 
-#include "config.h"
+#include <config.h>
 #include "ll-zeroconf.hh"
 #include "syslog_async.h"
 

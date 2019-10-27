@@ -1,7 +1,7 @@
 #ifndef HAL_OBJECT_H
 #define HAL_OBJECT_H
 
-#include "rtapi_int.h"
+#include <rtapi_int.h>
 #include "hal_priv.h"
 #include "hal_list.h"
 

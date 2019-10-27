@@ -39,7 +39,7 @@
 
 #include "rtapi.h"		// RTAPI realtime OS API
 #include "ring.h"		// RTAPI realtime OS API
-#include "shmdrv.h" // common shared memory API
+#include "shmdrv/shmdrv.h" // common shared memory API
 #include "rtapi_compat.h"	// flavor support
 
 #ifdef ULAPI

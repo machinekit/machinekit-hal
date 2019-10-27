@@ -9,10 +9,10 @@
 //#define NO_SERIAL 1
 #define OPEN_ON_ERROR 1
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include <rtapi.h>		/* RTAPI realtime OS API */
+#include <rtapi_app.h>		/* RTAPI realtime module decls */
 
-#include "hal.h"		/* HAL public API decls */
+#include <hal.h>		/* HAL public API decls */
 
 #include <stdio.h>
 #include <stdlib.h>

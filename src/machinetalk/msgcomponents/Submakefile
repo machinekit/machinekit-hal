@@ -5,7 +5,8 @@ MSGCOMP_DIR=machinetalk/msgcomponents
 
 # or at least should - the reference to NANOPB_CFLAGS isnt resolved here; no idea why
 
-RTFLAGS +=   $(PROTO_NANOPB_CFLAGS)
+#RTFLAGS +=   $(PROTO_NANOPB_CFLAGS) -I./machinetalk/include -I../include
+RTFLAGS +=   $(PROTO_NANOPB_CFLAGS) -I../include
 
 obj-m += pbmsgs.o
 pbmsgs-objs := \

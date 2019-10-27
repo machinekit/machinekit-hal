@@ -75,11 +75,11 @@
     information, go to www.linuxcnc.org.
 */
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "rtapi_io.h"           /* rtapi_outb() rtapi_inb() */
+#include <rtapi.h>		/* RTAPI realtime OS API */
+#include <rtapi_app.h>		/* RTAPI realtime module decls */
+#include <rtapi_io.h>		/* rtapi_outb() rtapi_inb() */
 
-#include "hal.h"		/* HAL public API decls */
+#include <hal.h>		/* HAL public API decls */
 
 /* module information */
 MODULE_AUTHOR("Martin Kuhnle");

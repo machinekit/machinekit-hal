@@ -1,6 +1,6 @@
 syntax = "proto2";
-import "machinetalk/protobuf/nanopb.proto";
-import "machinetalk/protobuf/value.proto";
+import "protobuf/nanopb.proto";
+import "protobuf/value.proto";
 
 // see README.msgid
 // msgid base: 1000

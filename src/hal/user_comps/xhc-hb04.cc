@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "rtapi_math.h"
+#include <rtapi_math.h>
 #include <assert.h>
 #include <signal.h>
 #include <string.h>
@@ -35,7 +35,7 @@
 #include <hal.h>
 #include <inifile.hh>
 
-#include "config.h"
+#include <config.h>
 
 const char *modname = "xhc-hb04";
 int hal_comp_id;

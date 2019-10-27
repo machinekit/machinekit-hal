@@ -17,10 +17,10 @@
  */
 
 #include "haltalk.hh"
-#include "halpb.hh"
-#include "hal_object.h"
+#include <halpb.hh>
+#include <hal_object.h>
 #include "pbutil.hh"
-#include "rtapi_hexdump.h"
+#include <rtapi_hexdump.h>
 #include <sys/time.h>
 
 #include <google/protobuf/text_format.h>

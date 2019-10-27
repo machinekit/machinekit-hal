@@ -15,7 +15,7 @@
 #ifndef SINCOS_H
 #define SINCOS_H
 
-#include "config.h"
+#include <config.h>
 /*
   for each platform that has built-in support for the sincos function,
   that should be discovered by ./configure

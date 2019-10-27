@@ -378,7 +378,7 @@ variable int force_trap = 0;
 
 ;;
 
-#include "rtapi_math.h"
+#include <rtapi_math.h>
 #define MAX_CHAN 8
 #define NUM_TAG 8
 

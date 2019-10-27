@@ -16,14 +16,14 @@
 #include <hal_priv.h>
 #include <hal_ring.h>
 
-#include <machinetalk/include/pb-linuxcnc.h>
-#include <machinetalk/nanopb/pb_decode.h>
-#include <machinetalk/nanopb/pb_encode.h>
-#include <machinetalk/include/container.h>
+#include <pb-linuxcnc.h>
+#include <protobuf/pb_decode.h>
+#include <protobuf/pb_encode.h>
+#include <container.h>
 
 #include "messagebus.hh"
 #include "rtproxy.hh"
-#include "multiframe_flag.h"
+#include <multiframe_flag.h>
 
 // inproc variant for comms with RT proxy threads
 // defined in messagbus.cc

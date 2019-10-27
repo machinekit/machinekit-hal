@@ -36,7 +36,7 @@
  * http://stackoverflow.com/questions/12141420/losing-capabilities-after-setuid
  */
 
-#include "config.h"
+#include <config.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <errno.h>
@@ -68,7 +68,7 @@
 #include <czmq.h>
 #include <google/protobuf/text_format.h>
 
-#include <message.pb.h>
+#include <protobuf/message.pb.h>
 #include <pbutil.hh>  // note_printf(machinetalk::Container &c, const char *fmt, ...)
 
 using namespace google::protobuf;
@@ -77,9 +77,9 @@ using namespace google::protobuf;
 #include "rtapi_global.h"
 #include "rtapi_compat.h"
 #include "rtapi_export.h"
-#include "hal.h"
-#include "hal_priv.h"
-#include "shmdrv.h"
+#include <hal.h>
+#include <hal_priv.h>
+#include "shmdrv/shmdrv.h"
 #ifdef USERMODE_PCI
 #include "rtapi_io.h"
 #endif
@@ -1916,4 +1916,3 @@ static int record_instparms(char *fname, modinfo_t &mi)
     free(section);
     return 0;
 }
-

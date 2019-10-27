@@ -8,6 +8,9 @@ LIBS := ../lib
 	$(ECHO) Copying header file $@
 	$(Q)cp $< $@
 
+# make sure shmdrv.h is available
+hal/lib/hal_lib.c: ../include/shmdrv.h
+
 # link in basic nanonpb support routines
 HALLIBSRCS := $(HALLIBDIR)/hal_lib.c \
 	$(HALLIBDIR)/hal_group.c \

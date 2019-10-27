@@ -21,8 +21,8 @@
 #include <map>
 using namespace std;
 
-#include "config.h"
-#include "rtapi.h"
+#include <config.h>
+#include <rtapi.h>
 #include "hal.h"
 #include "hal_priv.h"
 

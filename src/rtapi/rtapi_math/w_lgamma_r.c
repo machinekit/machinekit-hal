@@ -18,7 +18,7 @@ static char rcsid[] = "$NetBSD: w_lgamma_r.c,v 1.6 1995/05/10 20:49:27 jtc Exp $
  * wrapper double lgamma_r(double x, int *signgamp)
  */
 
-#include "rtapi_math.h"
+#include "../rtapi_math.h"
 #include "mathP.h"
 
 

@@ -25,14 +25,14 @@
 #include <string.h>
 #include <time.h>
 
-#include "config.h"
+#include <config.h>
 
-#include "rtapi.h"
-#include "rtapi_common.h"
-#include "rtapi_global.h"
-#include "rtapi/shmdrv/shmdrv.h"
-#include "hal.h"
-#include "hal_priv.h"
+#include "../rtapi.h"
+#include "../rtapi_common.h"
+#include "../rtapi_global.h"
+#include "shmdrv.h"
+#include <hal.h>
+#include <hal_priv.h>
 
 global_data_t *global_data;
 rtapi_data_t *rtapi_data;

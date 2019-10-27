@@ -29,15 +29,15 @@
 #include <errno.h>
 #include <assert.h>
 
-#include <machinetalk/include/pb-linuxcnc.h>
-#include <machinetalk/nanopb/pb_decode.h>
-#include <machinetalk/nanopb/pb_encode.h>
+#include <pb-linuxcnc.h>
+#include <protobuf/pb_decode.h>
+#include <protobuf/pb_encode.h>
 
-#include <machinetalk/protobuf/types.npb.h>
-#include <machinetalk/protobuf/object.npb.h>
-#include <machinetalk/protobuf/message.npb.h>
-#include <machinetalk/protobuf/emcclass.npb.h>
-#include <machinetalk/protobuf/rtapi_message.npb.h>
+#include <protobuf/types.npb.h>
+#include <protobuf/object.npb.h>
+#include <protobuf/message.npb.h>
+#include <protobuf/emcclass.npb.h>
+#include <protobuf/rtapi_message.npb.h>
 
 #undef USE_STRING_STREAM
 

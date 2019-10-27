@@ -63,17 +63,18 @@
 *****************************************************************************/
 
 
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "rtapi_string.h"
-#include "hal.h"
-#include "hal_priv.h"
-#include "hal_ring.h"
+#include <rtapi.h>
+#include <rtapi_app.h>
+#include <rtapi_string.h>
+#include <hal.h>
+#include <hal_priv.h>
+#include <hal_ring.h>
 
+#include <stdio.h>
 #include <stdlib.h>  /* for atoi() */
 #include <stdio.h>   // sprintf()
-#include <machinetalk/nanopb/pb_encode.h>
-#include <machinetalk/build/machinetalk/protobuf/sample.npb.h>
+#include <protobuf/pb_encode.h>
+#include <protobuf/sample.npb.h>
 
 MODULE_AUTHOR("Bas de Bruijn");
 MODULE_DESCRIPTION("Instantiable configurable recorder to a HAL ring");

@@ -1,7 +1,7 @@
 // based on supply.c
 
 
-#include "config.h"
+#include <config.h>
 
 // this probably should be an ARM335x #define
 #if !defined(TARGET_PLATFORM_BEAGLEBONE)
@@ -12,10 +12,10 @@
 #error "This driver is for usermode threads only"
 #endif
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_compat.h"       /* RTAPI support functions */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "hal.h"		/* HAL public API decls */
+#include <rtapi.h>		/* RTAPI realtime OS API */
+#include <rtapi_compat.h>       /* RTAPI support functions */
+#include <rtapi_app.h>		/* RTAPI realtime module decls */
+#include <hal.h>		/* HAL public API decls */
 #include <pthread.h>
 #include <sys/types.h>
 #include <sys/stat.h>

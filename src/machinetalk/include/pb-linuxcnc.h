@@ -21,7 +21,7 @@
 #endif
 
 #define _NO_PB_SYSTEM_HEADER
-#include <machinetalk/nanopb/pb.h>
+#include <protobuf/pb.h>
 
 // linuxcnc extensions to nanopb
 

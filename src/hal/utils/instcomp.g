@@ -333,16 +333,16 @@ def prologue(f):
 
 
     f.write("""\
-#include "rtapi.h"
+#include <rtapi.h>
 #ifdef RTAPI
-#include "rtapi_app.h"
+#include <rtapi_app.h>
 #endif
-#include "rtapi_string.h"
-#include "rtapi_errno.h"
-#include "hal.h"
-#include "hal_priv.h"
-#include "hal_accessor.h"
-#include "hal_internal.h"
+#include <rtapi_string.h>
+#include <rtapi_errno.h>
+#include <hal.h>
+#include <hal_priv.h>
+#include <hal_accessor.h>
+#include <hal_internal.h>
 \nstatic int comp_id;
 \n""")
     for value in userdef_includes:

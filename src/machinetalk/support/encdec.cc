@@ -9,10 +9,10 @@
 
 #include <google/protobuf/text_format.h>
 
-#include <machinetalk/protobuf/types.pb.h>
-#include <machinetalk/protobuf/value.pb.h>
-#include <machinetalk/protobuf/message.pb.h>
-#include <machinetalk/protobuf/object.pb.h>
+#include <protobuf/types.pb.h>
+#include <protobuf/value.pb.h>
+#include <protobuf/message.pb.h>
+#include <protobuf/object.pb.h>
 
 #include <json2pb.hh>
 

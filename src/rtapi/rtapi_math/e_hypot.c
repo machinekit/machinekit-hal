@@ -46,7 +46,7 @@ static char rcsid[] = "$NetBSD: e_hypot.c,v 1.9 1995/05/12 04:57:27 jtc Exp $";
  * 	than 1 ulps (units in the last place) 
  */
 
-#include "rtapi_math.h"
+#include "../rtapi_math.h"
 #include "mathP.h"
 
 #ifdef __STDC__

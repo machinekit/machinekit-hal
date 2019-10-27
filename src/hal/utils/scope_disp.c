@@ -31,7 +31,7 @@
     information, go to www.linuxcnc.org.
 */
 
-#include "rtapi_math.h"
+#include <rtapi_math.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -39,9 +39,9 @@
 #include <ctype.h>
 #include <string.h>
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "hal.h"		/* HAL public API decls */
-#include "hal_priv.h"	/* private HAL decls */
+#include <rtapi.h>		/* RTAPI realtime OS API */
+#include <hal.h>		/* HAL public API decls */
+#include <hal_priv.h>		/* private HAL decls */
 
 #include <gtk/gtk.h>
 #include "miscgtk.h"		/* generic GTK stuff */

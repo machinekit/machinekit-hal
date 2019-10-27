@@ -37,10 +37,10 @@
  *  information, go to www.linuxcnc.org.
  */
 
-#include "config.h"
-#include "rtapi.h"
-#include "hal.h"
-#include "hal_priv.h"
+#include <config.h>
+#include <rtapi.h>
+#include <hal.h>
+#include <hal_priv.h>
 #include "halcmd.h"
 #include "halcmd_commands.h"
 #include "halcmd_completion.h"

@@ -19,16 +19,16 @@
 // A driver for the Hostmot2 HM2_DPLL IRQ
 
 
-#include "config_module.h"
+#include <config_module.h>
 #include RTAPI_INC_SLAB_H
 
-#include "rtapi.h"
-#include "rtapi_string.h"
-#include "rtapi_math.h"
+#include <rtapi.h>
+#include <rtapi_string.h>
+#include <rtapi_math.h>
 
-#include "hal.h"
-#include "hal_priv.h"
-#include "hal/drivers/mesa-hostmot2/hostmot2.h"
+#include <hal.h>
+#include <hal_priv.h>
+#include "hostmot2.h"
 #include <unistd.h>
 
 static int zero = 0;

@@ -1,6 +1,6 @@
 #include "mk-backtrace.h"
 
-#include "config.h"
+#include <config.h>
 
 #if defined(HAVE_LIBBACKTRACE)
 

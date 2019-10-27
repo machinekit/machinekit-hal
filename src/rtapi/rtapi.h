@@ -64,7 +64,7 @@
   with previous versions.
 */
 #define RTAPI_SERIAL 3
-#include "config.h"
+#include <config.h>
 
 #if ( !defined RTAPI ) && ( !defined ULAPI )
 #error "Please define either RTAPI or ULAPI!"
@@ -94,7 +94,7 @@
 #endif
 #endif
 
-#include <rtapi_errno.h>
+#include "rtapi_errno.h"
 
 // need RTAPI_CACHELINE for rtapi_global.h
 RTAPI_BEGIN_DECLS
@@ -109,9 +109,9 @@ RTAPI_BEGIN_DECLS
 #endif
 RTAPI_END_DECLS
 
-#include <rtapi_global.h>
-#include <rtapi_heap.h>
-#include <rtapi_exception.h>
+#include "rtapi_global.h"
+#include "rtapi_heap.h"
+#include "rtapi_exception.h"
 
 #define RTAPI_NAME_LEN   31	/* length for module, etc, names */
 
@@ -1243,7 +1243,7 @@ extern int ulapi_loaded(void);
     'num' is the number of elements in an array.
 */
 
-#include <rtapi_export.h>
+#include "rtapi_export.h"
 
 #if !defined(BUILD_SYS_USER_DSO)
 #ifndef LINUX_VERSION_CODE

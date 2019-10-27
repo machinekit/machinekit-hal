@@ -109,7 +109,7 @@ static char rcsid[] = "$NetBSD: s_expm1.c,v 1.8 1995/05/10 20:47:09 jtc Exp $";
  * to produce the hexadecimal values shown.
  */
 
-#include "rtapi_math.h"
+#include "../rtapi_math.h"
 #include "mathP.h"
 
 #ifdef __STDC__

@@ -16,7 +16,7 @@
 #ifndef INIFILE_HH
 #define INIFILE_HH
 
-#include <inifile.h>
+#include "inifile.h"
 
 #ifndef __cplusplus
 #warning Inclusion of <inifile.hh> from C programs is deprecated.  Include <inifile.h> instead.

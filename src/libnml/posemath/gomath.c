@@ -20,13 +20,13 @@
 extern int printf(const char * fmt, ...);
 #include <stddef.h>		/* NULL */
 
-#include "rtapi_math.h"
+#include <rtapi_math.h>
 #include <float.h>
 
 #include "sincos.h"
 
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+#include <config.h>
 #endif
 #include "gotypes.h"		/* GoResult ,Real, etc */
 #include "gomath.h"		/* these decls, GoCartesian, etc. */

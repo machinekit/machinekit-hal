@@ -38,10 +38,10 @@
  * Updated probing logic - Adam Belay <ambx1@neo.rr.com>
  */
 
-#include "config.h"
-#include "hal.h"
-#include "rtapi.h"
-#include "rtapi_app.h"
+#include <config.h>
+#include <hal.h>
+#include <rtapi.h>
+#include <rtapi_app.h>
 
 static int comp_id;
 

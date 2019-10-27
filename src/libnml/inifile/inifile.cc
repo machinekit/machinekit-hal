@@ -22,7 +22,7 @@
 #include <string>		/* std::string */
 #include <stdexcept>		/* invalid_argument() */
 
-#include "config.h"
+#include <config.h>
 #include "inifile.hh"
 
 /// Return TRUE if the line has a line-ending problem

@@ -1,7 +1,7 @@
 # vim: sts=4 sw=4 et
 
 
-cdef extern from "shmdrv.h":
+cdef extern from "<shmdrv.h>":
     cdef extern int c_shmdrv_loaded "shmdrv_loaded"
 
     ctypedef struct shm_stat:

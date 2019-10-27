@@ -21,7 +21,7 @@
 
 #define HM2_LLIO_NAME "hm2_7i90"
 
-#include "hal_parport.h"
+#include <hal_parport.h>
 
 
 

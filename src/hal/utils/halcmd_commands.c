@@ -39,19 +39,19 @@
  *  information, go to www.linuxcnc.org.
  */
 
-#include "config.h"
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_compat.h"
-#include "hal.h"		/* HAL public API decls */
-#include "hal_priv.h"	/* private HAL decls */
-#include "hal_ring.h"	        /* ringbuffer declarations */
-#include "hal_group.h"	        /* group/member declarations */
-#include "hal_rcomp.h"	        /* remote component declarations */
+#include <config.h>
+#include <rtapi.h>		/* RTAPI realtime OS API */
+#include <rtapi_compat.h>
+#include <hal.h>		/* HAL public API decls */
+#include <hal_priv.h>		/* private HAL decls */
+#include <hal_ring.h>	        /* ringbuffer declarations */
+#include <hal_group.h>	        /* group/member declarations */
+#include <hal_rcomp.h>	        /* remote component declarations */
 #include "halcmd_commands.h"
 #include "halcmd_rtapiapp.h"
-#include "rtapi_hexdump.h"
+#include <rtapi_hexdump.h>
 
-#include <../include/machinetalk/protobuf/types.npb.h>
+#include <protobuf/types.npb.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -66,7 +66,7 @@
 #include <time.h>
 #include <fnmatch.h>
 #include <limits.h>			/* PATH_MAX */
-#include "rtapi_math.h"
+#include <rtapi_math.h>
 #include <math.h> /* floorl */
 #include <czmq.h>
 
@@ -2443,8 +2443,8 @@ static int print_objects(char **patterns)
     return 0;
 }
 
-#include "rtapi_global.h"
-#include "rtapi/shmdrv/shmdrv.h"
+#include <rtapi_global.h>
+#include <shmdrv.h>
 static int print_mutexes(char **patterns)
 {
     extern global_data_t *global_data;

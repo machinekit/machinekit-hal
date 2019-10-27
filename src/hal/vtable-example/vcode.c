@@ -1,4 +1,4 @@
-#include "rtapi.h"
+#include <rtapi.h>
 
 #include "vtexample.h"
 

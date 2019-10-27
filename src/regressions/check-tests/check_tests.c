@@ -7,7 +7,7 @@
 #include "timers.h"
 #include "check-util.h"
 
-#include "rtapi.h"
+#include <rtapi.h>
 #include "ring.h"
 
 

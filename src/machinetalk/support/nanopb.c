@@ -8,9 +8,9 @@
 
 #include "rtapi_export.h"
 
-#include <machinetalk/include/pb-linuxcnc.h>
-#include <machinetalk/nanopb/pb_decode.h>
-#include <machinetalk/nanopb/pb_encode.h>
+#include <pb-linuxcnc.h>
+#include <protobuf/pb_decode.h>
+#include <protobuf/pb_encode.h>
 
 bool pb_encode_dest(pb_ostream_t *stream, const pb_field_t *field, void * const *arg)
 {

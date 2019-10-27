@@ -54,12 +54,12 @@
 #define UINT32_MAX (4294967295U)
 //#include <stdint.h>
 
-#include "config_module.h"
+#include <config_module.h>
 #include RTAPI_INC_LIST_H
-#include "rtapi.h"
-#include "hal.h"
+#include <rtapi.h>
+#include <hal.h>
 
-#include "hal/drivers/hal_pru_generic/pru_tasks.h"
+#include "pru_tasks.h"
 
 #define HPG_VERSION "0.01"
 #define HPG_NAME    "hpg"

@@ -46,8 +46,8 @@
  * ============================================================================
  */
 
-#include "config.h"
-#include "rtapi.h"		/* RTAPI realtime OS API */
+#include <config.h>
+#include <rtapi.h>		/* RTAPI realtime OS API */
 
 #include <prussdrv.h>
 #include <pthread.h>

@@ -17,9 +17,9 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ********************************************************************/
 
-#include "config.h"
-#include "rtapi.h"
-#include "rtapi_common.h"
+#include <config.h>
+#include <rtapi.h>
+#include <rtapi_common.h>
 #include "xenomai-common.h"
 
 #include XENOMAI_INCLUDE(heap.h)	// RT_HEAP, H_SHARED, rt_heap_*

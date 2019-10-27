@@ -1,9 +1,9 @@
 syntax = "proto2";
-import "machinetalk/protobuf/nanopb.proto";
-import "machinetalk/protobuf/types.proto";
-import "machinetalk/protobuf/preview.proto";
-import "machinetalk/protobuf/emcclass.proto";
-import "machinetalk/protobuf/motcmds.proto";
+import "protobuf/nanopb.proto";
+import "protobuf/types.proto";
+import "protobuf/preview.proto";
+import "protobuf/emcclass.proto";
+import "protobuf/motcmds.proto";
 
 // see README.msgid
 // msgid base: 1100

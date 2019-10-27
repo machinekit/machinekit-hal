@@ -25,7 +25,7 @@ static char rcsid[] = "$NetBSD: s_asinh.c,v 1.9 1995/05/12 04:57:37 jtc Exp $";
  *		 := sign(x)*log1p(|x| + x^2/(1 + sqrt(1+x^2)))  
  */
 
-#include "rtapi_math.h"
+#include "../rtapi_math.h"
 #include "mathP.h"
 
 #ifdef __STDC__

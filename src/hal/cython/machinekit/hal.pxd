@@ -7,7 +7,7 @@ from libc.stdint cimport uint64_t, int64_t
 # see http://psha.org.ru/cgit/psha/emc2.git/commit/?h=wip-cython
 # License: MIT
 
-cdef extern from "hal.h":
+cdef extern from "<hal.h>":
     int hal_init(char *name)
     int hal_exit(int comp_id)
     int hal_ready(int comp_id)

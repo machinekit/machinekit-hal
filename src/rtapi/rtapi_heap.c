@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  ********************************************************************/
 
-#include "config.h"
+#include <config.h>
 #include "rtapi.h"
 #include "rtapi_int.h"
 #include "rtapi_heap.h"

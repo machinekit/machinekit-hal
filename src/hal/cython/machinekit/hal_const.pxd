@@ -1,4 +1,4 @@
-cdef extern from "hal.h":
+cdef extern from "<hal.h>":
     ctypedef enum comp_type_t:
         TYPE_INVALID
         TYPE_RT
@@ -56,7 +56,7 @@ cdef extern from "hal.h":
        HAL_GROUP
        HAL_MEMBER
 
-cdef extern from "hal_group.h":
+cdef extern from "<hal_group.h>":
     ctypedef enum report_phase_t:
         REPORT_BEGIN
         REPORT_SIGNAL

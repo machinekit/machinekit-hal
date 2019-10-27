@@ -1,7 +1,7 @@
 // based on supply.c
 
 
-#include "config.h"
+#include <config.h>
 
 // this probably should be an ARM335x #define
 #if !defined(TARGET_PLATFORM_BEAGLEBONE)
@@ -16,9 +16,9 @@
 // not part of debugging
 #define EXPLORE_COUNTERS 1
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "hal.h"		/* HAL public API decls */
+#include <rtapi.h>		/* RTAPI realtime OS API */
+#include <rtapi_app.h>		/* RTAPI realtime module decls */
+#include <hal.h>		/* HAL public API decls */
 #include <pthread.h>
 
 #include "prussdrv.h"           // UIO interface to uio_pruss

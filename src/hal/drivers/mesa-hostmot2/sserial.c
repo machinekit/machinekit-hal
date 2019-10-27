@@ -17,16 +17,16 @@
 //
 
 
-#include "config_module.h"
+#include <config_module.h>
 #include RTAPI_INC_SLAB_H
 #include RTAPI_INC_STRING_H
 
-#include "rtapi.h"
-#include "rtapi_string.h"
-#include "rtapi_math.h"
+#include <rtapi.h>
+#include <rtapi_string.h>
+#include <rtapi_math.h>
 #include "rtapi_math64.h"
 
-#include "hal.h"
+#include <hal.h>
 
 #include "hostmot2.h"
 #include "bitfile.h"

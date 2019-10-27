@@ -1,6 +1,6 @@
 from libc.stdint cimport uint32_t
 
-cdef extern from "multiframe_flag.h":
+cdef extern from "<multiframe_flag.h>":
 
     ctypedef enum mf_encoding_t:
         MF_UNKNOWN
