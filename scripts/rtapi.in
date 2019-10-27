@@ -1,0 +1,65 @@
+# @PROJECT_SYSCONF_DIR@/rtapi.ini
+#
+# Machinekit RTAPI system configuration
+#
+# Most values here will never need to be changed.  Power users may
+# want to change DEBUG.
+
+[global]
+# Default DEBUG level, 0-5 for NONE, ERR, WARN, INFO, DBG, ALL
+DEBUG=1
+
+# shared memory kernel driver
+USE_SHMDRV=no
+
+# fixme make param
+HAL_SIZE=524288
+
+# Executables
+flavor=@PROJECT_LIBEXEC_DIR@/flavor
+rtapi_msgd=@PROJECT_LIBEXEC_DIR@/rtapi_msgd
+# rtapi_app should be defined in the appropriate flavor section below
+
+# directory paths
+EMC2_HOME=@PROJECT_BINARY_DIR@
+RTLIB_DIR=@PROJECT_LIBEXEC_DIR@
+LIBEXEC_DIR=@PROJECT_LIBEXEC_DIR@
+BIN_DIR=@PROJECT_BIN_DIR@
+
+# build parameters
+USE_PORTABLE_PARPORT_IO=@USE_PORTABLE_PARPORT_IO@
+TARGET_PLATFORM=@TARGET_PLATFORM@
+ARCHITECTURE=@ARCHITECTURE@
+GIT_VERSION=@GIT_VERSION@
+RUN_IN_PLACE=@RUN_IN_PLACE@
+PIDOF=@PIDOF@
+
+#################################################
+# _cfg_flavor flavor section
+#
+[flavor_posix]
+# These values do not normally need to be changed.
+rtapi_app=@PROJECT_LIBEXEC_DIR@/rtapi_app_posix
+RTS=
+RTDIR=
+MODULES=
+
+#################################################
+# _cfg_flavor flavor section
+#
+[flavor_rt-preempt]
+# These values do not normally need to be changed.
+rtapi_app=@PROJECT_LIBEXEC_DIR@/rtapi_app_rt-preempt
+RTS=
+RTDIR=
+MODULES=
+
+#################################################
+# _cfg_flavor flavor section
+#
+[flavor_xenomai]
+# These values do not normally need to be changed.
+rtapi_app=@PROJECT_LIBEXEC_DIR@/rtapi_app_xenomai
+RTS=@XENO_CONFIG@ --skin=@XENOMAI_SKIN@
+RTDIR=
+MODULES=
