@@ -12,7 +12,7 @@ CONVERTERS :=  \
     conv_bit_s64.icomp conv_bit_u64.icomp \
     conv_s64_float.icomp conv_s64_bit.icomp conv_s64_u64.icomp \
     conv_u64_float.icomp conv_u64_bit.icomp conv_u64_s64.icomp \
-    conv_u64_s64.icomp conv_u64_u32.icomp conv_s64_s32.icomp conv_s64_u32.icomp
+    conv_s64_u64.icomp conv_u64_u32.icomp conv_s64_s32.icomp conv_s64_u32.icomp
 
 ifeq ($(BUILD_KBUILD),yes)
 ICOMPS := $(patsubst $(BASEPWD)/%,%,$(wildcard \
@@ -164,9 +164,9 @@ hal/i_components/conv_s64_u64.icomp: hal/i_components/conv.icomp.in hal/i_compon
 	$(ECHO) converting conv for $(notdir $@)
 	$(Q)sh hal/i_components/mkconv.sh s64 u64 "" 0 0 < $< > $@
 
-hal/i_components/conv_u64_s32.icomp: hal/i_components/conv.icomp.in hal/i_components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
-	$(ECHO) converting conv for $(notdir $@)
-	$(Q)sh hal/i_components/mkconv.sh u64 s64 "" 0 2147483647 < $< > $@
+#hal/i_components/conv_u64_s32.icomp: hal/i_components/conv.icomp.in hal/i_components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
+#	$(ECHO) converting conv for $(notdir $@)
+#	$(Q)sh hal/i_components/mkconv.sh u64 s64 "" 0 2147483647 < $< > $@
 
 hal/i_components/conv_s64_s32.icomp: hal/i_components/conv.icomp.in hal/i_components/mkconv.sh $(HALCOMP_SUBMAKEFILE)
 	$(ECHO) converting conv for $(notdir $@)
