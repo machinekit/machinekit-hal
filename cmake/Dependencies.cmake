@@ -102,6 +102,11 @@ if(NOT PROTOC)
     message(FATAL_ERROR "protoc not found: install protobuf-compiler")
 endif()
 
+find_program(PATCHELF patchelf)
+if(NOT PATCHELF)
+    message(FATAL_ERROR "patchelf not found: install patchelf")
+endif()
+
 pkg_check_modules(UUID uuid)
 if(NOT UUID_FOUND)
     message(FATAL_ERROR "uuid not found: install uuid-dev")

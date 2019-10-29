@@ -21,6 +21,7 @@ set(CMAKE_LINK_WHAT_YOU_USE ON)
 
 # Use DT_RPATH instead of DT_RUNPATH
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--disable-new-dtags")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--disable-new-dtags")
 
 
 add_subdirectory(machinetalk)

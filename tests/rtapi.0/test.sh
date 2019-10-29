@@ -11,9 +11,9 @@ fi
 gcc -g -DULAPI \
     -I${INCLUDE} \
     rtapi_test.c \
-    ${MACHINEKIT_LIB}/libmtalk.so \
-    ${MACHINEKIT_LIB}/liblinuxcnculapi.so \
-    ${MACHINEKIT_LIB}/liblinuxcnchal.so \
+    ${LIB}/libmtalk.so \
+    ${LIB}/liblinuxcnculapi.so \
+    ${LIB}/liblinuxcnchal.so \
     -o rtapi_test
 
 realtime stop

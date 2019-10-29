@@ -31,28 +31,22 @@ set_target_properties(linuxcnchal PROPERTIES
     VERSION ${GENERIC_LIB_VERSION})
 _install(linuxcnchal)
 
-set(halpy_dir ${PROJECT_PYTHON_DIR}/hal)
-set(halpy ${halpy_dir}/__init__.py)
-add_custom_command(OUTPUT ${halpy}
-    COMMAND ${CMAKE_COMMAND} -E copy hal.py ${halpy}
-    DEPENDS hal.py
+add_custom_command(OUTPUT ${PROJECT_PYTHON_DIR}/hal.py
+    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/lib/python/hal.py
+        ${PROJECT_PYTHON_DIR}/hal.py
+    DEPENDS ${CMAKE_SOURCE_DIR}/lib/python/hal.py
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-add_custom_target(halpy DEPENDS ${halpy})
+add_custom_target(halpy DEPENDS ${PROJECT_PYTHON_DIR}/hal.py)
 
 add_library(_hal SHARED halmodule.cc)
-set_property(TARGET _hal APPEND PROPERTY
-    INCLUDE_DIRECTORIES ${PYTHON_INCLUDE_DIRS})
+set_property(TARGET _hal
+        APPEND PROPERTY INCLUDE_DIRECTORIES ${Python2_INCLUDE_DIRS})
 set_target_properties(_hal PROPERTIES
-    BUILD_WITH_INSTALL_RPATH FALSE
-    INSTALL_RPATH "${_rpath}"
-    INSTALL_RPATH_USE_LINK_PATH TRUE
     COMPILE_DEFINITIONS "ULAPI"
-    LIBRARY_OUTPUT_DIRECTORY ${halpy_dir}
+    LIBRARY_OUTPUT_DIRECTORY ${PROJECT_PYTHON_DIR}
     PREFIX "")
-target_link_libraries(_hal  linuxcnchal ${PYTHON_LIBRARIES})
+target_link_libraries(_hal linuxcnchal ${PYTHON_LIBRARIES})
 add_dependencies(_hal halpy)
-cleanup_rpath_hack(_hal)
-_install_py(hal _hal)
 
 foreach(_flav ${BUILD_THREAD_FLAVORS})
     _flavor_helper(${_flav})

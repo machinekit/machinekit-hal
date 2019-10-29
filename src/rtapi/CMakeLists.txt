@@ -13,15 +13,10 @@ add_subdirectory(rtapi_math)
 add_library(linuxcnculapi SHARED $<TARGET_OBJECTS:ulapi_autoload>
     $<TARGET_OBJECTS:rtapi_compat> $<TARGET_OBJECTS:rtapi_support>
     $<TARGET_OBJECTS:rtapi_hexdump> $<TARGET_OBJECTS:syslog_async>)
-target_link_libraries(linuxcnculapi mk_rip linuxcncini linuxcncshm)
+target_link_libraries(linuxcnculapi linuxcncini linuxcncshm)
 set_target_properties(linuxcnculapi PROPERTIES
     COMPILE_DEFINITIONS "ULAPI"
-    BUILD_WITH_INSTALL_RPATH FALSE
-    INSTALL_RPATH "${_rpath}"
-    INSTALL_RPATH_USE_LINK_PATH TRUE
-    SKIP_BUILD_RPATH  FALSE
     VERSION ${GENERIC_LIB_VERSION})
-cleanup_rpath_hack(linuxcnculapi)
 _install(linuxcnculapi)
 
 add_executable(rtapi_kdetect rtapi_kdetect.c)
@@ -110,9 +105,9 @@ foreach(_flav ${BUILD_THREAD_FLAVORS})
             INSTALL_RPATH_USE_LINK_PATH TRUE
             LINK_FLAGS "${${_FLAV}_THREADS_LDFLAGS}"
             RUNTIME_OUTPUT_DIRECTORY ${PROJECT_LIBEXEC_DIR})
-    target_link_libraries(rtapi_app_${_fname} mk_rip.${_fname} linuxcncini
+    target_link_libraries(rtapi_app_${_fname} linuxcncini
         linuxcncshm mtalk rtapi_math machinetalk-pb2++ ${CMAKE_DL_LIBS})
-    cleanup_rpath_hack(rtapi_app_${_fname})
+    rpath_hack_flavor(rtapi_app_${_fname})
     _install_exec_setuid(rtapi_app_${_fname})
 
     set(SETUID_DEPS ${SETUID_DEPS} rtapi_app_${_fname})
