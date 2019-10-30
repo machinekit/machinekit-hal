@@ -37,6 +37,17 @@ fi
 export RTAPI_INI=@PROJECT_SYSCONF_DIR@/machinekit/rtapi.ini
 export MACHINEKIT_INI=@PROJECT_SYSCONF_DIR@/machinekit/machinekit.ini
 
+if [ -z "$LD_LIBRARY_PATH" ]; then
+    LD_LIBRARY_PATH=@PROJECT_LIB_DIR@
+else
+    LD_LIBRARY_PATH=@PROJECT_LIB_DIR@:"$LD_LIBRARY_PATH"
+fi
+
 if [[ ":$PYTHONPATH:" != *":@PROJECT_PYTHON_DIR@:"* ]]; then
     export PYTHONPATH="@PROJECT_PYTHON_DIR@${PYTHONPATH:+":$PYTHONPATH"}"
 fi
+
+# needed for runtests
+export MACHINEKIT_INCLUDE=@INCLUDE_DIR@
+export MACHINEKIT_LIB=@PROJECT_LIB_DIR@
+export LD_LIBRARY_PATH
