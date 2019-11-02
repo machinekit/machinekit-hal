@@ -1,4 +1,4 @@
-include_directories(${PYTHON_INCLUDE_DIRS})
+include_directories(${Python2_INCLUDE_DIRS})
 
 #set(dep halfile.py launcher.py service.py nosetests)
 set(dep nosetests)
