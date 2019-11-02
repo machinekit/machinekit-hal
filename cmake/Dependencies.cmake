@@ -12,23 +12,15 @@ if(RELEASE_NUMBER VERSION_GREATER "9.99")
     set(GT_STRETCH 1)
 endif()
 
-find_package(PythonInterp 2.7 REQUIRED)
-find_package(PythonLibs 2.7 REQUIRED)
-
-if (PYTHON_VERSION_STRING AND PYTHONLIBS_VERSION_STRING)
-    if(NOT PYTHON_VERSION_STRING VERSION_EQUAL PYTHONLIBS_VERSION_STRING)
-        message(FATAL_ERROR
-            "Version mismatch between python interpreter and libraries")
-    endif()
+if(NOT CMAKE_VERSION VERSION_LESS "3.12")
+  find_package(Python2 COMPONENTS Interpreter Development)
+else()
+  find_package(Python2_local)
 endif()
-set(HAVE_PYTHON ${PYTHON_VERSION_STRING})
+set(HAVE_PYTHON ${Python2_VERSION})
 
-execute_process (COMMAND python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"
-        OUTPUT_VARIABLE PYTHON_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE)
-message ("${PYTHON_SITE_PACKAGES}")
-
-if(NOT IS_DIRECTORY ${PYTHON_SITE_PACKAGES}/google/protobuf)
-    message(FATAL_ERROR "python-protobuf not found: install python-protobuf")
+if(NOT IS_DIRECTORY ${Python2_SITELIB}/google/protobuf)
+	message(FATAL_ERROR "python-protobuf not found: install python-protobuf")
 endif()
 
 pkg_check_modules(AVAHI avahi-client)

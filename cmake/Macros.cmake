@@ -235,12 +235,12 @@ macro(add_python_target TGT DST EXT SDIR)
     separate_arguments(_py_cmd UNIX_COMMAND
             "-c 'import sys\; compile(open(sys.argv[1]).read(), sys.argv[1], \"exec\")'")
     separate_arguments(_sed_cmd UNIX_COMMAND
-        "'1s-^#!.*-#!${PYTHON_EXECUTABLE}-'")
+        "'1s-^#!.*-#!${Python2_EXECUTABLE}-'")
     foreach(_x ${ARGN})
         set(_out ${DST}/${_x}${EXT})
         list(APPEND _out_files ${_out})
         add_custom_command(OUTPUT ${_out}
-            COMMAND ${PYTHON_EXECUTABLE} ${_py_cmd} ${SDIR}/${_x}.py
+            COMMAND ${Python2_EXECUTABLE} ${_py_cmd} ${SDIR}/${_x}.py
             COMMAND sed ${_sed_cmd} ${SDIR}/${_x}.py > ${_out}
             COMMAND chmod +x ${_out}
             DEPENDS ${SDIR}/${_x}.py
