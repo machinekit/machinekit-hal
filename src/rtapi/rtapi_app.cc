@@ -141,6 +141,7 @@ long page_size;
 static const char *progname;
 static const char *z_uri;
 static int z_port;
+static int z_debug = 0;
 static uuid_t process_uuid;
 static char process_uuid_str[40];
 static register_context_t *rtapi_publisher;
@@ -886,7 +887,7 @@ static int rtapi_request(zloop_t *loop, zsock_t *socket, void *arg)
 	zmsg_destroy(&r);
 	return 0;
     }
-    if (debug > 4) {
+    if (z_debug) {
 	string buffer;
 	if (TextFormat::PrintToString(pbreq, &buffer)) {
 	    fprintf(stderr, "request: %s\n",buffer.c_str());
@@ -1085,7 +1086,7 @@ static int rtapi_request(zloop_t *loop, zsock_t *socket, void *arg)
 			pbreply.type(),
 			reply_size);
     } else {
-	if (debug > 4) {
+	if (z_debug) {
 	    string buffer;
 	    if (TextFormat::PrintToString(pbreply, &buffer)) {
 		fprintf(stderr, "reply: %s\n",buffer.c_str());
@@ -1364,7 +1365,7 @@ static int mainloop(size_t  argc, char **argv)
     }
     zloop_t *z_loop = zloop_new();
     assert(z_loop);
-    zloop_set_verbose(z_loop, (debug > 4));
+    zloop_set_verbose(z_loop, z_debug);
 
     
     if (trap_signals) {
@@ -1623,6 +1624,7 @@ static struct option long_options[] = {
     {"debug", required_argument,    0, 'd'},
     {"svcuuid",   required_argument, 0, 'R'},
     {"interfaces",required_argument, 0, 'n'},
+	{"zloopdebug", no_argument,      0, 'z'},
     {0, 0, 0, 0}
 };
 
@@ -1630,6 +1632,7 @@ int main(int argc, char **argv)
 {
     int c;
     progname = argv[0];
+	char* z_loop_debug = NULL;
     inifile =  getenv("MACHINEKIT_INI");
 
     uuid_generate_time(process_uuid);
@@ -1641,7 +1644,7 @@ int main(int argc, char **argv)
     while (1) {
 	int option_index = 0;
 	int curind = optind;
-	c = getopt_long (argc, argv, "ShH:m:I:f:r:U:NFdR:n:i:s",
+	c = getopt_long (argc, argv, "ShH:m:I:f:r:U:NFdR:n:i:sz",
 			 long_options, &option_index);
 	if (c == -1)
 	    break;
@@ -1699,6 +1702,9 @@ int main(int argc, char **argv)
 	case 's':
 	    option |= LOG_PERROR;
 	    break;
+	case 'z':
+		z_debug = 1;
+		break;
 	case '?':
 	    if (optopt)  fprintf(stderr, "bad short opt '%c'\n", optopt);
 	    else  fprintf(stderr, "bad long opt \"%s\"\n", argv[curind]);
@@ -1736,6 +1742,12 @@ int main(int argc, char **argv)
 	fprintf(stderr, "rtapi: no service UUID (-R <uuid> or environment MKUUID) present\n");
 	exit(-1);
     }
+
+	z_loop_debug = getenv("ZLOOPDEBUG");
+	if(z_loop_debug)
+	{
+		z_debug = 1;
+	}
 
 #ifdef NOTYET
     iniFindInt(inifp, "REMOTE", "MACHINEKIT", &remote);
