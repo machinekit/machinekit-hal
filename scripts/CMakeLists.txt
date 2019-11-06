@@ -7,11 +7,6 @@ set(exec_prefix ${PROJECT_BINARY_DIR})
 set(EMC2_SYSTEM_CONFIG_DIR ${PROJECT_SYSCONF_DIR}/machinekit)
 set(EMC2_LIBEXEC_DIR ${PROJECT_LIBEXEC_DIR})
 
-set(LSMOD "/usr/sbin/lsmod")
-set(PIDOF "/usr/bin/pidof")
-set(PS "/usr/bin/ps")
-set(AWK "/usr/bin/awk")
-
 set(RUN_IN_PLACE "yes")
 string(TIMESTAMP DATE UTC)
 set(configure_input "built with cmake")

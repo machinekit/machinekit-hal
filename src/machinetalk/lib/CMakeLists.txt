@@ -15,7 +15,9 @@ add_library(syslog_async OBJECT syslog_async.c)
 
 add_library(mtalk SHARED ${LIBMTALK_SRCS} $<TARGET_OBJECTS:syslog_async>)
 target_link_libraries(mtalk ${AVAHI_LDFLAGS} ${CZMQ_LDFLAGS} ${JANSSON_LDFLAGS} ${UUID_LDFLAGS})
-set_target_properties(mtalk PROPERTIES COMPILE_FLAGS
-    "${AVAHI_CFLAGS} ${CZMQ_CFLAGS} ${JANSSON_CFLAGS} ${UUID_CFLAGS}")
+if(GT_STRETCH)
+    target_link_libraries(mtalk "-lzmq")
+endif()
+set_target_properties(mtalk PROPERTIES COMPILE_FLAGS ${UUID_CFLAGS})
 set_target_properties(mtalk PROPERTIES VERSION ${GENERIC_LIB_VERSION})
 _install(mtalk)

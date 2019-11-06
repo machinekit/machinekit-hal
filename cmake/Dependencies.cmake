@@ -1,3 +1,17 @@
+include(FindPkgConfig)
+if(NOT PKG_CONFIG_FOUND)
+    message(FATAL_ERROR "pkg-config not found: install pkg-config")
+endif()
+
+# check debian version
+execute_process(COMMAND lsb_release -rs
+    OUTPUT_VARIABLE RELEASE_NUMBER
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+if(RELEASE_NUMBER VERSION_GREATER "9.99")
+    set(GT_STRETCH 1)
+endif()
+
 find_package(PythonInterp 2.7 REQUIRED)
 find_package(PythonLibs 2.7 REQUIRED)
 
@@ -15,11 +29,6 @@ message ("${PYTHON_SITE_PACKAGES}")
 
 if(NOT IS_DIRECTORY ${PYTHON_SITE_PACKAGES}/google/protobuf)
     message(FATAL_ERROR "python-protobuf not found: install python-protobuf")
-endif()
-
-find_package(PkgConfig)
-if(NOT PkgConfig_FOUND)
-    message(FATAL_ERROR "pkg-config not found: install pkg-config")
 endif()
 
 pkg_check_modules(AVAHI avahi-client)
@@ -47,10 +56,9 @@ endif()
 set(HAVE_LIBCGROUP 1)
 
 pkg_check_modules(LCK ck)
-if(NOT LCK_FOUND)
-    message(FATAL_ERROR "libck not found: install libck-dev")
+if(LCK_FOUND)
+    set(HAVE_CK 1)
 endif()
-set(HAVE_CK 1)
 
 pkg_check_modules(CZMQ libczmq>=4.0.2)
 if(NOT CZMQ_FOUND)
@@ -78,7 +86,14 @@ if(WITH_MODBUS)
     endif()
 endif()
 
-find_package(Protobuf 2.4.1)
+if(CMAKE_VERSION VERSION_LESS "3.6")
+    find_package(Protobuf)
+    set(Protobuf_FOUND ${PROTOBUF_FOUND})
+    set(Protobuf_INCLUDE_DIR ${PROTOBUF_INCLUDE_DIRS})
+else()
+    find_package(Protobuf 2.4.1)
+endif()
+
 if(NOT Protobuf_FOUND)
     message(FATAL_ERROR "protobuf not found: install libprotobuf-dev")
 endif()
@@ -113,9 +128,19 @@ if(NOT UUID_FOUND)
 endif()
 set(HAVE_UUID 1)
 
-find_program(YAPPS yapps)
+if(GT_STRETCH)
+    find_program(YAPPS yapps2)
+else()
+    find_program(YAPPS yapps)
+endif()
 if(NOT YAPPS)
     message(FATAL_ERROR "yapps not found: install yapps2 package")
+endif()
+
+if(GT_STRETCH)
+    if(NOT IS_DIRECTORY ${PYTHON_SITE_PACKAGES}/yapps)
+        message(FATAL_ERROR "python-yapps not found: install python-yapps")
+    endif()
 endif()
 
 check_include_files(readline/readline.h HAVE_READLINE)
@@ -142,6 +167,9 @@ find_program(PIDOF pidof)
 if(NOT PIDOF)
     message(FATAL_ERROR "pidof not found: install sysvinit-utils")
 endif()
+
+find_program(PS ps)
+find_program(AWK awk)
 
 #[[
 # required packages
