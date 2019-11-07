@@ -340,7 +340,7 @@ static int export_pins(struct inst_data *ip, const char *name)
                 "%s: new pin name %s", name, pname);
         }
         if ((retval = hal_pin_newf(type, HAL_IN, (void **) &ip->pins_in[i],
-                comp_id, ip->pinnames[i])) < 0) {
+                comp_id, "%s", ip->pinnames[i])) < 0) {
             return retval;
         }
         
