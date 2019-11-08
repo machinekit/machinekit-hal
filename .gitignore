@@ -77,3 +77,6 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 include
+src/config.guess
+.DS_Store
+._.DS_Store

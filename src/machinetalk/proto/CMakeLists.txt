@@ -25,7 +25,7 @@ set(NPB_DEFINITIONS PB_FIELD_32BIT PB_SYSTEM_HEADER=<pb-linuxcnc.h>)
 set(PB_PROTO_PATHS --proto_path=${Protobuf_INCLUDE_DIR} --proto_path=src/machinetalk)
 
 set(PB_GEN_DIR ${CMAKE_CURRENT_BINARY_DIR})
-set(PB2_GEN_DIR ${PROJECT_PYTHON_DIR})
+set(PB2_GEN_DIR ${PROJECT_PYTHON_DIR}/machinekit)
 
 file(MAKE_DIRECTORY ${PB2_GEN_DIR})
 file(MAKE_DIRECTORY ${INCLUDE_DIR}/protobuf)
@@ -39,10 +39,8 @@ foreach(file ${MK_PROTO_SRC})
     add_custom_command(
         OUTPUT  ${PB_GEN_DIR}/protobuf/${out}
         COMMAND ${PROTOC} ${PB_GEN_OPTS} src/machinetalk/protobuf/${file}.proto
-        COMMAND ${CMAKE_COMMAND} -E remove -f ${INCLUDE_DIR}/protobuf/${file}.pb.h
-        COMMAND ${CMAKE_COMMAND} -E create_symlink
-            ${PB_GEN_DIR}/protobuf/${file}.pb.h
-            ${INCLUDE_DIR}/protobuf/${file}.pb.h
+        COMMAND ln -f ${PB_GEN_DIR}/protobuf/${file}.pb.h
+                      ${INCLUDE_DIR}/protobuf/${file}.pb.h
         DEPENDS src/machinetalk/protobuf/${file}.proto
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         COMMENT "Generate cpp files from src/machinetalk/protobuf/${file}.proto")
@@ -78,11 +76,10 @@ foreach(file ${MK_PROTO_SRC})
     set(NPB_GEN ${NPB_GEN} ${PB_GEN_DIR}/protobuf/${out})
     add_custom_command(
         OUTPUT  ${PB_GEN_DIR}/protobuf/${out}
-        COMMAND ${PROTOC} ${NPB_GEN_OPTS} src/machinetalk/protobuf/${file}.proto
-        COMMAND ${CMAKE_COMMAND} -E remove -f ${INCLUDE_DIR}/protobuf/${file}.npb.h
-        COMMAND ${CMAKE_COMMAND} -E create_symlink
-            ${PB_GEN_DIR}/protobuf/${file}.npb.h
-            ${INCLUDE_DIR}/protobuf/${file}.npb.h
+        COMMAND PYTHONPATH=${PROJECT_PYTHON_DIR}/machinekit/protobuf
+            ${PROTOC} ${NPB_GEN_OPTS} src/machinetalk/protobuf/${file}.proto
+        COMMAND ln -f ${PB_GEN_DIR}/protobuf/${file}.npb.h
+                      ${INCLUDE_DIR}/protobuf/${file}.npb.h
         DEPENDS src/machinetalk/protobuf/${file}.proto
             protoc-gen-nanopb nanopb_generator.py ${PB2_GEN}
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}

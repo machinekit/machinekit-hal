@@ -1,0 +1,20 @@
+#!/bin/bash -e
+
+# fail if run under fakeroot
+if [ "x$FAKEROOTKEY" != "x" ]; then
+    echo These tests cannot run under a fakeroot environment
+    exit 1
+fi
+
+sed -i.bk 's/^#ANNOUNCE_IPV4=1/ANNOUNCE_IPV4=0/' build/etc/machinekit/machinekit.ini
+sed -i 's/^#ANNOUNCE_IPV6=1/ANNOUNCE_IPV6=0/' build/etc/machinekit/machinekit.ini
+
+sudo chown 0:0 build/lib/machinekit/rtapi_app_*
+sudo chmod 4755 build/lib/machinekit/rtapi_app_*
+
+source build/bin/set_env
+$RUN_TESTS tests/threads.0
+result=$?
+
+mv build/etc/machinekit/machinekit.ini.bk build/etc/machinekit/machinekit.ini
+exit $result

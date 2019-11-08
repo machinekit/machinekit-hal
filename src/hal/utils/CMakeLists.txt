@@ -16,6 +16,7 @@ foreach(util comp instcomp)
             COMMENT "Creating ${util}.py")
     add_python_target(${util} ${PROJECT_BIN_DIR} ""
         ${CMAKE_CURRENT_BINARY_DIR} ${util})
+    _install_script(${PROJECT_BIN_DIR}/${util})
 endforeach()
 
 add_executable(halcmd ${HALCMD_SRCS})
@@ -24,8 +25,16 @@ target_link_libraries(halcmd linuxcncini linuxcnchal machinetalk-pb2++
 target_compile_definitions(halcmd PRIVATE ULAPI)
 _install(halcmd)
 
-# TODO: tcl/hal.so
-
+add_library(tk_hal SHARED halsh.c halcmd.c halcmd_commands.c halcmd_rtapiapp.cc)
+set_target_properties(tk_hal PROPERTIES
+    COMPILE_DEFINITIONS "ULAPI"
+    LIBRARY_OUTPUT_DIRECTORY ${PROJECT_TCL_DIR}
+    OUTPUT_NAME hal
+    PREFIX "")
+set_property(TARGET tk_hal APPEND
+    PROPERTY INCLUDE_DIRECTORIES "${TCL_INCLUDE_PATH}")
+target_link_libraries(tk_hal linuxcnchal mtalk machinetalk-pb2++)
+install(TARGETS tk_hal LIBRARY DESTINATION lib/tcltk/machinekit)
 
 if(WITH_GTK)
     add_executable(halmeter meter.c miscgtk.c)
@@ -60,9 +69,5 @@ if(WITH_DRIVERS)
     _install(pci_read)
 endif()
 
-#[[ TODO
-_to_rtlib(scope_rt scope_rt.c)
-
 # fixme
 # set_property(GLOBAL APPEND PROPERTY target-dev pyhal_utils)
-]]

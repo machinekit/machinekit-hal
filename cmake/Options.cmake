@@ -21,6 +21,8 @@ option(WITH_RASPBERRY "Build for Raspberry" OFF)
 option(WITH_SOCFPGA "Build for Socfpga platform" OFF)
 option(WITH_ZEDBOARD "Build for Zedboard platform" OFF)
 
+option(USE_DH_PYTHON "Use dh_python2 to package the python modules" OFF)
+
 if(WITH_PC)
     set(TARGET_PLATFORM_PC 1)
 elseif(WITH_BEAGLEBONE)
@@ -175,6 +177,6 @@ check_function_exists(__sincos HAVE___SINCOS)
 
 # create config.h
 configure_file(
-    "${PROJECT_SOURCE_DIR}/src/config.cmake"
+    "${PROJECT_SOURCE_DIR}/src/config.in"
     "${PROJECT_BINARY_DIR}/include/config.h"
     @ONLY)

@@ -9,12 +9,16 @@ if(WITH_PYTHON)
         ${CMAKE_CURRENT_SOURCE_DIR}/support pb2json)
     add_python_target(configserver ${PROJECT_BIN_DIR} ""
         ${CMAKE_CURRENT_SOURCE_DIR}/config-service configserver)
+    _install_script(${PROJECT_BIN_DIR}/configserver)
     add_python_target(mkwrapper ${PROJECT_BIN_DIR} ""
         ${CMAKE_CURRENT_SOURCE_DIR}/mkwrapper mkwrapper)
+    _install_script(${PROJECT_BIN_DIR}/mkwrapper)
     add_python_target(mklauncher ${PROJECT_BIN_DIR} ""
         ${CMAKE_CURRENT_SOURCE_DIR}/mklauncher mklauncher)
+    _install_script(${PROJECT_BIN_DIR}/mklauncher)
     add_python_target(videoserver ${PROJECT_BIN_DIR} ""
         ${CMAKE_CURRENT_SOURCE_DIR}/videoserver videoserver)
+    _install_script(${PROJECT_BIN_DIR}/videoserver)
 endif()
 
 add_subdirectory(msgcomponents)

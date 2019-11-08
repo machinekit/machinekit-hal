@@ -31,19 +31,20 @@ set_target_properties(linuxcnchal PROPERTIES
     VERSION ${GENERIC_LIB_VERSION})
 _install(linuxcnchal)
 
-add_custom_command(OUTPUT ${PROJECT_PYTHON_DIR}/hal.py
+add_custom_command(OUTPUT ${PROJECT_PYTHON_DIR}/hal/__init__.py
+    COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_PYTHON_DIR}/hal
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/lib/python/hal.py
-        ${PROJECT_PYTHON_DIR}/hal.py
+                                     ${PROJECT_PYTHON_DIR}/hal/__init__.py
     DEPENDS ${CMAKE_SOURCE_DIR}/lib/python/hal.py
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-add_custom_target(halpy DEPENDS ${PROJECT_PYTHON_DIR}/hal.py)
+add_custom_target(halpy DEPENDS ${PROJECT_PYTHON_DIR}/hal/__init__.py)
 
 add_library(_hal SHARED halmodule.cc)
 set_property(TARGET _hal
         APPEND PROPERTY INCLUDE_DIRECTORIES ${Python2_INCLUDE_DIRS})
 set_target_properties(_hal PROPERTIES
     COMPILE_DEFINITIONS "ULAPI"
-    LIBRARY_OUTPUT_DIRECTORY ${PROJECT_PYTHON_DIR}
+    LIBRARY_OUTPUT_DIRECTORY ${PROJECT_PYTHON_DIR}/hal
     PREFIX "")
 target_link_libraries(_hal linuxcnchal ${PYTHON_LIBRARIES})
 add_dependencies(_hal halpy)

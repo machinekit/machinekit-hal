@@ -1,0 +1,4 @@
+usr/lib/machinekit/posix/hal_lib.so
+usr/lib/machinekit/posix/rtapi.so
+usr/lib/machinekit/rtapi_app_posix
+usr/lib/machinekit/ulapi-posix.so

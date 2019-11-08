@@ -1,6 +1,0 @@
-
-Package: machinekit-hal-posix
-Architecture: any
-Provides:  machinekit-hal
-Conflicts: machinekit, machinekit-hal-rt-preempt, machinekit-hal-xenomai
-Suggests: hostmot2-firmware-all [!armhf]

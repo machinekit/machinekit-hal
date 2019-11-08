@@ -159,10 +159,8 @@ macro(_to_rtlib NAME SRCS)
             COMMENT "Symlinking ${_fname}/${_name}.so to ../modules/${_name}.so")
         add_custom_target(${_name}.${_fname} ALL DEPENDS ${PROJECT_LIBEXEC_DIR}/${_fname}/${_name}.so)
         install(CODE "execute_process(
-            COMMAND mkdir -p
-                $ENV{DESTDIR}/${CMAKE_INSTALL_PREFIX}/lib/machinekit/${_fname}
-            COMMAND ln -sf ../modules/${_name}.so
-                $ENV{DESTDIR}/${CMAKE_INSTALL_PREFIX}/lib/machinekit/${_fname})"
+            COMMAND ${CMAKE_SOURCE_DIR}/cmake/create_rt_links
+                    ${CMAKE_INSTALL_PREFIX} ${_fname} ${_name})"
             VERBATIM)
     endforeach()
 endmacro()
@@ -219,26 +217,6 @@ macro(_install_script SRC)
         DESTINATION bin)
 endmacro()
 
-#! _install_py
-#
-# \arg:NAME python module name
-# \arg:ARGN python targets
-#
-macro(_install_py NAME)
-    set(_src ${PROJECT_PYTHON_DIR}/${NAME})
-    set(_dst ${INSTALL_PYSHARED_DIR})
-    install(DIRECTORY ${_src} DESTINATION share/pyshared
-            FILES_MATCHING PATTERN "*.py"
-            PATTERN "nosetests" EXCLUDE)
-    install(TARGETS ${ARGN}
-            DESTINATION share/pyshared/${NAME})
-    set(_setup "${_src}/setup.py")
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in ${_setup})
-    install(CODE "execute_process(COMMAND
-            ${CMAKE_MODULE_PATH}/python_package_helper
-            ${NAME} ${_src} ${_dst}
-            ${PYTHON_EXECUTABLE} ${CMAKE_INSTALL_PREFIX} ${CPACK_PACKAGING_INSTALL_PREFIX})")
-endmacro()
 # *** _install ***
 
 #! add_python_target : add python executable target/s
@@ -257,12 +235,12 @@ macro(add_python_target TGT DST EXT SDIR)
     separate_arguments(_py_cmd UNIX_COMMAND
             "-c 'import sys\; compile(open(sys.argv[1]).read(), sys.argv[1], \"exec\")'")
     separate_arguments(_sed_cmd UNIX_COMMAND
-        "'1s-^#!.*-#!${PYTHON_EXECUTABLE}-'")
+        "'1s-^#!.*-#!${Python2_EXECUTABLE}-'")
     foreach(_x ${ARGN})
         set(_out ${DST}/${_x}${EXT})
         list(APPEND _out_files ${_out})
         add_custom_command(OUTPUT ${_out}
-            COMMAND ${PYTHON_EXECUTABLE} ${_py_cmd} ${SDIR}/${_x}.py
+            COMMAND ${Python2_EXECUTABLE} ${_py_cmd} ${SDIR}/${_x}.py
             COMMAND sed ${_sed_cmd} ${SDIR}/${_x}.py > ${_out}
             COMMAND chmod +x ${_out}
             DEPENDS ${SDIR}/${_x}.py

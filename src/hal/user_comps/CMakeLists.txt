@@ -64,6 +64,7 @@ if(WITH_PYTHON)
     foreach(file ${USER_COMP_PY})
         add_python_target(${file} ${PROJECT_BIN_DIR} ""
             ${CMAKE_CURRENT_SOURCE_DIR} ${file})
+        _install_script(${PROJECT_BIN_DIR}/${file})
     endforeach()
 
     set(VISMACH_PY
@@ -80,5 +81,6 @@ if(WITH_PYTHON)
     foreach(file ${VISMACH_PY})
         add_python_target(${file} ${PROJECT_BIN_DIR} ""
             ${CMAKE_CURRENT_SOURCE_DIR}/vismach ${file})
+        _install_script(${PROJECT_BIN_DIR}/${file})
     endforeach()
 endif()
