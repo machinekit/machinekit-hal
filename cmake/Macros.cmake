@@ -128,29 +128,42 @@ macro(_flavor_helper FLAV)
     set(_fid ${RTAPI_${_FLAV}_ID})
 endmacro()
 
-#! _to_rtlib : this macro generates an rt library for all flavors
+#! _to_rtlib : this macro generates a single rt binary and then creates
+#   symlinks all flavors
 #
 # \arg:NAME library name
 # \arg:SRCS sources
 # \arg:CFLAGS Optional, additional flags
 #
 macro(_to_rtlib NAME SRCS)
+    set(_cflags -UULAPI)
+    if(${ARGV1})
+        set(_cflags -UULAPI ${ARGV1})
+    endif()
+    string(REGEX REPLACE "\\.i?comp" "" _name ${NAME})
+    add_library(${NAME} SHARED ${SRCS})
+    set_target_properties(${NAME} PROPERTIES
+        COMPILE_DEFINITIONS "RTAPI;THREAD_FLAVOR_ID=0"
+        COMPILE_FLAGS ${_cflags}
+        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_LIBEXEC_DIR}/modules
+        OUTPUT_NAME ${_name}
+        PREFIX "")
+    install(TARGETS ${NAME} LIBRARY DESTINATION lib/machinekit/modules)
+
     foreach(_flav ${BUILD_THREAD_FLAVORS})
         _flavor_helper(${_flav})
-        set(_cflags -UULAPI)
-        if(${ARGV1})
-            set(_cflags -UULAPI ${ARGV1})
-        endif()
-        string(REGEX REPLACE "\\.i?comp" "" _NAME ${NAME})
-        add_library(${NAME}.${_fname} SHARED ${SRCS})
-        set_target_properties(${NAME}.${_fname} PROPERTIES
-            COMPILE_DEFINITIONS "RTAPI;THREAD_FLAVOR_ID=${_fid}"
-            COMPILE_FLAGS ${_cflags}
-            LIBRARY_OUTPUT_DIRECTORY ${PROJECT_LIBEXEC_DIR}/${_fname}
-            OUTPUT_NAME ${_NAME}
-            PREFIX "")
-        install(TARGETS ${NAME}.${_fname}
-            LIBRARY DESTINATION lib/machinekit/${_fname})
+        add_custom_command(OUTPUT ${PROJECT_LIBEXEC_DIR}/${_fname}/${_name}.so
+            COMMAND ${CMAKE_COMMAND} -E create_symlink ../modules/${_name}.so
+                ${PROJECT_LIBEXEC_DIR}/${_fname}/${_name}.so
+            DEPENDS ${NAME}
+            COMMENT "Symlinking ${_fname}/${_name}.so to ../modules/${_name}.so")
+        add_custom_target(${_name}.${_fname} ALL DEPENDS ${PROJECT_LIBEXEC_DIR}/${_fname}/${_name}.so)
+        install(CODE "execute_process(
+            COMMAND mkdir -p
+                $ENV{DESTDIR}/${CMAKE_INSTALL_PREFIX}/lib/machinekit/${_fname}
+            COMMAND ln -sf ../modules/${_name}.so
+                $ENV{DESTDIR}/${CMAKE_INSTALL_PREFIX}/lib/machinekit/${_fname})"
+            VERBATIM)
     endforeach()
 endmacro()
 
