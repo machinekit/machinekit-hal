@@ -14,7 +14,8 @@ set(LIBMTALK_SRCS
 add_library(syslog_async OBJECT syslog_async.c)
 
 add_library(mtalk SHARED ${LIBMTALK_SRCS} $<TARGET_OBJECTS:syslog_async>)
-target_link_libraries(mtalk ${AVAHI_LDFLAGS} ${CZMQ_LDFLAGS} ${JANSSON_LDFLAGS} ${UUID_LDFLAGS})
+target_link_libraries(mtalk ${AVAHI_LDFLAGS} ${CZMQ_LDFLAGS} ${JANSSON_LDFLAGS} 
+                            ${UUID_LDFLAGS} ${Protobuf_LIBRARY_RELEASE})
 if(GT_STRETCH)
     target_link_libraries(mtalk "-lzmq")
 endif()

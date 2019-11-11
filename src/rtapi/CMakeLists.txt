@@ -13,7 +13,7 @@ add_subdirectory(rtapi_math)
 add_library(linuxcnculapi SHARED $<TARGET_OBJECTS:ulapi_autoload>
     $<TARGET_OBJECTS:rtapi_compat> $<TARGET_OBJECTS:rtapi_support>
     $<TARGET_OBJECTS:rtapi_hexdump> $<TARGET_OBJECTS:syslog_async>)
-target_link_libraries(linuxcnculapi linuxcncini linuxcncshm)
+target_link_libraries(linuxcnculapi linuxcncini linuxcncshm ${CMAKE_DL_LIBS})
 set_target_properties(linuxcnculapi PROPERTIES
     COMPILE_DEFINITIONS "ULAPI"
     VERSION ${GENERIC_LIB_VERSION})
@@ -25,7 +25,6 @@ set_target_properties(rtapi_kdetect PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${PROJECT_LIBEXEC_DIR})
 target_link_libraries(rtapi_kdetect linuxcnchal)
 _install_exec(rtapi_kdetect)
-
 
 add_executable(rtapi_msgd rtapi_msgd.cc $<TARGET_OBJECTS:rtapi_support>
     $<TARGET_OBJECTS:rtapi_compat> $<TARGET_OBJECTS:rtapi_heap>)
@@ -53,6 +52,7 @@ set(XXAPI_COMMON_SRCS
 
 add_library(rtapi_app OBJECT rtapi_app.cc)
 set_target_properties(rtapi_app PROPERTIES COMPILE_DEFINITIONS "ULAPI")
+add_dependencies(rtapi_app npb_gen_files)
 
 set(RTAPI_SRC ${XXAPI_COMMON_SRCS}
     rtapi_heap.c rtapi_main.c rtapi_support.c rtapi_hexdump.c rtapi_compat.c

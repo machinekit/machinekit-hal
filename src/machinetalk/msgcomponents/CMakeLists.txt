@@ -14,6 +14,8 @@ endforeach()
 
 set(_src pbmsgs.c $<TARGET_OBJECTS:npb-obj>)
 _to_rtlib(pbmsgs ${_src})
+add_dependencies(pbmsgs npb_gen_files)
+
 
 unset(_gen_man)
 # create manpages

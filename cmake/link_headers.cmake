@@ -62,23 +62,21 @@ set(files
     machinetalk/include/container.h
     machinetalk/include/halpb.hh)
 
+execute_process(COMMAND ${CMAKE_COMMAND} -E 
+                    make_directory ${INCLUDE_DIR}/protobuf)
+
 unset(_headers)
 foreach(file ${files})
     get_filename_component(name ${file} NAME)
-    add_custom_command(OUTPUT ${INCLUDE_DIR}/${name}
-        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${file}
-            ${INCLUDE_DIR}
-        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file})
+    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
+                        ${CMAKE_SOURCE_DIR}/src/${file} ${INCLUDE_DIR}/${name})
     set(_headers ${_headers} ${INCLUDE_DIR}/${name})
 endforeach()
 
 foreach(file pb.h pb_decode.h pb_encode.h)
-    add_custom_command(OUTPUT ${INCLUDE_DIR}/protobuf/${file}
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${INCLUDE_DIR}/protobuf
-        COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_CURRENT_SOURCE_DIR}/machinetalk/nanopb/${file}
-            ${INCLUDE_DIR}/protobuf
-        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/machinetalk/nanopb/${file})
+    execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
+                        ${CMAKE_SOURCE_DIR}/src/machinetalk/nanopb/${file}
+                        ${INCLUDE_DIR}/protobuf/${file})
     set(_headers ${_headers} ${INCLUDE_DIR}/protobuf/${file})
 endforeach()
 
@@ -96,13 +94,16 @@ if(WITH_USERMODE_PCI)
         hal/drivers/mesa-hostmot2/hm2_eth.h
         hal/drivers/mesa-hostmot2/hostmot2-lowlevel.h)
 
+    execute_process(COMMAND ${CMAKE_COMMAND} -E 
+                        make_directory ${INCLUDE_DIR}/mesa
+                    COMMAND ${CMAKE_COMMAND} -E 
+                        make_directory ${INCLUDE_DIR}/userpci)
+
     foreach(file ${mesa_files})
         get_filename_component(name ${file} NAME)
-        add_custom_command(OUTPUT ${INCLUDE_DIR}/mesa/${name}
-            COMMAND ${CMAKE_COMMAND} -E make_directory ${INCLUDE_DIR}/mesa
-            COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${file}
-                ${INCLUDE_DIR}/mesa
-            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file})
+        execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
+                            ${CMAKE_SOURCE_DIR}/src/${file} 
+                            ${INCLUDE_DIR}/mesa/${name})
         set(_headers ${_headers} ${INCLUDE_DIR}/mesa/${name})
     endforeach()
 
@@ -117,11 +118,9 @@ if(WITH_USERMODE_PCI)
 
     foreach(file ${uspci_files})
         get_filename_component(name ${file} NAME)
-        add_custom_command(OUTPUT ${INCLUDE_DIR}/userpci/${name}
-            COMMAND ${CMAKE_COMMAND} -E make_directory ${INCLUDE_DIR}/userpci
-            COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${file}
-                ${INCLUDE_DIR}/userpci
-            DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${file})
+        execute_process(COMMAND ${CMAKE_COMMAND} -E create_symlink
+                            ${CMAKE_SOURCE_DIR}/src/${file} 
+                            ${INCLUDE_DIR}/userpci/${name})
         set(_headers ${_headers} ${INCLUDE_DIR}/userpci/${name})
     endforeach()
 endif()

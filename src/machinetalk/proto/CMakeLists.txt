@@ -44,10 +44,10 @@ foreach(file ${MK_PROTO_SRC})
         DEPENDS src/machinetalk/protobuf/${file}.proto
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         COMMENT "Generate cpp files from src/machinetalk/protobuf/${file}.proto")
-    add_custom_target(${file}.pb.h DEPENDS ${PB_GEN_DIR}/protobuf/${out})
+    add_custom_target(${file}.pb.h DEPENDS ${PB_GEN_DIR}/prof/${out})
 endforeach()
 
-add_custom_target(pb_gen_files DEPENDS ${PB_GEN})
+add_custom_target(pb_gen_files ALL DEPENDS ${PB_GEN})
 
 # create python files
 set(PB2_GEN_OPTS ${PB_PROTO_PATHS} --python_out=${PB2_GEN_DIR})

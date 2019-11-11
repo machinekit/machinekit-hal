@@ -1,4 +1,5 @@
 add_library(inifile OBJECT inifile.cc)
+target_compile_options(inifile PUBLIC -fPIC)
 
 add_library(linuxcncini SHARED $<TARGET_OBJECTS:inifile>)
 set_target_properties(linuxcncini PROPERTIES VERSION ${GENERIC_LIB_VERSION})

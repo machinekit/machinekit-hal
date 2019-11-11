@@ -1,6 +1,12 @@
+set(CMAKE_LINK_WHAT_YOU_USE ON)
+
+# Use DT_RPATH instead of DT_RUNPATH
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--disable-new-dtags")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--disable-new-dtags")
+
 set(CMAKE_C_FLAGS
     "${CMAKE_C_FLAGS} -fPIC -fwrapv -fno-strict-overflow -std=gnu99 -fgnu89-inline")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+
 # jessie quirk
 if(RELEASE_NUMBER VERSION_LESS "9")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
@@ -10,22 +16,15 @@ endif()
 include(link_headers)
 
 # copy mank in build directory
-add_custom_command(OUTPUT ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/mank
+add_custom_command(OUTPUT ${PROJECT_BIN_DIR}/mank
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/bin/mank
-        ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/mank
+        ${PROJECT_BIN_DIR}/mank
     DEPENDS ${CMAKE_SOURCE_DIR}/bin/mank)
 
 _install_script(${CMAKE_SOURCE_DIR}/bin/mank)
 
 # make sure the above commands are run
-add_custom_target(add_missing ALL
-    DEPENDS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/mank ${_headers})
-
-set(CMAKE_LINK_WHAT_YOU_USE ON)
-
-# Use DT_RPATH instead of DT_RUNPATH
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--disable-new-dtags")
-set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--disable-new-dtags")
+add_custom_target(copy_mank ALL DEPENDS ${PROJECT_BIN_DIR}/mank)
 
 add_subdirectory(machinetalk)
 add_subdirectory(libnml)

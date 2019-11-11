@@ -1,4 +1,5 @@
 add_executable(sizes sizes.c)
+add_dependencies(sizes npb_gen_files)
 _install(sizes)
 
 foreach(file encdec position linmove)
@@ -22,16 +23,3 @@ foreach(file rtprintf npbdecode)
     _install(${file})
 endforeach()
 target_compile_definitions(rtprintf PRIVATE ULAPI)
-
-#[[
-foreach(util comp instcomp)
-    set(src ${CMAKE_CURRENT_SOURCE_DIR}/${util}.g)
-    add_custom_command(
-        OUTPUT ${util}.py
-        COMMAND ${YAPPS} ${src} ${util}.py
-        DEPENDS ${src}
-        COMMENT "Creating ${util}.py")
-    add_python_target(${util} ${PROJECT_BIN_DIR} ""
-        ${CMAKE_CURRENT_BINARY_DIR} ${util})
-endforeach()
-]]

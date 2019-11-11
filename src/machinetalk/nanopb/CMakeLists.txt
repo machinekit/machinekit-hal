@@ -9,6 +9,7 @@ foreach(tool nanopb_generator.py protoc-gen-nanopb)
 endforeach()
 
 add_library(nanopb OBJECT pb_common.c pb_encode.c pb_decode.c)
+add_dependencies(nanopb npb_gen_files)
 
 set(PROTOC_GEN_NANOPB
     ${PROJECT_BIN_DIR}/protoc-gen-nanopb PARENT_SCOPE)

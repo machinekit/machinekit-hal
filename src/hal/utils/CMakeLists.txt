@@ -6,6 +6,8 @@ set(HALCMD_SRCS
     halcmd_completion.c)
 
 add_library(halcmd_rtapiapp OBJECT halcmd_rtapiapp.cc)
+target_compile_options(halcmd_rtapiapp PUBLIC -fPIC)
+add_dependencies(halcmd_rtapiapp npb_gen_files)
 
 foreach(util comp instcomp)
     set(src ${CMAKE_CURRENT_SOURCE_DIR}/${util}.g)

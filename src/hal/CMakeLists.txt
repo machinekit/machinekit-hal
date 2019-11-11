@@ -16,3 +16,7 @@ _to_rtlib(ufdemo userfunct-example/ufdemo.c)
 _to_rtlib(vtuse vtable-example/vtuse.c)
 _to_rtlib(vtexport vtable-example/vtexport.c vtable-example/vcode.c)
 _to_rtlib(watch user_icomps/watch.c)
+
+add_dependencies(jplan npb_gen_files)
+add_dependencies(sample_channel_pb npb_gen_files)
+add_dependencies(interpolate npb_gen_files)
