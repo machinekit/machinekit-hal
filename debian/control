@@ -25,6 +25,13 @@ Depends: ${misc:Depends}, ${shlibs:Depends}
 Description: Machinekit-HAL main components and libraries
  TODO
 
+Package: machinekit-hal-modules
+Architecture: any
+Multi-Arch: foreign
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: Machinekit-HAL modules
+ TODO
+
 Package: machinekit-hal-dev
 Architecture: any
 Multi-Arch: foreign

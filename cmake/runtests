@@ -13,8 +13,12 @@ sudo chown 0:0 build/lib/machinekit/rtapi_app_*
 sudo chmod 4755 build/lib/machinekit/rtapi_app_*
 
 source build/bin/set_env
-$RUN_TESTS tests/threads.0
-result=$?
+if [ "x$RUN_TESTS" != "x" ]; then
+    $RUN_TESTS tests
+    result=$?
+else
+    result=false
+fi
 
 mv build/etc/machinekit/machinekit.ini.bk build/etc/machinekit/machinekit.ini
 exit $result
