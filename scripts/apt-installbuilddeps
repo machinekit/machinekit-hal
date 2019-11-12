@@ -63,7 +63,7 @@ EOF
 method2 ()
 {
   pfx="dpkg-checkbuilddeps: Unmet build dependencies:"
-  deps=`dpkg-checkbuilddeps 2>&1 | grep "^$pfx" | \
+  deps=`dpkg-checkbuilddeps 2>&1 | sed 's/error: //' | grep "^$pfx" | \
         sed -e "s/$pfx//" -e s'/([^)]*)//g'`
   echo apt-get "$@" install $deps
   apt-get "$@" install $deps
