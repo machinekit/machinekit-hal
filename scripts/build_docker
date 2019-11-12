@@ -112,7 +112,7 @@ case $CMD in
 	    -e DH_VERBOSE=$DH_VERBOSE
 	    # Used in scripts/build_source_package
 	    -e DEBIAN_SUITE=$DEBIAN_SUITE
-	    -e MAJOR_MINOR_VERSION=$MAJOR_MINOR_VERSION
+	    -e MAJOR_MINOR_VERSION=3.0
 	    -e PKGSOURCE=$PKGSOURCE
 	    -e REPO_URL=$REPO_URL
 	    -e TRAVIS_BRANCH=$TRAVIS_BRANCH
@@ -123,8 +123,13 @@ case $CMD in
 	)
 
 	BUILD_CL=( bash -xec "
+            export RUN_TESTS=$RUN_TESTS
+
             # configure source package
-            debian/configure ${PKG_CONFIGURE_ARGS};
+            #debian/configure ${PKG_CONFIGURE_ARGS};
+
+            # install missing deps
+            yes| sudo scripts/apt-installbuilddeps
 
             # update Changelog and build source package
             $SCRIPT_DIR/build_source_package $BUILD_SOURCE
