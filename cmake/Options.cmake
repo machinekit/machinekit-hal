@@ -12,6 +12,7 @@ option(WITH_MODBUS "Build drivers that use libmodbus" ON)
 option(WITH_LIBUSB10 "Build drivers that use libusb-1.0" ON)
 option(WITH_GTK "Enable the parts of Machinekit that depend on GTK" ON)
 option(WITH_PYTHON "Enable the parts of Machinekit that depend on Python" ON)
+option(WITH_DEV "Enable unstable development code" OFF)
 
 option(WITH_PC "Build for PC platform (default)" ON)
 option(WITH_BEAGLEBONE "Build for Beaglebone platform" OFF)
