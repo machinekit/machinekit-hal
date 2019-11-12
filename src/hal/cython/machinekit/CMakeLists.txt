@@ -1,4 +1,4 @@
-include_directories(${PYTHON_INCLUDE_DIRS})
+include_directories(${Python2_INCLUDE_DIRS})
 
 foreach(file hal rtapi compat shmcommon)
     add_custom_command(
