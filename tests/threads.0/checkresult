@@ -1,7 +1,17 @@
 #!/usr/bin/env python
-import sys
+import sys, os
 
-l = [int(line.strip()) for line in open(sys.argv[1])]
+n = sys.argv[1]
+m = os.path.dirname(n)
+m = (m if m else '.')
+
+isposix = False
+for line in open(m + "/stderr"):
+    if "posix" in line:
+        isposix = True
+        break
+
+l = [int(line.strip()) for line in open(n)]
 if len(l) != 3500:
     print "result contained %d lines, not the expected 3500 lines!" % (len(l))
     raise SystemExit, 1 # failure
@@ -22,6 +32,7 @@ for i in l:
             print "line %d: got %d, expected %d" % (lineno, i, expected)
         else:
             print "line %d: got %d, expected %d or 1" % (lineno, i, expected)
+            if isposix: open(m + '/xfail', 'a').close()
         raise SystemExit, 1 # failure
 
     expected = i + 1
@@ -31,4 +42,3 @@ if got_reset:
 
 print "no reset in %d lines!" % (lineno-1)
 raise SystemExit, 1 # failure
-
