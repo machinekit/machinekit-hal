@@ -20,7 +20,7 @@ You can run gladevcp, QtQuickVCP and the web UI remotely; for the Android QtQuic
 you will need WiFi access to the network machinekit is running on.
 
 - watch the log in a separate window:
-  tail -f /var/log/linuxcnc.log
+  tail -f /var/log/machinekit.log
 
 - execute ./rundemo
 

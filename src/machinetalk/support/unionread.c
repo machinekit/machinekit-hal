@@ -26,7 +26,7 @@
 #include <assert.h>
 #include <inttypes.h>
 
-#include <pb-linuxcnc.h>
+#include <pb-machinekit.h>
 #include <protobuf/pb_decode.h>
 #include <protobuf/pb_encode.h>
 

@@ -43,7 +43,7 @@ halcmd: call ufdemo.demo-funct foo bar baz
 <stdin>:4: function 'ufdemo.demo-funct' returned 3
 halcmd:
 
-relevant part of linuxcnc.log:
+relevant part of machinekit.log:
 
 Mar 12 21:25:28 nwheezy msgd:0: hal_lib:1768:rt RTAPI: initing module HAL_ufdemo
 Mar 12 21:25:28 nwheezy msgd:0: hal_lib:1768:rt RTAPI: module 'HAL_ufdemo' loaded, ID: 32770

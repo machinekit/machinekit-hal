@@ -1,6 +1,6 @@
 foreach(file streamer sampler)
     add_executable(hal${file} ${file}_usr.c)
-    target_link_libraries(hal${file} linuxcnchal)
+    target_link_libraries(hal${file} mkhal)
     target_compile_definitions(hal${file} PRIVATE "ULAPI")
     _install(hal${file})
 endforeach()

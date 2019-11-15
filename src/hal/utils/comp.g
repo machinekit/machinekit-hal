@@ -654,7 +654,7 @@ def build_usr(tempdir, filename, mode, origfilename):
     makefile = os.path.join(tempdir, "Makefile")
     f = open(makefile, "w")
     f.write("%s: %s\n" % (binname, filename))
-    f.write("\t$(CC) $(EXTRA_CFLAGS) -URTAPI -U__MODULE__ -DULAPI -Os %s -o $@ $< -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -llinuxcnchal %s\n" % (
+    f.write("\t$(CC) $(EXTRA_CFLAGS) -URTAPI -U__MODULE__ -DULAPI -Os %s -o $@ $< -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -lmkhal %s\n" % (
         options.get("extra_compile_args", ""),
         options.get("extra_link_args", "")))
     f.write("include %s\n" % find_modinc())

@@ -1,7 +1,7 @@
 #ifndef _PBMSGS_H
 #define _PBMSGS_H
 
-#include <pb-linuxcnc.h>
+#include <pb-machinekit.h>
 #include <protobuf/pb_decode.h>
 #include <protobuf/pb_encode.h>
 

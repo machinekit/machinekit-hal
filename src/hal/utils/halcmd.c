@@ -139,7 +139,7 @@ int halcmd_startup(int quiet, char *uri, const char *svc_uuid) {
             fprintf(stderr, "halcmd: cant connect to rtapi_app: %d (uri=%s uuid=%s): %s\n\n",
 		    retval, uri ? uri:"", svc_uuid, rtapi_rpcerror());
 
-	    char *logfile = "/var/log/linuxcnc.log";
+	    char *logfile = "/var/log/machinekit.log";
 
 	    if (pid_of("rtapi:%d", rtapi_instance) < 0)
 		fprintf(stderr, "halcmd: the rtapi:%d RT demon is not running - please investigate %s\n",

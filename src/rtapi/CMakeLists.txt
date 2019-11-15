@@ -10,24 +10,24 @@ target_compile_definitions(rtapi_compat PRIVATE
 
 add_subdirectory(rtapi_math)
 
-add_library(linuxcnculapi SHARED $<TARGET_OBJECTS:ulapi_autoload>
+add_library(mkulapi SHARED $<TARGET_OBJECTS:ulapi_autoload>
     $<TARGET_OBJECTS:rtapi_compat> $<TARGET_OBJECTS:rtapi_support>
     $<TARGET_OBJECTS:rtapi_hexdump> $<TARGET_OBJECTS:syslog_async>)
-target_link_libraries(linuxcnculapi linuxcncini linuxcncshm ${CMAKE_DL_LIBS})
-set_target_properties(linuxcnculapi PROPERTIES
+target_link_libraries(mkulapi mkini mkshm ${CMAKE_DL_LIBS})
+set_target_properties(mkulapi PROPERTIES
     COMPILE_DEFINITIONS "ULAPI"
     BUILD_WITH_INSTALL_RPATH FALSE
     INSTALL_RPATH "${_rpath}"
     INSTALL_RPATH_USE_LINK_PATH TRUE
     VERSION ${GENERIC_LIB_VERSION})
-rpath_hack(linuxcnculapi)
-_install(linuxcnculapi)
+rpath_hack(mkulapi)
+_install(mkulapi)
 
 add_executable(rtapi_kdetect rtapi_kdetect.c)
 set_target_properties(rtapi_kdetect PROPERTIES
         COMPILE_DEFINITIONS "ULAPI;TEST"
         RUNTIME_OUTPUT_DIRECTORY ${PROJECT_LIBEXEC_DIR})
-target_link_libraries(rtapi_kdetect linuxcnchal)
+target_link_libraries(rtapi_kdetect mkhal)
 _install_exec(rtapi_kdetect)
 
 add_executable(rtapi_msgd rtapi_msgd.cc $<TARGET_OBJECTS:rtapi_support>
@@ -35,14 +35,14 @@ add_executable(rtapi_msgd rtapi_msgd.cc $<TARGET_OBJECTS:rtapi_support>
 set_target_properties(rtapi_msgd PROPERTIES
     COMPILE_DEFINITIONS "ULAPI;GIT_BUILD_SHA=\"${_out}\""
     RUNTIME_OUTPUT_DIRECTORY ${PROJECT_LIBEXEC_DIR})
-target_link_libraries(rtapi_msgd mtalk machinetalk-pb2++ linuxcncini linuxcncshm)
+target_link_libraries(rtapi_msgd mtalk mktalk-pb2++ mkini mkshm)
 _install_exec(rtapi_msgd)
 
 add_executable(flavor flavor.c $<TARGET_OBJECTS:rtapi_compat>)
 set_target_properties(flavor PROPERTIES
     COMPILE_DEFINITIONS "ULAPI"
     RUNTIME_OUTPUT_DIRECTORY ${PROJECT_LIBEXEC_DIR})
-target_link_libraries(flavor linuxcncini linuxcncshm)
+target_link_libraries(flavor mkini mkshm)
 _install_exec(flavor)
 
 add_definitions(-DEMC2_SYSTEM_CONFIG_DIR=\"${EMC2_SYSTEM_CONFIG_DIR}\")
@@ -81,7 +81,7 @@ foreach(_flav ${BUILD_THREAD_FLAVORS})
             LIBRARY_OUTPUT_DIRECTORY ${PROJECT_LIBEXEC_DIR}
             LINK_FLAGS "${${_FLAV}_THREADS_LDFLAGS}"
             PREFIX "")
-    target_link_libraries(ulapi-${_fname} linuxcncshm linuxcnchal)
+    target_link_libraries(ulapi-${_fname} mkshm mkhal)
     _install_exec(ulapi-${_fname})
 
     add_library(rtapi_${_fname} SHARED ${RTAPI_SRC} ${${_FLAV}_THREADS_SOURCE})
@@ -109,8 +109,8 @@ foreach(_flav ${BUILD_THREAD_FLAVORS})
             INSTALL_RPATH_USE_LINK_PATH TRUE
             LINK_FLAGS "${${_FLAV}_THREADS_LDFLAGS}"
             RUNTIME_OUTPUT_DIRECTORY ${PROJECT_LIBEXEC_DIR})
-    target_link_libraries(rtapi_app_${_fname} linuxcncini
-        linuxcncshm mtalk rtapi_math machinetalk-pb2++ ${CMAKE_DL_LIBS})
+    target_link_libraries(rtapi_app_${_fname} mkini
+        mkshm mtalk rtapi_math mktalk-pb2++ ${CMAKE_DL_LIBS})
     rpath_hack_flavor(rtapi_app_${_fname})
     _install_exec_setuid(rtapi_app_${_fname})
 
@@ -124,6 +124,6 @@ add_custom_target(setuid
     WORKING_DIRECTORY ${PROJECT_LIBEXEC_DIR}
     VERBATIM)
 
-install(FILES rsyslogd-linuxcnc.conf
+install(FILES rsyslogd-machinekit.conf
     DESTINATION /etc/rsyslog.d
     RENAME machinekit.conf)

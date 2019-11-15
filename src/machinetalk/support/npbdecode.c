@@ -29,7 +29,7 @@
 #include <errno.h>
 #include <assert.h>
 
-#include <pb-linuxcnc.h>
+#include <pb-machinekit.h>
 #include <protobuf/pb_decode.h>
 #include <protobuf/pb_encode.h>
 

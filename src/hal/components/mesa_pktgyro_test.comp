@@ -33,7 +33,7 @@ To test this component  set DEBUG=5 before and execute this HAL script:
     addf hm2_5i25.0.pktuart.0.receive test1
     start
 
-Check linuxcnc.log for debug output.
+Check machinekit.log for debug output.
 """;
 
 

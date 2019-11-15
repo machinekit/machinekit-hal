@@ -24,7 +24,7 @@ endif()
 
 if(WITH_DEV)
     add_executable(messagebus messagebus/messagebus.cc messagebus/rtproxy.cc)
-    target_link_libraries(messagebus mtalk linuxcncini linuxcnchal 
+    target_link_libraries(messagebus mtalk mkini mkhal 
                             linuxcnc-pb2++ linuxcnc-npb)
     target_compile_definitions(messagebus PRIVATE ULAPI)
 endif()

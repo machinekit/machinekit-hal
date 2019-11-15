@@ -20,7 +20,7 @@ set(MK_PROTO_SRC
     types
     value)
 
-set(NPB_DEFINITIONS PB_FIELD_32BIT PB_SYSTEM_HEADER=<pb-linuxcnc.h>)
+set(NPB_DEFINITIONS PB_FIELD_32BIT PB_SYSTEM_HEADER=<pb-machinekit.h>)
 
 set(PB_PROTO_PATHS --proto_path=${Protobuf_INCLUDE_DIR} --proto_path=src/machinetalk)
 
@@ -89,11 +89,11 @@ endforeach()
 
 add_custom_target(npb_gen_files DEPENDS ${NPB_GEN})
 
-add_library(machinetalk-pb2++ SHARED ${PB_GEN})
-set_target_properties(machinetalk-pb2++ PROPERTIES COMPILE_FLAGS "${PROTOBUF_CFLAGS}")
-target_link_libraries(machinetalk-pb2++ ${PROTOBUF_LIBRARIES})
-set_target_properties(machinetalk-pb2++ PROPERTIES VERSION ${GENERIC_LIB_VERSION})
-_install(machinetalk-pb2++)
+add_library(mktalk-pb2++ SHARED ${PB_GEN})
+set_target_properties(mktalk-pb2++ PROPERTIES COMPILE_FLAGS "${PROTOBUF_CFLAGS}")
+target_link_libraries(mktalk-pb2++ ${PROTOBUF_LIBRARIES})
+set_target_properties(mktalk-pb2++ PROPERTIES VERSION ${GENERIC_LIB_VERSION})
+_install(mktalk-pb2++)
 
 foreach(file ${MK_PROTO_SRC})
     if(NOT ${file} STREQUAL "nanopb")
@@ -105,10 +105,10 @@ add_library(npb-obj OBJECT ${NPB_SRC})
 set_target_properties(npb-obj PROPERTIES COMPILE_DEFINITIONS "${NPB_DEFINITIONS}")
 add_dependencies(npb-obj nanopb.npb.h)
 
-add_library(machinetalk-npb SHARED $<TARGET_OBJECTS:nanopb> $<TARGET_OBJECTS:npb-obj>
+add_library(mktalk-npb SHARED $<TARGET_OBJECTS:nanopb> $<TARGET_OBJECTS:npb-obj>
     ${PB_GEN_DIR}/protobuf/nanopb.npb.c)
-set_target_properties(machinetalk-npb PROPERTIES COMPILE_DEFINITIONS "${NPB_DEFINITIONS}")
-set_target_properties(machinetalk-npb PROPERTIES VERSION ${GENERIC_LIB_VERSION})
-_install(machinetalk-npb)
+set_target_properties(mktalk-npb PROPERTIES COMPILE_DEFINITIONS "${NPB_DEFINITIONS}")
+set_target_properties(mktalk-npb PROPERTIES VERSION ${GENERIC_LIB_VERSION})
+_install(mktalk-npb)
 
-add_dependencies(machinetalk-pb2++ machinetalk-npb)
+add_dependencies(mktalk-pb2++ mktalk-npb)

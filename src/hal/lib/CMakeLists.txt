@@ -20,16 +20,16 @@ set(HALLIBSRCS
     hal_accessor.c
     hal_iring.c)
 
-add_library(linuxcnchal SHARED ${HALLIBSRCS} halpb.cc
+add_library(mkhal SHARED ${HALLIBSRCS} halpb.cc
     $<TARGET_OBJECTS:inifile> $<TARGET_OBJECTS:shmdrvapi>
     $<TARGET_OBJECTS:ulapi_autoload> $<TARGET_OBJECTS:rtapi_compat>
     $<TARGET_OBJECTS:rtapi_support> $<TARGET_OBJECTS:rtapi_heap>
     $<TARGET_OBJECTS:rtapi_hexdump> $<TARGET_OBJECTS:syslog_async>)
-target_link_libraries(linuxcnchal machinetalk-pb2++ ${CMAKE_DL_LIBS} rt)
-set_target_properties(linuxcnchal PROPERTIES
+target_link_libraries(mkhal mktalk-pb2++ ${CMAKE_DL_LIBS} rt)
+set_target_properties(mkhal PROPERTIES
     COMPILE_DEFINITIONS "ULAPI;THREAD_FLAVOR_ID=0"
     VERSION ${GENERIC_LIB_VERSION})
-_install(linuxcnchal)
+_install(mkhal)
 
 add_custom_command(OUTPUT ${PROJECT_PYTHON_DIR}/hal/__init__.py
     COMMAND ${CMAKE_COMMAND} -E make_directory ${PROJECT_PYTHON_DIR}/hal
@@ -46,7 +46,7 @@ set_target_properties(_hal PROPERTIES
     COMPILE_DEFINITIONS "ULAPI"
     LIBRARY_OUTPUT_DIRECTORY ${PROJECT_PYTHON_DIR}/hal
     PREFIX "")
-target_link_libraries(_hal linuxcnchal ${PYTHON_LIBRARIES})
+target_link_libraries(_hal mkhal ${PYTHON_LIBRARIES})
 add_dependencies(_hal halpy)
 
 foreach(_flav ${BUILD_THREAD_FLAVORS})

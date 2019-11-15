@@ -28,7 +28,7 @@ Demo: messaging between RT components:
 --------------------------------------
  $ halrun -I ring-demo.hal
 
-and watch /var/log/linuxcnc.log
+and watch /var/log/machinekit.log
 
 
 Demo: sending messages from a Python program to an RT component:
@@ -36,7 +36,7 @@ Demo: sending messages from a Python program to an RT component:
  $ halrun -I recordread.hal
  $ python ringwrite.py  # second window
 
-and watch /var/log/linuxcnc.log
+and watch /var/log/machinekit.log
 
 Other demos - see various .py files.
 

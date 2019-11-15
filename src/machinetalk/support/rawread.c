@@ -25,7 +25,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include <pb-linuxcnc.h>
+#include <pb-machinekit.h>
 #include <protobuf/nanopb/pb_decode.h>
 #include <protobuf/nanopb/pb_encode.h>
 

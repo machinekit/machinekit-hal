@@ -22,7 +22,7 @@ foreach(util comp instcomp)
 endforeach()
 
 add_executable(halcmd ${HALCMD_SRCS})
-target_link_libraries(halcmd linuxcncini linuxcnchal machinetalk-pb2++
+target_link_libraries(halcmd mkini mkhal mktalk-pb2++
     mtalk rtapi_math readline)
 target_compile_definitions(halcmd PRIVATE ULAPI)
 _install(halcmd)
@@ -35,7 +35,7 @@ set_target_properties(tk_hal PROPERTIES
     PREFIX "")
 set_property(TARGET tk_hal APPEND
     PROPERTY INCLUDE_DIRECTORIES "${TCL_INCLUDE_PATH}")
-target_link_libraries(tk_hal linuxcnchal mtalk machinetalk-pb2++)
+target_link_libraries(tk_hal mkhal mtalk mktalk-pb2++)
 install(TARGETS tk_hal LIBRARY DESTINATION lib/tcltk/machinekit)
 
 if(WITH_GTK)
@@ -43,7 +43,7 @@ if(WITH_GTK)
     set_target_properties(halmeter PROPERTIES COMPILE_DEFINITIONS "ULAPI")
     set_property(TARGET halmeter APPEND PROPERTY
         INCLUDE_DIRECTORIES "${GTK2_INCLUDE_DIRS}")
-    target_link_libraries(halmeter linuxcnchal ${GTK2_LIBRARIES})
+    target_link_libraries(halmeter mkhal ${GTK2_LIBRARIES})
     _install(halmeter)
 
     set(HALSCOPE_SRCS
@@ -59,7 +59,7 @@ if(WITH_GTK)
     set_target_properties(halscope PROPERTIES COMPILE_DEFINITIONS "ULAPI")
     set_property(TARGET halscope APPEND PROPERTY
         INCLUDE_DIRECTORIES "${GTK2_INCLUDE_DIRS}")
-    target_link_libraries(halscope linuxcnchal rtapi_math ${GTK2_LIBRARIES})
+    target_link_libraries(halscope mkhal rtapi_math ${GTK2_LIBRARIES})
     _install(halscope)
 endif()
 

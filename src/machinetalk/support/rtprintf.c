@@ -18,7 +18,7 @@
 #include <errno.h>
 #include <stdarg.h>
 
-#include <pb-linuxcnc.h>
+#include <pb-machinekit.h>
 #include <protobuf/pb_encode.h>
 
 #include <protobuf/types.npb.h>

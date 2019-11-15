@@ -16,7 +16,7 @@
 #include <hal_priv.h>
 #include <hal_ring.h>
 
-#include <pb-linuxcnc.h>
+#include <pb-machinekit.h>
 #include <protobuf/pb_decode.h>
 #include <protobuf/pb_encode.h>
 #include <container.h>

@@ -46,7 +46,7 @@ set(files
     rtapi/rtapi_compat.h
     rtapi/triple-buffer.h
     rtapi/xenomai.h
-    machinetalk/include/pb-linuxcnc.h
+    machinetalk/include/pb-machinekit.h
     machinetalk/include/syslog_async.h
     machinetalk/include/czmq-watch.h
     machinetalk/include/inihelp.hh
