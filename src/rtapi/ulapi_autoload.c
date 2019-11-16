@@ -168,6 +168,7 @@ static int ulapi_load(rtapi_switch_t **ulapi_switch)
     const char *errmsg;
     rtapi_get_handle_t rtapi_get_handle;
     char ulapi_lib_fname[PATH_MAX];
+    char buf[PATH_MAX];
     char *instance = getenv("MK_INSTANCE");
     char *debug_env = getenv("ULAPI_DEBUG");
     int size = 0;
@@ -256,8 +257,10 @@ static int ulapi_load(rtapi_switch_t **ulapi_switch)
 	return -EINVAL;
     }
 
+    get_rtapi_config(buf,"RTLIB_DIR",PATH_MAX);
+
     snprintf(ulapi_lib_fname,PATH_MAX,"%s/%s-%s%s",
-	     EMC2_RTLIB_DIR, ulapi_lib, flavor->name, flavor->so_ext);
+             buf, ulapi_lib, flavor->name, flavor->so_ext);
 
     // dynload the proper ulapi.so:
     if ((ulapi_so = dlopen(ulapi_lib_fname, RTLD_GLOBAL|RTLD_NOW))  == NULL) {
