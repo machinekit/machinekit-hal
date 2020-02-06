@@ -251,7 +251,7 @@ Implicit tests for zero should not be used except for boolean variables.
 Only loop control statements must be included in a for() construct.
  e.g. sum = 0;
       for (i = 0; i < 10; i++) {
-	  sum += value[i];
+	      sum += value[i];
       }
 
 NOT
@@ -265,8 +265,8 @@ boolean variables instead.
 
 The form while(true) should be used for infinite loops.
  e.g. while (true) {
-	  ...;
-      }
+	      ...;
+	  }
 
 NOT
 
