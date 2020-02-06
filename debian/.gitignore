@@ -4,6 +4,7 @@
 /files
 /configure.cmdline
 /machinekit*.install
+/machinekit*.postinst
 /changelog
 
 # directory artifacts
