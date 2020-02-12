@@ -1,0 +1,26 @@
+#!/bin/bash
+#
+# Pre-commit hook to apply clang-format to modified C/C++ source files.
+# Outputs a temporary file (/.clang-format-list) for use by a `prepare-commit-msg`
+# hook to include a list of reformatted files below main commit message
+declare -a FILES
+# Fetch files from Git and remove those flagged as deleted. Output only the file names
+CHANGED_FILES=$(git diff --cached --name-status --no-renames --word-diff=porcelain -- *.{c,h,cc,hh} | awk -F$'\t' '$1 != "D" { print $2 }')
+
+# Modify the field separator so that output of above isn't broken by filenames with spaces
+OLD_IFS=$IFS
+IFS=$'\t'
+for file in $CHANGED_FILES; do
+    # git diff add's quotes that cause issues when passing names to commands, so here we remove them
+    FILES+=(${file//\"/})
+done
+IFS=$OLD_IFS
+
+
+# Run action for each file, have to do this to prevent unusual file-names from causing issues
+IFS=$'\t\n'
+for file in $FILES; do
+    clang-format --style=file -i "${file}"
+    git add "${file}"
+    echo "${file}" >> .changed
+done
