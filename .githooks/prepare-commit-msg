@@ -1,0 +1,8 @@
+#!/bin/bash
+if [ -s .changed ]; then
+    GIT_COMMIT_FORMATTED_FILES=`cat .changed`
+    tee -a "./${1}" << EOM
+The following files were formatted by clang-format:
+${GIT_COMMIT_FORMATTED_FILES}
+EOM
+fi
