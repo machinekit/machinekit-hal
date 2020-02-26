@@ -96,9 +96,6 @@ static int update_joint(struct joint *joint,
     } else {
         /* planner disabled, request zero velocity */
         vel_req = 0.0;
-        /* and set command to present position to avoid movement when
-           next enabled */
-        *(joint->pos_cmd) = *(joint->curr_pos);
     }
     /* limit velocity request */
     if (vel_req > max_vel) {
