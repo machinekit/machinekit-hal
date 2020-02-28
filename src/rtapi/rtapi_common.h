@@ -2,29 +2,27 @@
 #define RTAPI_COMMON_H
 
 /** RTAPI is a library providing a uniform API for several real time
-  operating systems.  As of ver 2.0, RTLinux and RTAI are supported.
+  operating systems.
 */
 /********************************************************************
 * Description:  rtapi_common.h
-*               This file, 'rtapi_common.h', contains typedefs and 
-*               other items common to both the realtime and 
+*               This file, 'rtapi_common.h', contains typedefs and
+*               other items common to both the realtime and
 *               non-realtime portions of the implementation.
 *
 * Author: John Kasunich, Paul Corner
 * License: LGPL Version 2
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change: 
+* Last change:
 ********************************************************************/
 
 /** This file, 'rtapi_common.h', contains typedefs and other items
     common to both the realtime and non-realtime portions of the
-    implementation.  These items are also common to both the RTAI
-    and RTLinux implementations, and most likely to any other
-    implementations in the Linux environment.  This data is INTERNAL
-    to the RTAPI implementation, and should not be included in any
-    application modules.
+    implementation.  This data is INTERNAL to the RTAPI
+    implementation, and should not be included in any application
+    modules.
 */
 
 /** Copyright (C) 2003 John Kasunich
@@ -65,6 +63,8 @@
 
 /* Keep the includes here - It might get messy.. */
 
+#include "rtapi.h"
+
 #ifdef RTAPI
 #include <linux/sched.h>	/* for blocking when needed */
 #else
@@ -73,32 +73,18 @@
 
 #include "rtapi_bitops.h"	/* test_bit() et al. */
 
-#if defined(BUILD_SYS_USER_DSO)
-#include <sys/ipc.h>		/* IPC_* */
-#include <sys/shm.h>
-#include <sys/types.h>  
-#endif
-
-#if defined(BUILD_SYS_USER_DSO)
 #include <sys/ipc.h>		/* IPC_* */
 #include <sys/shm.h>
 #include <sys/types.h>
-#endif
 
 #ifndef NULL
 #define NULL 0
 #endif
 
 
-#include THREADS_HEADERS	/* thread-specific headers */
-
-
-/* module information */
-#ifdef MODULE
-MODULE_AUTHOR("John Kasunich, Fred Proctor, & Paul Corner");
-MODULE_DESCRIPTION("Portable Real Time API");
-MODULE_LICENSE("GPL");
-#endif
+// The same in both Xenomai and RT_PREEMPT
+#define PRIO_LOWEST 0
+#define PRIO_HIGHEST 99
 
 // RTAPI_MAX_* moved to config.h
 
@@ -111,12 +97,11 @@ MODULE_LICENSE("GPL");
 
 #define MIN_STACKSIZE		32768
 
-/* This file contains data structures that live in shared memory and
-   are accessed by multiple different programs, both user processes
-   and kernel modules.  If the structure layouts used by various
-   programs don't match, that's bad.  So we have revision checking.
-   Whenever a module or program is loaded, thread_flavor_id and
-   serial is checked against the code in the shared memory area.  If
+/* This file contains data structures that live in shared memory and are
+   accessed by multiple different programs, both user processes and kernel
+   modules.  If the structure layouts used by various programs don't match,
+   that's bad.  So we have revision checking.  Whenever a module or program is
+   loaded and serial is checked against the code in the shared memory area.  If
    they don't match, the rtapi_init() call will fail.
   */
 
@@ -195,7 +180,6 @@ typedef struct {
 typedef struct {
     int magic;			/* magic number to validate data */
     int serial;			/* revision code for matching */
-    int thread_flavor_id;	/* unique ID for each thread style: rtapi.h */
     unsigned long mutex;	/* mutex against simultaneous access */
     unsigned long ring_mutex;	/* layering RTAPI functions requires per-layer locks */
     int rt_module_count;	/* loaded RT modules */
@@ -209,54 +193,32 @@ typedef struct {
     task_data task_array[RTAPI_MAX_TASKS + 1];	/* data for tasks */
     shmem_data shmem_array[RTAPI_MAX_SHMEMS + 1];	/* data for shared
 							   memory */
-#ifdef THREAD_RTAPI_DATA
-    THREAD_RTAPI_DATA;		/* RTAPI data defined in thread system */
-#endif
 } rtapi_data_t;
 
 
 /* rtapi_common.c */
 extern rtapi_data_t *rtapi_data;
 
-#if defined(RTAPI) || defined(MODULE)
+#if defined(RTAPI)
 extern void init_rtapi_data(rtapi_data_t * data);
-extern void init_global_data(global_data_t * data, 
-			     int instance_id, int hal_size, 
+extern void init_global_data(global_data_t * data,
+			     int instance_id, int hal_size,
 			     int rtlevel, int userlevel, const char *name);
 #endif
 
-#if defined(RTAPI) && defined(BUILD_SYS_USER_DSO)
+#if defined(RTAPI)
 extern int  _next_handle(void);
 #endif
 
 // set first thing in rtapi_app_main
-extern int shmdrv_loaded;
 extern long page_size;  // for munmap
 
 /* rtapi_task.c */
 extern task_data *task_array;
 
 
-/* $(THREADS).c */
-/* RT_TASK is actually flavor-specific.  It ought to be hookified, but
-   it isn't because the two kthreads flavors both use the same same
-   for this data type (perhaps because they share history and the
-   ipipe patch)
- */
-#if defined(MODULE)
-extern RT_TASK *ostask_array[];
-#endif
-
 /* rtapi_time.c */
-#ifdef BUILD_SYS_USER_DSO
 extern int period;
-#else /* BUILD_SYS_KBUILD */
-extern long int max_delay;
-extern unsigned long timer_counts;
-#endif
-#ifdef HAVE_RTAPI_MODULE_TIMER_STOP
-void _rtapi_module_timer_stop(void);
-#endif
 
 
 /* rtapi_shmem.c */
@@ -267,9 +229,7 @@ extern shmem_data *shmem_array;
 extern void *shmem_addr_array[];
 
 /* rtapi_module.c */
-#ifndef BUILD_SYS_USER_DSO
 extern int _init_master_shared_memory(rtapi_data_t **rtapi_data);
-#endif
 extern module_data *module_array;
 
 #endif /* RTAPI_COMMON_H */

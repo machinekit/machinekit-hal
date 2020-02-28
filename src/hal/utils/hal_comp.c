@@ -71,7 +71,7 @@ hal_comp_t *halg_xinitfv(const int use_hal_mutex,
 
     // sanity: these must have been inited before by the
     // respective rtapi.so/.ko module
-    PCHECK_NULL(rtapi_switch);
+    HAL_ASSERT(flavor_is_configured());
 
     if ((dtor != NULL) && (ctor == NULL)) {
 	HALFAIL_NULL(EINVAL,"component '%s': NULL constructor doesnt make"
@@ -152,12 +152,6 @@ hal_comp_t *halg_xinitfv(const int use_hal_mutex,
 		lib_module_id = -1;
 		HALFAIL_NULL(retval,
 			     "could not init HAL shared memory rc=%d", retval);
-	    }
-	    retval = hal_proc_init();
-	    if (retval) {
-		rtapi_exit(lib_module_id);
-		lib_module_id = -1;
-		HALFAIL_NULL(retval, "could not init /proc files");
 	    }
 #endif
 	    // record hal_lib comp_id

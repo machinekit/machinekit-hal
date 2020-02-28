@@ -23,9 +23,6 @@
 
 #include "chip/libsoc_mmap_gpio.h"
 
-#if !defined(BUILD_SYS_USER_DSO)
-#error "This driver is for usermode threads only"
-#endif
 #if !defined(TARGET_PLATFORM_CHIP)
 #error "This driver is for the BeagleBone platform only"
 #endif

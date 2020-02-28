@@ -4,18 +4,8 @@ INCLUDES += $(VTABLEEXAMPLE_DIR)
 ../include/%.h: ./$(VTABLEEXAMPLE_DIR)/%.h
 	cp $^ $@
 
-obj-m += vtexport.o
-vtexport-objs := \
-	$(VTABLEEXAMPLE_DIR)/vtexport.o \
-	$(VTABLEEXAMPLE_DIR)/vcode.o
+$(eval $(call c_comp_build_rules, \
+	hal/vtable-example/vtexport.o, \
+        hal/vtable-example/vcode.o))
 
-obj-m += vtuse.o
-vtuse-objs := \
-	$(VTABLEEXAMPLE_DIR)/vtuse.o \
-
-ifneq "$(filter normal user-dso,$(BUILD_SYS))" ""
-$(RTLIBDIR)/vtexport$(MODULE_EXT): \
-	$(addprefix $(OBJDIR)/,$(vtexport-objs))
-$(RTLIBDIR)/vtuse$(MODULE_EXT): \
-	$(addprefix $(OBJDIR)/,$(vtuse-objs))
-endif
+$(eval $(call c_comp_build_rules,$(VTABLEEXAMPLE_DIR)/vtuse.o))

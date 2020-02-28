@@ -6,7 +6,7 @@
 * Author:
 * License: LGPL Version 2
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 ********************************************************************/
 /*
@@ -18,10 +18,6 @@
 */
 
 #include "config.h"
-
-#if defined(RTAPI) && !defined(BUILD_SYS_USER_DSO)
-#undef HAVE_SINCOS
-#endif
 
 #ifndef HAVE_SINCOS
 

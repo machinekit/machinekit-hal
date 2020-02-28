@@ -62,7 +62,7 @@ license "GPL";
 // in a non-thread function to wiggle and read pins
 static struct __comp_state *this;
 
-static int rtmon_exception_handler(rtapi_exception_t type,
+static int rtmon_exception_handler(int type,
 				   rtapi_exception_detail_t *detail,
 				   rtapi_threadstatus_t *threadstatus)
 

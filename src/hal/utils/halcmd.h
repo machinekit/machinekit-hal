@@ -95,6 +95,4 @@ extern FILE *halcmd_inifile;
 #define MAX_CMD_LEN 1024
 #define MAX_EXPECTED_SIGS 999
 
-extern flavor_ptr current_flavor; // reference to current flavor descriptor
-
 #endif

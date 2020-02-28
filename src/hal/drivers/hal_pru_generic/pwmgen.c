@@ -58,10 +58,6 @@
 #error "This driver is for the beaglebone platform only"
 #endif
 
-#if !defined(BUILD_SYS_USER_DSO)
-#error "This driver is for usermode threads only"
-#endif
-
 #include "rtapi.h"
 #include "rtapi_app.h"
 #include "rtapi_string.h"
@@ -170,7 +166,7 @@ rtapi_print_msg(RTAPI_MSG_DBG, "hpg_pwm_init\n");
 
         pru_task_add(hpg, &(hpg->pwmgen.instance[i].task));
 
-        if ((r = export_pwmgen(hpg,i)) != 0){ 
+        if ((r = export_pwmgen(hpg,i)) != 0){
             HPG_ERR("ERROR: failed to export pwmgen %i: %i\n",i,r);
             return -1;
         }

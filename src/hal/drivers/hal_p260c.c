@@ -26,10 +26,6 @@
 #include <errno.h>
 #include <linux/serial.h>
 
-#if !defined(BUILD_SYS_USER_DSO) 
-#error "This driver is for usermode threads only"
-#endif
-
 #define MODNAME "hal_p260c"
 
 /* module information */
@@ -94,7 +90,7 @@ static char *tty_debug;
 RTAPI_MP_STRING( tty_debug, "Serial port name, /dev/ttyUSB1");
 #endif
 
-static int comp_id; 
+static int comp_id;
 
 unsigned long runtime;
 unsigned long threadtime;
@@ -106,7 +102,7 @@ typedef struct _mod_status {
 	hal_s32_t *maxwritetime;
 
 	hal_s32_t *writecnt;                  // s32 count of write calls
-	
+
 	hal_bit_t *comm_error;               // Currently some board has a communication error
 	hal_bit_t *permanent_error;          // Permanent error triggered by comm_error ( Must be reset )
 	hal_bit_t *reset_permanent;          // Input bit to reset permanent error
@@ -150,7 +146,7 @@ void write_gpio( int gpio, int on ) {}
 void configure_output( int gpio ) {}
 #endif
 
-int rtapi_app_main(void) 
+int rtapi_app_main(void)
 {
 	int   i, j, retval;
 	char *data, *token;
@@ -158,7 +154,7 @@ int rtapi_app_main(void)
 
 
 	comp_id = hal_init(modname);
-	if(comp_id < 0) 
+	if(comp_id < 0)
 	{
 		rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: hal_init() failed\n", modname);
 		return -1;
@@ -187,7 +183,7 @@ int rtapi_app_main(void)
 	if ( addrs != NULL )
 	{
 		data = addrs;
-		while((token = strtok(data, ",")) != NULL) 
+		while((token = strtok(data, ",")) != NULL)
 		{
 			int add = strtol(token, NULL, 16);
 
@@ -244,7 +240,7 @@ int rtapi_app_main(void)
 		for (j=0;j<INPUT_PINS;j++)
 		{
 			retval = hal_pin_bit_newf(HAL_OUT, &(boards[i].input_pins[j]), comp_id, "%s.%d.pin-%02d-in", modname, add, j+1);
-			if(retval < 0) 
+			if(retval < 0)
 			{
 				rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: pin %d.%02d could not export pin, err: %d\n", modname, add, j+1, retval);
 				hal_exit(comp_id);
@@ -255,7 +251,7 @@ int rtapi_app_main(void)
 		for (j=0;j<OUTPUT_PINS;j++)
 		{
 			retval = hal_pin_bit_newf(HAL_IN, &(boards[i].output_pins[j]), comp_id, "%s.%d.pin-%02d-out", modname, add, j+1);
-			if(retval < 0) 
+			if(retval < 0)
 			{
 				rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: pin %d.%02d could not export pin, err: %d\n", modname, add, j+1, retval);
 				hal_exit(comp_id);
@@ -265,21 +261,21 @@ int rtapi_app_main(void)
 		}
 
 		retval = hal_pin_s32_newf(HAL_IN, &(boards[i].invalidcnt), comp_id, "%s.%d.rx_cnt_error", modname, add );
-		if(retval < 0) 
+		if(retval < 0)
 		{
 			rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: pin %d.serial_invalidcnt could not export pin, err: %d\n", modname, add, retval);
 			hal_exit(comp_id);
 			return -1;
 		}
 		retval = hal_pin_bit_newf(HAL_OUT, &(boards[i].comm_error), comp_id, "%s.%d.rx_comm_error", modname, add );
-		if(retval < 0) 
+		if(retval < 0)
 		{
 			rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: pin %d.comm_error could not export pin, err: %d\n", modname, add, retval);
 			hal_exit(comp_id);
 			return -1;
 		}
 		retval = hal_pin_bit_newf(HAL_OUT, &(boards[i].permanent_error), comp_id, "%s.%d.rx_perm_error", modname, add );
-		if(retval < 0) 
+		if(retval < 0)
 		{
 			rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: pin %d.permanent_error could not export pin, err: %d\n", modname, add, retval);
 			hal_exit(comp_id);
@@ -298,45 +294,45 @@ int rtapi_app_main(void)
 		hal_pin_s32_newf(HAL_IN, &(boards[i].read2), comp_id, "%s.%d.serial_read2", modname, add );
 		hal_pin_s32_newf(HAL_IN, &(boards[i].read3), comp_id, "%s.%d.serial_read3", modname, add );
 		hal_pin_s32_newf(HAL_IN, &(boards[i].maxreadtime), comp_id, "%s.%d.serial_maxreadtime", modname, add );
-#endif                                       
+#endif
 	}
 	retval = hal_pin_s32_newf(HAL_IN, &(mstat->maxreadtime), comp_id, "%s.sys_max_read", modname );
-	if(retval < 0) 
+	if(retval < 0)
 	{
 		rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: pin maxreadtime could not export pin, err: %d\n", modname, retval);
 		hal_exit(comp_id);
 		return -1;
 	}
 	retval = hal_pin_s32_newf(HAL_IN, &(mstat->maxwritetime), comp_id, "%s.sys_max_write", modname );
-	if(retval < 0) 
+	if(retval < 0)
 	{
 		rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: pin maxwritetime could not export pin, err: %d\n", modname, retval);
 		hal_exit(comp_id);
 		return -1;
 	}
 	retval = hal_pin_s32_newf(HAL_IN, &(mstat->writecnt), comp_id, "%s.sys_writecnt", modname );
-	if(retval < 0) 
+	if(retval < 0)
 	{
 		rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: pin writecnt could not export pin, err: %d\n", modname, retval);
 		hal_exit(comp_id);
 		return -1;
 	}
 	retval = hal_pin_bit_newf(HAL_OUT, &(mstat->comm_error), comp_id, "%s.rx_comm_error", modname );
-	if(retval < 0) 
+	if(retval < 0)
 	{
 		rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: pin comm_error could not export pin, err: %d\n", modname, retval);
 		hal_exit(comp_id);
 		return -1;
 	}
 	retval = hal_pin_bit_newf(HAL_OUT, &(mstat->permanent_error), comp_id, "%s.rx_perm_error", modname );
-	if(retval < 0) 
+	if(retval < 0)
 	{
 		rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: pin permanent_error could not export pin, err: %d\n", modname, retval);
 		hal_exit(comp_id);
 		return -1;
 	}
 	retval = hal_pin_bit_newf(HAL_IN, &(mstat->reset_permanent), comp_id, "%s.rx_reset_error", modname );
-	if(retval < 0) 
+	if(retval < 0)
 	{
 		rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: pin reset_permanent could not export pin, err: %d\n", modname, retval);
 		hal_exit(comp_id);
@@ -345,35 +341,35 @@ int rtapi_app_main(void)
 
 	// Parameters
 	retval = hal_param_s32_newf(HAL_RW, &(mstat->clear_comm_count), comp_id, "%s.clear_comm_count", modname );
-	if(retval < 0) 
+	if(retval < 0)
 	{
 		rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: param clear_comm_count could not create, err: %d\n", modname, retval);
 		hal_exit(comp_id);
 		return -1;
 	}
 	retval = hal_param_s32_newf(HAL_RW, &(mstat->set_perm_count), comp_id, "%s.set_perm_count", modname );
-	if(retval < 0) 
+	if(retval < 0)
 	{
 		rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: param set_perm_count could not create, err: %d\n", modname, retval);
 		hal_exit(comp_id);
 		return -1;
 	}
 	retval = hal_param_s32_newf(HAL_RW, &(mstat->min_tx_boards), comp_id, "%s.minimum_tx", modname );
-	if(retval < 0) 
+	if(retval < 0)
 	{
 		rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: param minimum_tx could not create, err: %d\n", modname, retval);
 		hal_exit(comp_id);
 		return -1;
 	}
 	retval = hal_param_s32_newf(HAL_RW, &(mstat->max_rx_wait), comp_id, "%s.max_rx_wait", modname );
-	if(retval < 0) 
+	if(retval < 0)
 	{
 		rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: param minimum_tx could not create, err: %d\n", modname, retval);
 		hal_exit(comp_id);
 		return -1;
 	}
 	retval = hal_param_bit_newf(HAL_RW, &(mstat->debug_on_error), comp_id, "%s.debug_on_error", modname );
-	if(retval < 0) 
+	if(retval < 0)
 	{
 		rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: param debug_on_error could not create, err: %d\n", modname, retval);
 		hal_exit(comp_id);
@@ -438,7 +434,7 @@ static int openserial(char *devicename, int baud)
     options = oldterminfo;
 	rtapi_print_msg(RTAPI_MSG_INFO, "termios\niflag = %08X\noflag = %08X\ncflag = %08X\nlflag = %08X\n",
 		options.c_iflag, options.c_oflag, options.c_cflag, options.c_lflag );
-	
+
 	// Ignore input break
 	// Check parity
 	options.c_iflag = IGNBRK;
@@ -649,7 +645,7 @@ static u8 validate_input_buffer( u8 *input_data, u16 *bits )
 //
 // Count RX valids.
 //   gets called once per cycle for each board.
-// 
+//
 static int read_counts( int board )
 {
 	int ret = 0;
@@ -806,7 +802,7 @@ static void read_all_data()
 
 			// reset timeout
 			t0 = rtapi_get_time();
-			
+
 			// Check max time between reads
 			if ( last_readtime && *(mstat->maxreadtime) < (t0-last_readtime) )
 			{
@@ -1015,4 +1011,3 @@ static void serial_port_task( void *arg, long period )
 	runtime = t1 - t0;
 
 }
-

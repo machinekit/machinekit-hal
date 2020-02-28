@@ -2,6 +2,7 @@
 #define HAL_LOGGING_H
 
 #include <rtapi.h>
+#include <string.h>
 RTAPI_BEGIN_DECLS
 
 void hal_print_loc(const int level,

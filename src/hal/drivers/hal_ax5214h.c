@@ -1,37 +1,37 @@
 /********************************************************************
 * Description:  AX5214H.c
-*               This file, 'AX5214H.c', is a HAL component that 
-*               provides a driver for the Axiom Measurement & Control 
+*               This file, 'AX5214H.c', is a HAL component that
+*               provides a driver for the Axiom Measurement & Control
 *               AX5241H 48 channel digital I/O board.
 *
 * Author: John Kasunich
 * License: GPL Version 2
-*    
+*
 * Copyright (c) 2005 All rights reserved.
 *
-* Last change: 
+* Last change:
 ********************************************************************/
 /** This file, 'AX5214H.c', is a HAL component that provides a
     driver for the Axiom Measurement & Control AX5241H 48 channel
     digital I/O board.
 
-    The configuration is determined by a config string passed to 
+    The configuration is determined by a config string passed to
     insmod when loading the module.  The format consists of a base
     address, followed by a eight character string that sets the
-    direction of each group of pins, repeated for each card (if 
+    direction of each group of pins, repeated for each card (if
     more than one card is used).   Each character of the direction
     string is either "I" or "O".  The first character sets the
-    direction of port A on channel 1 (Port 1A), the next sets 
+    direction of port A on channel 1 (Port 1A), the next sets
     port B on channel 1 (port 1B), the next sets the low nibble
-    of port C on channel 1 (port 1CL), and the fourth sets the 
+    of port C on channel 1 (port 1CL), and the fourth sets the
     high nibble of port C on channel 1 (port 1CH).  The next four
-    characters do the same thing for channel 2 (ports 2A, 2B, 
+    characters do the same thing for channel 2 (ports 2A, 2B,
     2CL, and 2CH).
 
     example:    insmod AX5214.o cfg="0x220 IIIOIIOO"
-    
-    The example above is for one card, with its base address 
-    set to hex 220, and with 36 channels of input (Ports 1A, 
+
+    The example above is for one card, with its base address
+    set to hex 220, and with 36 channels of input (Ports 1A,
     1B, 1CL, 2A, and 2B) and 12 channels of output (Ports 1CH,
     2CL, and 2CH).
 
@@ -44,16 +44,16 @@
     'ax5214.<boardnum>.in-<pinnum>' and
     'ax5214.<boardnum>.in-<pinnum>-not'.
 
-    <boardnum> is the board number, starting from zero.  
+    <boardnum> is the board number, starting from zero.
     <pinnum> is the pin number, from 0 to 47.
-    
+
     Note that the driver assumes active LOW signals.  This
     is so that modules such as OPTO-22 will work correctly
-    (TRUE means output ON, or input energized).  If the 
+    (TRUE means output ON, or input energized).  If the
     signals are being used directly without buffering or
     isolation the inversion needs to be accounted for.
 
-    The driver exports two HAL functions for each board, 
+    The driver exports two HAL functions for each board,
     'ax5214.<boardnum>.read' and 'ax5214.<boardnum>.write'.
 
 */
@@ -93,11 +93,7 @@
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */
 
-#ifdef BUILD_SYS_USER_DSO
-#include <sys/io.h> 
-#else
-#include <asm/io.h>
-#endif
+#include <sys/io.h>
 
 /* module information */
 MODULE_AUTHOR("John Kasunich");
@@ -263,7 +259,7 @@ void rtapi_app_exit(void)
 {
     int n;
     board_t *board;
-    
+
     for ( n = 0 ; n < num_boards ; n++ ) {
 	board = &(board_array[n]);
 	/* reset all outputs to high/off */
@@ -305,13 +301,13 @@ static void split_input(unsigned char data, io_pin_t *dest, int num)
 	mask <<= 1;
 	dest++;
     }
-}    
+}
 
 static void read_board(void *arg, long period)
 {
     board_t *board;
     unsigned char indata;
-    
+
     board = arg;
     if ( (board->dir_bits & 0x01) == 0 ) {
 	indata = rtapi_inb(board->base_addr+0);
@@ -585,7 +581,7 @@ static int export_board(int boardnum, board_t * board)
     }
     board->port1config = config;
     config = 0x80;
-    
+
     dir = board->dir_bits & 0x10;
     retval += export_port ( boardnum, 24, &(board->port_2A[0]), 8, dir );
     if ( dir == 0 ) {
@@ -607,7 +603,7 @@ static int export_board(int boardnum, board_t * board)
 	config |= 0x08;
     }
     board->port2config = config;
-    /* initialize hardware - all outputs high 
+    /* initialize hardware - all outputs high
         (since outputs are active low) */
     outb(board->port1config, board->base_addr+3);
     outb(0xff, board->base_addr+0);
