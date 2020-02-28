@@ -245,9 +245,12 @@ LTTNG_UST_CFLAGS = @LTTNG_UST_CFLAGS@
 
 # To disable compilation of any particular module,
 # edit the following lines replacing "m" with "n".
-#
-# In time, we may have some fancy dohicky to set
-# these options at compile time.
+
+ifeq ($(HAS_SYS_IO),yes)
+CONFIG_PLATFORM_PC=m
+else
+CONFIG_PLATFORM_PC=n
+endif
 
 # usually you need rtapi,
 # so you probably don't want to change this

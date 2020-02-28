@@ -19,10 +19,6 @@ usr/lib/python*/*/machinetalk/*.py
 usr/lib/python*/*/machinekit/nosetests/*.py
 usr/lib/python*/dist-packages/gladevcp
 usr/lib/tcltk/linuxcnc/hal.so
-usr/libexec/linuxcnc/pci_read
-usr/libexec/linuxcnc/pci_write
-usr/libexec/linuxcnc/inivar
-usr/libexec/linuxcnc/rtapi_msgd
-usr/libexec/linuxcnc/rtapi_app
+usr/libexec/linuxcnc
 usr/share/linuxcnc
 usr/share/machinekit

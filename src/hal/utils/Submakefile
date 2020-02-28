@@ -94,6 +94,7 @@ $(call TOOBJS, $(HALGTKSRCS)): Makefile.inc
 endif
 
 ifeq ($(BUILD_DRIVERS),yes)
+ifeq ($(HAS_SYS_IO),yes)
 # normal
 #PCI_DEBUG_FLAGS =
 # debug build for now
@@ -117,6 +118,7 @@ USERSRCS += $(PCIREADSRCS)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^
 TARGETS += ../libexec/pci_read
 
+endif
 endif
 
 ../bin/comp ../bin/instcomp: ../bin/%: objects/hal/utils/%.py

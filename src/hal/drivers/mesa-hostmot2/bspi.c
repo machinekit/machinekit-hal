@@ -16,6 +16,7 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
+#include <stdbool.h>
 #include "config_module.h"
 #include RTAPI_INC_SLAB_H
 #include "rtapi.h"
