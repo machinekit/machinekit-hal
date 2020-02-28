@@ -50,6 +50,7 @@
 #include <algorithm>
 #include <sys/resource.h>
 #include <linux/capability.h>
+#include <sys/io.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <getopt.h>
@@ -80,9 +81,6 @@ using namespace google::protobuf;
 #include "hal.h"
 #include "hal_priv.h"
 #include "shmdrv.h"
-#ifdef USERMODE_PCI
-#include "rtapi_io.h"
-#endif
 
 #include "mk-backtrace.h"
 #include "setup_signals.h"
@@ -1587,7 +1585,7 @@ static int harden_rt()
 	}
     }
 
-#ifdef USERMODE_PCI
+#if defined(__x86_64__) || defined(__i386__)
 
     // this is a bit of a shotgun approach and should be made more selective
     // however, due to serial invocations of rtapi_app during setup it is not

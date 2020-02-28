@@ -71,7 +71,6 @@
 #include "hal_ring.h"
 
 #include <stdlib.h>  /* for atoi() */
-#include <stdio.h>   // sprintf()
 #include <machinetalk/nanopb/pb_encode.h>
 #include <machinetalk/build/machinetalk/protobuf/sample.npb.h>
 
