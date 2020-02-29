@@ -1,0 +1,66 @@
+name: Test and build preview packages
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+    - 'master'
+
+jobs:
+  testMachinekitHAL:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE: 'eryaf/mk-cross-builder'
+    strategy:
+      matrix:
+        image_tag: [amd64_8, amd64_9, amd64_10]
+
+    steps:
+    - name: Clone this repository
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.sha }}
+        path: to_build
+
+    - name: Test Machinekit code on AMD64
+      run: scripts/build_docker -i ${{ env.IMAGE }} -t ${{ matrix.image_tag }} -c test
+      working-directory: ./to_build
+
+  buildMachinekitHALPackages:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE: 'eryaf/mk-cross-builder'
+    strategy:
+      matrix:
+        # Jessie does not have a ARM64 build
+        image_tag: [amd64_8, amd64_9, amd64_10, arm64_9, arm64_10, armhf_8, armhf_9, armhf_10, i386_8, i386_9, i386_10]
+
+    steps:
+    - name: Clone this repository
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.sha }}
+        path: to_build/mkhal
+
+    - name: Build Machinekit-HAL .deb package
+      run: scripts/build_docker -i ${{ env.IMAGE }} -t ${{ matrix.image_tag }} -c deb
+      working-directory: ./to_build/mkhal
+
+    - name: Print built files
+      run: find . -depth -not \( -path "." -or -path "./mkhal" -or -path "./mkhal/*" \) -print0 | xargs -0 -I '{}' ls --color -d '{}'
+      working-directory: ./to_build
+
+    - name: Create output directory 
+      run: mkdir ./machinekit-hal-debian
+    
+    - name: Copy built files into output directory
+      run: find ./to_build -depth -not \( -path "." -or -path "./to_build" -or -path "./to_build/mkhal" -or -path "./to_build/mkhal/*" \) -print0 | xargs -0 -t -I '{}' cp -v '{}' ./machinekit-hal-debian
+
+    - name: Upload the built artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: machinekit-hal-debian-${{ matrix.image_tag }}-${{ github.sha}}
+        path: machinekit-hal-debian
+       
