@@ -1,0 +1,30 @@
+name: Test and build preview packages
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+    - 'master'
+
+jobs:
+  testMachinekitHAL:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE: 'eryaf/mk-cross-builder'
+    strategy:
+      matrix:
+        image_tag: [amd64_8, amd64_9, amd64_10]
+
+    steps:
+    - name: Clone this repository
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.sha }}
+        path: to_build
+
+    - name: Test Machinekit code on AMD64
+      run: scripts/build_docker -i ${{ env.IMAGE }} -t ${{ matrix.image_tag }} -c test
+      working-directory: ./to_build
+       
