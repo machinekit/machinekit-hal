@@ -148,13 +148,14 @@ Load(){
     local cmd=(${rtapi_msgd} --instance=$MK_INSTANCE $NAME_CMD
 			     --rtmsglevel=$DEBUG
 			     --usrmsglevel=$DEBUG
+                 --debug=$DEBUG
 			     --halsize=$HAL_SIZE $MSGD_OPTS)
     [ $DEBUG -eq 0 ] || echo "rtapi_msgd command:  ${cmd[@]}" >&2
     "${cmd[@]}" || (
 	e=$?; echo "rtapi_msgd startup failed - aborting" >&2; exit $e)
 
     # rtapi_app
-    local cmd=(${rtapi_app} --instance=$MK_INSTANCE $RTAPI_APP_OPTS)
+    local cmd=(${rtapi_app} --instance=$MK_INSTANCE --debug=$DEBUG $RTAPI_APP_OPTS)
     if [ $DEBUG -gt 0 ] ; then
 	echo "rtapi_app command:  ${cmd[@]}" >&2
 	"${cmd[@]}" || (

@@ -24,14 +24,9 @@
 #ifndef RTAPI_IO_H
 #define RTAPI_IO_H
 
-#define RTAPI_IO		// for disabling parts of header files
-
 #include "config.h"		// build configuration
 #include "rtapi.h"		// these functions
 #include <sys/io.h>		/* inb(), outb() */
-
-
-#ifdef RTAPI_IO
 
 /** 'rtapi_outb() writes 'byte' to 'port'.  May be called from
     init/cleanup code, and from within realtime tasks.
@@ -69,16 +64,5 @@ static inline unsigned short rtapi_inw(unsigned int port)
 {
     return inw(port);
 }
-
-#else
-
-// noops
-static inline void rtapi_outb(unsigned char byte, unsigned int port) { return; }
-static inline unsigned char rtapi_inb_hook(unsigned int port)        { return 0; };
-static inline void rtapi_outw(unsigned short word, unsigned int port){ return; }
-static inline unsigned short rtapi_inw(unsigned int port)  { return 0; };
-
-#endif
-
 
 #endif // RTAPI_IO_H

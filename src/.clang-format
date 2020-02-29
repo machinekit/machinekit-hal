@@ -1,0 +1,14 @@
+BreakBeforeBraces: Linux
+# BraceWrapping:
+#   AfterCaseLabel: false
+#   AfterControlStatement: true
+  # AfterEnum: false
+UseTab: Never
+TabWidth: 4
+IndentWidth: 4
+PointerAlignment: Right
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: true
+ColumnLimit: 80

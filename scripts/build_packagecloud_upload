@@ -10,7 +10,7 @@
 #
 # The following environment variables should be set in .travis.yml:
 # - CMD:  (Also may be first arg to script) Exit if not 'deb'
-# - TAG:  One of amd64/i386/armhf/raspbian
+# - TAG:  One of (amd64|i386|armhf|arm64)_(8|9|10)
 #
 # The following environment variables should be set by Travis CI:
 # - TRAVIS_TEST_RESULT:  Exit if not '0'

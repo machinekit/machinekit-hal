@@ -522,6 +522,8 @@ class LinuxCNCWrapper(object):
                 self.tool_table_path = os.path.abspath(
                     os.path.expanduser(self.tool_table_path)
                 )
+            # init last file store for caching
+            self.last_file = None
             # If specified in the ini, try to open the  default file
             open_file = self.ini.find('DISPLAY', 'OPEN_FILE') or ""
             open_file = open_file.strip('"')  # quote signs are allowed
@@ -721,25 +723,35 @@ class LinuxCNCWrapper(object):
     def preprocess_program(self, file_path):
         file_name, extension = os.path.splitext(file_path)
         extension = extension[1:]  # remove dot
+        try:
+            mtime = os.path.getmtime(file_path)
+        except IOError as e:
+            self.add_error(str(e))
+            return ''
+        current_file = (file_path, mtime)
         if extension in self.program_extensions:
             program = self.program_extensions[extension]
             new_file_name = file_name + '.ngc'
-            try:
-                out_file = open(new_file_name, 'w')
-                process = subprocess.Popen([program, file_path], stdout=out_file)
-                # subprocess.check_output([program, filePath],
-                unused_out, err = process.communicate()
-                retcode = process.poll()
-                if retcode:
-                    raise subprocess.CalledProcessError(retcode, '', output=err)
-                out_file.close()
+            if os.path.exists(new_file_name) and current_file == self._last_file:
                 file_path = new_file_name
-            except IOError as e:
-                self.add_error(str(e))
-                return ''
-            except subprocess.CalledProcessError as e:
-                self.add_error('%s failed: %s' % (program, str(e)))
-                return ''
+            else:
+                try:
+                    out_file = open(new_file_name, 'w')
+                    process = subprocess.Popen([program, file_path], stdout=out_file)
+                    # subprocess.check_output([program, filePath],
+                    unused_out, err = process.communicate()
+                    retcode = process.poll()
+                    if retcode:
+                        raise subprocess.CalledProcessError(retcode, '', output=err)
+                    out_file.close()
+                    file_path = new_file_name
+                except IOError as e:
+                    self.add_error(str(e))
+                    return ''
+                except subprocess.CalledProcessError as e:
+                    self.add_error('%s failed: %s' % (program, str(e)))
+                    return ''
+        self._last_file = current_file
         # get number of lines
         with open(file_path) as f:
             self.total_lines = sum(1 for _ in f)

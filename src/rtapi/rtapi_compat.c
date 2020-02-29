@@ -50,17 +50,18 @@ void check_rtapi_config_open()
     /* Open rtapi.ini if needed.  Private function used by
        get_rtapi_config(). */
     char config_file[PATH_MAX];
+    char *fname = getenv("RTAPI_INI");
 
     if (rtapi_inifile == NULL) {
 	/* it's the first -i (ignore repeats) */
 	/* there is a following arg, and it's not an option */
 	snprintf(config_file, PATH_MAX,
 		 "%s/rtapi.ini", EMC2_SYSTEM_CONFIG_DIR);
-	rtapi_inifile = fopen(config_file, "r");
+	rtapi_inifile = fopen((fname ? fname : config_file), "r");
 	if (rtapi_inifile == NULL) {
 	    fprintf(stderr,
 		    "Could not open ini file '%s'\n",
-		    config_file);
+		    (fname ? fname : config_file));
 	    exit(-1);
 	}
 	/* make sure file is closed on exec() */

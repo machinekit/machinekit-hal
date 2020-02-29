@@ -262,6 +262,22 @@ cmdl_enab_msg="enabled on command line"
 cmdl_disab_msg="disabled on command line"
 cmdl_notspec_msg="not specified on command line"
 
+AS_CASE([$host_cpu],
+                   [arm64],
+                   [
+                       HAS_SYS_IO=no
+                   ],
+                   [aarch64],
+                   [
+                       HAS_SYS_IO=no
+                   ],
+                   [*],
+                   [
+                       HAS_SYS_IO=yes
+                       AC_DEFINE([SYS_IO_DEFINED], [1],
+                               [The sys/io header exists.])
+                   ])
+
 AC_ARG_WITH(platform-pc,
     [AS_HELP_STRING(
         [--with-platform-pc],
@@ -316,7 +332,7 @@ AC_ARG_WITH(platform-socfpga,
     ],
     [
         case $host_cpu in
-	    (arm*)
+	    (arm*|aarch64)
 	        TARGET_PLATFORM_SOCFPGA=unk
 		;;
 	    (*)
@@ -336,9 +352,11 @@ AC_ARG_WITH(platform-beaglebone,
 	    	TARGET_PLATFORM_BEAGLEBONE=true
 		platform_specified=true
 		platform_beaglebone_reason="$cmdl_enab_msg"
-		# see https://github.com/machinekit/machinekit/issues/629
-		ARCH_CFLAGS="-march=armv7-a -mtune=cortex-a8"
-		ARCH_CFLAGS="$ARCH_CFLAGS -mfloat-abi=hard -mfpu=neon -ffast-math"
+		if test $host_cpu = arm; then
+		    # see https://github.com/machinekit/machinekit/issues/629
+		    ARCH_CFLAGS="-march=armv7-a -mtune=cortex-a8"
+		    ARCH_CFLAGS="$ARCH_CFLAGS -mfloat-abi=hard -mfpu=neon -ffast-math"
+		fi
 		;;
 	    (*)
 	    	TARGET_PLATFORM_BEAGLEBONE=false

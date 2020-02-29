@@ -618,8 +618,10 @@ fix_perms = test ! -f $(1) || (chown root $(1) && chmod 4750 $(1))
 
 ifeq ($(BUILD_DRIVERS),yes)
 setuid:
+ifeq ($(HAS_SYS_IO),yes)
 	$(call fix_perms,../libexec/pci_read)
 	$(call fix_perms,../libexec/pci_write)
+endif
 	$(call fix_perms,../libexec/rtapi_app)
 else
 setuid:
@@ -763,8 +765,10 @@ endif
 install-kernel-dep: install-dirs
 	$(SETUID) ../libexec/rtapi_app $(DESTDIR)$(EMC2_LIBEXEC_DIR)
 ifeq ($(BUILD_DRIVERS),yes)
+ifeq ($(HAS_SYS_IO),yes)
 	$(SETUID) ../libexec/pci_write $(DESTDIR)$(EMC2_LIBEXEC_DIR)
 	$(SETUID) ../libexec/pci_read $(DESTDIR)$(EMC2_LIBEXEC_DIR)
+endif
 endif
 	$(EXE) ../libexec/inivar $(DESTDIR)$(EMC2_LIBEXEC_DIR)
 	$(EXE) ../libexec/rtapi_msgd $(DESTDIR)$(EMC2_LIBEXEC_DIR)

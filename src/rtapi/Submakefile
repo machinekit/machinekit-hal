@@ -93,19 +93,27 @@ TARGETS += $(ULAPI_LIB) $(ULAPI_LIB).0
 #               rtapi.so and flavor modules
 ##################################################################
 
+ifeq ($(HAS_SYS_IO),yes)
+PCI_SRC:= rtapi/rtapi_pci.c
+else
+PCI_SRC:=
+endif
+
 $(eval $(call c_comp_build_rules,rtapi/rtapi.o,$(patsubst %.c,%.o,\
 	$(XXAPI_COMMON_SRCS) \
 	rtapi/flavor/rt-preempt.c \
 	$(XENOMAI_SRC) \
-	rtapi/rtapi_pci.c \
+	$(PCI_SRC) \
 	machinetalk/support/nanopb.c \
 	machinetalk/nanopb/pb_decode.c \
 	machinetalk/nanopb/pb_encode.c \
 	machinetalk/nanopb/pb_common.c \
 )))
 
+ifeq ($(HAS_SYS_IO),yes)
 # compile userland PCI support with udev cflags if any
 $(call TORTOBJS, rtapi/rtapi_pci.c): EXTRAFLAGS += $(LIBUDEV_CFLAGS)
+endif
 
 $(call TORTOBJS, rtapi/flavor/rt-preempt.c): \
 	EXTRAFLAGS += $(LIBCGROUP_CFLAGS)

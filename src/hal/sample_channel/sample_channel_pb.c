@@ -71,6 +71,7 @@
 #include "hal_ring.h"
 
 #include <stdlib.h>  /* for atoi() */
+#include <stdio.h>   // sprintf()
 #include <machinetalk/nanopb/pb_encode.h>
 #include <machinetalk/build/machinetalk/protobuf/sample.npb.h>
 
@@ -339,7 +340,7 @@ static int export_pins(struct inst_data *ip, const char *name)
                 "%s: new pin name %s", name, pname);
         }
         if ((retval = hal_pin_newf(type, HAL_IN, (void **) &ip->pins_in[i],
-                comp_id, ip->pinnames[i])) < 0) {
+                comp_id, "%s", ip->pinnames[i])) < 0) {
             return retval;
         }
         

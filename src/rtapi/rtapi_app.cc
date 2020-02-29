@@ -49,7 +49,6 @@
 #include <algorithm>
 #include <sys/resource.h>
 #include <linux/capability.h>
-#include <sys/io.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <getopt.h>
@@ -81,6 +80,10 @@ using namespace google::protobuf;
 #include "hal.h"
 #include "hal_priv.h"
 #include "shmdrv.h"
+
+#ifdef SYS_IO_DEFINED
+#include "rtapi_io.h"
+#endif
 
 #include "mk-backtrace.h"
 #include "setup_signals.h"
@@ -129,7 +132,7 @@ static unsigned long minflt, majflt;
 static int rtapi_instance_loc;
 static int use_drivers = 0;
 static int foreground;
-static int debug;
+static int debug = 0;
 static int signal_fd;
 static bool interrupted;
 static bool trap_signals = true;
@@ -138,6 +141,7 @@ long page_size;
 static const char *progname;
 static const char *z_uri;
 static int z_port;
+static int z_debug = 0;
 static uuid_t process_uuid;
 static char process_uuid_str[40];
 static register_context_t *rtapi_publisher;
@@ -799,7 +803,7 @@ static int rtapi_request(zloop_t *loop, zsock_t *socket, void *arg)
 	zmsg_destroy(&r);
 	return 0;
     }
-    if (debug) {
+    if (z_debug) {
 	string buffer;
 	if (TextFormat::PrintToString(pbreq, &buffer)) {
 	    fprintf(stderr, "request: %s\n",buffer.c_str());
@@ -981,7 +985,7 @@ static int rtapi_request(zloop_t *loop, zsock_t *socket, void *arg)
 			pbreply.type(),
 			reply_size);
     } else {
-	if (debug) {
+	if (z_debug) {
 	    string buffer;
 	    if (TextFormat::PrintToString(pbreply, &buffer)) {
 		fprintf(stderr, "reply: %s\n",buffer.c_str());
@@ -1251,7 +1255,7 @@ static int mainloop(size_t  argc, char **argv)
     }
     zloop_t *z_loop = zloop_new();
     assert(z_loop);
-    zloop_set_verbose(z_loop, debug);
+    zloop_set_verbose(z_loop, z_debug);
 
 
     if (trap_signals) {
@@ -1442,7 +1446,7 @@ static int harden_rt()
 	}
     }
 
-#if defined(__x86_64__) || defined(__i386__)
+#if defined(SYS_IO_DEFINED) 
 
     // this is a bit of a shotgun approach and should be made more selective
     // however, due to serial invocations of rtapi_app during setup it is not
@@ -1476,9 +1480,10 @@ static struct option long_options[] = {
     {"ini",      required_argument, 0, 'i'},     // default: getenv(INI_FILE_NAME)
     {"drivers",   required_argument, 0, 'D'},
     {"uri",    required_argument,    0, 'U'},
-    {"debug",        no_argument,    0, 'd'},
+    {"debug", required_argument,    0, 'd'},
     {"svcuuid",   required_argument, 0, 'R'},
     {"interfaces",required_argument, 0, 'n'},
+	{"zloopdebug", no_argument,      0, 'z'},
     {0, 0, 0, 0}
 };
 
@@ -1486,6 +1491,7 @@ int main(int argc, char **argv)
 {
     int c;
     progname = argv[0];
+	char* z_loop_debug = NULL;
     inifile =  getenv("MACHINEKIT_INI");
 
     uuid_generate_time(process_uuid);
@@ -1495,7 +1501,7 @@ int main(int argc, char **argv)
     while (1) {
 	int option_index = 0;
 	int curind = optind;
-	c = getopt_long (argc, argv, "ShH:m:I:f:r:U:NFdR:n:i:s",
+	c = getopt_long (argc, argv, "ShH:m:I:f:r:U:NFdR:n:i:sz",
 			 long_options, &option_index);
 	if (c == -1)
 	    break;
@@ -1506,7 +1512,7 @@ int main(int argc, char **argv)
 	    break;
 
 	case 'd':
-	    debug++;
+	    debug = atoi(optarg);
 	    break;
 
 	case 'D':
@@ -1544,6 +1550,9 @@ int main(int argc, char **argv)
 	case 's':
 	    option |= LOG_PERROR;
 	    break;
+	case 'z':
+		z_debug = 1;
+		break;
 	case '?':
 	    if (optopt)  fprintf(stderr, "bad short opt '%c'\n", optopt);
 	    else  fprintf(stderr, "bad long opt \"%s\"\n", argv[curind]);
@@ -1558,7 +1567,7 @@ int main(int argc, char **argv)
     }
 
     openlog_async(argv[0], option, LOG_LOCAL1);
-    setlogmask_async(LOG_UPTO(LOG_DEBUG));
+    setlogmask_async(LOG_UPTO(debug + 2));
     // max out async syslog buffers for slow system in debug mode
     tunelog_async(99,10);
 
@@ -1581,6 +1590,12 @@ int main(int argc, char **argv)
 	fprintf(stderr, "rtapi: no service UUID (-R <uuid> or environment MKUUID) present\n");
 	exit(-1);
     }
+
+	z_loop_debug = getenv("ZLOOPDEBUG");
+	if(z_loop_debug)
+	{
+		z_debug = 1;
+	}
 
 #ifdef NOTYET
     iniFindInt(inifp, "REMOTE", "MACHINEKIT", &remote);
