@@ -1,5 +1,0 @@
-    , xenomai-runtime
-Description: HAL stack split from Machinekit
- .
- This package provides components and drivers that run on a realtime
- (XENOMAI 2) system.

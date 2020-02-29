@@ -20,7 +20,12 @@ PYTARGETS += $(patsubst %, ../bin/%, $(USER_COMP_PY))
 # USER_COMP_COMPS is defined in hal/components/Submakefile
 USER_COMP_BINS := $(patsubst hal/user_comps/%.comp, ../bin/%, $(USER_COMP_COMPS))
 
-../bin/%: hal/user_comps/%.comp ../bin/comp ../lib/liblinuxcnchal.so.0 ../lib/librtapi_math.so.0
+../bin/%: \
+		hal/user_comps/%.comp \
+		../bin/comp \
+		../lib/liblinuxcnchal.so.0 \
+		../lib/liblinuxcnculapi.so.0 \
+		../lib/librtapi_math.so.0
 	$(ECHO) "Preprocessing usercomp $(notdir $<)"
 	@mkdir -p objects/hal/user_comps
 	$(Q)../bin/comp -o $(patsubst  hal/user_comps/%.comp, objects/hal/user_comps/%.c, $<) $<
@@ -28,6 +33,7 @@ USER_COMP_BINS := $(patsubst hal/user_comps/%.comp, ../bin/%, $(USER_COMP_COMPS)
 	$(Q)$(CC) -DULAPI $(INCLUDE) -o $@ $(LDFLAGS) \
 		$(patsubst  hal/user_comps/%.comp, objects/hal/user_comps/%.c, $<) \
 		../lib/liblinuxcnchal.so.0 \
+		../lib/liblinuxcnculapi.so.0 \
 		../lib/librtapi_math.so.0
 
 TARGETS +=  $(USER_COMP_BINS)
@@ -40,7 +46,10 @@ USERSRCS += $(MODBUSSRCS)
 
 $(call TOOBJSDEPS, $(MODBUSSRCS)) : EXTRAFLAGS += $(MODBUSCCFLAGS)
 
-../bin/gs2_vfd: $(call TOOBJS, $(MODBUSSRCS)) ../lib/liblinuxcnchal.so.0
+../bin/gs2_vfd: \
+		$(call TOOBJS, $(MODBUSSRCS)) \
+		../lib/liblinuxcnchal.so.0 \
+		../lib/liblinuxcnculapi.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(MODBUSLDFLAGS)
 TARGETS += ../bin/gs2_vfd
@@ -49,7 +58,10 @@ endif # HAVE_LIBMODBUS
 ifeq ($(HIDRAW_H_USABLE),yes)
 SHUTTLEXPRESS_SRC = hal/user_comps/shuttlexpress.c
 USERSRCS += $(SHUTTLEXPRESS_SRC)
-../bin/shuttlexpress: $(call TOOBJS, $(SHUTTLEXPRESS_SRC)) ../lib/liblinuxcnchal.so.0
+../bin/shuttlexpress: \
+		$(call TOOBJS, $(SHUTTLEXPRESS_SRC)) \
+		../lib/liblinuxcnchal.so.0 \
+		../lib/liblinuxcnculapi.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/shuttlexpress
@@ -60,7 +72,12 @@ ifdef HAVE_LIBUSB10
 XHC_HB04_SRC = hal/user_comps/xhc-hb04.cc
 USERSRCS += $(XHC_HB04_SRC)
 $(call TOOBJSDEPS, $(XHC_HB04_SRC)) : EXTRAFLAGS += $(LIBUSB10_CFLAGS)
-../bin/xhc-hb04: $(call TOOBJS, $(XHC_HB04_SRC)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0 ../lib/librtapi_math.so.0
+../bin/xhc-hb04: \
+		$(call TOOBJS, $(XHC_HB04_SRC)) \
+		../lib/liblinuxcnchal.so.0 \
+		../lib/liblinuxcnculapi.so.0 \
+		../lib/liblinuxcncini.so.0 \
+		../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^ -lstdc++ $(LIBUSB10_LIBS)
 TARGETS += ../bin/xhc-hb04

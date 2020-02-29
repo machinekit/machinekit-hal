@@ -60,10 +60,6 @@
 #error "This driver is for the beaglebone platform only"
 #endif
 
-#if !defined(BUILD_SYS_USER_DSO)
-#error "This driver is for usermode threads only"
-#endif
-
 #include RTAPI_INC_LIST_H
 #include "rtapi.h"          /* RTAPI realtime OS API */
 #include "rtapi_app.h"      /* RTAPI realtime module decls */
@@ -107,7 +103,7 @@ MODULE_LICENSE("GPL");
 // Default pin to use for PRU modules...use a pin that does not leave the PRU
 #define PRU_DEFAULT_PIN 17
 
-// Start out with default pulse length/width and setup/hold delays of 1 mS (1000000 nS) 
+// Start out with default pulse length/width and setup/hold delays of 1 mS (1000000 nS)
 #define DEFAULT_DELAY 1000000
 
 #define f_period_s ((double)(l_period_ns * 1e-9))
@@ -153,7 +149,7 @@ static int comp_id;     /* component ID */
 static const char *modname = "hal_pru_generic";
 
 // if filename doesnt exist, prefix this path:
-char *fw_path = "/lib/firmware/pru/";       
+char *fw_path = "/lib/firmware/pru/";
 
 // shared with PRU
 static unsigned long *pru_data_ram;     // points to PRU data RAM
@@ -383,7 +379,7 @@ int assure_module_loaded(const char *module)
 }
 
 int pru_init(int pru, char *filename, int disabled, hal_pru_generic_t *hpg) {
-    
+
     int i;
     int retval;
 
@@ -445,7 +441,7 @@ rtapi_print_msg(RTAPI_MSG_DBG, "PRU data ram mapped\n");
 }
 
 int setup_pru(int pru, char *filename, int disabled, hal_pru_generic_t *hpg) {
-    
+
     int retval;
 
     if (event > -1) {
@@ -461,7 +457,7 @@ int setup_pru(int pru, char *filename, int disabled, hal_pru_generic_t *hpg) {
     // default the .bin filename if not given
     if (!strlen(filename))
     filename = DEFAULT_CODE;
-    
+
     strcpy(pru_binpath, filename);
 
     struct stat statb;
@@ -605,7 +601,7 @@ int fixup_pin(u32 hal_pin) {
             break;
         default:
             ret = 0;
-        }    
+        }
 
         if (ret == 0)
             HPG_ERR("Unknown pin: %d\n",(int)hal_pin);
@@ -618,4 +614,3 @@ int fixup_pin(u32 hal_pin) {
 
     return ret;
 }
-

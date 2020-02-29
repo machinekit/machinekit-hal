@@ -23,10 +23,8 @@
 #include "hal.h"
 #include "hal_priv.h"
 
-#if defined(BUILD_SYS_USER_DSO)
 #include <stdio.h>
 #include <stdlib.h>
-#endif
 
 /* module information */
 MODULE_AUTHOR("Andy Pugh");

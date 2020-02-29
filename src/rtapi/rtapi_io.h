@@ -3,22 +3,20 @@
 *
 *               This file, 'rtapi_io.h', implements the i/o- related
 *               functions for realtime modules as a series of static
-*               inline functions.  For now, it applies only to PC
-*               architecture with the `inb` and `outb` assembly
-*               instructions..
+*               inline functions.
 *
 *     Copyright 2006-2013 Various Authors
-* 
+*
 *     This program is free software; you can redistribute it and/or modify
 *     it under the terms of the GNU General Public License as published by
 *     the Free Software Foundation; either version 2 of the License, or
 *     (at your option) any later version.
-* 
+*
 *     This program is distributed in the hope that it will be useful,
 *     but WITHOUT ANY WARRANTY; without even the implied warranty of
 *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 *     GNU General Public License for more details.
-* 
+*
 *     You should have received a copy of the GNU General Public License
 *     along with this program; if not, write to the Free Software
 *     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
@@ -26,6 +24,8 @@
 #ifndef RTAPI_IO_H
 #define RTAPI_IO_H
 
+#include "config.h"		// build configuration
+#include "rtapi.h"		// these functions
 #include <sys/io.h>		/* inb(), outb() */
 
 /** 'rtapi_outb() writes 'byte' to 'port'.  May be called from
@@ -64,6 +64,5 @@ static inline unsigned short rtapi_inw(unsigned int port)
 {
     return inw(port);
 }
-
 
 #endif // RTAPI_IO_H

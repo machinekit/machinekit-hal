@@ -65,6 +65,7 @@
 #include "hal_iring.h"
 
 #include "rtapi_string.h"
+#include "rtapi_flavor.h"       // flavor_descriptor
 #ifdef RTAPI
 #include "rtapi_app.h"
 /* module information */
@@ -114,17 +115,11 @@ int lib_mem_id = -1;	/* RTAPI shmem ID for library module */
 // to run before any HAL/RTAPI activity starts, and until after it ends.
 // RTAPI cannot execute without the global segment existing and attached.
 
-// depending on ULAP/ vs RTAPI and thread system (userland vs kthreads)
-// the way how
-// pointer to the global data segment, initialized by calling the
-// the ulapi.so ulapi_main() method (ULAPI) or by external reference
-// to the instance module (kernel modes)
+// The pointer to the global data segment is initialized by calling
+// rtapi_module_init()
 
 
-// defined(BUILD_SYS_KBUILD) && defined(RTAPI)
-// defined & attached in, and exported from rtapi_module.c
-
-// defined(BUILD_SYS_USER_DSO) && defined(RTAPI)
+// defined(RTAPI)
 // defined & attached in, and exported from rtapi_main.c
 
 /***********************************************************************
@@ -143,7 +138,6 @@ int lib_mem_id = -1;	/* RTAPI shmem ID for library module */
     All of these functions assume that the caller has already
     grabbed the hal_data mutex.
 */
-
 
 /***********************************************************************
 *                  PUBLIC (API) FUNCTION CODE                          *
@@ -185,11 +179,9 @@ unsigned char hal_get_lock()
 
 int rtapi_app_main(void)
 {
-    rtapi_switch = rtapi_get_handle();
-
     // sanity: these must have been inited before by the
     // respective rtapi.so/.ko module
-    CHECK_NULL(rtapi_switch);
+    HAL_ASSERT(flavor_is_configured());
     CHECK_NULL(global_data);
 
     HALDBG("initializing RT hal_lib support");
@@ -203,7 +195,6 @@ int rtapi_app_main(void)
 void rtapi_app_exit(void)
 {
     HALDBG("removing RT hal_lib support");
-    hal_proc_clean();
     halg_exit_thread(1, NULL);
     // this halg_exit() will unload hal_lib and detach the HAL shm segment
     // to avoid the chicken-and-egg problem of locking hal_data, and
@@ -235,9 +226,6 @@ static void  __attribute__ ((destructor))  ulapi_hal_lib_cleanup(void)
     HALDBG("lib_module_id=%d", lib_module_id);
     if (lib_module_id > -1)
 	hal_exit(lib_module_id);
-
-    // shut down ULAPI
-    ulapi_cleanup();
 }
 #endif
 
@@ -448,13 +436,13 @@ EXPORT_SYMBOL(hal_shmem_base);
 
 // ------------ private API:  ------------
 //  found in their respective source files:
-EXPORT_SYMBOL(halpr_find_comp_by_name); 
-EXPORT_SYMBOL(halpr_find_pin_by_name); 
-EXPORT_SYMBOL(halpr_find_sig_by_name); 
-EXPORT_SYMBOL(halpr_find_param_by_name); 
-EXPORT_SYMBOL(halpr_find_thread_by_name); 
-EXPORT_SYMBOL(halpr_find_funct_by_name); 
-EXPORT_SYMBOL(halpr_find_inst_by_name); 
+EXPORT_SYMBOL(halpr_find_comp_by_name);
+EXPORT_SYMBOL(halpr_find_pin_by_name);
+EXPORT_SYMBOL(halpr_find_sig_by_name);
+EXPORT_SYMBOL(halpr_find_param_by_name);
+EXPORT_SYMBOL(halpr_find_thread_by_name);
+EXPORT_SYMBOL(halpr_find_funct_by_name);
+EXPORT_SYMBOL(halpr_find_inst_by_name);
 EXPORT_SYMBOL(hal_data);
 
 // hal_comp.c:

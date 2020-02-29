@@ -1,14 +1,14 @@
 /********************************************************************
 * Description:  hal_parport.c
-*               This file, 'hal_parport.c', is a HAL component that 
+*               This file, 'hal_parport.c', is a HAL component that
 *               provides a driver for the standard PC parallel port.
 *
 * Author: John Kasunich
 * License: GPL Version 2
-*    
+*
 * Copyright (c) 2003 All rights reserved.
 *
-* Last change: 
+* Last change:
 ********************************************************************/
 
 /** This file, 'hal_parport.c', is a HAL component that provides a
@@ -99,13 +99,11 @@
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_ctype.h"	/* isspace() */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "rtapi_io.h"           /* rtapi_outb() rtapi_inb() */
+#include "rtapi_io.h"
 
 #include "hal.h"		/* HAL public API decls */
 
-#ifdef BUILD_SYS_USER_DSO	/* userland builds */
 # include <string.h>
-#endif
 
 #include "hal_parport.h"
 
@@ -127,7 +125,7 @@ RTAPI_MP_STRING(cfg, "config string");
 typedef struct {
     unsigned short base_addr;	/* base I/O address (0x378, etc.) */
     unsigned char data_dir;	/* non-zero if pins 2-9 are input */
-    unsigned char use_control_in; /* non-zero if pins 1, 4, 16, 17 are input */ 
+    unsigned char use_control_in; /* non-zero if pins 1, 4, 16, 17 are input */
     hal_bit_t *status_in[10];	/* ptrs for in pins 15, 13, 12, 10, 11 */
     hal_bit_t *data_in[16];	/* ptrs for input pins 2 - 9 */
     hal_bit_t *data_out[8];	/* ptrs for output pins 2 - 9 */
@@ -206,7 +204,7 @@ int rtapi_app_main(void)
 
 
 #if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0) &&0//FIXME
-    // this calculation fits in a 32-bit unsigned 
+    // this calculation fits in a 32-bit unsigned
     // as long as CPUs are under about 6GHz
     ns2tsc_factor = (cpu_khz << 6) / 15625ul;
 #else
@@ -221,7 +219,7 @@ int rtapi_app_main(void)
 rtapi_print ( "config string '%s'\n", cfg );
     /* as a RT module, we don't get a nice argc/argv command line, we only
        get a single string... so we need to tokenize it ourselves */
-    /* in addition, it seems that insmod under kernel 2.6 will truncate 
+    /* in addition, it seems that insmod under kernel 2.6 will truncate
        a string parameter at the first whitespace.  So we allow '_' as
        an alternate token separator. */
     cp = cfg;
@@ -383,7 +381,7 @@ static void reset_port(void *arg, long period) {
     parport_t *port = arg;
     long long deadline, reset_time_tsc;
     unsigned char outdata = (port->outdata&~port->reset_mask) ^ port->reset_val;
-   
+
     if(port->reset_time > period/4) port->reset_time = period/4;
     reset_time_tsc = ns2tsc(port->reset_time);
 
@@ -544,7 +542,7 @@ static int pins_and_params(char *argv[])
 	if (argv[n] != 0) {
 	    /* is the next token 'in' or 'out' ? */
 	    if ((argv[n][0] == 'i') || (argv[n][0] == 'I')) {
-		/* we aren't picky, anything starting with 'i' means 'in' ;-) 
+		/* we aren't picky, anything starting with 'i' means 'in' ;-)
 		 */
 		data_dir[num_ports] = 1;
                 use_control_in[num_ports] = 0;
@@ -556,7 +554,7 @@ static int pins_and_params(char *argv[])
 		n++;
 	    } else if ((argv[n][0] == 'x') || (argv[n][0] == 'X')) {
                 /* experimental: some parports support a bidirectional
-                 * control port.  Enable this with pins 2-9 in output mode, 
+                 * control port.  Enable this with pins 2-9 in output mode,
                  * which gives a very nice 8 outs and 9 ins. */
                 data_dir[num_ports] = 0;
                 use_control_in[num_ports] = 1;
@@ -702,11 +700,11 @@ static int export_port(int portnum, parport_t * port)
 	    port->data_out, port->data_inv, port->data_reset, 6);
 	retval += export_output_pin(portnum, 9,
 	    port->data_out, port->data_inv, port->data_reset, 7);
-	retval += hal_param_u32_newf(HAL_RW, &port->reset_time, comp_id, 
+	retval += hal_param_u32_newf(HAL_RW, &port->reset_time, comp_id,
 			"parport.%d.reset-time", portnum);
-	retval += hal_param_u32_newf(HAL_RW, &port->debug1, comp_id, 
+	retval += hal_param_u32_newf(HAL_RW, &port->debug1, comp_id,
 			"parport.%d.debug1", portnum);
-	retval += hal_param_u32_newf(HAL_RW, &port->debug2, comp_id, 
+	retval += hal_param_u32_newf(HAL_RW, &port->debug2, comp_id,
 			"parport.%d.debug2", portnum);
 	port->write_time = 0;
     }

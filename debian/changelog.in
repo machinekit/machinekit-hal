@@ -1,3 +1,11 @@
+machinekit-hal (0.3.0) stretch; urgency=low
+
+  * Separate rtapi_app_<threads> now merged into single binary
+  * RT thread flavor now chosen at run-time
+  * Separate flavor RT modules now common
+
+ -- John Morris <john@zultron.com>  Thu, 11 Jul 2019 02:32:05 -0500
+
 machinekit-hal (0.2.0) stretch; urgency=low
 
   * HAL stack split out from machinekit

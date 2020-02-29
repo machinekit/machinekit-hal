@@ -1,4 +1,0 @@
-Description: HAL stack split from Machinekit
- .
- This package provides components and drivers that run on a non-realtime
- (Posix) system.

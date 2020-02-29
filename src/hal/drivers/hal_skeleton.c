@@ -77,7 +77,7 @@
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "rtapi_io.h"           /* rtapi_outb() rtapi_inb() */
+#include "rtapi_io.h"
 
 #include "hal.h"		/* HAL public API decls */
 

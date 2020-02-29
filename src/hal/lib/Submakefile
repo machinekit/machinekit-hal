@@ -8,6 +8,7 @@ LIBS := ../lib
 	$(ECHO) Copying header file $@
 	$(Q)cp $< $@
 
+
 # link in basic nanonpb support routines
 HALLIBSRCS := $(HALLIBDIR)/hal_lib.c \
 	$(HALLIBDIR)/hal_group.c \
@@ -15,7 +16,6 @@ HALLIBSRCS := $(HALLIBDIR)/hal_lib.c \
 	$(HALLIBDIR)/hal_rcomp.c \
 	$(HALLIBDIR)/hal_vtable.c \
 	$(HALLIBDIR)/hal_funct.c \
-	$(HALLIBDIR)/hal_procfs.c \
 	$(HALLIBDIR)/hal_thread.c \
 	$(HALLIBDIR)/hal_param.c \
 	$(HALLIBDIR)/hal_signal.c \
@@ -27,14 +27,13 @@ HALLIBSRCS := $(HALLIBDIR)/hal_lib.c \
 	$(HALLIBDIR)/hal_object.c \
 	$(HALLIBDIR)/hal_object_selectors.c \
 	$(HALLIBDIR)/hal_accessor.c \
-	$(HALLIBDIR)/hal_iring.c \
-	rtapi/rtapi_heap.c
+	$(HALLIBDIR)/hal_iring.c
 
 # protobuf support functions which depend on HAL - on RT host only
 HALLIBMTALK_SRCS := $(addprefix $(HALLIBDIR)/, \
 	halpb.cc)
 
-HALLIBMTALK_CXXFLAGS := -DULAPI $(PROTOBUF_CFLAGS) $(CZMQ_CFLAGS)
+HALLIBMTALK_CXXFLAGS := $(PROTOBUF_CFLAGS) $(CZMQ_CFLAGS)
 HALLIBMTALK_LDFLAGS := $(PROTOBUF_LIBS) $(CZMQ_LIBS)
 
 $(call TOOBJSDEPS, $(HALLIBMTALK_SRCS)) : EXTRAFLAGS=-fPIC $(HALLIBMTALK_CXXFLAGS)
@@ -42,7 +41,7 @@ $(call TOOBJSDEPS, $(HALLIBMTALK_SRCS)) : EXTRAFLAGS=-fPIC $(HALLIBMTALK_CXXFLAG
 # ULAPI: all thread-specific code now comes in through the ulapi library
 # (liblinuxcnculapi.so) which autoloads the proper ulapi on demand
 
-$(call TOOBJSDEPS, $(HALLIBSRCS)): EXTRAFLAGS += $(THREADS_RTFLAGS) -fPIC
+$(call TOOBJSDEPS, $(HALLIBSRCS)): EXTRAFLAGS += -fPIC
 
 # Add to list of sources to compile -DULAPI ->
 # objects/{$(HALLIBDIR)/hal_lib.o}
@@ -55,20 +54,24 @@ HALLIB := ../lib/liblinuxcnchal.so
 # for now, link in ulapi  plus any referenced  objs directly
 # cause: http://fedoraproject.org/wiki/UnderstandingDSOLinkChange
 
+# might seem like strange place to create modules dir,
+# but hallib is one of the first to be built, so ensures
+# it exists with symlinks, before module build
+
 $(HALLIB).0: \
 	$(call TOOBJS, $(HALLIBSRCS)) \
-	$(call TOOBJS, $(ULAPI_AUTOLOAD_SRCS)) \
 	$(call TOOBJS, $(SHMDRVAPISRCS)) \
 	$(call TOOBJS, $(HALLIBMTALK_SRCS)) \
 	$(call TOOBJS, $(LIBINISRCS)) \
-	$(call TOOBJS, machinetalk/lib/syslog_async.c) \
+	$(ULAPI_LIB).0 \
 	$(LIBS)/libmachinetalk-pb2++.so
 	$(ECHO) Creating shared library $(notdir $@)
 	@mkdir -p ../lib
+	@mkdir -p ../rtlib/modules
 	@rm -f $@
 	$(Q)$(CC) $(LDFLAGS) -Wl,-rpath,$(EMC2_RTLIB_DIR) \
 	    -Wl,-soname,$(notdir $@) -shared \
-	    -o $@ $^ -lstdc++ -ldl -lrt $(PROTOBUF_LIBS) $(PROTOCXXLIB) $(CZMQ_LIBS) $(RT_LDFLAGS)
+	    -o $@ $^ -lstdc++ -ldl -lrt $(PROTOBUF_LIBS) $(PROTOCXXLIB) $(CZMQ_LIBS)
 
 HALMODULESRCS := $(HALLIBDIR)/halmodule.cc
 PYSRCS += $(HALMODULESRCS)
@@ -83,13 +86,12 @@ PYTARGETS += $(HALMODULE)
 
 
 obj-m += hal_lib.o
-hal_lib-objs := hal/lib/hal_lib.o $(MATHSTUB)
+hal_lib-objs := hal/lib/hal_lib.o
 hal_lib-objs += hal/lib/hal_group.o
 hal_lib-objs += hal/lib/hal_ring.o
 hal_lib-objs += hal/lib/hal_rcomp.o
 hal_lib-objs += hal/lib/hal_vtable.o
 hal_lib-objs += hal/lib/hal_funct.o
-hal_lib-objs += hal/lib/hal_procfs.o
 hal_lib-objs += hal/lib/hal_thread.o
 hal_lib-objs += hal/lib/hal_signal.o
 hal_lib-objs += hal/lib/hal_pin.o
@@ -103,4 +105,4 @@ hal_lib-objs += hal/lib/hal_object_selectors.o
 hal_lib-objs += hal/lib/hal_accessor.o
 hal_lib-objs += hal/lib/hal_iring.o
 
-$(RTLIBDIR)/hal_lib$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(hal_lib-objs))
+$(RTLIBDIR)/hal_lib.so: $(addprefix $(OBJDIR)/,$(hal_lib-objs))

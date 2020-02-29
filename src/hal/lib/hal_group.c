@@ -412,4 +412,3 @@ void free_group_struct(hal_group_t * group)
     halg_foreach(0, &args, yield_free);
     halg_free_object(false, (hal_object_ptr)group);
 }
-

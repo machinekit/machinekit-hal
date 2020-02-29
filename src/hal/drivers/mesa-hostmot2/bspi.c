@@ -364,3 +364,6 @@ void hm2_bspi_cleanup(hostmot2_t *hm2)
 void hm2_bspi_write(hostmot2_t *hm2)
 {
 }
+
+
+

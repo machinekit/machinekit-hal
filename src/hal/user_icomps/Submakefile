@@ -5,8 +5,4 @@ HALUSERICOMPDIR= hal/user_icomps
 
 HALUSERICOMP_SUBMAKEFILE= $(HALUSERICOMPDIR)/Submakefile
 
-obj-m += watch.o
-# the list of parts
-watch-objs := $(HALUSERICOMPDIR)/watch.o
-
-$(RTLIBDIR)/watch$(MODULE_EXT): $(addprefix $(OBJDIR)/,$(watch-objs))
+$(eval $(call c_comp_build_rules,$(HALUSERICOMPDIR)/watch.o))

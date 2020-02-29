@@ -10,11 +10,9 @@
 #include <sys/types.h>		/* pid_t */
 #include <unistd.h>		/* getpid() */
 #endif
-#if defined(BUILD_SYS_USER_DSO) || (defined(RTAPI) && !defined(BUILD_SYS_KBUILD))
 #include <signal.h>
 #ifndef abs
 int abs(int x) { if(x < 0) return -x; else return x; }
-#endif
 #endif
 
 
@@ -75,10 +73,6 @@ hal_comp_t *halg_xinitfv(const int use_hal_mutex,
 
     rtapi_set_logtag("hal_lib");
     int comp_id, retval;
-
-    // sanity: these must have been inited before by the
-    // respective rtapi.so/.ko module
-    PCHECK_NULL(rtapi_switch);
 
     if ((dtor != NULL) && (ctor == NULL)) {
 	HALFAIL_NULL(EINVAL,"component '%s': NULL constructor doesnt make"
@@ -159,12 +153,6 @@ hal_comp_t *halg_xinitfv(const int use_hal_mutex,
 		lib_module_id = -1;
 		HALFAIL_NULL(retval,
 			     "could not init HAL shared memory rc=%d", retval);
-	    }
-	    retval = hal_proc_init();
-	    if (retval) {
-		rtapi_exit(lib_module_id);
-		lib_module_id = -1;
-		HALFAIL_NULL(retval, "could not init /proc files");
 	    }
 #endif
 	    // record hal_lib comp_id

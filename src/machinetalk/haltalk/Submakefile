@@ -17,6 +17,7 @@ HALTALK_CXXFLAGS := -DULAPI 	\
 HALTALK_LDFLAGS := \
 	$(PROTOBUF_LIBS) 	\
 	$(UUID_LIBS) 		\
+	$(ZMQ_LIBS) 		\
 	$(CZMQ_LIBS) 		\
 	$(JANSSON_LIBS) 	\
 	$(AVAHI_LIBS) 	\
@@ -28,6 +29,7 @@ $(call TOOBJSDEPS, $(HALTALK_SRCS)) : EXTRAFLAGS += $(HALTALK_CXXFLAGS)
 	../lib/libmtalk.so.0 \
 	../lib/libmachinetalk-pb2++.so.0 \
 	../lib/liblinuxcnchal.so.0 \
+	../lib/liblinuxcnculapi.so.0 \
 	../lib/liblinuxcncini.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(HALTALK_LDFLAGS)
