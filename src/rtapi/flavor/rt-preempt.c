@@ -48,6 +48,7 @@
 #include <string.h>		// memset()
 #include <syscall.h>            // syscall(SYS_gettid);
 #include <sys/prctl.h>          // prctl(PR_SET_NAME)
+#include <fcntl.h>
 
 // if this exists, and contents is '1', it's RT_PREEMPT
 #define PREEMPT_RT_SYSFS "/sys/kernel/realtime"
@@ -62,6 +63,9 @@ static pthread_key_t task_key;
 static pthread_once_t task_key_once = PTHREAD_ONCE_INIT;
 
 int posix_task_self_hook(void);
+
+// Static file descriptor for the Power Management Quality of Service interface (PM QOS)
+static int pm_qos_fd = -1;
 
 
 typedef struct {
@@ -101,8 +105,56 @@ int posix_module_init_hook(void)
                         ret, cgroup_strerror(ret));
     return ret;
 }
+
+int rt_preempt_module_init_hook(void)
+{
+    int retval = -1;
+    __s32 target_qos = 0;
+
+    retval = posix_module_init_hook();
+    if(retval){
+        rtapi_print_msg(RTAPI_MSG_ERR, "RT PREEMPT: POSIX module init failed with error %d", retval);
+        goto exit;
+    }
+
+    pm_qos_fd = open("/dev/cpu_dma_latency", O_RDWR);
+
+    if (pm_qos_fd < 0) 
+    {  
+    rtapi_print_msg(RTAPI_MSG_ERR, "RT PREEMPT: Could not open the Power Management Quality of Service interface file. Error: %s", strerror(errno));  
+    retval = -errno;
+    }
+
+    write(pm_qos_fd, &target_qos, sizeof(target_qos));
+
+    rtapi_print_msg(RTAPI_MSG_INFO, "RT PREEMPT: PM_QOS activated");
+
+    exit:
+    return retval;
+}
 #else
 int posix_module_init_hook(void) { return 0; }
+int rt_preempt_module_init_hook(void){ return posix_module_init_hook(); }
+#endif
+
+#ifdef RTAPI
+void rt_preempt_module_exit_hook(void)
+{
+    if (pm_qos_fd < 0) 
+    {  
+        rtapi_print_msg(RTAPI_MSG_ERR, "RT PREEMPT: The Power Management Quality of Service interface file is not open!");  
+        return;
+    }
+
+    if(close(pm_qos_fd))
+    {
+        rtapi_print_msg(RTAPI_MSG_ERR, "RT PREEMPT: The Power Management Quality of Service interface file returned error on close. Error: %s", strerror(errno));
+    }
+
+    rtapi_print_msg(RTAPI_MSG_INFO, "RT PREEMPT: PM_QOS deactivated");
+}
+#else
+void rt_preempt_module_exit_hook(void){}
 #endif
 
 #ifdef RTAPI
@@ -659,8 +711,8 @@ flavor_descriptor_t flavor_rt_prempt_descriptor = {
     .flags = FLAVOR_DOES_IO + FLAVOR_IS_RT,
     .can_run_flavor = rtpreempt_can_run_flavor,
     .exception_handler_hook = rtpreempt_exception_handler_hook,
-    .module_init_hook = posix_module_init_hook,
-    .module_exit_hook = NULL,
+    .module_init_hook = rt_preempt_module_init_hook,
+    .module_exit_hook = rt_preempt_module_exit_hook,
     .task_update_stats_hook = NULL,
     .task_print_thread_stats_hook = rtpreempt_print_thread_stats,
     .task_new_hook = posix_task_new_hook,
