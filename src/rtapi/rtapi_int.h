@@ -1,9 +1,7 @@
 #ifndef RTAPI_INT_H
 #define RTAPI_INT_H
 
-#ifndef __KERNEL__
 # include <stdint.h>
-#endif
 
 /** Provide fixed length types of the form __u8, __s32, etc.  These
     can be used in both kernel and user space.  There are also types

@@ -10,15 +10,10 @@
 #define EXPAND_AND_QUOTE(str) QUOTE(str)
 #define VERSION EXPAND_AND_QUOTE(NANOPB_VERSION)
 
-// take care when compiling as a kernel module:
-#ifndef __KERNEL__
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
-#else
-#include <linux/module.h>
-#endif
 
 #define _NO_PB_SYSTEM_HEADER
 #include <machinetalk/nanopb/pb.h>
