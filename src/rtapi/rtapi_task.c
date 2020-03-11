@@ -82,6 +82,12 @@ int rtapi_prio_next_lower(int prio) {
 
 #ifdef RTAPI  /* below functions not available to user programs */
 
+#define IS_TASK_ID_VALID(task_id)                   \
+    if (task_id <= 0 || task_id >= RTAPI_MAX_TASKS) \
+    {                                               \
+        return -EINVAL;                             \
+    }
+
 /* task setup and teardown functions */
 int rtapi_task_new(const rtapi_task_args_t *args) {
     int task_id;
@@ -183,7 +189,7 @@ int rtapi_task_delete(int task_id) {
     task_data *task;
     int retval = 0;
 
-    if(task_id < 0 || task_id >= RTAPI_MAX_TASKS) return -EINVAL;
+    IS_TASK_ID_VALID(task_id)
 
     task = &(task_array[task_id]);
     /* validate task handle */
@@ -211,7 +217,7 @@ int rtapi_task_delete(int task_id) {
 int rtapi_task_start(int task_id, unsigned long int period_nsec) {
     task_data *task;
 
-    if (task_id < 0 || task_id >= RTAPI_MAX_TASKS) return -EINVAL;
+    IS_TASK_ID_VALID(task_id)
 
     task = &task_array[task_id];
 
@@ -238,7 +244,7 @@ int rtapi_task_start(int task_id, unsigned long int period_nsec) {
 int rtapi_task_stop(int task_id) {
     task_data *task;
 
-    if(task_id < 0 || task_id >= RTAPI_MAX_TASKS) return -EINVAL;
+    IS_TASK_ID_VALID(task_id)
 
     task = &task_array[task_id];
 
@@ -254,7 +260,7 @@ int rtapi_task_stop(int task_id) {
 int rtapi_task_pause(int task_id) {
     task_data *task;
 
-    if(task_id < 0 || task_id >= RTAPI_MAX_TASKS) return -EINVAL;
+    IS_TASK_ID_VALID(task_id)
 
     task = &task_array[task_id];
 
@@ -272,7 +278,7 @@ int rtapi_wait(const int flag) {
 int rtapi_task_resume(int task_id) {
     task_data *task;
 
-    if(task_id < 0 || task_id >= RTAPI_MAX_TASKS) return -EINVAL;
+    IS_TASK_ID_VALID(task_id)
 
     task = &task_array[task_id];
 

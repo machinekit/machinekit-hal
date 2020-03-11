@@ -531,7 +531,6 @@ HEADERS := \
     rtapi/rtapi_global.h \
     rtapi/rtapi_shmkeys.h \
     rtapi/rtapi_io.h \
-    rtapi/rtapi_ctype.h \
     rtapi/rtapi_errno.h \
     rtapi/rtapi_string.h \
     rtapi/rtapi_pci.h \
