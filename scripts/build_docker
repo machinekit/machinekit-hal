@@ -159,6 +159,18 @@ case $CMD in
 	    make docpages i_docpages ;"
 	)
 	;;
+    "coverity") # Run SYNOPSYS Coverity Scan, requires folder scs_analysis_tool folder with SYNOPSYS Coverity Analysis tool to be present in Machinekit-HAL root folder
+	BUILD_CL=( bash -xec "
+		export PATH=$PATH:$(echo $(pwd))/scs_analysis_tool/bin ;
+	    (
+		cd src ;
+		./autogen.sh ;
+		./configure ;
+	    )
+	    cov-build --dir cov-int make -C src -j${JOBS} ;
+		tar czvf machinekit-hal-coverity.tgz cov-int ;"
+	)
+	;;
     *)   echo "Unknown command '$CMD'" >&2; exit 1 ;;
 esac
 

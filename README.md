@@ -13,6 +13,10 @@
 <img alt="Travis-CI build status" src="https://img.shields.io/travis/machinekit/machinekit-hal/master?style=for-the-badge&logo=travis" />
 </a>
 
+<a href="https://scan.coverity.com/projects/machinekit-machinekit-hal">
+<img alt="Coverity Scan Build Status" src="https://img.shields.io/coverity/scan/20589.svg?style=for-the-badge" />
+</a>
+
 <img alt="Version" src="https://img.shields.io/badge/version-0.3-blue.svg?cacheSeconds=2592000&style=for-the-badge" />
 
 <a href="https://matrix.to/#/#machinekit:matrix.org" target="_blank">
