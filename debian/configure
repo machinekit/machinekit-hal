@@ -112,13 +112,29 @@ esac
 # Configure Xenomai threads
 configure_xenomai() {
     if ! dpkg-query -W | grep -q libxenomai-dev; then
-        echo "Not configuring build for Xenomai (no libxenomai-dev package)" >&2
+        echo "Not configuring build for Xenomai 2 (no libxenomai-dev package)" >&2
         return
     fi
 
-    echo "debian/control:  Adding xenomai threads configuration" >&2
-    BUILD_DEPS+=", libxenomai-dev"
-    DEPS+=", xenomai-runtime"
+    XENOMAI_VERSION=$(xeno-config --version)
+    echo "Xenomai version found: $XENOMAI_VERSION"
+
+    IFS='.'
+    read -ra XENOMAI_VERSION_ARR <<< "$XENOMAI_VERSION"
+
+    if ([ ${XENOMAI_VERSION_ARR[0]} -eq 2 ] && [ ${XENOMAI_VERSION_ARR[1]} -lt 7 ]); then
+        echo "debian/control:  Adding Xenomai 2 threads configuration" >&2
+        BUILD_DEPS+=", libxenomai-dev (<= 2.8)"
+        DEPS+=", xenomai-runtime (<= 2.8)"
+        return
+    fi
+
+    if ([ ${XENOMAI_VERSION_ARR[0]} -eq 3 ] && [ ${XENOMAI_VERSION_ARR[1]} -gt 0 ]); then
+        echo "debian/control:  Xenomai 3 not yet supported, not going to build" >&2
+        return
+    fi
+
+    echo "Not configuring build for Xenomai (unknown Xenomai version)" >&2
 }
 
 # read command line options - d is a dummy to stop args being req

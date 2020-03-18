@@ -1,12 +1,12 @@
 /********************************************************************
-* Description:  xenomai_loader.c
+* Description:  xenomai2_loader.c
 *
-* Alongside `xenomai.c`, implement the unique functions for the Xenomai userland
-* thread system.  The Xenomai DLL .so libraries will exit the program if
+* Alongside `xenomai2.c`, implement the unique functions for the Xenomai 2 userland
+* thread system.  The Xenomai 2 DLL .so libraries will exit the program if
 * `/dev/rtheap` doesn't exist, so those libraries can't be linked directly
-* against `rtapi.so` and still work in environments without Xenomai.  The
-* `xenomai.c` file checks to see whether Xenomai is available, and if so loads
-* this code, built as a plugin linked against Xenomai libraries.
+* against `rtapi.so` and still work in environments without Xenomai 2. The
+* `xenomai2.c` file checks to see whether Xenomai 2 is available, and if so loads
+* this code, built as a plugin linked against Xenomai 2 libraries.
 *
 * Copyright (C) 2012 - 2013 John Morris <john AT zultron DOT com>
 *                           Michael Haberler <license AT mah DOT priv DOT at>
@@ -26,7 +26,7 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 ********************************************************************/
 
-#include "xenomai.h"
+#include "xenomai2.h"
 
 #include <native/task.h>                // RT_TASK, rt_task_*()
 #include <native/timer.h>               // rt_timer_*()
@@ -36,10 +36,10 @@
 #include <signal.h>			// sigaction/SIGXCPU handling
 #endif
 
-// Access the xenomai_stats_t thread status object
-#define FTS(ts) ((xenomai_stats_t *)&(ts->flavor))
-// Access the xenomai_exception_t thread exception detail object
-#define FTED(detail) ((xenomai_exception_t *)&(detail.flavor))
+// Access the xenomai2_stats_t thread status object
+#define FTS(ts) ((xenomai2_stats_t *)&(ts->flavor))
+// Access the xenomai2_exception_t thread exception detail object
+#define FTED(detail) ((xenomai2_exception_t *)&(detail.flavor))
 
 /*  RTAPI task functions  */
 RT_TASK ostask_array[RTAPI_MAX_TASKS + 1];
@@ -49,15 +49,15 @@ RT_TASK ostask_array[RTAPI_MAX_TASKS + 1];
 // created with
 RT_TASK *ostask_self[RTAPI_MAX_TASKS + 1];
 
-int xenomai_task_self_hook(void);
+int xenomai2_task_self_hook(void);
 
 
 /***********************************************************************
 * RT thread statistics update
 */
-int xenomai_task_update_stats_hook(void)
+int xenomai2_task_update_stats_hook(void)
 {
-    int task_id = xenomai_task_self_hook();
+    int task_id = xenomai2_task_self_hook();
 
     // paranoia
     if ((task_id < 0) || (task_id > RTAPI_MAX_TASKS)) {
@@ -79,19 +79,11 @@ int xenomai_task_update_stats_hook(void)
 
     rtapi_threadstatus_t *ts = &global_data->thread_status[task_id];
 
-#ifdef XENOMAI_V2
     FTS(ts)->modeswitches = rtinfo.modeswitches;
     FTS(ts)->ctxswitches = rtinfo.ctxswitches;
     FTS(ts)->pagefaults = rtinfo.pagefaults;
     FTS(ts)->exectime = rtinfo.exectime;
     FTS(ts)->status = rtinfo.status;
-#else
-    FTS(ts)->modeswitches = rtinfo.stat.msw;
-    FTS(ts)->ctxswitches = rtinfo.stat.csw;
-    FTS(ts)->pagefaults = rtinfo.stat.pf;
-    FTS(ts)->exectime = rtinfo.stat.xtime;
-    FTS(ts)->status = rtinfo.stat.status;
-#endif
 
     ts->num_updates++;
 
@@ -99,17 +91,17 @@ int xenomai_task_update_stats_hook(void)
 }
 
 /***********************************************************************
-* Xenomai Domain switching handling
+* Xenomai 2 Domain switching handling
 *
 * if an RT thread does something silly, like a system call
-* (e.g. write(2) caused by a printf()), the Xenomai scheduler will
+* (e.g. write(2) caused by a printf()), the Xenomai 2 scheduler will
 * switch this thread from RT to Linux scheduling, and post the SIGXCPU
 * signal.
 *
 * This is typically a sign of a coding error, and pretty bad - it
 * should cause an estop.
 *
-* Update the Xenomai thread statistics, and funnel through exception
+* Update the Xenomai 2 thread statistics, and funnel through exception
 * handler mechanism.
 *
 * The important value in thread status is 'modeswitches', which should
@@ -126,7 +118,7 @@ extern rtapi_exception_handler_t rt_exception_handler;
 // trampoline to current handler
 static void signal_handler(int sig, siginfo_t *si, void *uctx)
 {
-    int task_id = xenomai_task_update_stats_hook();
+    int task_id = xenomai2_task_update_stats_hook();
     if (task_id > -1) {
 	rtapi_threadstatus_t *ts = &global_data->thread_status[task_id];
 
@@ -147,7 +139,7 @@ static void signal_handler(int sig, siginfo_t *si, void *uctx)
 * rtapi_task.c
 */
 
-int xenomai_task_delete_hook(task_data *task, int task_id) {
+int xenomai2_task_delete_hook(task_data *task, int task_id) {
     int retval = 0;
 
     if ((retval = rt_task_delete( &ostask_array[task_id] )) < 0) {
@@ -198,7 +190,7 @@ void _rtapi_task_wrapper(void * task_id_hack) {
     rt_task_set_mode(0, T_WARNSW, NULL);
 #endif
 
-    xenomai_task_update_stats_hook(); // initial recording
+    xenomai2_task_update_stats_hook(); // initial recording
 
 #ifdef TRIGGER_SIGXCPU_ONCE
     // enable this for testing only:
@@ -221,12 +213,11 @@ void _rtapi_task_wrapper(void * task_id_hack) {
 }
 
 
-int xenomai_task_start_hook(task_data *task, int task_id) {
+int xenomai2_task_start_hook(task_data *task, int task_id) {
     int which_cpu = 0;
     int uses_fpu = 0;
     int retval;
 
-#ifdef XENOMAI_V2
     // seems to work for me
     // not sure T_CPU(n) is possible - see:
     // http://www.xenomai.org/pipermail/xenomai-help/2010-09/msg00081.html
@@ -242,7 +233,6 @@ int xenomai_task_start_hook(task_data *task, int task_id) {
     // since this is a usermode RT task, it will be FP anyway
     if (task->uses_fp)
 	uses_fpu = T_FPU;
-#endif
 
     // optionally start as relaxed thread - meaning defacto a standard Linux thread
     // without RT features
@@ -261,13 +251,6 @@ int xenomai_task_start_hook(task_data *task, int task_id) {
 	return -ENOMEM;
     }
 
-#ifndef XENOMAI_V2
-    // Xenomai-3 CPU affinity
-    cpu_set_t cpus;
-    CPU_SET(task->cpu, &cpus);
-    rt_task_set_affinity (&ostask_array[task_id], &cpus);
-#endif
-
     if ((retval = rt_task_start( &ostask_array[task_id],
 				 _rtapi_task_wrapper, (void *)(long)task_id))) {
 	rtapi_print_msg(RTAPI_MSG_INFO,
@@ -278,7 +261,7 @@ int xenomai_task_start_hook(task_data *task, int task_id) {
     return 0;
 }
 
-int xenomai_task_stop_hook(task_data *task, int task_id) {
+int xenomai2_task_stop_hook(task_data *task, int task_id) {
     int retval;
 
     if ((retval = rt_task_delete( &ostask_array[task_id] )) < 0) {
@@ -290,15 +273,15 @@ int xenomai_task_stop_hook(task_data *task, int task_id) {
     return 0;
 }
 
-int xenomai_task_pause_hook(task_data *task, int task_id) {
+int xenomai2_task_pause_hook(task_data *task, int task_id) {
     return rt_task_suspend( &ostask_array[task_id] );
 }
 
-int xenomai_task_resume_hook(task_data *task, int task_id) {
+int xenomai2_task_resume_hook(task_data *task, int task_id) {
     return rt_task_resume( &ostask_array[task_id] );
 }
 
-int xenomai_wait_hook(const int flags) {
+int xenomai2_wait_hook(const int flags) {
 
     if (flags & TF_NOWAIT)
 	return 0;
@@ -310,7 +293,7 @@ int xenomai_wait_hook(const int flags) {
 	// something went wrong:
 
 	// update stats counters in thread status
-	int task_id = xenomai_task_update_stats_hook();
+	int task_id = xenomai2_task_update_stats_hook();
 
 
 	// paranoid, but you never know; this index off and
@@ -328,7 +311,7 @@ int xenomai_wait_hook(const int flags) {
 
 	rtapi_exception_detail_t detail = {0};
 	rtapi_threadstatus_t *ts = &global_data->thread_status[task_id];
-	xenomai_exception_id_t type;
+	xenomai2_exception_id_t type;
 
 	// exception descriptor
 	detail.task_id = task_id;
@@ -350,7 +333,7 @@ int xenomai_wait_hook(const int flags) {
 	case -EWOULDBLOCK:
 	    // returned if rt_task_set_periodic() has not previously
 	    // been called for the calling task. This is clearly
-	    // a Xenomai API usage error.
+	    // a Xenomai 2 API usage error.
 	    ts->api_errors++;
 	    type = XU_EWOULDBLOCK;
 	    break;
@@ -360,7 +343,7 @@ int xenomai_wait_hook(const int flags) {
 	    // the waiting task before the next periodic release
 	    // point has been reached. In this case, the overrun
 	    // counter is reset too.
-	    // a Xenomai API usage error.
+	    // a Xenomai 2 API usage error.
 	    ts->api_errors++;
 	    type = XU_EINTR;
 	    break;
@@ -369,7 +352,7 @@ int xenomai_wait_hook(const int flags) {
 	    // returned if this service was called from a
 	    // context which cannot sleep (e.g. interrupt,
 	    // non-realtime or scheduler locked).
-	    // a Xenomai API usage error.
+	    // a Xenomai 2 API usage error.
 	    ts->api_errors++;
 	    type = XU_EPERM;
 	    break;
@@ -387,7 +370,7 @@ int xenomai_wait_hook(const int flags) {
     return 0;
 }
 
-int xenomai_task_self_hook(void) {
+int xenomai2_task_self_hook(void) {
     RT_TASK *ptr;
     int n;
 
@@ -415,13 +398,13 @@ int xenomai_task_self_hook(void) {
 * rtapi_time.c
 */
 
-void xenomai_task_delay_hook(long int nsec)
+void xenomai2_task_delay_hook(long int nsec)
 {
     long long int release = rt_timer_read() + nsec;
     while (rt_timer_read() < release);
 }
 
-long long int xenomai_get_time_hook(void) {
+long long int xenomai2_get_time_hook(void) {
     /* The value returned will represent a count of jiffies if the
        native skin is bound to a periodic time base (see
        CONFIG_XENO_OPT_NATIVE_PERIOD), or nanoseconds otherwise.  */
@@ -433,12 +416,12 @@ long long int xenomai_get_time_hook(void) {
    other disgusting, non-realtime oriented behavior.  But at least it
    doesn't take a week every time you call it.
 */
-long long int xenomai_get_clocks_hook(void) {
+long long int xenomai2_get_clocks_hook(void) {
     return rt_timer_read();
 }
 
 
-void xenomai_print_thread_stats(int task_id)
+void xenomai2_print_thread_stats(int task_id)
 {
     rtapi_threadstatus_t *ts =
 	&global_data->thread_status[task_id];
@@ -461,25 +444,25 @@ void xenomai_print_thread_stats(int task_id)
 }
 
 
-void xenomai_exception_handler_hook(int type,
+void xenomai2_exception_handler_hook(int type,
                                     rtapi_exception_detail_t *detail,
                                     int level)
 {
     rtapi_threadstatus_t *ts = &global_data->thread_status[detail->task_id];
-    switch ((xenomai_exception_id_t)type) {
+    switch ((xenomai2_exception_id_t)type) {
         // Timing violations
 	case XU_ETIMEDOUT:
             rtapi_print_msg(level,
 			    "%d: Unexpected realtime delay on RT thread %d ",
                             type, detail->task_id);
-            xenomai_print_thread_stats(detail->task_id);
+            xenomai2_print_thread_stats(detail->task_id);
 	    break;
-	    // Xenomai User errors
-	case XU_SIGXCPU:	// Xenomai Domain switch
+	    // Xenomai 2 User errors
+	case XU_SIGXCPU:	// Xenomai 2 Domain switch
 	    rtapi_print_msg(level,
-			    "%d: Xenomai Domain switch for thread %d",
+			    "%d: Xenomai 2 Domain switch for thread %d",
 			    type, detail->task_id);
-	    xenomai_print_thread_stats(detail->task_id);
+	    xenomai2_print_thread_stats(detail->task_id);
 	    break;
 	case XU_EWOULDBLOCK:
 	    rtapi_print_msg(level,
@@ -507,7 +490,7 @@ void xenomai_exception_handler_hook(int type,
 
 	case XU_UNDOCUMENTED:
 	    rtapi_print_msg(level,
-			    "%d: unspecified Xenomai error: thread %d - errno %d",
+			    "%d: unspecified Xenomai 2 error: thread %d - errno %d",
 			    type,
 			    detail->task_id,
 			    detail->error_code);
@@ -520,23 +503,23 @@ void xenomai_exception_handler_hook(int type,
    }
 }
 
-void xenomai_descriptor_updater(flavor_descriptor_ptr fd)
+void xenomai2_descriptor_updater(flavor_descriptor_ptr fd)
 {
     // Update flavor descriptor with functions from this plugin
-    fd->task_update_stats_hook = xenomai_task_update_stats_hook;
-    fd->exception_handler_hook = xenomai_exception_handler_hook;
-    fd->task_print_thread_stats_hook = xenomai_print_thread_stats;
-    fd->task_delete_hook = xenomai_task_delete_hook;
-    fd->task_start_hook = xenomai_task_start_hook;
-    fd->task_stop_hook = xenomai_task_stop_hook;
-    fd->task_pause_hook = xenomai_task_pause_hook;
-    fd->task_wait_hook = xenomai_wait_hook;
-    fd->task_resume_hook = xenomai_task_resume_hook;
-    fd->task_delay_hook = xenomai_task_delay_hook;
-    fd->get_time_hook = xenomai_get_time_hook;
-    fd->get_clocks_hook = xenomai_get_clocks_hook;
-    fd->task_self_hook = xenomai_task_self_hook;
+    fd->task_update_stats_hook = xenomai2_task_update_stats_hook;
+    fd->exception_handler_hook = xenomai2_exception_handler_hook;
+    fd->task_print_thread_stats_hook = xenomai2_print_thread_stats;
+    fd->task_delete_hook = xenomai2_task_delete_hook;
+    fd->task_start_hook = xenomai2_task_start_hook;
+    fd->task_stop_hook = xenomai2_task_stop_hook;
+    fd->task_pause_hook = xenomai2_task_pause_hook;
+    fd->task_wait_hook = xenomai2_wait_hook;
+    fd->task_resume_hook = xenomai2_task_resume_hook;
+    fd->task_delay_hook = xenomai2_task_delay_hook;
+    fd->get_time_hook = xenomai2_get_time_hook;
+    fd->get_clocks_hook = xenomai2_get_clocks_hook;
+    fd->task_self_hook = xenomai2_task_self_hook;
 }
 
 // Not really needed except to keep the build system from barfing
-EXPORT_SYMBOL(xenomai_descriptor_updater);
+EXPORT_SYMBOL(xenomai2_descriptor_updater);

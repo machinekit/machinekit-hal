@@ -7,8 +7,8 @@
 #include "rtapi_flavor.h"
 #include "rt-preempt.h"
 #endif
-#ifdef HAVE_XENOMAI_THREADS
-#include "xenomai.h"
+#ifdef HAVE_XENOMAI2_THREADS
+#include "xenomai2.h"
 #endif
 
 // Help for unit test mocking
@@ -39,8 +39,8 @@ static flavor_descriptor_ptr flavor_list[] = {
 #ifdef RTAPI
     &flavor_posix_descriptor,
     &flavor_rt_prempt_descriptor,
-# ifdef HAVE_XENOMAI_THREADS
-    &flavor_xenomai_descriptor,
+# ifdef HAVE_XENOMAI2_THREADS
+    &flavor_xenomai2_descriptor,
 # endif
 #endif
     NULL

@@ -39,9 +39,9 @@ char *__wrap_getenv(const char *name)
 
 // Number of flavors
 #ifdef RTAPI
-#  ifdef HAVE_XENOMAI_THREADS
+#  ifdef HAVE_XENOMAI2_THREADS
 #   define FLAVOR_NAMES_COUNT 3
-static char* expected_flavor_names[] = { "posix", "rt-preempt", "xenomai" };
+static char* expected_flavor_names[] = { "posix", "rt-preempt", "xenomai2" };
 #  else
 #   define FLAVOR_NAMES_COUNT 2
 static char* expected_flavor_names[] = { "posix", "rt-preempt" };
@@ -97,10 +97,10 @@ typedef struct { char* name; int id; } flavor_by_test_data_t;
 static flavor_by_test_data_t flavor_by_test_data[] = {
     {"posix", 2},
     {"rt-preempt", 3},
-#  ifdef HAVE_XENOMAI_THREADS
-    {"xenomai", 4},
+#  ifdef HAVE_XENOMAI2_THREADS
+    {"xenomai2", 4},
 #  else
-    {"xenomai", 0},
+    {"xenomai2", 0},
     {"bogus", 4},
 #  endif
     {"ulapi", 0},
@@ -172,7 +172,7 @@ typedef struct {
     int ulapi_cannot_run; // Just to test the flow
     int posix_cannot_run; // Just to test the flow
     int rtpreempt_can_run;
-    int xenomai_can_run;
+    int xenomai2_can_run;
 } flavor_default_test_data_t;
 
 static flavor_default_test_data_t flavor_default_test_data[] = {
@@ -190,9 +190,9 @@ static flavor_default_test_data_t flavor_default_test_data[] = {
     { .ret = 2 }, // Worst case scenario:  posix
     { .getenv_ret = "", .ret = 2 }, // $FLAVOR set to empty
     { .rtpreempt_can_run = 1, .ret = 3 },  // RT_PREEMPT can_run
-#  ifdef HAVE_XENOMAI_THREADS
-    { .xenomai_can_run = 1, .ret = 4 },  // Xenomai can_run
-    { .rtpreempt_can_run = 1, .xenomai_can_run = 1, .ret = 4 }, // Both can_run
+#  ifdef HAVE_XENOMAI2_THREADS
+    { .xenomai2_can_run = 1, .ret = 4 },  // Xenomai 2 can_run
+    { .rtpreempt_can_run = 1, .xenomai2_can_run = 1, .ret = 4 }, // Both can_run
 #  endif
     // Choose best default:  No runnable flavors exit 102
     { .posix_cannot_run = 1, .exit = 102 }, // Impossible
@@ -272,12 +272,12 @@ static void test_flavor_default_runner(flavor_default_test_data_t *td)
               td->rtpreempt_can_run);
         expect_value(__wrap_flavor_can_run_flavor, f, flavor_byname("rt-preempt"));
         will_return(__wrap_flavor_can_run_flavor, td->rtpreempt_can_run);
-#         ifdef HAVE_XENOMAI_THREADS
+#         ifdef HAVE_XENOMAI2_THREADS
         expect_function_call(__wrap_flavor_can_run_flavor);
-        DEBUG("test:  mock flavor_can_run_flavor('xenomai') = %d\n",
-              td->xenomai_can_run);
-        expect_value(__wrap_flavor_can_run_flavor, f, flavor_byname("xenomai"));
-        will_return(__wrap_flavor_can_run_flavor, td->xenomai_can_run);
+        DEBUG("test:  mock flavor_can_run_flavor('xenomai2') = %d\n",
+              td->xenomai2_can_run);
+        expect_value(__wrap_flavor_can_run_flavor, f, flavor_byname("xenomai2"));
+        will_return(__wrap_flavor_can_run_flavor, td->xenomai2_can_run);
 #         endif
 #       endif
     }
@@ -386,7 +386,7 @@ int main(void)
         cmocka_unit_test(test_flavor_default),
         cmocka_unit_test(test_flavor_default),
         cmocka_unit_test(test_flavor_default),
-#         ifdef HAVE_XENOMAI_THREADS
+#         ifdef HAVE_XENOMAI2_THREADS
         cmocka_unit_test(test_flavor_default),
         cmocka_unit_test(test_flavor_default),
 #         endif

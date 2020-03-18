@@ -92,7 +92,7 @@ check-rsyslog() {
 #
 # Check /etc/security/limits.d configuration
 #
-# Xenomai needs higher memlock ulimit than the default 64k
+# Xenomai 2 needs higher memlock ulimit than the default 64k
 #
 check-ulimits() {
     local ulimit_configs="$(get-conf-files \

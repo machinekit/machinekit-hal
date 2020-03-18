@@ -32,7 +32,7 @@ extern "C" {
         RTAPI_FLAVOR_ULAPI_ID,
         RTAPI_FLAVOR_POSIX_ID,
         RTAPI_FLAVOR_RT_PREEMPT_ID,
-        RTAPI_FLAVOR_XENOMAI_ID,
+        RTAPI_FLAVOR_XENOMAI2_ID,
     } rtapi_flavor_id_t;
 
 

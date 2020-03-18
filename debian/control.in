@@ -86,7 +86,7 @@ Description: HAL stack split from Machinekit
 Depends:
     machinekit-hal
 
-Package: machinekit-hal-xenomai
+Package: machinekit-hal-xenomai2
 Architecture: any
 Suggests: hostmot2-firmware-all [!armhf]
 Description: HAL stack split from Machinekit
@@ -94,4 +94,4 @@ Description: HAL stack split from Machinekit
  This package provides components and drivers that run on a realtime
  (XENOMAI 2) system.
 Depends:
-    machinekit-hal, xenomai-runtime
+    machinekit-hal, xenomai-runtime (<= 2.8)

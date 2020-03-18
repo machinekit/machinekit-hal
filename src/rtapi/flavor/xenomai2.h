@@ -1,7 +1,7 @@
 /********************************************************************
-* Description:  xenomai.h
+* Description:  xenomai2.h
 *               This file defines the differences specific to the
-*               the Xenomai user land thread system
+*               the Xenomai 2 user land thread system
 *
 * Copyright (C) 2012 - 2013 John Morris <john AT zultron DOT com>
 *                           Michael Haberler <license AT mah DOT priv DOT at>
@@ -36,14 +36,14 @@ typedef enum {
 
     XU_EXCEPTION_LAST,
 
-} xenomai_exception_id_t;
+} xenomai2_exception_id_t;
 
 typedef struct {
     // passed by ref from rt_task_wait_period()
     unsigned long overruns;
-} xenomai_exception_t;
+} xenomai2_exception_t;
 // Check the exception struct size
-ASSERT_SIZE_WITHIN(xenomai_exception_t, MAX_FLAVOR_EXCEPTION_SIZE);
+ASSERT_SIZE_WITHIN(xenomai2_exception_t, MAX_FLAVOR_EXCEPTION_SIZE);
 
 typedef struct {
     // as reported by rt_task_inquire()
@@ -62,8 +62,8 @@ typedef struct {
     // and increment api_errors
 
     // all others increment other_errors
-} xenomai_stats_t;
+} xenomai2_stats_t;
 // Check the stats struct size
-ASSERT_SIZE_WITHIN(xenomai_stats_t, MAX_FLAVOR_THREADSTATUS_SIZE);
+ASSERT_SIZE_WITHIN(xenomai2_stats_t, MAX_FLAVOR_THREADSTATUS_SIZE);
 
-extern flavor_descriptor_t flavor_xenomai_descriptor;
+extern flavor_descriptor_t flavor_xenomai2_descriptor;

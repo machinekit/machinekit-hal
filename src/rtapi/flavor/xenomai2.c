@@ -1,7 +1,7 @@
 /********************************************************************
-* Description:  xenomai.c
-*               This file, 'xenomai.c', implements the unique
-*               functions for the Xenomai userland thread system.
+* Description:  xenomai2.c
+*               This file, 'xenomai2.c', implements the unique
+*               functions for the Xenomai 2 userland thread system.
 *
 * Copyright (C) 2012 - 2013 John Morris <john AT zultron DOT com>
 *                           Michael Haberler <license AT mah DOT priv DOT at>
@@ -26,10 +26,10 @@
 #include <stdlib.h>                     // calloc(), free(), exit()
 #include <dlfcn.h>                      // dlopen(), dlsym(), dlerror()
 
-#include "xenomai.h"
+#include "xenomai2.h"
 #include <nucleus/heap.h>               // XNHEAP_DEV_NAME
-#define PROC_IPIPE_XENOMAI "/proc/ipipe/Xenomai"
-#define XENO_GID_SYSFS "/sys/module/xeno_nucleus/parameters/xenomai_gid"
+#define PROC_IPIPE_XENOMAI2 "/proc/ipipe/Xenomai"
+#define XENO2_GID_SYSFS "/sys/module/xeno_nucleus/parameters/xenomai_gid"
 
 #ifdef USE_SIGXCPU
 #include <signal.h>                     /* sigaction/SIGXCPU handling */
@@ -40,11 +40,11 @@
 */
 
 // Forward-declare the plugin loader
-int load_xenomai_plugin(void);
+int load_xenomai2_plugin(void);
 
-int xenomai_module_init_hook(void)
+int xenomai2_module_init_hook(void)
 {
-    if (! load_xenomai_plugin())
+    if (! load_xenomai2_plugin())
         return -1;
 
 
@@ -66,7 +66,7 @@ int xenomai_module_init_hook(void)
     return 0;
 }
 
-void xenomai_module_exit_hook(void)
+void xenomai2_module_exit_hook(void)
 {
 #ifdef USE_SIGXCPU
     struct sigaction sig_act;
@@ -83,34 +83,34 @@ void xenomai_module_exit_hook(void)
 
 
 
-int kernel_is_xenomai()
+int kernel_is_xenomai2()
 {
     struct stat sb;
 
     return ((stat(XNHEAP_DEV_NAME, &sb) == 0) &&
-	    (stat(PROC_IPIPE_XENOMAI, &sb) == 0) &&
-	    (stat(XENO_GID_SYSFS, &sb) == 0));
+	    (stat(PROC_IPIPE_XENOMAI2, &sb) == 0) &&
+	    (stat(XENO2_GID_SYSFS, &sb) == 0));
 }
 
-int xenomai_flavor_check(void);
+int xenomai2_flavor_check(void);
 
-int xenomai_can_run_flavor()
+int xenomai2_can_run_flavor()
 {
-    if (! kernel_is_xenomai())
+    if (! kernel_is_xenomai2())
         return 0;
 
-    if (! xenomai_flavor_check())
+    if (! xenomai2_flavor_check())
         return 0;
 
     return 1;
 }
 
-int xenomai_gid()
+int xenomai2_gid()
 {
     FILE *fd;
     int gid = -1;
 
-    if ((fd = fopen(XENO_GID_SYSFS,"r")) != NULL) {
+    if ((fd = fopen(XENO2_GID_SYSFS,"r")) != NULL) {
 	if (fscanf(fd, "%d", &gid) != 1) {
 	    fclose(fd);
 	    return -EBADF; // garbage in sysfs device
@@ -122,11 +122,11 @@ int xenomai_gid()
     return -ENOENT; // sysfs device cant be opened
 }
 
-int user_in_xenomai_group()
+int user_in_xenomai2_group()
 {
     int numgroups, i;
     gid_t *grouplist;
-    int gid = xenomai_gid();
+    int gid = xenomai2_gid();
 
     if (gid < 0)
 	return gid;
@@ -149,9 +149,9 @@ int user_in_xenomai_group()
     return 0;
 }
 
-int xenomai_flavor_check(void) {
+int xenomai2_flavor_check(void) {
     // catch installation error: user not in xenomai group
-    int retval = user_in_xenomai_group();
+    int retval = user_in_xenomai2_group();
 
     switch (retval) {
 	case 1:  // yes
@@ -173,18 +173,18 @@ int xenomai_flavor_check(void) {
 
 
 
-// The Xenomai flavor descriptor data before loading the plugin
-flavor_descriptor_t flavor_xenomai_descriptor = {
-    .name = "xenomai",
-    .flavor_id = RTAPI_FLAVOR_XENOMAI_ID,
+// The Xenomai 2 flavor descriptor data before loading the plugin
+flavor_descriptor_t flavor_xenomai2_descriptor = {
+    .name = "xenomai2",
+    .flavor_id = RTAPI_FLAVOR_XENOMAI2_ID,
     .flags = FLAVOR_DOES_IO + FLAVOR_IS_RT + FLAVOR_TIME_NO_CLOCK_MONOTONIC,
-    .can_run_flavor = xenomai_can_run_flavor,
-    .module_init_hook = xenomai_module_init_hook,
-    .module_exit_hook = xenomai_module_exit_hook,
+    .can_run_flavor = xenomai2_can_run_flavor,
+    .module_init_hook = xenomai2_module_init_hook,
+    .module_exit_hook = xenomai2_module_exit_hook,
     .task_pll_get_reference_hook = NULL,
     .task_pll_set_correction_hook = NULL,
     .task_new_hook = NULL,
-    // The following are set during module init when Xenomai libs are loaded
+    // The following are set during module init when Xenomai 2 libs are loaded
     .task_update_stats_hook = NULL,
     .exception_handler_hook = NULL,
     .task_print_thread_stats_hook = NULL,
@@ -200,19 +200,19 @@ flavor_descriptor_t flavor_xenomai_descriptor = {
     .task_self_hook = NULL,
 };
 
-int load_xenomai_plugin(void)
+int load_xenomai2_plugin(void)
 {
-    // Load the xenomai_loader.so module that does the real work
-    void *mod_handle = dlopen("xenomai_loader.so", RTLD_GLOBAL |RTLD_NOW);
+    // Load the xenomai2_loader.so module that does the real work
+    void *mod_handle = dlopen("xenomai2_loader.so", RTLD_GLOBAL |RTLD_NOW);
     if (!mod_handle) {
         rtapi_print_msg(RTAPI_MSG_ERR,
-                        "Unable to load xenomai_stub.so:  %s\n",
+                        "Unable to load xenomai2_stub.so:  %s\n",
                         dlerror());
         return -1;
     }
     // Fill out missing parts of the flavor descriptor
-    plugin_flavor_descriptor_updater_t xenomai_descriptor_updater =
-        dlsym(mod_handle, "xenomai_descriptor_updater");
-    xenomai_descriptor_updater(&flavor_xenomai_descriptor);
+    plugin_flavor_descriptor_updater_t xenomai2_descriptor_updater =
+        dlsym(mod_handle, "xenomai2_descriptor_updater");
+    xenomai2_descriptor_updater(&flavor_xenomai2_descriptor);
     return 0;
 }

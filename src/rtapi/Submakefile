@@ -19,9 +19,9 @@ INCLUDES += rtapi rtapi_export rtapi/flavor
 	@mkdir -p ../include/flavor
 	$(Q)cp  $^ $@
 
-ifeq ($(HAVE_XENOMAI_THREADS),yes)
-XENOMAI_SRC = rtapi/flavor/xenomai.c
-XENOMAI_HEADER = rtapi/flavor/xenomai.h
+ifeq ($(HAVE_XENOMAI2_THREADS),yes)
+XENOMAI_SRC = rtapi/flavor/xenomai2.c
+XENOMAI_HEADER = rtapi/flavor/xenomai2.h
 endif
 
 HEADERS += \
@@ -122,16 +122,16 @@ $(call TORTOBJS, rtapi/flavor/rt-preempt.c): \
 $(RTLIBDIR)/rtapi.so: EXTRA_LDFLAGS += \
 	$(LIBUDEV_LIBS) $(RT_LDFLAGS) $(LIBCGROUP_LIBS)
 
-ifeq ($(HAVE_XENOMAI_THREADS),yes)
-# Build xenomai_loader.so linked to Xenmai libs
-$(eval $(call c_comp_build_rules,rtapi/flavor/xenomai_loader.o))
-$(RTLIBDIR)/xenomai_loader.so: \
+ifeq ($(HAVE_XENOMAI2_THREADS),yes)
+# Build xenomai2_loader.so linked to Xenomai libs
+$(eval $(call c_comp_build_rules,rtapi/flavor/xenomai2_loader.o))
+$(RTLIBDIR)/xenomai2_loader.so: \
 	EXTRA_LDFLAGS += $(XENOMAI_LDFLAGS)
 
 # Set Xenomai CFLAGS
 $(call TORTOBJS, $(XENOMAI_SRC)): \
 	EXTRA_CFLAGS += $(XENOMAI_RTFLAGS)
-$(call TORTOBJS, rtapi/flavor/xenomai_loader.c): \
+$(call TORTOBJS, rtapi/flavor/xenomai2_loader.c): \
 	EXTRA_CFLAGS += $(XENOMAI_RTFLAGS)
 endif
 
