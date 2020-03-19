@@ -1,7 +1,7 @@
 Source: machinekit-hal
 Section: misc
 Priority: extra
-Maintainer: ArcEye <arceyeATmgwareDOTcoDOTuk>
+Maintainer: MachinekitBot <machinekitATeryafDOTcom>
 Build-Depends: debhelper (>= 6),
     autoconf (>= 2.63), automake, libboost-python-dev, libgl1-mesa-dev,
     libglu1-mesa-dev, libmodbus-dev (>= 3.0),
@@ -43,7 +43,7 @@ Depends: ${shlibs:Depends},
     python-imaging | python-pil,
     python-imaging-tk | python-pil.imagegtk,
     uuid-runtime @DEPS@
-Description: Machinekit HAL stack
+Description: Universal framework for machine control based on Hardware Abstraction Layer principle
     .
     Machinekit is the next-generation Machine Controller.  It provides
     motion and other control for atomation, robot and CNC machine tool
@@ -56,10 +56,8 @@ Depends: make, g++,
    machinekit-hal (= ${binary:Version}),
    yapps2-runtime | python-yapps
 Section: libs
-Description: PC based motion controller for real-time Linux
- Machinekit is the next-generation Enhanced Machine Controller which
- provides motion control for CNC machine tools and robotic
- applications (milling, cutting, routing, etc.).
+Description: Universal framework for machine control based on Hardware Abstraction Layer principle
+ This package includes the development environment for Machinekit-HAL.
  .
  This package includes files needed to build new realtime components and
  alternate front-ends for machinekit
@@ -79,19 +77,20 @@ Description: Machinekit HAL RT_PREEMPT
 Package: machinekit-hal-posix
 Architecture: any
 Suggests: hostmot2-firmware-all [!armhf]
-Description: HAL stack split from Machinekit
+Description: Universal framework for machine control based on Hardware Abstraction Layer principle
  .
  This package provides components and drivers that run on a non-realtime
  (Posix) system.
 Depends:
     machinekit-hal
 
-Package: machinekit-hal-xenomai
+Package: machinekit-hal-xenomai2
 Architecture: any
 Suggests: hostmot2-firmware-all [!armhf]
-Description: HAL stack split from Machinekit
+Conflicts: machinekit-hal-xenomai
+Description: Universal framework for machine control based on Hardware Abstraction Layer principle
  .
  This package provides components and drivers that run on a realtime
  (XENOMAI 2) system.
 Depends:
-    machinekit-hal, xenomai-runtime
+    machinekit-hal, xenomai-runtime (<= 2.8)

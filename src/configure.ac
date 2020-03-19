@@ -843,14 +843,14 @@ AC_PYTHON_MODULE(pyftpdlib.servers, failed to import pyftpdlib.servers
 
 AC_PRESERVE_HELP_ORDER()
 
-AC_ARG_WITH(xenomai,
-    [AS_HELP_STRING([--with-xenomai],
-        [build Xenomai userland threads])],
+AC_ARG_WITH(xenomai2,
+    [AS_HELP_STRING([--with-xenomai2],
+        [build Xenomai 2 userland threads])],
     [xenomai_from_cmdline=$withval
      test $withval = yes && all_flavors_default=no],
-    [with_xenomai=check])
+    [with_xenomai2=check])
 
-if test "$with_xenomai" != no; then
+if test "$with_xenomai2" != no; then
     # XENOMAI_THREADS_RTS:  look for the xeno-config executable
     XENOMAI_THREADS_RTS=''
     if test "$xeno_config_from_cmdline" = yes; then
@@ -868,6 +868,7 @@ if test "$with_xenomai" != no; then
 	AC_MSG_CHECKING([usability of xenomai utility, $XENOMAI_THREADS_RTS])
 	if test -x $XENOMAI_THREADS_RTS; then
 	    # Check for Xenomai v.2 or v.3
+        # This will need rework for real Xenomai 3 support
 	    case $(xeno-config --version) in
 	        2.*)
 		    XENOMAI_SKIN=native
@@ -875,10 +876,11 @@ if test "$with_xenomai" != no; then
 		    AC_MSG_RESULT(yes (v2))
 		    ;;
 		3.*)
-		    XENOMAI_SKIN=alchemy
+		    #XENOMAI_SKIN=alchemy
 		    XENOMAI_V2=false
 		    with_xenomai_kernel=no  # No more xenomai kthreads in v3
-		    AC_MSG_RESULT(yes (v3))
+		    #AC_MSG_RESULT(yes (v3))
+            AC_MSG_RESULT(no)
 		    ;;
 	    esac
 	    XENOMAI_THREADS_RTS="$XENOMAI_THREADS_RTS --skin=$XENOMAI_SKIN"
@@ -892,12 +894,12 @@ if test "$with_xenomai" != no; then
 	if test "$xeno_config_from_cmdline" = yes; then
 	    # --with-xeno-config specified, but invalid path
 	    AC_MSG_ERROR(--with-xeno-config:  "$with_xeno_config":  bad path)
-        elif test "$with_xenomai_kernel" = yes -o "$with_xenomai" = yes; then
-	    # --with-xenomai{,-kernel} specified but can't find xeno-config
+        elif test "$with_xenomai_kernel" = yes -o "$with_xenomai2" = yes; then
+	    # --with-xenomai2{,-kernel} specified but can't find xeno-config
             AC_MSG_ERROR("xeno-config" not found; use --with-xeno-config")
 	else
 	    with_xenomai_kernel=no
-	    with_xenomai=no
+	    with_xenomai2=no
 	fi
     fi
 fi
@@ -912,15 +914,15 @@ if test -n "$XENOMAI_THREADS_RTS"; then
     CFLAGS="$CFLAGS $($XENOMAI_THREADS_RTS --cflags)"
     CPPFLAGS="$CPPFLAGS $($XENOMAI_THREADS_RTS --cflags)"
     AC_CHECK_LIB($XENOMAI_SKIN, rt_task_create,,
-        with_xenomai=no; with_xenomai_kernel=no)
+        with_xenomai2=no; with_xenomai_kernel=no)
     AC_CHECK_HEADERS($XENOMAI_SKIN/task.h,,
-        with_xenomai=no; with_xenomai_kernel=no)
+        with_xenomai2=no; with_xenomai_kernel=no)
     LIBS="$LIBS_hold"
     CFLAGS="$CFLAGS_hold"
     CPPFLAGS="$CPPFLAGS_hold"
 fi
 
-if test "$with_xenomai" != no; then
+if test "$with_xenomai2" != no; then
     flags="$($XENOMAI_THREADS_RTS --cflags)"
     # Xenomai docs recommend turning off CONFIG_CC_STACKPROTECTOR
     # on all arches but x86_64; this causes missing symbols without
@@ -945,13 +947,13 @@ if test "$with_xenomai" != no; then
     XENOMAI_LDFLAGS+="$XENOMAI_THREADS_LDFLAGS $flags"
 fi
 
-AC_MSG_CHECKING(whether to build Xenomai userland threads)
-test "$with_xenomai" = check && with_xenomai=yes
-test -z "$XENOMAI_THREADS_RTS" && with_xenomai=no
-if test $with_xenomai = no -a "$xenomai_from_cmdline" = yes; then
-    AC_MSG_ERROR([Requested '--with-xenomai', but unable to configure])
+AC_MSG_CHECKING(whether to build Xenomai 2 userland threads)
+test "$with_xenomai2" = check && with_xenomai2=yes
+test -z "$XENOMAI_THREADS_RTS" && with_xenomai2=no
+if test $with_xenomai2 = no -a "$xenomai_from_cmdline" = yes; then
+    AC_MSG_ERROR([Requested '--with-xenomai2', but unable to configure])
 fi
-AC_MSG_RESULT($with_xenomai)
+AC_MSG_RESULT($with_xenomai2)
 
 
 ##############################################################################
@@ -1112,13 +1114,14 @@ if test "$XENOMAI_V2" = true; then
     AC_DEFINE([XENOMAI_V2],[],[Xenomai v.2])
 fi
 AC_DEFINE_UNQUOTED([XENOMAI_SKIN],$XENOMAI_SKIN,
-	[Xenomai skin ('native' for v2, 'alchemy' for v3)])
+	[Xenomai skin ('native' for v2)])
+    #[Xenomai skin ('native' for v2, 'alchemy' for v3)])
 
 # Xenomai userland settings
-if test "$with_xenomai" = yes; then
-    AC_DEFINE([HAVE_XENOMAI_THREADS],[],[Build Xenomai userland threads])
+if test "$with_xenomai2" = yes; then
+    AC_DEFINE([HAVE_XENOMAI2_THREADS],[],[Build Xenomai 2 userland threads])
 fi
-AC_SUBST([HAVE_XENOMAI_THREADS],[$with_xenomai])
+AC_SUBST([HAVE_XENOMAI2_THREADS],[$with_xenomai2])
 AC_SUBST([XENOMAI_THREADS_RTS])
 AC_SUBST([XENOMAI_RTFLAGS])
 AC_SUBST([XENOMAI_LDFLAGS])
@@ -2202,11 +2205,12 @@ offbold () {
 echo ""
 echo ""
 echo "######################################################################"
-echo "#                Machinekit - Enhanced Machine Controller            #"
+echo "#                           Machinekit HAL                           #"
+echo "#   Universal framework for machine control based on HAL principle   #"
 echo "######################################################################"
 echo "#                                                                    #"
-echo "#   Machinekit is a software system for computer control of machine  #"
-echo "#   tools such as milling machines. Machinekit is released under the #"
+echo "#   Machinekit is a universal software system for computer control   #"
+echo "#   of wide spectrum of machines. Machinekit is released under the   #"
 echo "#   GPL.  Check out http://www.machinekit.io for more details.       #"
 echo "#                                                                    #"
 echo "#                                                                    #"
@@ -2239,7 +2243,7 @@ echo "#         sudo make install                                          #"
 fi
 echo "#                                                                    #"
 echo "#   To run the software type                                         #"
-echo "#         machinekit                                                 #"
+echo "#         halrun                                                     #"
 echo "#                                                                    #"
 echo "######################################################################"
 echo ""

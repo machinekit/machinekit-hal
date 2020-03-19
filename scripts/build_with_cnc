@@ -23,7 +23,7 @@ cd ../
 if [ -e machinekit-cnc ]; then
 	echo "Using existing machinekit-cnc checkout."
 else
-	git clone https://github.com/machinekit/machinekit-cnc
+	git clone --depth 1 --branch master --single-branch https://github.com/machinekit/machinekit-cnc
 fi
 
 cd machinekit-cnc/src
