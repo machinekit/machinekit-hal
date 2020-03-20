@@ -9,7 +9,7 @@ IMAGE_NAME=${1:-${IMAGE_NAME:?$USAGE}}
 # Extract image tag from image name
 CACHE_TAG=${IMAGE_NAME##*:}
 # Set Dockerfile path
-DOCKERFILE_PATH=Dockerfile
+DOCKERFILE_PATH=containers/buildsystem/debian/Dockerfile
 
 # Build configuration variables for each tag
 # - Architecture settings
@@ -70,6 +70,13 @@ case "${CACHE_TAG}" in
         ;;
 esac
 
+# Error out if user wants to build forbidden combiantion
+if ([ "$DISTRO_CODENAME" == "jessie" ] && [ "$DEBIAN_ARCH" == "arm64" ]); then
+    echo "Forbidden combination of '${DEBIAN_ARCH}_${DISTRO_VER}'" >&2
+    echo "Jessie doesn't support ARM64" >&2
+    exit 1
+fi
+
 # Debug info
 (
     echo "Build settings:"
@@ -99,4 +106,4 @@ exec docker build \
        --build-arg DISTRO_VER=${DISTRO_VER} \
        --build-arg EXTRA_FLAGS=${EXTRA_FLAGS} \
        --build-arg LDEMULATION=${LDEMULATION} \
-       -f $DOCKERFILE_PATH -t $IMAGE_NAME .
+       -f $DOCKERFILE_PATH -t $IMAGE_NAME ..

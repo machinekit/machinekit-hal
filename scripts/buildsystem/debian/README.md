@@ -47,56 +47,12 @@ container (see above `build_docker -c` command).
         # Apt cache
         apt-cache -o Dir::State=$DPKG_ROOT/var/lib/apt/ show libczmq-dev
 
-
-## Updating the Machinekit dependencies
-
-Machinekit dependencies are auto-generated from the Machinekit source
-tree `debian/` directory.  When those files are updated, the
-`configure` and `control.in` files should be copied here.
-
-        cp $(MK_REPO)/debian/configure debian/
-        cp $(MK_REPO)/debian/control.in debian/
-
 ## Building locally
 
 Build images locally with the supplied script, supplying the
 image name, e.g.:
 
-    ./build.sh my_docker_id/mk-cross-builder:arm64_10
-
-# Automated image builds and CI
-
-These images can be automatically build on Docker Hub, and be used in
-Travis CI to test Machinekit.
-
-## Set up hub.docker.com automated `mk-cross-builder` image builds
-
-- Fork this repo into a GitHub account
-- From your Docker Hub account:
-  - [Link][dh-gh] your GitHub account
-  - [Create][dh-qs] a repository `mk-cross-builder`
-  - [Configure][dh-ab] the automated build from the repository page:
-    - Click the "Builds" tab
-    - Click "Configure automated builds"
-    - Select the source repository:  your GitHub ID and the
-      `mk-cross-builder` repository
-    - Click "+" to add build rules for each `<arch>_<distro-ver>` tag:
-      - "Source Type" "Branch"
-      - "Source" "master"
-      - "Docker tag" the `<arch>_<distro-ver>` tag
-      - "Dockerfile location" "/Dockerfile"
-      - "Build context" (empty/default)
-      - "Autobuild"  Click on
-      - "Build Caching"  Click on (if you will update the GitHub repo
-        often) or off
-    - Click "Save and Build" to build the first images
-
-Automated builds should now be triggered whenever a new commit is
-pushed to the GitHub repository `master` branch.
-
-[dh-gh]: https://docs.docker.com/docker-hub/builds/link-source/
-[dh-qs]: https://docs.docker.com/docker-hub/
-[dh-ab]: https://docs.docker.com/docker-hub/builds/
+    ./scripts/build_debian_docker_image my_docker_id/mk-cross-builder:arm64_10
 
 ## Set up Travis CI automated `machinekit-hal` builds
 

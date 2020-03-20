@@ -166,16 +166,6 @@ RUN if test $DEBIAN_ARCH = armhf -o $DEBIAN_ARCH = arm64; then \
         && apt-get clean; \
     fi
 
-###########################################
-# Packagecloud.io
-
-# FIXME this began failing in Stretch
-# # Add packagecloud cli and prune utility
-# RUN gem install package_cloud --no-rdoc --no-ri
-# ADD packagecloud/packagecloud-prune.py /usr/bin/packagecloud-prune
-# ADD packagecloud/packagecloud-upload.sh /usr/bin/packagecloud-upload
-# ADD packagecloud/PackagecloudIo.py /usr/lib/python2.7
-
 ###################################################################
 # Build environment
 
@@ -200,10 +190,10 @@ ENV I386_HOST_MULTIARCH=i386-linux-gnu
 RUN test -z "$SYS_ROOT" || mkdir $SYS_ROOT
 
 # Add multistrap configurations
-ADD multistrap-configs/ /tmp/multistrap-configs/
+ADD scripts/buildsystem/debian/multistrap-configs /tmp/multistrap-configs/
 
 # Add `{dh_shlibdeps,dpkg-shlibdeps} --sysroot` argument
-ADD dpkg-shlibdeps-*.patch /tmp/
+ADD scripts/buildsystem/debian/dpkg-shlibdeps/dpkg-shlibdeps-*.patch /tmp/
 RUN cd / && \
     patch -p0 -F 0 -N < /tmp/dpkg-shlibdeps-$DISTRO_VER.patch && \
     rm /tmp/dpkg-shlibdeps-*.patch
@@ -254,7 +244,6 @@ RUN if test $DISTRO_CODENAME = jessie -a -z "$SYS_ROOT"; then \
 # Machinekit:  Configure multistrap
 
 # Set up debian/control for `mk-build-deps`
-#     FIXME download parts from upstream
 ADD debian/ /tmp/debian/
 RUN MK_CROSS_BUILDER=1 /tmp/debian/configure
 
@@ -287,11 +276,11 @@ RUN if test -z "$SYS_ROOT"; then \
         apt-get update \
         && if test $DISTRO_VER -le 9; then \
 	    apt-get install -y  -o Apt::Get::AllowUnauthenticated=true \
-		machinekit-build-deps \
+		machinekit-hal-build-deps \
 	    && sed -i /etc/apt/sources.list.d/local.list -e '/^deb/ s/^/#/' \
 	    && apt-get update ; \
         else \
-	    apt-get install -y /tmp/debs/machinekit-build-deps_*.deb; \
+	    apt-get install -y /tmp/debs/machinekit-hal-build-deps_*.deb; \
 	fi \
 	&& apt-get clean; \
     fi
