@@ -1,0 +1,157 @@
+commit 8aafcde18af191dbf9c6f26e00079f5c74aff967
+Author: John Morris <john@zultron.com>
+Date:   Wed Oct 12 09:58:07 2016 -0500
+
+    Teach dpkg-shlibdeps to work on sysroots
+    
+    If the `DPKG_ROOT` environment variable is set to the directory prefix
+    of a bootstrapped file system, `dpkg-shlibdeps` will use the dpkg
+    database, symbol files and shared libraries under that file system.
+    
+    https://lists.debian.org/debian-cross/2016/10/msg00005.html
+    https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=804624
+
+diff --git /usr/share/perl5/Dpkg/Path.pm b/Path.pm
+--- /usr/share/perl5/Dpkg/Path.pm.orig	2017-05-17 11:16:25.000000000 +0000
++++ /usr/share/perl5/Dpkg/Path.pm	2017-09-25 15:42:07.987108340 +0000
+@@ -235,10 +235,12 @@
+ 
+ =cut
+ 
+-sub get_control_path($;$) {
+-    my ($pkg, $filetype) = @_;
++sub get_control_path($;$$) {
++    my ($pkg, $filetype, $admindir) = @_;
+     my $control_file;
+-    my @exec = ('dpkg-query', '--control-path', $pkg);
++    my @exec = ('dpkg-query');
++    push @exec, "--admindir=$admindir" if defined $admindir;
++    push @exec, ('--control-path', $pkg);
+     push @exec, $filetype if defined $filetype;
+     spawn(exec => \@exec, wait_child => 1, to_string => \$control_file);
+     chomp($control_file);
+diff --git /usr/bin/dpkg-shlibdeps b/dpkg-shlibdeps
+index 9149a09..eb1df3d 100755
+--- /usr/bin/dpkg-shlibdeps
++++ /usr/bin/dpkg-shlibdeps
+@@ -57,7 +57,8 @@
+ 
+ textdomain('dpkg-dev');
+ 
+-my $admindir = $Dpkg::ADMINDIR;
++my $sysroot = $ENV{"DPKG_ROOT"}//'';
++my $admindir = $sysroot . $Dpkg::ADMINDIR;
+ my $shlibsoverride = "$Dpkg::CONFDIR/shlibs.override";
+ my $shlibsdefault = "$Dpkg::CONFDIR/shlibs.default";
+ my $shlibslocal = 'debian/shlibs.local';
+@@ -73,6 +74,7 @@
+ my @pkg_dir_to_search = ();
+ my @pkg_dir_to_ignore = ();
+ my $host_arch = get_host_arch();
++my %system_libs = ();
+ 
+ my (@pkg_shlibs, @pkg_symbols, @pkg_root_dirs);
+ 
+@@ -99,7 +101,7 @@
+     } elsif (m/^--version$/) {
+ 	version(); exit(0);
+     } elsif (m/^--admindir=(.*)$/) {
+-	$admindir = $1;
++	$admindir = $sysroot . $1;
+ 	if (not -d $admindir) {
+ 	    error(g_("administrative directory '%s' does not exist"), $admindir);
+ 	}
+@@ -164,6 +166,8 @@
+ error(g_('error occurred while parsing %s'), 'Build-Depends/Build-Depends-Arch')
+     unless defined $build_deps;
+ 
++debug(1, ">> DPKG_ROOT set to $sysroot") if $sysroot;
++
+ my %dependencies;
+ 
+ # Statistics on soname seen in the whole run (with multiple analysis of
+@@ -217,6 +221,7 @@
+ 	# Track shared libraries for package mapping.
+ 	foreach my $lib (@libs) {
+ 	    $libfiles{$lib} = $soname;
++	    $lib = $sysroot . $lib if $lib =~ /^\//;
+ 	    my $reallib = realpath($lib);
+ 	    if ($reallib ne $lib) {
+ 		$altlibfiles{$reallib} = $soname;
+@@ -287,8 +292,11 @@
+                 next SONAME;
+ 	    } else {
+ 		# No symbol file found, fall back to standard shlibs
+-                debug(1, "Using shlibs+objdump for $soname (file $lib)");
+-                $objdump_cache{$lib} //= Dpkg::Shlibs::Objdump::Object->new($lib);
++                my $sysroot_lib = (exists $system_libs{$lib} ? $sysroot : "")
++                    . $lib;
++                debug(1, "Using shlibs+objdump for $soname (file $sysroot_lib)");
++                $objdump_cache{$lib} //= Dpkg::Shlibs::Objdump::Object->new(
++                    $sysroot_lib);
+                 my $libobj = $objdump_cache{$lib};
+                 my $id = $dumplibs_wo_symfile->add_object($libobj);
+ 		if (($id ne $soname) and ($id ne $lib)) {
+@@ -680,7 +688,7 @@
+ 	# Fallback to other shlibs files but it shouldn't be necessary
+ 	push @shlibs, @pkg_shlibs;
+     } else {
+-	my $control_file = get_control_path($pkg, 'shlibs');
++	my $control_file = get_control_path($pkg, 'shlibs', $admindir);
+ 	push @shlibs, $control_file if defined $control_file;
+     }
+     push @shlibs, $shlibsdefault;
+@@ -780,9 +788,10 @@
+ 	# Fallback to other symbols files but it shouldn't be necessary
+ 	push @files, @pkg_symbols;
+     } else {
+-	push @files, "$Dpkg::CONFDIR/symbols/$pkg.symbols.$host_arch",
+-	    "$Dpkg::CONFDIR/symbols/$pkg.symbols";
+-	my $control_file = get_control_path($pkg, 'symbols');
++	push (@files,
++	      "$sysroot$Dpkg::CONFDIR/symbols/$pkg.symbols.$host_arch",
++	      "$sysroot$Dpkg::CONFDIR/symbols/$pkg.symbols");
++	my $control_file = get_control_path($pkg, 'symbols', $admindir);
+ 	push @files, $control_file if defined $control_file;
+     }
+ 
+@@ -818,7 +827,6 @@
+ # find_library ($soname, \@rpath, $format)
+ sub my_find_library {
+     my ($lib, $rpath, $format, $execfile) = @_;
+-    my $file;
+ 
+     # Create real RPATH in case $ORIGIN is used
+     # Note: ld.so also supports $PLATFORM and $LIB but they are
+@@ -869,7 +877,12 @@
+ 
+     # Fallback in the root directory if we have not found what we were
+     # looking for in the packages
+-    return find_library($lib, \@RPATH, $format, '');
++    my @libs = find_library($lib, \@RPATH, $format, $sysroot);
++    for (my $i=0; $i < scalar @libs; $i++) {
++	$libs[$i] =~ s/^$sysroot//;
++	$system_libs{$libs[$i]} = 1;  # mark as system lib with abs. path
++    }
++    return @libs;
+ }
+ 
+ my %cached_pkgmatch = ();
+@@ -897,7 +910,7 @@
+ 	open STDERR, '>', '/dev/null'
+ 	    or syserr(g_('cannot open file %s'), '/dev/null');
+ 	$ENV{LC_ALL} = 'C';
+-	exec 'dpkg-query', '--search', '--', @files
++	exec 'dpkg-query', '--search', "--admindir=$admindir", '--', @files
+ 	    or syserr(g_('unable to execute %s'), 'dpkg');
+     }
+     while (<$dpkg_fh>) {
+@@ -908,7 +921,7 @@
+ 		or syserr(g_('write diversion info to stderr'));
+ 	} elsif (m/^([-a-z0-9+.:, ]+): (\/.*)$/) {
+ 	    my ($pkgs, $path) = ($1, $2);
+-	    my $realpath = realpath($path);
++	    my $realpath = realpath($sysroot . $path);
+ 	    $cached_pkgmatch{$path} = $pkgmatch->{$path} = [ split /, /, $pkgs ];
+ 	    $cached_pkgmatch{$realpath} = $pkgmatch->{$realpath} = [ split /, /, $pkgs ];
+ 	} else {
