@@ -2,12 +2,38 @@
 #
 # Build Docker container images
 
-USAGE="Usage:  $0 <docker_id>/<docker_repo>:<tag>"
+# Defaults
+REPO_NAME_D=dovetailautomata/mk-cross-builder
+IMAGE_NAME_D=amd64_10
 
-# Get image name from cmdline
-IMAGE_NAME=${1:-${IMAGE_NAME:?$USAGE}}
-# Extract image tag from image name
-CACHE_TAG=${IMAGE_NAME##*:}
+# Read settings from file
+if test -f "$HOME/.mk-cross-builder.conf.sh"; then
+    . $HOME/.mk-cross-builder.conf.sh
+fi
+
+USAGE="Usage:  $0 [ -r <docker_id> ] [ -t <docker_repo> ]
+        $0 -i <docker_id>/<docker_repo>:<tag>"
+
+# Read command line options
+while getopts r:t:i: ARG; do
+    case $ARG in
+        r) REPO_NAME=$OPTARG ;;
+        t) CACHE_TAG=$OPTARG ;;
+        i) IMAGE_NAME=$OPTARG ;;
+	    h) echo "$USAGE" >&2; exit ;;
+	    *) echo "$USAGE" >&2; exit 1 ;;
+    esac
+done
+if test -n "$REPO_NAME" -o -n "$CACHE_NAME"; then
+    REPO_NAME=${REPO_NAME:-${REPO_NAME_D}}
+    CACHE_TAG=${IMAGE_NAME:-${IMAGE_NAME_D}}
+    IMAGE_NAME="${REPO_NAME}:${CACHE_TAG}"
+else
+    IMAGE_NAME="${IMAGE_NAME:-${REPO_NAME_D}:${IMAGE_NAME_D}}"
+    REPO_NAME=${IMAGE_NAME%%:*}
+    CACHE_TAG=${IMAGE_NAME##*:}
+fi
+
 # Set Dockerfile path
 DOCKERFILE_PATH=containers/buildsystem/debian/Dockerfile
 
@@ -110,4 +136,5 @@ exec docker build \
        --build-arg DISTRO_VER=${DISTRO_VER} \
        --build-arg EXTRA_FLAGS=${EXTRA_FLAGS} \
        --build-arg LDEMULATION=${LDEMULATION} \
+       ${DOCKER_BUILD_ARGS} \
        -f $DOCKERFILE_PATH -t $IMAGE_NAME ..
