@@ -2,36 +2,27 @@
 #
 # Build Docker container images
 
-# Defaults
-REPO_NAME_D=dovetailautomata/mk-cross-builder
-IMAGE_NAME_D=amd64_10
+DOCKER_BUILD_ARGS=""
 
-# Read settings from file
-if test -f "$HOME/.mk-cross-builder.conf.sh"; then
-    . $HOME/.mk-cross-builder.conf.sh
-fi
-
-USAGE="Usage:  $0 [ -r <docker_id> ] [ -t <docker_repo> ]
-        $0 -i <docker_id>/<docker_repo>:<tag>"
+USAGE="Usage:  $0 [ -i <docker_id> ] [ -r <docker_repo> ] [ -t <docker_tag> ] [ -a <additional_docker_build_args> ]
+        EXAMPLE: $0 -i machinekit -r mk-hal-cross-builder -t amd64_11
+        will produce docker image machinekit/mk-hal-cross-builder:amd64_11"
 
 # Read command line options
 while getopts r:t:i: ARG; do
     case $ARG in
-        r) REPO_NAME=$OPTARG ;;
+        i) REPO_NAME=$OPTARG ;;
         t) CACHE_TAG=$OPTARG ;;
-        i) IMAGE_NAME=$OPTARG ;;
+        r) IMAGE_NAME=$OPTARG ;;
+        a) $DOCKER_BUILD_ARGS+="$OPTARG" ;;
 	    h) echo "$USAGE" >&2; exit ;;
 	    *) echo "$USAGE" >&2; exit 1 ;;
     esac
 done
-if test -n "$REPO_NAME" -o -n "$CACHE_NAME"; then
-    REPO_NAME=${REPO_NAME:-${REPO_NAME_D}}
-    CACHE_TAG=${IMAGE_NAME:-${IMAGE_NAME_D}}
-    IMAGE_NAME="${REPO_NAME}:${CACHE_TAG}"
-else
-    IMAGE_NAME="${IMAGE_NAME:-${REPO_NAME_D}:${IMAGE_NAME_D}}"
-    REPO_NAME=${IMAGE_NAME%%:*}
-    CACHE_TAG=${IMAGE_NAME##*:}
+
+if test -z "$REPO_NAME" -o -z "$CACHE_TAG" -o -z "$IMAGE_NAME"; then
+    echo "Missing parameters: All parameters are needed!"
+    exit 1
 fi
 
 # Set Dockerfile path
@@ -73,6 +64,7 @@ case "${CACHE_TAG}" in
         exit 1
         ;;
 esac
+
 # - Distro settings
 case "${CACHE_TAG}" in
     *_8)
@@ -106,6 +98,8 @@ if ([ "$DISTRO_CODENAME" == "jessie" ] && [ "$DEBIAN_ARCH" == "arm64" ]); then
     echo "Forbidden combination of '${DEBIAN_ARCH}_${DISTRO_VER}'" >&2
     exit 1
 fi
+
+IMAGE_NAME="$REPO_NAME/$IMAGE_NAME:$CACHE_TAG"
 
 # Debug info
 (
