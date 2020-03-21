@@ -52,7 +52,7 @@ container (see above `build_docker -c` command).
 Build images locally with the supplied script, supplying the
 image name, e.g.:
 
-    ./scripts/build_debian_docker_image my_docker_id/mk-cross-builder:arm64_10
+    ./scripts/build_debian_docker_image my_docker_id/mk-cross-builder:amd64_10
 
 ## Set up Travis CI automated `machinekit-hal` builds
 

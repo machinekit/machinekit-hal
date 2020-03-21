@@ -73,7 +73,6 @@ esac
 # Error out if user wants to build forbidden combiantion
 if ([ "$DISTRO_CODENAME" == "jessie" ] && [ "$DEBIAN_ARCH" == "arm64" ]); then
     echo "Forbidden combination of '${DEBIAN_ARCH}_${DISTRO_VER}'" >&2
-    echo "Jessie doesn't support ARM64" >&2
     exit 1
 fi
 
