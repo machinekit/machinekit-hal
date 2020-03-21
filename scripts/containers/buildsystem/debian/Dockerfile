@@ -1,7 +1,7 @@
 ARG BASE_IMAGE
 
 FROM ${BASE_IMAGE}
-MAINTAINER John Morris <john@zultron.com>
+LABEL maintainer="John Morris <john@zultron.com>"
 
 ###################################################################
 # Build configuration settings
