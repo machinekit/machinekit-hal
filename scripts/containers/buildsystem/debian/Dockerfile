@@ -109,6 +109,7 @@ RUN apt-get install -y \
 	qemu-user-static \
 	linux-libc-dev:${DEBIAN_ARCH} \
         dh-python \
+	libreadline-dev \
     && { \
         if test $DISTRO_VER -ge 9 -a \
 	        \( $DEBIAN_ARCH = armhf -o $DEBIAN_ARCH = arm64 \); then \
