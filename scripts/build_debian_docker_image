@@ -2,12 +2,29 @@
 #
 # Build Docker container images
 
-USAGE="Usage:  $0 <docker_id>/<docker_repo>:<tag>"
+DOCKER_BUILD_ARGS=""
 
-# Get image name from cmdline
-IMAGE_NAME=${1:-${IMAGE_NAME:?$USAGE}}
-# Extract image tag from image name
-CACHE_TAG=${IMAGE_NAME##*:}
+USAGE="Usage:  $0 [ -i <docker_id> ] [ -r <docker_repo> ] [ -t <docker_tag> ] [ -a <additional_docker_build_args> ]
+        EXAMPLE: $0 -i machinekit -r mk-hal-cross-builder -t amd64_11
+        will produce docker image machinekit/mk-hal-cross-builder:amd64_11"
+
+# Read command line options
+while getopts r:t:i: ARG; do
+    case $ARG in
+        i) REPO_NAME=$OPTARG ;;
+        t) CACHE_TAG=$OPTARG ;;
+        r) IMAGE_NAME=$OPTARG ;;
+        a) $DOCKER_BUILD_ARGS+="$OPTARG" ;;
+	    h) echo "$USAGE" >&2; exit ;;
+	    *) echo "$USAGE" >&2; exit 1 ;;
+    esac
+done
+
+if test -z "$REPO_NAME" -o -z "$CACHE_TAG" -o -z "$IMAGE_NAME"; then
+    echo "Missing parameters: All parameters are needed!"
+    exit 1
+fi
+
 # Set Dockerfile path
 DOCKERFILE_PATH=containers/buildsystem/debian/Dockerfile
 
@@ -47,6 +64,7 @@ case "${CACHE_TAG}" in
         exit 1
         ;;
 esac
+
 # - Distro settings
 case "${CACHE_TAG}" in
     *_8)
@@ -64,6 +82,11 @@ case "${CACHE_TAG}" in
         BASE_IMAGE="debian:buster"
         DISTRO_VER="10"
         ;;
+    *_11)
+        DISTRO_CODENAME="bullseye"
+        BASE_IMAGE="debian:bullseye"
+        DISTRO_VER="11"
+        ;;
     *)
         echo "Unknown tag '${CACHE_TAG}'" >&2
         exit 1
@@ -75,6 +98,8 @@ if ([ "$DISTRO_CODENAME" == "jessie" ] && [ "$DEBIAN_ARCH" == "arm64" ]); then
     echo "Forbidden combination of '${DEBIAN_ARCH}_${DISTRO_VER}'" >&2
     exit 1
 fi
+
+IMAGE_NAME="$REPO_NAME/$IMAGE_NAME:$CACHE_TAG"
 
 # Debug info
 (
@@ -105,4 +130,5 @@ exec docker build \
        --build-arg DISTRO_VER=${DISTRO_VER} \
        --build-arg EXTRA_FLAGS=${EXTRA_FLAGS} \
        --build-arg LDEMULATION=${LDEMULATION} \
+       ${DOCKER_BUILD_ARGS} \
        -f $DOCKERFILE_PATH -t $IMAGE_NAME ..

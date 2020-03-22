@@ -93,7 +93,7 @@ DEPS=        # List of Depends
 ## copy base templates into place
 
 case "$DISTRO_CODENAME" in
-    buster)
+    buster|bullseye)
         BUILD_DEPS+=', libck-dev'
         ;;
     stretch|sid)

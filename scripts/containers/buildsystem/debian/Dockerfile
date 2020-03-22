@@ -1,7 +1,7 @@
 ARG BASE_IMAGE
 
 FROM ${BASE_IMAGE}
-MAINTAINER John Morris <john@zultron.com>
+LABEL maintainer="John Morris <john@zultron.com>"
 
 ###################################################################
 # Build configuration settings
@@ -41,7 +41,11 @@ RUN echo 'APT::Install-Recommends "0";\nAPT::Install-Suggests "0";' > \
 	    /etc/apt/apt.conf.d/01norecommend
 
 # use stable Debian mirror
-RUN sed -i /etc/apt/sources.list -e 's/httpredir.debian.org/ftp.debian.org/'
+ARG DEBIAN_MIRROR=ftp.debian.org
+ARG DEBIAN_SECURITY_MIRROR=security.debian.org
+RUN sed -i /etc/apt/sources.list \
+        -e "s/deb.debian.org/${DEBIAN_MIRROR}/" \
+        -e "s/security.debian.org/${DEBIAN_SECURITY_MIRROR}/"
 
 ###################################################################
 # Add foreign arches and update OS
@@ -109,6 +113,7 @@ RUN apt-get install -y \
 	qemu-user-static \
 	linux-libc-dev:${DEBIAN_ARCH} \
         dh-python \
+	libreadline-dev \
     && { \
         if test $DISTRO_VER -ge 9 -a \
 	        \( $DEBIAN_ARCH = armhf -o $DEBIAN_ARCH = arm64 \); then \
@@ -362,14 +367,6 @@ RUN test -z "$SYS_ROOT" \
 	ln -sf /usr/include.build/x86_64-linux-gnu $SYS_ROOT/usr/include; \
     }
 
-# On Buster, fix krb5-dev .pc files in sysroot
-RUN if test $DISTRO_VER -eq 10 -a -n "$SYS_ROOT"; then \
-        cd /sysroot/usr/lib/${HOST_MULTIARCH}/pkgconfig/mit-krb5 && \
-        for i in *; do \
-	    rm ../$i \
-	    && ln -s mit-krb5/$i ../$i; \
-	done; \
-    fi
 # On Buster, the libczmq.pc file requires libsystemd but the
 # libczmq-dev package doesn't require libsystemd-dev; take care of
 # native case (sysroot case taken care of in multistrap config)
