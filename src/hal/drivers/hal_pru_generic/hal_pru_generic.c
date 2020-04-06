@@ -138,6 +138,10 @@ RTAPI_MP_INT(disabled, "start the PRU in disabled state for debugging (0=enabled
 static int event = -1;
 RTAPI_MP_INT(event, "PRU event number to listen for (0..7, default: none)");
 
+hpg_board_t board_id = BBB;
+static char* board;
+RTAPI_MP_STRING(board, "Board name.  BBB (default, Beaglebone Black), BBAI (Beaglebone AI)");
+
 /***********************************************************************
 *                   STRUCTURES AND GLOBAL VARIABLES                    *
 ************************************************************************/
@@ -185,6 +189,12 @@ int rtapi_app_main(void)
     if (comp_id < 0) {
         HPG_ERR("ERROR: hal_init() failed\n");
         return -1;
+    }
+
+    if(board && strncmp(board, "BBAI", 4)  == 0) {
+      board_id = BBAI;
+    } else {
+      board_id = BBB;
     }
 
     // Allocate HAL shared memory for state data
@@ -561,6 +571,20 @@ void hpg_wait_update(hal_pru_generic_t *hpg) {
 int fixup_pin(u32 hal_pin) {
     int ret = 0;
     u32 type, p89, index;
+
+    bone_pinmap *p8_pins;
+    bone_pinmap *p9_pins;
+
+    switch(board_id) {
+      case BBAI:
+	p8_pins = p8ai_pins;
+	p9_pins = p9ai_pins;
+	break;
+      default:
+	p8_pins = p8bbb_pins;
+	p9_pins = p9bbb_pins;
+	break;
+    }
 
     // Original brain-dead pin numbering
     if (hal_pin < 192) {

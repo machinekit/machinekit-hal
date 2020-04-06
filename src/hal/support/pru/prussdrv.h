@@ -84,7 +84,7 @@ extern "C" {
 #define PRU_EVTOUT_6            6
 #define PRU_EVTOUT_7            7
 
-#define PN(p) ((p) & 1) // every non-zero PRU number considered PRU1
+#define PN(p) ((p) & 0b11) // every PRU number greater than 3 is considered PRU3
 
     typedef volatile unsigned int preg, *preg_ptr;
 

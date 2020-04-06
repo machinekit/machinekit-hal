@@ -71,7 +71,28 @@
 #define AM33XX_PRUSS_INTC_REV         0x4E82A900
 #define AM18XX_PRUSS_INTC_REV         0x4E825900
 
-#define PRUSS_MAX_IRAM_SIZE                  8192
+#define PRUSS_MAX_IRAM_SIZE                  12288
+
+// TODO - set AM572X values properly
+#define AM572X_PRUSS_IRAM_SIZE               12288
+#define AM572X_PRUSS_MMAP_SIZE               0x40000
+#define AM572X_DATARAM0_PHYS_BASE            0x4a300000
+#define AM572X_DATARAM1_PHYS_BASE            0x4a302000
+#define AM572X_INTC_PHYS_BASE                0x4a320000
+#define AM572X_PRU0CONTROL_PHYS_BASE         0x4a322000
+#define AM572X_PRU0DEBUG_PHYS_BASE           0x4a322400
+#define AM572X_PRU1CONTROL_PHYS_BASE         0x4a324000
+#define AM572X_PRU1DEBUG_PHYS_BASE           0x4a324400
+#define AM572X_PRU0IRAM_PHYS_BASE            0x4a334000
+#define AM572X_PRU1IRAM_PHYS_BASE            0x4a338000
+#define AM572X_PRUSS_SHAREDRAM_BASE          0x4a310000
+#define	AM572X_PRUSS_CFG_BASE                0x4a326000
+#define	AM572X_PRUSS_UART_BASE               0x4a328000
+#define	AM572X_PRUSS_IEP_BASE                0x4a32e000
+#define	AM572X_PRUSS_ECAP_BASE               0x4a330000
+#define	AM572X_PRUSS_MIIRT_BASE              0x4a332000
+#define	AM572X_PRUSS_MDIO_BASE               0x4a332400
+// end TODO
 
 #define AM33XX_PRUSS_IRAM_SIZE               8192
 #define AM33XX_PRUSS_MMAP_SIZE               0x40000
@@ -206,7 +227,7 @@ typedef struct __prussdrv {
     pthread_t irq_thread[NUM_PRU_HOSTIRQS];
     int mmap_fd;
 
-    pru_base base[2];
+    pru_base base[4];
 
     void *intc_base;
     void *l3ram_base;
