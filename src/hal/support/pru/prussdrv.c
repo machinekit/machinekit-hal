@@ -68,15 +68,14 @@ int __pruss_detect_hw_version(unsigned int *pruss_io)
 {
 
     if (pruss_io[(AM18XX_INTC_PHYS_BASE - AM18XX_DATARAM0_PHYS_BASE) >> 2]
-        == AM18XX_PRUSS_INTC_REV)
+        == AM18XX_PRUSS_INTC_REV) {
         return PRUSS_V1;
-    else {
-        if (pruss_io
+    } else if (pruss_io
             [(AM33XX_INTC_PHYS_BASE - AM33XX_DATARAM0_PHYS_BASE) >> 2] ==
-            AM33XX_PRUSS_INTC_REV)
-            return PRUSS_V2;
-        else
-            return -1;
+            AM33XX_PRUSS_INTC_REV) {
+      return PRUSS_V2;
+    } else {
+      return -1;
     }
 }
 
@@ -99,7 +98,7 @@ void __prussintc_set_hmr(unsigned int *pruintc_io, unsigned short channel,
 
 }
 
-int __prussdrv_memmap_init(void)
+int __prussdrv_memmap_init(int use_remoteproc, int force_version)
 {
     int i, fd;
     char hexstring[PRUSS_UIO_PARAM_VAL_LEN];
@@ -134,8 +133,12 @@ int __prussdrv_memmap_init(void)
     prussdrv.base[0].dataram_base =
         mmap(0, prussdrv.pruss_map_size, PROT_READ | PROT_WRITE,
              MAP_SHARED, prussdrv.mmap_fd, PRUSS_UIO_MAP_OFFSET_PRUSS);
-    prussdrv.version =
-        __pruss_detect_hw_version(prussdrv.base[0].dataram_base);
+    if(force_version) {
+      prussdrv.version = force_version;
+    } else {
+      prussdrv.version =
+          __pruss_detect_hw_version(prussdrv.base[0].dataram_base);
+    }
 
     switch (prussdrv.version) {
 
@@ -182,36 +185,57 @@ int __prussdrv_memmap_init(void)
 	prussdrv.base[0].iram_phy_base = AM33XX_PRU0IRAM_PHYS_BASE;
 	prussdrv.base[1].iram_phy_base = AM33XX_PRU1IRAM_PHYS_BASE;
         break;
+    case PRUSS_AI:
+
+	rtapi_print_msg(RTAPI_MSG_INFO, "%s: AM572X detected\n", modname);
+
+        // AI has 2 PRU chips, let's open the second one
+        prussdrv.mmap_fd2 = open("/dev/uio1", O_RDWR | O_SYNC);
+        prussdrv.base[2].dataram_base =
+            mmap(0, AM572X_PRUSS_MMAP_SIZE, PROT_READ | PROT_WRITE,
+                 MAP_SHARED, prussdrv.mmap_fd2, PRUSS_UIO_MAP_OFFSET_PRUSS);
+
+	prussdrv.base[0].dataram_phy_base = AM572X_PR1_DATARAM0_PHYS_BASE;
+	prussdrv.base[1].dataram_phy_base = AM572X_PR1_DATARAM1_PHYS_BASE;
+	prussdrv.base[2].dataram_phy_base = AM572X_PR2_DATARAM0_PHYS_BASE;
+	prussdrv.base[3].dataram_phy_base = AM572X_PR2_DATARAM1_PHYS_BASE;
+
+        prussdrv.base[1].dataram_base = prussdrv.base[0].dataram_base + prussdrv.base[1].dataram_phy_base - prussdrv.base[0].dataram_phy_base;
+        prussdrv.base[3].dataram_base = prussdrv.base[2].dataram_base + prussdrv.base[3].dataram_phy_base - prussdrv.base[2].dataram_phy_base;
+
+        break;
 
     default:
 	rtapi_print_msg(RTAPI_MSG_ERR, "%s: __prussdrv_memmap_init: invalid pruss driver version %d\n",
 			modname, prussdrv.version);
     }
 
-    prussdrv.base[1].dataram_base =
-        prussdrv.base[0].dataram_base + prussdrv.base[1].dataram_phy_base -
-        prussdrv.base[0].dataram_phy_base;
-    prussdrv.intc_base =
-        prussdrv.base[0].dataram_base + prussdrv.intc_phy_base -
-        prussdrv.base[0].dataram_phy_base;
-    prussdrv.base[0].control_base =
-        prussdrv.base[0].dataram_base + prussdrv.base[0].control_phy_base -
-        prussdrv.base[0].dataram_phy_base;
-    prussdrv.base[0].debug_base =
-        prussdrv.base[0].dataram_base + prussdrv.base[0].debug_phy_base -
-        prussdrv.base[0].dataram_phy_base;
-    prussdrv.base[1].control_base =
-        prussdrv.base[0].dataram_base + prussdrv.base[1].control_phy_base -
-        prussdrv.base[0].dataram_phy_base;
-    prussdrv.base[1].debug_base =
-        prussdrv.base[0].dataram_base + prussdrv.base[1].debug_phy_base -
-        prussdrv.base[0].dataram_phy_base;
-    prussdrv.base[0].iram_base =
-        prussdrv.base[0].dataram_base + prussdrv.base[0].iram_phy_base -
-        prussdrv.base[0].dataram_phy_base;
-    prussdrv.base[1].iram_base =
-        prussdrv.base[0].dataram_base + prussdrv.base[1].iram_phy_base -
-        prussdrv.base[0].dataram_phy_base;
+    if(!use_remoteproc) {
+      prussdrv.base[1].dataram_base =
+          prussdrv.base[0].dataram_base + prussdrv.base[1].dataram_phy_base -
+          prussdrv.base[0].dataram_phy_base;
+      prussdrv.intc_base =
+          prussdrv.base[0].dataram_base + prussdrv.intc_phy_base -
+          prussdrv.base[0].dataram_phy_base;
+      prussdrv.base[0].control_base =
+          prussdrv.base[0].dataram_base + prussdrv.base[0].control_phy_base -
+          prussdrv.base[0].dataram_phy_base;
+      prussdrv.base[0].debug_base =
+          prussdrv.base[0].dataram_base + prussdrv.base[0].debug_phy_base -
+          prussdrv.base[0].dataram_phy_base;
+      prussdrv.base[1].control_base =
+          prussdrv.base[0].dataram_base + prussdrv.base[1].control_phy_base -
+          prussdrv.base[0].dataram_phy_base;
+      prussdrv.base[1].debug_base =
+          prussdrv.base[0].dataram_base + prussdrv.base[1].debug_phy_base -
+          prussdrv.base[0].dataram_phy_base;
+      prussdrv.base[0].iram_base =
+          prussdrv.base[0].dataram_base + prussdrv.base[0].iram_phy_base -
+          prussdrv.base[0].dataram_phy_base;
+      prussdrv.base[1].iram_base =
+          prussdrv.base[0].dataram_base + prussdrv.base[1].iram_phy_base -
+          prussdrv.base[0].dataram_phy_base;
+    }
 
     if (prussdrv.version == PRUSS_V2) {
         prussdrv.pruss_sharedram_base =
@@ -262,27 +286,29 @@ int __prussdrv_memmap_init(void)
              MAP_SHARED, prussdrv.mmap_fd, PRUSS_UIO_MAP_OFFSET_L3RAM);
 #endif
 
-    fd = open(PRUSS_UIO_DRV_EXTRAM_BASE, O_RDONLY);
-    if (fd >= 0) {
-        read(fd, hexstring, PRUSS_UIO_PARAM_VAL_LEN);
-        prussdrv.extram_phys_base =
-            strtoul(hexstring, NULL, HEXA_DECIMAL_BASE);
-        close(fd);
-    } else
-        return -1;
+    if (prussdrv.version != PRUSS_AI) {
+      fd = open(PRUSS_UIO_DRV_EXTRAM_BASE, O_RDONLY);
+      if (fd >= 0) {
+          read(fd, hexstring, PRUSS_UIO_PARAM_VAL_LEN);
+          prussdrv.extram_phys_base =
+              strtoul(hexstring, NULL, HEXA_DECIMAL_BASE);
+          close(fd);
+      } else
+          return -1;
 
-    fd = open(PRUSS_UIO_DRV_EXTRAM_SIZE, O_RDONLY);
-    if (fd >= 0) {
-        read(fd, hexstring, PRUSS_UIO_PARAM_VAL_LEN);
-        prussdrv.extram_map_size =
-            strtoul(hexstring, NULL, HEXA_DECIMAL_BASE);
-        close(fd);
-    } else
-        return -1;
+      fd = open(PRUSS_UIO_DRV_EXTRAM_SIZE, O_RDONLY);
+      if (fd >= 0) {
+          read(fd, hexstring, PRUSS_UIO_PARAM_VAL_LEN);
+          prussdrv.extram_map_size =
+              strtoul(hexstring, NULL, HEXA_DECIMAL_BASE);
+          close(fd);
+      } else
+          return -1;
 
-    prussdrv.extram_base =
-        mmap(0, prussdrv.extram_map_size, PROT_READ | PROT_WRITE,
-             MAP_SHARED, prussdrv.mmap_fd, PRUSS_UIO_MAP_OFFSET_EXTRAM);
+      prussdrv.extram_base =
+          mmap(0, prussdrv.extram_map_size, PROT_READ | PROT_WRITE,
+               MAP_SHARED, prussdrv.mmap_fd, PRUSS_UIO_MAP_OFFSET_EXTRAM);
+    }
 
     return 0;
 
@@ -294,13 +320,13 @@ int prussdrv_init(void)
     return 0;
 }
 
-int prussdrv_open(unsigned int pru_evtout_num)
+int prussdrv_open(unsigned int pru_evtout_num, int use_remoteproc, int force_version)
 {
     char name[PRUSS_UIO_PRAM_PATH_LEN];
     if (!prussdrv.fd[pru_evtout_num]) {
         sprintf(name, "/dev/uio%d", pru_evtout_num);
         prussdrv.fd[pru_evtout_num] = open(name, O_RDWR | O_SYNC);
-        return __prussdrv_memmap_init();
+        return __prussdrv_memmap_init(use_remoteproc, force_version);
     } else {
 	rtapi_print_msg(RTAPI_MSG_ERR, "%s: prussdrv_open(%d) failed\n",
 			modname, pru_evtout_num);
@@ -308,7 +334,7 @@ int prussdrv_open(unsigned int pru_evtout_num)
     }
 }
 
-int prussdrv_open_fd(int fd, unsigned int pru_evtout_num)
+int prussdrv_open_fd(int fd, unsigned int pru_evtout_num, int use_remoteproc, int force_version)
 {
     struct stat st;
 
@@ -324,7 +350,7 @@ int prussdrv_open_fd(int fd, unsigned int pru_evtout_num)
     }
     if (!prussdrv.fd[pru_evtout_num]) {
 	prussdrv.fd[pru_evtout_num] = fd;
-        return __prussdrv_memmap_init();
+        return __prussdrv_memmap_init(use_remoteproc, force_version);
     } else {
 	rtapi_print_msg(RTAPI_MSG_ERR, "%s: prussdrv_open_fd(%d,%d): fd already open\n",
 			modname, fd, pru_evtout_num);
@@ -557,6 +583,12 @@ int prussdrv_map_prumem(unsigned int pru_ram_id, void **address)
     case PRUSS0_PRU1_DATARAM:
         *address = prussdrv.base[1].dataram_base;
         break;
+    case PRUSS1_PRU0_DATARAM:
+        *address = prussdrv.base[2].dataram_base;
+        break;
+    case PRUSS1_PRU1_DATARAM:
+        *address = prussdrv.base[3].dataram_base;
+        break;
     case PRUSS0_SHARED_DATARAM:
         if (prussdrv.version != PRUSS_V2)
             return -1;
@@ -656,9 +688,16 @@ void *prussdrv_get_virt_addr(unsigned int phyaddr)
 int prussdrv_exit()
 {
     int i;
-    munmap(prussdrv.base[0].dataram_base, prussdrv.pruss_map_size);
-    munmap(prussdrv.l3ram_base, prussdrv.l3ram_map_size);
-    munmap(prussdrv.extram_base, prussdrv.extram_map_size);
+
+    if(prussdrv.version == PRUSS_AI) {
+      munmap(prussdrv.base[0].dataram_base, prussdrv.pruss_map_size);
+      munmap(prussdrv.base[2].dataram_base, prussdrv.pruss_map_size);
+      close(prussdrv.mmap_fd2);
+    } else {
+      munmap(prussdrv.base[0].dataram_base, prussdrv.pruss_map_size);
+      munmap(prussdrv.l3ram_base, prussdrv.l3ram_map_size);
+      munmap(prussdrv.extram_base, prussdrv.extram_map_size);
+    }
     for (i = 0; i < NUM_PRU_HOSTIRQS; i++) {
         if (prussdrv.fd[i])
             close(prussdrv.fd[i]);

@@ -65,6 +65,12 @@ extern "C" {
 #define PRUSS0_PRU0_IRAM        2
 #define PRUSS0_PRU1_IRAM        3
 
+// pr2_pru0
+#define PRUSS1_PRU0_DATARAM     11
+
+// pr2_pru1
+#define PRUSS1_PRU1_DATARAM     12
+
 //Available in AM33xx series - begin
 #define PRUSS0_SHARED_DATARAM   4
 #define	PRUSS0_CFG              5
@@ -120,10 +126,10 @@ extern "C" {
     int prussdrv_init(void);
 
 
-    int prussdrv_open(unsigned int pru_evtout_num);
+    int prussdrv_open(unsigned int pru_evtout_num, int use_remoteproc, int force_version);
 
     // same thing, but /dev/uio%evtout already opened
-    int prussdrv_open_fd(int fd, unsigned int pru_evtout_num);
+    int prussdrv_open_fd(int fd, unsigned int pru_evtout_num, int use_remoteproc, int force_version);
 
 
     preg prussdrv_pru_ctrl(unsigned int prunum);

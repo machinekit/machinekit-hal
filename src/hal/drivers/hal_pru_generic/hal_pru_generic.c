@@ -53,6 +53,7 @@
 //----------------------------------------------------------------------//
 
 // Use config_module.h instead of config.h so we can use RTAPI_INC_LIST_H
+#define MAX_PATH_LEN 40
 #include "config_module.h"
 
 #include RTAPI_INC_LIST_H
@@ -172,6 +173,10 @@ int setup_pru(int pru, char *filename, int disabled, hal_pru_generic_t *hpg);
 void pru_shutdown(int pru);
 static void *pruevent_thread(void *arg);
 
+int remoteproc_stop(int pru);
+int remoteproc_start(int pru);
+int remoteproc_copy_firmware(int pru, char* firmware);
+
 int hpg_wait_init(hal_pru_generic_t *hpg);
 void hpg_wait_force_write(hal_pru_generic_t *hpg);
 void hpg_wait_update(hal_pru_generic_t *hpg);
@@ -266,6 +271,9 @@ int rtapi_app_main(void)
     hpg_pwmgen_force_write(hpg);
     hpg_encoder_force_write(hpg);
     hpg_wait_force_write(hpg);
+
+    
+    rtapi_print_msg(RTAPI_MSG_DBG, "about to run setup_pru %d %s %d\n", pru, prucode, disabled);
 
     if ((retval = setup_pru(pru, prucode, disabled, hpg))) {
         HPG_ERR("ERROR: failed to initialize PRU\n");
@@ -405,24 +413,53 @@ rtapi_print_msg(RTAPI_MSG_DBG, "prussdrv_init\n");
     // Allocate and initialize memory
     prussdrv_init ();
 
+    // Beaglebone AI doesn't provide uio_pruss module that can
+    // load/start/end code on the pru, so we need to use remoteproc
+    // for that
+    int use_remoteproc = board_id == BBAI;
+
+    // The uio_pruss module on the AI also doesn't have access to the control and version
+    // regions of the PRU, so it can't detect the version automatically. Instead,
+    // we explicitly tell prussdrv which version to use.
+    int force_version = use_remoteproc ? PRUSS_AI : 0;
+
     // opens an event out and initializes memory mapping
 rtapi_print_msg(RTAPI_MSG_DBG, "prussdrv_open\n");
-    if (prussdrv_open(event > -1 ? event : PRU_EVTOUT_0) < 0)
-    return -1;
+    if (prussdrv_open((event > -1 ? event : PRU_EVTOUT_0) < 0, use_remoteproc, force_version)) {
+      return -1;
+    }
 
     // expose the driver data, filled in by prussdrv_open
     pruss = &prussdrv;
 
-    // Map PRU's INTC
-rtapi_print_msg(RTAPI_MSG_DBG, "prussdrv_pruintc_init\n");
-    if (prussdrv_pruintc_init(&pruss_intc_initdata) < 0)
-    return -1;
+    if(!use_remoteproc) {
+      // Map PRU's INTC
+  rtapi_print_msg(RTAPI_MSG_DBG, "prussdrv_pruintc_init\n");
+      if (prussdrv_pruintc_init(&pruss_intc_initdata) < 0)
+      return -1;
+    }
 
     // Maps the PRU DRAM memory to input pointer
 rtapi_print_msg(RTAPI_MSG_DBG, "prussdrv_map_prumem\n");
-    if (prussdrv_map_prumem(pru ? PRUSS0_PRU1_DATARAM : PRUSS0_PRU0_DATARAM,
-            (void **) &pru_data_ram) < 0)
-    return -1;
+    int prumem;
+    switch(pru) {
+      case 0:
+        prumem = PRUSS0_PRU0_DATARAM;
+        break;
+      case 1:
+        prumem = PRUSS0_PRU1_DATARAM;
+        break;
+      case 2:
+        prumem = PRUSS1_PRU0_DATARAM;
+        break;
+      case 3:
+        prumem = PRUSS1_PRU1_DATARAM;
+        break;
+      default:
+        return -1;
+    }
+    if (prussdrv_map_prumem(prumem, (void **) &pru_data_ram) < 0)
+      return -1;
 
 rtapi_print_msg(RTAPI_MSG_DBG, "PRU data ram mapped\n");
     rtapi_print_msg(RTAPI_MSG_DBG, "%s: PRU data ram mapped at %p\n",
@@ -450,6 +487,63 @@ rtapi_print_msg(RTAPI_MSG_DBG, "PRU data ram mapped\n");
 
     return 0;
 }
+
+int remoteproc_copy_firmware(int pru, char* filename) {
+  char firmware_path[MAX_PATH_LEN];
+
+  int chip; // chip is 1 or 2
+  int core; // core is 0 or 1
+
+  switch(pru) {
+    case 0:
+      chip = 1;
+      core = 0;
+      break;
+    case 1:
+      chip = 1;
+      core = 1;
+      break;
+    case 2:
+      chip = 2;
+      core = 0;
+      break;
+    case 3:
+      chip = 2;
+      core = 1;
+      break;
+    default:
+      return -1;
+  }
+
+  rtapi_snprintf(firmware_path, sizeof(firmware_path), "/lib/firmware/am57xx-pru%d_%d-fw", chip, core);
+
+  int firm_fd = open(firmware_path, O_WRONLY);
+  if(firm_fd < 0) {
+    return -1;
+  }
+
+  rtapi_print_msg(RTAPI_MSG_DBG, "%s: copying %s to %s\n", modname, filename, firmware_path);
+  int prubin_fd = open(filename, O_RDONLY);
+
+  if(prubin_fd < 0) {
+    return -1;
+  }
+
+  int r;
+#define BUFFER_SIZE 4096
+  char buff[BUFFER_SIZE];
+  while((r = read(prubin_fd, buff, BUFFER_SIZE)) > 0) {
+    if(write(firm_fd, buff, r) != r) {
+      rtapi_print_msg(RTAPI_MSG_ERR, "%s: error writing PRU firmware\n", modname);
+      return -1;
+    }
+  }
+
+  close(prubin_fd);
+  close(firm_fd);
+  return 0;
+}
+
 
 int setup_pru(int pru, char *filename, int disabled, hal_pru_generic_t *hpg) {
 
@@ -490,7 +584,24 @@ int setup_pru(int pru, char *filename, int disabled, hal_pru_generic_t *hpg) {
         return -ENOENT;
     }
     }
-    retval =  prussdrv_exec_program (pru, pru_binpath, disabled);
+
+    if(board_id == BBAI) {
+      // Use remoteproc to start PRU code
+      remoteproc_stop(pru);
+
+      retval = remoteproc_copy_firmware(pru, pru_binpath);
+      if(retval < 0) {
+        return -1;
+      }
+
+      retval = remoteproc_start(pru);
+      if(retval < 0) {
+        return -1;
+      }
+    } else {
+      // Use uio_pruss module
+      retval =  prussdrv_exec_program (pru, pru_binpath, disabled);
+    }
     return retval;
 }
 
@@ -525,10 +636,42 @@ static void *pruevent_thread(void *arg)
     return NULL; // silence compiler warning
 }
 
+int remoteproc_stop(int pru) {
+  char remoteproc_path[MAX_PATH_LEN];
+  rtapi_snprintf(remoteproc_path, sizeof(remoteproc_path), "/sys/class/remoteproc/remoteproc%d/state", pru);
+  int remoteproc_fd = open(remoteproc_path, O_WRONLY);
+  char stop[] = "stop";
+  int written;
+  if((written = write(remoteproc_fd, stop, sizeof(stop))) != sizeof(stop)) {
+//    rtapi_print_msg(RTAPI_MSG_ERR, "%s: error stopping PRU with remoteproc %s, %d (maybe it's already stopped?)\n", modname, remoteproc_path, written);
+    return -1;
+  }
+  close(remoteproc_fd);
+  return 0;
+}
+
+int remoteproc_start(int pru) {
+  char remoteproc_path[MAX_PATH_LEN];
+  rtapi_snprintf(remoteproc_path, sizeof(remoteproc_path), "/sys/class/remoteproc/remoteproc%d/state", pru);
+  int remoteproc_fd = open(remoteproc_path, O_WRONLY);
+  char start[] = "start";
+  int written;
+  if((written = write(remoteproc_fd, start, sizeof(start))) != sizeof(start)) {
+    rtapi_print_msg(RTAPI_MSG_ERR, "%s: error starting PRU with remoteproc %s, %d\n", modname, remoteproc_path, written);
+    return -1;
+  }
+  close(remoteproc_fd);
+  return 0;
+}
+
 void pru_shutdown(int pru)
 {
     // Disable PRU and close memory mappings
-    prussdrv_pru_disable(pru);
+    if(board_id == BBAI) {
+      remoteproc_stop(pru);
+    } else{
+      prussdrv_pru_disable(pru);
+    }
     prussdrv_exit (); // also joins event listen thread
 }
 
@@ -572,8 +715,8 @@ int fixup_pin(u32 hal_pin) {
     int ret = 0;
     u32 type, p89, index;
 
-    bone_pinmap *p8_pins;
-    bone_pinmap *p9_pins;
+    bone_pinmap const *p8_pins;
+    bone_pinmap const *p9_pins;
 
     switch(board_id) {
       case BBAI:
