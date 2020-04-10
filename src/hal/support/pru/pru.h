@@ -301,11 +301,11 @@
 // #define GPIO2 0x481ac000
 // #define GPIO3 0x481ae000
 
-// For BBAI - GPIO0 = GPIO3, GPIO1 = GPIO5, GPIO2 = GPIO6, GPIO3 = GPIO7
-#define GPIO0 0x48057000
-#define GPIO1 0x4805B000
-#define GPIO2 0x4805D000
-#define GPIO3 0x48051000
+// For BBAI - GPIO0 = GPIO4 (gpiochip3), GPIO1 = GPIO6 (gpiochip5), GPIO2 = GPIO7 (gpiochip6), GPIO3 = GPIO8 (gpiochip7)
+#define GPIO0 0x48059000
+#define GPIO1 0x4805D000
+#define GPIO2 0x48051000
+#define GPIO3 0x48053000
 
 #define GPIO_REVISION 0x0
 #define GPIO_SYSCONFIG 0x10
