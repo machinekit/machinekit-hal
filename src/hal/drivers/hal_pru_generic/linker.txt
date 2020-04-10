@@ -1,0 +1,7 @@
+ENTRY(_start)
+SECTIONS
+{
+  _start = 0x00;
+  . = 0x00;
+  .data : { *(.data) }
+}

@@ -44,6 +44,9 @@ $(PRU_BIN): $(PRUBINDIR)/%.bin : objects/$(PRU_SRC_DIR)/%.bin
 	cp -f $^ $@
 	$(Q)mkdir -p $(RTLIBDIR)
 	ln -sf ../prubin/$(notdir $@) $(RTLIBDIR)/$(notdir $@)
+	objcopy -I binary -O elf32-little --rename-section .data=.text --add-section .resrouce_table=hal/drivers/hal_pru_generic/rsct.bin $@ $@.tmp
+	objcopy -I elf32-little --set-section-flags .text=code,alloc,load $@.tmp
+	ld -n --accept-unknown-input-arch $@.tmp -T hal/drivers/hal_pru_generic/linker.txt -o $@.elf
 
 $(PRU_DBG): $(PRUBINDIR)/%.dbg : objects/$(PRU_SRC_DIR)/%.dbg
 	cp -f $^ $@
