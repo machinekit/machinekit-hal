@@ -20,5 +20,7 @@ usr/lib/python*/*/machinekit/nosetests/*.py
 usr/lib/python*/dist-packages/gladevcp
 usr/lib/tcltk/linuxcnc/hal.so
 usr/libexec/linuxcnc
-usr/share/linuxcnc
+usr/share/linuxcnc/udev
+usr/share/linuxcnc/examples
+usr/share/linuxcnc/ncfiles
 usr/share/machinekit
