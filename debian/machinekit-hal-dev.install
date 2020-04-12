@@ -1,4 +1,3 @@
-usr/bin/comp
 usr/include/linuxcnc
 usr/lib/lib*.so
 usr/share/linuxcnc/Makefile.*
