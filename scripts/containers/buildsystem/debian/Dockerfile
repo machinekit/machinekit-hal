@@ -87,6 +87,7 @@ RUN apt-get -y install \
 	debian-archive-keyring \
 	python-apt \
 	rubygems \
+    curl \
     && { \
 	test $DISTRO_VER -ge 10 \
 	    || apt-get install -y \
@@ -231,10 +232,11 @@ RUN if test $DISTRO_VER -eq 8; then \
 ###################################################################
 # Machinekit:  Configure apt
 
-# add Machinekit package archive
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 31B5958F43DDF224
-RUN echo "deb http://deb.machinekit.io/debian $DISTRO_CODENAME main" > \
-            /etc/apt/sources.list.d/machinekit.list
+# add Machinekit dependencies package archive
+RUN curl -1sLf \
+  'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
+  | sudo bash \
+  && apt-get update
 
 ###################################################################
 # Machinekit:  Install dependency packages
