@@ -367,6 +367,14 @@ RUN test -z "$SYS_ROOT" \
 	ln -sf /usr/include.build/x86_64-linux-gnu $SYS_ROOT/usr/include; \
     }
 
+# On Buster, fix krb5-dev .pc files in sysroot
+RUN if test $DISTRO_VER -eq 10 -a -n "$SYS_ROOT"; then \
+        cd /sysroot/usr/lib/${HOST_MULTIARCH}/pkgconfig/mit-krb5 && \
+        for i in *; do \
+	    rm ../$i \
+	    && ln -s mit-krb5/$i ../$i; \
+	done; \
+    fi
 # On Buster, the libczmq.pc file requires libsystemd but the
 # libczmq-dev package doesn't require libsystemd-dev; take care of
 # native case (sysroot case taken care of in multistrap config)
