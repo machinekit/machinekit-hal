@@ -141,7 +141,8 @@ MODE_WAIT:
     // Task_DataY indicates we had a real-time error, or the timer tick
     // occurred before we began waiting for it!
     
-    LBCO    r2, CONST_IEP, 0x44, 4      // Load CMP_STATUS register
+    LBCO    r2, C26, 0x74, 4      // Load CMP_STATUS register
+//    LBCO    r2, C26, 0x44, 4      // Load CMP_STATUS register
     QBBC    BUSY_CHECK, r2, 0           // Check to see if timer has expired already
     SET     GTask.dataY,7               // Set MSB if error
 
@@ -154,6 +155,8 @@ BUSY_CHECK:
     CLR     r30, GTask.dataX                // Clear busy bit
     SET     GState.PRU_Out, GTask.dataX     // Set busy bit with all other outputs after we wait for a timer tick
 
+//    LDI r1, 0
+//    MOV r2, 300
 WAITLOOP:
     // Wait until the next timer tick...
     // FIXME:
@@ -161,9 +164,17 @@ WAITLOOP:
     // (bit set in r31) instead of polling the IEP status register.
     //  WBC     r31, 30
 
-    LBCO    r2, CONST_IEP, 0x44, 4      // Load CMP_STATUS register
+//    ADD r1, r1, 1
+//    QBLT WAITLOOP, r2, r1
+
+
+    LBCO    r2, C26, 0x74, 4      // Load CMP_STATUS register
     QBBC    WAITLOOP, r2, 0             // Wait until counter times out
-    SBCO    r2, CONST_IEP, 0x44, 4      // Clear counter timeout bit
+    SBCO    r2, C26, 0x74, 4      // Clear counter timeout bit
+
+//    LBCO    r2, C26, 0x44, 4      // Load CMP_STATUS register
+//    QBBC    WAITLOOP, r2, 0             // Wait until counter times out
+//    SBCO    r2, C26, 0x44, 4      // Clear counter timeout bit
 
     // The timer just ticked...
     // ...write out the pre-computed output bits:

@@ -233,6 +233,12 @@ int rtapi_app_main(void)
     rtapi_print_msg(RTAPI_MSG_DBG, "num_stepgens: %d\n",num_stepgens);
     rtapi_print_msg(RTAPI_MSG_DBG, "num_encoders: %d\n",num_encoders);
 
+    if ((retval = setup_pru(pru, prucode, disabled, hpg))) {
+        HPG_ERR("ERROR: failed to initialize PRU\n");
+        hal_exit(comp_id);
+        return -1;
+    }
+
     rtapi_print_msg(RTAPI_MSG_DBG, "Init pwm\n");
     // Initialize various functions and generate PRU data ram contents
     if ((retval = hpg_pwmgen_init(hpg))) {
@@ -272,14 +278,18 @@ int rtapi_app_main(void)
     hpg_encoder_force_write(hpg);
     hpg_wait_force_write(hpg);
 
-    
-    rtapi_print_msg(RTAPI_MSG_DBG, "about to run setup_pru %d %s %d\n", pru, prucode, disabled);
+//    rtapi_print_msg(RTAPI_MSG_DBG, "about to run setup_pru %d %s %d\n", pru, prucode, disabled);
 
-    if ((retval = setup_pru(pru, prucode, disabled, hpg))) {
-        HPG_ERR("ERROR: failed to initialize PRU\n");
-        hal_exit(comp_id);
-        return -1;
-    }
+//    if ((retval = setup_pru(pru, prucode, disabled, hpg))) {
+//        HPG_ERR("ERROR: failed to initialize PRU\n");
+//        hal_exit(comp_id);
+//        return -1;
+//    }
+
+//    HPG_DBG("PRU Data After setup_pru\n");
+//    for (int i = 0; i < 25; i++) {
+//      HPG_DBG("0x%04x: 0x%08x\n", 4*i, hpg->pru_data[i]);
+//    }
     HPG_INFO("installed\n");
     hal_ready(comp_id);
     return 0;
@@ -440,7 +450,7 @@ rtapi_print_msg(RTAPI_MSG_DBG, "prussdrv_open\n");
     }
 
     // Maps the PRU DRAM memory to input pointer
-rtapi_print_msg(RTAPI_MSG_DBG, "prussdrv_map_prumem\n");
+rtapi_print_msg(RTAPI_MSG_DBG, "prussdrv_map_prumem, %d\n", pru);
     int prumem;
     switch(pru) {
       case 0:
