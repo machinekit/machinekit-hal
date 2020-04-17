@@ -191,7 +191,7 @@ RUN echo '${USER}:*:17967:0:99999:7:::' >> /etc/shadow
 ENV UID=${UID_GID/:*/}
 EOF
 else
-    NEWTAG=${TAG}
+	NEWTAG=${TAG}
 fi
 
 ###########################################################
