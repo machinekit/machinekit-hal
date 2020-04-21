@@ -146,6 +146,7 @@ const bone_pinmap p9bbb_pins[49] = {
 // 096 - 127 = GPIO chip 4
 // 128 - 159 = GPIO chip 6
 
+/*
 const bone_pinmap p8ai_pins[47] = {
 //   GPIO   PRU-In  PRU-Out            Pin
     {  -1,  -1, -1,  -1, -1 },      //  0 
@@ -249,8 +250,8 @@ const bone_pinmap p9ai_pins[49] = {
     {  -1,  -1, -1,  -1, -1 },      // 41.1 ???
     {  -1,  -1, -1,  -1, -1 }       // 42.1 ???
 };
+*/
 
-/*
 // The 4 GPIO chips with the most pins on P8 and P9 headers are:
 // GPIO chip 3 with 13 pins
 // GPIO chip 5 with 12 pins
@@ -365,6 +366,5 @@ const bone_pinmap p9ai_pins[49] = {
     {  -1,  -1, -1,  -1, -1 },      // 41.1 ???
     {  -1,  -1, -1,  -1, -1 }       // 42.1 ???
 };
-*/
 
 #endif

@@ -5,7 +5,7 @@ PRUBINDIR := ../rtlib/prubin
 # support for ARM335x PRU (Programmable Realtime Unit) components and
 SUPPORT_DIR := hal/support
 PRU_SRC_DIR := hal/drivers/hal_pru_generic
-PRU_MAINS   := pru_generic pru_decamux
+PRU_MAINS   := pru_generic pru_decamux pru_generic_bbai
 
 # Assembly of PRU code
 # the list of assembly source files

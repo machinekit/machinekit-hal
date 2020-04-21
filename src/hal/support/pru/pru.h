@@ -295,23 +295,25 @@
 
 #define AM335X_CTRL_BASE 0x44E10000
 
-// For BBB 
-// #define GPIO0 0x44e07000
-// #define GPIO1 0x4804c000
-// #define GPIO2 0x481ac000
-// #define GPIO3 0x481ae000
+#ifdef BBAI
 
-// For BBAI - GPIO0 = GPIO4 (gpiochip3), GPIO1 = GPIO6 (gpiochip5), GPIO2 = GPIO7 (gpiochip6), GPIO3 = GPIO8 (gpiochip7)
-//#define GPIO0 0x48059000
-//#define GPIO1 0x4805D000
-//#define GPIO2 0x48051000
-//#define GPIO3 0x48053000
+#define GPIO0 0x4AE10000
+#define GPIO1 0x48055000
+#define GPIO2 0x48057000
+#define GPIO3 0x48059000
+#define GPIO4 0x4805B000
+#define GPIO5 0x4805D000
+#define GPIO6 0x48051000
+#define GPIO7 0x48053000
 
-// For BBAI - GPIO0 = GPIO3 (gpiochip2), GPIO1 = GPIO4 (gpiochip3), GPIO2 = GPIO5 (gpiochip4), GPIO3 = GPIO7 (gpiochip6)
-#define GPIO0 0x48057000
-#define GPIO1 0x48059000
-#define GPIO2 0x4805B000
-#define GPIO3 0x48051000
+#else
+
+#define GPIO0 0x44e07000
+#define GPIO1 0x4804c000
+#define GPIO2 0x481ac000
+#define GPIO3 0x481ae000
+
+#endif
 
 #define GPIO_REVISION 0x0
 #define GPIO_SYSCONFIG 0x10

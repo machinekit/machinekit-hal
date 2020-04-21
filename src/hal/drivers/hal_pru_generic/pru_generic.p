@@ -3,10 +3,12 @@
 // PRU code implementing the main task loop and routines useful for all //
 // task types                                                           //
 //                                                                      //
-// Author(s): Charles Steinkuehler                                      //
+// Author(s): Charles Steinkuehler, John Allwine                        //
 // License: GNU GPL Version 2.0 or (at your option) any later version.  //
 //                                                                      //
 // Major Changes:                                                       //
+// 2020-Apr    John Allwine                                             //
+//             Added support for Beaglebone AI                          //
 // 2015-Apr    Charles Steinkuehler                                     //
 //             Merge DECAMUX support                                    //
 // 2013-May    Charles Steinkuehler                                     //
@@ -16,10 +18,11 @@
 // 2012-Dec-27 Charles Steinkuehler                                     //
 //             Initial version                                          //
 //----------------------------------------------------------------------//
-// This file is part of Machinekit HAL                                  //
+// This file is part of MachineKit HAL                                  //
 //                                                                      //
 // Copyright (C) 2012  Charles Steinkuehler                             //
 //                     <charles AT steinkuehler DOT net>                //
+// Copyright (C) 2020 Pocket NC Company                                 //
 //                                                                      //
 // This program is free software; you can redistribute it and/or        //
 // modify it under the terms of the GNU General Public License          //
@@ -175,16 +178,15 @@ START:
     // Clear all outputs
     LDI     r30, 0
 
+#ifdef BBAI
     LDI r0, 0
     MOV r1, 0x11e1a300
 INITIALIZELOOP:
     ADD r0, r0, 1
-    QBLT INITIALIZELOOP, r1, r0 // waits roughly 6 seconds so we have time to load tasks into memory
+    QBLT INITIALIZELOOP, r1, r0 // waits roughly 3 seconds so we have time to load tasks into memory
+#endif
 
-    // Setup IEP timer
-//    LBCO    r6, CONST_IEP, 0x40, 40                 // Read all 10 32-bit CMP registers into r6-r15
-//    OR      r6, r6, 0x03                            // Set count reset and enable compare 0 event
-
+#ifdef BBAI
     // Setup IEP Timer
     // http://www.ti.com/lit/ug/spruhz6l/spruhz6l.pdf
     // Section 30.1.11.2.2.3 PRU-ICSS Industrial Ethernet Timer Basic Programming Sequence
@@ -196,53 +198,58 @@ INITIALIZELOOP:
     CLR r6, 0
     SBCO r6, C26, 0x0, 4
 
-  // Reset Count Register
+    // Reset Count Register
     MOV r0, 0xffffffff
     SBCO r0, C26, 0x10, 4
     SBCO r0, C26, 0x14, 4
 
-  // Clear overflow status register
+    // Clear overflow status register
     LBCO r1, C26, 0x04, 4
     SET r1, 0
     SBCO r1, C26, 0x04, 4
 
-  // Clear compare status
+    // Clear compare status
     SBCO r0, C26, 0x74, 4
 
-  // 2. Set compare values
-  // Use Task_Addr to point to static variables during init
+    // 2. Set compare values
+    // Use Task_Addr to point to static variables during init
     MOV     GState.Task_Addr, PRU_DATA_START
-  // Load loop period from static variables into CMP0
+    // Load loop period from static variables into CMP0
     LBBO    r8, GState.Task_Addr, OFFSET(pru_statics.period), SIZE(pru_statics.period)
     SBCO r8, C26, 0x78, 4
     LDI r1, 0
     SBCO r1, C26, 0x7C, 4
 
-  // 3. Enable compare events
+    // 3. Enable compare events
     LBCO r1, C26, 0x70, 4
     OR r1, r1, 0x03
     SBCO r1, C26, 0x70, 4
 
-  // 4. Set increment value
+    // 4. Set increment value
     OR r6, r6, 0x50
     SBCO r6, C26, 0x0, 4
 
-  // 5. Set compensation value
+    // 5. Set compensation value
     LDI r1, 0
     SBCO r1, C26, 0x08, 4
     SBCO r1, C26, 0x0C, 4
 
-  // 6. Enable counter
+    // 6. Enable counter
     SET r6, 0
     SBCO r6, C26, 0x0, 4
-
-//    MOV     GState.Task_Addr, PRU_DATA_START
+#else
+    // Setup IEP timer
+    LBCO    r6, CONST_IEP, 0x40, 40                 // Read all 10 32-bit CMP registers into r6-r15
+    OR      r6, r6, 0x03                            // Set count reset and enable compare 0 event
+    MOV     GState.Task_Addr, PRU_DATA_START
     // Load loop period from static variables into CMP0
-//    LBBO    r8, GState.Task_Addr, OFFSET(pru_statics.period), SIZE(pru_statics.period)
+    LBBO    r8, GState.Task_Addr, OFFSET(pru_statics.period), SIZE(pru_statics.period)
 
-//    SBCO    r6, CONST_IEP, 0x40, 40                 // Save 10 32-bit CMP registers
-//    MOV     r2, 0x00000551                          // Enable counter, configured to count nS (increments by 5 each clock)
-//    SBCO    r2, CONST_IEP, 0x00, 4                  // Save IEP GLOBAL_CFG register
+    SBCO    r6, CONST_IEP, 0x40, 40                 // Save 10 32-bit CMP registers
+    MOV     r2, 0x00000551                          // Enable counter, configured to count nS (increments by 5 each clock)
+    SBCO    r2, CONST_IEP, 0x00, 4                  // Save IEP GLOBAL_CFG register
+
+#endif
 
     // Setup registers
 
@@ -250,10 +257,17 @@ INITIALIZELOOP:
     ZERO    &GState.GPIO0_Clr, OFFSET(GState.TaskTable) - OFFSET(GState.GPIO0_Clr)
 
     // Setup Scratch-Pad 0 with GPIO addresses
+#ifdef BBAI
+    MOV     GState.State_Reg0, GPIO3 + GPIO_CLEARDATAOUT
+    MOV     GState.State_Reg1, GPIO5 + GPIO_CLEARDATAOUT
+    MOV     GState.State_Reg2, GPIO6 + GPIO_CLEARDATAOUT
+    MOV     GState.State_Reg3, GPIO7 + GPIO_CLEARDATAOUT
+#else
     MOV     GState.State_Reg0, GPIO0 + GPIO_CLEARDATAOUT
     MOV     GState.State_Reg1, GPIO1 + GPIO_CLEARDATAOUT
     MOV     GState.State_Reg2, GPIO2 + GPIO_CLEARDATAOUT
     MOV     GState.State_Reg3, GPIO3 + GPIO_CLEARDATAOUT
+#endif
 
 #ifdef DECAMUX
     ZERO    &GState.State_Reg4, 12
@@ -296,7 +310,6 @@ SET_CLR_BIT:
     // Bit:    7  6  5  4  3  2  1  0
     // Value:  0  0  0  T  T  T  S  0
     //   T = Target register, S = Set_Clear
-
     LSL     r3.b2, r3.b0, 7
     LSR     r3.b3, r3.b1, 5
     LSR     r3.b0, r3.w2, 6
