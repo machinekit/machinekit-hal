@@ -140,7 +140,7 @@ static int event = -1;
 RTAPI_MP_INT(event, "PRU event number to listen for (0..7, default: none)");
 
 hpg_board_t board_id = BBB;
-static char* board;
+static char* board = "";
 RTAPI_MP_STRING(board, "Board name.  BBB (default, Beaglebone Black), BBAI (Beaglebone AI)");
 
 /***********************************************************************
