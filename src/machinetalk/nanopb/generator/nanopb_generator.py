@@ -1,9 +1,11 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 '''Generate header file for nanopb from a ProtoBuf FileDescriptorSet.'''
 nanopb_version = "nanopb-0.3.3-dev"
 
 import sys
+import io
+import functools
 
 try:
     # Add some dummy imports to keep packaging tools happy.
@@ -83,7 +85,7 @@ class Names:
         return '_'.join(self.parts)
 
     def __add__(self, other):
-        if isinstance(other, (str, unicode)):
+        if isinstance(other, str):
             return Names(self.parts + (other,))
         elif isinstance(other, tuple):
             return Names(self.parts + other)
@@ -121,7 +123,7 @@ class EncodedSize:
         self.symbols = symbols
     
     def __add__(self, other):
-        if isinstance(other, (int, long)):
+        if isinstance(other, int):
             return EncodedSize(self.value + other, self.symbols)
         elif isinstance(other, (str, Names)):
             return EncodedSize(self.value, self.symbols + [str(other)])
@@ -131,7 +133,7 @@ class EncodedSize:
             raise ValueError("Cannot add size: " + repr(other))
 
     def __mul__(self, other):
-        if isinstance(other, (int, long)):
+        if isinstance(other, int):
             return EncodedSize(self.value * other, [str(other) + '*' + s for s in self.symbols])
         else:
             raise ValueError("Cannot multiply size: " + repr(other))
@@ -236,7 +238,7 @@ class Field:
             raise NotImplementedError(field_options.type)
         
         # Decide the C data type to use in the struct.
-        if datatypes.has_key(desc.type):
+        if desc.type in datatypes:
             self.ctype, self.pbtype, self.enc_size, isa = datatypes[desc.type]
 
             # Override the field size if user wants to use smaller integers
@@ -271,9 +273,24 @@ class Field:
         else:
             raise NotImplementedError(desc.type)
         
-    def __cmp__(self, other):
-        return cmp(self.tag, other.tag)
-    
+    def __lt__(self, other):
+        return self.tag < other.tag
+
+    def __gt__(self, other):
+        return self.tag > other.tag
+
+    def __eq__(self, other):
+        return self.tag == other.tag
+
+    def __le__(self, other):
+        return self.tag <= other.tag
+
+    def __ge__(self, other):
+        return self.tag >= other.tag
+
+    def __ne__(self, other):
+        return self.tag != other.tag
+
     def __str__(self):
         result = ''
         if self.allocation == 'POINTER':
@@ -336,8 +353,7 @@ class Field:
                 inner_init = '0'
         else:
             if self.pbtype == 'STRING':
-                inner_init = self.default.encode('utf-8').encode('string_escape')
-                inner_init = inner_init.replace('"', '\\"')
+                inner_init = self.default.replace('"', '\\"')
                 inner_init = '"' + inner_init + '"'
             elif self.pbtype == 'BYTES':
                 data = str(self.default).decode('string_escape')
@@ -451,7 +467,7 @@ class Field:
             else:
                 return 'pb_membersize(%s, %s)' % (self.struct_name, self.name)
 
-        return max(self.tag, self.max_size, self.max_count)        
+        return max(self.tag, self.max_size or 0, self.max_count or 0)
 
     def encoded_size(self, allmsgs):
         '''Return the maximum size that this field can take when encoded,
@@ -605,9 +621,6 @@ class OneOf(Field):
 
         # Sort by the lowest tag number inside union
         self.tag = min([f.tag for f in self.fields])
-
-    def __cmp__(self, other):
-        return cmp(self.tag, other.tag)
 
     def __str__(self):
         result = ''
@@ -888,7 +901,7 @@ def toposort2(data):
     '''
     for k, v in data.items():
         v.discard(k) # Ignore self dependencies
-    extra_items_in_deps = reduce(set.union, data.values(), set()) - set(data.keys())
+    extra_items_in_deps = functools.reduce(set.union, data.values(), set()) - set(data.keys())
     data.update(dict([(item, set()) for item in extra_items_in_deps]))
     while True:
         ordered = set(item for item,dep in data.items() if not dep)
@@ -1084,7 +1097,7 @@ def generate_source(headername, enums, messages, extensions, options):
         checks_msgnames.append(msg.name)
         for field in msg.fields:
             status = field.largest_field_value()
-            if isinstance(status, (str, unicode)):
+            if isinstance(status, str):
                 checks.append(status)
             elif status > worst:
                 worst = status
@@ -1172,7 +1185,7 @@ def read_options_file(infile):
         
         try:
             text_format.Merge(parts[1], opts)
-        except Exception, e:
+        except Exception as e:
             sys.stderr.write("%s:%d: " % (infile.name, i + 1) +
                              "Unparseable option line: '%s'. " % line +
                              "Error: %s\n" % str(e))
@@ -1289,7 +1302,7 @@ def process_file(filename, fdesc, options):
         if options.verbose:
             sys.stderr.write('Reading options from ' + optfilename + '\n')
 
-        Globals.separate_options = read_options_file(open(optfilename, "rU"))
+        Globals.separate_options = read_options_file(open(optfilename, "r"))
     else:
         # If we are given a full filename and it does not exist, give an error.
         # However, don't give error when we automatically look for .options file
@@ -1367,7 +1380,7 @@ def main_plugin():
         msvcrt.setmode(sys.stdin.fileno(), os.O_BINARY)
         msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
     
-    data = sys.stdin.read()
+    data = io.open(sys.stdin.fileno(), "rb").read()
     request = plugin_pb2.CodeGeneratorRequest.FromString(data)
     
     import shlex
@@ -1391,7 +1404,7 @@ def main_plugin():
                 f.name = results['sourcename']
                 f.content = results['sourcedata']    
     
-    sys.stdout.write(response.SerializeToString())
+    sys.stdout.buffer.write(response.SerializeToString())
 
 if __name__ == '__main__':
     # Check if we are running as a plugin under protoc
