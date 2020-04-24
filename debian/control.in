@@ -3,13 +3,14 @@ Section: misc
 Priority: extra
 Maintainer: MachinekitBot <machinekitATeryafDOTcom>
 Build-Depends: debhelper (>= 6),
-    autoconf (>= 2.63), automake, libboost-python-dev, libgl1-mesa-dev,
+    autoconf (>= 2.63), automake, autoconf-archive,
+    libboost-python-dev, libgl1-mesa-dev,
     libglu1-mesa-dev, libmodbus-dev (>= 3.0),
     libudev-dev,
     libglib2.0-dev, libgtk2.0-dev, tcl8.6-dev, tk8.6-dev,
     libncurses-dev, libreadline-dev, libusb-1.0-0-dev, libxmu-dev,
     libxmu-headers, python3, python3-dev (>= 2.6.6),
-    cython (>= 0.19), dh-python,
+    cython3 (>= 0.19), dh-python,
     pkg-config, psmisc, python3-tk, libxaw7-dev, libboost-serialization-dev,
     libzmq3-dev (>= 4.0.4), libczmq-dev (>= 4.0.2), libjansson-dev (>= 2.5),
     libwebsockets-dev (>= 1.2.2),

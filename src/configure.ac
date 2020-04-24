@@ -29,16 +29,6 @@ if test "$srcdir" != "."; then
     AC_MSG_ERROR([Building outside of srcdir is not supported])
 fi
 
-## _PYTHON_SYSCONFIG(expression, [action-if-succeeded], [action-if-failed])
-##
-m4_define([_PYTHON_SYSCONFIG],
-[dnl
-py_val=`$PYTHON -c "dnl
-[import sys; from distutils import sysconfig; sys.stdout.write]dnl
-([sysconfig.]$1 or '')" 2>&AS_MESSAGE_LOG_FD`
-AS_IF([test "[$]?" -eq 0 && test "x$py_val" != x], [$2], [$3])[]dnl
-])
-
 # Cython Python Bindings generator
 # 0.19.1 is the version currently in wheezy-backports
 AC_PROG_CYTHON(0.19.0)
@@ -2054,7 +2044,7 @@ if test "$BUILD_PYTHON" = "yes"; then
 	AC_MSG_ERROR([Python missing.  Install it or specify --disable-python to skip the parts of Machinekit that depend on Python])
     fi
 
-    AX_PYTHON_DEVEL(>= 2.6)
+    AX_PYTHON_DEVEL(">= '3.2'")
     AC_PRUNE_DEFAULT_LDFLAGS(PYTHON_LIBS)
 
 #    AC_MSG_CHECKING([match between tk and Tkinter versions])
