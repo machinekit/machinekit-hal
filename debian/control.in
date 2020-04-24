@@ -9,6 +9,7 @@ Maintainer: MachinekitBot <machinekitATeryafDOTcom>
 Build-Depends: 
     debhelper (>= 10),
     autoconf (>= 2.63),
+    autoconf-archive,
     dpkg-sig:native,
     automake,
     git,
