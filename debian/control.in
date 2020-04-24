@@ -8,19 +8,20 @@ Build-Depends: debhelper (>= 6),
     libudev-dev,
     libglib2.0-dev, libgtk2.0-dev, tcl8.6-dev, tk8.6-dev,
     libncurses-dev, libreadline-dev, libusb-1.0-0-dev, libxmu-dev,
-    libxmu-headers, python (>= 2.6.6), python-dev (>= 2.6.6),
+    libxmu-headers, python3, python3-dev (>= 2.6.6),
     cython (>= 0.19), dh-python,
-    pkg-config, psmisc, python-tk, libxaw7-dev, libboost-serialization-dev,
+    pkg-config, psmisc, python3-tk, libxaw7-dev, libboost-serialization-dev,
     libzmq3-dev (>= 4.0.4), libczmq-dev (>= 4.0.2), libjansson-dev (>= 2.5),
     libwebsockets-dev (>= 1.2.2),
-    python-zmq (>= 14.0.1), procps,
-    liburiparser-dev, libssl-dev, python-setuptools,
+    python3-zmq (>= 14.0.1), procps,
+    liburiparser-dev, libssl-dev, python3-setuptools,
     uuid-dev, uuid-runtime, libavahi-client-dev,
     libprotobuf-dev (>= 2.4.1), protobuf-compiler (>= 2.4.1),
-    python-protobuf (>= 2.4.1), libprotoc-dev (>= 2.4.1),
-    python-simplejson, libboost-thread-dev, libcgroup-dev,
-    yapps2-runtime | python-yapps, yapps2,
-    python-pyftpdlib @BUILD_DEPS@
+    python3-protobuf (>= 2.4.1), libprotoc-dev (>= 2.4.1),
+    python3-simplejson, libboost-thread-dev, libcgroup-dev,
+    python3-yapps, yapps2,
+    python3-pyftpdlib,
+    libck-dev @BUILD_DEPS@
 Standards-Version: 2.1.0
 
 Package: machinekit-hal
@@ -32,17 +33,16 @@ Depends: ${shlibs:Depends},
     tcl8.6, tk8.6,
     bwidget (>= 1.7), libtk-img (>=1.13),
     ${python:Depends}, ${misc:Depends},
-    python-tk, python-imaging-tk,
-    python-glade2,
-    python-numpy, libmodbus-dev (>= 3.0),
-    python-xlib, python-gtkglext1, python-configobj,
-    python-zmq, python-protobuf (>= 2.4.1),
-    python-avahi, python-simplejson, python-pyftpdlib,
-    python-pydot, xdot,
+    python3-tk,
+    python3-numpy, libmodbus-dev (>= 3.0),
+    python3-xlib, python3-configobj,
+    python3-zmq, python3-protobuf (>= 2.4.1),
+    python-avahi, python3-simplejson, python-pyftpdlib,
+    python3-pydot, xdot,
     tclreadline, bc, procps, psmisc, cgroup-tools,
-    python-gst-1.0 | python-gst0.10,
-    python-imaging | python-pil,
-    python-imaging-tk | python-pil.imagegtk,
+    python3-gst-1.0,
+    python3-pil,
+    python3-pil.imagegtk,
     uuid-runtime @DEPS@
 Description: Universal framework for machine control based on Hardware Abstraction Layer principle
     .
@@ -55,7 +55,7 @@ Architecture: any
 Depends: make, g++,
    ${misc:Depends},
    machinekit-hal (= ${binary:Version}),
-   yapps2-runtime | python-yapps
+   python3-yapps
 Section: libs
 Description: Universal framework for machine control based on Hardware Abstraction Layer principle
  This package includes the development environment for Machinekit-HAL.

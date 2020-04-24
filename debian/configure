@@ -90,25 +90,6 @@ test "$1" != --help || usage
 BUILD_DEPS=  # List of Build-Depends
 DEPS=        # List of Depends
 
-## copy base templates into place
-
-case "$DISTRO_CODENAME" in
-    buster|bullseye)
-        BUILD_DEPS+=', libck-dev'
-        ;;
-    stretch|sid)
-        DEPS+=", python-gtksourceview2"
-        BUILD_DEPS+=', libck-dev'
-        ;;
-    jessie)
-        DEPS+=", python-gtksourceview2"
-        ;;
-    *)
-        DEPS+=", python-gtksourceview2"
-        BUILD_DEPS+=', libck-dev'
-        ;;
-esac
-
 # Configure Xenomai threads
 configure_xenomai() {
     if ! dpkg-query -W | grep -q libxenomai-dev; then

@@ -76,7 +76,7 @@ RUN apt-get -y install \
 	help2man \
 	xvfb \
 	xauth \
-	python-sphinx \
+	python3-sphinx \
 	wget \
 	sudo \
 	lftp \
@@ -85,13 +85,13 @@ RUN apt-get -y install \
 	multistrap \
 	debian-keyring \
 	debian-archive-keyring \
-	python-apt \
+	python3-apt \
 	rubygems \
     curl \
     && { \
 	test $DISTRO_VER -ge 10 \
 	    || apt-get install -y \
-		python-restkit; \
+		python3-restkit; \
         } \
     && apt-get clean
 
@@ -103,7 +103,7 @@ RUN apt-get install -y \
 	equivs \
 	lsb-release \
 	less \
-	python-debian \
+	python3-debian \
 	libtool \
 	ccache \
 	autoconf \
@@ -346,19 +346,14 @@ RUN apt-get update \
         cython \
         uuid-runtime \
         protobuf-compiler \
-        python-protobuf \
-        python-pyftpdlib \
-        python-tk \
+        python3-protobuf \
+        python3-pyftpdlib \
+        python3-tk \
         netcat-openbsd \
         tcl8.6 tk8.6 \
         cgroup-tools \
-    && if test $DISTRO_VER -le 9; then \
-	    apt-get install -y \
-		yapps2-runtime yapps2; \
-       else \
-	    apt-get install -y \
-		python-yapps yapps2; \
-       fi \
+	python3-yapps \
+	yapps2 \
     && apt-get clean
 
 # Monkey-patch entire /usr/include, and re-add build-arch headers
