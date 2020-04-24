@@ -121,7 +121,7 @@ def parse(filename):
     initialize()
     f = open(filename).read()
     if '\r' in f:
-	raise SystemExit, "Error: Mac or DOS style line endings in file %s" % filename
+        raise SystemExit, "Error: Mac or DOS style line endings in file %s" % filename
     a, b = f.split("\n;;\n", 1)
     p = _parse('File', a + "\n\n", filename)
     if not p: raise SystemExit, 1
@@ -391,7 +391,7 @@ static int comp_id;
         f.write("    inst->_personality = personality;\n")
     if options.get("extra_setup"):
         f.write("    r = extra_setup(inst, prefix, extra_arg);\n")
-	f.write("    if(r != 0) return r;\n")
+        f.write("    if(r != 0) return r;\n")
         # the extra_setup() function may have changed the personality
         if has_personality:
             f.write("    personality = inst->_personality;\n")
@@ -512,8 +512,8 @@ static int comp_id;
                 f.write("        r = export(buf, i, personality[i%16]);\n")
             else:
                 f.write("        r = export(buf, i);\n")
-	    f.write("    }\n")
-	else:
+            f.write("    }\n")
+        else:
             f.write("    if(count && names[0]) {\n")
             f.write("        rtapi_print_msg(RTAPI_MSG_ERR," \
                     "\"count= and names= are mutually exclusive\\n\");\n")
@@ -545,7 +545,7 @@ static int comp_id;
         if options.get("constructable") and not options.get("singleton"):
             f.write("    hal_set_constructor(comp_id, export_1);\n")
         f.write("    if(r) {\n")
-	if options.get("extra_cleanup"):
+        if options.get("extra_cleanup"):
             f.write("    extra_cleanup();\n")
         f.write("        hal_exit(comp_id);\n")
         f.write("    } else {\n")
@@ -556,7 +556,7 @@ static int comp_id;
 
         f.write("\n")
         f.write("void rtapi_app_exit(void) {\n")
-	if options.get("extra_cleanup"):
+        if options.get("extra_cleanup"):
             f.write("    extra_cleanup();\n")
         f.write("    hal_exit(comp_id);\n")
         f.write("}\n")
@@ -757,7 +757,7 @@ def adocument(filename, outfilename, frontmatter):
             f.write("%s\n" % fm)
         f.write("edit-path: src/%s\n" % (filename))
         f.write("generator: comp\n")
-	f.write("description: This page was generated from src/%s. Do not edit directly, edit the source.\n" % filename)
+        f.write("description: This page was generated from src/%s. Do not edit directly, edit the source.\n" % filename)
         f.write("---\n")
         f.write(":skip-front-matter:\n\n")
 
@@ -797,46 +797,46 @@ def adocument(filename, outfilename, frontmatter):
         f.write("*%s*\n" % rest)
         f.write("\n"                    )
     else:
-	if options.get("userspace"):
-    	    f.write("%s [-W]\n" % comp_name)
+        if options.get("userspace"):
+            f.write("%s [-W]\n" % comp_name)
             f.write("\n")
-	else:
-    	    if rest:
-        	f.write("%s\n" % rest)
+        else:
+            if rest:
+                f.write("%s\n" % rest)
                 f.write("\n")
-	    else:
-    	        if options.get("singleton") or options.get("count_function"):
-        	    if has_personality:
-            	        f.write("*loadrt %s personality=_P_*\n" % comp_name)
+            else:
+                if options.get("singleton") or options.get("count_function"):
+                    if has_personality:
+                        f.write("*loadrt %s personality=_P_*\n" % comp_name)
                     else:
-	                f.write("*loadrt %s*\n" % comp_name)
-    	        else:
-        	    if has_personality:
-            	        f.write("*loadrt %s [count=_N_|names=_name1_[,_name2..._]] [personality=_P,P,..._]*\n" % comp_name)
+                        f.write("*loadrt %s*\n" % comp_name)
+                else:
+                    if has_personality:
+                        f.write("*loadrt %s [count=_N_|names=_name1_[,_name2..._]] [personality=_P,P,..._]*\n" % comp_name)
                     else:
-	                f.write("*loadrt %s [count=_N_|names=_name1_[,_name2..._]]*\n" % comp_name)
+                        f.write("*loadrt %s [count=_N_|names=_name1_[,_name2..._]]*\n" % comp_name)
 
-    	        for type, name, default, doc in modparams:
-        	    f.write("[%s=_N_]" % name)
-        	f.write("\n")
+                for type, name, default, doc in modparams:
+                    f.write("[%s=_N_]" % name)
+                f.write("\n")
 
                 hasparamdoc = False
-	        for type, name, default, doc in modparams:
-    	            if doc: hasparamdoc = True
+                for type, name, default, doc in modparams:
+                    if doc: hasparamdoc = True
 
-        	if hasparamdoc:
-            	    for type, name, default, doc in modparams:
-                	f.write("\n")
+                if hasparamdoc:
+                    for type, name, default, doc in modparams:
+                        f.write("\n")
                         f.write("*%s*" % name)
-	                if default:
-    	                    f.write("*[default: %s]*\n" % default)
-        	        else:
-            	            f.write("\n")
-                	f.write("%s\n" % doc)
+                        if default:
+                            f.write("*[default: %s]*\n" % default)
+                        else:
+                            f.write("\n")
+                        f.write("%s\n" % doc)
                     f.write("\n")
 
-    	    if options.get("constructable") and not options.get("singleton"):
-        	f.write("\n*newinst %s _name_*\n" % comp_name)
+            if options.get("constructable") and not options.get("singleton"):
+                f.write("\n*newinst %s _name_*\n" % comp_name)
         f.write("\n")
 
     doc = finddoc('descr')
@@ -857,7 +857,7 @@ def adocument(filename, outfilename, frontmatter):
         f.write("=== FUNCTIONS\n")
         f.write("\n")
         for _, name, fp, doc in finddocs('funct'):
-    	    if name != None and name != "_":
+            if name != None and name != "_":
                 f.write("*%s.N.%s*\n" % (comp_name, to_hal(name)))
             else :
                 f.write("*%s.N*\n" % comp_name )
@@ -887,7 +887,7 @@ def adocument(filename, outfilename, frontmatter):
         if doc:
             f.write(" - %s\n\n" % doc)
         else:
-	    f.write("\n\n")
+            f.write("\n\n")
 
     f.write("\n\n")
 
@@ -910,9 +910,9 @@ def adocument(filename, outfilename, frontmatter):
             if doc:
                 f.write(" - %s\n\n" % doc)
             else:
-        	f.write("\n\n")
+                f.write("\n\n")
 
-	f.write("\n\n")
+        f.write("\n\n")
 
     doc = finddoc('see_also')
     if doc and doc[1]:
@@ -1077,23 +1077,23 @@ def main():
         try:
             basename = os.path.basename(os.path.splitext(f)[0])
             if f.endswith(".comp") and mode == DOCUMENT:
-		adocument(f, outfile, frontmatter)
+                adocument(f, outfile, frontmatter)
             elif f.endswith(".comp") and mode == VIEWDOC:
                 tempdir = tempfile.mkdtemp()
                 try:
                     outfile = os.path.join(tempdir, basename + ".asciidoc")
                     adocument(f, outfile, frontmatter)
                     cmd = "mank -f %s -p %s -s" % (basename, tempdir)
-		    os.system(cmd)
+                    os.system(cmd)
                 finally:
                     shutil.rmtree(tempdir)
             elif f.endswith(".comp") and mode == INSTALLDOC:
-		manpath = os.path.join(BASE, "share/man/man9")
+                manpath = os.path.join(BASE, "share/man/man9")
                 if not os.path.isdir(manpath):
-		    manpath = os.path.join(BASE, "man/man9")
-		outfile = os.path.join(manpath, basename + ".asciidoc")
-    		print ("INSTALLDOC", outfile)
-		adocument(f, outfile, frontmatter)
+                    manpath = os.path.join(BASE, "man/man9")
+                outfile = os.path.join(manpath, basename + ".asciidoc")
+                print ("INSTALLDOC", outfile)
+                adocument(f, outfile, frontmatter)
             elif f.endswith(".comp"):
                 process(f, mode, outfile)
             elif f.endswith(".py") and mode == INSTALL:
