@@ -1,7 +1,7 @@
 ARG BASE_IMAGE
 
 FROM ${BASE_IMAGE}
-LABEL maintainer="John Morris <john@zultron.com>"
+LABEL io.machinekit.machinekit-hal.maintainer="John Morris <john@zultron.com>"
 
 ###################################################################
 # Build configuration settings
