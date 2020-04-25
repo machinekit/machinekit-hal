@@ -1,7 +1,20 @@
 ARG BASE_IMAGE
+ARG VERSION_SHA
 
 FROM ${BASE_IMAGE}
-LABEL io.machinekit.machinekit-hal.maintainer="John Morris <john@zultron.com>"
+
+ARG NAME
+ARG MAINTAINER
+ARG DESCRIPTION
+ARG BUILD_DATE
+ARG VCS_REF
+ARG VCS_URL
+LABEL io.machinekit.machinekit-hal.name=${NAME}
+LABEL io.machinekit.machinekit-hal.maintainer=${MAINTAINER}
+LABEL io.machinekit.machinekit-hal.description=${DESCRIPTION}
+LABEL io.machinekit.machinekit-hal.build-date=${BUILD_DATE}
+LABEL io.machinekit.machinekit-hal.vcs-ref=${VCS_REF}
+LABEL io.machinekit.machinekit-hal.vcs-url=${VCS_URL}
 
 ###################################################################
 # Build configuration settings

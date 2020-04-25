@@ -100,6 +100,15 @@ if ([ "$DISTRO_CODENAME" == "jessie" ] && [ "$DEBIAN_ARCH" == "arm64" ]); then
 fi
 
 IMAGE_NAME="$REPO_NAME/$IMAGE_NAME:$CACHE_TAG"
+# In connection with value in .github/workflows/build-preview.yaml
+NAME="machinekit-hal-debian-builder-v.$CACHE_TAG"
+MAINTAINER="John Morris <john@zultron.com>"
+DESCRIPTION="Machinekit-HAL Debian $DISTRO_CODENAME builder for $DEBIAN_ARCH architecture."
+BUILD_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+VCS_REF=$(git rev-parse --verify HEAD)
+# Hoping that every clone has remote named 'origin'
+# ATTENTION: Make sure you don't expose your TOKEN
+VCS_URL=$(git config --get remote.origin.url)
 
 # Debug info
 (
@@ -114,6 +123,13 @@ IMAGE_NAME="$REPO_NAME/$IMAGE_NAME:$CACHE_TAG"
     echo "    DISTRO_VER=${DISTRO_VER}"
     echo "    EXTRA_FLAGS=${EXTRA_FLAGS}"
     echo "    LDEMULATION=${LDEMULATION}"
+    echo "Labels:"
+    echo "    NAME=${NAME}"
+    echo "    MAINTAINER=${MAINTAINER}"
+    echo "    DESCRIPTION=${DESCRIPTION}"
+    echo "    BUILD_DATE=${BUILD_DATE}"
+    echo "    VCS_REF=${VCS_REF}"
+    echo "    VCS_URL=${VCS_URL}"
 ) >&2
 
 # Be sure we're in the right directory
@@ -130,5 +146,11 @@ exec docker build \
        --build-arg DISTRO_VER=${DISTRO_VER} \
        --build-arg EXTRA_FLAGS=${EXTRA_FLAGS} \
        --build-arg LDEMULATION=${LDEMULATION} \
+       --build-arg NAME=${NAME} \
+       --build-arg MAINTAINER="${MAINTAINER}" \
+       --build-arg DESCRIPTION="${DESCRIPTION}" \
+       --build-arg BUILD_DATE=${BUILD_DATE} \
+       --build-arg VCS_REF=${VCS_REF} \
+       --build-arg VCS_URL=${VCS_URL} \
        ${DOCKER_BUILD_ARGS} \
        -f $DOCKERFILE_PATH -t $IMAGE_NAME ..
