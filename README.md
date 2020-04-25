@@ -98,8 +98,7 @@ It all started in the early nineties when NIST created the Enhanced Machine Cont
 
 The source code is hosted publicly on [GitHUB](https://github.com/machinekit/machinekit-hal), where majority of programming discussion about further development happens. In lower measures, Machinekit-HAL is also discussed on [_Machinekit forum_](https://groups.google.com/forum/#!forum/machinekit) and in [_Machinekit Matrix Room_](https://matrix.to/#/#machinekit:matrix.org), which are used more to the point of support platforms and for general chat.
 
-|![Counselling](https://img.icons8.com/ios-filled/100/000000/counselor.png)|
-It's always encouraged to create a new _issue_ in GitHub tracker first. Discuss the proposed changes there and then based on the output implement the changes and create a new _pull request_. |
+|![Counselling](https://img.icons8.com/ios-filled/50/000000/counselor.png)| It's always encouraged to create a new _issue_ in GitHub tracker first. Discuss the proposed changes there and then based on the output implement the changes and create a new _pull request_. |
 |:---:|---|
 
 ## Licence
