@@ -175,26 +175,6 @@ case $CMD in
 esac
 
 ###########################################################
-# Update new container image and add custom /etc/passwd
-
-if test -z "$NO_PULL"; then
-    docker pull ${IMAGE}:${TAG}
-fi
-
-if test ${UID_GID/:*/} != 1000; then
-    echo "Updating /etc/passwd for UID $TRAVIS_UID" >&2
-    NEWTAG=${TAG}_custom
-    docker build -t ${IMAGE}:${NEWTAG} - <<EOF
-FROM ${IMAGE}:${TAG}
-RUN sed -i "s/\${USER}:x:\${UID}:/\${USER}:x:${UID_GID/:*/}:/" /etc/passwd
-RUN echo '${USER}:*:17967:0:99999:7:::' >> /etc/shadow
-ENV UID=${UID_GID/:*/}
-EOF
-else
-	NEWTAG=${TAG}
-fi
-
-###########################################################
 # Run build
 
 set -x  # Show user the command
@@ -219,5 +199,5 @@ exec docker run \
     -v ${BIND_SOURCE_DIR}:${BIND_SOURCE_DIR} -w ${PWD} \
     -e TAG=${TAG} \
     -h ${IMAGE//[\/:]/-}-${TAG} \
-    ${IMAGE}:${NEWTAG} \
+    ${IMAGE}:${TAG} \
     "${BUILD_CL[@]}"

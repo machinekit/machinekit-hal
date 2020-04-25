@@ -1,0 +1,439 @@
+#####################################################################
+# Description:  debian-builder-workflow.yaml
+#
+#               This file, 'debian-builder-workflow.yaml', implements
+#               the builder/tester CI/CD workflow for Debian based
+#               systems.
+#
+# Copyright (C) 2020       Jakub Fišer <jakub DOT fiser AT eryaf DOT com>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+#
+######################################################################
+
+name: Test application and publish packages (Debian linux)
+
+on:
+  push:
+    branches:
+    - '*'
+    tags-ignore:
+    - 'v*'
+
+  pull_request:
+    branches:
+    - '*'
+
+env:
+  # DANGER: Changing this value will mean new Docker image name!
+  #         Public Docker images in GitHub Packages cannot be deleted,
+  #         every change will stay visible 'forever' in form of old packages
+  ImageNameRoot: 'machinekit-hal-debian-builder-v.'
+
+jobs:
+  prepareState:
+    name: Prepare data used in subsequent jobs
+    runs-on: ubuntu-latest
+    outputs:
+      BuildDockerImages: ${{ env.BuildDockerImage }}
+      HasCloudsmithToken: ${{ steps.cloudsmith_checker.outputs.tokenPresent }}
+      HasSigningKey: ${{ steps.signing_key_checker.outputs.keyPresent }}
+      MainMatrix: ${{ steps.matrix_normalizer.outputs.matrix }}
+      OsVersionsMatrix: ${{ steps.matrix_normalizer.outputs.osMatrix }}
+      HasSpecificDockerRegistry: ${{ steps.docker_registry_checker.outputs.hasRegistry }}
+
+    steps:
+    - name: Show GitHub context as a JSON
+      run: |
+        echo "$GITHUB_CONTEXT"
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+    
+    - name: Prepare job matrix for subsequent jobs
+      id: matrix_normalizer
+      run: |
+        MAIN_MATRIX=$(printf "$BASE_JSON" | jq -c '.')
+        OS_MATRIX=$(printf "$MAIN_MATRIX" | jq -c '{include: [.include[] | del(.architecture)] | unique}')
+        echo "::set-output name=matrix::$MAIN_MATRIX"
+        echo "::set-output name=osMatrix::$OS_MATRIX"
+        printf "JSON object for Main Matrix:\n====\n$MAIN_MATRIX\nJSON object for OS Matrix:\n====\n$OS_MATRIX\n"
+      env:
+        BASE_JSON: '{"include":[{"osVersionCodename":"jessie","osVersionNumber":8,"architecture":"i386"},{"osVersionCodename":"stretch","osVersionNumber":9,"architecture":"i386"},{"osVersionCodename":"buster","osVersionNumber":10,"architecture":"i386"},{"osVersionCodename":"jessie","osVersionNumber":8,"architecture":"amd64"},{"osVersionCodename":"stretch","osVersionNumber":9,"architecture":"amd64"},{"osVersionCodename":"buster","osVersionNumber":10,"architecture":"amd64"},{"osVersionCodename":"jessie","osVersionNumber":8,"architecture":"armhf"},{"osVersionCodename":"stretch","osVersionNumber":9,"architecture":"armhf"},{"osVersionCodename":"buster","osVersionNumber":10,"architecture":"armhf"},{"osVersionCodename":"stretch","osVersionNumber":9,"architecture":"arm64"},{"osVersionCodename":"buster","osVersionNumber":10,"architecture":"arm64"}]}'
+
+      # Fetch the whole history here as there is no way of knowing how many commits there were in push event
+    - name: Deep clone Machinekit-HAL repository
+      uses: actions/checkout@v2
+      with:
+        ref: '${{ github.event.ref }}'
+        fetch-depth: '0'
+        path: 'machinekit-hal'
+    
+    - name: Get SHAs needed for file changes checking
+      id: event_normalizer 
+      run: |
+        if [ "${{ github.event_name }}" == "push" ]; then
+          echo "::set-output name=before::${{ github.event.before }}"
+          echo "::set-output name=after::${{ github.sha }}"
+          printf "Output ::before set to ${{ github.event.before }}\nOutput ::before set to ${{ github.sha }}\n"
+          exit 0
+        fi
+        if [ "${{ github.event_name }}" == "pull_request" ]; then
+          echo "::set-output name=before::${{ github.event.pull_request.base.sha }}"
+          echo "::set-output name=after::${{ github.sha }}"
+          printf "Output ::before set to ${{ github.event.pull_request.base.sha }}\nOutput ::after set to ${{ github.sha }}\n"
+          exit 0
+        fi
+        printf "Disallowed event type\n"
+        exit 1
+
+      # Force-push checking should be done better, this implementation doesn't
+      # take into account changes in the force push: How to get from Github API
+      # the last SHA before push?
+      # There is also thread on GitHub.community about this issue:
+      # https://github.community/t5/GitHub-Actions/Workflow-paths-on-forced-pushs/m-p/49576
+    - name: Check if Docker images related files were changed in this event
+      run: |
+        if [[ ${BEFORE} =~ ^0+$ ]]; then
+          printf "This is new branch\n"
+          exit 0
+        fi
+        if ! git rev-parse -q --verify "$BEFORE^{commit}" > /dev/null; then
+          printf "Commit $BEFORE does not exists, this is probably force push\n"
+          exit 0
+        fi
+        CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r ${BEFORE} ${AFTER})
+        printf "Found changed files in this event:\n$CHANGED_FILES\n====\n"
+        while IFS= read -r line; do
+          if [[ $line =~ $DOCKER_REGEX ]]; then 
+            printf "Found file $line matching the regular expression for Debian builder files\n"
+            echo "::set-env name=BuildDockerImage::true"
+            exit 0
+          fi
+        done <<< "$CHANGED_FILES"
+        printf "No changes in Debian builder files were found, not going to force rebuild\n"
+      env:
+        BEFORE: ${{ steps.event_normalizer.outputs.before }}
+        AFTER: ${{ steps.event_normalizer.outputs.after }}
+        DOCKER_REGEX: '^(scripts/(((containers/){0,1}buildsystem/debian/.{1,})|build_debian_docker_image))|debian/.{1,}$'
+      working-directory: ./machinekit-hal
+
+    - name: Build a GraphQL query for questioning Github Packages Docker registry
+      if: env.BuildDockerImage != 'true'
+      run: |
+        echo "
+          query: 
+            'query getDockerImages(\$owner: String!, \$repository: String!) {
+              repository(owner: \$owner, name: \$repository) {
+                 registryPackages(packageType: DOCKER, publicOnly: true, first: 100) {
+                  nodes {
+                    name
+                    version(version: \"latest\") {
+                      sha256
+                    }
+                  }
+                }
+              }
+            }'
+          variables:
+            owner:
+              type: arg
+              name: owner
+            repository:
+              type: arg
+              name: repository
+        " > DockerImagesInGithubPackagesQuery.yaml
+
+    - name: Query GitHub Packages registry for Docker images
+      if: env.BuildDockerImage != 'true'
+      uses: helaili/github-graphql-action@2.0.1
+      id: get_debian_builders_data
+      with:
+        query: DockerImagesInGithubPackagesQuery.yaml
+        outputFile: DockerImagesInGithubPackagesResponse.json
+        logLevel: debug
+        owner: '${{ github.event.repository.owner.login }}'
+        repository: '${{ github.event.repository.name }}'
+        inquiry: 'is:public ${{ env.ImageNameRoot }}'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Check if all Debian builder Docker images are present
+      if: env.BuildDockerImage != 'true'
+      run: |
+        test_array=($(printf "$MATRIX_JSON" | jq -r '.include[] | [.architecture, .osVersionNumber|tostring] | join("_")'))
+        MISSING=0
+        for i in ${test_array[@]}
+        do
+          IMAGENAME="${IMAGE_NAME_ROOT}$i"
+          IMAGESHA=$(jq -r --arg IMAGENAME "$IMAGENAME" '.data.repository.registryPackages.nodes[] | select(.name == $IMAGENAME).version.sha256 | select(.!=null)' ${INPUT_JSON_FILE})
+          if [ -z "$IMAGESHA" ]; then
+            printf "Docker image $IMAGENAME:latest does not exist in registry docker.pkg.github.com/$REPOSITORY_FULL\n"
+            ((MISSING=MISSING+1))
+          fi
+        done
+        if [ $MISSING -gt 0 ]; then
+          printf "Registry is missing $MISSING Docker image(s)\n"
+          echo ::set-env name=BuildDockerImage::true
+        else
+          printf "All images present in registry, no missing packages waiting to be build\n"  
+        fi
+      env:
+        MATRIX_JSON: '${{ steps.matrix_normalizer.outputs.matrix }}'
+        IMAGE_NAME_ROOT: ${{ env.ImageNameRoot }}
+        REPOSITORY_FULL: ${{ github.repository }}
+        INPUT_JSON_FILE: 'DockerImagesInGithubPackagesResponse.json'
+      
+      # Not Yet Implemented: Check if the :latest Docker image in GitHub Packages is relevant to the current branch
+      #                      by way of implementing a new label in Docker build with SHA of Machinekit-HAL git commit,
+      #                      querying it here in workflow and then check if SHA is in history of this ref before
+      #                      ${{ steps.event_normalizer.outputs.before }} - if not, force rebuild
+    
+    - name: Check if Cloudsmith authorization token is present in GitHub secrets storage
+      if: github.event_name == 'push'
+      id: cloudsmith_checker
+      run: |
+        if ! [ -z "$CLOUDSMITH_TOKEN" ]; then
+          printf "Cloudsmith.io authorization token found in GitHub secret storage, will try to upload\n"
+          echo "::set-output name=tokenPresent::true"
+        else
+          printf "Cloudsmith.io authorization token not found in GitHub secret storage\n"
+          echo "::set-output name=tokenPresent::false"
+        fi
+      env:
+        CLOUDSMITH_TOKEN: ${{ secrets.CLOUDSMITH_TOKEN }}
+
+    - name: Check if signing key is present in GitHub secrets storage
+      if: github.event_name == 'push'
+      id: signing_key_checker
+      run: |
+        if ! [ -z "$SIGNING_KEY" ]; then
+          printf "Signing key found in GitHub secret storage, will try to sign\n"
+          echo "::set-output name=keyPresent::true"
+        else
+          printf "Signing key not found in GitHub secret storage\n"
+          echo "::set-output name=keyPresent::false"
+        fi
+      env:
+        SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+
+    - name: Check if specific Docker Registry data is present in GitHub secrets storage
+      if: env.BuildDockerImage == 'true' && github.event_name == 'push'
+      id: docker_registry_checker
+      run: |
+        if [ -n "$DOCKER_REGISTRY_NAME" -a -n "$DOCKER_REGISTRY_USER" -a -n "$DOCKER_REGISTRY_PASSWORD" -a -n "$DOCKER_REGISTRY_PREFIX" ]; then
+          printf "Docker Registry data found in GitHub secret storage, will try to upload\n"
+          echo "::set-output name=hasRegistry::true"
+        else
+          printf "Docker Registry data not found in GitHub secret storage\n"
+          echo "::set-output name=hasRegistry::false"
+        fi
+      env:
+        DOCKER_REGISTRY_NAME: ${{ secrets.DOCKER_REGISTRY_NAME }}
+        DOCKER_REGISTRY_USER: ${{ secrets.DOCKER_REGISTRY_USER }}
+        DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+        DOCKER_REGISTRY_PREFIX: ${{ secrets.DOCKER_REGISTRY_PREFIX }}
+  
+  buildMachinekitHALDebianPackages:
+    name: Build Machinekit HAL packages for Debian ${{ matrix.osVersionCodename }}, ${{ matrix.architecture }}
+    runs-on: ubuntu-latest
+    needs: prepareState
+    strategy:
+      matrix: ${{ fromJson(needs.prepareState.outputs.MainMatrix) }}
+      fail-fast: false
+    
+    steps:
+      - name: Clone Machinekit-HAL repository
+        uses: actions/checkout@v2
+        with:
+          ref: '${{ github.event.ref }}'
+          path: 'build/machinekit-hal'
+
+        # Docker image temp/temp is temporary until the build script is changed accordingly
+      - name: Prepare the Docker image
+        run: |
+          if [ "${{ needs.prepareState.outputs.BuildDockerImages }}" == "true" ]; then
+            scripts/build_debian_docker_image -r temp -i temp -t ${TAG}
+            docker tag temp/temp:${TAG} ${IMAGE_NAME_BASE}${TAG}:latest
+            exit 0
+          fi
+          printf "${{ env.GITHUB_TOKEN}}" | docker login docker.pkg.github.com -u $GITHUB_OWNER --password-stdin
+          docker pull ${IMAGE_NAME_BASE}${TAG}:latest
+          docker tag ${IMAGE_NAME_BASE}${TAG}:latest temp/temp:${TAG}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IMAGE_NAME_BASE: 'docker.pkg.github.com/${{ github.repository }}/${{ env.ImageNameRoot }}'
+          GITHUB_OWNER: ${{ github.actor }}
+          TAG: '${{ matrix.architecture }}_${{ matrix.osVersionNumber }}'
+        working-directory: ./build/machinekit-hal
+
+        # Docker image temp/temp is temporary until the build script is changed accordingly
+      - name: Build Machinekit-HAL Debian package for ${{ matrix.osVersionCodename}}, ${{ matrix.architecture }}
+        run: |
+          scripts/build_docker -i $DOCKER_IMAGE -t $TAG -c deb -n
+        env:
+          TAG: '${{ matrix.architecture }}_${{ matrix.osVersionNumber }}'
+          DOCKER_IMAGE: 'temp/temp'
+        working-directory: ./build/machinekit-hal  
+
+      - name: Sign the package with Machinekit Builder Signer Key
+        if: github.event_name == 'push'
+        run: echo "Not implemented yet"
+
+      - name: Prepare build artifact for upload
+        run: |
+          mkdir machinekit-hal-debian
+          find ./build -depth -not \( -path "." -or -path "./build" -or -path "./build/machinekit-hal" -or -path "./build/machinekit-hal/*" \) -print0 | xargs -0 -t -I '{}' cp -v '{}' ./machinekit-hal-debian
+
+      - name: Upload built package for Debian ${{ matrix.osVersionCodename}}, ${{ matrix.architecture }} as an artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: machinekit-hal-debian-${{ matrix.architecture }}-${{ matrix.osVersionNumber }}-${{ github.sha}}
+          path: machinekit-hal-debian
+
+  testMachinekitHALBuild:
+    name: Test Machinekit HAL code on Debian ${{ matrix.osVersionCodename }}
+    runs-on: ubuntu-latest
+    needs: prepareState
+    strategy:
+      matrix: ${{ fromJson(needs.prepareState.outputs.OsVersionsMatrix) }}
+      fail-fast: false
+
+    steps:
+      - name: Clone Machinekit-HAL repository
+        uses: actions/checkout@v2
+        with:
+          ref: '${{ github.event.ref }}'
+          path: 'build/machinekit-hal'
+
+      - name: Check on which architecture the workflow is running on
+        id: runtime_architecture
+        run: |
+          ARCHITECTURE=$(uname --machine)
+          RENAMEARCH=""
+          case "$ARCHITECTURE" in
+            "x86_64")
+              RENAMEARCH="amd64"
+              ;;
+            *)
+              printf "Architecture $ARCHITECTURE is unrecognized\n"
+              exit 1
+              ;;
+          esac
+          printf "This job is going to use $RENAMEARCH as an achitecture tag\n"
+          echo "::set-output name=architecture::$RENAMEARCH"
+
+        # Docker image temp/temp is temporary until the build script is changed accordingly
+      - name: Prepare the Docker image
+        run: |
+          if [ "${{ needs.prepareState.outputs.BuildDockerImages }}" == "true" ]; then
+            scripts/build_debian_docker_image -r temp -i temp -t ${TAG}
+            docker tag temp/temp:${TAG} ${IMAGE_NAME_BASE}${TAG}:latest
+            exit 0
+          fi
+          printf "${{ env.GITHUB_TOKEN}}" | docker login docker.pkg.github.com -u $GITHUB_OWNER --password-stdin
+          docker pull ${IMAGE_NAME_BASE}${TAG}:latest
+          docker tag ${IMAGE_NAME_BASE}${TAG}:latest temp/temp:${TAG}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IMAGE_NAME_BASE: 'docker.pkg.github.com/${{ github.repository }}/${{ env.ImageNameRoot }}'
+          GITHUB_OWNER: ${{ github.actor }}
+          TAG: '${{ steps.runtime_architecture.outputs.architecture }}_${{ matrix.osVersionNumber }}'
+        working-directory: ./build/machinekit-hal
+
+        # Docker image temp/temp is temporary until the build script is changed accordingly
+      - name: Execute Runtests
+        run: |
+          scripts/build_docker -i $DOCKER_IMAGE -t $TAG -c test
+        env:
+          TAG: '${{ steps.runtime_architecture.outputs.architecture }}_${{ matrix.osVersionNumber }}'
+          DOCKER_IMAGE: 'temp/temp'
+        working-directory: ./build/machinekit-hal 
+
+      - name: Execute CMOCKA UNIT tests
+        run: printf "Not yet implemented\n"
+
+      - name: Execute Python nosetests
+        run: printf "Not yet implemented\n"
+
+  # This has a chance to cause problems when developing multiple branches simultaneously
+  # all or some of which use different builder configuration, one way how to solve it is 
+  # to use different tags for different branches, but with the current state with Github
+  # Packages when one cannot delete public packages (there is discussion on github.community
+  # it will be) and fact that Github doesn't say how much space is available for Open Source
+  # repository, I am going to let it be limited to :latest for now
+  buildContainerImagesForUpload:
+    name: Build and upload Machinekit HAL builder Docker image for Debian ${{ matrix.osVersionCodename }}, ${{ matrix.architecture }}
+    runs-on: ubuntu-latest
+    if: needs.prepareState.outputs.BuildDockerImages == 'true' && github.event_name == 'push'
+    needs: [buildMachinekitHALDebianPackages, testMachinekitHALBuild, prepareState]
+    strategy:
+      matrix: ${{ fromJson(needs.prepareState.outputs.MainMatrix) }}
+      fail-fast: true
+
+    steps:
+      - name: Clone Machinekit-HAL repository
+        uses: actions/checkout@v2
+        with:
+          ref: '${{ github.event.ref }}'
+          path: 'build/machinekit-hal'
+
+        # Docker image temp/temp is temporary until the build script is changed accordingly
+      - name: Build the docker image for Debian ${{ matrix.osVersionCodename}}, ${{ matrix.architecture }} Builder
+        run: |
+          scripts/build_debian_docker_image -r temp -i temp -t ${TAG}
+          docker tag temp/temp:${TAG} ${IMAGE_NAME_BASE}${TAG}:latest
+          exit 0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IMAGE_NAME_BASE: 'docker.pkg.github.com/${{ github.repository }}/${{ env.ImageNameRoot }}'
+          TAG: '${{ matrix.architecture }}_${{ matrix.osVersionNumber }}'
+        working-directory: ./build/machinekit-hal
+
+      - name: Upload the container image to repository's Github Packages registry
+        run: |
+          printf "$GITHUB_TOKEN" | docker login docker.pkg.github.com -u ${GITHUB_OWNER} --password-stdin
+          docker push ${IMAGE_NAME_BASE}${TAG}:latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_OWNER: ${{ github.actor }}
+          IMAGE_NAME_BASE: 'docker.pkg.github.com/${{ github.repository }}/${{ env.ImageNameRoot }}'
+          TAG: '${{ matrix.architecture }}_${{ matrix.osVersionNumber }}'
+      
+      - name: Upload the container image to third party registry
+        if: needs.prepareState.outputs.HasSpecificDockerRegistry == 'true'
+        run: |
+          printf "$DOCKER_REGISTRY_PASSWORD" | docker login ${DOCKER_REGISTRY_NAME} -u ${DOCKER_REGISTRY_USER} --password-stdin
+          docker tag temp/temp:${TAG} ${IMAGE_NAME_BASE}${TAG}:${DOCKER_TAG}
+          docker push ${IMAGE_NAME_BASE}${TAG}:${DOCKER_TAG}
+        env:
+          IMAGE_NAME_BASE: '${{ secrets.DOCKER_REGISTRY_NAME }}/${{ secrets.DOCKER_REGISTRY_PREFIX }}/${{ env.ImageNameRoot }}'
+          TAG: '${{ matrix.architecture }}_${{ matrix.osVersionNumber }}'
+          DOCKER_TAG: '${{ github.sha }}'
+          DOCKER_REGISTRY_NAME: ${{ secrets.DOCKER_REGISTRY_NAME }}
+          DOCKER_REGISTRY_USER: ${{ secrets.DOCKER_REGISTRY_USER }}
+          DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+
+  uploadMachinekitHALDebianPackagesToCloudsmith:
+    name: Upload Machinekit HAL Debian packages to Cloudsmith hosting service
+    runs-on: ubuntu-latest
+    if: needs.prepareState.outputs.HasCloudsmithToken == 'true' && github.event_name == 'push'
+    needs: [buildMachinekitHALDebianPackages, testMachinekitHALBuild, prepareState]
+    
+    steps:
+      - name: Download built artifacts from GitHub storage
+        run: printf "Not yet implemented\n"
+
+      - name: Upload the Debian packages to Cloudsmith hosting service
+        run: printf "Not yet implemented\n"
