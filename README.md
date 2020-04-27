@@ -92,6 +92,10 @@ It all started in the early nineties when NIST created the Enhanced Machine Cont
 |:---:|---|
 |![Answer](https://img.icons8.com/ios-filled/50/000000/smartphone-approve.png)| **Machinekit-HAL** is continuation of _Machinekit_. Work on the original Machinekit repository was stopped and the only new development will happen on _Machinekit-HAL_. Machinekit-HAL exports only the core functionality to better serve the needs of _machine integrators_ and provide leaner experience for everybody. The **CNC** functionality was exported into [_Machinekit-CNC repository_](https://github.com/machinekit/machinekit-cnc). |
 
+|![Question](https://img.icons8.com/ios-filled/50/000000/ask-question.png)| How can I determine if **.deb** package is from official distribution? |
+|:---:|---|
+|![Answer](https://img.icons8.com/ios-filled/50/000000/smartphone-approve.png)| Every package should be signed by [**dpkg-sig**](https://manpages.debian.org/buster/dpkg-sig/dpkg-sig.1.en.html) tool. Packages built by [Machinekit](https://machinekit.io) from official repository [_Machinekit/Machinekit_](https://github.com/machinekit/machinekit-hal) are signed by the [4A374E9D7CA79FA717293B98D2EFAE426CDDB0FE](https://keyserver.ubuntu.com/pks/lookup?search=0x4A374E9D7CA79FA717293B98D2EFAE426CDDB0FE&fingerprint=on&op=index) sub-key. Forks will use different key or will not sign the packages. |
+
 ## Getting involved
 
 **Machinekit-HAL** like all projects in the **Machinekit** organization is volunteer based governed by the [**C**ollective **C**ode **C**onstruction **C**ontract ](http://www.machinekit.io/community/c4), generally known as a C4 originally from the [ZeroMQ](https://rfc.zeromq.org/spec/22) project.
