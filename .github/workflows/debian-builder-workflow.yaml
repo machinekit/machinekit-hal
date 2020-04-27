@@ -289,7 +289,22 @@ jobs:
 
       - name: Sign the package with Machinekit Builder Signer Key
         if: github.event_name == 'push'
-        run: echo "Not implemented yet"
+        run: |
+          mkdir ${ROOT_DIR}/secrets_mountpoint
+          sudo mount -t tmpfs -o size=50m tmpfs ${ROOT_DIR}/secrets_mountpoint
+          echo "$SIGNING_KEY" > ${ROOT_DIR}/secrets_mountpoint/key.gpg
+          echo "
+          #!/bin/bash -e
+          gpg --homedir /secrets_mountpoint/.gnupg -v --batch --import '/secrets_mountpoint/key.gpg'
+          find /machinekit-hal -maxdepth 1 -name *.deb -print0 | xargs -0 -n1 -t -I '{}' dpkg-sig --gpg-options '--homedir /secrets_mountpoint/.gnupg' --sign builder '{}'
+          " > ${ROOT_DIR}/secrets_mountpoint/doSignPackages.sh
+          docker run --rm -v "${ROOT_DIR}/secrets_mountpoint:/secrets_mountpoint" -v "$(pwd):/machinekit-hal" ${DOCKER_IMAGE} /bin/bash /secrets_mountpoint/doSignPackages.sh
+          sudo umount ${ROOT_DIR}/secrets_mountpoint
+        env:
+          ROOT_DIR: ${{ github.workspace }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ env.ImageNameRoot }}${{ matrix.architecture }}_${{ matrix.osVersionNumber }}:latest'
+        working-directory: ./build
 
       - name: Prepare build artifact for upload
         run: |
