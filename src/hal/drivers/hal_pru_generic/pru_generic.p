@@ -258,10 +258,10 @@ INITIALIZELOOP:
 
     // Setup Scratch-Pad 0 with GPIO addresses
 #ifdef BBAI
-    MOV     GState.State_Reg0, GPIO3 + GPIO_CLEARDATAOUT
+    MOV     GState.State_Reg0, GPIO2 + GPIO_CLEARDATAOUT
     MOV     GState.State_Reg1, GPIO5 + GPIO_CLEARDATAOUT
     MOV     GState.State_Reg2, GPIO6 + GPIO_CLEARDATAOUT
-    MOV     GState.State_Reg3, GPIO7 + GPIO_CLEARDATAOUT
+    MOV     GState.State_Reg3, GPIO4 + GPIO_CLEARDATAOUT
 #else
     MOV     GState.State_Reg0, GPIO0 + GPIO_CLEARDATAOUT
     MOV     GState.State_Reg1, GPIO1 + GPIO_CLEARDATAOUT
