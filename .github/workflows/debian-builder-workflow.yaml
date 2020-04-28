@@ -60,17 +60,6 @@ jobs:
         echo "$GITHUB_CONTEXT"
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
-    
-    - name: Prepare job matrix for subsequent jobs
-      id: matrix_normalizer
-      run: |
-        MAIN_MATRIX=$(printf "$BASE_JSON" | jq -c '.')
-        OS_MATRIX=$(printf "$MAIN_MATRIX" | jq -c '{include: [.include[] | del(.architecture)] | unique}')
-        echo "::set-output name=matrix::$MAIN_MATRIX"
-        echo "::set-output name=osMatrix::$OS_MATRIX"
-        printf "JSON object for Main Matrix:\n====\n$MAIN_MATRIX\nJSON object for OS Matrix:\n====\n$OS_MATRIX\n"
-      env:
-        BASE_JSON: '{"include":[{"osVersionCodename":"jessie","osVersionNumber":8,"architecture":"i386"},{"osVersionCodename":"stretch","osVersionNumber":9,"architecture":"i386"},{"osVersionCodename":"buster","osVersionNumber":10,"architecture":"i386"},{"osVersionCodename":"jessie","osVersionNumber":8,"architecture":"amd64"},{"osVersionCodename":"stretch","osVersionNumber":9,"architecture":"amd64"},{"osVersionCodename":"buster","osVersionNumber":10,"architecture":"amd64"},{"osVersionCodename":"jessie","osVersionNumber":8,"architecture":"armhf"},{"osVersionCodename":"stretch","osVersionNumber":9,"architecture":"armhf"},{"osVersionCodename":"buster","osVersionNumber":10,"architecture":"armhf"},{"osVersionCodename":"stretch","osVersionNumber":9,"architecture":"arm64"},{"osVersionCodename":"buster","osVersionNumber":10,"architecture":"arm64"}]}'
 
       # Fetch the whole history here as there is no way of knowing how many commits there were in push event
     - name: Deep clone Machinekit-HAL repository
@@ -79,6 +68,17 @@ jobs:
         ref: '${{ github.event.ref }}'
         fetch-depth: '0'
         path: 'machinekit-hal'
+
+    - name: Prepare job matrix for subsequent jobs
+      id: matrix_normalizer
+      run: |
+        MAIN_MATRIX=$(jq -c '{include: [.allowedCombinations[]+.osVersions[] | select(.osVersionNumber == .DISTRO_VER) | {osVersionNumber: .osVersionNumber, architecture: .architecture, osVersionCodename: .DISTRO_CODENAME}]}' ${BASE_JSON_FILE})
+        OS_MATRIX=$(printf "$MAIN_MATRIX" | jq -c '{include: [.include[] | del(.architecture)] | unique}')
+        echo "::set-output name=matrix::$MAIN_MATRIX"
+        echo "::set-output name=osMatrix::$OS_MATRIX"
+        printf "JSON object for Main Matrix:\n====\n$MAIN_MATRIX\nJSON object for OS Matrix:\n====\n$OS_MATRIX\n"
+      env:
+        BASE_JSON_FILE: './machinekit-hal/scripts/debian-distro-settings.json'
     
     - name: Get SHAs needed for file changes checking
       id: event_normalizer 
@@ -288,7 +288,7 @@ jobs:
         working-directory: ./build/machinekit-hal  
 
       - name: Sign the package with Machinekit Builder Signer Key
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && needs.prepareState.outputs.HasSigningKey == 'true'
         run: |
           mkdir ${ROOT_DIR}/secrets_mountpoint
           sudo mount -t tmpfs -o size=50m tmpfs ${ROOT_DIR}/secrets_mountpoint
