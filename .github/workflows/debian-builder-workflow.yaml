@@ -322,7 +322,7 @@ jobs:
       - name: Upload built package for Debian ${{ matrix.osVersionCodename}}, ${{ matrix.architecture }} as an artifact
         uses: actions/upload-artifact@v1
         with:
-          name: machinekit-hal-debian-${{ matrix.architecture }}-${{ matrix.osVersionNumber }}-${{ github.sha}}-${{ needs.prepareState.outputs.Timestamp }}
+          name: machinekit-hal-debian-${{ matrix.architecture }}-${{ matrix.osVersionNumber }}-${{ github.sha }}-${{ needs.prepareState.outputs.Timestamp }}
           path: machinekit-hal-debian
 
   testMachinekitHALBuild:
@@ -455,8 +455,51 @@ jobs:
     needs: [buildMachinekitHALDebianPackages, testMachinekitHALBuild, prepareState]
     
     steps:
-      - name: Download built artifacts from GitHub storage
-        run: printf "Not yet implemented\n"
+      - name: Download all built artifacts from GitHub storage
+        uses: actions/download-artifact@v2
+        with:
+          path: ./artifacts
+      
+      - name: Show artifacts downloaded from GitHub storage in directory structure
+        run: ls -R
+        working-directory: ./artifacts
+      
+      - name: Prepare specific Python version for Cloudsmith CLI
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.8'
+
+      - name: Install Cloudsmith CLI tool to runner VM environment
+        run: |
+          pip install --upgrade cloudsmith-cli
+          cloudsmith --help
+          cloudsmith whoami
+        env:
+          CLOUDSMITH_API_KEY: '${{ secrets.CLOUDSMITH_TOKEN }}' 
 
       - name: Upload the Debian packages to Cloudsmith hosting service
-        run: printf "Not yet implemented\n"
+        run: |
+          test_array=()
+          CLOUDSMITH_REPLY=$(cloudsmith list repos --output-format json)
+          FOUND_NAMESPACE=$(echo "$CLOUDSMITH_REPLY" | jq -e -r --arg INPUTREGEX "$REPOSITORY_REGEX" '.data[] | select(.slug|test($INPUTREGEX)) | .namespace')
+          FOUND_REPOSITORY=$(echo "$CLOUDSMITH_REPLY" | jq -e -r --arg INPUTREGEX "$REPOSITORY_REGEX" '.data[] | select(.slug|test($INPUTREGEX)) | .slug')
+          if [ "$FOUND_REPOSITORY" == "" -o "$FOUND_REPOSITORY" == "null" -o "$FOUND_NAMESPACE" == "" -o "$FOUND_NAMESPACE" == "null" ]
+          then
+            printf "No repository matching regular expression %s found\n" "$REPOSITORY_REGEX"
+            exit 1
+          fi
+          printf "Found repository %s/%s in Cloudsmith account\n" "$FOUND_NAMESPACE" "$FOUND_REPOSITORY"
+          while IFS=  read -r -d $'\0'; do
+            test_array+=("$REPLY")
+          done < <(find . -type f -regextype egrep -iregex "${PACKAGES_REGEX}" -print0)
+          for package in "${test_array[@]}"
+          do
+            [[ "$package" =~ $PACKAGES_REGEX ]]
+            OSCODENAME=$(echo "$MATRIX_JSON" | jq -r --arg OSVERSIONNUMBER "${BASH_REMATCH[2]}" --arg ARCHITECTURE "${BASH_REMATCH[1]}" '.include[] | select((.osVersionNumber|tostring==$OSVERSIONNUMBER) and (.architecture==$ARCHITECTURE)) | .osVersionCodename')
+            cloudsmith push deb ${FOUND_NAMESPACE}/${FOUND_REPOSITORY}/debian/${OSCODENAME} ${package} --republish
+          done
+        env:
+          MATRIX_JSON: '${{ needs.prepareState.outputs.MainMatrix }}'
+          PACKAGES_REGEX: '^.*/machinekit-hal-debian-([a-z0-9]{1,})-([0-9]{1,})-${{ github.sha }}-${{ needs.prepareState.outputs.Timestamp }}/.{1,}\.deb$'
+          REPOSITORY_REGEX: '^${{ github.event.repository.name }}$'
+          CLOUDSMITH_API_KEY: '${{ secrets.CLOUDSMITH_TOKEN }}'
