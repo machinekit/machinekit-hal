@@ -30,6 +30,16 @@
 <a href="http://www.machinekit.io/community/c4/" target="_blank">
 <img alt="C4 community guidelines" src="https://img.shields.io/badge/contributing-C4-default?style=for-the-badge&logo=zeromq" />
 </a>
+
+</br>
+
+<a href="https://cloudsmith.io/~machinekit/repos/machinekit-hal/packages/" target="_blank">
+<img alt="Machinekit Cloudsmith repository for Machinekit-HAL core packages" src="https://img.shields.io/badge/core%20packages-Machinekit--HAL-brightgreen?style=for-the-badge&logo=cloudsmith" />
+</a>
+
+<a href="https://cloudsmith.io/~machinekit/repos/machinekit/packages/" target="_blank">
+<img alt="Machinekit Cloudsmith repository for dependencies" src="https://img.shields.io/badge/dependencies-Machinekit-brightgreen?style=for-the-badge&logo=cloudsmith" />
+</a>
 </p>
 
 <p align="center">
@@ -48,7 +58,7 @@ Supporting _RT PREEMPT_ and _Xenomai 2_ real-time Linux kernel patches. **APT** 
 
 ## Getting started
 
-The easiest way how to get **Machinekit-HAL** running is to install Debian package. Packages can be obtained by triggering Github Actions _workflow_ and downloading **build artifacts** on your own _fork_. Or you can just download the latest builds from push to [master branch](https://github.com/machinekit/machinekit-hal/actions?query=branch:master) on official [Machinekit/Machinekit-HAL repository](https://github.com/machinekit/machinekit-hal).
+The easiest way how to get **Machinekit-HAL** running is to install Debian package. Packages can be obtained by triggering Github Actions _workflow_ and downloading **build artifacts** on your own _fork_. Packages build from every push to [master branch](https://github.com/machinekit/machinekit-hal/actions?query=branch:master) on official [Machinekit/Machinekit-HAL repository](https://github.com/machinekit/machinekit-hal) are also distributed through [Machinekit-HAL](https://cloudsmith.io/~machinekit/repos/machinekit-hal/packages/) repository ([Dependencies](https://cloudsmith.io/~machinekit/repos/machinekit/packages/)) kindly hosted by [Cloudsmith](https://cloudsmith.io).
 
 Alternatively you can build locally on your machine in _**R**un-**I**n-**P**lace_ mode. The briefest sequence of commands would be:
 
@@ -91,6 +101,10 @@ It all started in the early nineties when NIST created the Enhanced Machine Cont
 |![Question](https://img.icons8.com/ios-filled/50/000000/ask-question.png)| What's the difference between **Machinekit-HAL** and Machinekit? |
 |:---:|---|
 |![Answer](https://img.icons8.com/ios-filled/50/000000/smartphone-approve.png)| **Machinekit-HAL** is continuation of _Machinekit_. Work on the original Machinekit repository was stopped and the only new development will happen on _Machinekit-HAL_. Machinekit-HAL exports only the core functionality to better serve the needs of _machine integrators_ and provide leaner experience for everybody. The **CNC** functionality was exported into [_Machinekit-CNC repository_](https://github.com/machinekit/machinekit-cnc). |
+
+|![Question](https://img.icons8.com/ios-filled/50/000000/ask-question.png)| How can I determine if **.deb** package is from official distribution? |
+|:---:|---|
+|![Answer](https://img.icons8.com/ios-filled/50/000000/smartphone-approve.png)| Every package should be signed by [**dpkg-sig**](https://manpages.debian.org/buster/dpkg-sig/dpkg-sig.1.en.html) tool. Packages built by [Machinekit](https://machinekit.io) from official repository [_Machinekit/Machinekit_](https://github.com/machinekit/machinekit-hal) are signed by the [4A374E9D7CA79FA717293B98D2EFAE426CDDB0FE](https://keyserver.ubuntu.com/pks/lookup?search=0x4A374E9D7CA79FA717293B98D2EFAE426CDDB0FE&fingerprint=on&op=index) sub-key. Forks will use different key or will not sign the packages. |
 
 ## Getting involved
 

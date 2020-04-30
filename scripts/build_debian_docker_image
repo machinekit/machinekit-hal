@@ -2,6 +2,8 @@
 #
 # Build Docker container images
 
+# TODO: Use data from debian-distro-settings.json object
+
 DOCKER_BUILD_ARGS=""
 
 USAGE="Usage:  $0 [ -i <docker_id> ] [ -r <docker_repo> ] [ -t <docker_tag> ] [ -a <additional_docker_build_args> ]

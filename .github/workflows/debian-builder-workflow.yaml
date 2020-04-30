@@ -53,6 +53,7 @@ jobs:
       MainMatrix: ${{ steps.matrix_normalizer.outputs.matrix }}
       OsVersionsMatrix: ${{ steps.matrix_normalizer.outputs.osMatrix }}
       HasSpecificDockerRegistry: ${{ steps.docker_registry_checker.outputs.hasRegistry }}
+      Timestamp: ${{ steps.timestamp_exporter.outputs.timestamp }}
 
     steps:
     - name: Show GitHub context as a JSON
@@ -60,17 +61,6 @@ jobs:
         echo "$GITHUB_CONTEXT"
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
-    
-    - name: Prepare job matrix for subsequent jobs
-      id: matrix_normalizer
-      run: |
-        MAIN_MATRIX=$(printf "$BASE_JSON" | jq -c '.')
-        OS_MATRIX=$(printf "$MAIN_MATRIX" | jq -c '{include: [.include[] | del(.architecture)] | unique}')
-        echo "::set-output name=matrix::$MAIN_MATRIX"
-        echo "::set-output name=osMatrix::$OS_MATRIX"
-        printf "JSON object for Main Matrix:\n====\n$MAIN_MATRIX\nJSON object for OS Matrix:\n====\n$OS_MATRIX\n"
-      env:
-        BASE_JSON: '{"include":[{"osVersionCodename":"jessie","osVersionNumber":8,"architecture":"i386"},{"osVersionCodename":"stretch","osVersionNumber":9,"architecture":"i386"},{"osVersionCodename":"buster","osVersionNumber":10,"architecture":"i386"},{"osVersionCodename":"jessie","osVersionNumber":8,"architecture":"amd64"},{"osVersionCodename":"stretch","osVersionNumber":9,"architecture":"amd64"},{"osVersionCodename":"buster","osVersionNumber":10,"architecture":"amd64"},{"osVersionCodename":"jessie","osVersionNumber":8,"architecture":"armhf"},{"osVersionCodename":"stretch","osVersionNumber":9,"architecture":"armhf"},{"osVersionCodename":"buster","osVersionNumber":10,"architecture":"armhf"},{"osVersionCodename":"stretch","osVersionNumber":9,"architecture":"arm64"},{"osVersionCodename":"buster","osVersionNumber":10,"architecture":"arm64"}]}'
 
       # Fetch the whole history here as there is no way of knowing how many commits there were in push event
     - name: Deep clone Machinekit-HAL repository
@@ -79,6 +69,17 @@ jobs:
         ref: '${{ github.event.ref }}'
         fetch-depth: '0'
         path: 'machinekit-hal'
+
+    - name: Prepare job matrix for subsequent jobs
+      id: matrix_normalizer
+      run: |
+        MAIN_MATRIX=$(jq -c '{include: [.allowedCombinations[]+.osVersions[] | select(.osVersionNumber == .DISTRO_VER) | {osVersionNumber: .osVersionNumber, architecture: .architecture, osVersionCodename: .DISTRO_CODENAME}]}' ${BASE_JSON_FILE})
+        OS_MATRIX=$(printf "$MAIN_MATRIX" | jq -c '{include: [.include[] | del(.architecture)] | unique}')
+        echo "::set-output name=matrix::$MAIN_MATRIX"
+        echo "::set-output name=osMatrix::$OS_MATRIX"
+        printf "JSON object for Main Matrix:\n====\n$MAIN_MATRIX\nJSON object for OS Matrix:\n====\n$OS_MATRIX\n"
+      env:
+        BASE_JSON_FILE: './machinekit-hal/scripts/debian-distro-settings.json'
     
     - name: Get SHAs needed for file changes checking
       id: event_normalizer 
@@ -244,7 +245,14 @@ jobs:
         DOCKER_REGISTRY_USER: ${{ secrets.DOCKER_REGISTRY_USER }}
         DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
         DOCKER_REGISTRY_PREFIX: ${{ secrets.DOCKER_REGISTRY_PREFIX }}
-  
+
+    - name: Export timestamp of workflow run in seconds since epoch
+      id: timestamp_exporter
+      run: |
+        TIMESTAMP=$(date +%s)
+        echo "::set-output name=timestamp::$TIMESTAMP"
+        printf "Timestamp for this workflow run is $TIMESTAMP\n"
+
   buildMachinekitHALDebianPackages:
     name: Build Machinekit HAL packages for Debian ${{ matrix.osVersionCodename }}, ${{ matrix.architecture }}
     runs-on: ubuntu-latest
@@ -288,8 +296,23 @@ jobs:
         working-directory: ./build/machinekit-hal  
 
       - name: Sign the package with Machinekit Builder Signer Key
-        if: github.event_name == 'push'
-        run: echo "Not implemented yet"
+        if: github.event_name == 'push' && needs.prepareState.outputs.HasSigningKey == 'true'
+        run: |
+          mkdir ${ROOT_DIR}/secrets_mountpoint
+          sudo mount -t tmpfs -o size=50m tmpfs ${ROOT_DIR}/secrets_mountpoint
+          echo "$SIGNING_KEY" > ${ROOT_DIR}/secrets_mountpoint/key.gpg
+          echo "
+          #!/bin/bash -e
+          gpg --homedir /secrets_mountpoint/.gnupg -v --batch --import '/secrets_mountpoint/key.gpg'
+          find /machinekit-hal -maxdepth 1 -name *.deb -print0 | xargs -0 -n1 -t -I '{}' dpkg-sig --gpg-options '--homedir /secrets_mountpoint/.gnupg' --sign builder '{}'
+          " > ${ROOT_DIR}/secrets_mountpoint/doSignPackages.sh
+          docker run --rm -v "${ROOT_DIR}/secrets_mountpoint:/secrets_mountpoint" -v "$(pwd):/machinekit-hal" ${DOCKER_IMAGE} /bin/bash /secrets_mountpoint/doSignPackages.sh
+          sudo umount ${ROOT_DIR}/secrets_mountpoint
+        env:
+          ROOT_DIR: ${{ github.workspace }}
+          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+          DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ env.ImageNameRoot }}${{ matrix.architecture }}_${{ matrix.osVersionNumber }}:latest'
+        working-directory: ./build
 
       - name: Prepare build artifact for upload
         run: |
@@ -299,7 +322,7 @@ jobs:
       - name: Upload built package for Debian ${{ matrix.osVersionCodename}}, ${{ matrix.architecture }} as an artifact
         uses: actions/upload-artifact@v1
         with:
-          name: machinekit-hal-debian-${{ matrix.architecture }}-${{ matrix.osVersionNumber }}-${{ github.sha}}
+          name: machinekit-hal-debian-${{ matrix.architecture }}-${{ matrix.osVersionNumber }}-${{ github.sha }}-${{ needs.prepareState.outputs.Timestamp }}
           path: machinekit-hal-debian
 
   testMachinekitHALBuild:
@@ -432,8 +455,51 @@ jobs:
     needs: [buildMachinekitHALDebianPackages, testMachinekitHALBuild, prepareState]
     
     steps:
-      - name: Download built artifacts from GitHub storage
-        run: printf "Not yet implemented\n"
+      - name: Download all built artifacts from GitHub storage
+        uses: actions/download-artifact@v2
+        with:
+          path: ./artifacts
+      
+      - name: Show artifacts downloaded from GitHub storage in directory structure
+        run: ls -R
+        working-directory: ./artifacts
+      
+      - name: Prepare specific Python version for Cloudsmith CLI
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.8'
+
+      - name: Install Cloudsmith CLI tool to runner VM environment
+        run: |
+          pip install --upgrade cloudsmith-cli
+          cloudsmith --help
+          cloudsmith whoami
+        env:
+          CLOUDSMITH_API_KEY: '${{ secrets.CLOUDSMITH_TOKEN }}' 
 
       - name: Upload the Debian packages to Cloudsmith hosting service
-        run: printf "Not yet implemented\n"
+        run: |
+          test_array=()
+          CLOUDSMITH_REPLY=$(cloudsmith list repos --output-format json)
+          FOUND_NAMESPACE=$(echo "$CLOUDSMITH_REPLY" | jq -e -r --arg INPUTREGEX "$REPOSITORY_REGEX" '.data[] | select(.slug|test($INPUTREGEX)) | .namespace')
+          FOUND_REPOSITORY=$(echo "$CLOUDSMITH_REPLY" | jq -e -r --arg INPUTREGEX "$REPOSITORY_REGEX" '.data[] | select(.slug|test($INPUTREGEX)) | .slug')
+          if [ "$FOUND_REPOSITORY" == "" -o "$FOUND_REPOSITORY" == "null" -o "$FOUND_NAMESPACE" == "" -o "$FOUND_NAMESPACE" == "null" ]
+          then
+            printf "No repository matching regular expression %s found\n" "$REPOSITORY_REGEX"
+            exit 1
+          fi
+          printf "Found repository %s/%s in Cloudsmith account\n" "$FOUND_NAMESPACE" "$FOUND_REPOSITORY"
+          while IFS=  read -r -d $'\0'; do
+            test_array+=("$REPLY")
+          done < <(find . -type f -regextype egrep -iregex "${PACKAGES_REGEX}" -print0)
+          for package in "${test_array[@]}"
+          do
+            [[ "$package" =~ $PACKAGES_REGEX ]]
+            OSCODENAME=$(echo "$MATRIX_JSON" | jq -r --arg OSVERSIONNUMBER "${BASH_REMATCH[2]}" --arg ARCHITECTURE "${BASH_REMATCH[1]}" '.include[] | select((.osVersionNumber|tostring==$OSVERSIONNUMBER) and (.architecture==$ARCHITECTURE)) | .osVersionCodename')
+            cloudsmith push deb ${FOUND_NAMESPACE}/${FOUND_REPOSITORY}/debian/${OSCODENAME} ${package} --republish
+          done
+        env:
+          MATRIX_JSON: '${{ needs.prepareState.outputs.MainMatrix }}'
+          PACKAGES_REGEX: '^.*/machinekit-hal-debian-([a-z0-9]{1,})-([0-9]{1,})-${{ github.sha }}-${{ needs.prepareState.outputs.Timestamp }}/.{1,}\.deb$'
+          REPOSITORY_REGEX: '^${{ github.event.repository.name }}$'
+          CLOUDSMITH_API_KEY: '${{ secrets.CLOUDSMITH_TOKEN }}'
