@@ -426,22 +426,48 @@ jobs:
 
       - name: Upload the container image to repository's Github Packages registry
         run: |
+          set +e
           printf "$GITHUB_TOKEN" | docker login docker.pkg.github.com -u ${GITHUB_OWNER} --password-stdin
-          docker push ${IMAGE_NAME_BASE}${TAG}:latest
+          TRY=0
+          while [ $TRY -lt ${MAX_TRIES} ]
+          do
+            (docker push ${IMAGE_NAME_BASE}${TAG}:latest)
+            RETVAL=$?
+            if [ $RETVAL -eq 0 ]; then
+              break
+            fi
+            printf "Docker push exited with %d\nError occured during try %d, trying again\n" "$RETVAL" "$TRY"
+            TRY=$(( $TRY + 1 ))
+          done
+          exit ${RETVAL} 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_OWNER: ${{ github.actor }}
+          MAX_TRIES: 50
           IMAGE_NAME_BASE: 'docker.pkg.github.com/${{ github.repository }}/${{ env.ImageNameRoot }}'
           TAG: '${{ matrix.architecture }}_${{ matrix.osVersionNumber }}'
       
       - name: Upload the container image to third party registry
         if: needs.prepareState.outputs.HasSpecificDockerRegistry == 'true'
         run: |
+          set +e
           printf "$DOCKER_REGISTRY_PASSWORD" | docker login ${DOCKER_REGISTRY_NAME} -u ${DOCKER_REGISTRY_USER} --password-stdin
           docker tag temp/temp:${TAG} ${IMAGE_NAME_BASE}${TAG}:${DOCKER_TAG}
-          docker push ${IMAGE_NAME_BASE}${TAG}:${DOCKER_TAG}
+          TRY=0
+          while [ $TRY -lt ${MAX_TRIES} ]
+          do
+            (docker push ${IMAGE_NAME_BASE}${TAG}:${DOCKER_TAG})
+            RETVAL=$?
+            if [ $RETVAL -eq 0 ]; then
+              break
+            fi
+            printf "Docker push exited with %d\nError occured during try %d, trying again\n" "$RETVAL" "$TRY"
+            TRY=$(( $TRY + 1 ))
+          done
+          exit ${RETVAL}           
         env:
           IMAGE_NAME_BASE: '${{ secrets.DOCKER_REGISTRY_NAME }}/${{ secrets.DOCKER_REGISTRY_PREFIX }}/${{ env.ImageNameRoot }}'
+          MAX_TRIES: 50
           TAG: '${{ matrix.architecture }}_${{ matrix.osVersionNumber }}'
           DOCKER_TAG: '${{ github.sha }}'
           DOCKER_REGISTRY_NAME: ${{ secrets.DOCKER_REGISTRY_NAME }}
