@@ -113,6 +113,10 @@ case $CMD in
 	)
 
 	BUILD_CL=( bash -xec "
+            # clean git tree
+            git clean -xdf
+            find tests -name pipe-std\* -delete
+
             # configure source package
             debian/configure;
 
