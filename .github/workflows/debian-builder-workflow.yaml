@@ -36,12 +36,6 @@ on:
     branches:
     - '*'
 
-env:
-  # DANGER: Changing this value will mean new Docker image name!
-  #         Public Docker images in GitHub Packages cannot be deleted,
-  #         every change will stay visible 'forever' in form of old packages
-  ImageNameRoot: 'machinekit-hal-debian-builder-v.'
-
 jobs:
   prepareState:
     name: Prepare data used in subsequent jobs
@@ -50,10 +44,11 @@ jobs:
       BuildDockerImages: ${{ env.BuildDockerImage }}
       HasCloudsmithToken: ${{ steps.cloudsmith_checker.outputs.tokenPresent }}
       HasSigningKey: ${{ steps.signing_key_checker.outputs.keyPresent }}
-      MainMatrix: ${{ steps.matrix_normalizer.outputs.matrix }}
-      OsVersionsMatrix: ${{ steps.matrix_normalizer.outputs.osMatrix }}
+      MainMatrix: ${{ steps.data_matrix_normalizer.outputs.matrix }}
+      OsVersionsMatrix: ${{ steps.data_matrix_normalizer.outputs.osMatrix }}
       HasSpecificDockerRegistry: ${{ steps.docker_registry_checker.outputs.hasRegistry }}
       Timestamp: ${{ steps.timestamp_exporter.outputs.timestamp }}
+      ImageNameRoot: ${{ steps.data_matrix_normalizer.outputs.imageNameRoot }}
 
     steps:
     - name: Show GitHub context as a JSON
@@ -70,9 +65,13 @@ jobs:
         ref: '${{ github.event.ref }}'
         fetch-depth: '0'
         path: 'machinekit-hal'
-
-    - name: Prepare job matrix for subsequent jobs
-      id: matrix_normalizer
+      
+      # DANGER: Changing value imageNameRoot in settings JSON will mean 
+      #         a new Docker image name!
+      #         Public Docker images in GitHub Packages cannot be deleted,
+      #         every change will stay visible 'forever' in form of old packages  
+    - name: Prepare data and matrix from JSON file used in subsequent jobs
+      id: data_matrix_normalizer
       run: |
         MAIN_MATRIX=$(cat ${BASE_JSON_FILE} | \
           jq -c '{include: [.allowedCombinations[]+.osVersions[] | 
@@ -84,8 +83,12 @@ jobs:
           jq -c '{include: [.include[] | del(.architecture)] | unique}')
         echo "::set-output name=matrix::$MAIN_MATRIX"
         echo "::set-output name=osMatrix::$OS_MATRIX"
-        printf "JSON object for Main Matrix:\n====%s\n" "$MAIN_MATRIX"
-        printf "JSON object for OS Matrix:\n====%s\n" "$OS_MATRIX\n"
+        IMAGE_NAME_ROOT=$(cat ${BASE_JSON_FILE} | \
+          jq -r '.imageNameRoot')
+        echo "::set-output name=imageNameRoot::$IMAGE_NAME_ROOT"
+        printf "JSON object for Main Matrix:\n====\n%s\n" "$MAIN_MATRIX"
+        printf "JSON object for OS Matrix:\n====\n%s\n" "$OS_MATRIX\n"
+        printf "ImageNameRoot for Docker images:\n====\n%s\n" "$IMAGE_NAME_ROOT"
       env:
         BASE_JSON_FILE: './machinekit-hal/scripts/debian-distro-settings.json'
     
@@ -180,7 +183,6 @@ jobs:
         logLevel: debug
         owner: '${{ github.event.repository.owner.login }}'
         repository: '${{ github.event.repository.name }}'
-        inquiry: 'is:public ${{ env.ImageNameRoot }}'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -213,8 +215,8 @@ jobs:
           printf "All images present in registry, no missing packages waiting to be build\n"  
         fi
       env:
-        MATRIX_JSON: '${{ steps.matrix_normalizer.outputs.matrix }}'
-        IMAGE_NAME_ROOT: ${{ env.ImageNameRoot }}
+        MATRIX_JSON: '${{ steps.data_matrix_normalizer.outputs.matrix }}'
+        IMAGE_NAME_ROOT: ${{ steps.data_matrix_normalizer.outputs.imageNameRoot }}
         REPOSITORY_FULL: ${{ github.repository }}
         INPUT_JSON_FILE: 'DockerImagesInGithubPackagesResponse.json'
       
@@ -312,7 +314,7 @@ jobs:
           docker tag ${IMAGE_NAME_BASE}${TAG}:latest temp/temp:${TAG}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          IMAGE_NAME_BASE: 'docker.pkg.github.com/${{ github.repository }}/${{ env.ImageNameRoot }}'
+          IMAGE_NAME_BASE: 'docker.pkg.github.com/${{ github.repository }}/${{ needs.prepareState.outputs.ImageNameRoot }}'
           GITHUB_OWNER: ${{ github.actor }}
           TAG: '${{ matrix.architecture }}_${{ matrix.osVersionNumber }}'
         working-directory: ./build/machinekit-hal
@@ -348,7 +350,7 @@ jobs:
         env:
           ROOT_DIR: ${{ github.workspace }}
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
-          DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ env.ImageNameRoot }}${{ matrix.architecture }}_${{ matrix.osVersionNumber }}:latest'
+          DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ needs.prepareState.outputs.ImageNameRoot }}${{ matrix.architecture }}_${{ matrix.osVersionNumber }}:latest'
         working-directory: ./build
 
       - name: Prepare build artifact for upload
@@ -413,7 +415,7 @@ jobs:
           docker tag ${IMAGE_NAME_BASE}${TAG}:latest temp/temp:${TAG}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          IMAGE_NAME_BASE: 'docker.pkg.github.com/${{ github.repository }}/${{ env.ImageNameRoot }}'
+          IMAGE_NAME_BASE: 'docker.pkg.github.com/${{ github.repository }}/${{ needs.prepareState.outputs.ImageNameRoot }}'
           GITHUB_OWNER: ${{ github.actor }}
           TAG: '${{ steps.runtime_architecture.outputs.architecture }}_${{ matrix.osVersionNumber }}'
         working-directory: ./build/machinekit-hal
@@ -465,7 +467,7 @@ jobs:
           exit 0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          IMAGE_NAME_BASE: 'docker.pkg.github.com/${{ github.repository }}/${{ env.ImageNameRoot }}'
+          IMAGE_NAME_BASE: 'docker.pkg.github.com/${{ github.repository }}/${{ needs.prepareState.outputs.ImageNameRoot }}'
           TAG: '${{ matrix.architecture }}_${{ matrix.osVersionNumber }}'
         working-directory: ./build/machinekit-hal
 
@@ -490,7 +492,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_OWNER: ${{ github.actor }}
           MAX_TRIES: 50
-          IMAGE_NAME_BASE: 'docker.pkg.github.com/${{ github.repository }}/${{ env.ImageNameRoot }}'
+          IMAGE_NAME_BASE: 'docker.pkg.github.com/${{ github.repository }}/${{ needs.prepareState.outputs.ImageNameRoot }}'
           TAG: '${{ matrix.architecture }}_${{ matrix.osVersionNumber }}'
       
       - name: Upload the container image to third party registry
@@ -514,7 +516,7 @@ jobs:
           done
           exit ${RETVAL}           
         env:
-          IMAGE_NAME_BASE: '${{ secrets.DOCKER_REGISTRY_NAME }}/${{ secrets.DOCKER_REGISTRY_PREFIX }}/${{ env.ImageNameRoot }}'
+          IMAGE_NAME_BASE: '${{ secrets.DOCKER_REGISTRY_NAME }}/${{ secrets.DOCKER_REGISTRY_PREFIX }}/${{ needs.prepareState.outputs.ImageNameRoot }}'
           MAX_TRIES: 50
           TAG: '${{ matrix.architecture }}_${{ matrix.osVersionNumber }}'
           DOCKER_TAG: '${{ github.sha }}'
