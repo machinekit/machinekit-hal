@@ -3,4 +3,5 @@ usr/lib/lib*.so
 usr/share/machinekit/Makefile.*
 usr/bin/comp
 usr/bin/instcomp
+usr/bin/halcompile
 usr/bin/runtests

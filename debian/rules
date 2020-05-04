@@ -147,6 +147,7 @@ install: build
 #       # These are installed in the -dev package
 	rm debian/machinekit-hal/usr/bin/comp \
 	    debian/machinekit-hal/usr/bin/instcomp \
+	    debian/machinekit-hal/usr/bin/halcompile \
 	    debian/machinekit-hal/usr/bin/runtests
 
 	# Eventually this will replace the above

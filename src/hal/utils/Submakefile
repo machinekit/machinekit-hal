@@ -113,7 +113,11 @@ endif
 	$(ECHO) Copying python script $(notdir $@)
 	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
 
-TARGETS += ../bin/comp ../bin/instcomp
+../bin/halcompile:
+	@$(ECHO) Creating halcompile symlink for LCNC compitibility
+	$(Q)ln -sf comp $@
+
+TARGETS += ../bin/comp ../bin/instcomp ../bin/halcompile
 objects/%.py: %.g
 	@mkdir -p $(dir $@)
 	$(ECHO) Parsing python $<
