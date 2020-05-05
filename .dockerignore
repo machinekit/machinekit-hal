@@ -1,0 +1,10 @@
+# Exclude everything by default
+/*
+
+# Include Docker image inputs
+! /scripts/buildsystem
+
+# Include MK packages and minimal debian packaging
+! /packages/
+! /debian/control.in
+! /debian/configure
