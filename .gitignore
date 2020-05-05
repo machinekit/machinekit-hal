@@ -66,5 +66,9 @@ share/pkgconfig/machinekit-hal.pc
 /machinekit-build-deps_*.deb
 .directory
 *.9icomp
+# build scripts artifacts
+/machinekit-hal_*.deb
+/machinekit-hal-dev_*.deb
+/packages/
 # install artifacts
 /include/

@@ -40,13 +40,14 @@ usage() {
 }
 
 # CL arguments
-while getopts c:i:t:j:nxh? opt; do
+while getopts c:i:t:j:nlxh? opt; do
     case "$opt" in
 	c) CMD=$OPTARG ;;
 	i) IMAGE=$OPTARG ;;
 	t) TAG=$OPTARG ;;
 	j) JOBS=$OPTARG ;;
 	n) BUILD_SOURCE=false ;;
+	l) TAG_PREFIX=lcnc_ ;;
         x) X11=true ;;
 	h) usage ;;
 	*) usage " " ;;
@@ -182,6 +183,35 @@ case $CMD in
 	    ${RUN_TESTS} ${TEST_ARGS}"
 	)
 	;;
+    "test-lcnc") # Build and test LCNC
+	BUILD_CL=( bash -xec "
+            # Check out LCNC code
+            rm -rf linuxcnc  # Remove any stale tree
+            git clone https://github.com/zultron/machinekit.git \
+                --branch zultron/2019-07-03-2.8-mk-hal-build \
+                --depth 1 \
+                linuxcnc;
+	    cd linuxcnc;
+
+            # Install LCNC build deps
+            debian/configure machinekit-hal no-docs;
+            mk-build-deps debian/control;
+            sudo apt-get install -y ./*.deb;
+
+            # Build LCNC
+            cd src;
+	    ./autogen.sh;
+	    ./configure --with-hal=machinekit-hal;
+            make -j\$(nproc);
+            sudo make install;
+
+            # Run tests
+            source ../scripts/rip-environment
+            runtests ../tests
+            "
+	         )
+        TAG_PREFIX=lcnc_
+        ;;
     "docs") # Just build docs
 	BUILD_CL=( bash -xec "
 	    cd src ;
@@ -240,5 +270,5 @@ exec docker run \
     -v ${BIND_SOURCE_DIR}:${BIND_SOURCE_DIR} -w ${PWD} \
     -e TAG=${TAG} \
     -h ${IMAGE//[\/:]/-}-${TAG} \
-    ${IMAGE}:${TAG} \
+    ${IMAGE}:${TAG_PREFIX}${TAG} \
     "${BUILD_CL[@]}"

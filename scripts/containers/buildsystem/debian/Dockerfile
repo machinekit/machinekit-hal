@@ -1,7 +1,7 @@
 ARG BASE_IMAGE
 ARG VERSION_SHA
 
-FROM ${BASE_IMAGE}
+FROM ${BASE_IMAGE} AS mkbuilder_base
 
 
 ###################################################################
@@ -401,8 +401,6 @@ RUN USER=machinekit && \
     mkdir -p /etc/fixuid && \
     printf "user: $USER\ngroup: $GROUP\n" > /etc/fixuid/config.yml
 
-USER machinekit
-
 # Customize the following to match the user's environment
 
 ENV PATH=/usr/lib/ccache:/opt/gcc-linaro-hf/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH}
@@ -431,3 +429,25 @@ LABEL io.machinekit.machinekit-hal.description=${DESCRIPTION}
 LABEL io.machinekit.machinekit-hal.build-date=${BUILD_DATE}
 LABEL io.machinekit.machinekit-hal.vcs-ref=${VCS_REF}
 LABEL io.machinekit.machinekit-hal.vcs-url=${VCS_URL}
+
+
+###############################################
+# MK builder
+FROM mkbuilder_base AS mkbuilder
+
+USER machinekit
+
+###############################################
+# LCNC builder
+
+FROM mkbuilder_base AS lcncbuilder
+ARG DEBIAN_ARCH
+
+# Install Machinekit and deps
+COPY packages packages
+RUN apt-get install -y \
+        ./packages/machinekit-hal_*.deb \
+        ./packages/machinekit-hal-dev_*.deb \
+    && echo 'ANNOUNCE_IPV4=0\nANNOUNCE_IPV6=0' >> /etc/machinekit/machinekit.ini
+
+USER machinekit
