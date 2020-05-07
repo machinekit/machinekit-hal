@@ -36,12 +36,17 @@
 #include <limits.h>		/* PATH_MAX */
 #include <stdlib.h>		/* exit() */
 #include <string.h>		/* exit() */
+#include <errno.h>              // errno
 #include <grp.h>                // getgroups
 #include <spawn.h>              // posix_spawn
 #include <sys/wait.h>           // wait_pid
 
 #include <elf.h>                // get_rpath()
 #include <link.h>
+
+#ifndef _GNU_SOURCE
+#  define _GNU_SOURCE // Get GNU-specific strerror_r() behavior
+#endif
 
 static FILE *rtapi_inifile = NULL;
 
@@ -169,20 +174,30 @@ int get_elf_section(const char *const fname, const char *section_name, void **de
 {
     int size = -1, i;
     struct stat st;
+    char errmsg[200];
 
     if (stat(fname, &st) != 0) {
-	perror("rtapi_compat.c:  get_elf_section() stat");
+        rtapi_print_msg(
+            RTAPI_MSG_ERR,
+            "get_elf_section(%s, %s) stat:  %s",
+            fname, section_name, strerror_r(errno, errmsg, 200));
 	return -1;
     }
     int fd = open(fname, O_RDONLY);
     if (fd < 0) {
-	perror("rtapi_compat.c:  get_elf_section() open");
+        rtapi_print_msg(
+            RTAPI_MSG_ERR,
+            "get_elf_section(%s, %s) open:  %s",
+            fname, section_name, strerror_r(errno, errmsg, 200));
 	return fd;
     }
     char *p = mmap(0, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
     if (p == NULL) {
-	perror("rtapi_compat.c:  get_elf_section() mmap");
-    close(fd);
+        rtapi_print_msg(
+            RTAPI_MSG_ERR,
+            "get_elf_section(%s, %s) mmap:  %s",
+            fname, section_name, strerror_r(errno, errmsg, 200));
+        close(fd);
 	return -1;
     }
 
@@ -203,7 +218,11 @@ int get_elf_section(const char *const fname, const char *section_name, void **de
 		    if (dest) {
 			*dest = malloc(size);
 			if (*dest == NULL) {
-			    perror("rtapi_compat.c:  get_elf_section() malloc");
+                            rtapi_print_msg(
+                                RTAPI_MSG_ERR,
+                                "get_elf_section(%s, %s) malloc:  %s",
+                                fname, section_name,
+                                strerror_r(errno, errmsg, 200));
 			    size = -1;
 			    break;
 			}
@@ -231,7 +250,11 @@ int get_elf_section(const char *const fname, const char *section_name, void **de
 		    if (dest) {
 			*dest = malloc(size);
 			if (*dest == NULL) {
-			    perror("rtapi_compat.c:  get_elf_section() malloc");
+                            rtapi_print_msg(
+                                RTAPI_MSG_ERR,
+                                "get_elf_section(%s, %s) malloc:  %s",
+                                fname, section_name,
+                                strerror_r(errno, errmsg, 200));
 			    size = -1;
 			    break;
 			}
@@ -255,6 +278,7 @@ const char **get_caps(const char *const fname)
     void  *dest;
     int n = 0;
     char *s;
+    char errmsg[200];
 
     int csize = get_elf_section(fname, RTAPI_TAGS, &dest);
     if (csize < 0)
@@ -265,7 +289,9 @@ const char **get_caps(const char *const fname)
 
     const char **rv = malloc(sizeof(char*) * (n+1));
     if (rv == NULL) {
-	perror("rtapi_compat.c:  get_caps() malloc");
+        rtapi_print_msg(
+            RTAPI_MSG_ERR, "get_caps(%s) malloc:  %s",
+            fname, strerror_r(errno, errmsg, 200));
 	return NULL;
     }
     n = 0;
@@ -306,9 +332,12 @@ int rtapi_get_tags(const char *mod_name)
     char modpath[PATH_MAX];
     int result = 0, n = 0;
     char *cp1 = "";
+    char errmsg[200];
 
     if (get_rtapi_config(modpath,"RTLIB_DIR",PATH_MAX) != 0) {
-        perror("rtapi_compat.c:  Can't get  RTLIB_DIR");
+        rtapi_print_msg(
+            RTAPI_MSG_ERR, "rtapi_compat.c:  Can't get RTLIB_DIR:  %s",
+            strerror_r(errno, errmsg, 200));
         return -1;
     }
     strcat(modpath,"/modules/");
