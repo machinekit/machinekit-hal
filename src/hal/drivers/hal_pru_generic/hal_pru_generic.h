@@ -334,8 +334,8 @@ typedef struct {
         int num_encoders;
         int num_pwmreads;
         int comp_id;
-        const char *name;
-        const char *halname;
+        int inst_id;
+        char halname[10];
     } config;
 
     struct {
