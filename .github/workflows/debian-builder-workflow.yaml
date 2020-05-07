@@ -344,8 +344,8 @@ jobs:
             '--homedir /secrets_mountpoint/.gnupg' --sign builder '{}'
           " > ${ROOT_DIR}/secrets_mountpoint/doSignPackages.sh
           docker run --rm -v "${ROOT_DIR}/secrets_mountpoint:/secrets_mountpoint" \
-            -v "$(pwd):/machinekit-hal" ${DOCKER_IMAGE} /bin/bash \
-            /secrets_mountpoint/doSignPackages.sh
+            -v "$(pwd):/machinekit-hal" -u "$(id -u):$(id -g)" \
+            ${DOCKER_IMAGE} /bin/bash /secrets_mountpoint/doSignPackages.sh
           sudo umount ${ROOT_DIR}/secrets_mountpoint
         env:
           ROOT_DIR: ${{ github.workspace }}

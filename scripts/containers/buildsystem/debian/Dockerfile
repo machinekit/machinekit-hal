@@ -403,15 +403,34 @@ RUN if test $DISTRO_VER -eq 10 -a -z "$SYS_ROOT"; then \
 
 ###########################################
 # Set up environment
-#
+
+RUN echo "ALL ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+RUN addgroup --gid 1000 machinekit && \
+    adduser --uid 1000 --ingroup machinekit \
+        --home /home/machinekit --shell /bin/bash \
+        --disabled-password --gecos "" machinekit
+
+RUN USER=machinekit && \ 
+    GROUP=machinekit && \
+    curl -SsL https://github.com/boxboat/fixuid/releases/download/v0.4.1/fixuid-0.4.1-linux-amd64.tar.gz | \
+        tar -C /usr/local/bin -xzf - && \
+    chown root:root /usr/local/bin/fixuid && \
+    chmod 4755 /usr/local/bin/fixuid && \
+    mkdir -p /etc/fixuid && \
+    printf "user: $USER\ngroup: $GROUP\n" > /etc/fixuid/config.yml
+
+USER machinekit
+
 # Customize the following to match the user's environment
 
-ENV SHELL=/bin/bash
-ENV PATH=/usr/lib/ccache:/opt/gcc-linaro-hf/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ENV PATH=/usr/lib/ccache:/opt/gcc-linaro-hf/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH}
 
 # Customize the run environment to your taste
 # - bash prompt
 # - 'ls' alias
-RUN sed -i /etc/bash.bashrc \
+RUN sed -i ~/.bashrc \
     -e 's/^PS1=.*/PS1="\\h:\\W\\$ "/' \
     -e '$a alias ls="ls -aFs"'
+
+ENTRYPOINT ["fixuid"]
