@@ -2077,9 +2077,8 @@ if test "$BUILD_PYTHON" = "yes"; then
 #    fi
 #    AC_MSG_RESULT([$PYTHON_TK_VERSION])
 
-    # Get the CFLAGS and LIBS for boost::python.
+    # Get the CFLAGS and LIBS for Boost
     AX_BOOST_BASE(1.34, , [AC_MSG_ERROR([Boost 1.34.0 or newer required])])
-    AX_BOOST_PYTHON
 
     AC_MSG_CHECKING(for site-package location)
     SITEPY=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_python_lib(1)'`
