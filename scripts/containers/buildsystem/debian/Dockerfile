@@ -126,6 +126,8 @@ RUN apt-get install -y \
 	psmisc \
 	pkg-config \
 	qemu-user-static \
+    libcmocka-dev \
+    python-nose \
 	linux-libc-dev:${DEBIAN_ARCH} \
         dh-python \
 	libreadline-dev \
