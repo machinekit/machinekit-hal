@@ -96,5 +96,6 @@
             "osVersionNumber": 10,
             "architecture": "arm64"
         }
-    ]
+    ],
+    "imageNameRoot": "machinekit-hal-debian-builder-v."
 }
