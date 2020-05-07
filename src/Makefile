@@ -646,8 +646,6 @@ else  ## ifeq($(RUN_IN_PLACE),yes)
 
 DOCS_HELP=$(call GLOB,../help/*)
 NC_FILES=$(filter-out %/butterfly.ngc,$(call GLOB,../nc_files/*))
-TCL=$(call GLOB,../tcl/*.tcl)
-TCL_BIN=$(call GLOB,../tcl/bin/*.tcl) ../tcl/bin/popimage
 
 install-test:
 	@if type -path dpkg-query > /dev/null 2>&1 ; then  \
@@ -668,7 +666,6 @@ install-dirs:
 		$(DESTDIR)$(includedir)/linuxcnc \
 		$(DESTDIR)$(docdir) $(DESTDIR)$(ncfilesdir) \
 		$(DESTDIR)$(EMC2_LIBEXEC_DIR) \
-		$(DESTDIR)$(tcldir)/scripts \
 		$(DESTDIR)$(mandir)/man1 \
 		$(DESTDIR)$(mandir)/man3 \
 		$(DESTDIR)$(mandir)/man9 \
@@ -721,7 +718,6 @@ install-python: install-dirs
 	$(EXE) ../bin/hal_temp_ads7828 $(DESTDIR)$(bindir)
 	$(EXE) ../bin/hal_temp_bbb $(DESTDIR)$(bindir)
 	$(EXE) ../bin/hal_temp_atlas $(DESTDIR)$(bindir)
-	$(FILE) ../tcl/hal.so $(DESTDIR)$(tcldir)
 	$(FILE) ../lib/python/*.py ../lib/python/*.so $(DESTDIR)$(SITEPY)
 	$(FILE) ../lib/python/machinekit/*.py $(DESTDIR)$(SITEPY)/machinekit/
 	$(FILE) ../lib/python/machinekit/nosetests/*.py $(DESTDIR)$(SITEPY)/machinekit/nosetests
@@ -950,7 +946,7 @@ tags:
 		-I EXPORT_SYMBOL+,RTAPI_MP_INT+,RTAPI_MP_LONG+,RTAPI_MP_STRING+ \
 		-I RTAPI_MP_ARRAY_INT+,RTAPI_MP_ARRAY_LONG+,RTAPI_MP_ARRAY_STRING+ \
 		-I MODULE_AUTHOR+,MODULE_DESCRIPTION+,MODULE_LICENSE+ \
-		-R . ../tcl ../scripts ../share/axis/tcl
+		-R . ../scripts
 	rm -f TAGS
 	find . -type f -name '*.[ch]' $(FINDOPTS) | xargs  etags -l c --append
 	find . -type f -name '*.cc'  $(FINDOPTS) | xargs  etags -l c++ --append
@@ -965,13 +961,13 @@ etags:
 		-I EXPORT_SYMBOL+,RTAPI_MP_INT+,RTAPI_MP_LONG+,RTAPI_MP_STRING+ \
 		-I RTAPI_MP_ARRAY_INT+,RTAPI_MP_ARRAY_LONG+,RTAPI_MP_ARRAY_STRING+ \
 		-I MODULE_AUTHOR+,MODULE_DESCRIPTION+,MODULE_LICENSE+ \
-		-R . ../tcl ../scripts ../share/axis/tcl
+		-R . ../scripts
 	find . -type f -name '*.[ch]' $(FINDOPTS) |xargs etags --language-force=C --append
 	find . -type f -name '*.cc'  $(FINDOPTS) |xargs etags --language-force=C++ --append
 	find . -type f -name '*.hh'  $(FINDOPTS) |xargs etags --language-force=C++ --append
 	find . -type f -name '*.proto'  $(FINDOPTS) |xargs etags --language-force=C++ --append
 
-# emacs etags; does not support tcl
+# emacs etags
 eetags:
 	@rm -f TAGS
 	@find .  $(FINDOPTS) -type f -name '*.[ch]'  |xargs etags --language=c   --append
@@ -982,8 +978,6 @@ eetags:
 .PHONY: swish
 swish:
 	swish-e -c .swish_config -v 0 -i $(BASEPWD) \
-		$(dir $(BASEPWD))tcl \
-		$(dir $(BASEPWD))share/axis/tcl \
 		$(dir $(BASEPWD))lib/python \
 		$(dir $(BASEPWD))scripts \
 		$(dir $(BASEPWD))configs

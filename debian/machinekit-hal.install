@@ -17,7 +17,6 @@ usr/lib/python*/*/machinekit/*.so
 usr/lib/python*/*/machinetalk/protobuf/*.py
 usr/lib/python*/*/machinetalk/*.py
 usr/lib/python*/*/machinekit/nosetests/*.py
-usr/lib/tcltk/linuxcnc/hal.so
 usr/libexec/linuxcnc
 usr/share/linuxcnc/udev
 usr/share/linuxcnc/examples

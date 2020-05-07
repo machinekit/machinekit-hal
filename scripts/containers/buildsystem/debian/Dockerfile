@@ -318,15 +318,6 @@ RUN test -z "$SYS_ROOT" \
             fi; \
         done; \
     }
-# - Link tcl/tk setup scripts
-RUN test -z "$SYS_ROOT" \
-    || { \
-        mkdir -p /usr/lib/${HOST_MULTIARCH} && \
-        ln -s $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/tcl8.6 \
-            /usr/lib/${HOST_MULTIARCH} && \
-        ln -s $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/tk8.6 \
-            /usr/lib/${HOST_MULTIARCH}; \
-    }
 
 # - Link directories with glib/gtk includes in the wrong place
 RUN test -z "$SYS_ROOT" \

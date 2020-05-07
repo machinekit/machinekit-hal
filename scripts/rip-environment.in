@@ -45,15 +45,8 @@ fi
 RIP=@RUN_IN_PLACE@; export RIP
 EMC2_HOME=@EMC2_HOME@; export EMC2_HOME
 EMC2VERSION="@EMC2VERSION@"; export EMC2VERSION
-LINUXCNC_EMCSH=@WISH@; export LINUXCNC_EMCSH
-PATH=@EMC2_BIN_DIR@:$EMC2_HOME/scripts:$EMC2_HOME/tcl:"$PATH"
+PATH=@EMC2_BIN_DIR@:$EMC2_HOME/scripts:"$PATH"
 MACHINEKIT_INI=@EMC2_HOME@/etc/linuxcnc/machinekit.ini; export MACHINEKIT_INI
-
-if [ -z "$TCLLIBPATH" ]; then
-    TCLLIBPATH=$EMC2_HOME/tcl
-else
-    TCLLIBPATH=$EMC2_HOME/tcl:$TCLLIBPATH
-fi
 
 if [ -z "$LD_LIBRARY_PATH" ]; then
     LD_LIBRARY_PATH=$EMC2_HOME/lib
@@ -108,4 +101,4 @@ if [ -f $EMC2_HOME/src/Makefile ]; then
     build () { make -C $EMC2_HOME/src "$@"; }
 fi
 
-export PYTHONPATH LD_LIBRARY_PATH TCLLIBPATH
+export PYTHONPATH LD_LIBRARY_PATH
