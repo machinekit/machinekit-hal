@@ -60,8 +60,24 @@ int Module::load(string module)
         is_rpath = true;  // `module` contains no `/` chars
     }
     dlpath = module + ".so";
+    handle = NULL;
 
-    handle = dlopen(dlpath.c_str(), RTLD_GLOBAL |RTLD_NOW);
+    // First look in `$MK_MODULE_DIR` if `module` contains no `/` chars
+    if (getenv("MK_MODULE_DIR") != NULL && is_rpath) {
+        // If $MK_MODULE_DIR/module.so exists, load it (or fail)
+        strncpy(module_path, getenv("MK_MODULE_DIR"), PATH_MAX);
+        strncat(module_path, ("/" + dlpath).c_str(), PATH_MAX);
+        if (stat(module_path, &st) == 0) {
+            handle = dlopen(module_path, RTLD_GLOBAL|RTLD_NOW);
+            if (!handle) {
+                errmsg = dlerror();
+                return -1;
+            }
+        }
+    }
+    // Otherwise load it with dlopen()'s logic (or fail)
+    if (!handle)
+        handle = dlopen(dlpath.c_str(), RTLD_GLOBAL |RTLD_NOW);
     if (!handle) {
         errmsg = dlerror();
         rtapi_print_msg(

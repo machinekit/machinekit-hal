@@ -93,7 +93,11 @@ allmodules = $(patsubst %.o,%.so,$(obj-m))
 modules: $(allmodules)
 
 install: modules
-	cp $(allmodules) $(DESTDIR)$(RTLIBDIR)/
+	if test -n "${MK_MODULE_DIR}"; then \
+	    cp $(allmodules) "${MK_MODULE_DIR}/"; \
+	else \
+	    cp $(allmodules) $(DESTDIR)$(RTLIBDIR)/; \
+	fi
 
 getobjs = $(if $(filter undefined, $(origin $(1)-objs)), $(1).o, $($(1)-objs))
 getsrcs = $(patsubst %.o,%.c,$(call getobjs,$(1)))
