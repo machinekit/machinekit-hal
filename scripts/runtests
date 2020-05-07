@@ -77,6 +77,7 @@ run_test () {
     testdir=$(dirname $1)
 
     pushd $testdir > /dev/null
+    export MK_MODULE_DIR="$(pwd)"
     exitcode=0
     if [ $VERBOSE -eq 1 ]; then
 	$0 -l $INTERP $testname || exitcode=$?
