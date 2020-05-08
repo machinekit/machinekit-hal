@@ -71,9 +71,9 @@ BASEPWD := $(shell pwd)
 export BASEPWD
 include Makefile.inc
 ifeq ($(origin PYTHONPATH),undefined)
-PYTHONPATH:=$(EMC2_HOME)/lib/python
+PYTHONPATH:=$(HAL_HOME)/lib/python
 else
-PYTHONPATH:=$(EMC2_HOME)/lib/python:$(PYTHONPATH)
+PYTHONPATH:=$(HAL_HOME)/lib/python:$(PYTHONPATH)
 endif
 export PYTHONPATH
 else
@@ -661,11 +661,11 @@ install: install-test install-kernel-dep install-kernel-indep
 	$(ECHO) "Installed in $(DESTDIR) with prefix $(prefix)"
 
 install-dirs:
-	$(DIR)  $(DESTDIR)$(EMC2_RTLIB_DIR) \
+	$(DIR)  $(DESTDIR)$(HAL_RTLIB_DIR) \
 		$(DESTDIR)$(sysconfdir)/linuxcnc $(DESTDIR)$(bindir) \
 		$(DESTDIR)$(includedir)/linuxcnc \
 		$(DESTDIR)$(docdir) $(DESTDIR)$(ncfilesdir) \
-		$(DESTDIR)$(EMC2_LIBEXEC_DIR) \
+		$(DESTDIR)$(HAL_LIBEXEC_DIR) \
 		$(DESTDIR)$(mandir)/man1 \
 		$(DESTDIR)$(mandir)/man3 \
 		$(DESTDIR)$(mandir)/man9 \
@@ -732,24 +732,24 @@ install-python: install-dirs
 endif
 
 install-kernel-dep: install-dirs
-	$(SETUID) ../libexec/rtapi_app $(DESTDIR)$(EMC2_LIBEXEC_DIR)
+	$(SETUID) ../libexec/rtapi_app $(DESTDIR)$(HAL_LIBEXEC_DIR)
 ifeq ($(BUILD_DRIVERS),yes)
 ifeq ($(HAS_SYS_IO),yes)
-	$(SETUID) ../libexec/pci_write $(DESTDIR)$(EMC2_LIBEXEC_DIR)
-	$(SETUID) ../libexec/pci_read $(DESTDIR)$(EMC2_LIBEXEC_DIR)
+	$(SETUID) ../libexec/pci_write $(DESTDIR)$(HAL_LIBEXEC_DIR)
+	$(SETUID) ../libexec/pci_read $(DESTDIR)$(HAL_LIBEXEC_DIR)
 endif
 endif
-	$(EXE) ../libexec/inivar $(DESTDIR)$(EMC2_LIBEXEC_DIR)
-	$(EXE) ../libexec/rtapi_msgd $(DESTDIR)$(EMC2_LIBEXEC_DIR)
+	$(EXE) ../libexec/inivar $(DESTDIR)$(HAL_LIBEXEC_DIR)
+	$(EXE) ../libexec/rtapi_msgd $(DESTDIR)$(HAL_LIBEXEC_DIR)
 	$(FILE) ../etc/linuxcnc/rtapi.ini $(DESTDIR)$(sysconfdir)/linuxcnc
 
 	# RTAPI modules:  install userland flavor .so modules into
 	# e.g. /usr/lib/linuxcnc/modules
 
 	echo Installing modules
-	$(DIR) $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)/modules
+	$(DIR) $(DESTDIR)$(HAL_RTLIB_BASE_DIR)/modules
 	$(FILE) ../rtlib/modules/* \
-		    $(DESTDIR)$(EMC2_RTLIB_BASE_DIR)/modules
+		    $(DESTDIR)$(HAL_RTLIB_BASE_DIR)/modules
 
 endif # ! RUN_IN_PLACE
 

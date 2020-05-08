@@ -25,7 +25,7 @@ output is fed to a program that can determine whether it is correct or not
 Running the tests
 ~~~~~~~~~~~~~~~~~
 Currently, tests only work with the "run in place" configuration.  They
-can be run by executing (from the top emc2 directory)
+can be run by executing (from the top hal directory)
 	scripts/runtests tests
 A subset of the tests can also be run:
 	scripts/runtests tests/xyz tests/a*

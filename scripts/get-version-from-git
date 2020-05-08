@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ ! -z "$EMC2_HOME" ]; then
-    source $EMC2_HOME/scripts/githelper.sh
+if [ ! -z "$HAL_HOME" ]; then
+    source $HAL_HOME/scripts/githelper.sh
 else
     if [ ! -d debian -o ! -d src ]; then
         echo "this script must be run from the root of the source tree (the directory with debian and src in it)"

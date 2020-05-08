@@ -8,17 +8,17 @@
 export LANG=C
 prefix=@prefix@
 exec_prefix=@exec_prefix@
-RTAPI_INI=@EMC2_SYSTEM_CONFIG_DIR@/rtapi.ini
-INIVAR=@EMC2_LIBEXEC_DIR@/inivar
+RTAPI_INI=@HAL_SYSTEM_CONFIG_DIR@/rtapi.ini
+INIVAR=@HAL_LIBEXEC_DIR@/inivar
 PIDOF=@PIDOF@
 PS=@PS@
 AWK=@AWK@
-rtapi_msgd=@EMC2_LIBEXEC_DIR@/rtapi_msgd
-rtapi_app=@EMC2_LIBEXEC_DIR@/rtapi_app
+rtapi_msgd=@HAL_LIBEXEC_DIR@/rtapi_msgd
+rtapi_app=@HAL_LIBEXEC_DIR@/rtapi_app
 
 # if not overridden by user, point MACHINEKIT_INI to installed default:
 if [ -z "$MACHINEKIT_INI" ]; then
-    MACHINEKIT_INI=@EMC2_SYSTEM_CONFIG_DIR@/machinekit.ini
+    MACHINEKIT_INI=@HAL_SYSTEM_CONFIG_DIR@/machinekit.ini
 fi
 export MACHINEKIT_INI
 

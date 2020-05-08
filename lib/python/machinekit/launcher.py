@@ -196,7 +196,7 @@ def stop_realtime():
 
 # rip the Machinekit environment
 def rip_environment(path=None, force=False):
-    if force is False and os.getenv('EMC2_PATH') is not None:  # check if already ripped
+    if force is False and os.getenv('HAL_PATH') is not None:  # check if already ripped
         return
 
     if path is None:

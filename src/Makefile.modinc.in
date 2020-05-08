@@ -62,9 +62,9 @@ RUN_IN_PLACE=@RUN_IN_PLACE@
 
 # Use same settings as everybody else
 ifeq ($(RUN_IN_PLACE),yes)
-include @EMC2_HOME@/src/Makefile.inc
+include @HAL_HOME@/src/Makefile.inc
 else
-include @EMC2_HOME@/share/linuxcnc/Makefile.inc
+include @HAL_HOME@/share/linuxcnc/Makefile.inc
 endif
 
 EXTRA_CFLAGS += \
@@ -73,12 +73,12 @@ EXTRA_CFLAGS += \
 	$(KERNEL_MATH_CFLAGS)
 
 ifeq ($(RUN_IN_PLACE),yes)
-EXTRA_CFLAGS += -I$(EMC2_HOME)/include
-RTLIBDIR := $(EMC2_HOME)/rtlib/modules
-LIBDIR := $(EMC2_HOME)/lib
+EXTRA_CFLAGS += -I$(HAL_HOME)/include
+RTLIBDIR := $(HAL_HOME)/rtlib/modules
+LIBDIR := $(HAL_HOME)/lib
 else
 EXTRA_CFLAGS += -I$(includedir)/linuxcnc
-RTLIBDIR := $(EMC2_RTLIB_DIR)
+RTLIBDIR := $(HAL_RTLIB_DIR)
 LIBDIR := $(libdir)
 endif
 

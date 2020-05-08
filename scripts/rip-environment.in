@@ -1,6 +1,6 @@
 #                                                                 -*-shell-script-*-
 # Execute this file in the context of your shell, such as with
-#  . @EMC2_HOME@/scripts/rip-environment
+#  . @HAL_HOME@/scripts/rip-environment
 # and your shell environment will be properly configured to run commands like
 # comp, halcmd, halrun, iosh, and python with the emc modules available.
 
@@ -37,37 +37,37 @@ fi
 
 # stop it refusing to set env because of existing paths
 #case "$PATH" in
-#    @EMC2_BIN_DIR@:*|*:@EMC2_BIN_DIR@:*)
+#    @HAL_BIN_DIR@:*|*:@HAL_BIN_DIR@:*)
 #	echo "This script only needs to be run once per shell session."
 #	return ;;
 #esac
 
 RIP=@RUN_IN_PLACE@; export RIP
-EMC2_HOME=@EMC2_HOME@; export EMC2_HOME
-EMC2VERSION="@EMC2VERSION@"; export EMC2VERSION
-PATH=@EMC2_BIN_DIR@:$EMC2_HOME/scripts:"$PATH"
-MACHINEKIT_INI=@EMC2_HOME@/etc/linuxcnc/machinekit.ini; export MACHINEKIT_INI
+HAL_HOME=@HAL_HOME@; export HAL_HOME
+HALVERSION="@HALVERSION@"; export HALVERSION
+PATH=@HAL_BIN_DIR@:$HAL_HOME/scripts:"$PATH"
+MACHINEKIT_INI=@HAL_HOME@/etc/linuxcnc/machinekit.ini; export MACHINEKIT_INI
 
 if [ -z "$LD_LIBRARY_PATH" ]; then
-    LD_LIBRARY_PATH=$EMC2_HOME/lib
+    LD_LIBRARY_PATH=$HAL_HOME/lib
 else
-    LD_LIBRARY_PATH=$EMC2_HOME/lib:"$LD_LIBRARY_PATH"
+    LD_LIBRARY_PATH=$HAL_HOME/lib:"$LD_LIBRARY_PATH"
 fi
 
 if [ -z "$PYTHONPATH" ]; then
-    PYTHONPATH=$EMC2_HOME/lib/python
+    PYTHONPATH=$HAL_HOME/lib/python
 else
-    PYTHONPATH=$EMC2_HOME/lib/python:"$PYTHONPATH"
+    PYTHONPATH=$HAL_HOME/lib/python:"$PYTHONPATH"
 fi
 
 if [ -z "$MANPATH" ]; then
     if type -path manpath > /dev/null 2>&1; then
-	MANPATH=$EMC2_HOME/man:"$(manpath)"
+	MANPATH=$HAL_HOME/man:"$(manpath)"
     else
-	MANPATH=$EMC2_HOME/man:/usr/local/man:/usr/local/share/man:/usr/share/man
+	MANPATH=$HAL_HOME/man:/usr/local/man:/usr/local/share/man:/usr/share/man
     fi
 else
-    MANPATH=$EMC2_HOME/man:"$MANPATH"
+    MANPATH=$HAL_HOME/man:"$MANPATH"
 fi
 
 # TODO: if these completion directives give trouble for any versions
@@ -97,8 +97,8 @@ else
     complete -C "halcmd -C" halcmd
 fi
 
-if [ -f $EMC2_HOME/src/Makefile ]; then
-    build () { make -C $EMC2_HOME/src "$@"; }
+if [ -f $HAL_HOME/src/Makefile ]; then
+    build () { make -C $HAL_HOME/src "$@"; }
 fi
 
 export PYTHONPATH LD_LIBRARY_PATH

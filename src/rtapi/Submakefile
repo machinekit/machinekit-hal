@@ -57,9 +57,9 @@ XXAPI_COMMON_SRCS := $(patsubst %, rtapi/%, \
 
 # rtapi_compat needs to know where rtapi.ini lives
 %/rtapi_compat.o:  \
-	EXTRAFLAGS += -DEMC2_SYSTEM_CONFIG_DIR=\"$(EMC2_SYSTEM_CONFIG_DIR)\"
+	EXTRAFLAGS += -DHAL_SYSTEM_CONFIG_DIR=\"$(HAL_SYSTEM_CONFIG_DIR)\"
 %/rtapi_compat.o:  \
-	EXTRA_CFLAGS += -DEMC2_SYSTEM_CONFIG_DIR=\"$(EMC2_SYSTEM_CONFIG_DIR)\"
+	EXTRA_CFLAGS += -DHAL_SYSTEM_CONFIG_DIR=\"$(HAL_SYSTEM_CONFIG_DIR)\"
 
 ##################################################################
 #                 The ulapi library
@@ -83,7 +83,7 @@ $(ULAPI_LIB).0: $(call TOOBJS, $(ULAPI_SRCS)) \
 	$(ECHO) Creating shared library $(notdir $@)
 	@mkdir -p ../lib
 	@rm -f $@
-	$(Q)$(CC) $(LDFLAGS) -Wl,-rpath,$(EMC2_RTLIB_DIR) \
+	$(Q)$(CC) $(LDFLAGS) -Wl,-rpath,$(HAL_RTLIB_DIR) \
 	    -Wl,-soname,$(notdir $@) -shared \
 	    -o $@ $^ -ldl
 
@@ -250,7 +250,7 @@ $(call TOOBJSDEPS, rtapi/rtapi_app.cc): \
 	$(ECHO) Linking $(notdir $@)
 	@mkdir -p $(dir $@)
 	$(Q)$(CXX) -Wl,--no-as-needed \
-	    -Wl,-rpath,$(EMC2_RTLIB_DIR) \
+	    -Wl,-rpath,$(HAL_RTLIB_DIR) \
 	    $(RTAPI_APP_RPATH) \
 	    -o $@ \
 	    $^ \

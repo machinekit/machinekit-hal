@@ -23,7 +23,7 @@
 
 #include <fnmatch.h>
 
-// /usr/include/emc2
+// /usr/include/hal
 #include <rtapi.h>
 #ifdef RTAPI
 #include "rtapi_app.h"

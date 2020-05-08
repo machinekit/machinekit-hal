@@ -2,7 +2,7 @@
 * Description:  probe_parport.c
 *               This file, 'probe_parport.c', is a HAL component that
 *               does "PNP" probing for the standard PC parallel port.
-*               If your parallel port does not work with emc2, it may if you
+*               If your parallel port does not work with hal, it may if you
 *               load this driver before you load hal_parport, e.g.:
 *                   loadrt probe_parport
 *                   loadrt hal_parport cfg=378

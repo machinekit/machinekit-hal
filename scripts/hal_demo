@@ -20,7 +20,7 @@
 #*******************************************************************/
 if [ ! $1 ] ; then
     echo "Usage:  scripts/hal_demo <demo_name>"
-    echo "Run from the emc2 directory only"
+    echo "Run from the hal directory only"
     # print the list of demos
     scripts/hal_demo list
     exit 0

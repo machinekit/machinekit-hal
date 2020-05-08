@@ -149,7 +149,7 @@ int main(int argc, gchar * argv[])
     char *initial_name = NULL , *win_name;
     meter_t *meter;
 
-    bindtextdomain("linuxcnc", EMC2_PO_DIR);
+    bindtextdomain("linuxcnc", HAL_PO_DIR);
     setlocale(LC_MESSAGES,"");
     setlocale(LC_CTYPE,"");
     textdomain("linuxcnc");

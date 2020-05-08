@@ -73,11 +73,11 @@ PACKAGE="machinekit"
 AC_SUBST([PACKAGE])
 
 if test -f ../VERSION; then
-    EMC2VERSION="$(cat ../VERSION)"
+    HALVERSION="$(cat ../VERSION)"
 else
-    EMC2VERSION="Undetermined"
+    HALVERSION="Undetermined"
 fi
-AC_SUBST([EMC2VERSION])
+AC_SUBST([HALVERSION])
 
 AC_PATH_PROG(GREP, grep)
 AC_PATH_PROG(EGREP, egrep)
@@ -1141,8 +1141,8 @@ AC_SUBST(GIT_VERSION)
 AC_SUBST(GIT_CONFIG_SHA)
 
 
-EMC2_HOME=`(cd .. ; pwd)`
-AC_SUBST([EMC2_HOME])
+HAL_HOME=`(cd .. ; pwd)`
+AC_SUBST([HAL_HOME])
 
 
 ##############################################################################
@@ -1293,7 +1293,7 @@ if test "$RUN_IN_PLACE" = "yes"; then
     DEFAULT_TOOLTABLE=${prefix}/configs/sim/sim.tbl
 else
     RUN_IN_PLACE=no
-    EMC2_HOME=$prefix
+    HAL_HOME=$prefix
     DEFAULT_NMLFILE=${prefix}/share/linuxcnc/linuxcnc.nml
 fi
 
@@ -1310,9 +1310,9 @@ export USERPREFIX=$prefix
 AC_SUBST([RUN_IN_PLACE])
 AC_SUBST([DEFAULT_NMLFILE])
 AC_DEFINE_UNQUOTED(
-	[EMC2_DEFAULT_NMLFILE], "$DEFAULT_NMLFILE", [Default nml file])
+	[HAL_DEFAULT_NMLFILE], "$DEFAULT_NMLFILE", [Default nml file])
 AC_DEFINE_UNQUOTED(
-	[EMC2_DEFAULT_TOOLTABLE], "$DEFAULT_TOOLTABLE", [Default tooltable file])
+	[HAL_DEFAULT_TOOLTABLE], "$DEFAULT_TOOLTABLE", [Default tooltable file])
 
 fe () {
     # Fully expand argument.  Example:
@@ -1323,76 +1323,75 @@ fe () {
     esac
 }
 
-EMC2_SYSTEM_CONFIG_DIR=${sysconfdir}/linuxcnc
+HAL_SYSTEM_CONFIG_DIR=${sysconfdir}/linuxcnc
 
 if test "xyes" = "x$RUN_IN_PLACE"; then
-    EMC2_LATENCY_SCRIPT=$EMC2_HOME/scripts/latency-test
-    EMC2_SCRIPT=$EMC2_HOME/scripts/emc
-    EMC2_SUFFIX=" (run-in-place)"
-    EMC2_ICON=$EMC2_HOME/machinekiticon.png
-    EMC2_BIN_DIR=$EMC2_HOME/bin
-    EMC2_LIBEXEC_DIR=$EMC2_HOME/libexec
-    EMC2_LANG_DIR=$EMC2_HOME/src/objects
-    EMC2_PO_DIR=$EMC2_HOME/share/locale
-    EMC2_HELP_DIR=$EMC2_HOME/help
-    EMC2_RTLIB_DIR=$EMC2_HOME/rtlib
-    EMC2_MODULES_DIR=$EMC2_RTLIB_DIR/modules
-    EMC2_NCFILES_DIR=$EMC2_HOME/nc_files
-    REALTIME=$EMC2_HOME/scripts/realtime
-    EMC2_IMAGE_DIR=$EMC2_HOME
+    HAL_LATENCY_SCRIPT=$HAL_HOME/scripts/latency-test
+    HAL_SUFFIX=" (run-in-place)"
+    HAL_ICON=$HAL_HOME/machinekiticon.png
+    HAL_BIN_DIR=$HAL_HOME/bin
+    HAL_LIBEXEC_DIR=$HAL_HOME/libexec
+    HAL_LANG_DIR=$HAL_HOME/src/objects
+    HAL_PO_DIR=$HAL_HOME/share/locale
+    HAL_HELP_DIR=$HAL_HOME/help
+    HAL_RTLIB_DIR=$HAL_HOME/rtlib
+    HAL_MODULES_DIR=$HAL_RTLIB_DIR/modules
+    HAL_NCFILES_DIR=$HAL_HOME/nc_files
+    REALTIME=$HAL_HOME/scripts/realtime
+    HAL_IMAGE_DIR=$HAL_HOME
 else
-    EMC2_HOME=${prefix}
-    EMC2_BIN_DIR=${prefix}/bin
-    EMC2_LIBEXEC_DIR=${libexecdir}/linuxcnc
-    EMC2_LATENCY_SCRIPT=$EMC2_BIN_DIR/latency-test
-    EMC2_SCRIPT=$EMC2_BIN_DIR/emc
-    EMC2_SUFFIX=""
-    EMC2_ICON=machinekiticon
-    EMC2_PO_DIR=${prefix}/share/locale
-    EMC2_HELP_DIR=${prefix}/share/doc/linuxcnc
-    EMC2_RTLIB_DIR=${prefix}/lib/linuxcnc
-    EMC2_MODULES_DIR=$EMC2_RTLIB_DIR/modules
-    EMC2_NCFILES_DIR=${prefix}/share/linuxcnc/ncfiles
+    HAL_HOME=${prefix}
+    HAL_BIN_DIR=${prefix}/bin
+    HAL_LIBEXEC_DIR=${libexecdir}/linuxcnc
+    HAL_LATENCY_SCRIPT=$HAL_BIN_DIR/latency-test
+    HAL_SCRIPT=$HAL_BIN_DIR/emc
+    HAL_SUFFIX=""
+    HAL_ICON=machinekiticon
+    HAL_PO_DIR=${prefix}/share/locale
+    HAL_HELP_DIR=${prefix}/share/doc/linuxcnc
+    HAL_RTLIB_DIR=${prefix}/lib/linuxcnc
+    HAL_MODULES_DIR=$HAL_RTLIB_DIR/modules
+    HAL_NCFILES_DIR=${prefix}/share/linuxcnc/ncfiles
     REALTIME=${bindir}/realtime
-    EMC2_IMAGE_DIR=$(fe "$datadir")/linuxcnc
+    HAL_IMAGE_DIR=$(fe "$datadir")/linuxcnc
 fi
 
-# Paths in config.h should be reduced to one:  EMC2_SYSTEM_CONFIG_DIR.
+# Paths in config.h should be reduced to one:  HAL_SYSTEM_CONFIG_DIR.
 # This should contain the .ini file that points to everything else.
 
 # do this here since substituted into files
 # needed below after substitution
-MACHINEKIT_INI="$EMC2_SYSTEM_CONFIG_DIR/machinekit.ini"
+MACHINEKIT_INI="$HAL_SYSTEM_CONFIG_DIR/machinekit.ini"
 AC_SUBST([MACHINEKIT_INI])
 
-AC_DEFINE_UNQUOTED([EMC2_HOME], "$EMC2_HOME", [Prefix or RIP directory])
+AC_DEFINE_UNQUOTED([HAL_HOME], "$HAL_HOME", [Prefix or RIP directory])
 AC_DEFINE_UNQUOTED([MACHINEKIT_INI], "$MACHINEKIT_INI", [path of global machinekit.ini file])
-AC_DEFINE_UNQUOTED([EMC2_BIN_DIR], "$EMC2_BIN_DIR", [Directory for binaries])
-AC_DEFINE_UNQUOTED([EMC2_RTLIB_DIR], "$EMC2_RTLIB_DIR", [Directory for ulapi shared objects])
-AC_DEFINE_UNQUOTED([EMC2_MODULES_DIR], "$EMC2_MODULES_DIR",
+AC_DEFINE_UNQUOTED([HAL_BIN_DIR], "$HAL_BIN_DIR", [Directory for binaries])
+AC_DEFINE_UNQUOTED([HAL_RTLIB_DIR], "$HAL_RTLIB_DIR", [Directory for ulapi shared objects])
+AC_DEFINE_UNQUOTED([HAL_MODULES_DIR], "$HAL_MODULES_DIR",
                                        [Directory for rtapi shared objects])
-AC_DEFINE_UNQUOTED([EMC2_PO_DIR], "$EMC2_PO_DIR", [Directory for po/mo translation files])
-AC_DEFINE_UNQUOTED([EMC2_NCFILES_DIR], "$EMC2_NCFILES_DIR", [Directory for nc files])
-AC_DEFINE_UNQUOTED([EMC2_IMAGE_DIR], "$EMC2_IMAGE_DIR", [Directory for images])
+AC_DEFINE_UNQUOTED([HAL_PO_DIR], "$HAL_PO_DIR", [Directory for po/mo translation files])
+AC_DEFINE_UNQUOTED([HAL_NCFILES_DIR], "$HAL_NCFILES_DIR", [Directory for nc files])
+AC_DEFINE_UNQUOTED([HAL_IMAGE_DIR], "$HAL_IMAGE_DIR", [Directory for images])
 AC_DEFINE_UNQUOTED([GIT_VERSION], "$GIT_VERSION", [Git version tag])
 AC_DEFINE_UNQUOTED([GIT_CONFIG_SHA], "$GIT_CONFIG_SHA", [SHA valid when configure was run])
 
-AC_SUBST([EMC2_SYSTEM_CONFIG_DIR])
-AC_SUBST([EMC2_BIN_DIR])
-AC_SUBST([EMC2_LIBEXEC_DIR])
-AC_SUBST([EMC2_HELP_DIR])
-AC_SUBST([EMC2_RTLIB_DIR])
-AC_SUBST([EMC2_MODULES_DIR])
-AC_SUBST([EMC2_LANG_DIR])
+AC_SUBST([HAL_SYSTEM_CONFIG_DIR])
+AC_SUBST([HAL_BIN_DIR])
+AC_SUBST([HAL_LIBEXEC_DIR])
+AC_SUBST([HAL_HELP_DIR])
+AC_SUBST([HAL_RTLIB_DIR])
+AC_SUBST([HAL_MODULES_DIR])
+AC_SUBST([HAL_LANG_DIR])
 #AC_SUBST([LINUXCNC_CONFIG_PATH])
-AC_SUBST([EMC2_NCFILES_DIR])
+AC_SUBST([HAL_NCFILES_DIR])
 AC_SUBST([REALTIME])
-AC_SUBST([EMC2_IMAGE_DIR])
-AC_SUBST([EMC2_SCRIPT])
-AC_SUBST([EMC2_LATENCY_SCRIPT])
-AC_SUBST([EMC2_LATENCYPLOT_SCRIPT])
-AC_SUBST([EMC2_SUFFIX])
-AC_SUBST([EMC2_ICON])
+AC_SUBST([HAL_IMAGE_DIR])
+AC_SUBST([HAL_SCRIPT])
+AC_SUBST([HAL_LATENCY_SCRIPT])
+AC_SUBST([HAL_LATENCYPLOT_SCRIPT])
+AC_SUBST([HAL_SUFFIX])
+AC_SUBST([HAL_ICON])
 
 
 ##############################################################################
@@ -1703,7 +1702,7 @@ AC_SUBST(BUILD_DOCS)
 AH_TOP([/********************************************************************
 * Description: config.h
 *
-*	Common defines used in many emc2 source files.
+*	Common defines used in many hal source files.
 *       To add to this file, edit Section 4 in configure.ac
 *       and then run autoheader.
 *
@@ -1713,8 +1712,8 @@ AH_TOP([/********************************************************************
 *
 * Copyright (c) 2004 All rights reserved.
 ********************************************************************/
-#ifndef EMC2_CONFIG_H
-#define EMC2_CONFIG_H
+#ifndef HAL_CONFIG_H
+#define HAL_CONFIG_H
 
 /* LINELEN is used throughout for buffer sizes, length of file name strings,
    etc. Let's just have one instead of a multitude of defines all the same. */

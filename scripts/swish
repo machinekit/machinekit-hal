@@ -40,7 +40,7 @@ for file in sys.stdin.read().split("\0"):
 usage () {
 	b=${0##*/}
 	cat<<EOF
-$b: Search emc2 source code and documentation
+$b: Search hal source code and documentation
 
 Usage:
 	$b [-R] [-F file-re] swish-pattern [grep-pattern]

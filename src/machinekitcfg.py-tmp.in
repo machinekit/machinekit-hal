@@ -73,7 +73,7 @@ class Config(object):
     def __init__(self):
         self.GIT_VERSION = "@GIT_VERSION@"
         self.GIT_CONFIG_SHA="@GIT_CONFIG_SHA@"
-        self.EMC2_HOME = "@EMC2_HOME@"
+        self.HAL_HOME = "@HAL_HOME@"
         self.BUILD_DRIVERS="@BUILD_DRIVERS@"
         self.SUBST="@BUILD_DRIVERS@"
         self.MACHINEKIT_INI="@MACHINEKIT_INI@"
@@ -82,22 +82,21 @@ class Config(object):
         self.prefix="@prefix@"
         self.exec_prefix="@exec_prefix@"
         self.rundir= "@RUNDIR@"
-        self.EMC2_HOME="@EMC2_HOME@"
-        self.LIB_DIR="@EMC2_HOME@/lib"
+        self.HAL_HOME="@HAL_HOME@"
+        self.LIB_DIR="@HAL_HOME@/lib"
 
         #used for install stuff
         #but have them here as reference
-        #build system only uses EMC2_RTLIB_DIR when creating rtapi.ini
-        self.EMC2_BIN_DIR="@EMC2_BIN_DIR@"
-        self.EMC2_LIBEXEC_DIR="@EMC2_LIBEXEC_DIR@"
-        self.EMC2_TCL_DIR="@EMC2_TCL_DIR@"
-        self.EMC2_HELP_DIR="@EMC2_HELP_DIR@"
-        self.EMC2_RTLIB_DIR="@EMC2_RTLIB_DIR@"
-        self.EMC2_USER_CONFIG_DIR="~/emc2/configs"
-        self.EMC2_SYSTEM_CONFIG_DIR="@EMC2_SYSTEM_CONFIG_DIR@"
-        self.EMC2_NCFILES_DIR="@EMC2_NCFILES_DIR@"
+        #build system only uses HAL_RTLIB_DIR when creating rtapi.ini
+        self.HAL_BIN_DIR="@HAL_BIN_DIR@"
+        self.HAL_LIBEXEC_DIR="@HAL_LIBEXEC_DIR@"
+        self.HAL_TCL_DIR="@HAL_TCL_DIR@"
+        self.HAL_HELP_DIR="@HAL_HELP_DIR@"
+        self.HAL_RTLIB_DIR="@HAL_RTLIB_DIR@"
+        self.HAL_USER_CONFIG_DIR="~/hal/configs"
+        self.HAL_SYSTEM_CONFIG_DIR="@HAL_SYSTEM_CONFIG_DIR@"
         self.REALTIME="@REALTIME@"
-        self.EMC2_IMAGEDIR="@EMC2_IMAGE_DIR@"
+        self.HAL_IMAGEDIR="@HAL_IMAGE_DIR@"
 
 
         # Standard configure directories
