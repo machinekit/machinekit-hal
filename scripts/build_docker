@@ -6,11 +6,37 @@
 
 ###########################################################
 # Configuration from environment, CL args and defaults
+DEFAULT_IMAGE=dovetailautomata/mk-cross-builder
+DEFAULT_TAG=amd64_10
 CMD=${CMD:-shell}
-IMAGE=${IMAGE:-dovetailautomata/mk-cross-builder}
-TAG=${TAG:-amd64_10}
+IMAGE=${IMAGE:-${DEFAULT_IMAGE}}
+TAG=${TAG:-${DEFAULT_TAG}}
 JOBS=${JOBS:-$(nproc)}
 BUILD_SOURCE=${BUILD_SOURCE:-true}  # update Changelog & source pkg
+
+usage() {
+    {
+        test -z "$*" || echo "$*"
+        echo "Usage:  $0 [ arg ... ]"
+        echo "  Args:"
+        echo "    -i DOCKER-IMAGE       Docker image (default $DEFAULT_IMAGE)"
+        echo "    -t DOCKER-TAG         Docker tag (default $DEFAULT_TAG)"
+        echo "    -l                    Set 'lcnc_' tag prefix"
+	echo "    -c deb [ -n ]         Build deb packages (-n:  no source pkg)"
+        echo "    -c test               Build and test"
+        echo "    [-c shell] [ COMMAND ARG ... ]"
+        echo "                          (Default) Run COMMAND in shell in"
+        echo "                          Docker container; without COMMAND,"
+        echo "                          run interactive shell"
+        echo "  Tags:"
+        echo "    {amd64,i386,arm64,armhf}_{8,9,10}"
+    } >&2
+    if test -z "$*"; then
+        exit 0
+    else
+        exit 1
+    fi
+}
 
 # CL arguments
 while getopts c:i:t:j:nh? opt; do
@@ -20,9 +46,8 @@ while getopts c:i:t:j:nh? opt; do
 	t) TAG=$OPTARG ;;
 	j) JOBS=$OPTARG ;;
 	n) BUILD_SOURCE=false ;;
-	?|h|*) echo "Usage:  $0 [ -i DOCKER-IMAGE ] [ -t DOCKER-TAG ]" \
-	    "[ -c ( deb [ -n ] | test | [ shell ] [ COMMAND ARG ... ] ) ]" >&2
-	    exit 1 ;;
+	h) usage ;;
+	*) usage " " ;;
     esac
 done
 shift $(($OPTIND - 1))
