@@ -46,7 +46,7 @@ RIP=@RUN_IN_PLACE@; export RIP
 HAL_HOME=@HAL_HOME@; export HAL_HOME
 HALVERSION="@HALVERSION@"; export HALVERSION
 PATH=@HAL_BIN_DIR@:$HAL_HOME/scripts:"$PATH"
-MACHINEKIT_INI=@HAL_HOME@/etc/linuxcnc/machinekit.ini; export MACHINEKIT_INI
+MACHINEKIT_INI=@HAL_HOME@/etc/machinekit/machinekit.ini; export MACHINEKIT_INI
 
 if [ -z "$LD_LIBRARY_PATH" ]; then
     LD_LIBRARY_PATH=$HAL_HOME/lib

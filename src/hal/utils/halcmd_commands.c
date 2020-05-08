@@ -71,7 +71,7 @@
 #include <math.h> /* floorl */
 #include <czmq.h>
 
-const char *logpath = "/var/log/linuxcnc.log";
+const char *logpath = "/var/log/hal.log";
 
 static int unloadrt_comp(const char *mod_name);
 static void print_comp_info(char **patterns);

@@ -1,5 +1,5 @@
-#ifndef _PB_LINUXCNC_H
-#define _PB_LINUXCNC_H
+#ifndef _PB_HAL_H
+#define _PB_HAL_H
 
 // Nanopb global library options
 
@@ -18,7 +18,7 @@
 #define _NO_PB_SYSTEM_HEADER
 #include <machinetalk/nanopb/pb.h>
 
-// linuxcnc extensions to nanopb
+// hal extensions to nanopb
 
 // callback to execute when this field is done decoding:
 typedef struct pb_dest pb_dest_t;

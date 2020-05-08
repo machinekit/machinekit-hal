@@ -149,10 +149,10 @@ int main(int argc, gchar * argv[])
     char *initial_name = NULL , *win_name;
     meter_t *meter;
 
-    bindtextdomain("linuxcnc", HAL_PO_DIR);
+    bindtextdomain("hal", HAL_PO_DIR);
     setlocale(LC_MESSAGES,"");
     setlocale(LC_CTYPE,"");
-    textdomain("linuxcnc");
+    textdomain("hal");
 
     /* process and remove any GTK specific command line args */
     gtk_init(&argc, &argv);

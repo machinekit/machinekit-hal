@@ -284,7 +284,7 @@ int shm_common_exists(int key)
     }
 }
 
-// unlink entry in /dev/shm/linuxcnc-* when we know we're
+// unlink entry in /dev/shm/hal-* when we know we're
 // shutting down - reduce cleanup job for scripts/realtime
 int shm_common_unlink(int key)
 {

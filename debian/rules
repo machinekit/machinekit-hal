@@ -130,16 +130,16 @@ install: build
 	(cd debian/extras && cp -a * ../tmp)
 	(cd src; export DESTDIR=`pwd`/../debian/tmp; $(MAKE) V=$(DH_VERBOSE) $@)
 	mkdir -p \
-	    debian/tmp/usr/lib/linuxcnc/modules \
-	    debian/tmp/usr/include/linuxcnc \
-	    debian/tmp/usr/include/linuxcnc/machinetalk/nanopb \
-	    debian/tmp/usr/include/linuxcnc/machinetalk/protobuf
+	    debian/tmp/usr/lib/machinekit/modules \
+	    debian/tmp/usr/include/machinekit \
+	    debian/tmp/usr/include/machinekit/machinetalk/nanopb \
+	    debian/tmp/usr/include/machinekit/machinetalk/protobuf
 
 	mkdir -p debian/tmp/etc/security/limits.d
 	cp src/rtapi/shmdrv/limits.d-machinekit.conf \
 	    debian/tmp/etc/security/limits.d/machinekit.conf
 
-	mkdir -p debian/tmp/usr/lib/linuxcnc/prubin
+	mkdir -p debian/tmp/usr/lib/machinekit/prubin
 
 	dh_install --sourcedir=debian/tmp -Xusr/bin/pasm --fail-missing -v
 #       # These are installed in the -dev package
@@ -165,7 +165,7 @@ binary-arch: build install
 	dh_installmime
 	dh_link
 	dh_strip
-	dh_compress -X.pdf -X.txt -X.hal -X.ini -X.clp -X.var -X.nml \
+	dh_compress -X.pdf -X.txt -X.hal -X.ini -X.clp -X.var \
 	    -X.tbl -X.xml -Xsample-configs
 	dh_fixperms -X/rtapi_app
 	dh_python2 --ignore-shebangs --no-guessing-versions --no-ext-rename

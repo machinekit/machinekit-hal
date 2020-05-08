@@ -110,7 +110,7 @@ PROTOCXX_CXX_FLAGS := -fPIC $(PROTOBUF_CFLAGS)
 # not available in 2.4.1/jessie
 #export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=cpp
 
-NANOPB_CFLAGS := -DPB_FIELD_32BIT '-DPB_SYSTEM_HEADER=<'$(MACHINETALK)'/include/pb-linuxcnc.h>'
+NANOPB_CFLAGS := -DPB_FIELD_32BIT '-DPB_SYSTEM_HEADER=<'$(MACHINETALK)'/include/pb-hal.h>'
 NANOPB_OPTIONS := $(MACHINETALK)/nanopb.options
 
 # any extra flags to C compile nanopb bindings
@@ -169,21 +169,6 @@ MT_INSTALL_INCS +=  \
 	../include/machinetalk/nanopb/pb.h \
 	../include/machinetalk/nanopb/pb_encode.h \
 	../include/machinetalk/nanopb/pb_decode.h
-
-# generate emctypes.proto from emc/nml_intf/emc.hh
-#$(PBGEN)/emctypes.proto: emc/nml_intf/emc.hh $(MACHINETALK)/scripts/extract-nmltypes
-#	$(ECHO) "extracting protobuf message types for NML from" $<
-#	@mkdir -p $(PBGEN)
-#	$(Q)$(MACHINETALK)/scripts/extract-nmltypes $< >$@
-
-# generate mottypes.proto from emc/motion/motion.h
-#$(PBGEN)/mottypes.proto: ../../include/motion.h $(MACHINETALK)/scripts/extract-mottypes
-#	$(ECHO) "extracting protobuf message types for Motion from" $<
-#	@mkdir -p $(PBGEN)
-#	$(Q)$(MACHINETALK)/scripts/extract-mottypes $< >$@
-
-#TARGETS += $(PBGEN)/emctypes.proto 
-#$(PBGEN)/mottypes.proto
 
 
 # ---- generate dependcy files for .proto files

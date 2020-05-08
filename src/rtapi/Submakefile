@@ -306,10 +306,10 @@ TARGETS += ../libexec/rtapi_msgd
 #                     rtapi.ini config file
 ##################################################################
 
-../etc/linuxcnc/rtapi.ini: ../scripts/gen-rtapi.ini.sh
+../etc/machinekit/rtapi.ini: ../scripts/gen-rtapi.ini.sh
 	@mkdir -p $(dir $@)
 	bash $< > $@
-TARGETS += ../etc/linuxcnc/rtapi.ini
+TARGETS += ../etc/machinekit/rtapi.ini
 
 
 ##################################################################

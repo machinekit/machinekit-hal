@@ -283,7 +283,7 @@ static int comp_id;
     for v in docs:
         if not v: continue
         v = ":".join(map(str, v))
-        f.write("MODULE_INFO(linuxcnc, %s);\n" % q(v))
+        f.write("MODULE_INFO(machinekit, %s);\n" % q(v))
         license = finddoc('license')
     if license and license[1]:
         f.write("MODULE_LICENSE(\"%s\");\n" % license[1].split("\n")[0])
@@ -641,7 +641,7 @@ def find_modinc():
     global modinc
     if modinc: return modinc
     d = os.path.abspath(os.path.dirname(os.path.dirname(sys.argv[0])))
-    for e in ['src', 'etc/linuxcnc', '/etc/linuxcnc', 'share/linuxcnc']:
+    for e in ['src', 'etc/machinekit', '/etc/machinekit', 'share/machinekit']:
         e = os.path.join(d, e, 'Makefile.modinc')
         if os.path.exists(e):
             modinc = e

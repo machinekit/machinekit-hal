@@ -8,7 +8,7 @@
 // the nanopb library and compiled message definitions are brought in once by
 // 'halcmd loadrt pbmsgs' (message descriptors for parsing and generating pb msgs)
 // the nanopb library functions per se are now linked into hal_lib.so
-#include <machinetalk/include/pb-linuxcnc.h>
+#include <machinetalk/include/pb-hal.h>
 #include <machinetalk/nanopb/pb_decode.h>
 #include <machinetalk/nanopb/pb_encode.h>
 #include <machinetalk/include/container.h>

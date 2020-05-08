@@ -1,7 +1,7 @@
 #ifndef _PBMSGS_H
 #define _PBMSGS_H
 
-#include <machinetalk/include/pb-linuxcnc.h>
+#include <machinetalk/include/pb-hal.h>
 #include <machinetalk/nanopb/pb_decode.h>
 #include <machinetalk/nanopb/pb_encode.h>
 

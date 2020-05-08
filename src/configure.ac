@@ -24,7 +24,9 @@
 ##############################################################################
 
 AC_PREREQ(2.53)
-AC_INIT([LinuxCNC],[m4_normalize(esyscmd(cat ../VERSION))],[emc-developers@lists.sourceforge.net])
+AC_INIT([Machinekit],
+        [m4_normalize(esyscmd(cat ../VERSION))],
+        [emc-developers@lists.sourceforge.net])
 if test "$srcdir" != "."; then
     AC_MSG_ERROR([Building outside of srcdir is not supported])
 fi
@@ -236,12 +238,11 @@ XENO_CONFIG=
 ##############################################################################
 # Subsection 2.3                                                             #
 # Configure several basic features:                                          #
-# - some etc/linuxcnc/machinekit.ini  values                                 #
+# - some etc/machinekit/machinekit.ini  values                                 #
 # - the MKUUID instance UUID                                                 #
 # - Platform (PC, Raspberry Pi, CHIP, BeagleBone, H3 SoC, SocFpga, Zedboard) #
 # - Common shared memory driver                                              #
 # - Parport I/O mode (portable or inb/outb)                                  #
-# - emcweb UI                                                                #
 ##############################################################################
 
 # Platform:
@@ -583,7 +584,7 @@ AC_MSG_CHECKING(platform-zedboard)
 AC_MSG_RESULT([$platform_zedboard_reason])
 
 # every Machinekit instance needs a unique ID, so generate here.
-# Can be changed later in etc/linuxcnc/machinekit.ini
+# Can be changed later in etc/machinekit/machinekit.ini
 AC_PATH_PROG(UUIDGEN, uuidgen)
 if test "x$UUIDGEN" = "x"; then
   AC_MSG_ERROR([ uuidgen not found - please install package uuid-runtime ])
@@ -679,18 +680,6 @@ AC_ARG_ENABLE(portable-parport,
       AC_MSG_RESULT([using defaults: $USE_PORTABLE_PARPORT_IO])
     ])
 
-AC_MSG_CHECKING(whether to build the emcweb interface)
-AC_ARG_ENABLE(emcweb,
-    [  --enable-emcweb      build the emcweb interface],
-    [
-	BUILD_EMCWEB=yes
-        AC_MSG_RESULT([configuring to build emcweb interface])
-    ],
-    [
-      AC_MSG_RESULT([not building the emcweb interface])
-      BUILD_EMCWEB=no
-    ])
-
 AC_MSG_CHECKING(whether to build unstable development code)
 AC_ARG_ENABLE(dev,
     [  --enable-dev       build unstable development code],
@@ -705,8 +694,7 @@ AC_ARG_ENABLE(dev,
 
 ##############################################################################
 # Subsection 2.3.1                                                           #
-# CK, protobuf, zmq, websockets, json, uriparse, avahi-client packages           #
-# NML
+# CK, protobuf, zmq, websockets, json, uriparse, avahi-client packages       #
 ##############################################################################
 
 PKG_CHECK_MODULES(
@@ -807,18 +795,6 @@ PKG_CHECK_MODULES([LIBCGROUP], libcgroup,
         AC_DEFINE(HAVE_LIBCGROUP, [], [libcgroup library available])
 	USE_LIBCGROUP=yes
    ],)
-
-AC_MSG_CHECKING(whether to enable NML-using parts)
-AC_ARG_ENABLE(nml,
-    [  --enable-nml      enable NML-using parts],
-    [
-	BUILD_NMLDEP=yes
-        AC_MSG_RESULT([configuring to build NML-using parts])
-    ],
-    [
-      AC_MSG_RESULT([not building non-essential NML-using parts])
-      BUILD_NMLDEP=no
-    ])
 
 ##############################################################################
 # Subsection 2.3.2                                                           #
@@ -996,19 +972,9 @@ fi
 
 AC_SUBST(PROTOC)
 
-AC_SUBST(BUILD_EMCWEB)
-if test "$BUILD_EMCWEB" = yes; then
-   AC_DEFINE(BUILD_EMCWEB, [], [build emcweb UI])
-fi
-
 AC_SUBST(BUILD_DEV)
 AC_SUBST(BUILD_PROTO_JS)
 AC_SUBST(BUILD_WEBTALK)
-
-AC_SUBST(BUILD_NMLDEP)
-if test "$BUILD_NMLDEP" = yes; then
-   AC_DEFINE(BUILD_NMLDEP, [], [build NML dependent parts])
-fi
 
 AC_SUBST([ZMQ_CFLAGS])
 AC_SUBST([ZMQ_LIBS])
@@ -1289,30 +1255,14 @@ AC_SUBST(HAVE_LTTNG_UST)
 
 if test "$RUN_IN_PLACE" = "yes"; then
     prefix=${BUILD_TOPLEVEL}
-    DEFAULT_NMLFILE=${prefix}/configs/common/linuxcnc.nml
-    DEFAULT_TOOLTABLE=${prefix}/configs/sim/sim.tbl
 else
     RUN_IN_PLACE=no
     HAL_HOME=$prefix
-    DEFAULT_NMLFILE=${prefix}/share/linuxcnc/linuxcnc.nml
 fi
-
-####################################
-# create dirs and links for re-brand
-####################################
-
-export USERPREFIX=$prefix
-
-./rebrand
 
 ###################################
 
 AC_SUBST([RUN_IN_PLACE])
-AC_SUBST([DEFAULT_NMLFILE])
-AC_DEFINE_UNQUOTED(
-	[HAL_DEFAULT_NMLFILE], "$DEFAULT_NMLFILE", [Default nml file])
-AC_DEFINE_UNQUOTED(
-	[HAL_DEFAULT_TOOLTABLE], "$DEFAULT_TOOLTABLE", [Default tooltable file])
 
 fe () {
     # Fully expand argument.  Example:
@@ -1323,7 +1273,7 @@ fe () {
     esac
 }
 
-HAL_SYSTEM_CONFIG_DIR=${sysconfdir}/linuxcnc
+HAL_SYSTEM_CONFIG_DIR=${sysconfdir}/machinekit
 
 if test "xyes" = "x$RUN_IN_PLACE"; then
     HAL_LATENCY_SCRIPT=$HAL_HOME/scripts/latency-test
@@ -1336,24 +1286,22 @@ if test "xyes" = "x$RUN_IN_PLACE"; then
     HAL_HELP_DIR=$HAL_HOME/help
     HAL_RTLIB_DIR=$HAL_HOME/rtlib
     HAL_MODULES_DIR=$HAL_RTLIB_DIR/modules
-    HAL_NCFILES_DIR=$HAL_HOME/nc_files
     REALTIME=$HAL_HOME/scripts/realtime
     HAL_IMAGE_DIR=$HAL_HOME
 else
     HAL_HOME=${prefix}
     HAL_BIN_DIR=${prefix}/bin
-    HAL_LIBEXEC_DIR=${libexecdir}/linuxcnc
+    HAL_LIBEXEC_DIR=${libexecdir}/machinekit
     HAL_LATENCY_SCRIPT=$HAL_BIN_DIR/latency-test
     HAL_SCRIPT=$HAL_BIN_DIR/emc
     HAL_SUFFIX=""
     HAL_ICON=machinekiticon
     HAL_PO_DIR=${prefix}/share/locale
-    HAL_HELP_DIR=${prefix}/share/doc/linuxcnc
-    HAL_RTLIB_DIR=${prefix}/lib/linuxcnc
+    HAL_HELP_DIR=${prefix}/share/doc/machinekit
+    HAL_RTLIB_DIR=${prefix}/lib/machinekit
     HAL_MODULES_DIR=$HAL_RTLIB_DIR/modules
-    HAL_NCFILES_DIR=${prefix}/share/linuxcnc/ncfiles
     REALTIME=${bindir}/realtime
-    HAL_IMAGE_DIR=$(fe "$datadir")/linuxcnc
+    HAL_IMAGE_DIR=$(fe "$datadir")/machinekit
 fi
 
 # Paths in config.h should be reduced to one:  HAL_SYSTEM_CONFIG_DIR.
@@ -1371,7 +1319,6 @@ AC_DEFINE_UNQUOTED([HAL_RTLIB_DIR], "$HAL_RTLIB_DIR", [Directory for ulapi share
 AC_DEFINE_UNQUOTED([HAL_MODULES_DIR], "$HAL_MODULES_DIR",
                                        [Directory for rtapi shared objects])
 AC_DEFINE_UNQUOTED([HAL_PO_DIR], "$HAL_PO_DIR", [Directory for po/mo translation files])
-AC_DEFINE_UNQUOTED([HAL_NCFILES_DIR], "$HAL_NCFILES_DIR", [Directory for nc files])
 AC_DEFINE_UNQUOTED([HAL_IMAGE_DIR], "$HAL_IMAGE_DIR", [Directory for images])
 AC_DEFINE_UNQUOTED([GIT_VERSION], "$GIT_VERSION", [Git version tag])
 AC_DEFINE_UNQUOTED([GIT_CONFIG_SHA], "$GIT_CONFIG_SHA", [SHA valid when configure was run])
@@ -1383,8 +1330,6 @@ AC_SUBST([HAL_HELP_DIR])
 AC_SUBST([HAL_RTLIB_DIR])
 AC_SUBST([HAL_MODULES_DIR])
 AC_SUBST([HAL_LANG_DIR])
-#AC_SUBST([LINUXCNC_CONFIG_PATH])
-AC_SUBST([HAL_NCFILES_DIR])
 AC_SUBST([REALTIME])
 AC_SUBST([HAL_IMAGE_DIR])
 AC_SUBST([HAL_SCRIPT])
@@ -1568,122 +1513,6 @@ AC_ARG_ENABLE(build-documentation,
         AC_MSG_RESULT([no])
     ])
 
-# don't need this crap, our asciidocs are generated or already present
-# Programs required for building all documentation
-#if ( test "$BUILD_DOCS" = "yes" ) ; then
-#    if ( test "none" = "$PYTHON" ) ; then
-#        AC_MSG_ERROR([no python, documentation cannot be built])
-#    fi
-#
-#    AC_PATH_PROG(ASCIIDOC,asciidoc,"none")
-#    if ( test "none" = "$ASCIIDOC" ) ; then#
-#	AC_MSG_ERROR([no AsciiDoc, documentation cannot be built])
-#    fi
-#
-#    AC_PATH_PROG(A2X,a2x,"none")
-#    if ( test "none" = "$A2X" ) ; then
-#	AC_MSG_ERROR([no a2x, documentation cannot be built])
-#    fi
-#
-#    AC_MSG_CHECKING([asciidoc version])
-#    set -- `asciidoc --version`; ASCIIDOC_VER=$2
-#    set -- `echo $ASCIIDOC_VER | sed 's/\./ /g'`
-#
-#    if test $1 -lt 8 -o \( $1 -eq 8 -a $2 -lt 5 \); then
-#        AC_MSG_ERROR([asciidoc version $ASCIIDOC_VER less than 8.5.
-#Documentation cannot be built.
-#On Lucid, install the regular asciidoc from Ubuntu by running "sudo apt-get install asciidoc".
-#On Hardy, install the backported asciidoc available from the linuxcnc.org debian archive.
-#On other systems, do what you need to install asciidoc version 8.5 or newer.])
-#    fi
-#    AC_MSG_RESULT([$ASCIIDOC_VER])
-#
-#    AC_MSG_CHECKING([whether to specify latex.encoding])
-#    temp_asciidoc=`mktemp --suffix=.asciidoc`
-#    cat > $temp_asciidoc <<EOF
-#:lang: fr
-#:ascii-ids:
-#
-#....
-#umläut nuß
-#....
-#EOF
-#    if $A2X --dblatex-opts "-P latex.encoding=utf8" $temp_asciidoc > /dev/null 2>&1;
-#    then
-#        A2X_LATEX_ENCODING="-P latex.encoding=utf8"
-#        AC_MSG_RESULT(yes)
-#    else
-#        A2X_LATEX_ENCODING=""
-#        AC_MSG_RESULT(no)
-#    fi
-#    AC_SUBST(A2X_LATEX_ENCODING)
-#    rm -f $temp_asciidoc ${temp_asciidoc%.asciidoc}.pdf
-#
-#    AC_PATH_PROG(DBLATEX,dblatex,"none")
-#    if ( test "none" = "$DBLATEX" ) ; then
-#	AC_MSG_ERROR([no dblatex, documentation cannot be built])
-#    fi
-#
-#    AC_MSG_CHECKING([dblatex version])
-#    set -- `dblatex --version`; DBLATEX_VER=$3
-#    set -- `echo $DBLATEX_VER | sed 's/[[.-]]/ /g'`
-#
-#    if test $1 -eq 0 -a \( $2 -lt 2 -o \( $2 -eq 2 -a ${3:-0} -lt 12 \) \); then
-#        AC_MSG_ERROR([dblatex version $DBLATEX_VER less than 0.2.12.
-#Documentation cannot be built.])
-#    fi
-#    AC_MSG_RESULT([$DBLATEX_VER])
-#
-#
-#    AC_PATH_PROG(SOURCE_HIGHLIGHT,source-highlight,"none")
-#    if ( test "none" = "$SOURCE_HIGHLIGHT" ) ; then
-#	AC_MSG_ERROR([no source-highlight, documentation cannot be built])
-#    fi
-#
-#
-#    AC_PATH_PROG(CONVERT,convert,"none")
-#    if ( test "none" = "$CONVERT" ) ; then
-#	AC_MSG_ERROR([no convert, documentation cannot be built])
-#    fi
-#
-#    AC_PATH_PROG(GS,gs,"none")
-#    if ( test "none" = "$GS" ) ; then
-#	AC_MSG_ERROR([no gs, documentation cannot be built])
-#    fi
-#fi
-
-# Programs required only for building the PDF documentation
-#if ( test "$BUILD_DOCS_PDF" = "yes" ) ; then
-#    AC_PATH_PROG(DBLATEX,dblatex,"none")
-#    if ( test "none" = "$DBLATEX" ) ; then
-#	AC_MSG_ERROR([no dblatex, PDF documentation cannot be built])
-#    fi
-#
-#    AC_PATH_PROG(PDFLATEX,pdflatex,"none")
-#    if ( test "none" = "$PDFLATEX" ) ; then
-#	AC_MSG_ERROR([no pdflatex, PDF documentation cannot be built])
-#    fi
-#fi
-#
-# Programs required only for building the HTML documentation
-#if ( test "$BUILD_DOCS_HTML" = "yes" ) ; then
-#    AC_PATH_PROG(XSLTPROC,xsltproc,"none")
-#    if ( test "none" = "$XSLTPROC" ) ; then
-#	AC_MSG_ERROR([no xsltproc, HTML documentation cannot be built])
-#    fi
-#
-#    AC_PATH_PROG(DVIPNG,dvipng,"none")
-#    if ( test "none" = "$DVIPNG" ) ; then
-#	AC_MSG_ERROR([no dvipng, HTML documentation cannot be built])
-#    fi
-#
-#    AC_MSG_CHECKING([for HTML support in groff])
-#    if ! groff -Thtml < /dev/null > /dev/null 2>&1 ; then
-#        AC_MSG_ERROR([no groff -Thtml, HTML documentation cannot be built])
-#    else
-#        AC_MSG_RESULT(yes)
-#    fi
-#fi
 AC_SUBST(BUILD_DOCS)
 #AC_SUBST(BUILD_DOCS_PDF)
 #AC_SUBST(BUILD_DOCS_HTML)
@@ -2048,15 +1877,8 @@ AC_CONFIG_FILES([../scripts/gen-rtapi.ini.sh])
 AC_CONFIG_FILES([../scripts/halrun], [chmod +x ../scripts/halrun])
 AC_CONFIG_FILES([../scripts/rip-environment], [chmod +x ../scripts/rip-environment])
 AC_CONFIG_FILES([../scripts/realtime], [chmod +x ../scripts/realtime])
-#AC_CONFIG_FILES([../scripts/linuxcnc_var], [chmod +x ../scripts/linuxcnc_var])
 AC_CONFIG_FILES(Makefile.inc)
 AC_CONFIG_FILES(Makefile.modinc)
-#AC_CONFIG_FILES(../lib/python/nf.py)
-#AC_CONFIG_FILES([../scripts/linuxcncmkdesktop], [chmod +x ../scripts/linuxcncmkdesktop])
-#AC_CONFIG_FILES(../share/applications/linuxcnc-latency.desktop)
-#AC_CONFIG_FILES(../share/applications/linuxcnc.desktop)
-#AC_CONFIG_FILES(../share/desktop-directories/cnc.directory)
-#AC_CONFIG_FILES(../share/menus/CNC.menu)
 AC_CONFIG_FILES(machinekitcfg.py-tmp)
 AC_CONFIG_FILES(../scripts/machinekit.ini.tmpl)
 AC_OUTPUT
@@ -2067,21 +1889,21 @@ AC_OUTPUT
 
 
 if test "$RUN_IN_PLACE" = "yes"; then
-    AC_MSG_CHECKING(if $BUILD_TOPLEVEL/etc/linuxcnc/machinekit.ini exists with valid MKUUID )
-    if test -e "$BUILD_TOPLEVEL/etc/linuxcnc/machinekit.ini"; then
-	../scripts/fix-uuid $BUILD_TOPLEVEL/etc/linuxcnc/machinekit.ini $MKUUID ;
-	AC_MSG_RESULT($BUILD_TOPLEVEL/etc/linuxcnc/machinekit.ini file exists, ensured MKUUID was unique)
+    AC_MSG_CHECKING(if $BUILD_TOPLEVEL/etc/machinekit/machinekit.ini exists with valid MKUUID )
+    if test -e "$BUILD_TOPLEVEL/etc/machinekit/machinekit.ini"; then
+	../scripts/fix-uuid $BUILD_TOPLEVEL/etc/machinekit/machinekit.ini $MKUUID ;
+	AC_MSG_RESULT($BUILD_TOPLEVEL/etc/machinekit/machinekit.ini file exists, ensured MKUUID was unique)
     else
-	AC_MSG_RESULT($BUILD_TOPLEVEL/etc/linuxcnc/machinekit.ini does not exist - creating one)
-	mkdir -p  $BUILD_TOPLEVEL/etc/linuxcnc
-	cp ../scripts/machinekit.ini.tmpl $BUILD_TOPLEVEL/etc/linuxcnc/machinekit.ini
-	../scripts/fix-uuid $BUILD_TOPLEVEL/etc/linuxcnc/machinekit.ini $MKUUID ;
-	AC_MSG_RESULT(please review and edit options in $BUILD_TOPLEVEL/etc/linuxcnc/machinekit.ini as needed!)
+	AC_MSG_RESULT($BUILD_TOPLEVEL/etc/machinekit/machinekit.ini does not exist - creating one)
+	mkdir -p  $BUILD_TOPLEVEL/etc/machinekit
+	cp ../scripts/machinekit.ini.tmpl $BUILD_TOPLEVEL/etc/machinekit/machinekit.ini
+	../scripts/fix-uuid $BUILD_TOPLEVEL/etc/machinekit/machinekit.ini $MKUUID ;
+	AC_MSG_RESULT(please review and edit options in $BUILD_TOPLEVEL/etc/machinekit/machinekit.ini as needed!)
     fi
 else
     ## if packaging we don't want to give MKUUID a unique uuid yet - else all packages will have same one
-    mkdir -p  $BUILD_TOPLEVEL/etc/linuxcnc
-    cp ../scripts/machinekit.ini.tmpl $BUILD_TOPLEVEL/etc/linuxcnc/machinekit.ini
+    mkdir -p  $BUILD_TOPLEVEL/etc/machinekit
+    cp ../scripts/machinekit.ini.tmpl $BUILD_TOPLEVEL/etc/machinekit/machinekit.ini
 fi
 
 

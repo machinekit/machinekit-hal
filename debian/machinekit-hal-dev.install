@@ -1,6 +1,6 @@
-usr/include/linuxcnc
+usr/include/machinekit
 usr/lib/lib*.so
-usr/share/linuxcnc/Makefile.*
+usr/share/machinekit/Makefile.*
 usr/bin/comp
 usr/bin/instcomp
 usr/bin/runtests

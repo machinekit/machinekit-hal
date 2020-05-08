@@ -54,8 +54,6 @@ infodir = @infodir@
 mandir = @mandir@
 includedir = @includedir@
 docdir = @docdir@
-sampleconfsdir = ${datadir}/linuxcnc/examples/sample-configs
-ncfilesdir = ${datadir}/linuxcnc/ncfiles
 
 # i18n variables:
 
@@ -100,9 +98,6 @@ PRECISE_MULTILIB_BUG=@PRECISE_MULTILIB_BUG@
 
 # example programs
 BUILD_EXAMPLES=@BUILD_EXAMPLES@
-
-# emcweb UI
-BUILD_EMCWEB=@BUILD_EMCWEB@
 
 # webtalk
 BUILD_WEBTALK=@BUILD_WEBTALK@

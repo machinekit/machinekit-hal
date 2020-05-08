@@ -844,7 +844,7 @@ int main(int argc, char **argv)
     if (mk_getnetopts(&netopts))
 	exit(1);
 
-    // this is the single place in all of linuxCNC where the global segment
+    // this is the single place in all of HAL where the global segment
     // gets initialized - no reinitialization from elsewhere
     if (init_global_data(global_data,
 			 actual_global_size,

@@ -1,5 +1,5 @@
 /********************************************************************
-* Description: inifile.hh
+* Description: mk-inifile.hh
 *   Declarations for INI file format functions
 *
 *   Derived from a work by Fred Proctor & Will Shackleford
@@ -7,19 +7,19 @@
 * Author:
 * License: GPL Version 2
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change: 
+* Last change:
 ********************************************************************/
 
 #ifndef INIFILE_HH
 #define INIFILE_HH
 
-#include <inifile.h>
+#include <mk-inifile.h>
 
 #ifndef __cplusplus
-#warning Inclusion of <inifile.hh> from C programs is deprecated.  Include <inifile.h> instead.
+#warning Inclusion of <mk-inifile.hh> from C programs is deprecated.  Include <mk-inifile.h> instead.
 #endif
 
 #ifdef __cplusplus

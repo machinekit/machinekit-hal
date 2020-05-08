@@ -107,10 +107,10 @@ int main(int argc, gchar * argv[])
     char *ifilename = "autosave.halscope";
     char *ofilename = "autosave.halscope";
 
-    bindtextdomain("linuxcnc", HAL_PO_DIR);
+    bindtextdomain("hal", HAL_PO_DIR);
     setlocale(LC_MESSAGES,"");
     setlocale(LC_CTYPE,"");
-    textdomain("linuxcnc");
+    textdomain("hal");
 
     /* process and remove any GTK specific command line args */
     gtk_init(&argc, &argv);

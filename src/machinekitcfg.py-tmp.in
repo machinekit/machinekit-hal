@@ -90,7 +90,6 @@ class Config(object):
         #build system only uses HAL_RTLIB_DIR when creating rtapi.ini
         self.HAL_BIN_DIR="@HAL_BIN_DIR@"
         self.HAL_LIBEXEC_DIR="@HAL_LIBEXEC_DIR@"
-        self.HAL_TCL_DIR="@HAL_TCL_DIR@"
         self.HAL_HELP_DIR="@HAL_HELP_DIR@"
         self.HAL_RTLIB_DIR="@HAL_RTLIB_DIR@"
         self.HAL_USER_CONFIG_DIR="~/hal/configs"
@@ -114,10 +113,6 @@ class Config(object):
         self.mandir = "@mandir@"
         self.includedir = "@includedir@"
         self.docdir = "@docdir@"
-        self.sampleconfsdir = self.datadir + \
-                              "/linuxcnc/examples/sample-configs"
-        self.ncfilesdir = self.prefix + "/share/linuxcnc/ncfiles"
-        self.tcldir = self.prefix + "/lib/tcltk/linuxcnc"
 
 
         # i18n variables:

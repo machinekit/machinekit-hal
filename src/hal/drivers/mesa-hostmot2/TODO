@@ -302,7 +302,7 @@ watchdog:
 
     no known bugs
 
-    pci device hotplugging is awkward for linuxcnc
+    pci device hotplugging is awkward for machinekit
 
         it'd be nice to know if the pci card(s) failed to initialize by
         having hm2_pci fail to load.  Does pci_register_device() get the
@@ -399,11 +399,11 @@ wishlist:
         skip it"
 
 
-    abstract the EPP code into a proper LinuxCNC (or RTAI) parport driver
+    abstract the EPP code into a proper HAL parport driver
 
 
-    abstract the stepgen code into an LinuxCNC library
+    abstract the stepgen code into an HAL library
 
 
-    abstract the encoder code into an LinuxCNC library
+    abstract the encoder code into an HAL library
 

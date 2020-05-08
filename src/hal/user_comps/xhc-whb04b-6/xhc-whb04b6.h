@@ -37,7 +37,7 @@ namespace XhcWhb04b6 {
 
 // ----------------------------------------------------------------------
 
-//! The XHC WHB04B-6 user space component for Linuxcnc.
+//! The XHC WHB04B-6 user space component for Machinekit.
 class XhcWhb04b6Component :
     public OnUsbInputPackageListener
 {
@@ -60,7 +60,7 @@ public:
     void teardownHal();
     bool enableReceiveAsyncTransfer();
     void updateDisplay();
-    void linuxcncSimulate();
+    void halSimulate();
     void requestTermination(int signal = -42);
     bool isRunning() const;
     int run();

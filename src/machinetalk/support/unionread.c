@@ -26,7 +26,7 @@
 #include <assert.h>
 #include <inttypes.h>
 
-#include <machinetalk/include/pb-linuxcnc.h>
+#include <machinetalk/include/pb-hal.h>
 #include <machinetalk/nanopb/pb_decode.h>
 #include <machinetalk/nanopb/pb_encode.h>
 
