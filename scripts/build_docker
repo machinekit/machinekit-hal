@@ -177,6 +177,8 @@ case $CMD in
 	;;
     *)   echo "Unknown command '$CMD'" >&2; exit 1 ;;
 esac
+DOCKER_EXTRA_OPTS+=( $DOCKER_RUN_ARGS )
+echo "DOCKER_EXTRA_OPTS=${DOCKER_EXTRA_OPTS[@]}"
 
 ###########################################################
 # Run build
