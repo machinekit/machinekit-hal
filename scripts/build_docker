@@ -175,8 +175,8 @@ case $CMD in
 	    sudo make -C src setuid || true;  # Don't exit if this fails
 	    . scripts/rip-environment;
 	    echo -e 'ANNOUNCE_IPV4=0\nANNOUNCE_IPV6=0' >> \
-		etc/linuxcnc/machinekit.ini;
-	    tail -2 etc/linuxcnc/machinekit.ini;
+		etc/machinekit/machinekit.ini;
+	    tail -2 etc/machinekit/machinekit.ini;
 
             # Run regression tests
 	    ${RUN_TESTS} ${TEST_ARGS}"

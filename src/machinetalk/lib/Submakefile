@@ -12,7 +12,7 @@ TARGETS += $(addprefix ../include/, \
 	mk-zeroconf-types.h \
 	mk-zeroconf.hh    \
 	mk-service.hh    \
-	pb-linuxcnc.h   \
+	pb-hal.h   \
 	pbutil.hh       \
 	setup_signals.h \
 	mk-backtrace.h \

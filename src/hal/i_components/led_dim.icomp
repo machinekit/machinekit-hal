@@ -31,11 +31,11 @@
  * codes, and the authors of this software can not, and do not, take
  * any responsibility for such compliance.
  *
- * This code was written as part of the LinuxCNC project.  For more
- * information, go to www.linuxcnc.org.
+ * This code is part of the Machinekit HAL project.  For more
+ * information, go to https://github.com/machinekit.
  *
  ******************************************************************************/
-component led_dim "LinuxCNC HAL component for dimming LEDs";
+component led_dim "HAL component for dimming LEDs";
 pin in  float in "Brightness input value -> 0 to 1";
 pin out float out "Luminance output value -> 0 to 1";
 function _  fp "Update the output value";

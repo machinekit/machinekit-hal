@@ -30,8 +30,9 @@ static char *license = \
     any responsibility for such compliance.\n\
 \n\
 \n\
-    This code was written as part of the EMC HAL project.  For more\n\
-    information, go to www.linuxcnc.org.\n\
+    This code is part of the Machinekit HAL project.  For more\n\
+    information, go to https://github.com/machinekit.\n\
+\n\
 ";
 
 #include "config.h"
@@ -106,10 +107,10 @@ int main(int argc, gchar * argv[])
     char *ifilename = "autosave.halscope";
     char *ofilename = "autosave.halscope";
 
-    bindtextdomain("linuxcnc", EMC2_PO_DIR);
+    bindtextdomain("hal", HAL_PO_DIR);
     setlocale(LC_MESSAGES,"");
     setlocale(LC_CTYPE,"");
-    textdomain("linuxcnc");
+    textdomain("hal");
 
     /* process and remove any GTK specific command line args */
     gtk_init(&argc, &argv);
@@ -148,7 +149,7 @@ int main(int argc, gchar * argv[])
 
     if (!halpr_find_funct_by_name("scope.sample")) {
 	char buf[1000];
-	sprintf(buf, EMC2_BIN_DIR "/halcmd loadrt scope_rt num_samples=%d",
+	sprintf(buf, HAL_BIN_DIR "/halcmd loadrt scope_rt num_samples=%d",
 		num_samples);
 	if(system(buf) != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR, "loadrt scope_rt failed\n");

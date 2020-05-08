@@ -12,7 +12,7 @@
 #include "rtapi_string.h"
 #include "rtapi_errno.h"
 #include "hal.h"
-#include "inifile.h"
+#include "mk-inifile.h"
 
 #include <modbus.h>
 
@@ -31,8 +31,8 @@
 #define MB2HAL_MAX_FNCT16_ELEMENTS 100
 
 #ifdef MODULE_VERBOSE
-MODULE_VERBOSE(emc2, "component:mb2hal:Userspace HAL component to communicate with one or more Modbus devices");
-MODULE_VERBOSE(emc2, "license:LGPL");
+MODULE_VERBOSE(hal, "component:mb2hal:Userspace HAL component to communicate with one or more Modbus devices");
+MODULE_VERBOSE(hal, "license:LGPL");
 MODULE_LICENSE("LGPL");
 #endif
 

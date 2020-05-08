@@ -23,7 +23,7 @@
 
 #include <fnmatch.h>
 
-// /usr/include/emc2
+// /usr/include/hal
 #include <rtapi.h>
 #ifdef RTAPI
 #include "rtapi_app.h"
@@ -34,15 +34,8 @@
 #include <hal_accessor.h>
 #include "hal_internal.h"
 
-#include <rcs.hh>
-#include <posemath.h>		// PM_POSE, TO_RAD
-#include <emc.hh>		// EMC NML
-#include <emc_nml.hh>
-#include <emcglb.h>		// EMC_NMLFILE, TRAJ_MAX_VELOCITY, etc.
-#include <emccfg.h>		// DEFAULT_TRAJ_MAX_VELOCITY
 #include <mk-inifile.hh>	// INIFILE
 #include <rcs_print.hh>
-#include <nml_oi.hh>
 #include <timer.hh>
 
 // Can't rely on bool working otherwise

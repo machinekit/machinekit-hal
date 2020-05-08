@@ -2,8 +2,6 @@
 * Description: weighted_sum
 *   Weighted summer for HAL
 *
-*   See the "Users Manual" at emc2/docs/Hal_Introduction.pdf
-*
 * This component is a "weighted summer".  It has a (user specified)
 * number of HAL_BIT input pins, and a HAL_S32 parameter corresponding
 * to each bit input.

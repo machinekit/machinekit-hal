@@ -57,7 +57,7 @@
 #include <syslog_async.h>
 #include <limits.h>
 #include <sys/prctl.h>
-#include <inifile.h>
+#include <mk-inifile.h>
 
 #include <czmq.h>
 #include <google/protobuf/text_format.h>

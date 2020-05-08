@@ -1,12 +1,9 @@
-linuxcnc
 rip-environment
 halrun
 realtime
-linuxcncmkdesktop
 latencyplot
 latencyhistogram
 gen-rtapi.ini.sh
 gen-rtapi.ini.sh.in
-linuxcnc_var
 rtapi.conf
 check-build-vs-configure-sha

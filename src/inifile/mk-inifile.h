@@ -15,8 +15,8 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-#ifndef LINUXCNC_INIFILE_H
-#define LINUXCNC_INIFILE_H
+#ifndef MK_INIFILE_H
+#define MK_INIFILE_H
 
 #include <stdio.h>
 #include <fcntl.h>

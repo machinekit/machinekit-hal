@@ -1,6 +1,6 @@
 #
 # This is a bash shell fragment, intended to be sourced by scripts that
-# want to work with git in the emc2 repo.
+# want to work with git in the hal repo.
 #
 # Sets GIT_BRANCH to the passed in branch name; if none is passed in it
 # attempts to detect the current branch (this will fail if the repo is in a

@@ -28,8 +28,8 @@
     codes, and the authors of this software can not, and do not, take
     any responsibility for such compliance.
 
-    This code was written as part of the EMC HAL project.  For more
-    information, go to www.linuxcnc.org.
+    This code is part of the Machinekit HAL project.  For more
+    information, go to https://github.com/machinekit.
 */
 
 #include "config.h"
@@ -456,7 +456,7 @@ static void dialog_realtime_not_loaded(void)
 
     if(first_time) {
         first_time = 0;
-        if(system(EMC2_BIN_DIR "/halcmd loadrt scope_rt") == 0) {
+        if(system(HAL_BIN_DIR "/halcmd loadrt scope_rt") == 0) {
 	    sleep(1);
 	    return;
 	}

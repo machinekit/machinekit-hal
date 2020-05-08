@@ -24,7 +24,7 @@
 #include "config.h"
 #include "rtapi.h"
 #include "rtapi_compat.h"
-#include "inifile.h"           /* iniFind() */
+#include "mk-inifile.h"         /* iniFind() */
 
 #include <stdio.h>
 #include <unistd.h>
@@ -61,7 +61,7 @@ void check_rtapi_config_open()
 	/* it's the first -i (ignore repeats) */
 	/* there is a following arg, and it's not an option */
 	snprintf(config_file, PATH_MAX,
-		 "%s/rtapi.ini", EMC2_SYSTEM_CONFIG_DIR);
+		 "%s/rtapi.ini", HAL_SYSTEM_CONFIG_DIR);
 	rtapi_inifile = fopen((fname ? fname : config_file), "r");
 	if (rtapi_inifile == NULL) {
 	    fprintf(stderr,

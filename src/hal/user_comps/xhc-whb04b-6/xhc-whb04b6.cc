@@ -506,7 +506,7 @@ int XhcWhb04b6Component::run()
 
 // ----------------------------------------------------------------------
 
-void XhcWhb04b6Component::linuxcncSimulate()
+void XhcWhb04b6Component::halSimulate()
 {
 }
 
@@ -565,7 +565,7 @@ void XhcWhb04b6Component::process()
                    (r == LIBUSB_ERROR_TIMEOUT) || (r == LIBUSB_ERROR_INTERRUPTED));
             if (mHal.isSimulationModeEnabled())
             {
-                linuxcncSimulate();
+                halSimulate();
             }
             updateDisplay();
         }

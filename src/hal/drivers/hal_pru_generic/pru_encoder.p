@@ -9,7 +9,7 @@
 // 2014-Feb    Charles Steinkuehler                                     //
 //             Initial version                                          //
 //----------------------------------------------------------------------//
-// This file is part of LinuxCNC HAL                                    //
+// This file is part of Machinekit HAL                                  //
 //                                                                      //
 // Copyright (C) 2013  Charles Steinkuehler                             //
 //                     <charles AT steinkuehler DOT net>                //
@@ -38,8 +38,8 @@
 // codes, and the authors of this software can not, and do not, take    //
 // any responsibility for such compliance.                              //
 //                                                                      //
-// This code was written as part of the LinuxCNC project.  For more     //
-// information, go to www.linuxcnc.org.                                 //
+// This code is part of the Machinekit HAL project.  For more           //
+// information, go to https://github.com/machinekit.                    //
 //----------------------------------------------------------------------//
 
 MODE_ENCODER:

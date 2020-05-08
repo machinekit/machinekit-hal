@@ -23,7 +23,7 @@ The build process follows the standard Linux convention:
 make
 
 The configure script and make are intended to be run from the
-root of the emc2 tree, to make the entire emc2 project.  See the
+root of the hal tree, to make the entire hal project.  See the
 README in that directory for more details.
 
 To run the examples:

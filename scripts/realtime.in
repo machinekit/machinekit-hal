@@ -8,17 +8,17 @@
 export LANG=C
 prefix=@prefix@
 exec_prefix=@exec_prefix@
-RTAPI_INI=@EMC2_SYSTEM_CONFIG_DIR@/rtapi.ini
-INIVAR=@EMC2_LIBEXEC_DIR@/inivar
+RTAPI_INI=@HAL_SYSTEM_CONFIG_DIR@/rtapi.ini
+INIVAR=@HAL_LIBEXEC_DIR@/inivar
 PIDOF=@PIDOF@
 PS=@PS@
 AWK=@AWK@
-rtapi_msgd=@EMC2_LIBEXEC_DIR@/rtapi_msgd
-rtapi_app=@EMC2_LIBEXEC_DIR@/rtapi_app
+rtapi_msgd=@HAL_LIBEXEC_DIR@/rtapi_msgd
+rtapi_app=@HAL_LIBEXEC_DIR@/rtapi_app
 
 # if not overridden by user, point MACHINEKIT_INI to installed default:
 if [ -z "$MACHINEKIT_INI" ]; then
-    MACHINEKIT_INI=@EMC2_SYSTEM_CONFIG_DIR@/machinekit.ini
+    MACHINEKIT_INI=@HAL_SYSTEM_CONFIG_DIR@/machinekit.ini
 fi
 export MACHINEKIT_INI
 
@@ -181,10 +181,10 @@ Unload(){
         fi
     fi
 
-    # remove any linuxcnc-specific POSIX shm segments if they exist
+    # remove any hal-specific POSIX shm segments if they exist
     # see src/rtapi/rtapi_shmkeys.h: SHM_FMT
 
-    INSTKEY=`printf 'linuxcnc-%d-' $MK_INSTANCE`
+    INSTKEY=`printf 'hal-%d-' $MK_INSTANCE`
     rm  -f  /dev/shm/${INSTKEY}* >/dev/null 2>&1
 
 
@@ -248,7 +248,7 @@ CheckUnloaded(){
     # if any, determine if a process is still using it; complain if so,
     # else remove with a note
 
-    POSIXSHM=`printf '/dev/shm/linuxcnc-%d-*' $MK_INSTANCE`
+    POSIXSHM=`printf '/dev/shm/hal-%d-*' $MK_INSTANCE`
 
     for seg in `ls $POSIXSHM 2>/dev/null` ; do
 	if pids=`fuser $seg  2>/dev/null` ; then

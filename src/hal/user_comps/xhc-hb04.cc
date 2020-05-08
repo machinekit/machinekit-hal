@@ -1,5 +1,5 @@
 /*
-   XHC-HB04 Wireless MPG pendant LinuxCNC HAL module for LinuxCNC
+   XHC-HB04 Wireless MPG pendant HAL module for Machinekit
 
    Copyright (C) 2013 Frederic Rible (frible@teaser.fr)
    Copyright (C) 2013 Rene Hopf (renehopf@mac.com)
@@ -33,7 +33,7 @@
 #include <stdarg.h>
 
 #include <hal.h>
-#include <inifile.hh>
+#include <mk-inifile.hh>
 
 #include "config.h"
 
@@ -266,7 +266,7 @@ void hexdump(unsigned char *data, int len)
 	for (i=0; i<len; i++) printf("%02X ", data[i]);
 }
 
-void linuxcnc_simu(xhc_t *xhc)
+void hal_simu(xhc_t *xhc)
 {
 	static int last_jog_counts;
 	xhc_hal_t *hal = xhc->hal;
@@ -763,7 +763,7 @@ int main (int argc,char **argv)
 				tv.tv_usec = 30000;
 				r = libusb_handle_events_timeout(ctx, &tv);
 				compute_velocity(&xhc);
-			    if (simu_mode) linuxcnc_simu(&xhc);
+			    if (simu_mode) hal_simu(&xhc);
 				handle_step(&xhc);
 				xhc_set_display(dev_handle, &xhc);
 			}

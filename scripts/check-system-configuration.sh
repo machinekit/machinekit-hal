@@ -21,7 +21,7 @@ get-conf-files() {
 }
 
 check-rsyslog() {
-    local logfile=/var/log/linuxcnc.log
+    local logfile=/var/log/hal.log
     local logconfigs="$(get-conf-files /etc/rsyslog.conf /etc/rsyslog.d/*.conf)"
 
     local res=0
@@ -35,7 +35,7 @@ check-rsyslog() {
     echo "          restart rsyslogd"
     echo
     echo "          Hint:"
-    echo "            $ sudo touch /var/log/linuxcnc.log"
+    echo "            $ sudo touch /var/log/hal.log"
     echo "            $ sudo service rsyslog restart"
     echo
     echo "          Gurus:  If you intentionally log to another file,"
@@ -51,7 +51,7 @@ check-rsyslog() {
     echo
     echo "          Please check your syslog configuration for"
     echo "          rate limiting; an example for rsyslogd can be found in"
-    echo "          src/rtapi/rsyslogd-linuxcnc.conf"
+    echo "          src/rtapi/rsyslogd-hal.conf"
     echo
     elif ! grep -q SystemLogRateLimitBurst $logconfigs; then
     res=1
@@ -63,8 +63,8 @@ check-rsyslog() {
     echo "          than Machinekit requires when running in debug mode."
     echo
     echo "          Hint:"
-    echo "            $ sudo cp rtapi/rsyslogd-linuxcnc.conf" \
-	         "/etc/rsyslog.d/linuxcnc.conf"
+    echo "            $ sudo cp rtapi/rsyslogd-hal.conf" \
+	         "/etc/rsyslog.d/hal.conf"
     echo "            $ sudo service rsyslog restart"
     echo
     fi

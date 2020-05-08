@@ -1,6 +1,6 @@
 /*
  * mb2hal_example_01_arduino.ino
- * Arduino sketch to connect to HAL's LinuxCNC using mb2hal component.
+ * Arduino sketch to connect to HAL using mb2hal component.
  * Tested 2012-10-12 with Arduino Mega 2560 R3.
  *
  * Victor Rocco, adapted from Stéphane Raimbault's source code wich is

@@ -22,7 +22,7 @@
 
 
     This is a userspace program that interfaces the Automation Direct
-    GS2 VFD to the LinuxCNC HAL.
+    GS2 VFD to the HAL.
 
 */
 

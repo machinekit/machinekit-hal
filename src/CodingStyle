@@ -19,7 +19,7 @@ how the indentation works if you have large indentations.
 Now, some people will claim that having 8-character indentations makes
 the code move too far to the right, and makes it hard to read on a
 80-character terminal screen. Whilst the GNU style of 2-character 
-indentations reduces the clarity. For EMC2, a compromise of 4-character
+indentations reduces the clarity. For HAL, a compromise of 4-character
 indentation has been chosen. This still spreads the code out and causes
 lines to wrap round leading to difficulties in reading the sources. The 
 answer to that is that if you need more than 3 levels of indentation, you're

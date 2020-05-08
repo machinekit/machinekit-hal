@@ -1108,7 +1108,7 @@ PyMethodDef module_methods[] = {
     {NULL},
 };
 
-const char *module_doc = "Interface to emc2's hal\n"
+const char *module_doc = "Interface to hal\n"
 "\n"
 "This module allows the creation of userspace HAL components in Python.\n"
 "This includes pins and parameters of the various HAL types.\n"

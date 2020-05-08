@@ -44,12 +44,12 @@ libexecdir=@libexecdir@
 sysconfdir=@sysconfdir@
 
 # Makefile.inc paths
-EMC2_HOME=@EMC2_HOME@
-RTLIB_DIR=@EMC2_RTLIB_DIR@
-MODULES_DIR=@EMC2_MODULES_DIR@
-SYSTEM_CONFIG_DIR=@EMC2_SYSTEM_CONFIG_DIR@
-LIBEXEC_DIR=@EMC2_LIBEXEC_DIR@
-BIN_DIR=@EMC2_BIN_DIR@
+HAL_HOME=@HAL_HOME@
+RTLIB_DIR=@HAL_RTLIB_DIR@
+MODULES_DIR=@HAL_MODULES_DIR@
+SYSTEM_CONFIG_DIR=@HAL_SYSTEM_CONFIG_DIR@
+LIBEXEC_DIR=@HAL_LIBEXEC_DIR@
+BIN_DIR=@HAL_BIN_DIR@
 
 # Makefile.inc parameters
 USE_PORTABLE_PARPORT_IO=@USE_PORTABLE_PARPORT_IO@
@@ -66,7 +66,7 @@ PIDOF=@PIDOF@
 cat <<EOF
 # ${SYSTEM_CONFIG_DIR}/rtapi.ini
 #
-# LinuxCNC RTAPI system configuration
+# Machinekit RTAPI system configuration
 #
 # Most values here will never need to be changed.  Power users may
 # want to change DEBUG.
@@ -84,7 +84,7 @@ rtapi_msgd=${LIBEXEC_DIR}/rtapi_msgd
 # rtapi_app should be defined in the appropriate flavor section below
 
 # directory paths
-EMC2_HOME=${EMC2_HOME}
+HAL_HOME=${HAL_HOME}
 RTLIB_DIR=${RTLIB_DIR}
 MODULES_DIR=${MODULES_DIR}
 LIBEXEC_DIR=${LIBEXEC_DIR}

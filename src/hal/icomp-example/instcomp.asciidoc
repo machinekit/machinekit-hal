@@ -7,7 +7,7 @@
 instcomp is the Machinekit component compiler for instantiable components (.icomp)
 
 This manual describes its operation in respect to how it differs from comp,
-the default inherited Linuxcnc component compiler.
+the component compiler in Linuxcnc.
 
 A familiarity with comp is therefore necessary and assumed.
 

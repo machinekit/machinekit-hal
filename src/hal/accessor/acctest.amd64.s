@@ -4,9 +4,8 @@
 # GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
 # options passed:  -I . -I machinetalk/generated -I machinetalk/nanopb
 # -I machinetalk/include -I machinetalk/msginfo
-# -I machinetalk/msgcomponents -I machinetalk/webtalk -I libnml/linklist
-# -I libnml/cms -I libnml/rcs -I libnml/inifile -I libnml/os_intf
-# -I libnml/nml -I libnml/buffer -I rtapi
+# -I machinetalk/msgcomponents -I machinetalk/webtalk
+# -I inifile -I rtapi
 # -I rtapi_export -I hal/lib -I hal/vtable-example -I hal/userfunct-example
 # -I hal/drivers -I hal/cython -I hal/accessor -imultiarch x86_64-linux-gnu
 # -D ULAPI hal/accessor/acctest.c -mtune=generic -march=x86-64

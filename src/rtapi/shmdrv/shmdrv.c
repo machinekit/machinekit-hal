@@ -6,7 +6,7 @@
  * the key advantage of switching to this driver from RTOS-specific
  * methods are:
  *
- * 1. LinuxCNC instances become interoperable at the
+ * 1. HAL instances become interoperable at the
  * shared memory level, which is not the case with the RTOS-specific
  * allocators used so far.
  *
@@ -19,7 +19,7 @@
  *
  *  vmalloc=32MB
  *
- * realistically the shared memory usage of a 2012 vintage LinuxCNC instance
+ * realistically the shared memory usage of a 2012 vintage HAL instance
  * should be 3-4 MB, so the above should be good for up to ca 8 instances.
  *
  * Some ideas gleaned from public domain example code by (c) Embrisk Ltd 2012.
@@ -78,7 +78,7 @@ module_param(nseg, int, S_IRUGO | S_IWUSR);
 MODULE_PARM_DESC(nseg, "total number of shm segments (default: 200)");
 
 MODULE_AUTHOR("Michael Haberler <git@mah.priv.at>");
-MODULE_DESCRIPTION("LinuxCNC shared memory driver");
+MODULE_DESCRIPTION("HAL shared memory driver");
 MODULE_VERSION("0.1");
 MODULE_LICENSE("GPL");
 

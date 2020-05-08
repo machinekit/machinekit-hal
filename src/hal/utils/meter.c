@@ -42,8 +42,8 @@
     codes, and the authors of this software can not, and do not, take
     any responsibility for such compliance.
 
-    This code was written as part of the EMC HAL project.  For more
-    information, go to www.linuxcnc.org.
+    This code is part of the Machinekit HAL project.  For more
+    information, go to https://github.com/machinekit.
 */
 
 #include "config.h"
@@ -149,10 +149,10 @@ int main(int argc, gchar * argv[])
     char *initial_name = NULL , *win_name;
     meter_t *meter;
 
-    bindtextdomain("linuxcnc", EMC2_PO_DIR);
+    bindtextdomain("hal", HAL_PO_DIR);
     setlocale(LC_MESSAGES,"");
     setlocale(LC_CTYPE,"");
-    textdomain("linuxcnc");
+    textdomain("hal");
 
     /* process and remove any GTK specific command line args */
     gtk_init(&argc, &argv);

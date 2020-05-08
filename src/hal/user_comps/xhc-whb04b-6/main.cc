@@ -1,5 +1,5 @@
 /*
-   XHC-WHB04B-6 Wireless MPG pendant LinuxCNC HAL module for LinuxCNC.
+   XHC-WHB04B-6 Wireless MPG pendant HAL module for Machinekit.
    Based on XHC-HB04.
 
    Copyright (C) 2018 Raoul Rubien (github.com/rubienr).

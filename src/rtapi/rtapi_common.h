@@ -57,8 +57,8 @@
   any responsibility for such compliance.
 */
 
-/** This code was written as part of the EMC HAL project.  For more
-  information, go to www.linuxcnc.org.
+/** This code is part of the Machinekit HAL project.  For more
+  information, go to https://github.com/machinekit.
 */
 
 /* Keep the includes here - It might get messy.. */

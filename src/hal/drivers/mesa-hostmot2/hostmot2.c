@@ -36,10 +36,10 @@
 
 
 #ifdef MODULE_INFO
-MODULE_INFO(linuxcnc, "component:hostmot2:RTAI driver for the HostMot2 firmware from Mesa Electronics.");
-MODULE_INFO(linuxcnc, "funct:read:1:Read all registers.");
-MODULE_INFO(linuxcnc, "funct:write:1:Write all registers, and pet the watchdog to keep it from biting.");
-MODULE_INFO(linuxcnc, "license:GPL");
+MODULE_INFO(machinekit, "component:hostmot2:RTAI driver for the HostMot2 firmware from Mesa Electronics.");
+MODULE_INFO(machinekit, "funct:read:1:Read all registers.");
+MODULE_INFO(machinekit, "funct:write:1:Write all registers, and pet the watchdog to keep it from biting.");
+MODULE_INFO(machinekit, "license:GPL");
 #endif // MODULE_INFO
 
 MODULE_LICENSE("GPL");
@@ -72,7 +72,7 @@ struct list_head hm2_list;
 static int comp_id;
 
 //
-// functions exported to LinuxCNC
+// functions exported to HAL
 //
 
 static int hm2_read(void *void_hm2, const hal_funct_args_t *fa) {

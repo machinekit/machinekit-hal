@@ -28,7 +28,7 @@
 
 /* module information */
 MODULE_AUTHOR("Andy Pugh");
-MODULE_DESCRIPTION("Generic mux component for linuxCNC");
+MODULE_DESCRIPTION("Generic mux component for HAL");
 MODULE_LICENSE("GPL");
 
 #define MAX_CHAN 100
