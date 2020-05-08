@@ -22,6 +22,7 @@ usage() {
         echo "    -i DOCKER-IMAGE       Docker image (default $DEFAULT_IMAGE)"
         echo "    -t DOCKER-TAG         Docker tag (default $DEFAULT_TAG)"
         echo "    -l                    Set 'lcnc_' tag prefix"
+        echo "    -x                    Include X environment"
 	echo "    -c deb [ -n ]         Build deb packages (-n:  no source pkg)"
         echo "    -c test               Build and test"
         echo "    [-c shell] [ COMMAND ARG ... ]"
@@ -39,13 +40,14 @@ usage() {
 }
 
 # CL arguments
-while getopts c:i:t:j:nh? opt; do
+while getopts c:i:t:j:nxh? opt; do
     case "$opt" in
 	c) CMD=$OPTARG ;;
 	i) IMAGE=$OPTARG ;;
 	t) TAG=$OPTARG ;;
 	j) JOBS=$OPTARG ;;
 	n) BUILD_SOURCE=false ;;
+        x) X11=true ;;
 	h) usage ;;
 	*) usage " " ;;
     esac
@@ -202,8 +204,16 @@ case $CMD in
 	;;
     *)   echo "Unknown command '$CMD'" >&2; exit 1 ;;
 esac
+
+if ${X11:-false}; then
+    DOCKER_EXTRA_OPTS+=(
+        -e DISPLAY
+        -v /tmp/.X11-unix:/tmp/.X11-unix
+        -v /dev/dri:/dev/dri
+    )
+fi
+
 DOCKER_EXTRA_OPTS+=( $DOCKER_RUN_ARGS )
-echo "DOCKER_EXTRA_OPTS=${DOCKER_EXTRA_OPTS[@]}"
 
 ###########################################################
 # Run build
