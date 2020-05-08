@@ -18,7 +18,7 @@ $(call TOOBJSDEPS, $(MESSAGEBUS_SRCS)) : EXTRAFLAGS += $(MESSAGEBUS_CXX_CFLAGS)
 ../bin/messagebus: $(call TOOBJS, $(MESSAGEBUS_SRCS)) \
 	../lib/libmtalk.so.0 \
 	../lib/liblinuxcncini.so.0 \
-	../lib/liblinuxcnchal.so.0 \
+	../lib/libhal.so.0 \
 	../lib/libmachinetalk-pb2++.so.0 \
 	../lib/libmachinetalk-npb.so.0
 	$(ECHO) Linking $(notdir $@)
@@ -45,7 +45,7 @@ $(call TOOBJSDEPS, $(RFRAME_SRCS)) : EXTRAFLAGS += $(RFRAME_CXX_CFLAGS)
 
 ../bin/rframe: $(call TOOBJS, $(RFRAME_SRCS)) \
 	../lib/liblinuxcncini.so.0 \
-	../lib/liblinuxcnchal.so.0 \
+	../lib/libhal.so.0 \
 	../lib/libmachinetalk-pb2++.so.0 \
 	../lib/libmachinetalk-npb.so.0
 	$(ECHO) Linking $(notdir $@)

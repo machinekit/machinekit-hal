@@ -23,8 +23,8 @@ USER_COMP_BINS := $(patsubst hal/user_comps/%.comp, ../bin/%, $(USER_COMP_COMPS)
 ../bin/%: \
 		hal/user_comps/%.comp \
 		../bin/comp \
-		../lib/liblinuxcnchal.so.0 \
-		../lib/liblinuxcnculapi.so.0 \
+		../lib/libhal.so.0 \
+		../lib/libhalulapi.so.0 \
 		../lib/librtapi_math.so.0
 	$(ECHO) "Preprocessing usercomp $(notdir $<)"
 	@mkdir -p objects/hal/user_comps
@@ -32,8 +32,8 @@ USER_COMP_BINS := $(patsubst hal/user_comps/%.comp, ../bin/%, $(USER_COMP_COMPS)
 	$(ECHO) "Compiling usercomp $(notdir $<)"
 	$(Q)$(CC) -DULAPI $(INCLUDE) -o $@ $(LDFLAGS) \
 		$(patsubst  hal/user_comps/%.comp, objects/hal/user_comps/%.c, $<) \
-		../lib/liblinuxcnchal.so.0 \
-		../lib/liblinuxcnculapi.so.0 \
+		../lib/libhal.so.0 \
+		../lib/libhalulapi.so.0 \
 		../lib/librtapi_math.so.0
 
 TARGETS +=  $(USER_COMP_BINS)
@@ -48,8 +48,8 @@ $(call TOOBJSDEPS, $(MODBUSSRCS)) : EXTRAFLAGS += $(MODBUSCCFLAGS)
 
 ../bin/gs2_vfd: \
 		$(call TOOBJS, $(MODBUSSRCS)) \
-		../lib/liblinuxcnchal.so.0 \
-		../lib/liblinuxcnculapi.so.0
+		../lib/libhal.so.0 \
+		../lib/libhalulapi.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(MODBUSLDFLAGS)
 TARGETS += ../bin/gs2_vfd
@@ -60,8 +60,8 @@ SHUTTLEXPRESS_SRC = hal/user_comps/shuttlexpress.c
 USERSRCS += $(SHUTTLEXPRESS_SRC)
 ../bin/shuttlexpress: \
 		$(call TOOBJS, $(SHUTTLEXPRESS_SRC)) \
-		../lib/liblinuxcnchal.so.0 \
-		../lib/liblinuxcnculapi.so.0
+		../lib/libhal.so.0 \
+		../lib/libhalulapi.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/shuttlexpress
@@ -74,8 +74,8 @@ USERSRCS += $(XHC_HB04_SRC)
 $(call TOOBJSDEPS, $(XHC_HB04_SRC)) : EXTRAFLAGS += $(LIBUSB10_CFLAGS)
 ../bin/xhc-hb04: \
 		$(call TOOBJS, $(XHC_HB04_SRC)) \
-		../lib/liblinuxcnchal.so.0 \
-		../lib/liblinuxcnculapi.so.0 \
+		../lib/libhal.so.0 \
+		../lib/libhalulapi.so.0 \
 		../lib/liblinuxcncini.so.0 \
 		../lib/librtapi_math.so.0
 	$(ECHO) Linking $(notdir $@)

@@ -45,7 +45,7 @@ $(call TORTOBJS,$(PBGEN)/$(NAMESPACEDIR)/%.npb.c): \
 # $(call TOOBJSDEPS, $(RB_SRCS)) : EXTRAFLAGS += $(RB_CCFLAGS) -O0
 
 # ../bin/ringbench: $(call TOOBJS, $(RB_SRCS)) \
-# 	../lib/liblinuxcnchal.so
+# 	../lib/libhal.so
 # 	$(ECHO) Linking $(notdir $@)
 # 	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(RB_LDFLAGS)
 

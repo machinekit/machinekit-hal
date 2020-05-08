@@ -118,8 +118,8 @@ USERSRCS += $(HALSTREAMERSRCS)
 
 ../bin/halstreamer: \
 		$(call TOOBJS, $(HALSTREAMERSRCS)) \
-		../lib/liblinuxcnchal.so.0 \
-		../lib/liblinuxcnculapi.so.0
+		../lib/libhal.so.0 \
+		../lib/libhalulapi.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/halstreamer
@@ -129,8 +129,8 @@ USERSRCS += $(HALSAMPLERSRCS)
 
 ../bin/halsampler: \
 		$(call TOOBJS, $(HALSAMPLERSRCS)) \
-		../lib/liblinuxcnchal.so.0 \
-		../lib/liblinuxcnculapi.so.0
+		../lib/libhal.so.0 \
+		../lib/libhalulapi.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^
 TARGETS += ../bin/halsampler

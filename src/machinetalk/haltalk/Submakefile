@@ -28,8 +28,8 @@ $(call TOOBJSDEPS, $(HALTALK_SRCS)) : EXTRAFLAGS += $(HALTALK_CXXFLAGS)
 ../bin/haltalk: $(call TOOBJS, $(HALTALK_SRCS)) \
 	../lib/libmtalk.so.0 \
 	../lib/libmachinetalk-pb2++.so.0 \
-	../lib/liblinuxcnchal.so.0 \
-	../lib/liblinuxcnculapi.so.0 \
+	../lib/libhal.so.0 \
+	../lib/libhalulapi.so.0 \
 	../lib/liblinuxcncini.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(HALTALK_LDFLAGS)

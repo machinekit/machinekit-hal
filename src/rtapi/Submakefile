@@ -73,7 +73,7 @@ ULAPI_SRCS := \
 
 USERSRCS += $(ULAPI_SRCS)
 
-ULAPI_LIB := ../lib/liblinuxcnculapi.so
+ULAPI_LIB := ../lib/libhalulapi.so
 
 $(call TOOBJSDEPS, $(ULAPI_SRCS)): EXTRAFLAGS += -fPIC
 

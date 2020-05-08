@@ -15,7 +15,7 @@ CONST_LDFLAGS := \
 $(call TOOBJSDEPS, $(CONSTV2_SRCS)) : EXTRAFLAGS += $(CONST_CXXFLAGS)
 
 ../bin/constv2: $(call TOOBJS, $(CONSTV2_SRCS)) \
-	../lib/liblinuxcnchal.so.0
+	../lib/libhal.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(CONST_LDFLAGS)
 
@@ -26,7 +26,7 @@ TARGETS += ../bin/constv2
 $(call TOOBJSDEPS, $(CONST_SRCS)) : EXTRAFLAGS += $(CONST_CXXFLAGS)
 
 ../bin/const: $(call TOOBJS, $(CONST_SRCS)) \
-	../lib/liblinuxcnchal.so.0
+	../lib/libhal.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(CONST_LDFLAGS)
 

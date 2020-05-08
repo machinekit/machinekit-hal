@@ -5,8 +5,8 @@ gcc -g -DULAPI \
     -I../../include \
     rtapi_test.c \
     ../../lib/libmtalk.so \
-    ../../lib/liblinuxcnculapi.so \
-    ../../lib/liblinuxcnchal.so \
+    ../../lib/libhalulapi.so \
+    ../../lib/libhal.so \
     -o rtapi_test
 
 realtime stop

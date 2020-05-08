@@ -39,7 +39,7 @@ HALLIBMTALK_LDFLAGS := $(PROTOBUF_LIBS) $(CZMQ_LIBS)
 $(call TOOBJSDEPS, $(HALLIBMTALK_SRCS)) : EXTRAFLAGS=-fPIC $(HALLIBMTALK_CXXFLAGS)
 
 # ULAPI: all thread-specific code now comes in through the ulapi library
-# (liblinuxcnculapi.so) which autoloads the proper ulapi on demand
+# (libhalulapi.so) which autoloads the proper ulapi on demand
 
 $(call TOOBJSDEPS, $(HALLIBSRCS)): EXTRAFLAGS += -fPIC
 
@@ -48,7 +48,7 @@ $(call TOOBJSDEPS, $(HALLIBSRCS)): EXTRAFLAGS += -fPIC
 USERSRCS += $(HALLIBSRCS)
 USERSRCS += $(HALLIBMTALK_SRCS)
 
-HALLIB := ../lib/liblinuxcnchal.so
+HALLIB := ../lib/libhal.so
 
 
 # for now, link in ulapi  plus any referenced  objs directly
