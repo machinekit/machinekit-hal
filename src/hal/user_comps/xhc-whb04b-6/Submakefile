@@ -1,6 +1,9 @@
 ifdef HAVE_LIBUSB10
 
-XHC_WHB04B6_LIB_DEPENDENCIES = ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0 ../lib/librtapi_math.so.0 ../lib/libmtalk.so ../lib/libmachinetalk-pb2++.so
+XHC_WHB04B6_LIB_DEPENDENCIES = \
+    ../lib/libhal.so.0 ../lib/libmkini.so.0 \
+    ../lib/librtapi_math.so.0 ../lib/libmtalk.so \
+    ../lib/libmachinetalk-pb2++.so
 XHC_WHB04B6_SRC = hal/user_comps/xhc-whb04b-6/hal.cc \
                   hal/user_comps/xhc-whb04b-6/usb.cc \
                   hal/user_comps/xhc-whb04b-6/pendant-types.cc \

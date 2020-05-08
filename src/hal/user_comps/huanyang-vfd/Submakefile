@@ -5,7 +5,7 @@ HY_VFD_LIBS = $(GLIB_LIBS) -lpthread
 $(call TOOBJSDEPS, $(HY_VFD_SRCS)) : EXTRAFLAGS += $(HY_VFD_CFLAGS)
 
 USERSRCS += $(HY_VFD_SRCS)
-../bin/hy_vfd: $(call TOOBJS, $(HY_VFD_SRCS)) ../lib/liblinuxcnchal.so.0
+../bin/hy_vfd: $(call TOOBJS, $(HY_VFD_SRCS)) ../lib/libhal.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(HY_VFD_LIBS)
 

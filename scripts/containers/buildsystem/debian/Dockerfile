@@ -3,18 +3,6 @@ ARG VERSION_SHA
 
 FROM ${BASE_IMAGE}
 
-ARG NAME
-ARG MAINTAINER
-ARG DESCRIPTION
-ARG BUILD_DATE
-ARG VCS_REF
-ARG VCS_URL
-LABEL io.machinekit.machinekit-hal.name=${NAME}
-LABEL io.machinekit.machinekit-hal.maintainer=${MAINTAINER}
-LABEL io.machinekit.machinekit-hal.description=${DESCRIPTION}
-LABEL io.machinekit.machinekit-hal.build-date=${BUILD_DATE}
-LABEL io.machinekit.machinekit-hal.vcs-ref=${VCS_REF}
-LABEL io.machinekit.machinekit-hal.vcs-url=${VCS_URL}
 
 ###################################################################
 # Build configuration settings
@@ -267,7 +255,7 @@ RUN if test $DISTRO_CODENAME = jessie -a -z "$SYS_ROOT"; then \
 # Machinekit:  Configure multistrap
 
 # Set up debian/control for `mk-build-deps`
-ADD debian/ /tmp/debian/
+ADD debian/control.in debian/configure /tmp/debian/
 RUN MK_CROSS_BUILDER=1 /tmp/debian/configure
 
 # Directory for `mk-build-deps` apt repository
@@ -434,3 +422,19 @@ RUN sed -i ~/.bashrc \
     -e '$a alias ls="ls -aFs"'
 
 ENTRYPOINT ["fixuid"]
+
+###############################################
+# Add labels
+
+ARG NAME
+ARG MAINTAINER
+ARG DESCRIPTION
+ARG BUILD_DATE
+ARG VCS_REF
+ARG VCS_URL
+LABEL io.machinekit.machinekit-hal.name=${NAME}
+LABEL io.machinekit.machinekit-hal.maintainer=${MAINTAINER}
+LABEL io.machinekit.machinekit-hal.description=${DESCRIPTION}
+LABEL io.machinekit.machinekit-hal.build-date=${BUILD_DATE}
+LABEL io.machinekit.machinekit-hal.vcs-ref=${VCS_REF}
+LABEL io.machinekit.machinekit-hal.vcs-url=${VCS_URL}

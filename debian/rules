@@ -147,6 +147,11 @@ install: build
 	mkdir -p debian/tmp/usr/lib/linuxcnc/prubin
 
 	dh_install --sourcedir=debian/tmp -Xusr/bin/pasm --fail-missing -v
+#       # These are installed in the -dev package
+	rm debian/machinekit-hal/usr/bin/comp \
+	    debian/machinekit-hal/usr/bin/instcomp \
+	    debian/machinekit-hal/usr/bin/runtests
+
 	# Eventually this will replace the above
 	# dh_install -Xusr/bin/pasm -v
 	# dh_missing --fail-missing

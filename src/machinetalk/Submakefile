@@ -110,8 +110,6 @@ PROTOCXX_CXX_FLAGS := -fPIC $(PROTOBUF_CFLAGS)
 # not available in 2.4.1/jessie
 #export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=cpp
 
-# NANOPB_CFLAGS are also passed to module build through
-# RTFLAGS - see hal/msgcomponents/Submakefile
 NANOPB_CFLAGS := -DPB_FIELD_32BIT '-DPB_SYSTEM_HEADER=<'$(MACHINETALK)'/include/pb-linuxcnc.h>'
 NANOPB_OPTIONS := $(MACHINETALK)/nanopb.options
 

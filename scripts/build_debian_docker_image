@@ -6,25 +6,34 @@
 
 DOCKER_BUILD_ARGS=""
 
-USAGE="Usage:  $0 [ -i <docker_id> ] [ -r <docker_repo> ] [ -t <docker_tag> ] [ -a <additional_docker_build_args> ]
-        EXAMPLE: $0 -i machinekit -r mk-hal-cross-builder -t amd64_11
-        will produce docker image machinekit/mk-hal-cross-builder:amd64_11"
+USAGE="Usage:  $0 [ args ... ]
+  Args:
+    -i <docker_id>
+    -r <docker_repo>
+    -t <docker_tag>
+    -a <additional_docker_build_args>
+  Example:  Build 'machinekit/mk-hal-cross-builder:amd64_11' image
+    $0 -i machinekit -r mk-hal-cross-builder -t amd64_11"
+usage() {
+    { test -z "$*" || echo $*; echo "$USAGE"; } 1>&2
+    test -z "$*"  # Exit nonzero if error message supplied
+    exit 0
+}
 
 # Read command line options
-while getopts r:t:i: ARG; do
+while getopts i:r:t:a:h ARG; do
     case $ARG in
         i) REPO_NAME=$OPTARG ;;
         t) CACHE_TAG=$OPTARG ;;
         r) IMAGE_NAME=$OPTARG ;;
         a) $DOCKER_BUILD_ARGS+="$OPTARG" ;;
-	    h) echo "$USAGE" >&2; exit ;;
-	    *) echo "$USAGE" >&2; exit 1 ;;
+        h) usage ;;
+        *) usage "ERROR:  Unknown arg" ;;
     esac
 done
 
 if test -z "$REPO_NAME" -o -z "$CACHE_TAG" -o -z "$IMAGE_NAME"; then
-    echo "Missing parameters: All parameters are needed!"
-    exit 1
+    usage "ERROR:  Missing required parameters -i -r -t"
 fi
 
 # Set Dockerfile path
@@ -62,8 +71,7 @@ case "${CACHE_TAG}" in
         LDEMULATION="elf_i386"
         ;;
     *)
-        echo "Unknown tag '${CACHE_TAG}'" >&2
-        exit 1
+        usage "Unknown tag '${CACHE_TAG}'"
         ;;
 esac
 
@@ -90,15 +98,13 @@ case "${CACHE_TAG}" in
         DISTRO_VER="11"
         ;;
     *)
-        echo "Unknown tag '${CACHE_TAG}'" >&2
-        exit 1
+        usage "Unknown tag '${CACHE_TAG}'"
         ;;
 esac
 
 # Error out if user wants to build forbidden combiantion
 if ([ "$DISTRO_CODENAME" == "jessie" ] && [ "$DEBIAN_ARCH" == "arm64" ]); then
-    echo "Forbidden combination of '${DEBIAN_ARCH}_${DISTRO_VER}'" >&2
-    exit 1
+    usage "Forbidden combination of '${DEBIAN_ARCH}_${DISTRO_VER}'"
 fi
 
 IMAGE_NAME="$REPO_NAME/$IMAGE_NAME:$CACHE_TAG"
@@ -140,6 +146,7 @@ cd "$(dirname $0)"
 # Build the image
 set -x
 exec docker build \
+       --progress=plain \
        --build-arg DEBIAN_ARCH=${DEBIAN_ARCH} \
        --build-arg SYS_ROOT=${SYS_ROOT} \
        --build-arg HOST_MULTIARCH=${HOST_MULTIARCH} \

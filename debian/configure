@@ -28,7 +28,7 @@ do_changelog() {
         sed -e 's/\b\(.\)/\u\1/g')"
     DISTRO_LC="$(echo $DISTRO_CODENAME | sed 's/^[[:space:]]*//g')"
     MKVERSION="$(git show HEAD:VERSION | cut -d ' ' -f 1).$(
-        git rev-list --count master)-1.git$(
+        git rev-list --count HEAD)-1.git$(
         git rev-parse --short HEAD)~${DISTRO_LC}"
     COMMITTER="$(git show -s --pretty=%an $(git rev-parse --short HEAD))"
     EMAIL="$(git show -s --format='%ae' $(git rev-parse --short HEAD))"
@@ -111,8 +111,11 @@ esac
 
 # Configure Xenomai threads
 configure_xenomai() {
-    if ! dpkg-query -W | grep -q libxenomai-dev; then
-        echo "Not configuring build for Xenomai 2 (no libxenomai-dev package)" >&2
+    if test -n "$DPKG_ROOT"; then
+        DPKG_QUERY_ARGS="--admindir=$DPKG_ROOT/var/lib/dpkg"
+    fi
+    if ! dpkg-query $DPKG_QUERY_ARGS -W | grep -q libxenomai-dev; then
+        echo "Not configuring build for Xenomai (no libxenomai-dev package)" >&2
         return
     fi
 

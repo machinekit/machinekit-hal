@@ -1,6 +1,6 @@
 useful functions for C/C++ applications using the Container message format
 
-other than liblinuxcnchal.so, these can be used outside the RT environment
+other than libhal.so, these can be used outside the RT environment
 
 
 The json2pb code is (c) Pavel Shramov 2013, MIT license.

@@ -25,7 +25,7 @@ $(HALNGMKDIR)/hal.c: $(wildcard $(HALNGMKDIR)/*.pyx $(HALNGMKDIR)/*.pxd)
 
 TARGETS += ../lib/python/machinekit/hal.so
 ../lib/python/machinekit/hal.so: \
-		../lib/liblinuxcnchal.so.0 \
+		../lib/libhal.so.0 \
 		../lib/libmtalk.so.0 \
 		$(patsubst %.c,objects/%.o,$(HALSO_SRCS)) \
 		$(patsubst %.cc,objects/%.o,$(HALSO_CXXSRCS))
@@ -51,7 +51,7 @@ TARGETS += ../lib/python/machinekit/rtapi.so
 ../lib/python/machinekit/rtapi.so: \
 		$(patsubst %.c,objects/%.o,$(RTAPISO_CSRCS)) \
 		$(patsubst %.cc,objects/%.o,$(RTAPISO_CXXSRCS)) \
-		../lib/liblinuxcnchal.so.0 \
+		../lib/libhal.so.0 \
 		../lib/libmachinetalk-pb2++.so.0 \
 		../lib/libmtalk.so.0
 	$(ECHO) Linking $(notdir $@)
@@ -69,7 +69,7 @@ $(call TOOBJSDEPS, $(COMPATSO_CSRCS)) : EXTRAFLAGS=-fPIC
 TARGETS += ../lib/python/machinekit/compat.so
 ../lib/python/machinekit/compat.so: \
 		$(patsubst %.c,objects/%.o,$(COMPATSO_CSRCS)) \
-		../lib/liblinuxcnchal.so.0
+		../lib/libhal.so.0
 	$(ECHO) Linking python module $(notdir $@)
 	@mkdir -p $(dir $@)
 	$(Q)$(CC) -g $(LDFLAGS) -shared -o $@ $^

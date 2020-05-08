@@ -58,10 +58,6 @@
 #include <limits.h>
 #include <sys/prctl.h>
 #include <inifile.h>
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/classification.hpp>
-#include <boost/algorithm/string/predicate.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include <czmq.h>
 #include <google/protobuf/text_format.h>
@@ -1653,8 +1649,8 @@ static int record_instparms(Module &mi)
 
     for (i = 0; i < symbols.size(); i++) {
 	string ip(symbols[i]);
-	if (boost::starts_with(ip, pat)) {
-	    boost::replace_first(ip, pat,"");
+	if (ip.rfind(pat) == 0) {
+            ip.replace(0, pat.length(), "");
 	    char **type = mi.sym<char**>(RTAPI_IP_SYMPREFIX "type_" + ip);
 	    void *addr = mi.sym<void*>(RTAPI_IP_SYMPREFIX "address_" + ip);
 	    // char **desc =

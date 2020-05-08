@@ -3,10 +3,6 @@ MSGCOMP_DIR=machinetalk/msgcomponents
 # NANOPB_CFLAGS is set in  protobuf/Submakefile
 # for msgcomponents when building an RT comp
 
-# or at least should - the reference to NANOPB_CFLAGS isnt resolved here; no idea why
-
-RTFLAGS +=   $(PROTO_NANOPB_CFLAGS)
-
 $(eval $(call c_comp_build_rules,machinetalk/msgcomponents/pbmsgs.o, \
 	$(MSGCOMP_DIR)/pbmsgs.o	\
 	$(PBGEN)/$(NAMESPACEDIR)/canon.npb.o \
@@ -29,6 +25,9 @@ $(eval $(call c_comp_build_rules,machinetalk/msgcomponents/pbmsgs.o, \
 	$(PBGEN)/$(NAMESPACEDIR)/value.npb.o \
 ))
 
+$(call TORTOBJS,$(PBGEN)/$(NAMESPACEDIR)/%.npb.c): \
+	EXTRA_CFLAGS += $(PROTO_NANOPB_CFLAGS)
+
 #$$(eval $(call c_comp_build_rules,machinetalk/msgcomponents/pbring.o))
 
 ../include/%.h: ./$(MSGCOMP_DIR)/%.h
@@ -46,7 +45,7 @@ $(eval $(call c_comp_build_rules,machinetalk/msgcomponents/pbmsgs.o, \
 # $(call TOOBJSDEPS, $(RB_SRCS)) : EXTRAFLAGS += $(RB_CCFLAGS) -O0
 
 # ../bin/ringbench: $(call TOOBJS, $(RB_SRCS)) \
-# 	../lib/liblinuxcnchal.so
+# 	../lib/libhal.so
 # 	$(ECHO) Linking $(notdir $@)
 # 	$(Q)$(CC) -o $@ $^ $(LDFLAGS) $(RB_LDFLAGS)
 

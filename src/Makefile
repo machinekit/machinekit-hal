@@ -66,13 +66,6 @@ ECHO=@true
 VECHO=true
 endif
 
-BUILD_KBUILD = no
-
-# extract the version from the kernel source version.h
-ifneq ($(KERNELDIR),)
-KERNEL_VERS = $(shell $(BASEPWD)/../scripts/kernel-vers.sh $(KERNELDIR))
-endif
-
 ifeq ($(BASEPWD),)
 BASEPWD := $(shell pwd)
 export BASEPWD
@@ -405,13 +398,11 @@ $(sort $(CXXUSEROBJS)) : objects/%.o: %.cc
 		$< -o $@
 
 ifeq ($(TRIVIAL_BUILD),no)
-configure config.h.in: configure.ac
-	@echo "*** configure.ac has changed ***" >&2
-	@echo "Not running autoconf to avoid tainting universal build" >&2
-	@echo "Please investigate or start from scratch:" >&2
-	@echo "./autogen.sh && ./configure --your-configure-args..." >&2
-	@exit 1
-	# AUTOGEN_TARGET=configure ./autogen.sh
+configure: configure.ac
+	./autogen.sh
+
+config.h.in: configure.ac
+	./autogen.sh
 
 config.status: configure
 	if [ -f config.status ]; then ./config.status --recheck; else \
@@ -712,6 +703,7 @@ install-kernel-indep: install-dirs
 	$(EXE) ../scripts/realtime $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/halrun $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/haltcl $(DESTDIR)$(bindir)
+	$(EXE) ../scripts/runtests $(DESTDIR)$(bindir)
 	$(EXE) $(filter ../bin/%,$(TARGETS)) $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
 	cp --no-dereference $(filter ../lib/%.so, $(TARGETS)) $(DESTDIR)$(libdir)
@@ -790,7 +782,7 @@ CONFILES=$(addsuffix /$(1), $(filter-out $(COMMON) $(CONF),\
 
 #################################################################################################################
 
-EXTRA_CFLAGS = $(RTFLAGS) \
+EXTRA_CFLAGS += \
         $(ARCH_CFLAGS) \
 	-D__MODULE__ \
 	-I$(INCLUDE_PREFIX) \
