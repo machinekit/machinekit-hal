@@ -44,10 +44,8 @@
 
 #include "config.h"
 
-#ifndef NO_INI
 #include "mk-inifile.h"		/* iniFind() */
 FILE *halcmd_inifile = NULL;
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -115,7 +113,40 @@ static pid_t pid_of(const char *fmt, ...)
     return pid;
 }
 
-int halcmd_startup(int quiet, char *uri, const char *svc_uuid) {
+static char *getuuid(void)
+{
+    FILE *inifp = NULL;
+    const char *mkinifile;
+    const char *mkini = "MACHINEKIT_INI";
+
+    if ((mkinifile = getenv(mkini)) == NULL) {
+	fprintf(stderr, "halsh: FATAL - '%s' missing in environment\n",
+		mkini);
+	return NULL;
+    }
+    if ((inifp = fopen(mkinifile,"r")) == NULL) {
+	fprintf(stderr, "halsh: FATAL cant open inifile '%s'\n",
+		mkinifile);
+	return NULL;
+    }
+    char *s = (char *)iniFind(inifp, "MKUUID","MACHINEKIT");
+    if (s) {
+	s = strdup(s);
+    }
+    fclose(inifp);
+    return s;
+}
+
+int halcmd_startup(int quiet)
+{
+    char *uuid = getuuid();
+    if (uuid == NULL)
+	return -EINVAL;
+    return halcmd_startup_uuid(quiet, NULL, uuid);
+}
+
+int halcmd_startup_uuid(int quiet, char *uri, const char *svc_uuid)
+{
     int msg_lvl_save=rtapi_get_msg_level();
     /* register signal handlers - if the process is killed
        we need to call hal_exit() to free the shared memory */

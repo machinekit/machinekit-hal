@@ -182,7 +182,7 @@ int main(int argc, char **argv)
                             break;
                         }
                     }
-                    halcmd_startup(1, uri, service_uuid);
+                    halcmd_startup_uuid(1, uri, service_uuid);
                     propose_completion(cl, cf, n);
                 }
                 if (comp_id >= 0){
@@ -273,7 +273,7 @@ int main(int argc, char **argv)
         }
     }
 
-    if ( halcmd_startup(0, uri, service_uuid) != 0 ){
+    if ( halcmd_startup_uuid(0, uri, service_uuid) != 0 ){
         if(strdupped_uuid)
             cleanup(service_uuid);
         return 1;
