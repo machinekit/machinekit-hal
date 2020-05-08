@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------//
 // Description: pru_tasks.h                                             //
 // Header with definitions that MUST match between the PRU assembly     //
-// and the LinuxCNC HAL driver code.  In hopes of keeping these         //
+// and the Machinekit HAL driver code.  In hopes of keeping these       //
 // definitions consistant, both versions are contained in this file,    //
 // separated by #ifdefs                                                 //
 //                                                                      //
@@ -12,7 +12,7 @@
 // 2013-May    Charles Steinkuehler                                     //
 //             Initial version                                          //
 //----------------------------------------------------------------------//
-// This file is part of LinuxCNC HAL                                    //
+// This file is part of Machinekit HAL                                  //
 //                                                                      //
 // Copyright (C) 2012  Charles Steinkuehler                             //
 //                     <charles AT steinkuehler DOT net>                //
@@ -41,8 +41,8 @@
 // codes, and the authors of this software can not, and do not, take    //
 // any responsibility for such compliance.                              //
 //                                                                      //
-// This code was written as part of the LinuxCNC project.  For more     //
-// information, go to www.linuxcnc.org.                                 //
+// This code is part of the Machinekit HAL project.  For more           //
+// information, go to https://github.com/machinekit.                    //
 //----------------------------------------------------------------------//
 
 // This file defines the task structures and static variables needed to

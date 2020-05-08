@@ -2,7 +2,7 @@
 // Description: hal_pru_generic.c                                       //
 // HAL module to communicate with PRU code implementing step/dir        //
 // generation and other functions of hopeful use to off-load timing     //
-// critical code from LinuxCNC HAL                                      //
+// critical code from Machinekit HAL                                    //
 //                                                                      //
 // Author(s): Charles Steinkuehler                                      //
 // License: GNU GPL Version 2.0 or (at your option) any later version.  //
@@ -19,7 +19,7 @@
 //               stepgen.c      John Kasunich                           //
 //               hostmot2 code  Sebastian Kuzminsky                     //
 //----------------------------------------------------------------------//
-// This file is part of LinuxCNC HAL                                    //
+// This file is part of Machinekit HAL                                  //
 //                                                                      //
 // Copyright (C) 2012  Charles Steinkuehler                             //
 //                     <charles AT steinkuehler DOT net>                //
@@ -48,8 +48,8 @@
 // codes, and the authors of this software can not, and do not, take    //
 // any responsibility for such compliance.                              //
 //                                                                      //
-// This code was written as part of the LinuxCNC project.  For more     //
-// information, go to www.linuxcnc.org.                                 //
+// This code is part of the Machinekit HAL project.  For more           //
+// information, go to https://github.com/machinekit.                    //
 //----------------------------------------------------------------------//
 
 // Use config_module.h instead of config.h so we can use RTAPI_INC_LIST_H

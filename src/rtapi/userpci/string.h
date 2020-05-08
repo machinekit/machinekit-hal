@@ -13,7 +13,7 @@
  ********************************************************************/
 
 /********************************************************************
- *  This file is part of LinuxCNC RTAPI / HAL
+ *  This file is part of Machinekit RTAPI / HAL
  *
  *  Copyright (C) 2012  Charles Steinkuehler
  *                      <charles AT steinkuehler DOT net>
@@ -41,8 +41,8 @@
  *  codes, and the authors of this software can not, and do not, take
  *  any responsibility for such compliance.
  *
- *  This code was written as part of the LinuxCNC RTAPI project.  For 
- *  more information, go to www.linuxcnc.org.
+ *  This code is part of the Machinekit HAL project.  For more
+ *  information, go to https://github.com/machinekit.
  *******************************************************************/
 
 #ifndef _LINUX_STRING_H_

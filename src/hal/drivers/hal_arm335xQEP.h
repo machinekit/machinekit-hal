@@ -10,7 +10,7 @@
 // 2014-Nov    Russell Gower
 //             Initial implementation, based on encoderc.c by John Kasunich
 //--------------------------------------------------------------------------
-// This file is part of LinuxCNC HAL
+// This file is part of Machinekit HAL
 //
 // Copyright (C) 2014  Russell Gower
 //                     <russell AT thegowers DOT me DOT uk>
@@ -39,8 +39,8 @@
 // codes, and the authors of this software can not, and do not, take
 // any responsibility for such compliance.
 //
-// This code was written as part of the LinuxCNC project.  For more
-// information, go to www.linuxcnc.org.
+// This code is part of the Machinekit HAL project.  For more
+// information, go to https://github.com/machinekit.
 //-------------------------------------------------------------------------
 
 #ifndef _hal_arm335xQEP_H_

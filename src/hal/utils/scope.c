@@ -30,8 +30,9 @@ static char *license = \
     any responsibility for such compliance.\n\
 \n\
 \n\
-    This code was written as part of the EMC HAL project.  For more\n\
-    information, go to www.linuxcnc.org.\n\
+    This code is part of the Machinekit HAL project.  For more\n\
+    information, go to https://github.com/machinekit.\n\
+\n\
 ";
 
 #include "config.h"
