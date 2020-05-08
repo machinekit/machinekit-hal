@@ -133,7 +133,6 @@ SUBDIRS := \
 	rtapi/rtapi_math \
 	\
 	libnml/inifile \
-	libnml/posemath \
 	\
 	rtapi/examples/timer \
 	rtapi/examples/shmem \
@@ -421,7 +420,6 @@ INFILES = \
 	Makefile.inc \
 	Makefile.modinc \
 	../scripts/halrun \
-	../scripts/haltcl \
 	../scripts/rip-environment
 
 $(INFILES): %: %.in config.status
@@ -456,10 +454,6 @@ HEADERS := \
     hal/drivers/hal_spi.h \
     libnml/inifile/inifile.h \
     libnml/inifile/inifile.hh \
-    libnml/posemath/posemath.h \
-    libnml/posemath/gotypes.h \
-    libnml/posemath/gomath.h \
-    libnml/posemath/sincos.h \
     machinetalk/build/machinetalk/protobuf/message.pb.h \
     machinetalk/build/machinetalk/protobuf/types.pb.h \
     machinetalk/build/machinetalk/protobuf/canon.npb.h \
@@ -551,14 +545,6 @@ TARGETS += headers
 # respective Submakefiles will need to provide rules to copy them into
 # ../install.
 headers: $(SUBDIRECTORY_HEADERS)
-
-# halshow as standalone app:
-TARGETS += ../bin/halshow
-../bin/halshow: Makefile
-	$(Q)rm -f $@
-	$(Q)(echo "#!$(TCLSH)")>|$@
-	$(Q)(echo "source $(EMC2_TCL_LIB_DIR)/bin/halshow.tcl")>>$@
-	$(Q)chmod +x $@
 
 # And make userspace depend on $(TARGETS)
 userspace: $(TARGETS)
@@ -660,8 +646,6 @@ else  ## ifeq($(RUN_IN_PLACE),yes)
 
 DOCS_HELP=$(call GLOB,../help/*)
 NC_FILES=$(filter-out %/butterfly.ngc,$(call GLOB,../nc_files/*))
-TCL=$(call GLOB,../tcl/*.tcl)
-TCL_BIN=$(call GLOB,../tcl/bin/*.tcl) ../tcl/bin/popimage
 
 install-test:
 	@if type -path dpkg-query > /dev/null 2>&1 ; then  \
@@ -682,7 +666,6 @@ install-dirs:
 		$(DESTDIR)$(includedir)/linuxcnc \
 		$(DESTDIR)$(docdir) $(DESTDIR)$(ncfilesdir) \
 		$(DESTDIR)$(EMC2_LIBEXEC_DIR) \
-		$(DESTDIR)$(tcldir)/scripts \
 		$(DESTDIR)$(mandir)/man1 \
 		$(DESTDIR)$(mandir)/man3 \
 		$(DESTDIR)$(mandir)/man9 \
@@ -702,7 +685,6 @@ endif
 install-kernel-indep: install-dirs
 	$(EXE) ../scripts/realtime $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/halrun $(DESTDIR)$(bindir)
-	$(EXE) ../scripts/haltcl $(DESTDIR)$(bindir)
 	$(EXE) ../scripts/runtests $(DESTDIR)$(bindir)
 	$(EXE) $(filter ../bin/%,$(TARGETS)) $(DESTDIR)$(bindir)
 	$(FILE) $(filter ../lib/%.a ../lib/%.so.0,$(TARGETS)) $(DESTDIR)$(libdir)
@@ -736,9 +718,6 @@ install-python: install-dirs
 	$(EXE) ../bin/hal_temp_ads7828 $(DESTDIR)$(bindir)
 	$(EXE) ../bin/hal_temp_bbb $(DESTDIR)$(bindir)
 	$(EXE) ../bin/hal_temp_atlas $(DESTDIR)$(bindir)
-	$(EXE) ../bin/pyvcp $(DESTDIR)$(bindir)
-	$(EXE) ../bin/gladevcp $(DESTDIR)$(bindir)
-	$(FILE) ../tcl/hal.so $(DESTDIR)$(tcldir)
 	$(FILE) ../lib/python/*.py ../lib/python/*.so $(DESTDIR)$(SITEPY)
 	$(FILE) ../lib/python/machinekit/*.py $(DESTDIR)$(SITEPY)/machinekit/
 	$(FILE) ../lib/python/machinekit/nosetests/*.py $(DESTDIR)$(SITEPY)/machinekit/nosetests
@@ -746,7 +725,6 @@ install-python: install-dirs
 	$(FILE) ../lib/python/machinetalk/*.py $(DESTDIR)$(SITEPY)/machinetalk/
 	$(FILE) ../lib/python/machinetalk/protobuf/*.py $(DESTDIR)$(SITEPY)/machinetalk/protobuf/
 	$(FILE) ../lib/python/drivers/*.py $(DESTDIR)$(SITEPY)/drivers
-	$(FILE) ../lib/python/gladevcp/*.* $(DESTDIR)$(SITEPY)/gladevcp
 	$(EXE) ../bin/mkwrapper $(DESTDIR)$(bindir)
 	$(EXE) ../bin/mklauncher $(DESTDIR)$(bindir)
 	$(EXE) ../bin/configserver $(DESTDIR)$(bindir)
@@ -786,14 +764,7 @@ EXTRA_CFLAGS += \
         $(ARCH_CFLAGS) \
 	-D__MODULE__ \
 	-I$(INCLUDE_PREFIX) \
-	-I$(INCLUDE_PREFIX)/libnml/linklist \
-	-I$(INCLUDE_PREFIX)/libnml/cms \
-	-I$(INCLUDE_PREFIX)/libnml/rcs \
 	-I$(INCLUDE_PREFIX)/libnml/inifile \
-	-I$(INCLUDE_PREFIX)/libnml/os_intf \
-	-I$(INCLUDE_PREFIX)/libnml/nml \
-	-I$(INCLUDE_PREFIX)/libnml/buffer \
-	-I$(INCLUDE_PREFIX)/libnml/posemath \
 	-I$(INCLUDE_PREFIX)/rtapi \
 	-I$(INCLUDE_PREFIX)/rtapi/flavor \
 	-I$(INCLUDE_PREFIX)/hal/lib \
@@ -975,7 +946,7 @@ tags:
 		-I EXPORT_SYMBOL+,RTAPI_MP_INT+,RTAPI_MP_LONG+,RTAPI_MP_STRING+ \
 		-I RTAPI_MP_ARRAY_INT+,RTAPI_MP_ARRAY_LONG+,RTAPI_MP_ARRAY_STRING+ \
 		-I MODULE_AUTHOR+,MODULE_DESCRIPTION+,MODULE_LICENSE+ \
-		-R . ../tcl ../scripts ../share/axis/tcl
+		-R . ../scripts
 	rm -f TAGS
 	find . -type f -name '*.[ch]' $(FINDOPTS) | xargs  etags -l c --append
 	find . -type f -name '*.cc'  $(FINDOPTS) | xargs  etags -l c++ --append
@@ -990,13 +961,13 @@ etags:
 		-I EXPORT_SYMBOL+,RTAPI_MP_INT+,RTAPI_MP_LONG+,RTAPI_MP_STRING+ \
 		-I RTAPI_MP_ARRAY_INT+,RTAPI_MP_ARRAY_LONG+,RTAPI_MP_ARRAY_STRING+ \
 		-I MODULE_AUTHOR+,MODULE_DESCRIPTION+,MODULE_LICENSE+ \
-		-R . ../tcl ../scripts ../share/axis/tcl
+		-R . ../scripts
 	find . -type f -name '*.[ch]' $(FINDOPTS) |xargs etags --language-force=C --append
 	find . -type f -name '*.cc'  $(FINDOPTS) |xargs etags --language-force=C++ --append
 	find . -type f -name '*.hh'  $(FINDOPTS) |xargs etags --language-force=C++ --append
 	find . -type f -name '*.proto'  $(FINDOPTS) |xargs etags --language-force=C++ --append
 
-# emacs etags; does not support tcl
+# emacs etags
 eetags:
 	@rm -f TAGS
 	@find .  $(FINDOPTS) -type f -name '*.[ch]'  |xargs etags --language=c   --append
@@ -1007,8 +978,6 @@ eetags:
 .PHONY: swish
 swish:
 	swish-e -c .swish_config -v 0 -i $(BASEPWD) \
-		$(dir $(BASEPWD))tcl \
-		$(dir $(BASEPWD))share/axis/tcl \
 		$(dir $(BASEPWD))lib/python \
 		$(dir $(BASEPWD))scripts \
 		$(dir $(BASEPWD))configs

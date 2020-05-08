@@ -318,19 +318,12 @@ RUN test -z "$SYS_ROOT" \
             fi; \
         done; \
     }
-# - Link tcl/tk setup scripts
+
+# - Link directories with glib/gtk includes in the wrong place
+#   Only needed on Jessie?
 RUN test -z "$SYS_ROOT" \
     || { \
         mkdir -p /usr/lib/${HOST_MULTIARCH} && \
-        ln -s $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/tcl8.6 \
-            /usr/lib/${HOST_MULTIARCH} && \
-        ln -s $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/tk8.6 \
-            /usr/lib/${HOST_MULTIARCH}; \
-    }
-
-# - Link directories with glib/gtk includes in the wrong place
-RUN test -z "$SYS_ROOT" \
-    || { \
         ln -s $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/glib-2.0 \
 	    /usr/lib/${HOST_MULTIARCH} && \
 	ln -s $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/gtk-2.0 \

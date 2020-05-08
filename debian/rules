@@ -25,10 +25,6 @@ endif
 # dpkg-shlibdeps warning exclusions
 SHLIBDEPS_X :=  # add patterns here
 #
-# The name 'libtk8.6.so' can't be parsed by dpkg-shlibdeps, it seems:
-#     "can't extract name and version from library name 'libtk8.6.so'
-SHLIBDEPS_X += linuxcnc.so _togl.so
-#
 # halmeter halscope link to $(GTK_LIBS), which includes
 # several libs that aren't used (but several that are needed)
 SHLIBDEPS_X += halmeter halscope
@@ -128,7 +124,6 @@ install: build
 	dh_testroot
 	dh_prep
 
-	mkdir -p debian/tmp/usr/lib/python2.7/dist-packages/gladevcp
 	dh_installdirs
 # start the install
 	mkdir -p debian/tmp

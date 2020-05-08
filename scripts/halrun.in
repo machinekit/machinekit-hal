@@ -14,18 +14,17 @@ cat <<EOF
 
 $THIS Usage:
 
-  $THIS [-I] [halcmd_opts] [filename[.hal|.tcl]]
-  $THIS  -T  [halcmd_opts] [filename[.hal|.tcl]]
+  $THIS [-I] [halcmd_opts] [filename[.hal]
+  $THIS  -T  [halcmd_opts] [filename[.hal]]
 
   $THIS  -h  this help
   $THIS  -U  forcibly cause the realtime environment to exit
 
-  filename[.hal|.tcl] may also be specified as '-f filename[.hal|.tcl]'
+  filename[.hal] may also be specified as '-f filename[.hal]'
   halcmd_opts apply for .hal files only
 
   Interactive if: no filename (runs halcmd)
               or  -I          (runs halcmd)
-              or  -T          (runs haltcl)
 
 EOF
 }
@@ -47,7 +46,6 @@ while getopts "ef:hi:kqsvIRQTUV" opt ; do
     i) inifile=$OPTARG;;
 
     I) INTERACTIVE="halcmd -kf";;
-    T) INTERACTIVE="haltcl";;
 
     e) theargs="$theargs -$opt";;
     k) theargs="$theargs -$opt";;
@@ -88,7 +86,6 @@ if $REALTIME status > /dev/null; then
 fi
 
 HAVEFILE=false
-IS_HALTCL=false
 case $filename in
   *.hal) HAVEFILE=true
          if [ -n "$inifile" ] ; then
@@ -96,21 +93,8 @@ case $filename in
          fi
          # halcmd uses all $theargs:
          set -- "$theargs -f $filename";;
-  *.tcl) HAVEFILE=true
-         IS_HALTCL=true
-         # haltcl uses only -i arg
-         if [ -n "$inifile" ] ; then
-           tclargs="-i $inifile"
-         else
-           tclargs=""
-         fi
-         # haltcl only uses inifilename and filename:
-         set -- "$tclargs $filename";;
      "") # for nil filename, support interactive halcmd
-         # or haltcl if -T was used
-         if [ "$INTERACTIVE" != "haltcl" ] ; then
-            INTERACTIVE="halcmd $theargs -kf"
-         fi
+         INTERACTIVE="halcmd $theargs -kf"
          ;;
       *) echo "$THIS: Unknown file extension for filename=<$filename>"
          exit 1
@@ -122,29 +106,12 @@ case "$INTERACTIVE" in
              INTERACTIVE="$INTERACTIVE -i $inifile"
            fi
            ;;
-  haltcl)  if $IS_HALTCL ; then
-             if [  "$theargs" != "" ] ; then
-               echo "$THIS: args not accepted for haltcl <$theargs>"
-               exit 1
-             fi
-           else
-             # allowed -T (tcl interactive) with startup .hal file
-             :
-           fi
-           if [ -n "$inifile" ] ; then
-             INTERACTIVE="haltcl -i $inifile"
-           fi
-           ;;
 esac
 
 $REALTIME start || exit $?
 
 if $HAVEFILE ; then
-  if $IS_HALTCL; then
-    haltcl $@; result=$?
-  else
     halcmd $@; result=$?
-  fi
 fi
 
 if [ ! -z "$INTERACTIVE" ]; then $INTERACTIVE; fi

@@ -10,8 +10,6 @@ extern "C"
 #include <assert.h>
 #endif
 
-//#include <libnml/nml/nml_type.hh> // NMLTYPE
-
 // need to get at enum ContainerType and some tags
 #if defined(GOOGLE_PROTOBUF_VERSION)
 #include <protobuf/protobuf/types.pb.h>

@@ -29,7 +29,6 @@ LIB_DIR=@EMC2_HOME@/lib
 #but have them here as reference
 #build system only uses EMC2_RTLIB_DIR when creating rtapi.ini
 EMC2_BIN_DIR=@EMC2_BIN_DIR@
-EMC2_TCL_DIR=@EMC2_TCL_DIR@
 EMC2_HELP_DIR=@EMC2_HELP_DIR@
 EMC2_RTLIB_BASE_DIR=@EMC2_RTLIB_DIR@
 EMC2_RTLIB_DIR=$(EMC2_RTLIB_BASE_DIR)/modules
@@ -58,7 +57,6 @@ includedir = @includedir@
 docdir = @docdir@
 sampleconfsdir = ${datadir}/linuxcnc/examples/sample-configs
 ncfilesdir = ${datadir}/linuxcnc/ncfiles
-tcldir = ${prefix}/lib/tcltk/linuxcnc
 
 # i18n variables:
 
@@ -197,14 +195,6 @@ GTK_CFLAGS = @GTK_CFLAGS@
 GTK_LIBS = @GTK_LIBS@
 HAVE_GNOMEPRINT = @HAVE_GNOMEPRINT@
 
-# tcl tk cflags, includes and libs
-TCL_DBGX=@TCL_DBGX@
-TK_DBGX=@TK_DBGX@
-TCL_CFLAGS=@TCL_CFLAGS@ @TK_CFLAGS@
-TCL_LIBS=@TCL_LIBS@ @TK_LIBS@ @LIBS@
-HAVE_WORKING_BLT=@HAVE_WORKING_BLT@
-
-
 AR = @AR@
 ARFLAGS = cr
 CXX = @CXX@
@@ -217,8 +207,6 @@ BUILD_DOCS = @BUILD_DOCS@
 #BUILD_DOCS_PDF = @BUILD_DOCS_PDF@
 #BUILD_DOCS_HTML = @BUILD_DOCS_HTML@
 PYTHON = @PYTHON@
-TCLSH = @TCLSH@
-EMC2_TCL_LIB_DIR = @EMC2_TCL_LIB_DIR@
 A2X_LATEX_ENCODING = @A2X_LATEX_ENCODING@
 
 HAVE_LIBMODBUS3   = @HAVE_LIBMODBUS3@
