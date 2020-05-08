@@ -18,6 +18,7 @@ Libs: @HAL_LDFLAGS@
 hal_lib_dir=@HAL_LIB_DIR@
 lib_ulapi=-lhalulapi
 lib_hal=-lhal
+lib_halcmd=-lhalcmd
 lib_rtapi_math=-lrtapi_math
 
 # Other build variables
