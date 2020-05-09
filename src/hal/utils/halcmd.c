@@ -117,12 +117,11 @@ static char *getuuid(void)
 {
     FILE *inifp = NULL;
     const char *mkinifile;
-    const char *mkini = "MACHINEKIT_INI";
 
-    if ((mkinifile = getenv(mkini)) == NULL) {
-	fprintf(stderr, "halsh: FATAL - '%s' missing in environment\n",
-		mkini);
-	return NULL;
+    mkinifile = getenv("MACHINEKIT_INI");
+    /* use default if not specified by user */
+    if (mkinifile == NULL) {
+	mkinifile = MACHINEKIT_INI;
     }
     if ((inifp = fopen(mkinifile,"r")) == NULL) {
 	fprintf(stderr, "halsh: FATAL cant open inifile '%s'\n",
