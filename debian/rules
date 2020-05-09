@@ -93,6 +93,8 @@ ifneq ($(wildcard src/configure src/Makefile.inc),)
 	cd src && $(MAKE) clean -s
 #	# Manually remove things left by './configure'
 	rm -f \
+	    etc/linuxcnc/*.ini \
+	    etc/linuxcnc/*.conf \
 	    lib/python/machinekit/config.py \
 	    lib/python/nf.py \
 	    scripts/check-build-vs-configure-sha \
@@ -111,7 +113,7 @@ ifneq ($(wildcard src/configure src/Makefile.inc),)
 	    src/config.status \
 	    src/configure \
 	    src/machinekitcfg.py-tmp
-	rm -rf src/autom4te.cache etc
+	rm -rf src/autom4te.cache
 
 endif
 
@@ -145,6 +147,7 @@ install: build
 #       # These are installed in the -dev package
 	rm debian/machinekit-hal/usr/bin/comp \
 	    debian/machinekit-hal/usr/bin/instcomp \
+	    debian/machinekit-hal/usr/bin/halcompile \
 	    debian/machinekit-hal/usr/bin/runtests
 
 	# Eventually this will replace the above

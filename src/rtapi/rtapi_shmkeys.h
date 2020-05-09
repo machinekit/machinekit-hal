@@ -48,9 +48,6 @@
 #define STREAMER_SHMEM_KEY 	0x00535430
 #define SAMPLER_SHMEM_KEY	0x00534130
 
-// from hal/classicladder/arrays.c
-#define CL_SHMEM_KEY 0x004C522b // "CLR+"
-
 // from hal/hal_priv.h
 #define HAL_KEY   0x00414C32	/* key used to open HAL shared memory */
 

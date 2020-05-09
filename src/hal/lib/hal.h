@@ -480,6 +480,7 @@ void hal_print_error(const char *fmt, ...)
 */
 typedef enum {
     HAL_TYPE_UNSPECIFIED = -1,
+    HAL_TYPE_UNINITIALIZED = 0,
     HAL_BIT = 1,
     HAL_FLOAT = 2,
     HAL_S32 = 3,
@@ -515,6 +516,14 @@ typedef enum {
     HAL_RW = 192,
 } hal_param_dir_t;
 
+#ifdef LCNC_COMPAT
+/* Use these for x86 machines, and anything else that can write to
+   individual bytes in a machine word. */
+#include <rtapi_stdint.h>
+typedef double real_t __attribute__((aligned(8)));
+#define hal_float_t volatile real_t
+#endif
+
 /***********************************************************************
 *                      "LOCKING" FUNCTIONS                             *
 ************************************************************************/
@@ -547,27 +556,27 @@ extern unsigned char hal_get_lock(void);
 
 // context-independent - use offsets
 
-typedef struct { shmoff_t _bp;   } bit_pin_ptr;
-typedef struct { shmoff_t _sp;   } s32_pin_ptr;
-typedef struct { shmoff_t _up;   } u32_pin_ptr;
-typedef struct { shmoff_t _lsp;  } s64_pin_ptr;
-typedef struct { shmoff_t _lup;  } u64_pin_ptr;
-typedef struct { shmoff_t _fp;   } float_pin_ptr;
+typedef struct { shmoff_t bp;   } bit_pin_ptr;
+typedef struct { shmoff_t sp;   } s32_pin_ptr;
+typedef struct { shmoff_t up;   } u32_pin_ptr;
+typedef struct { shmoff_t lsp;  } s64_pin_ptr;
+typedef struct { shmoff_t lup;  } u64_pin_ptr;
+typedef struct { shmoff_t fp;   } float_pin_ptr;
 
 // same trick for signals
-typedef struct { shmoff_t _bs;   } bit_sig_ptr;
-typedef struct { shmoff_t _ss;   } s32_sig_ptr;
-typedef struct { shmoff_t _us;   } u32_sig_ptr;
-typedef struct { shmoff_t _lss;  } s64_sig_ptr;
-typedef struct { shmoff_t _lus;  } u64_sig_ptr;
-typedef struct { shmoff_t _fs;   } float_sig_ptr;
+typedef struct { shmoff_t bs;   } bit_sig_ptr;
+typedef struct { shmoff_t ss;   } s32_sig_ptr;
+typedef struct { shmoff_t us;   } u32_sig_ptr;
+typedef struct { shmoff_t lss;  } s64_sig_ptr;
+typedef struct { shmoff_t lus;  } u64_sig_ptr;
+typedef struct { shmoff_t fs;   } float_sig_ptr;
 
 #if 0
 // params are on the way out, so dont bother
-typedef struct { shmoff_t _bpar; } bit_param_ptr;
-typedef struct { shmoff_t _spar; } s32_param_ptr;
-typedef struct { shmoff_t _upar; } u32_param_ptr;
-typedef struct { shmoff_t _fpar; } float_param_ptr;
+typedef struct { shmoff_t bpar; } bit_param_ptr;
+typedef struct { shmoff_t spar; } s32_param_ptr;
+typedef struct { shmoff_t upar; } u32_param_ptr;
+typedef struct { shmoff_t fpar; } float_param_ptr;
 
 #endif
 
@@ -859,6 +868,7 @@ hal_param_new(const char *name,
     component exists.  All parameters belonging to a component are
     removed when the component calls 'hal_exit()'.
 */
+
 /** The 'hal_param_xxx_new()' functions create a new 'parameter' object.
     A parameter is a value that is only used inside a component, but may
     need to be initialized or adjusted from outside the component to set
@@ -954,8 +964,55 @@ extern int hal_param_s32_newf(hal_param_dir_t dir,
 
 
 /***********************************************************************
+*                 PIN/SIG/PARAM GETTER FUNCTIONS                       *
+************************************************************************/
+
+/** 'hal_get_pin_value_by_name()' gets the value of any arbitrary HAL pin by
+ * pin name.
+ *
+ * The 'type' and 'data' args are pointers to the returned values.  The function
+ * returns 0 if successful, or -1 on error.  If 'connected' is non-NULL, its
+ * value will be true if a signal is connected.
+ */
+
+extern int hal_get_pin_value_by_name(
+    const char *hal_name, hal_type_t *type, hal_data_u **data, bool *connected);
+
+/** 'hal_get_signal_value_by_name()' returns the value of any arbitrary HAL
+ * signal by signal name.
+ *
+ * The 'type' and 'data' args are pointers to the returned values.  The function
+ * returns 0 if successful, or -1 on error.  If 'has_writers' is non-NULL, its
+ * value will be true if the signal has writers.
+ */
+
+extern int hal_get_signal_value_by_name(
+    const char *hal_name, hal_type_t *type, hal_data_u **data, bool *has_writers);
+
+/** 'hal_get_param_value_by_name()' returns the value of any arbitrary HAL
+ * parameter by parameter name.
+ *
+ * The 'type' and 'data' args are pointers to the returned values.  The function
+ * returns 0 if successful, or -1 on error.
+ */
+
+extern int hal_get_param_value_by_name(
+    const char *hal_name, hal_type_t *type, hal_data_u **data);
+
+
+/***********************************************************************
 *                   EXECUTION RELATED FUNCTIONS                        *
 ************************************************************************/
+
+// argument struct for hal_create_xthread()
+typedef struct {
+    const char *name;
+    unsigned long period_nsec;
+    int uses_fp;
+    int cpu_id;
+    rtapi_thread_flags_t flags;
+    char cgname[RTAPI_LINELEN];
+} hal_threadargs_t;
 
 #ifdef RTAPI
 
@@ -1023,11 +1080,18 @@ int hal_export_functf(void (*funct) (void *, long),
     thread ID.  On failure, returns an error code as defined
     above.  Call only from realtime init code, not from user
     space or realtime code.
-    cpu_id is intented to bind the thread explicitly to a
-    specific CPU id.
+
+    hal_create_xthread() is the extended arguments version of
+    hal_create_thread().  Its single argument is a pointer to a
+    hal_threadargs_t struct.  The struct contains the same data as
+    the hal_create_thread() function, and also passes an integer cpu_id
+    CPU affinity number (-1 for any) and rtapi_thread_flags_t flags.
 */
+
+int hal_create_xthread(const hal_threadargs_t *args);
+
 extern int hal_create_thread(const char *name, unsigned long period_nsec,
-			     int uses_fp, int cpu_id);
+			     int uses_fp);
 
 // generic. delete a named thread, or all threads if name == NULL
 int halg_exit_thread(const int use_hal_mutex, const char *name);

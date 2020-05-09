@@ -1,4 +1,4 @@
-HALCMDSRCS := hal/utils/halcmd.c hal/utils/halcmd_commands.c hal/utils/halcmd_main.c
+HALCMDSRCS := hal/utils/halcmd.c hal/utils/halcmd_main.c
 HALCMDCCSRCS := hal/utils/halcmd_rtapiapp.cc
 
 ifneq ($(READLINE_LIBS),)
@@ -9,13 +9,37 @@ USERSRCS += $(sort $(HALCMDSRCS) $(HALCMDCCSRCS))
 $(call TOOBJSDEPS, $(HALCMDCCSRCS)) : EXTRAFLAGS =  \
 	$(PROTOBUF_CFLAGS) $(CZMQ_CFLAGS) -fPIC
 
-../bin/halcmd: $(call TOOBJS, $(HALCMDSRCS))  $(call TOOBJS, $(HALCMDCCSRCS)) \
+LIBHALCMDSRCS := \
+	hal/utils/halcmd.c \
+	hal/utils/halcmd_commands.c \
+	hal/utils/halcmd_rtapiapp.cc
+USERSRCS += $(LIBHALCMDSRCS)
+$(call TOOBJSDEPS, $(LIBHALCMDSRCS)): EXTRAFLAGS += -fPIC
+
+LIBHALCMD := ../lib/libhalcmd.so
+$(LIBHALCMD).0: $(call TOOBJS, $(LIBHALCMDSRCS)) \
 	../lib/libmkini.so.0 \
 	../lib/libhal.so.0 \
 	../lib/libhalulapi.so.0 \
 	../lib/libmachinetalk-pb2++.so.0 \
 	../lib/libmtalk.so.0 \
 	../lib/librtapi_math.so.0
+	$(ECHO) Creating shared library $(notdir $@)
+	@mkdir -p ../lib
+	@rm -f $@
+	$(Q)$(CC) $(LDFLAGS) \
+	    -Wl,-soname,$(notdir $@) -shared \
+	    -o $@ $^ -lstdc++ -ldl -lrt $(PROTOBUF_LIBS) $(PROTOCXXLIB) $(CZMQ_LIBS)
+TARGETS += $(LIBHALCMD) $(LIBHALCMD).0
+
+../bin/halcmd: $(call TOOBJS, $(HALCMDSRCS))  $(call TOOBJS, $(HALCMDCCSRCS)) \
+	../lib/libmkini.so.0 \
+	../lib/libhal.so.0 \
+	../lib/libhalulapi.so.0 \
+	../lib/libmachinetalk-pb2++.so.0 \
+	../lib/libmtalk.so.0 \
+	../lib/librtapi_math.so.0 \
+	$(LIBHALCMD)
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(READLINE_LIBS) \
 	$(PROTOBUF_LIBS) $(CZMQ_LIBS) $(AVAHI_LIBS) -lm -lstdc++
@@ -113,7 +137,11 @@ endif
 	$(ECHO) Copying python script $(notdir $@)
 	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
 
-TARGETS += ../bin/comp ../bin/instcomp
+../bin/halcompile:
+	@$(ECHO) Creating halcompile symlink for LCNC compitibility
+	$(Q)ln -sf comp $@
+
+TARGETS += ../bin/comp ../bin/instcomp ../bin/halcompile
 objects/%.py: %.g
 	@mkdir -p $(dir $@)
 	$(ECHO) Parsing python $<

@@ -11,9 +11,10 @@ USAGE="Usage:  $0 [ args ... ]
     -i <docker_id>
     -r <docker_repo>
     -t <docker_tag>
+    -T mkbuilder | lcncbuilder (default:  mkbuilder)
     -a <additional_docker_build_args>
   Example:  Build 'machinekit/mk-hal-cross-builder:amd64_11' image
-    $0 -i machinekit -r mk-hal-cross-builder -t amd64_11"
+    $0 -i machinekit -r mkbuilder -t amd64_11"
 usage() {
     { test -z "$*" || echo $*; echo "$USAGE"; } 1>&2
     test -z "$*"  # Exit nonzero if error message supplied
@@ -21,11 +22,12 @@ usage() {
 }
 
 # Read command line options
-while getopts i:r:t:a:h ARG; do
+while getopts i:r:t:T:a:h ARG; do
     case $ARG in
         i) REPO_NAME=$OPTARG ;;
         t) CACHE_TAG=$OPTARG ;;
         r) IMAGE_NAME=$OPTARG ;;
+        T) TARGET=$OPTARG ;;
         a) $DOCKER_BUILD_ARGS+="$OPTARG" ;;
         h) usage ;;
         *) usage "ERROR:  Unknown arg" ;;
@@ -35,9 +37,10 @@ done
 if test -z "$REPO_NAME" -o -z "$CACHE_TAG" -o -z "$IMAGE_NAME"; then
     usage "ERROR:  Missing required parameters -i -r -t"
 fi
+TARGET=${TARGET:-mkbuilder}
 
 # Set Dockerfile path
-DOCKERFILE_PATH=containers/buildsystem/debian/Dockerfile
+DOCKERFILE_PATH=scripts/containers/buildsystem/debian/Dockerfile
 
 # Build configuration variables for each tag
 # - Architecture settings
@@ -107,7 +110,22 @@ if ([ "$DISTRO_CODENAME" == "jessie" ] && [ "$DEBIAN_ARCH" == "arm64" ]); then
     usage "Forbidden combination of '${DEBIAN_ARCH}_${DISTRO_VER}'"
 fi
 
-IMAGE_NAME="$REPO_NAME/$IMAGE_NAME:$CACHE_TAG"
+if test $TARGET = lcncbuilder; then
+    # For LCNC image, check exactly one of each mk-hal{,-dev} pkgs exists
+    for PKG in machinekit-hal machinekit-hal-dev; do
+        NUM_PKGS=$(ls packages/${PKG}_*.deb | wc -l)
+        if test $NUM_PKGS = 0; then
+            usage "ERROR:  ${PKG} .deb file not found in CWD"
+        elif test $NUM_PKGS -gt 1; then
+            usage "ERROR:  Multiple ${PKG} .deb files found in CWD"
+        fi
+    done
+    # Prefix `lcnc_` to Docker tag
+    TAG_PREFIX=lcnc_
+fi
+
+
+IMAGE_NAME="$REPO_NAME/$IMAGE_NAME:$TAG_PREFIX$CACHE_TAG"
 # In connection with value in .github/workflows/build-preview.yaml
 NAME="machinekit-hal-debian-builder-v.$CACHE_TAG"
 MAINTAINER="John Morris <john@zultron.com>"
@@ -131,6 +149,7 @@ VCS_URL=$(git config --get remote.origin.url)
     echo "    DISTRO_VER=${DISTRO_VER}"
     echo "    EXTRA_FLAGS=${EXTRA_FLAGS}"
     echo "    LDEMULATION=${LDEMULATION}"
+    echo "    TARGET=${TARGET}"
     echo "Labels:"
     echo "    NAME=${NAME}"
     echo "    MAINTAINER=${MAINTAINER}"
@@ -141,7 +160,7 @@ VCS_URL=$(git config --get remote.origin.url)
 ) >&2
 
 # Be sure we're in the right directory
-cd "$(dirname $0)"
+cd "$(dirname $0)/.."
 
 # Build the image
 set -x
@@ -161,5 +180,6 @@ exec docker build \
        --build-arg BUILD_DATE=${BUILD_DATE} \
        --build-arg VCS_REF=${VCS_REF} \
        --build-arg VCS_URL=${VCS_URL} \
+       --target ${TARGET} \
        ${DOCKER_BUILD_ARGS} \
-       -f $DOCKERFILE_PATH -t $IMAGE_NAME ..
+       -f $DOCKERFILE_PATH -t $IMAGE_NAME .

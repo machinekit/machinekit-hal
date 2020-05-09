@@ -24,7 +24,6 @@
 #ifndef RTAPI_IO_H
 #define RTAPI_IO_H
 
-#include "config.h"		// build configuration
 #include "rtapi.h"		// these functions
 #include <sys/io.h>		/* inb(), outb() */
 

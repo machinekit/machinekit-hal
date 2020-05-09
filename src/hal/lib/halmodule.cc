@@ -283,6 +283,7 @@ static PyObject *pyhal_read_common(halitem *item) {
             case HAL_FLOAT: return PyFloat_FromDouble(*(item->u->pin.f));
             case HAL_TYPE_MAX: /* fallthrough */ ;
             case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
+            case HAL_TYPE_UNINITIALIZED: /* fallthrough */ ;
         }
     } else {
         switch(item->type) {
@@ -294,6 +295,7 @@ static PyObject *pyhal_read_common(halitem *item) {
             case HAL_FLOAT: return PyFloat_FromDouble(item->u->param.f);
             case HAL_TYPE_MAX: /* fallthrough */ ;
             case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
+            case HAL_TYPE_UNINITIALIZED: /* fallthrough */ ;
         }
     }
     PyErr_Format(pyhal_error_type, "Invalid item type %d", item->type);
@@ -968,7 +970,8 @@ static int pyshm_init(PyObject *_self, PyObject *args, PyObject *kw) {
 	return -1;
     }
     // retrieve the size - relevant in the 'attach' case:
-    int retval = rtapi_shmem_getptr(self->shm_id, &self->buf, &self->size);
+    int retval = rtapi_shmem_getptr_inst(
+        self->shm_id, rtapi_instance, &self->buf, &self->size);
     if (retval < 0) {
 	pyrtapi_error(self->shm_id);
 	return -1;

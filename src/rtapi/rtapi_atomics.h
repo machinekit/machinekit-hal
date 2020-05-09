@@ -23,7 +23,6 @@
 #ifndef _RTAPI_ATOMICS_H
 #define _RTAPI_ATOMICS_H
 
-#include "config.h" // HAVE_CK
 #include "rtapi_int.h"
 #include "hal_types.h"
 

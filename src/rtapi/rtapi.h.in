@@ -59,12 +59,21 @@
     information, go to https://github.com/machinekit.
 */
 
+/* Build hardware drivers */
+#undef BUILD_DRIVERS
+
 /*
   RTAPI_SERIAL should be bumped with changes that break compatibility
   with previous versions.
 */
 #define RTAPI_SERIAL 3
-#include "config.h"
+
+/* RTAPI array sizes */
+#define RTAPI_MAX_MODULES	64
+#define RTAPI_MAX_TASKS		64
+#define RTAPI_MAX_SHMEMS	32
+
+#define RTAPI_LINELEN           255
 
 #if ( !defined RTAPI ) && ( !defined ULAPI )
 #error "Please define either RTAPI or ULAPI!"
@@ -718,7 +727,7 @@ typedef struct {
     char *name;
     int cpu_id;
     rtapi_thread_flags_t flags;             // eg Posix, nowait
-    char cgname[LINELEN];
+    char cgname[RTAPI_LINELEN];
 } rtapi_task_args_t;
 
 
@@ -867,11 +876,16 @@ extern int rtapi_shmem_delete_inst(int shmem_id, int instance, int module_id);
 /** 'rtapi_shmem_getptr()' sets '*ptr' to point to shared memory block
     associated with 'shmem_id'.  Returns a status code.  May be called
     from user code, init/cleanup code, or realtime tasks.
-
-    If non-NULL, *size is set to the size of the shared memory block.
 */
 
-extern int rtapi_shmem_getptr(int shmem_id, void **ptr, unsigned long int *size);
+extern int rtapi_shmem_getptr(int shmem_id, void **ptr);
+
+/** 'rtapi_shmem_getsize()' sets '*size' to the size of the shared memory block
+    associated with 'shmem_id'.  Returns a status code.  May be called from user
+    code, init/cleanup code, or realtime tasks.
+*/
+
+extern int rtapi_shmem_getsize(int shmem_id, unsigned long int *size);
 
 extern int rtapi_shmem_getptr_inst(int shmem_id, int instance, void **ptr, unsigned long int *size);
 

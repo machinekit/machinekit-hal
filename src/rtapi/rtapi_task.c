@@ -154,7 +154,7 @@ int rtapi_task_new(const rtapi_task_args_t *args) {
     task->flags = args->flags;
     task->uses_fp = args->uses_fp;
     task->cpu = args->cpu_id > -1 ? args->cpu_id : rtapi_data->rt_cpu;
-    strncpy(task->cgname, args->cgname, LINELEN);
+    strncpy(task->cgname, args->cgname, RTAPI_LINELEN);
 
     rtapi_print_msg(RTAPI_MSG_DBG, "Task CPU:  %d\n", task->cpu);
 

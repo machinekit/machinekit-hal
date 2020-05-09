@@ -55,17 +55,13 @@
 // Use config_module.h instead of config.h so we can use RTAPI_INC_LIST_H
 #include "config_module.h"
 
-// this probably should be an ARM335x #define
-#if !defined(TARGET_PLATFORM_BEAGLEBONE)
-#error "This driver is for the beaglebone platform only"
-#endif
-
 #include RTAPI_INC_LIST_H
 #include "rtapi.h"          /* RTAPI realtime OS API */
 #include "rtapi_app.h"      /* RTAPI realtime module decls */
 #include "rtapi_compat.h"   /* RTAPI support functions */
 #include "rtapi_math.h"
 #include "hal.h"            /* HAL public API decls */
+#include "config.h"         // TARGET_PLATFORM_BEAGLEBONE
 #include <pthread.h>
 
 #include "prussdrv.h"           // UIO interface to uio_pruss
@@ -80,6 +76,11 @@
 
 #include "hal/drivers/hal_pru_generic/hal_pru_generic.h"
 #include "hal/drivers/hal_pru_generic/beaglebone_pinmap.h"
+
+// this probably should be an ARM335x #define
+#if !defined(TARGET_PLATFORM_BEAGLEBONE)
+#error "This driver is for the beaglebone platform only"
+#endif
 
 MODULE_AUTHOR("Charles Steinkuehler");
 MODULE_DESCRIPTION("AM335x PRU demo component");

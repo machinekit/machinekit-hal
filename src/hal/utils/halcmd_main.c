@@ -182,7 +182,7 @@ int main(int argc, char **argv)
                             break;
                         }
                     }
-                    halcmd_startup(1, uri, service_uuid);
+                    halcmd_startup_uuid(1, uri, service_uuid);
                     propose_completion(cl, cf, n);
                 }
                 if (comp_id >= 0){
@@ -273,7 +273,7 @@ int main(int argc, char **argv)
         }
     }
 
-    if ( halcmd_startup(0, uri, service_uuid) != 0 ){
+    if ( halcmd_startup_uuid(0, uri, service_uuid) != 0 ){
         if(strdupped_uuid)
             cleanup(service_uuid);
         return 1;
@@ -390,7 +390,7 @@ static int release_HAL_mutex(void)
         return -EINVAL;
     }
     /* get address of shared memory area */
-    retval = rtapi_shmem_getptr(mem_id, &mem, 0);
+    retval = rtapi_shmem_getptr(mem_id, &mem);
     if (retval < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
             "ERROR: could not access shared memory\n");

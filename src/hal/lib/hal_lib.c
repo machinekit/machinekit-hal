@@ -167,6 +167,51 @@ unsigned char hal_get_lock()
 
 
 /***********************************************************************
+*                 PIN/SIG/PARAM GETTER FUNCTIONS                       *
+************************************************************************/
+
+int hal_get_pin_value_by_name(
+    const char *hal_name, hal_type_t *type, hal_data_u **data, bool *connected)
+{
+    hal_pin_t *pin;
+    if ((pin = halpr_find_pin_by_name(hal_name)) == NULL)
+        return -1;
+
+    if (connected != NULL)
+        *connected = pin_is_linked(pin);
+    *type = pin_type(pin);
+    *data = pin_value(pin);
+    return 0;
+}
+
+int hal_get_signal_value_by_name(
+    const char *hal_name, hal_type_t *type, hal_data_u **data, bool *has_writers)
+{
+    hal_sig_t *sig;
+    if ((sig = halpr_find_sig_by_name(hal_name)) == NULL)
+        return -1;
+
+    if (has_writers != NULL)
+        *has_writers = !!sig->writers;
+    *type = sig_type(sig);
+    *data = sig_value(sig);
+    return 0;
+}
+
+int hal_get_param_value_by_name(
+    const char *hal_name, hal_type_t *type, hal_data_u **data)
+{
+    hal_param_t *param;
+    if ((param = halpr_find_param_by_name(hal_name)) == NULL)
+        return -1;
+
+    *type = param->type;
+    *data = (hal_data_u *) SHMPTR(param->data_ptr);
+    return 0;
+}
+
+
+/***********************************************************************
 *                     LOCAL FUNCTION CODE                              *
 ************************************************************************/
 

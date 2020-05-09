@@ -27,6 +27,7 @@
 ********************************************************************/
 
 #include "xenomai2.h"
+#include "config.h"
 
 #include <native/task.h>                // RT_TASK, rt_task_*()
 #include <native/timer.h>               // rt_timer_*()

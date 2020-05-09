@@ -1255,14 +1255,23 @@ AC_SUBST(HAVE_LTTNG_UST)
 
 if test "$RUN_IN_PLACE" = "yes"; then
     prefix=${BUILD_TOPLEVEL}
+    HAL_INCLUDE_DIR=${BUILD_TOPLEVEL}/include
+    HAL_LIB_DIR=${BUILD_TOPLEVEL}/lib
+    HAL_LDFLAGS=-L${HAL_LIB_DIR}
 else
     RUN_IN_PLACE=no
     HAL_HOME=$prefix
+    HAL_INCLUDE_DIR=${prefix}/include/machinekit
+    HAL_LIB_DIR=
+    HAL_LDFLAGS=
 fi
 
 ###################################
 
 AC_SUBST([RUN_IN_PLACE])
+AC_SUBST([HAL_INCLUDE_DIR])
+AC_SUBST([HAL_LIB_DIR])
+AC_SUBST([HAL_LDFLAGS])
 
 fe () {
     # Fully expand argument.  Example:
@@ -1547,33 +1556,6 @@ AH_TOP([/********************************************************************
 /* LINELEN is used throughout for buffer sizes, length of file name strings,
    etc. Let's just have one instead of a multitude of defines all the same. */
 #define LINELEN 255
-/* Used in a number of places for sprintf() buffers. */
-#define BUFFERLEN 80
-
-#define MM_PER_INCH 25.4
-#define INCH_PER_MM (1.0/25.4)
-
-/* RTAPI array sizes */
-#define RTAPI_MAX_MODULES	64
-#define RTAPI_MAX_TASKS		64
-#define RTAPI_MAX_SHMEMS	32
-
-#define MAX_INSTANCES           16
-
-// default size of the HAL data segment
-// can be overridden by the rtapi.so/ko module param hal_size=<n>
-#define HAL_SIZE                262000
-
-// minimum memlock limit
-// see http://wiki.linuxcnc.org/cgi-bin/wiki.pl?LockedMemory
-// edit /etc/security/limits.conf to read:
-//  *       -    memlock 20480
-#define RLIMIT_MEMLOCK_RECOMMENDED (20480*1024lu)
-
-// default size of the thread stack size passed to rtapi_task_new()
-// in hal_create_thread()
-// can be overridden by an option to rtapi_msgd
-#define HAL_STACKSIZE           32768
 
 // format of zeroMQ IPC socket pathnames
 // pass: RUNDIR, rtapi_instance, service name, uuid
@@ -1873,12 +1855,14 @@ AC_SUBST([SITEPY])
 ##############################################################################
 # files that get created by ./configure                                      #
 ##############################################################################
+AC_CONFIG_HEADER(rtapi/rtapi.h)
 AC_CONFIG_FILES([../scripts/gen-rtapi.ini.sh])
 AC_CONFIG_FILES([../scripts/halrun], [chmod +x ../scripts/halrun])
 AC_CONFIG_FILES([../scripts/rip-environment], [chmod +x ../scripts/rip-environment])
 AC_CONFIG_FILES([../scripts/realtime], [chmod +x ../scripts/realtime])
 AC_CONFIG_FILES(Makefile.inc)
 AC_CONFIG_FILES(Makefile.modinc)
+AC_CONFIG_FILES(../share/pkgconfig/machinekit-hal.pc)
 AC_CONFIG_FILES(machinekitcfg.py-tmp)
 AC_CONFIG_FILES(../scripts/machinekit.ini.tmpl)
 AC_OUTPUT

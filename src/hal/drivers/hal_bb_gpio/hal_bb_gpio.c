@@ -11,6 +11,7 @@
 
 #include "rtapi.h"		
 #include "rtapi_app.h"	
+#include "config.h"             // TARGET_PLATFORM_BEAGLEBONE
 
 #include "hal.h"	
 

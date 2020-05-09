@@ -432,7 +432,6 @@ default: $(INFILES)
 # files in the source tree are the ones used when building machinekit.  The copy
 # in ../include is used when building external components of machinekit.
 HEADERS := \
-    config.h \
     hal/lib/hal_accessor.h \
     hal/lib/hal_accessor_macros.h \
     hal/lib/config_module.h \
@@ -502,6 +501,7 @@ HEADERS := \
     rtapi/rtapi.h \
     rtapi/rtapi_app.h \
     rtapi/rtapi_atomics.h \
+    rtapi/rtapi_mutex.h \
     rtapi/rtapi_bitops.h \
     rtapi/rtapi_byteorder.h \
     rtapi/rtapi_export.h \
@@ -511,6 +511,8 @@ HEADERS := \
     rtapi/rtapi_limits.h \
     rtapi/rtapi_math.h \
     rtapi/rtapi_math64.h \
+    rtapi/rtapi_stdint.h \
+    rtapi/rtapi_bool.h \
     rtapi/rtapi_common.h \
     rtapi/rtapi_exception.h \
     rtapi/rtapi_global.h \
@@ -577,7 +579,8 @@ clean: depclean modclean docclean
 	-rm -rf objects
 	-rm -f $(TARGETS)
 	-rm -rf ../rtlib ../libexec
-	rm -f ../etc/machinekit/rtapi.ini
+	rm -f ../etc/machinekit/*.ini
+	rm -f ../etc/machinekit/*.conf
 	-rm -f $(COPY_CONFIGS)
 	-rm -f $(RTLIBDIR)/*.so
 	-rm -f hal/components/conv_*.comp
@@ -654,7 +657,8 @@ install-dirs:
 		$(DESTDIR)$(sysconfdir)/security/limits.d \
 		$(DESTDIR)$(sysconfdir)/udev/rules.d \
 		$(DESTDIR)$(sampleconfsdir) \
-		$(DESTDIR)$(datadir)/machinekit
+		$(DESTDIR)$(datadir)/machinekit \
+		$(DESTDIR)$(datadir)/pkgconfig
 	$(DIR)	$(DESTDIR)$(includedir)/machinekit/userpci
 
 install-kernel-indep: install-dirs
@@ -670,6 +674,8 @@ install-kernel-indep: install-dirs
 	$(FILE) $(USERPCI_HEADERS) $(DESTDIR)$(includedir)/machinekit/userpci
 	$(FILE) Makefile.modinc $(DESTDIR)$(datadir)/machinekit
 	$(FILE) Makefile.inc $(DESTDIR)$(datadir)/machinekit
+	$(FILE) ../share/pkgconfig/machinekit-hal.pc \
+	    $(DESTDIR)$(datadir)/pkgconfig
 
 	$(FILE) rtapi/rsyslogd-hal.conf $(DESTDIR)$(sysconfdir)/rsyslog.d/hal.conf
 	$(FILE) rtapi/shmdrv/limits.d-machinekit.conf \

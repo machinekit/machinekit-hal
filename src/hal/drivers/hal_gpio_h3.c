@@ -10,6 +10,7 @@
 #include "rtapi_app.h"      /* RTAPI realtime module decls */
                             /* this also includes config.h */
 #include "hal.h"            /* HAL public API decls */
+#include "config.h"         // TARGET_PLATFORM_H3
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <unistd.h>

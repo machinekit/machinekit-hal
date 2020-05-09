@@ -1,7 +1,6 @@
 #ifndef HAL_INTERNAL_H
 #define HAL_INTERNAL_H
 
-#include <config.h>
 #include <rtapi.h>
 #include <hal_priv.h>
 

@@ -61,9 +61,14 @@ scripts/machinekit.ini.tmpl
 src/objects/*
 debian/linuxcnc-*.files
 src/hal/cython/machinekit/*.c
+share/pkgconfig/machinekit-hal.pc
 # mk-build-deps artifact
 /machinekit-build-deps_*.deb
 .directory
 *.9icomp
+# build scripts artifacts
+/machinekit-hal_*.deb
+/machinekit-hal-dev_*.deb
+/packages/
 # install artifacts
 /include/

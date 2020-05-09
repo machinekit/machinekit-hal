@@ -25,8 +25,6 @@ Build-Depends: debhelper (>= 6),
 Standards-Version: 2.1.0
 
 Package: machinekit-hal
-Breaks: linuxcnc
-Replaces: linuxcnc
 Conflicts: machinekit
 Architecture: any
 Depends: ${shlibs:Depends},

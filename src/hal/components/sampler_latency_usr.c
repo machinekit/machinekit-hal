@@ -166,7 +166,7 @@ int main(int argc, char **argv)
         goto out;
         }
 
-    retval = rtapi_shmem_getptr(shmem_id, &shmem_ptr, 0);
+    retval = rtapi_shmem_getptr(shmem_id, &shmem_ptr);
     if ( retval < 0 )
         {
         fprintf(stderr, "ERROR: couldn't map user/RT shared memory\n");
@@ -191,7 +191,7 @@ int main(int argc, char **argv)
         goto out;
         }
 
-    retval = rtapi_shmem_getptr(shmem_id, &shmem_ptr, 0);
+    retval = rtapi_shmem_getptr(shmem_id, &shmem_ptr);
     if ( retval < 0 )
         {
         fprintf(stderr, "ERROR: couldn't re-map user/RT shared memory\n");

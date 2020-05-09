@@ -177,7 +177,7 @@ int hal_create_xthread(const hal_threadargs_t *args)
 	new->uses_fp = args->uses_fp;
 	new->cpu_id = args->cpu_id;
 	new->flags = args->flags;
-    strncpy(new->cgname, args->cgname, LINELEN);
+    strncpy(new->cgname, args->cgname, RTAPI_LINELEN);
 
 	/* have to create and start a task to run the thread */
 	if (dlist_empty(&hal_data->threads)) {
@@ -243,19 +243,19 @@ int hal_create_xthread(const hal_threadargs_t *args)
 	    .flags = new->flags,
         .cgname = {0},
 	};
-    strncpy(rargs.cgname, new->cgname, LINELEN);
+    strncpy(rargs.cgname, new->cgname, RTAPI_LINELEN);
 	retval = rtapi_task_new(&rargs);
 	if (retval < 0) {
 	    HALFAIL_RC(EINVAL, "could not create task for thread %s", args->name);
 	}
 	new->task_id = retval;
-	new->runtime._sp = hal_off_safe(halg_pin_newf(0, HAL_S32, HAL_OUT,
+	new->runtime.sp = hal_off_safe(halg_pin_newf(0, HAL_S32, HAL_OUT,
 						      NULL, lib_module_id,
 						      "%s.time", args->name));
-	new->maxtime._sp = hal_off_safe(halg_pin_newf(0, HAL_S32, HAL_IO, NULL,
+	new->maxtime.sp = hal_off_safe(halg_pin_newf(0, HAL_S32, HAL_IO, NULL,
 						      lib_module_id,
 						      "%s.tmax", args->name));
-	new->curr_period._sp = hal_off_safe(halg_pin_newf(0, HAL_S32, HAL_OUT, NULL,
+	new->curr_period.sp = hal_off_safe(halg_pin_newf(0, HAL_S32, HAL_OUT, NULL,
 							 lib_module_id,
 							 "%s.curr-period", args->name));
 
@@ -283,12 +283,12 @@ int hal_create_xthread(const hal_threadargs_t *args)
 
 // HAL threads - legacy API
 int hal_create_thread(const char *name, unsigned long period_nsec,
-		      int uses_fp, int cpu_id) {
+		      int uses_fp) {
     hal_threadargs_t args = {
 	.name = name,
 	.period_nsec = period_nsec,
 	.uses_fp = uses_fp,
-	.cpu_id = cpu_id,
+	.cpu_id = -1,
 	.flags = 0,
     };
     return hal_create_xthread(&args);
@@ -296,9 +296,9 @@ int hal_create_thread(const char *name, unsigned long period_nsec,
 
 static int delete_thread_cb(hal_object_ptr o, foreach_args_t *args)
 {
-    free_pin_struct(hal_ptr(o.thread->runtime._sp));
-    free_pin_struct(hal_ptr(o.thread->maxtime._sp));
-    free_pin_struct(hal_ptr(o.thread->curr_period._sp));
+    free_pin_struct(hal_ptr(o.thread->runtime.sp));
+    free_pin_struct(hal_ptr(o.thread->maxtime.sp));
+    free_pin_struct(hal_ptr(o.thread->curr_period.sp));
     free_thread_struct(o.thread);
     return 0;
 }

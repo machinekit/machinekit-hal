@@ -176,6 +176,7 @@ INT_TYPE is set to level sensitive.
 #include "rtapi_bitops.h"
 #include "rtapi_app.h"
 #include "hal.h"
+#include "config.h"             // TARGET_PLATFORM_ZEDBOARD
 
 #if !defined(TARGET_PLATFORM_ZEDBOARD)
     #error "This driver is for the Zedboard platform only"

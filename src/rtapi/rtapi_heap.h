@@ -13,7 +13,6 @@
 
 RTAPI_BEGIN_DECLS
 
-#include "config.h"
 #include "stdarg.h"
 #include "rtapi_bitops.h" // RTAPI_BIT
 

@@ -772,7 +772,7 @@ static int rtapi_request(zloop_t *loop, zsock_t *socket, void *arg)
 
     switch (pbreq.type()) {
     case machinetalk::MT_RTAPI_APP_PING:
-	char buffer[LINELEN];
+	char buffer[RTAPI_LINELEN];
 	snprintf(buffer, sizeof(buffer),
 		 "pid=%d flavor=%s gcc=%s git=%s",
 		 getpid(), (*flavor_name_ptr)(NULL),  __VERSION__, GIT_VERSION);
@@ -879,7 +879,7 @@ static int rtapi_request(zloop_t *loop, zsock_t *socket, void *arg)
         args.uses_fp = pbreq.rtapicmd().use_fp();
         args.cpu_id = pbreq.rtapicmd().cpu();
         args.flags = (rtapi_thread_flags_t) pbreq.rtapicmd().flags();
-        strncpy(args.cgname, pbreq.rtapicmd().cgname().c_str(), LINELEN);
+        strncpy(args.cgname, pbreq.rtapicmd().cgname().c_str(), RTAPI_LINELEN);
 
         retval = create_thread(&args);
         if (retval < 0) {
@@ -1166,7 +1166,7 @@ static int mainloop(size_t  argc, char **argv)
 #ifdef NOTYET
     // determine interface to bind to if remote option set
     if ((remote || z_uri)  && interfaces) {
-	char ifname[LINELEN], ip[LINELEN];
+	char ifname[RTAPI_LINELEN], ip[RTAPI_LINELEN];
 	// rtapi_print_msg(RTAPI_MSG_INFO, "rtapi_app: ifpref='%s'\n",interfaces);
 	if (parse_interface_prefs(interfaces,  ifname, ip, NULL) == 0) {
 	    rtapi_print_msg(RTAPI_MSG_INFO, "rtapi_app: using preferred interface %s/%s\n",
@@ -1178,7 +1178,7 @@ static int mainloop(size_t  argc, char **argv)
 			    interfaces, ifname, ipaddr);
 	}
 	if (z_uri == NULL) { // not given on command line - finalize the URI
-	    char uri[LINELEN];
+	    char uri[RTAPI_LINELEN];
 	    snprintf(uri, sizeof(uri), "tcp://%s:*" , ipaddr);
 	    z_uri = strdup(uri);
 	}
@@ -1196,7 +1196,7 @@ static int mainloop(size_t  argc, char **argv)
     }
 #endif
     {	// always bind the IPC socket
-	char uri[LINELEN];
+	char uri[RTAPI_LINELEN];
 	snprintf(uri, sizeof(uri), ZMQIPC_FORMAT,
 		 RUNDIR, rtapi_instance_loc, RTAPIMOD, service_uuid);
 	mode_t prev = umask(S_IROTH | S_IWOTH | S_IXOTH);

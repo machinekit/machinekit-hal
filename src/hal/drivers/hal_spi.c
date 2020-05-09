@@ -21,6 +21,7 @@
 #include "rtapi.h"
 #include "rtapi_app.h"
 #include "hal.h"
+#include "config.h"             // TARGET_PLATFORM_RASPBERRY
 
 #include "rtapi_math.h"
 #include <fcntl.h>

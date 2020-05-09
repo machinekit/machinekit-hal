@@ -18,6 +18,7 @@ s********************************************************************/
 
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
+#include "config.h"             /* TARGET_PLATFORM_* */
 #include "rtapi_bitops.h"
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
                                 /* this also includes config.h */

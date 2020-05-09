@@ -25,7 +25,6 @@
 #ifndef RTAPI_PCI_H
 #define RTAPI_PCI_H
 
-#include "config.h"
 #include <linux/version.h>
 
 /***********************************************************************

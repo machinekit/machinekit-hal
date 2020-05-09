@@ -113,8 +113,7 @@ hal_ring_t *halg_ring_newfv(const int use_hal_mutex,
 		goto FAIL;
 	    }
 	    // map the segment now so we can fill in the ringheader details
-	    if ((retval = rtapi_shmem_getptr(shmid,
-					     (void **)&rhptr, 0)) < 0) {
+	    if ((retval = rtapi_shmem_getptr(shmid, (void **)&rhptr)) < 0) {
 		HALFAIL(retval, "rtapi_shmem_getptr for %d failed %d",
 		       shmid, retval);
 		goto FAIL;
@@ -164,7 +163,7 @@ int free_ring_struct(hal_ring_t *hrptr)
 		       ho_name(hrptr), shmid);
 	    }
 	}
-	if ((retval = rtapi_shmem_getptr(shmid, (void **)&rhptr, 0))) {
+	if ((retval = rtapi_shmem_getptr(shmid, (void **)&rhptr))) {
 	    HALFAIL_RC(ENOMEM, "ring '%s': rtapi_shmem_getptr %d failed %d",
 		   ho_name(hrptr), shmid, retval);
 	}
@@ -270,7 +269,7 @@ int halg_ring_attachfv(const int use_hal_mutex,
 	    shmid = retval;
 
 	    // make it accessible
-	    if ((retval = rtapi_shmem_getptr(shmid, (void **)&rhptr, 0))) {
+	    if ((retval = rtapi_shmem_getptr(shmid, (void **)&rhptr))) {
 		HALFAIL_RC(ENOMEM, "ring '%s': rtapi_shmem_getptr %d failed %d",
 		       name, shmid, retval);
 	    }
