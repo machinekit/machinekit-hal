@@ -1,12 +1,12 @@
 <h1 align="center">Machinekit-HAL</h1>
 
-<div align="center"><img alt="Machinekit demo" src="https://github.com/cerna/machinekit-hal/blob/various-bugfixes/media/machinekit-hal.svg" width="450px" /></div>
+<div align="center"><img alt="Machinekit demo" src="media/machinekit-hal.svg" width="450px" /></div>
 
 <h4 align="center">Universal <i>framework</i> for machine control.</h4>
 
 <p align="center">
 <a href="https://github.com/machinekit/machinekit-hal/actions" target="_blank">
-<img alt="Github Actions build status" src="https://img.shields.io/github/workflow/status/machinekit/machinekit-hal/Test and build preview packages/master?style=for-the-badge&logo=github" />
+<img alt="Github Actions build status" src="https://img.shields.io/github/workflow/status/machinekit/machinekit-hal/Test application and publish packages (Debian linux)/master?style=for-the-badge&logo=github" />
 </a>
 
 <a href="https://travis-ci.org/machinekit/machinekit-hal/builds" target="_blank">
