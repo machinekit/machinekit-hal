@@ -263,6 +263,8 @@ cmdl_enab_msg="enabled on command line"
 cmdl_disab_msg="disabled on command line"
 cmdl_notspec_msg="not specified on command line"
 
+AC_CANONICAL_HOST
+HAS_SYS_IO=""
 AS_CASE([$host_cpu],
                    [arm64],
                    [
@@ -278,6 +280,7 @@ AS_CASE([$host_cpu],
                        AC_DEFINE([SYS_IO_DEFINED], [1],
                                [The sys/io header exists.])
                    ])
+AC_SUBST([HAS_SYS_IO])
 
 AC_ARG_WITH(platform-pc,
     [AS_HELP_STRING(
