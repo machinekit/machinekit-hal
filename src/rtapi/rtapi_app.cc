@@ -163,7 +163,6 @@ static char flavor_name_opt[MAX_FLAVOR_NAME_LEN] = {0};
 // global_data is set in attach_global_segment() which was already
 // created by rtapi_msgd
 global_data_t *global_data;
-static const char *rpath;
 static int init_actions(int instance);
 static void exit_actions(int instance);
 static int harden_rt(void);
@@ -547,7 +546,6 @@ static int do_load_cmd(int instance,
 
     if (mi.load(path) != 0) {
         note_printf(pbreply, "%s: %s", __FUNCTION__, mi.errmsg);
-        note_printf(pbreply, "rpath=%s", rpath == NULL ? "" : rpath);
         return -1;
     }
 
@@ -1081,7 +1079,6 @@ static int mainloop(size_t  argc, char **argv)
 	memset(argv[i], '\0', strlen(argv[i]));
 
     backtrace_init(proctitle);
-    rpath = rtapi_get_rpath();
 
     // set this thread's name so it can be identified in ps/top as
     // rtapi:<instance>
@@ -1616,15 +1613,11 @@ static void remove_module(std::string name)
 // are applied.
 static int record_instparms(Module &mi)
 {
-    if (rpath == NULL)
-	return -1;
-
     void *section = NULL;
     int csize = -1;
     size_t i;
     vector<string> tokens;
     string pn;
-    string rp(rpath);
 
     csize = mi.elf_section(".rtapi_export" , &section);
     if (csize < 0) {
