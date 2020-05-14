@@ -151,25 +151,6 @@ int rtapi_fs_read(char *buf, const size_t maxlen, const char *name, ...)
     }
 }
 
-const char *rtapi_get_rpath(void)
-{
-  const ElfW(Dyn) *dyn = _DYNAMIC;
-  const ElfW(Dyn) *rpath = NULL;
-  const char *strtab = NULL;
-  for (; dyn->d_tag != DT_NULL; ++dyn) {
-    if (dyn->d_tag == DT_RPATH) {
-      rpath = dyn;
-    } else if (dyn->d_tag == DT_STRTAB) {
-      strtab = (const char *)dyn->d_un.d_val;
-    }
-  }
-
-  if (strtab != NULL && rpath != NULL) {
-      return strdup(strtab + rpath->d_un.d_val);
-  }
-  return NULL;
-}
-
 int get_elf_section(const char *const fname, const char *section_name, void **dest)
 {
     int size = -1, i;
