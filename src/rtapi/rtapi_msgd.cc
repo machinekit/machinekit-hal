@@ -82,7 +82,7 @@ using namespace google::protobuf;
 // default size of the thread stack size passed to rtapi_task_new()
 // in hal_create_thread()
 // can be overridden by an option to rtapi_msgd
-#define HAL_STACKSIZE           32768
+#define HAL_STACKSIZE 262144
 
 
 #ifndef SYSLOG_FACILITY
