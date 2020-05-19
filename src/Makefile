@@ -444,7 +444,6 @@ HEADERS := \
     hal/lib/hal_logging.h \
     hal/lib/hal_object.h \
     hal/lib/hal_object_selectors.h \
-    hal/lib/hal_parport.h \
     hal/lib/hal_priv.h \
     hal/lib/hal_rcomp.h \
     hal/lib/hal_ring.h \
@@ -517,7 +516,6 @@ HEADERS := \
     rtapi/rtapi_exception.h \
     rtapi/rtapi_global.h \
     rtapi/rtapi_shmkeys.h \
-    rtapi/rtapi_io.h \
     rtapi/rtapi_errno.h \
     rtapi/rtapi_string.h \
     rtapi/rtapi_pci.h \
@@ -533,7 +531,11 @@ HEADERS := \
     rtapi/flavor/rt-preempt.h \
     rtapi/flavor/ulapi.h
 
-
+ifeq ($(HAS_SYS_IO),yes)
+    HEADERS += \
+		hal/lib/hal_parport.h \
+		rtapi/rtapi_io.h
+endif
 
 ## the "headers" target installs all the header files in ../include
 .PHONY: headers
