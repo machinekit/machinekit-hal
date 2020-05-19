@@ -2,10 +2,20 @@
 set -xe
 # Change to "mapfile -d ''" and "realpath -e -z" with multiline support after
 # Jessie is dropped
-HEADERS_DIRECTORY=$(readlink -f ../../include)
+HEADERS_DIRECTORY=$(readlink -f ../../../include)
 mapfile -t ARRAY_H_HH < <(find ${HEADERS_DIRECTORY} -type f \
     \( -iname \*.h -o -iname \*.hh \) -print0 | \
     xargs -0 -n1 -I '{}' readlink -f '{}')
+
+if (( ${#ARRAY_H_HH[@]} <= 5 )); then
+    printf "Found %d header files:\n===\n" ${#ARRAY_H_HH[@]}
+    for FILE in "${ARRAY_H_HH[@]}"
+    do
+        printf "FILE: %s\n" "$FILE"
+    done
+    printf "This seems too low number\n"
+    exit 2
+fi
 
 for HEADER in "${ARRAY_H_HH[@]}"
 do
