@@ -211,10 +211,10 @@ WAITLOOP:
 
 #else
 
-    SBBO    GState.GPIO0_CLR, State.GPIO0_CLR_ADDR, 0, 8    // Writes both CLR and SET registers
-    SBBO    GState.GPIO1_CLR, State.GPIO1_CLR_ADDR, 0, 8    // Writes both CLR and SET registers
-    SBBO    GState.GPIO2_CLR, State.GPIO2_CLR_ADDR, 0, 8    // Writes both CLR and SET registers
-    SBBO    GState.GPIO3_CLR, State.GPIO3_CLR_ADDR, 0, 8    // Writes both CLR and SET registers
+//    SBBO    GState.GPIO0_CLR, State.GPIO0_CLR_ADDR, 0, 8    // Writes both CLR and SET registers
+//    SBBO    GState.GPIO1_CLR, State.GPIO1_CLR_ADDR, 0, 8    // Writes both CLR and SET registers
+//    SBBO    GState.GPIO2_CLR, State.GPIO2_CLR_ADDR, 0, 8    // Writes both CLR and SET registers
+//    SBBO    GState.GPIO3_CLR, State.GPIO3_CLR_ADDR, 0, 8    // Writes both CLR and SET registers
 
 #endif
 

@@ -81,7 +81,8 @@
         eMODE_UP_DOWN   = 5,    // Not implemented yet!
         eMODE_DELTA_SIG = 6,
         eMODE_PWM       = 7,
-        eMODE_ENCODER   = 8
+        eMODE_ENCODER   = 8,
+        eMODE_PWM_READ  = 9
     } pru_task_mode_t;
 #endif
 
@@ -337,4 +338,30 @@
     typedef struct {
         PRU_task_header_t task;
     } PRU_task_wait_t;
+#endif
+
+//
+// PWM Read task
+//
+
+#ifndef _hal_pru_generic_H_
+    .struct pwm_read_state
+        .u32    HiTime
+        .u32    LoTime
+        .u32    CurTime
+        .u32    CurPinState
+        .u32    MaxTime
+        .u32    TimeIncr
+    .ends
+#else
+    typedef struct  {
+        PRU_task_header_t task;
+
+        u32     hiTime;
+        u32     loTime;
+        u32     curTime;
+        u32     curPinState;
+        u32     maxTime;
+        u32     timeIncr;
+    } PRU_task_pwmread_t;
 #endif

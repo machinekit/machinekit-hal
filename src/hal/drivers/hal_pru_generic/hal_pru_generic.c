@@ -4,10 +4,14 @@
 // generation and other functions of hopeful use to off-load timing     //
 // critical code from Machinekit HAL                                    //
 //                                                                      //
-// Author(s): Charles Steinkuehler                                      //
+// Author(s): Charles Steinkuehler, John Allwine                        //
 // License: GNU GPL Version 2.0 or (at your option) any later version.  //
 //                                                                      //
 // Major Changes:                                                       //
+// 2020-May    John Allwine                                             //
+//             Added support for Beaglebone AI                          //
+//             Made hal_pru_generic an instantiable HAL component       //
+//             Added PWM read task                                      //
 // 2013-May    Charles Steinkuehler                                     //
 //             Split into several files                                 //
 //             Added support for PRU task list                          //
@@ -19,10 +23,11 @@
 //               stepgen.c      John Kasunich                           //
 //               hostmot2 code  Sebastian Kuzminsky                     //
 //----------------------------------------------------------------------//
-// This file is part of Machinekit HAL                                  //
+// This file is part of MachineKit HAL                                  //
 //                                                                      //
 // Copyright (C) 2012  Charles Steinkuehler                             //
 //                     <charles AT steinkuehler DOT net>                //
+// Copyright (C) 2020 Pocket NC Company                                 //
 //                                                                      //
 // This program is free software; you can redistribute it and/or        //
 // modify it under the terms of the GNU General Public License          //
@@ -120,6 +125,9 @@ RTAPI_MP_INT(num_pwmgens, "Number of PWM outputs (default: 0)");
 
 static int num_encoders = 0;
 RTAPI_MP_INT(num_encoders, "Number of encoder channels (default: 0)");
+
+static int num_pwmreads = 0;
+RTAPI_MP_INT(num_pwmreads, "Number of PWM read channels (default: 0)");
 
 static char *halname = "hal_pru_generic";
 RTAPI_MP_STRING(halname, "Prefix for hal names (default: hal_pru_generic)");
@@ -224,6 +232,7 @@ int rtapi_app_main(void)
     hpg->config.num_pwmgens  = num_pwmgens;
     hpg->config.num_stepgens = num_stepgens;
     hpg->config.num_encoders = num_encoders;
+    hpg->config.num_pwmreads = num_pwmreads;
     hpg->config.comp_id      = comp_id;
     hpg->config.pru_period   = pru_period;
     hpg->config.name         = modname;
@@ -232,6 +241,7 @@ int rtapi_app_main(void)
     rtapi_print_msg(RTAPI_MSG_DBG, "num_pwmgens : %d\n",num_pwmgens);
     rtapi_print_msg(RTAPI_MSG_DBG, "num_stepgens: %d\n",num_stepgens);
     rtapi_print_msg(RTAPI_MSG_DBG, "num_encoders: %d\n",num_encoders);
+    rtapi_print_msg(RTAPI_MSG_DBG, "num_pwmreads: %d\n",num_pwmreads);
 
     if ((retval = setup_pru(pru, prucode, disabled, hpg))) {
         HPG_ERR("ERROR: failed to initialize PRU\n");
@@ -261,6 +271,13 @@ int rtapi_app_main(void)
         return -1;
     }
 
+    rtapi_print_msg(RTAPI_MSG_DBG, "Init pwmread\n");
+    if ((retval = hpg_pwmread_init(hpg))) {
+        HPG_ERR("ERROR: pwmread init failed: %d\n", retval);
+        hal_exit(comp_id);
+        return -1;
+    }
+
     if ((retval = hpg_wait_init(hpg))) {
         HPG_ERR("ERROR: global task init failed: %d\n", retval);
         hal_exit(comp_id);
@@ -276,6 +293,7 @@ int rtapi_app_main(void)
     hpg_stepgen_force_write(hpg);
     hpg_pwmgen_force_write(hpg);
     hpg_encoder_force_write(hpg);
+    hpg_pwmread_force_write(hpg);
     hpg_wait_force_write(hpg);
 
 //    rtapi_print_msg(RTAPI_MSG_DBG, "about to run setup_pru %d %s %d\n", pru, prucode, disabled);
@@ -308,6 +326,7 @@ static void hpg_read(void *void_hpg, long period) {
 
     hpg_stepgen_read(hpg, period);
     hpg_encoder_read(hpg, period);
+    hpg_pwmread_read(hpg);
 
 }
 
@@ -322,6 +341,7 @@ static void hpg_write(void *void_hpg, long period) {
     hpg_stepgen_update(hpg, period);
     hpg_pwmgen_update(hpg);
     hpg_encoder_update(hpg);
+    hpg_pwmread_update(hpg);
     hpg_wait_update(hpg);
 
 }

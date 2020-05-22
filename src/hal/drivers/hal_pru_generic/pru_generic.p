@@ -369,6 +369,7 @@ TASKTABLE:
     JMP     MODE_DELTA_SIG
     JMP     MODE_PWM
     JMP     MODE_ENCODER
+    JMP     MODE_PWM_READ
 TASKTABLEEND:
 
     JMP     START
@@ -381,6 +382,7 @@ TASKTABLEEND:
 #include "pru_deltasigma.p"
 #include "pru_pwm.p"
 #include "pru_encoder.p"
+#include "pru_pwmread.p"
 
 // BeagleBone PRU I/O Assignments
 //
