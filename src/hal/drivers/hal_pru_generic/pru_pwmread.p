@@ -52,13 +52,13 @@ MODE_PWM_READ:
     ADD State.CurTime, State.CurTime, State.TimeIncr
 
     // Read the pin
-    AND r0, r31, GTask.dataX
+    AND r0, r31, State.HiValue
 
     // If there's no change than continue
     QBEQ CHECK_MAX_TIME, r0, State.CurPinState
 
     // Otherwise, check if we're moving from hi to low or low to hi
-    QBEQ LO_TO_HI, r0, GTask.dataX
+    QBEQ LO_TO_HI, r0, State.HiValue
 
 // Hi to lo
     MOV State.HiTime, State.CurTime
@@ -69,7 +69,7 @@ MODE_PWM_READ:
 LO_TO_HI:
     MOV State.LoTime, State.CurTime
     LDI State.CurTime, 0
-    MOV State.CurPinState, GTask.dataX
+    MOV State.CurPinState, State.HiValue
 
 CHECK_MAX_TIME:
     QBLT PWM_READ_DONE, State.MaxTime, State.CurTime

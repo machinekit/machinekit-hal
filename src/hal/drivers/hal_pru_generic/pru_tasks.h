@@ -352,6 +352,7 @@
         .u32    CurPinState
         .u32    MaxTime
         .u32    TimeIncr
+        .u32    HiValue
     .ends
 #else
     typedef struct  {
@@ -363,5 +364,6 @@
         u32     curPinState;
         u32     maxTime;
         u32     timeIncr;
+        u32     hiValue;
     } PRU_task_pwmread_t;
 #endif

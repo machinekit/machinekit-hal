@@ -78,31 +78,31 @@ int export_pwmread(hal_pru_generic_t *hpg, int i)
 {
     int r;
 
-    r = hal_pin_float_newf(HAL_OUT, &(hpg->pwmread.instance[i].hal.frequency), hpg->config.comp_id, "%s.pwmread.%02d.frequency", hpg->config.halname, i);
+    r = hal_pin_float_newf(HAL_OUT, &(hpg->pwmread.instance[i].hal.frequency), hpg->config.inst_id, "%s.pwmread.%02d.frequency", hpg->config.halname, i);
     if(r < 0) {
       HPG_ERR("pwmread %02d: Error adding pin 'frequency', aborting\n", i);
       return r;
     }
 
-    r = hal_pin_float_newf(HAL_OUT, &(hpg->pwmread.instance[i].hal.duty_cycle), hpg->config.comp_id, "%s.pwmread.%02d.duty_cycle", hpg->config.halname, i);
+    r = hal_pin_float_newf(HAL_OUT, &(hpg->pwmread.instance[i].hal.duty_cycle), hpg->config.inst_id, "%s.pwmread.%02d.duty_cycle", hpg->config.halname, i);
     if(r < 0) {
       HPG_ERR("pwmread %02d: Error adding pin 'duty_cycle', aborting\n", i);
       return r;
     }
 
-    r = hal_pin_u32_newf(HAL_OUT, &(hpg->pwmread.instance[i].hal.period), hpg->config.comp_id, "%s.pwmread.%02d.period", hpg->config.halname, i);
+    r = hal_pin_u32_newf(HAL_OUT, &(hpg->pwmread.instance[i].hal.period), hpg->config.inst_id, "%s.pwmread.%02d.period", hpg->config.halname, i);
     if(r < 0) {
       HPG_ERR("pwmread %02d: Error adding pin 'period', aborting\n", i);
       return r;
     }
 
-    r = hal_pin_u32_newf(HAL_IN, &(hpg->pwmread.instance[i].hal.max_time), hpg->config.comp_id, "%s.pwmread.%02d.max_time", hpg->config.halname, i);
+    r = hal_pin_u32_newf(HAL_IN, &(hpg->pwmread.instance[i].hal.max_time), hpg->config.inst_id, "%s.pwmread.%02d.max_time", hpg->config.halname, i);
     if(r < 0) {
       HPG_ERR("pwmread %02d: Error adding pin 'max_time', aborting\n", i);
       return r;
     }
 
-    r = hal_pin_u32_newf(HAL_IN, &(hpg->pwmread.instance[i].hal.pin), hpg->config.comp_id, "%s.pwmread.%02d.pin", hpg->config.halname, i);
+    r = hal_pin_u32_newf(HAL_IN, &(hpg->pwmread.instance[i].hal.pin), hpg->config.inst_id, "%s.pwmread.%02d.pin", hpg->config.halname, i);
     if(r < 0) {
       HPG_ERR("pwmread %02d: Error adding pin 'pin', aborting\n", i);
       return r;
@@ -130,8 +130,7 @@ rtapi_print("hpg_pwmread_init\n");
     hpg->pwmread.num_instances = hpg->config.num_pwmreads;
     hpg->pwmread.instance = (hpg_pwmread_instance_t *)hal_malloc(sizeof(hpg_pwmread_instance_t)*hpg->pwmread.num_instances);
     if(hpg->pwmread.instance == 0) {
-      rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: hal_malloc() failed\n", hpg->config.name);
-      hal_exit(hpg->config.comp_id);
+      rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: hal_malloc() failed\n", hpg->config.halname);
       return -1;
     }
     memset(hpg->pwmread.instance, 0, (sizeof(hpg_pwmread_instance_t)*hpg->pwmread.num_instances));
@@ -140,7 +139,7 @@ rtapi_print("hpg_pwmread_init\n");
       hpg->pwmread.instance[i].pru.task.hdr.mode = eMODE_PWM_READ;
       pru_task_add(hpg, &(hpg->pwmread.instance[i].task));
       if((r = export_pwmread(hpg,i)) != 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: failed to export pwmread %i: %i\n", hpg->config.name, i, r);
+        rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: failed to export pwmread %i: %i\n", hpg->config.halname, i, r);
         return -1;
       }
     }
@@ -156,13 +155,13 @@ void hpg_pwmread_update(hal_pru_generic_t *hpg) {
     for (i = 0; i < hpg->pwmread.num_instances; i ++) {
       if((*(hpg->pwmread.instance[i].hal.pin) != hpg->pwmread.instance[i].written_pin) ||
          (*(hpg->pwmread.instance[i].hal.max_time) != hpg->pwmread.instance[i].written_max_time)) {
-        hpg->pwmread.instance[i].pru.task.hdr.dataX = 1 << (fixup_pin(*(hpg->pwmread.instance[i].hal.pin)) & 0x1f);
+        hpg->pwmread.instance[i].pru.hiValue = 1 << (fixup_pin(*(hpg->pwmread.instance[i].hal.pin)) & 0x1f);
         hpg->pwmread.instance[i].pru.maxTime = *(hpg->pwmread.instance[i].hal.max_time);
         hpg->pwmread.instance[i].written_pin = *(hpg->pwmread.instance[i].hal.pin);
         hpg->pwmread.instance[i].written_max_time = *(hpg->pwmread.instance[i].hal.max_time);
 
         PRU_task_pwmread_t *pru = (PRU_task_pwmread_t*)((u32)hpg->pru_data+(u32)hpg->pwmread.instance[i].task.addr);
-        pru->task.hdr.dataX = hpg->pwmread.instance[i].pru.task.hdr.dataX;
+        pru->hiValue = hpg->pwmread.instance[i].pru.hiValue;
         pru->maxTime = hpg->pwmread.instance[i].pru.maxTime;
       }
     }
@@ -183,7 +182,7 @@ void hpg_pwmread_force_write(hal_pru_generic_t *hpg) {
         // Global data common to all channels
         hpg->pwmread.instance[i].pru.task.hdr.mode  = eMODE_PWM_READ;
         hpg->pwmread.instance[i].pru.task.hdr.len   = 0;
-        hpg->pwmread.instance[i].pru.task.hdr.dataX = 1 << (fixup_pin(*(hpg->pwmread.instance[i].hal.pin)) & 0x1f);
+        hpg->pwmread.instance[i].pru.task.hdr.dataX = 0x00;
         hpg->pwmread.instance[i].pru.task.hdr.dataY = 0x00;
         hpg->pwmread.instance[i].pru.task.hdr.addr  = hpg->pwmread.instance[i].task.next;
 
@@ -193,11 +192,12 @@ void hpg_pwmread_force_write(hal_pru_generic_t *hpg) {
         hpg->pwmread.instance[i].pru.curPinState = 0;
         hpg->pwmread.instance[i].pru.maxTime = *(hpg->pwmread.instance[i].hal.max_time);
         hpg->pwmread.instance[i].pru.timeIncr = hpg->config.pru_period;
+        hpg->pwmread.instance[i].pru.hiValue = 1 << (fixup_pin(*(hpg->pwmread.instance[i].hal.pin)) & 0x1f);
 
         *pru = hpg->pwmread.instance[i].pru;
 
         hpg->pwmread.instance[i].written_max_time = hpg->pwmread.instance[i].pru.maxTime;
-        hpg->pwmread.instance[i].written_pin = hpg->pwmread.instance[i].pru.task.hdr.dataX;
+        hpg->pwmread.instance[i].written_pin = *(hpg->pwmread.instance[i].hal.pin);
     }
 
     // Call the regular update routine to finish up
