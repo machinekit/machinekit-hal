@@ -59,7 +59,6 @@ env:
     # - Reduce total build time by starting longest jobs first
     - TAG=amd64_10   CMD=test
     - TAG=amd64_9    CMD=test
-    - TAG=amd64_8    CMD=test
     # Packages
     # - Buster
     - TAG=amd64_10    CMD=deb
@@ -71,10 +70,6 @@ env:
     - TAG=arm64_9    CMD=deb
     - TAG=i386_9     CMD=deb
     - TAG=armhf_9    CMD=deb
-    # - Jessie (no arm64)
-    - TAG=amd64_8    CMD=deb
-    - TAG=i386_8     CMD=deb
-    - TAG=armhf_8    CMD=deb
 
 addons:
   apt:

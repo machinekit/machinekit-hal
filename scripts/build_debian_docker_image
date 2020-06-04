@@ -80,11 +80,6 @@ esac
 
 # - Distro settings
 case "${CACHE_TAG}" in
-    *_8)
-        DISTRO_CODENAME="jessie"
-        BASE_IMAGE="debian:jessie"
-        DISTRO_VER="8"
-        ;;
     *_9)
         DISTRO_CODENAME="stretch"
         BASE_IMAGE="debian:stretch"
@@ -104,11 +99,6 @@ case "${CACHE_TAG}" in
         usage "Unknown tag '${CACHE_TAG}'"
         ;;
 esac
-
-# Error out if user wants to build forbidden combiantion
-if ([ "$DISTRO_CODENAME" == "jessie" ] && [ "$DEBIAN_ARCH" == "arm64" ]); then
-    usage "Forbidden combination of '${DEBIAN_ARCH}_${DISTRO_VER}'"
-fi
 
 if test $TARGET = lcncbuilder; then
     # For LCNC image, check exactly one of each mk-hal{,-dev} pkgs exists

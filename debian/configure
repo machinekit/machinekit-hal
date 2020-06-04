@@ -9,7 +9,7 @@
 # This should run on non-Debian distros; lsb_release is only used for
 # TCL/TK version detection, which can be passed in through the '-t
 # VERSION' switch
-DISTRO_CODENAME=$(lsb_release -cs) # jessie | stretch | buster
+DISTRO_CODENAME=$(lsb_release -cs) # stretch | buster
 
 # Work out of the debian/ directory
 cd "$(dirname $0)"
@@ -99,9 +99,6 @@ case "$DISTRO_CODENAME" in
     stretch|sid)
         DEPS+=", python-gtksourceview2"
         BUILD_DEPS+=', libck-dev'
-        ;;
-    jessie)
-        DEPS+=", python-gtksourceview2"
         ;;
     *)
         DEPS+=", python-gtksourceview2"

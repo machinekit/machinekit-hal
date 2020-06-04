@@ -129,12 +129,7 @@ RUN apt-get install -y \
     && apt-get clean
 
 # - amd64 -> i386 multiarch/multilib compiles
-RUN if test $DISTRO_VER -eq 8; then \
-        apt-get install -y \
-	    binutils-i586-linux-gnu \
-	    gcc-4.9-multilib \
-	    g++-4.9-multilib; \
-    elif test $DISTRO_VER -eq 9; then \
+RUN if test $DISTRO_VER -eq 9; then \
         apt-get install -y \
 	    binutils-multiarch \
 	    gcc-6-multilib \
@@ -146,28 +141,6 @@ RUN if test $DISTRO_VER -eq 8; then \
 	    gcc-8-multilib \
 	    g++-8-multilib \
 	    libgcc-8-dev:$DEBIAN_ARCH; \
-    fi
-
-# - Linaro gcc cross compiler for armhf, Jessie only
-RUN if test $DISTRO_VER -eq 8; then \
-        VER=4.9.4-2017.01 && \
-        ARCH=arm-linux-gnueabihf && \
-        DIR=gcc-linaro-${VER}-x86_64_${ARCH} && \
-        TXZ=${DIR}.tar.xz && \
-        URI=http://releases.linaro.org/components/toolchain/binaries/latest-4/${ARCH} && \
-        WORKD=/tmp/linaro && \
-        mkdir -p ${WORKD} && cd ${WORKD} && \
-        echo "Downloading gcc-linaro-${VER}" && \
-        wget --progress=dot:mega ${URI}/${TXZ} && \
-        wget -q ${URI}/${TXZ}.asc && \
-        echo "Validating checksum of compiler download" && \
-        md5sum -c ${TXZ}.asc && \
-        echo "Extracting compiler to /opt/" && \
-        tar xCf /opt ${WORKD}/${TXZ} && \
-        ln -snf ${DIR} /opt/gcc-linaro-hf && \
-        rm -rf ${WORKD} && \
-        ln -s ../../bin/ccache /usr/lib/ccache/arm-linux-gnueabihf-gcc && \
-        ln -s ../../bin/ccache /usr/lib/ccache/arm-linux-gnueabihf-g++ ; \
     fi
 
 # - Qemu for emulating ARM on amd64
@@ -216,11 +189,6 @@ RUN test -z "$SYS_ROOT" \
         && echo '/lib/aarch64-linux-gnu\n/usr/lib/aarch64-linux-gnu' > \
 	    /etc/ld.so.conf.d/aarch64-linux-gnu.conf; \
     }
-# Symlink i586 binutils to i386 so ./configure can find them
-RUN test $DISTRO_VER -gt 8 || \
-    for i in /usr/bin/i586-linux-gnu-*; do \
-	ln -s $(basename $i) $(echo $i | sed 's/i586/i386/'); \
-    done
 # Give dh_strip the multiarch utility names it needs
 RUN test $DISTRO_VER -eq 8 || { \
         ln -s x86_64-linux-gnu-objcopy /usr/bin/i686-linux-gnu-objcopy && \
@@ -228,10 +196,6 @@ RUN test $DISTRO_VER -eq 8 || { \
         ln -s x86_64-linux-gnu-strip /usr/bin/i686-linux-gnu-strip; \
     }
 
-# Symlink armhf-arch pkg-config, Jessie only
-RUN if test $DISTRO_VER -eq 8; then \
-        ln -s pkg-config /usr/bin/${ARM_HOST_MULTIARCH}-pkg-config; \
-    fi
 
 ###################################################################
 # Machinekit:  Configure apt
@@ -245,11 +209,6 @@ RUN curl -1sLf \
 ###################################################################
 # Machinekit:  Install dependency packages
 
-# Xenomai threads still supported on Jessie
-RUN if test $DISTRO_CODENAME = jessie -a -z "$SYS_ROOT"; then \
-        apt-get install -y libxenomai-dev \
-        && apt-get clean; \
-    fi
 
 ##############################
 # Machinekit:  Configure multistrap
@@ -263,12 +222,8 @@ RUN mkdir /tmp/debs && \
     touch /tmp/debs/Sources
 
 # Create deps package and local package repo
-RUN if test $DISTRO_VER -eq 8; then \
-        mk-build-deps --arch $DEBIAN_ARCH /tmp/debian/control; \
-    else \
-        mk-build-deps --build-arch $DEBIAN_ARCH --host-arch $DEBIAN_ARCH \
-	    /tmp/debian/control; \
-    fi \
+RUN mk-build-deps --build-arch $DEBIAN_ARCH --host-arch $DEBIAN_ARCH \
+	/tmp/debian/control \
     && mv *.deb /tmp/debs \
     && ( cd /tmp/debs && dpkg-scanpackages -m . > /tmp/debs/Packages )
 
@@ -320,7 +275,6 @@ RUN test -z "$SYS_ROOT" \
     }
 
 # - Link directories with glib/gtk includes in the wrong place
-#   Only needed on Jessie?
 RUN test -z "$SYS_ROOT" \
     || { \
         mkdir -p /usr/lib/${HOST_MULTIARCH} && \
@@ -329,10 +283,6 @@ RUN test -z "$SYS_ROOT" \
 	ln -s $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/gtk-2.0 \
 	    /usr/lib/${HOST_MULTIARCH}; \
     }
-
-# - Link `xeno-config` to where autoconf can find it
-RUN test -z "$SYS_ROOT" -o $DISTRO_VER -gt 8 || \
-    ln -s /sysroot/usr/bin/xeno-config /usr/bin/
 
 ##############################
 # Machinekit:  Build arch build environment

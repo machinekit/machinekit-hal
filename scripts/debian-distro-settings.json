@@ -31,11 +31,6 @@
     ],
     "osVersions": [
         {
-            "DISTRO_CODENAME": "jessie",
-            "BASE_IMAGE": "debian:jessie",
-            "DISTRO_VER": 8
-        },
-        {
             "DISTRO_CODENAME": "stretch",
             "BASE_IMAGE": "debian:stretch",
             "DISTRO_VER": 9
@@ -53,10 +48,6 @@
     ],
     "allowedCombinations": [
         {
-            "osVersionNumber": 8,
-            "architecture": "i386"
-        },
-        {
             "osVersionNumber": 9,
             "architecture": "i386"
         },
@@ -65,20 +56,12 @@
             "architecture": "i386"
         },
         {
-            "osVersionNumber": 8,
-            "architecture": "amd64"
-        },
-        {
             "osVersionNumber": 9,
             "architecture": "amd64"
         },
         {
             "osVersionNumber": 10,
             "architecture": "amd64"
-        },
-        {
-            "osVersionNumber": 8,
-            "architecture": "armhf"
         },
         {
             "osVersionNumber": 9,

@@ -18,7 +18,6 @@ SOURCE_DIR=$(readlink -f $(dirname ${0})/..)
 test ${TRAVIS_PULL_REQUEST:-false} = false && IS_PR=false || IS_PR=true
 
 case $TAG in
-    *_8) DISTRO=jessie ;;
     *_9) DISTRO=stretch ;;
     *_10) DISTRO=buster ;;
 esac

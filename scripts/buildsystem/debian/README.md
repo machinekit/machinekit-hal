@@ -11,7 +11,7 @@ contains needed dependencies and tools in the root filesystem.
 - Determine `$TAG` for the desired architecture and distro
   combination.  The format is `$ARCH_$DISTRO`, where `$ARCH` may be
   one of `amd64`, `i386`, `armhf`, `arm64`; `$DISTRO` may be one of
-  `8` for Jessie, `9` for Stretch, `10` for Buster;
+  `9` for Stretch or `10` for Buster;
   e.g. `TAG=armhf_10`.
 
 - To build Machinekit in a Docker container with cross-build tools,
@@ -20,8 +20,8 @@ contains needed dependencies and tools in the root filesystem.
         # Build source and binary packages for $TAG
 		scripts/build_docker -t $TAG -c deb
 
-		# Build amd64 binary-only packages (no source) for Jessie
-		scripts/build_docker -t amd64_8 -c deb -n
+		# Build amd64 binary-only packages (no source) for Buster
+		scripts/build_docker -t amd64_10 -c deb -n
 
 		# Build amd64_10 (default) RIP build with regression tests
 		scripts/build_docker -c test
