@@ -70,8 +70,8 @@ build-stamp: debian/control
 	cd src && ./autogen.sh
 	cd src && env $(COMPILE_ENV) \
 	    ./configure --prefix=/usr \
-	    --build=$(DEB_BUILD_MULTIARCH) \
-	    --host=$(DEB_HOST_MULTIARCH) \
+	    --build=$(DEB_BUILD_GNU_TYPE) \
+	    --host=$(DEB_HOST_GNU_TYPE) \
 	    --sysconfdir=/etc
 	cd src && $(MAKE) $(COMPILE_ENV) $(MAKEFLAGS) V=$(DH_VERBOSE)
 	touch build-stamp
@@ -87,8 +87,8 @@ ifneq ($(wildcard src/configure src/Makefile.inc),)
 	cd src && ./autogen.sh
 	cd src && env $(COMPILE_ENV) \
 	    ./configure --prefix=/usr \
-	    --build=$(DEB_BUILD_MULTIARCH) \
-	    --host=$(DEB_HOST_MULTIARCH) \
+	    --build=$(DEB_BUILD_GNU_TYPE) \
+	    --host=$(DEB_HOST_GNU_TYPE) \
 	    --sysconfdir=/etc
 	cd src && $(MAKE) clean -s
 #	# Manually remove things left by './configure'
