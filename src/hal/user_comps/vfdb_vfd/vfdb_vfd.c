@@ -119,6 +119,7 @@
 /* HAL data struct */
 typedef struct {
     hal_s32_t   *error_code;
+    hal_s32_t   *warning_code;
     hal_s32_t 	*status;
     hal_float_t	*freq_cmd;	// frequency command
     hal_float_t	*freq_out;	// actual output frequency
@@ -182,6 +183,25 @@ typedef struct params {
     int motor_hz;  // rated frequency of the motor
     int motor_rpm;  // rated speed of the motor
 } params_type, *param_pointer;
+
+typedef struct {
+  uint8_t warningCode;
+  uint8_t errorCode;
+  uint16_t status;
+  uint16_t frequencyCommand;
+  uint16_t outputFrequency;
+  uint16_t outputCurrent;
+  uint16_t busVoltage;
+  uint16_t outputVoltage;
+  uint16_t currentStepNumber;
+  uint16_t reserved1;
+  uint16_t powerFactorAngle;
+  uint16_t outputTorque;
+  uint16_t actualMotorSpeed;
+  uint16_t numberOfPGFeedbackPulses;
+  uint16_t numberofPG2PulseCommands;
+  uint16_t powerOutput;
+} vfd_data_t;
 
 // default options; read from inifile or command line
 static params_type param = {
@@ -504,8 +524,8 @@ int read_initial(modbus_t *ctx, haldata_t *haldata, param_pointer p)
 int read_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
 {
     int retval;
-    uint16_t curr_reg, val, status_reg, freq_reg;
-    static int pollcount = 0;
+    uint16_t curr_reg /*, val, status_reg, freq_reg */;
+//    static int pollcount = 0;
 
     if (!p->read_initial_done) {
         if ((retval = read_initial(ctx, haldata, p))) {
@@ -515,6 +535,40 @@ int read_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
             p->read_initial_done = 1;
         }
     }
+
+    vfd_data_t data;
+
+    curr_reg = 0x2100;
+    if (modbus_read_registers(ctx, 0x2100, 16, (uint16_t*)&data) != 16) {
+      goto failed;
+    }
+    *(haldata->error_code) = data.errorCode;
+    *(haldata->warning_code) = data.warningCode;
+    *(haldata->status) = data.status;
+    *(haldata->freq_out) = data.outputFrequency * 0.01;
+    *(haldata->is_stopped) = (data.outputFrequency == 0);
+    if (data.status == ST_EMERGENCY_STOPPED) {	// set e-stop status.
+        *(haldata->is_e_stopped) = 1;
+    } else {
+        *(haldata->is_e_stopped) = 0;
+    }
+    *(haldata->torque_ratio) = data.outputTorque;
+//    *(haldata->RPM) = data.actualMotorSpeed;
+//    *(haldata->RPS) = data.actualMotorSpeed/60.0;
+    *(haldata->RPM) = data.outputFrequency * .01 * 60;
+    *(haldata->RPS) = *(haldata->RPM)/60.0;
+    *(haldata->output_current) =  data.outputCurrent * 0.1;
+    *(haldata->output_volt) =  data.outputVoltage * 0.1;
+    {
+        float speed_error;
+        speed_error = (*haldata->RPM / *haldata->speed_command) - 1.0;
+        if (rtapi_fabs(speed_error) > haldata->speed_tolerance) {
+            *haldata->at_speed = 0;
+        } else {
+            *haldata->at_speed = 1;
+        }
+    }
+/*
 
     GETREG(SR_ERROR_CODE, &curr_reg);
     *(haldata->error_code) = curr_reg;
@@ -572,6 +626,7 @@ int read_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
 
     if (pollcount >= p->pollcycles)
         pollcount = 0;
+        */
 
     p->last_errno = retval = 0;
     return 0;
@@ -617,6 +672,7 @@ int hal_setup(int id, haldata_t *h, const char *name)
     PIN(hal_pin_float_newf(HAL_IN, &(h->speed_command), id, "%s.speed-command", name));
     PIN(hal_pin_bit_newf(HAL_IN, &(h->spindle_on), id, "%s.spindle-on", name));
     PIN(hal_pin_s32_newf(HAL_OUT, &(h->error_code), id, "%s.error-code", name));
+    PIN(hal_pin_s32_newf(HAL_OUT, &(h->warning_code), id, "%s.warning-code", name));
     PIN(hal_pin_s32_newf(HAL_OUT, &(h->status), id, "%s.status", name));
     PIN(hal_pin_bit_newf(HAL_IN, &(h->max_speed), id, "%s.max-speed", name));
     PIN(hal_pin_s32_newf(HAL_OUT, &(h->errorcount), id, "%s.error-count", name));
