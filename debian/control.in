@@ -7,7 +7,7 @@ Maintainer: MachinekitBot <machinekitATeryafDOTcom>
 # Otherwise the dpkg-checkbuilddeps will reject such dependency with :native
 # as invalid, ergo autoconf:native (not) vs python:native
 Build-Depends: 
-    debhelper (>= 6),
+    debhelper (>= 10),
     autoconf (>= 2.63),
     automake,
     libgl1-mesa-dev,
