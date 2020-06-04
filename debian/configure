@@ -93,16 +93,15 @@ DEPS=        # List of Depends
 ## copy base templates into place
 
 case "$DISTRO_CODENAME" in
-    buster|bullseye)
-        BUILD_DEPS+=', libck-dev'
+    buster)
+        BUILD_DEPS+=",libck-dev"
         ;;
-    stretch|sid)
-        DEPS+=", python-gtksourceview2"
-        BUILD_DEPS+=', libck-dev'
+    bullseye)
+        BUILD_DEPS+=",libck-dev"
         ;;
-    *)
+    stretch)
         DEPS+=", python-gtksourceview2"
-        BUILD_DEPS+=', libck-dev'
+        BUILD_DEPS+=", libck-dev"
         ;;
 esac
 
