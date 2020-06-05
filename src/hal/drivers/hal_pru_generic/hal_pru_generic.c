@@ -153,6 +153,7 @@ static hpg_board_t board_id = BBB;
 /***********************************************************************
 *                   STRUCTURES AND GLOBAL VARIABLES                    *
 ************************************************************************/
+static int activePRUs[4] = { 0, 0, 0, 0 };
 
 static tprussdrv *pruss;                // driver descriptor
 
@@ -324,7 +325,11 @@ int rtapi_app_main(void) {
 }
 
 void rtapi_app_exit(void) {
-    pru_shutdown(pru);
+    for(int i = 0; i < sizeof(activePRUs)/sizeof(int); i++) {
+      if(activePRUs[i]) {
+        pru_shutdown(i);
+      }
+    }
     hal_exit(comp_id);
 }
 
@@ -626,6 +631,7 @@ int remoteproc_copy_firmware(int pru, char* filename) {
 
 
 int setup_pru(int pru, char *filename, int disabled, hal_pru_generic_t *hpg) {
+    activePRUs[pru] = 1;
 
     int retval;
 
