@@ -82,7 +82,8 @@
         eMODE_DELTA_SIG = 6,
         eMODE_PWM       = 7,
         eMODE_ENCODER   = 8,
-        eMODE_PWM_READ  = 9
+        eMODE_PWM_READ  = 9,
+        eMODE_WAIT_ECAP = 10
     } pru_task_mode_t;
 #endif
 

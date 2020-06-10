@@ -7,6 +7,9 @@
 // License: GNU GPL Version 2.0 or (at your option) any later version.  //
 //                                                                      //
 // Major Changes:                                                       //
+// 2020-Jun    John Allwine                                             //
+//             Made hal_pru_generic instantiable for use on multiple    //
+//             PRUs.                                                    //
 // 2020-Apr    John Allwine                                             //
 //             Added support for Beaglebone AI                          //
 // 2015-Apr    Charles Steinkuehler                                     //
@@ -185,71 +188,94 @@ INITIALIZELOOP:
     ADD r0, r0, 1
     QBLT INITIALIZELOOP, r1, r0 // waits roughly 3 seconds so we have time to load tasks into memory
 #endif
+    MOV     GState.Task_Addr, PRU_DATA_START
+    LBBO    r1, GState.Task_Addr, OFFSET(pru_statics.len), SIZE(pru_statics.len)       // which pru are we running on
+    LBBO    r2, GState.Task_Addr, OFFSET(pru_statics.period), SIZE(pru_statics.period) // what is the period to use in the timers
+    
+    QBBC INIT_IEPTIMER, r1, 0 // If the PRU is odd, initialize the ECAP timer. If even, initialize the IEP timer.
+    // Setup ECAP Timer
+    // Used for odd PRU numbers (see pru_wait_ecap.p)
+    LDI r0, 0
+    SBCO r0, CONST_ECAP, 0x28, 2 // clear ECCTL1 register
+    SBCO r0, CONST_ECAP, 0x2A, 2 // clear ECCTL2 register
+    SBCO r0, CONST_ECAP, 0x00, 4 // clear counter
+    SBCO r0, CONST_ECAP, 0x04, 4 // clear counter phase
 
+    SBCO r2, CONST_ECAP, 0x08, 4 // set ecap period
+    SBCO r2, CONST_ECAP, 0x10, 4 // set ecap period (shadow)
+    LDI  r0, 0x40
+    SBCO r0, CONST_ECAP, 0x2C, 2 // set trigger when count = period mode
+    LDI  r0, ((1 << 9) | (1 << 4)) 
+    SBCO r0, CONST_ECAP, 0x2A, 2 // turn on APWM mode (reset count after period), free counting mode
+    JMP DONE_TIMER_INIT
+
+INIT_IEPTIMER:
 #ifdef BBAI
     // Setup IEP Timer
+    // Used for even PRU numbers (see pru_wait.p)
     // http://www.ti.com/lit/ug/spruhz6l/spruhz6l.pdf
     // Section 30.1.11.2.2.3 PRU-ICSS Industrial Ethernet Timer Basic Programming Sequence
 
     // 1. Initialize timer to known state (default values)
 
     // Disable counter
-    LBCO r6, C26, 0x0, 4
+    LBCO r6, CONST_IEP, 0x0, 4
     CLR r6, 0
-    SBCO r6, C26, 0x0, 4
+    SBCO r6, CONST_IEP, 0x0, 4
 
     // Reset Count Register
     MOV r0, 0xffffffff
-    SBCO r0, C26, 0x10, 4
-    SBCO r0, C26, 0x14, 4
+    SBCO r0, CONST_IEP, 0x10, 4
+    SBCO r0, CONST_IEP, 0x14, 4
 
     // Clear overflow status register
-    LBCO r1, C26, 0x04, 4
+    LBCO r1, CONST_IEP, 0x04, 4
     SET r1, 0
-    SBCO r1, C26, 0x04, 4
+    SBCO r1, CONST_IEP, 0x04, 4
 
     // Clear compare status
-    SBCO r0, C26, 0x74, 4
+    SBCO r0, CONST_IEP, 0x74, 4
 
     // 2. Set compare values
     // Use Task_Addr to point to static variables during init
-    MOV     GState.Task_Addr, PRU_DATA_START
     // Load loop period from static variables into CMP0
-    LBBO    r8, GState.Task_Addr, OFFSET(pru_statics.period), SIZE(pru_statics.period)
-    SBCO r8, C26, 0x78, 4
+    SBCO r2, CONST_IEP, 0x78, 4
     LDI r1, 0
-    SBCO r1, C26, 0x7C, 4
+    SBCO r1, CONST_IEP, 0x7C, 4
 
     // 3. Enable compare events
-    LBCO r1, C26, 0x70, 4
+    LBCO r1, CONST_IEP, 0x70, 4
     OR r1, r1, 0x03
-    SBCO r1, C26, 0x70, 4
+    SBCO r1, CONST_IEP, 0x70, 4
 
     // 4. Set increment value
-    OR r6, r6, 0x50
-    SBCO r6, C26, 0x0, 4
+    CLR r6, r6, 7
+    CLR r6, r6, 6
+    CLR r6, r6, 5
+    SET r6, r6, 4 // set increment to 1
+    SBCO r6, CONST_IEP, 0x0, 4
 
     // 5. Set compensation value
     LDI r1, 0
-    SBCO r1, C26, 0x08, 4
-    SBCO r1, C26, 0x0C, 4
+    SBCO r1, CONST_IEP, 0x08, 4
+    SBCO r1, CONST_IEP, 0x0C, 4
 
     // 6. Enable counter
     SET r6, 0
-    SBCO r6, C26, 0x0, 4
+    SBCO r6, CONST_IEP, 0x0, 4
 #else
     // Setup IEP timer
     LBCO    r6, CONST_IEP, 0x40, 40                 // Read all 10 32-bit CMP registers into r6-r15
     OR      r6, r6, 0x03                            // Set count reset and enable compare 0 event
-    MOV     GState.Task_Addr, PRU_DATA_START
     // Load loop period from static variables into CMP0
     LBBO    r8, GState.Task_Addr, OFFSET(pru_statics.period), SIZE(pru_statics.period)
 
     SBCO    r6, CONST_IEP, 0x40, 40                 // Save 10 32-bit CMP registers
-    MOV     r2, 0x00000551                          // Enable counter, configured to count nS (increments by 5 each clock)
+    MOV     r2, 0x00000111                          // Enable counter, configured to count instructions (increments by 1 each clock, to represent 5 ns)
     SBCO    r2, CONST_IEP, 0x00, 4                  // Save IEP GLOBAL_CFG register
 
 #endif
+DONE_TIMER_INIT:
 
     // Setup registers
 
@@ -370,6 +396,7 @@ TASKTABLE:
     JMP     MODE_PWM
     JMP     MODE_ENCODER
     JMP     MODE_PWM_READ
+    JMP     MODE_WAIT_ECAP
 TASKTABLEEND:
 
     JMP     START
@@ -383,6 +410,7 @@ TASKTABLEEND:
 #include "pru_pwm.p"
 #include "pru_encoder.p"
 #include "pru_pwmread.p"
+#include "pru_wait_ecap.p"
 
 // BeagleBone PRU I/O Assignments
 //

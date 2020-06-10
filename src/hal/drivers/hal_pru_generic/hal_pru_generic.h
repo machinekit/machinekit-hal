@@ -336,6 +336,7 @@ typedef struct {
         int comp_id;
         int inst_id;
         char halname[10];
+        int pruNumber;
     } config;
 
     struct {

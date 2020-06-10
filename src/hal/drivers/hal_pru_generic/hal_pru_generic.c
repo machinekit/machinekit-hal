@@ -220,14 +220,6 @@ static int instantiate_hal_pru_generic(const int argc, char* const *argv) {
     // Clear memory
     memset(hpg, 0, sizeof(hal_pru_generic_t));
 
-    // Initialize PRU and map PRU data memory
-
-    if ((retval = pru_init_hpg(pru, prucode, disabled, hpg))) {
-        HPG_ERR("ERROR: failed to initialize PRU hpg\n");
-        return -1;
-    }
-
-
     // Setup global state
     hpg->config.num_pwmgens  = num_pwmgens;
     hpg->config.num_stepgens = num_stepgens;
@@ -236,7 +228,15 @@ static int instantiate_hal_pru_generic(const int argc, char* const *argv) {
     hpg->config.comp_id      = comp_id;
     hpg->config.inst_id      = inst_id;
     hpg->config.pru_period   = pru_period;
+    hpg->config.pruNumber = pru;
     strncpy(hpg->config.halname, argv[1], 10);
+
+    // Initialize PRU and map PRU data memory
+
+    if ((retval = pru_init_hpg(pru, prucode, disabled, hpg))) {
+        HPG_ERR("ERROR: failed to initialize PRU hpg\n");
+        return -1;
+    }
 
     rtapi_print_msg(RTAPI_MSG_DBG, "num_pwmgens : %d\n",num_pwmgens);
     rtapi_print_msg(RTAPI_MSG_DBG, "num_stepgens: %d\n",num_stepgens);
@@ -562,10 +562,10 @@ rtapi_print_msg(RTAPI_MSG_DBG, "PRU data ram mapped\n");
     hpg->pru_data_free = hpg->pru_stat_addr + sizeof(PRU_statics_t);
 
     // Setup PRU globals
+    hpg->pru_stat.task.hdr.len = pru;
     hpg->pru_stat.task.hdr.dataX = 0xAB;
     hpg->pru_stat.task.hdr.dataY = 0xFE;
-    hpg->pru_stat.period = pru_period;
-    hpg->config.pru_period = pru_period;
+    hpg->pru_stat.period = hpg->config.pru_period/5;
 
     PRU_statics_t *stat = (PRU_statics_t *) ((u32) hpg->pru_data + (u32) hpg->pru_stat_addr);
     *stat = hpg->pru_stat;
@@ -777,7 +777,11 @@ int hpg_wait_init(hal_pru_generic_t *hpg) {
 }
 
 void hpg_wait_force_write(hal_pru_generic_t *hpg) {
-    hpg->wait.pru.task.hdr.mode = eMODE_WAIT;
+    if(hpg->config.pruNumber % 2) {
+      hpg->wait.pru.task.hdr.mode = eMODE_WAIT_ECAP;
+    } else {
+      hpg->wait.pru.task.hdr.mode = eMODE_WAIT;
+    }
     hpg->wait.pru.task.hdr.dataX = *(hpg->hal.pin.pru_busy_pin);
     hpg->wait.pru.task.hdr.dataY = 0x00;
     hpg->wait.pru.task.hdr.addr = hpg->wait.task.next;

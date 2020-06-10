@@ -1,5 +1,5 @@
 //----------------------------------------------------------------------//
-// Description: pru.wait.p                                              //
+// Description: pru_wait_ecap.p                                         //
 // PRU code implementing the wait task, delaying execution until the    //
 // next "timer tick" and updating the PRU and GPIO outputs              //
 //                                                                      //
@@ -7,6 +7,8 @@
 // License: GNU GPL Version 2.0 or (at your option) any later version.  //
 //                                                                      //
 // Major Changes:                                                       //
+// 2020-Jun    John Allwine                                             //
+//             Added pru_wait_ecap.p for timers on odd PRU numbers      //
 // 2015-Apr    Charles Steinkuehler                                     //
 //             Merge DECAMUX support                                    //
 // 2013-May    Charles Steinkuehler                                     //
@@ -16,7 +18,7 @@
 // 2012-Dec-27 Charles Steinkuehler                                     //
 //             Initial version                                          //
 //----------------------------------------------------------------------//
-// This file is part of Machinekit HAL                                  //
+// This file is part of MachineKit HAL                                  //
 //                                                                      //
 // Copyright (C) 2013  Charles Steinkuehler                             //
 //                     <charles AT steinkuehler DOT net>                //
@@ -45,14 +47,14 @@
 // codes, and the authors of this software can not, and do not, take    //
 // any responsibility for such compliance.                              //
 //                                                                      //
-// This code is part of the Machinekit HAL project.  For more           //
-// information, go to https://github.com/machinekit.                    //
+// This code was written as part of the MachineKit project.  For more   //
+// information, go to www.machinekit.io.                                //
 //----------------------------------------------------------------------//
 
-MODE_WAIT:
-.enter WAIT_SCOPE
+MODE_WAIT_ECAP:
+.enter WAIT_SCOPE_ECAP
 
-.struct wait_state
+.struct wait_state_ecap
     .u32    GPIO0_Clr_Addr
     .u32    GPIO1_Clr_Addr
     .u32    GPIO2_Clr_Addr
@@ -67,30 +69,30 @@ MODE_WAIT:
    .u16     GPIO1_Mask
 .ends
 
-.struct pepper1_shadow
+.struct pepper1_shadow_ecap
    .u32     GPIO01
 .ends
 
-.struct pepper2_shadow
+.struct pepper2_shadow_ecap
    .u32     GPIO01
 .ends
 
-.struct pepper_masks
+.struct pepper_masks_ecap
    .u32     Masks
 #endif
 
 .ends
 
-.assign wait_state, GState.State_Reg0, *, State
+.assign wait_state_ecap, GState.State_Reg0, *, State
 
 
     XIN     10, State, SIZE( State)          // Pull the GPIO addresses from first scratchpad
 
 #ifdef DECAMUX
 
-.assign pepper1_shadow, State.PEPPER1_GPIO0, *, State_PEPPER1
-.assign pepper2_shadow, State.PEPPER2_GPIO0, *, State_PEPPER2
-.assign pepper_masks, State.GPIO0_Mask, *, State_GPIO01
+.assign pepper1_shadow_ecap, State.PEPPER1_GPIO0, *, State_PEPPER1
+.assign pepper2_shadow_ecap, State.PEPPER2_GPIO0, *, State_PEPPER2
+.assign pepper_masks_ecap, State.GPIO0_Mask, *, State_GPIO01
 
     // Put PEPPER2 signals on GPIO0 & GPIO1 outputs before generating strobe
     // Note that here we will only change PEPPER signals on GPIO0 & GPIO1 !
@@ -141,39 +143,29 @@ MODE_WAIT:
     // Task_DataY indicates we had a real-time error, or the timer tick
     // occurred before we began waiting for it!
     
-#ifdef BBAI
-    LBCO    r2, CONST_IEP, 0x74, 4      // Load CMP_STATUS register
-#else
-    LBCO    r2, CONST_IEP, 0x44, 4      // Load CMP_STATUS register
-#endif
-    QBBC    BUSY_CHECK, r2, 0           // Check to see if timer has expired already
+    LBCO    r2, CONST_ECAP, 0x2E, 2      // Load CMP_STATUS register
+    QBBC    BUSY_CHECK_ECAP, r2, 6           // Check to see if timer has expired already
     SET     GTask.dataY,7               // Set MSB if error
 
     // Debugging:
     // Task_DataX is used to indicate we should set a busy bit when code
     // begins executing after a timer tick, and clear it once all work
     // is complete and we are waiting for the next timer tick
-BUSY_CHECK:
-    QBBC    WAITLOOP, GTask.dataX, 7        // If MSB is set, we should twiddle the busy bit
+BUSY_CHECK_ECAP:
+    QBBC    WAITLOOP_ECAP, GTask.dataX, 7        // If MSB is set, we should twiddle the busy bit
     CLR     r30, GTask.dataX                // Clear busy bit
     SET     GState.PRU_Out, GTask.dataX     // Set busy bit with all other outputs after we wait for a timer tick
 
-WAITLOOP:
+WAITLOOP_ECAP:
     // Wait until the next timer tick...
     // FIXME:
     // Set up interrupt routing for the IEP timer and watch for the appropriate event
     // (bit set in r31) instead of polling the IEP status register.
     //  WBC     r31, 30
 
-#ifdef BBAI
-    LBCO    r2, CONST_IEP, 0x74, 4      // Load CMP_STATUS register
-    QBBC    WAITLOOP, r2, 0             // Wait until counter times out
-    SBCO    r2, CONST_IEP, 0x74, 4      // Clear counter timeout bit
-#else
-    LBCO    r2, CONST_IEP, 0x44, 4      // Load CMP_STATUS register
-    QBBC    WAITLOOP, r2, 0             // Wait until counter times out
-    SBCO    r2, CONST_IEP, 0x44, 4      // Clear counter timeout bit
-#endif
+    LBCO    r2, CONST_ECAP, 0x2E, 2     // Load ECFLG register
+    QBBC    WAITLOOP_ECAP, r2, 6             // Wait until counter times out
+    SBCO    r2, CONST_ECAP, 0x30, 2      // Clear counter timeout bit
 
     // The timer just ticked...
     // ...write out the pre-computed output bits:
@@ -227,4 +219,4 @@ WAITLOOP:
     // We're done here...carry on with the next task
     JMP     NEXT_TASK
 
-.leave WAIT_SCOPE
+.leave WAIT_SCOPE_ECAP
