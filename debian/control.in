@@ -10,6 +10,8 @@ Build-Depends:
     debhelper (>= 10),
     autoconf (>= 2.63),
     automake,
+    git,
+    lsb-release,
     libgl1-mesa-dev,
     libglu1-mesa-dev,
     libmodbus-dev (>= 3.0),
