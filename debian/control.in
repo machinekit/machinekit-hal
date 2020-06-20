@@ -51,7 +51,8 @@ Build-Depends:
     libcgroup-dev,
     yapps2-runtime:native | python-yapps:native,
     yapps2:native,
-    python-pyftpdlib:native @BUILD_DEPS@
+    python-pyftpdlib:native,
+    libck-dev @BUILD_DEPS@
 Standards-Version: 2.1.0
 
 Package: machinekit-hal
@@ -80,7 +81,8 @@ Depends:
     cgroup-tools,
     python-gst-1.0 | python-gst0.10,
     python-imaging | python-pil,
-    uuid-runtime @DEPS@
+    uuid-runtime,
+    python-gtksourceview2 @DEPS@
 Description: Universal framework for machine control based on Hardware Abstraction Layer principle
     .
     Machinekit is the next-generation Machine Controller.  It provides
