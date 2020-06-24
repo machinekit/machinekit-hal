@@ -50,10 +50,15 @@ ifneq ($(origin CXX),default)
 endif
 
 
-debian/control: debian/configure
-#	# if debian/configure has not been run, error out
-	if ! test -f debian/configure.cmdline; then \
-	    @echo "Please run debian/configure" \
+debian/control: debian/bootstrap
+#	# if debian/configure.py or debian/bootstrap has not been run, error out
+	if ! test -f debian/changelog; then \
+	    @echo "Please run debian/configure.py" \
+	        "to generate the debian/changelog file."; \
+	    false; \
+	fi
+	if ! test -f debian/control; then \
+	    @echo "Please run debian/bootstrap" \
 	        "to generate the debian/control file."; \
 	    false; \
 	fi
