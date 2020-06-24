@@ -48,6 +48,7 @@ Build-Depends:
     python-protobuf:native (>= 2.4.1),
     libprotoc-dev:native (>= 2.4.1),
     python-simplejson:native,
+    python3-sh:native,
     libcgroup-dev,
     yapps2-runtime:native | python-yapps:native,
     yapps2:native,
