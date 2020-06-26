@@ -46,6 +46,7 @@ MK_PATH=${MK_PATH:-}
 DPKG_ROOT=${DPKG_ROOT:-}
 BUILDTIME_DEPENDENCIES=${BUILDTIME_DEPENDENCIES:-}
 RUNTIME_DEPENDENCIES=${RUNTIME_DEPENDENCIES:-}
+SKIP_CHECKS=${SKIP_CHECKS:-}
 
 ################################################################################
 # Maintenance Functions
@@ -65,14 +66,18 @@ OPTION      DESCRIPTION
 -p          Machinekit-HAL git repository base path
                 -> (Default: current directory)
 -h          Print this helpful text
+-s          Assume the -p passed Machinekit-HAL repository HOME is a valid one
+            and do not execute any checks
+                -> (Useful only for Docker image build)
 
 USAGEHEREDOC
 }
 
 _process_options(){
-    while getopts ":p:h" opt; do
+    while getopts ":p:sh" opt; do
     	case $opt in
     	    p) MK_PATH=${OPTARG} ;;
+            s) SKIP_CHECKS="true" ;;
     	    h) usage "Print help" ; exit 0;;
     	    :) usage "Option -${OPTARG} requires an argument." ; exit 1 ;;
     	    \?) usage "Invalid option -${OPTARG}" ; exit 1;;
@@ -257,23 +262,26 @@ generate_control_file(){
 
 _main(){
     local retval=-1
-    if [[ "$MK_PATH" == "" ]]
+    if [[ "$SKIP_CHECKS" != "true" ]]
     then
-        find_dir
-        retval=$?
-        if (( retval != 0 ))
-        then 
-            log_error "Could not find Machinekit-HAL repository root directory"
-            failure
-        fi
-    else
-        test_dir "$MK_PATH"
-        retval=$?
-        if (( retval != 0 ))
-        then 
-            log_error "Specified Machinekit-HAL repository root directory" \
-                      "not valid!"
-            failure
+        if [[ "$MK_PATH" == "" ]]
+        then
+            find_dir
+            retval=$?
+            if (( retval != 0 ))
+            then 
+                log_error "Could not find Machinekit-HAL repository root directory"
+                failure
+            fi
+        else
+            test_dir "$MK_PATH"
+            retval=$?
+            if (( retval != 0 ))
+            then 
+                log_error "Specified Machinekit-HAL repository root directory" \
+                          "not valid!"
+                failure
+            fi
         fi
     fi
 
