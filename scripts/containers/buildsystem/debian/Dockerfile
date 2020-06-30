@@ -179,3 +179,17 @@ RUN cd /tmp;                                                                  \
                   -ir -t                                                      \
         "apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y" \
                   ./debian/control;
+
+# This on Debian 9 Stretch, HOST_ARCHITECTURE i386 actually abuses the fact
+# that the i686-linux-gnu-gcc does not exists (the $CC is set to 'gcc -m32'),
+# so the comparison will fail and '-Werror' will be exported - what is the
+# end result we want on Stretch anyway
+RUN if ! [[ $(echo -e "$($(dpkg-architecture -a${HOST_ARCHITECTURE}     \
+                           -qDEB_HOST_GNU_TYPE)-gcc -dumpversion)\n8" | \
+            sort -V | head -n1) == "8" ]];                              \
+    then                                                                \
+        printf "%b"                                                     \
+               "#!/bin/bash\n"                                          \
+               "export DPKG_CFLAGS=\"${DPKG_CFLAGS} -Werror\"\n"        \
+               > /opt/environment/dpkg_flags.sh;                        \
+    fi
