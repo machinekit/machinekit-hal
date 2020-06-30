@@ -17,7 +17,7 @@
 <img alt="Coverity Scan Build Status" src="https://img.shields.io/coverity/scan/20589.svg?style=for-the-badge" />
 </a>
 
-<img alt="Version" src="https://img.shields.io/badge/version-0.3-blue.svg?cacheSeconds=2592000&style=for-the-badge" />
+<img alt="Version" src="https://img.shields.io/badge/version-0.4-blue.svg?cacheSeconds=2592000&style=for-the-badge" />
 
 <a href="https://matrix.to/#/#machinekit:matrix.org" target="_blank">
 <img alt="Matrix Machinekit Room" src="https://img.shields.io/matrix/machinekit:matrix.org?style=for-the-badge&logo=matrix" />
