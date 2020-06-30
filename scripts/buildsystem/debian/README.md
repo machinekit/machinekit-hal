@@ -1,87 +1,46 @@
-# Machinekit Cross-Builder
+# Machinekit Native and Cross-Building inside container
 
-This builds Debian Docker images with tools and dependencies for
-building/cross-building Machinekit packages.  For cross-building
-`armhf`, `arm64` and `i386` architectures, the image contains a
-`multistrap` system root tree, and for native `amd64` builds the image
-contains needed dependencies and tools in the root filesystem.
+This builds Debian flavoured Docker images with tools and dependencies for
+building/cross-building Machinekit-HAL packages.  The system relies on Debian
+Multi-Arch to provide dependency resolution when cross-compiling, and as such
+the ability to cross-compile from one platform to another is dependent
+on availability of specific packages from upstream distribution repositories.
+
+Special care was taken to allow cross-compiling from `amd64` architecture
+to `armhf`, `arm64` and `i386`, respective `i686` architectures. Anything else
+is on best effort basis.
 
 ## Using the images
 
-- Determine `$TAG` for the desired architecture and distro
-  combination.  The format is `$ARCH_$DISTRO`, where `$ARCH` may be
-  one of `amd64`, `i386`, `armhf`, `arm64`; `$DISTRO` may be one of
-  `9` for Stretch or `10` for Buster;
-  e.g. `TAG=armhf_10`.
+- To build the image for specific configuration, you will need system with
+  Docker daemon and CLI installed, then Python 3 environment with Python SH
+  package (on Debian like systems installed by `sudo apt install python3-sh`)
+
+  Invoke:
+
+  - `cd` into root of Machinekit-HAL repository locally cloned on your computer
+
+  - Run `scripts/buildcontainerimage.py DISTRIBUTION VERSION ARCHITECTURE
+
+    Where:
+      - ARCHITECTURE is the HOST architecture for which you want to build the Machinekit-HAL packages
+      - VERSION is the version of the supported distribution (for example Buster)
+      - DISTRIBUTION is the distro name (for example Debian)
+
+      Currently supported possibilities are listed in `scripts/debian-distro-settings.json`
 
 - To build Machinekit in a Docker container with cross-build tools,
-  `cd` into a Machinekit source tree:
+  `cd` into parent directory of a Machinekit-HAL source tree:
 
-        # Build source and binary packages for $TAG
-		scripts/build_docker -t $TAG -c deb
+        # Bootstrap Machinekit-HAL repository for $TAG and $DISTRIBUTION
+		docker run -it --rm -u "$(id -u):$(id -g)" -v "$(pwd):/home/machinekit/build" -w "/home/machinekit/build/machinekit-hal" machinekit-hal-$DISTRIBUTION-builder-v.$TAG scripts/bootstrap
 
-		# Build amd64 binary-only packages (no source) for Buster
-		scripts/build_docker -t amd64_10 -c deb -n
+		    # Prepare the changelog for package build
+    docker run -it --rm -u "$(id -u):$(id -g)" -v "$(pwd):/home/machinekit/build" -w "/home/machinekit/build/machinekit-hal" machinekit-hal-$DISTRIBUTION-builder-v.$TAG scripts/configure.py -c
 
-		# Build amd64_10 (default) RIP build with regression tests
-		scripts/build_docker -c test
+		# Build the packagesdocker run -it --rm -u "$(id -u):$(id -g)" -v "$(pwd):/home/machinekit/build" -w "/home/machinekit/build/machinekit-hal" machinekit-hal-$DISTRIBUTION-builder-v.$TAG scripts/buildpackages.py
 
-		# Run command in container
-		scripts/build_docker -t $TAG bash -c 'echo $HOST_MULTIARCH'
+- To test the Machinekit-HAL repository with `runtests` tool, `cd` into parent directory of a Machinekit-HAL source tree:
 
-	- Note that source packages are only built by default on
-      `amd64_*`, the native architecture.
-    - The source package build will fail if the source tree isn't
-      checked into git and completely cleaned with e.g. `git clean
-      -xdf`
-
-- Querying packages in the sysroot:
-
-Package management commands require special incantations for
-manipulating the multistrap filesystem.  Run these inside the
-container (see above `build_docker -c` command).
-
-        # Installed packages
-        dpkg-query --admindir=$DPKG_ROOT/var/lib/dpkg -p libczmq-dev
-
-        # Apt cache
-        apt-cache -o Dir::State=$DPKG_ROOT/var/lib/apt/ show libczmq-dev
-
-## Building locally
-
-Build images locally with the supplied script, supplying the
-image name, e.g.:
-
-    ./scripts/build_debian_docker_image -i my_docker_id -r mk-cross-builder -t amd64_10
-
-## Set up Travis CI automated `machinekit-hal` builds
-
-Set up Travis CI to automatically build and test your GitHub
-`machinekit-hal` repository.
-
-- Fork the [`machinekit-hal` repository][mk-hal] into your GitHub
-  account
-- Set up Travis CI
-  - [Log in][tci-gh] to Travis CI with your GitHub account
-  - Go to "Settings" for your user account (upper right drop-down menu)
-  - On the "Repositories" tab, find the `machinekit-hal` repository
-    (click "Sync account" if it doesn't appear)
-    - Switch it on
-    - Click "Settings" to configure the repository build
-  - Configure the repository settings
-    - To use your custom Docker Hub images, configure the `$IMAGE`
-      environment variable
-      - "Name" `IMAGE`
-      - "Value" `<your_docker_hub_id>/mk-cross-builder`
-      - "Display value in build log" Click on
-      - Click "Add"
-    - If you don't configure the `$IMAGE`, the default
-      `dovetailautomata/mk-cross-builder` images will be used
-    - Optionally adjust other settings
-  - In the "More options" hamburger menu, click "Trigger build"
-
-Travis CI should now begin building the repository.  Every new commit
-pushed to GitHub will also trigger a new build.
-
-[mk-hal]: https://github.com/machinekit/machinekit-hal
-[tci-gh]: https://docs.travis-ci.com/user/tutorial/#to-get-started-with-travis-ci
+        # Run runtests Machinekit-HAL repository for $TAG and $DISTRIBUTION
+		docker run -it --rm -u "$(id -u):$(id -g)" -v "$(pwd):/home/machinekit/build" -w "/home/machinekit/build/machinekit-hal" machinekit-hal-$DISTRIBUTION-builder-v.$TAG debian/ripruntests.py
