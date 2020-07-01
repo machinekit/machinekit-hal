@@ -17,7 +17,7 @@
 <img alt="Coverity Scan Build Status" src="https://img.shields.io/coverity/scan/20589.svg?style=for-the-badge" />
 </a>
 
-<img alt="Version" src="https://img.shields.io/badge/version-0.3-blue.svg?cacheSeconds=2592000&style=for-the-badge" />
+<img alt="Version" src="https://img.shields.io/badge/version-0.4-blue.svg?cacheSeconds=2592000&style=for-the-badge" />
 
 <a href="https://matrix.to/#/#machinekit:matrix.org" target="_blank">
 <img alt="Matrix Machinekit Room" src="https://img.shields.io/matrix/machinekit:matrix.org?style=for-the-badge&logo=matrix" />
@@ -52,7 +52,7 @@
 
 **Machinekit-HAL** is a powerful software for _real-time_ control of machinery based on _**H**ardware **A**bstraction **L**ayer_ principle. With tools and libraries making development of new _components_ and _drivers_ easy. Integrators can choose to control **industrial robotic arm**, **single purpose machine** or **CNC mill** or **lathe** with additional software package.
 
-Supporting _RT PREEMPT_ and _Xenomai 2_ real-time Linux kernel patches. **APT** packages available for Debian _Jessie_, _Stretch_ and _Buster_.
+Supporting _RT PREEMPT_ and _Xenomai 2_ real-time Linux kernel patches. **APT** packages available for Debian _Stretch_ and _Buster_.
 
 <div align="center"><img alt="Machinekit demo" src="https://raw.githubusercontent.com/cerna/machinekit-hal/various-bugfixes/media/machinekit_hal_ethercat_demo.gif" width="650px" /></div>
 

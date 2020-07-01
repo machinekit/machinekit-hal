@@ -2,43 +2,89 @@ Source: machinekit-hal
 Section: misc
 Priority: extra
 Maintainer: MachinekitBot <machinekitATeryafDOTcom>
-Build-Depends: debhelper (>= 6),
-    autoconf (>= 2.63), automake, libgl1-mesa-dev,
-    libglu1-mesa-dev, libmodbus-dev (>= 3.0),
+# Only designate Build-Depends packages as a :native in cases when the upstream
+# does not set the Multi-Arch: foreign in its packaging scripts
+# Otherwise the dpkg-checkbuilddeps will reject such dependency with :native
+# as invalid, ergo autoconf:native (not) vs python:native
+Build-Depends: 
+    debhelper (>= 10),
+    autoconf (>= 2.63),
+    dpkg-sig:native,
+    automake,
+    git,
+    lsb-release,
+    libgl1-mesa-dev,
+    libglu1-mesa-dev,
+    libmodbus-dev (>= 3.0),
     libudev-dev,
-    libglib2.0-dev, libgtk2.0-dev,
-    libncurses-dev, libreadline-gplv2-dev, libusb-1.0-0-dev, libxmu-dev,
-    libxmu-headers, python (>= 2.6.6), python-dev (>= 2.6.6),
-    cython (>= 0.19), dh-python,
-    pkg-config, psmisc, libxaw7-dev,
+    libglib2.0-dev,
+    libgtk2.0-dev,
+    libncurses-dev,
+    libreadline-gplv2-dev,
+    libusb-1.0-0-dev,
+    libxmu-dev,
+    libxmu-headers,
+    python:native (>= 2.6.6),
+    libpython-dev (>= 2.6.6),
+    cython:native (>= 0.19),
+    dh-python,
+    pkg-config,
+    psmisc,
+    libxaw7-dev,
     libboost-dev,
-    libzmq3-dev (>= 4.0.4), libczmq-dev (>= 4.0.2), libjansson-dev (>= 2.5),
+    libzmq3-dev (>= 4.0.4),
+    libczmq-dev (>= 4.0.2),
+    libjansson-dev (>= 2.5),
     libwebsockets-dev (>= 1.2.2),
-    python-zmq (>= 14.0.1), procps,
-    liburiparser-dev, libssl-dev, python-setuptools,
-    uuid-dev, uuid-runtime, libavahi-client-dev,
-    libprotobuf-dev (>= 2.4.1), protobuf-compiler (>= 2.4.1),
-    python-protobuf (>= 2.4.1), libprotoc-dev (>= 2.4.1),
-    python-simplejson, libcgroup-dev,
-    yapps2-runtime | python-yapps, yapps2,
-    python-pyftpdlib @BUILD_DEPS@
+    python-zmq:native (>= 14.0.1),
+    procps,
+    liburiparser-dev,
+    libssl-dev,
+    python-setuptools,
+    uuid-dev,
+    uuid-runtime,
+    libavahi-client-dev,
+    libprotobuf-dev (>= 2.4.1),
+    protobuf-compiler (>= 2.4.1),
+    python-protobuf:native (>= 2.4.1),
+    libprotoc-dev:native (>= 2.4.1),
+    python-simplejson:native,
+    python3-sh:native,
+    libcgroup-dev,
+    yapps2-runtime:native | python-yapps:native,
+    yapps2:native,
+    python-pyftpdlib:native,
+    libck-dev @BUILDTIME_DEPENDENCIES@
 Standards-Version: 2.1.0
 
 Package: machinekit-hal
 Conflicts: machinekit
 Architecture: any
-Depends: ${shlibs:Depends},
-    ${python:Depends}, ${misc:Depends},
+Depends: 
+    ${shlibs:Depends},
+    ${python:Depends},
+    ${misc:Depends},
     python-glade2,
-    python-numpy, libmodbus-dev (>= 3.0),
-    python-xlib, python-gtkglext1, python-configobj,
-    python-zmq, python-protobuf (>= 2.4.1),
-    python-avahi, python-simplejson, python-pyftpdlib,
-    python-pydot, xdot,
-    bc, procps, psmisc, cgroup-tools,
+    python-numpy,
+    libmodbus-dev (>= 3.0),
+    python-xlib,
+    python-gtkglext1,
+    python-configobj,
+    python-zmq,
+    python-protobuf (>= 2.4.1),
+    python-avahi,
+    python-simplejson,
+    python-pyftpdlib,
+    python-pydot,
+    xdot,
+    bc,
+    procps,
+    psmisc,
+    cgroup-tools,
     python-gst-1.0 | python-gst0.10,
     python-imaging | python-pil,
-    uuid-runtime @DEPS@
+    uuid-runtime,
+    python-gtksourceview2 @RUNTIME_DEPENDENCIES@
 Description: Universal framework for machine control based on Hardware Abstraction Layer principle
     .
     Machinekit is the next-generation Machine Controller.  It provides
@@ -47,10 +93,12 @@ Description: Universal framework for machine control based on Hardware Abstracti
 
 Package: machinekit-hal-dev
 Architecture: any
-Depends: make, g++,
-   ${misc:Depends},
-   machinekit-hal (= ${binary:Version}),
-   yapps2-runtime | python-yapps
+Depends: 
+    make,
+    g++,
+    ${misc:Depends},
+    machinekit-hal (= ${binary:Version}),
+    yapps2-runtime | python-yapps
 Section: libs
 Description: Universal framework for machine control based on Hardware Abstraction Layer principle
  This package includes the development environment for Machinekit-HAL.
@@ -63,7 +111,8 @@ Architecture: any
 Suggests: hostmot2-firmware-all [!armhf]
 Depends:
     machinekit-hal,
-    linux-image-rt-686-pae [i386], linux-image-rt-amd64 [amd64]
+    linux-image-rt-686-pae [i386],
+    linux-image-rt-amd64 [amd64]
 Description: Machinekit HAL RT_PREEMPT
  .
  This metapackage provides components and drivers that run on a realtime
@@ -89,4 +138,5 @@ Description: Universal framework for machine control based on Hardware Abstracti
  This package provides components and drivers that run on a realtime
  (XENOMAI 2) system.
 Depends:
-    machinekit-hal, xenomai-runtime (<= 2.8)
+    machinekit-hal,
+    xenomai-runtime (<= 2.8)

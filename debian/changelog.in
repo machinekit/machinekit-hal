@@ -1,3 +1,11 @@
+machinekit-hal (0.4.0) buster; urgency=low
+
+  * Drop Debian 8 Jessie as a supported OS
+  * Implement cross-building using standardized Debian Multi-Arch approach
+  * Rewrite the build scripts into Python 3
+
+ -- Jakub Fišer <jakub.fiser@eryaf.com>  Tue, 30 Jun 2020 20:40:40 +0200
+
 machinekit-hal (0.3.0) stretch; urgency=low
 
   * Separate rtapi_app_<threads> now merged into single binary

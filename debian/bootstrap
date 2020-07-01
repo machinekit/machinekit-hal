@@ -1,0 +1,313 @@
+#!/usr/bin/env bash
+
+#####################################################################
+# Description:  bootstrap
+#
+#               This file, 'bootstrap', implements functions needed for
+#               bootstrapping Machinekit-HAL installation on clean Debian
+#               like distro. Only Lowest Common Denominator functionality
+#               accross all supported ditributions allowed.
+#               (Tested with official Docker images.)
+#
+#               DO NOT ADD ANY DEPENDENCY ON PACKAGES NOT INCLUDED IN MINIMAL
+#               INSTALLANTION OF THE OPERATING SYSTEM!
+#
+# Copyright (C) 2020        Jakub Fišer  <jakub DOT fiser AT eryaf DOT com>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHwriteOUT ANY WARRANTY; withwriteout even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+#
+######################################################################
+
+# Prohibit use of undefined variables
+set -o nounset
+# Set the exit code of a pipeline to that of the rightmost command to exit
+# with a non-zero status
+set -o pipefail
+# Turn on traces
+#set -o xtrace
+
+################################################################################
+# Global Variables Declarations
+################################################################################
+
+MK_PATH=${MK_PATH:-}
+DPKG_ROOT=${DPKG_ROOT:-}
+BUILDTIME_DEPENDENCIES=${BUILDTIME_DEPENDENCIES:-}
+RUNTIME_DEPENDENCIES=${RUNTIME_DEPENDENCIES:-}
+SKIP_CHECKS=${SKIP_CHECKS:-}
+
+################################################################################
+# Maintenance Functions
+################################################################################
+
+NAME=$(basename $0|sed 's/\(\..*\)$//')
+
+function usage() {
+    cat <<USAGEHEREDOC >&2
+[$@]
+
+Usage: $NAME [OPTIONS] ARGS...
+Simple description on how to use this script...
+
+OPTION      DESCRIPTION
+==========  ==================================================================
+-p          Machinekit-HAL git repository base path
+                -> (Default: current directory)
+-h          Print this helpful text
+-s          Assume the -p passed Machinekit-HAL repository HOME is a valid one
+            and do not execute any checks
+                -> (Useful only for Docker image build)
+
+USAGEHEREDOC
+}
+
+_process_options(){
+    while getopts ":p:sh" opt; do
+    	case $opt in
+    	    p) MK_PATH=${OPTARG} ;;
+            s) SKIP_CHECKS="true" ;;
+    	    h) usage "Print help" ; exit 0;;
+    	    :) usage "Option -${OPTARG} requires an argument." ; exit 1 ;;
+    	    \?) usage "Invalid option -${OPTARG}" ; exit 1;;
+    	esac
+    done
+    shift $((OPTIND-1))
+}
+
+# TODO:
+# This whole should be taken only as an initial commit
+# The colorful output logging with icons and timestamps is currently missing 
+# and the code should act accordingly when the output is being piped to other
+# programs (the colors should be automatically turned off, icons and time
+# stripped off)
+_write_out() {
+    local level=$1
+    local message="${@:2}"
+    
+    printf "%b"          \
+           "$message\n";
+}
+
+log_info(){
+    _write_out "1" "$@"
+} >&2
+log_warning(){
+    _write_out "2" "$@"
+} >&2
+log_error(){
+    _write_out "3" "$@"
+} >&2
+
+success() {
+    _write_out "5" "Script $NAME was successful!"
+    exit 0
+} >&2
+failure() {
+    _write_out "6" "Script $NAME failed!"
+    exit 1
+} >&2
+
+################################################################################
+# Program Functions
+################################################################################
+
+devscript_installed(){
+    local DPKG_QUERY_ARGS=""
+    if test -n "$DPKG_ROOT"; then
+        DPKG_QUERY_ARGS="--admindir=$DPKG_ROOT/var/lib/dpkg"
+    fi
+
+    dpkg-query $DPKG_QUERY_ARGS -W 'devscripts' > /dev/null 2>&1
+    local retval="$?"
+
+    if (( retval != 0 ))
+    then
+        log_warning "You need to have devscripts installed!"
+        log_info "To continue with Machinekit-HAL build the build"         \
+                 "dependencies need to be installed. This is done with"   \
+                 "'mk-build-deps' script from Debian package devscripts." \
+                 "\nPlease, install it by following instructions at"         \
+                 "https://wiki.debian.org/BuildingTutorial#Requirements"
+        return -1
+    fi
+    return 0
+}
+
+search_for_xenomai() {
+    local DPKG_QUERY_ARGS=""
+    if test -n "$DPKG_ROOT"; then
+        DPKG_QUERY_ARGS="--admindir=$DPKG_ROOT/var/lib/dpkg"
+    fi
+
+    if ! dpkg-query $DPKG_QUERY_ARGS -W | grep -q libxenomai-dev;
+    then
+        log_info "Not configuring build for Xenomai (no libxenomai-dev package)"
+        return 0
+    fi
+
+    local XENOMAI_VERSION=$(xeno-config --version)
+    log_info "Xenomai version found: $XENOMAI_VERSION"
+
+    local OLD_IFS="$IFS"
+    IFS='.'
+    read -ra XENOMAI_VERSION_ARR <<< "$XENOMAI_VERSION"
+    IFS="$OLD_IFS"
+
+    if (( XENOMAI_VERSION_ARR[0] == 2  && XENOMAI_VERSION_ARR[1]} < 7 ))
+    then
+        log_warning "Adding Xenomai 2 threads configuration"
+        BUILDTIME_DEPENDENCIES+=", libxenomai-dev (<= 2.8)"
+        RUNTIME_DEPENDENCIES+=", xenomai-runtime (<= 2.8)"
+        return 0
+    fi
+
+    if (( XENOMAI_VERSION_ARR[0] == 3 && XENOMAI_VERSION_ARR[1] > 0 ))
+    then
+        log_warning "Xenomai 3 not yet supported, not going to build"
+        return 0
+    fi
+
+    log_info "Not configuring build for Xenomai (unknown Xenomai version)"
+    return 0
+}
+
+test_dir(){
+    local version_file="$1/VERSION"
+    local readme_file="$1/README.md"
+    local copying_file="$1/COPYING"
+    
+    if [[ -f "$version_file" && -f "$readme_file" && -f "$copying_file" ]]
+    then
+        read first_line < "$version_file"
+        if [[ $first_line =~ ^[0-9]+\.[0-9]+$ ]]
+        then
+            return 0
+        fi
+    fi
+
+    return -1
+}
+
+find_dir(){
+    local current="$(pwd)"
+    test_dir "$current"
+    local retval=$?
+
+    while (( $retval != 0 ))
+    do
+        current="$(dirname "$current")"
+        if [[ -d "$current" && "$current" != "/" ]]
+        then
+            test_dir "$current"
+            retval=$?
+        else
+            break
+        fi
+    done
+
+    if (( $retval == 0 ))
+    then
+        MK_PATH="$current"
+    fi
+
+    return ${retval}
+}
+
+generate_control_file(){
+    local control_template="$MK_PATH/debian/control.in"
+    local control_file="$MK_PATH/debian/control"
+
+    if ! [ -f "$control_template" ]
+    then
+        log_error "The debian/control.in template does not exists."
+        return -1
+    fi
+
+    if [ -f "$control_file" ]
+    then
+        log_warning "The debian/control file already exists."
+    fi
+
+    sed > ${control_file} <${control_template}                     \
+        -e "s/@BUILDTIME_DEPENDENCIES@/${BUILDTIME_DEPENDENCIES}/" \
+        -e "s/@RUNTIME_DEPENDENCIES@/${RUNTIME_DEPENDENCIES}/"
+    local retval=$?
+
+    if (( retval != 0 ))
+    then
+        log_warning "SED command returned error $retval when trying to " \
+                    "process the debian/control file"
+        return -1
+    fi
+
+    log_info "Control file in debian folder created successfully."
+    return 0
+}
+
+################################################################################
+# Main Function
+################################################################################
+
+_main(){
+    local retval=-1
+    if [[ "$SKIP_CHECKS" != "true" ]]
+    then
+        if [[ "$MK_PATH" == "" ]]
+        then
+            find_dir
+            retval=$?
+            if (( retval != 0 ))
+            then 
+                log_error "Could not find Machinekit-HAL repository root directory"
+                failure
+            fi
+        else
+            test_dir "$MK_PATH"
+            retval=$?
+            if (( retval != 0 ))
+            then 
+                log_error "Specified Machinekit-HAL repository root directory" \
+                          "not valid!"
+                failure
+            fi
+        fi
+    fi
+
+    search_for_xenomai
+    retval=$?
+    if (( retval != 0 ))
+    then
+        failure
+    fi
+    generate_control_file
+    retval=$?
+    if (( retval != 0 ))
+    then
+        failure
+    fi
+
+    devscript_installed
+    success
+}
+
+################################################################################
+# Start of execution
+################################################################################
+
+_process_options "$@"
+_main
+# Chatch all unaddressed exit situations
+log_error "There was an error in script execution!"
+failure

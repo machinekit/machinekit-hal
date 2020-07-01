@@ -7,4 +7,5 @@
 # Include MK packages and minimal debian packaging
 ! /packages/
 ! /debian/control.in
-! /debian/configure
+! /debian/configure.py
+! /debian/bootstrap

@@ -1,453 +1,195 @@
-ARG BASE_IMAGE
-ARG VERSION_SHA
+#####################################################################
+# Description:  Dockerfile
+#
+#               This file, 'Dockerfile', implements Debian styled Docker images
+#               used for building, testing and running Machinekit-HAL in CI/CD
+#               workflows.
+#
+# Copyright (C) 2020            Jakub Fišer  <jakub DOT fiser AT eryaf DOT com>
+#
+#   based on original Docker mk-cross-builder images by:
+#
+# Copyright (C) 2016 - 2019     John Morris  <john AT zultron DOT com>
+# Copyright (C) 2016 - 2019     Mick Grant   <arceye AT mgware DOT co DOT uk>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+#
+######################################################################
 
-FROM ${BASE_IMAGE} AS mkbuilder_base
+ARG DEBIAN_DISTRO_BASE
 
+FROM ${DEBIAN_DISTRO_BASE} AS machinekit-hal_base
 
-###################################################################
-# Build configuration settings
+SHELL [ "bash", "-c" ]
 
-# - Passed in from hooks/build script based on Docker tag
-ARG DEBIAN_ARCH
-ARG HOST_MULTIARCH
-ARG DISTRO_CODENAME
-ARG DISTRO_VER
-ARG SYS_ROOT
-ARG EXTRA_FLAGS
-ARG LDEMULATION
-
-# - Set in container environment
-ENV DEBIAN_ARCH=${DEBIAN_ARCH}
-ENV HOST_MULTIARCH=${HOST_MULTIARCH}
-ENV DISTRO_CODENAME=${DISTRO_CODENAME}
-ENV DISTRO_VER=${DISTRO_VER}
-ENV SYS_ROOT=${SYS_ROOT}
-ENV EXTRA_FLAGS=${EXTRA_FLAGS}
-ENV LDEMULATION=${LDEMULATION}
-
-###################################################################
+###########################
 # Generic apt configuration
 
 ENV TERM=dumb
 
-# apt config:  silence warnings and set defaults
+# Apt config:  silence warnings and set defaults
 ENV DEBIAN_FRONTEND=noninteractive
 ENV DEBCONF_NONINTERACTIVE_SEEN=true
 ENV LC_ALL=C.UTF-8
 ENV LANGUAGE=C.UTF-8
 ENV LANG=C.UTF-8
 
-# turn off recommends on container OS and proot OS
-RUN echo 'APT::Install-Recommends "0";\nAPT::Install-Suggests "0";' > \
-	    /etc/apt/apt.conf.d/01norecommend
+# Turn off recommends on container OS
+RUN printf "%s;\n%s;\n"                 \
+    'APT::Install-Recommends "0"'       \
+    'APT::Install-Suggests "0"'         \
+    > /etc/apt/apt.conf.d/01norecommend
 
-# use stable Debian mirror
+# Use stable Debian mirror - TODO change to support UBUNTU
 ARG DEBIAN_MIRROR=ftp.debian.org
 ARG DEBIAN_SECURITY_MIRROR=security.debian.org
-RUN sed -i /etc/apt/sources.list \
-        -e "s/deb.debian.org/${DEBIAN_MIRROR}/" \
-        -e "s/security.debian.org/${DEBIAN_SECURITY_MIRROR}/"
+RUN sed -i /etc/apt/sources.list                          \
+    -e "s/deb.debian.org/${DEBIAN_MIRROR}/"               \
+    -e "s/security.debian.org/${DEBIAN_SECURITY_MIRROR}/"
 
-###################################################################
-# Add foreign arches and update OS
+# Add Machinekit Dependencies repository
+RUN apt-get update;                                                               \
+    apt-get install -y                                                            \
+        curl                                                                      \
+        apt-transport-https                                                       \
+        ca-certificates;                                                          \
+    curl -1sLf                                                                    \
+    'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
+        | bash;                                                                   \
+    apt-get clean;
 
-# add foreign architectures
-RUN if test -n "${SYS_ROOT}"; then \
-        dpkg --add-architecture $DEBIAN_ARCH; \
+# Update system OS
+RUN apt-get update;     \
+    apt-get -y upgrade; \
+    apt-get clean;
+
+####################################
+# Set up Machinekit user environment
+
+ENV USER=machinekit
+
+RUN addgroup --gid 1000 ${USER};                              \
+    adduser --uid 1000 --ingroup ${USER} --home /home/${USER} \
+    --shell /bin/bash --disabled-password --gecos "" ${USER};
+
+RUN apt-get update;        \
+    apt-get install -y     \
+        sudo               \
+        machinekit-fixuid; \
+    apt-get clean;
+
+COPY scripts/buildsystem/debian/base-entrypoint.sh /opt/bin/base-entrypoint.sh
+
+RUN chmod +x /opt/bin/base-entrypoint.sh;                       \
+    mkdir /opt/environment;                                     \
+    echo "${USER} ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers; \
+    mkdir -p /etc/fixuid;                                       \
+    printf "user: ${USER}\ngroup: ${USER}\n" > /etc/fixuid/config.yml
+
+ENTRYPOINT [ "/opt/bin/base-entrypoint.sh" ]
+
+######################################################################
+
+FROM machinekit-hal_base AS machinekit-hal_builder_base
+
+RUN apt-get update;         \
+    apt-get install -y      \
+        build-essential     \
+        fakeroot            \
+        devscripts          \
+        equivs;             \
+    apt-get clean;
+
+######################################################################
+
+FROM machinekit-hal_builder_base AS machinekit-hal_builder
+
+ARG HOST_ARCHITECTURE
+
+RUN if ! dpkg-architecture -e${HOST_ARCHITECTURE};    \
+    then                                              \
+        dpkg --add-architecture ${HOST_ARCHITECTURE}; \
     fi
 
-# update Debian OS
-RUN apt-get update \
-    && apt-get -y upgrade \
-    && apt-get clean
+RUN apt-get update;    \
+    apt-get install -y \
+        lsb-release;   \
+    apt-get clean;
 
-###################################################################
-# Install utility and dev packages
-
-# Utilities
-RUN apt-get -y install \
-	libfile-fcntllock-perl \
-	locales \
-	git \
-	bzip2 \
-	sharutils \
-	net-tools \
-	time \
-	procps \
-	help2man \
-	xvfb \
-	xauth \
-	python-sphinx \
-	wget \
-	sudo \
-	lftp \
-	apt-transport-https \
-	ca-certificates \
-	multistrap \
-	debian-keyring \
-	debian-archive-keyring \
-	python-apt \
-	rubygems \
-    curl \
-    dpkg-sig \
-    && { \
-	test $DISTRO_VER -ge 10 \
-	    || apt-get install -y \
-		python-restkit; \
-        } \
-    && apt-get clean
-
-# Dev tools
-RUN apt-get install -y \
-	build-essential \
-	devscripts \
-	fakeroot \
-	equivs \
-	lsb-release \
-	less \
-	python-debian \
-	libtool \
-	ccache \
-	autoconf \
-	automake \
-	quilt \
-	psmisc \
-	pkg-config \
-	qemu-user-static \
-    libcmocka-dev \
-    python-nose \
-	linux-libc-dev:${DEBIAN_ARCH} \
-        dh-python \
-	libreadline-dev \
-    && { \
-        if test $DISTRO_VER -ge 9 -a \
-	        \( $DEBIAN_ARCH = armhf -o $DEBIAN_ARCH = arm64 \); then \
-            apt-get install -y \
-	        crossbuild-essential-${DEBIAN_ARCH}; \
-        fi; \
-    } \
-    && apt-get clean
-
-# - amd64 -> i386 multiarch/multilib compiles
-RUN if test $DISTRO_VER -eq 8; then \
-        apt-get install -y \
-	    binutils-i586-linux-gnu \
-	    gcc-4.9-multilib \
-	    g++-4.9-multilib; \
-    elif test $DISTRO_VER -eq 9; then \
-        apt-get install -y \
-	    binutils-multiarch \
-	    gcc-6-multilib \
-	    g++-6-multilib \
-	    libgcc-6-dev:$DEBIAN_ARCH; \
-    else \
-        apt-get install -y \
-	    binutils-multiarch \
-	    gcc-8-multilib \
-	    g++-8-multilib \
-	    libgcc-8-dev:$DEBIAN_ARCH; \
+# Non-standard exception, using the non-standard crossbuild-essential-i386:amd64
+# package in Machinekit/Machinekit Cloudsmith repository
+RUN if [[ "$(dpkg --print-architecture)" == "amd64" &&                  \
+          "$HOST_ARCHITECTURE" == "i386" &&                             \
+          "$(lsb_release -cs)" == "stretch" ]];                         \
+    then                                                                \
+        apt-get install -y                                              \
+            gcc-multilib                                                \
+            g++-multilib;                                               \
+        apt-get clean;                                                  \
+        ln -s x86_64-linux-gnu-objcopy /usr/bin/i686-linux-gnu-objcopy; \
+        ln -s x86_64-linux-gnu-objdump /usr/bin/i686-linux-gnu-objdump; \
+        ln -s x86_64-linux-gnu-strip /usr/bin/i686-linux-gnu-strip;     \
     fi
 
-# - Linaro gcc cross compiler for armhf, Jessie only
-RUN if test $DISTRO_VER -eq 8; then \
-        VER=4.9.4-2017.01 && \
-        ARCH=arm-linux-gnueabihf && \
-        DIR=gcc-linaro-${VER}-x86_64_${ARCH} && \
-        TXZ=${DIR}.tar.xz && \
-        URI=http://releases.linaro.org/components/toolchain/binaries/latest-4/${ARCH} && \
-        WORKD=/tmp/linaro && \
-        mkdir -p ${WORKD} && cd ${WORKD} && \
-        echo "Downloading gcc-linaro-${VER}" && \
-        wget --progress=dot:mega ${URI}/${TXZ} && \
-        wget -q ${URI}/${TXZ}.asc && \
-        echo "Validating checksum of compiler download" && \
-        md5sum -c ${TXZ}.asc && \
-        echo "Extracting compiler to /opt/" && \
-        tar xCf /opt ${WORKD}/${TXZ} && \
-        ln -snf ${DIR} /opt/gcc-linaro-hf && \
-        rm -rf ${WORKD} && \
-        ln -s ../../bin/ccache /usr/lib/ccache/arm-linux-gnueabihf-gcc && \
-        ln -s ../../bin/ccache /usr/lib/ccache/arm-linux-gnueabihf-g++ ; \
+RUN if [[ "$(dpkg --print-architecture)" == "amd64" && \
+          "$HOST_ARCHITECTURE" == "i386" &&            \
+          "$(lsb_release -cs)" == "stretch" ]];        \
+    then                                               \
+        printf "%b"                                    \
+               "#!/bin/bash\n"                         \
+               "export CC=\"gcc -m32\"\n"              \
+               "export CXX=\"g++ -m32\"\n"             \
+               "export LDEMULATION=\"elf_i386\"\n"     \
+               > /opt/environment/compiler.sh;                        \
+    else                                                              \
+        printf "%b"                                                   \
+               "#!/bin/bash\n"                                        \
+               "export CC=$(dpkg-architecture -a${HOST_ARCHITECTURE}  \
+                            -qDEB_HOST_GNU_TYPE)-gcc\n"               \
+               "export CXX=$(dpkg-architecture -a${HOST_ARCHITECTURE} \
+                            -qDEB_HOST_GNU_TYPE)-g++\n"               \
+               > /opt/environment/compiler.sh;                        \
     fi
 
-# - Qemu for emulating ARM on amd64
-RUN if test $DEBIAN_ARCH = armhf -o $DEBIAN_ARCH = arm64; then \
-        apt-get install -y qemu binfmt-support qemu-user-static \
-        && apt-get clean; \
+RUN printf "%b"                                               \
+           "#!/bin/bash\n"                                    \
+           "set -a\n"                                         \
+           "$(dpkg-architecture -a${HOST_ARCHITECTURE} -s)\n" \
+           "set +a\n"                                         \
+           > /opt/environment/dpkg-architecture.sh
+
+COPY debian/ /tmp/debian/
+
+RUN cd /tmp;                                                                  \
+    ./debian/bootstrap -s -p /tmp;                                            \
+    mk-build-deps --build-arch=$(dpkg-architecture -qDEB_BUILD_ARCH)          \
+                  --host-arch=${HOST_ARCHITECTURE}                            \
+                  -ir -t                                                      \
+        "apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y" \
+                  ./debian/control;
+
+# This on Debian 9 Stretch, HOST_ARCHITECTURE i386 actually abuses the fact
+# that the i686-linux-gnu-gcc does not exists (the $CC is set to 'gcc -m32'),
+# so the comparison will fail and '-Werror' will be exported - what is the
+# end result we want on Stretch anyway
+RUN if ! [[ $(echo -e "$($(dpkg-architecture -a${HOST_ARCHITECTURE}     \
+                           -qDEB_HOST_GNU_TYPE)-gcc -dumpversion)\n8" | \
+            sort -V | head -n1) == "8" ]];                              \
+    then                                                                \
+        printf "%b"                                                     \
+               "#!/bin/bash\n"                                          \
+               "export DPKG_CFLAGS=\"${DPKG_CFLAGS} -Werror\"\n"        \
+               > /opt/environment/dpkg_flags.sh;                        \
     fi
-
-###################################################################
-# Build environment
-
-ENV CPPFLAGS="${SYS_ROOT:+--sysroot=$SYS_ROOT ${EXTRA_FLAGS}}"
-ENV LDFLAGS="${SYS_ROOT:+--sysroot=$SYS_ROOT ${EXTRA_FLAGS}}"
-ENV PKG_CONFIG_PATH="${SYS_ROOT:+$SYS_ROOT/usr/lib/$HOST_MULTIARCH/pkgconfig:$SYS_ROOT/usr/lib/pkgconfig:$SYS_ROOT/usr/share/pkgconfig}"
-ENV DPKG_ROOT=$SYS_ROOT
-
-# armhf build root environment
-ENV ARM_HOST_MULTIARCH=arm-linux-gnueabihf
-
-# arm64
-ENV ARM64_HOST_MULTIARCH=aarch64-linux-gnu
-
-# i386 build root environment
-ENV I386_HOST_MULTIARCH=i386-linux-gnu
-
-###########################################
-# Monkey-patches and multistrap setup
-
-# Create sysroot directory
-RUN test -z "$SYS_ROOT" || mkdir $SYS_ROOT
-
-# Add multistrap configurations
-ADD scripts/buildsystem/debian/multistrap-configs /tmp/multistrap-configs/
-
-# Add `{dh_shlibdeps,dpkg-shlibdeps} --sysroot` argument
-ADD scripts/buildsystem/debian/dpkg-shlibdeps/dpkg-shlibdeps-*.patch /tmp/
-RUN cd / && \
-    patch -p0 -F 0 -N < /tmp/dpkg-shlibdeps-$DISTRO_VER.patch && \
-    rm /tmp/dpkg-shlibdeps-*.patch
-RUN test -z "$SYS_ROOT" \
-    || { \
-        mkdir -p ${SYS_ROOT}/etc \
-        && cp /etc/ld.so.conf ${SYS_ROOT}/etc/ld.so.conf \
-        && echo '/lib/arm-linux-gnueabihf\n/usr/lib/arm-linux-gnueabihf' > \
-	    /etc/ld.so.conf.d/arm-linux-gnueabihf.conf \
-        && echo '/lib/aarch64-linux-gnu\n/usr/lib/aarch64-linux-gnu' > \
-	    /etc/ld.so.conf.d/aarch64-linux-gnu.conf; \
-    }
-# Symlink i586 binutils to i386 so ./configure can find them
-RUN test $DISTRO_VER -gt 8 || \
-    for i in /usr/bin/i586-linux-gnu-*; do \
-	ln -s $(basename $i) $(echo $i | sed 's/i586/i386/'); \
-    done
-# Give dh_strip the multiarch utility names it needs
-RUN test $DISTRO_VER -eq 8 || { \
-        ln -s x86_64-linux-gnu-objcopy /usr/bin/i686-linux-gnu-objcopy && \
-        ln -s x86_64-linux-gnu-objdump /usr/bin/i686-linux-gnu-objdump && \
-        ln -s x86_64-linux-gnu-strip /usr/bin/i686-linux-gnu-strip; \
-    }
-
-# Symlink armhf-arch pkg-config, Jessie only
-RUN if test $DISTRO_VER -eq 8; then \
-        ln -s pkg-config /usr/bin/${ARM_HOST_MULTIARCH}-pkg-config; \
-    fi
-
-###################################################################
-# Machinekit:  Configure apt
-
-# add Machinekit dependencies package archive
-RUN curl -1sLf \
-  'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
-  | sudo bash \
-  && apt-get update
-
-###################################################################
-# Machinekit:  Install dependency packages
-
-# Xenomai threads still supported on Jessie
-RUN if test $DISTRO_CODENAME = jessie -a -z "$SYS_ROOT"; then \
-        apt-get install -y libxenomai-dev \
-        && apt-get clean; \
-    fi
-
-##############################
-# Machinekit:  Configure multistrap
-
-# Set up debian/control for `mk-build-deps`
-ADD debian/control.in debian/configure /tmp/debian/
-RUN MK_CROSS_BUILDER=1 /tmp/debian/configure
-
-# Directory for `mk-build-deps` apt repository
-RUN mkdir /tmp/debs && \
-    touch /tmp/debs/Sources
-
-# Create deps package and local package repo
-RUN if test $DISTRO_VER -eq 8; then \
-        mk-build-deps --arch $DEBIAN_ARCH /tmp/debian/control; \
-    else \
-        mk-build-deps --build-arch $DEBIAN_ARCH --host-arch $DEBIAN_ARCH \
-	    /tmp/debian/control; \
-    fi \
-    && mv *.deb /tmp/debs \
-    && ( cd /tmp/debs && dpkg-scanpackages -m . > /tmp/debs/Packages )
-
-# Add deps repo to apt sources for native builds
-RUN if test $DISTRO_VER -le 9 -a $DEBIAN_ARCH = amd64; then \
-	echo "deb file:///tmp/debs ./" > /etc/apt/sources.list.d/local.list \
-	&& apt-get update; \
-    fi
-
-
-##############################
-# Machinekit:  Host arch build environment
-
-# Native arch:  Install build dependencies
-RUN if test -z "$SYS_ROOT"; then \
-        apt-get update \
-        && if test $DISTRO_VER -le 9; then \
-	    apt-get install -y  -o Apt::Get::AllowUnauthenticated=true \
-		machinekit-hal-build-deps \
-	    && sed -i /etc/apt/sources.list.d/local.list -e '/^deb/ s/^/#/' \
-	    && apt-get update ; \
-        else \
-	    apt-get install -y /tmp/debs/machinekit-hal-build-deps_*.deb; \
-	fi \
-	&& apt-get clean; \
-    fi
-
-# Patch multistrap on Buster
-# https://github.com/volumio/Build/issues/348#issuecomment-462271607
-RUN if test $DISTRO_VER -ge 9; then \
-        sed -i /usr/sbin/multistrap \
-	    -e '/AllowUnauthenticated/ s/"$/ -o Acquire::AllowInsecureRepositories=true"/'; \
-    fi
-
-# Foreign arch:  Build "sysroot"
-# - Select and unpack build dependency packages
-RUN test -z "$SYS_ROOT" \
-    || multistrap -f /tmp/multistrap-configs/$DISTRO_CODENAME.conf \
-	-a $DEBIAN_ARCH -d $SYS_ROOT
-# - Fix symlinks in "sysroot" libdir pointing to `/lib/$MULTIARCH`
-RUN test -z "$SYS_ROOT" \
-    || { \
-        for link in $(find $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/ -type l); do \
-            if test $(dirname $(readlink $link)) != .; then \
-                ln -sf ../../../lib/${HOST_MULTIARCH}/$(basename \
-                    $(readlink $link)) $link; \
-            fi; \
-        done; \
-    }
-
-# - Link directories with glib/gtk includes in the wrong place
-#   Only needed on Jessie?
-RUN test -z "$SYS_ROOT" \
-    || { \
-        mkdir -p /usr/lib/${HOST_MULTIARCH} && \
-        ln -s $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/glib-2.0 \
-	    /usr/lib/${HOST_MULTIARCH} && \
-	ln -s $SYS_ROOT/usr/lib/${HOST_MULTIARCH}/gtk-2.0 \
-	    /usr/lib/${HOST_MULTIARCH}; \
-    }
-
-# - Link `xeno-config` to where autoconf can find it
-RUN test -z "$SYS_ROOT" -o $DISTRO_VER -gt 8 || \
-    ln -s /sysroot/usr/bin/xeno-config /usr/bin/
-
-##############################
-# Machinekit:  Build arch build environment
-
-# Install Multi-Arch: foreign dependencies
-RUN apt-get update \
-    && apt-get install -y \
-        cython \
-        uuid-runtime \
-        protobuf-compiler \
-        python-protobuf \
-        python-pyftpdlib \
-        python-tk \
-        netcat-openbsd \
-        tcl8.6 tk8.6 \
-        cgroup-tools \
-    && if test $DISTRO_VER -le 9; then \
-	    apt-get install -y \
-		yapps2-runtime yapps2; \
-       else \
-	    apt-get install -y \
-		python-yapps yapps2; \
-       fi \
-    && apt-get clean
-
-# Monkey-patch entire /usr/include, and re-add build-arch headers
-RUN test -z "$SYS_ROOT" \
-    || { \
-        mv /usr/include /usr/include.build && \
-        ln -s $SYS_ROOT/usr/include /usr/include && \
-	ln -sf /usr/include.build/x86_64-linux-gnu $SYS_ROOT/usr/include; \
-    }
-
-# On Buster, fix krb5-dev .pc files in sysroot
-RUN if test $DISTRO_VER -eq 10 -a -n "$SYS_ROOT"; then \
-        cd /sysroot/usr/lib/${HOST_MULTIARCH}/pkgconfig/mit-krb5 && \
-        for i in *; do \
-	    rm ../$i \
-	    && ln -s mit-krb5/$i ../$i; \
-	done; \
-    fi
-# On Buster, the libczmq.pc file requires libsystemd but the
-# libczmq-dev package doesn't require libsystemd-dev; take care of
-# native case (sysroot case taken care of in multistrap config)
-RUN if test $DISTRO_VER -eq 10 -a -z "$SYS_ROOT"; then \
-        apt-get install -y libsystemd-dev \
-        && apt-get clean; \
-    fi
-
-###########################################
-# Set up environment
-
-RUN echo "ALL ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
-
-RUN addgroup --gid 1000 machinekit && \
-    adduser --uid 1000 --ingroup machinekit \
-        --home /home/machinekit --shell /bin/bash \
-        --disabled-password --gecos "" machinekit
-
-RUN USER=machinekit && \ 
-    GROUP=machinekit && \
-    curl -SsL https://github.com/boxboat/fixuid/releases/download/v0.4.1/fixuid-0.4.1-linux-amd64.tar.gz | \
-        tar -C /usr/local/bin -xzf - && \
-    chown root:root /usr/local/bin/fixuid && \
-    chmod 4755 /usr/local/bin/fixuid && \
-    mkdir -p /etc/fixuid && \
-    printf "user: $USER\ngroup: $GROUP\n" > /etc/fixuid/config.yml
-
-# Customize the following to match the user's environment
-
-ENV PATH=/usr/lib/ccache:/opt/gcc-linaro-hf/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH}
-
-# Customize the run environment to your taste
-# - bash prompt
-# - 'ls' alias
-RUN sed -i ~/.bashrc \
-    -e 's/^PS1=.*/PS1="\\h:\\W\\$ "/' \
-    -e '$a alias ls="ls -aFs"'
-
-ENTRYPOINT ["fixuid"]
-
-###############################################
-# Add labels
-
-ARG NAME
-ARG MAINTAINER
-ARG DESCRIPTION
-ARG BUILD_DATE
-ARG VCS_REF
-ARG VCS_URL
-LABEL io.machinekit.machinekit-hal.name=${NAME}
-LABEL io.machinekit.machinekit-hal.maintainer=${MAINTAINER}
-LABEL io.machinekit.machinekit-hal.description=${DESCRIPTION}
-LABEL io.machinekit.machinekit-hal.build-date=${BUILD_DATE}
-LABEL io.machinekit.machinekit-hal.vcs-ref=${VCS_REF}
-LABEL io.machinekit.machinekit-hal.vcs-url=${VCS_URL}
-
-
-###############################################
-# MK builder
-FROM mkbuilder_base AS mkbuilder
-
-USER machinekit
-
-###############################################
-# LCNC builder
-
-FROM mkbuilder_base AS lcncbuilder
-ARG DEBIAN_ARCH
-
-# Install Machinekit and deps
-COPY packages packages
-RUN apt-get install -y \
-        ./packages/machinekit-hal_*.deb \
-        ./packages/machinekit-hal-dev_*.deb \
-    && echo 'ANNOUNCE_IPV4=0\nANNOUNCE_IPV6=0' >> /etc/machinekit/machinekit.ini
-
-USER machinekit

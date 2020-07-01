@@ -24,9 +24,9 @@
 ##############################################################################
 
 AC_PREREQ(2.53)
-AC_INIT([Machinekit],
+AC_INIT([Machinekit-HAL],
         [m4_normalize(esyscmd(cat ../VERSION))],
-        [emc-developers@lists.sourceforge.net])
+        [https://github.com/machinekit/machinekit-hal/issues])
 if test "$srcdir" != "."; then
     AC_MSG_ERROR([Building outside of srcdir is not supported])
 fi

@@ -107,8 +107,7 @@ PROTOCXX_FLAGS :=
 PROTOCXX_CXX_FLAGS := -fPIC $(PROTOBUF_CFLAGS)
 
 # tell protobuf to use compiled C for Python bindings
-# not available in 2.4.1/jessie
-#export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=cpp
+export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=cpp
 
 NANOPB_CFLAGS := -DPB_FIELD_32BIT '-DPB_SYSTEM_HEADER=<'$(MACHINETALK)'/include/pb-hal.h>'
 NANOPB_OPTIONS := $(MACHINETALK)/nanopb.options

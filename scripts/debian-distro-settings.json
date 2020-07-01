@@ -1,101 +1,63 @@
 {
-    "architectures": [
-        {
-            "DEBIAN_ARCH": "amd64",
-            "SYS_ROOT": "",
-            "HOST_MULTIARCH": "x86_64-linux-gnu",
-            "EXTRA_FLAGS": "",
-            "LDEMULATION": "elf_x86_64"
-        },
-        {
-            "DEBIAN_ARCH": "armhf",
-            "SYS_ROOT": "/sysroot",
-            "HOST_MULTIARCH": "arm-linux-gnueabihf",
-            "EXTRA_FLAGS": "",
-            "LDEMULATION": "armelf_linux_eabi"
-        },
-        {
-            "DEBIAN_ARCH": "arm64",
-            "SYS_ROOT": "/sysroot",
-            "HOST_MULTIARCH": "aarch64-linux-gnu",
-            "EXTRA_FLAGS": "",
-            "LDEMULATION": "aarch64linux"
-        },
-        {
-            "DEBIAN_ARCH": "i386",
-            "SYS_ROOT": "/sysroot",
-            "HOST_MULTIARCH": "i386-linux-gnu",
-            "EXTRA_FLAGS": "-m32",
-            "LDEMULATION": "elf_i386"
-        }
-    ],
-    "osVersions": [
-        {
-            "DISTRO_CODENAME": "jessie",
-            "BASE_IMAGE": "debian:jessie",
-            "DISTRO_VER": 8
-        },
-        {
-            "DISTRO_CODENAME": "stretch",
-            "BASE_IMAGE": "debian:stretch",
-            "DISTRO_VER": 9
-        },
-        {
-            "DISTRO_CODENAME": "buster",
-            "BASE_IMAGE": "debian:buster",
-            "DISTRO_VER": 10
-        },
-        {
-            "DISTRO_CODENAME": "bullseye",
-            "BASE_IMAGE": "debian:bullseye",
-            "DISTRO_VER": 11
-        }
-    ],
-    "allowedCombinations": [
-        {
-            "osVersionNumber": 8,
-            "architecture": "i386"
-        },
-        {
-            "osVersionNumber": 9,
-            "architecture": "i386"
-        },
-        {
-            "osVersionNumber": 10,
-            "architecture": "i386"
-        },
-        {
-            "osVersionNumber": 8,
-            "architecture": "amd64"
-        },
-        {
-            "osVersionNumber": 9,
-            "architecture": "amd64"
-        },
-        {
-            "osVersionNumber": 10,
-            "architecture": "amd64"
-        },
-        {
-            "osVersionNumber": 8,
-            "architecture": "armhf"
-        },
-        {
-            "osVersionNumber": 9,
-            "architecture": "armhf"
-        },
-        {
-            "osVersionNumber": 10,
-            "architecture": "armhf"
-        },
-        {
-            "osVersionNumber": 9,
-            "architecture": "arm64"
-        },
-        {
-            "osVersionNumber": 10,
-            "architecture": "arm64"
-        }
-    ],
-    "imageNameRoot": "machinekit-hal-debian-builder-v."
+  "osVersions": [
+    {
+      "distributionID": "Debian",
+      "distributionCodename": "Stretch",
+      "baseImage": "debian:stretch",
+      "releaseNumber": 9
+    },
+    {
+      "distributionID": "Debian",
+      "distributionCodename": "Buster",
+      "baseImage": "debian:buster",
+      "releaseNumber": 10
+    },
+    {
+      "distributionID": "Debian",
+      "distributionCodename": "Bullseye",
+      "baseImage": "debian:bullseye",
+      "releaseNumber": 11
+    },
+    {
+      "distributionID": "Ubuntu",
+      "distributionCodename": "Bionic",
+      "baseImage": "ubuntu:bionic",
+      "releaseNumber": 18.04
+    }
+  ],
+  "allowedCombinations": [
+    {
+      "osVersionNumber": 9,
+      "architecture": "i386"
+    },
+    {
+      "osVersionNumber": 10,
+      "architecture": "i386"
+    },
+    {
+      "osVersionNumber": 9,
+      "architecture": "amd64"
+    },
+    {
+      "osVersionNumber": 10,
+      "architecture": "amd64"
+    },
+    {
+      "osVersionNumber": 9,
+      "architecture": "armhf"
+    },
+    {
+      "osVersionNumber": 10,
+      "architecture": "armhf"
+    },
+    {
+      "osVersionNumber": 9,
+      "architecture": "arm64"
+    },
+    {
+      "osVersionNumber": 10,
+      "architecture": "arm64"
+    }
+  ],
+  "imageNameRoot": "machinekit-hal-@DISTRIBUTION@-builder-v.@TAG@"
 }

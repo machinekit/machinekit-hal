@@ -239,7 +239,7 @@ endef
 #		../lib/lib.so
 #	@mkdir -p objects/dir
 #	@echo Linking test objects/dir/test_src_RTAPI
-#	$(Q)gcc -o objects/dir/test_src_RTAPI -g -DRTAPI \
+#	$(Q)$(CC) -o objects/dir/test_src_RTAPI -g -DRTAPI \
 #		$(OBJDIR)/dir/test_src.o \
 #		objects/dir/ulapi_srcs.o $(OBJDIR)/dir/rtapi_srcs.o \
 #		../lib/lib.so -lfoo -Wl,--wrap=wrap_funct
@@ -255,7 +255,7 @@ objects/$(1)_$(strip $(2)): \
 		$$(call TOOBJS, $(3)) $$(call TORTOBJS, $(4)) $(5)
 	@mkdir -p objects/$$(dir $(1))
 	@echo Linking test objects/$(1)_$(strip $(2))
-	$(Q)gcc -o $$@ -g $$^ -lcmocka $(6) $$(addprefix $$(WL_WRAP),$(7))
+	$(Q)$(CC) -o $$@ -g $$^ -lcmocka $(6) $$(addprefix $$(WL_WRAP),$(7))
 CMOCKA_TESTS += $(1)_$(strip $(2))
 
 endef

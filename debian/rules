@@ -50,10 +50,15 @@ ifneq ($(origin CXX),default)
 endif
 
 
-debian/control: debian/configure
-#	# if debian/configure has not been run, error out
-	if ! test -f debian/configure.cmdline; then \
-	    @echo "Please run debian/configure" \
+debian/control: debian/bootstrap
+#	# if debian/configure.py or debian/bootstrap has not been run, error out
+	if ! test -f debian/changelog; then \
+	    @echo "Please run debian/configure.py" \
+	        "to generate the debian/changelog file."; \
+	    false; \
+	fi
+	if ! test -f debian/control; then \
+	    @echo "Please run debian/bootstrap" \
 	        "to generate the debian/control file."; \
 	    false; \
 	fi
@@ -70,8 +75,8 @@ build-stamp: debian/control
 	cd src && ./autogen.sh
 	cd src && env $(COMPILE_ENV) \
 	    ./configure --prefix=/usr \
-	    --build=$(DEB_BUILD_MULTIARCH) \
-	    --host=$(DEB_HOST_MULTIARCH) \
+	    --build=$(DEB_BUILD_GNU_TYPE) \
+	    --host=$(DEB_HOST_GNU_TYPE) \
 	    --sysconfdir=/etc
 	cd src && $(MAKE) $(COMPILE_ENV) $(MAKEFLAGS) V=$(DH_VERBOSE)
 	touch build-stamp
@@ -87,8 +92,8 @@ ifneq ($(wildcard src/configure src/Makefile.inc),)
 	cd src && ./autogen.sh
 	cd src && env $(COMPILE_ENV) \
 	    ./configure --prefix=/usr \
-	    --build=$(DEB_BUILD_MULTIARCH) \
-	    --host=$(DEB_HOST_MULTIARCH) \
+	    --build=$(DEB_BUILD_GNU_TYPE) \
+	    --host=$(DEB_HOST_GNU_TYPE) \
 	    --sysconfdir=/etc
 	cd src && $(MAKE) clean -s
 #	# Manually remove things left by './configure'
@@ -171,7 +176,7 @@ binary-arch: build install
 	dh_compress -X.pdf -X.txt -X.hal -X.ini -X.clp -X.var \
 	    -X.tbl -X.xml -Xsample-configs
 	dh_fixperms -X/rtapi_app
-	dh_python2 --ignore-shebangs --no-guessing-versions --no-ext-rename
+	dh_python2 --ignore-shebangs --no-guessing-versions
 	dh_makeshlibs
 	dh_installdeb
 
