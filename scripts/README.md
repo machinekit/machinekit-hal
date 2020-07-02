@@ -19,4 +19,4 @@ creation of Machinekit-HAL
 
 Heed README.md in folder `scripts/buildsystem`
 
-Build images by invoking script `scripts/build_debian_docker_image`
+Build images by invoking script `scripts/buildcontainerimage.py ${DISTRIBUTION} ${VERSION} ${ARCHITECTURE}`

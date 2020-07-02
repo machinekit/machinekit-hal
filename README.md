@@ -65,8 +65,8 @@ Alternatively you can build locally on your machine in _**R**un-**I**n-**P**lace
 ```sh
 git clone https://github.com/machinekit/machinekit-hal.git
 cd machinekit-hal
-debian/configure
-sudo mk-build-deps -ir
+debian/bootstrap
+mk-build-deps -irs sudo
 cd src
 ./autogen.sh
 ./configure
