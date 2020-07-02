@@ -112,7 +112,9 @@ Suggests: hostmot2-firmware-all [!armhf]
 Depends:
     machinekit-hal,
     linux-image-rt-686-pae [i386],
-    linux-image-rt-amd64 [amd64]
+    linux-image-rt-amd64 [amd64],
+    linux-image-rt-arm64 [arm64],
+    linux-image-rt-armmp [armhf]
 Description: Machinekit HAL RT_PREEMPT
  .
  This metapackage provides components and drivers that run on a realtime
@@ -129,14 +131,14 @@ Description: Universal framework for machine control based on Hardware Abstracti
 Depends:
     machinekit-hal
 
-Package: machinekit-hal-xenomai2
-Architecture: any
-Suggests: hostmot2-firmware-all [!armhf]
-Conflicts: machinekit-hal-xenomai
-Description: Universal framework for machine control based on Hardware Abstraction Layer principle
- .
- This package provides components and drivers that run on a realtime
- (XENOMAI 2) system.
-Depends:
-    machinekit-hal,
-    xenomai-runtime (<= 2.8)
+#Package: machinekit-hal-xenomai2
+#Architecture: any
+#Suggests: hostmot2-firmware-all [!armhf]
+#Conflicts: machinekit-hal-xenomai
+#Description: Universal framework for machine control based on Hardware Abstraction Layer principle
+# .
+# This package provides components and drivers that run on a realtime
+# (XENOMAI 2) system.
+#Depends:
+#    machinekit-hal,
+#    xenomai-runtime (<= 2.8)
