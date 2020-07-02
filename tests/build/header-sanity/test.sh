@@ -1,11 +1,10 @@
 #!/bin/sh
 set -xe
-# Change to "mapfile -d ''" and "realpath -e -z" with multiline support after
-# Jessie is dropped
+
 HEADERS_DIRECTORY=$(readlink -f ../../../include)
-mapfile -t ARRAY_H_HH < <(find ${HEADERS_DIRECTORY} -type f \
+mapfile -d '' -t ARRAY_H_HH < <(find ${HEADERS_DIRECTORY} -type f \
     \( -iname \*.h -o -iname \*.hh \) -print0 | \
-    xargs -0 -n1 -I '{}' readlink -f '{}')
+    xargs -0 -n1 -I '{}' realpath -e -z '{}')
 
 if (( ${#ARRAY_H_HH[@]} <= 5 )); then
     printf "Found %d header files:\n===\n" ${#ARRAY_H_HH[@]}
