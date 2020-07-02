@@ -121,6 +121,7 @@ def main(args):
 
         ripruntests_script.build_rip()
         ripruntests_script.run_runtests(args.test_path)
+        print("Machinekit-HAL regression tests ran successfully!")
     except ValueError as e:
         print(e)
         sys.exit(1)
