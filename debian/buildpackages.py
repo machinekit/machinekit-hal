@@ -4,9 +4,9 @@
 #####################################################################
 # Description:  buildpackages.py
 #
-#               This file, 'buildpackages.py', implements Debian styled Docker images
-#               used for building, testing and running Machinekit-HAL in CI/CD
-#               workflows.
+#               This file, 'buildpackages.py', implements scripted workflow for
+#               building .deb and .ddeb native packages for Debian flavoured
+#               distributions.
 #
 # Copyright (C) 2020    Jakub Fišer  <jakub DOT fiser AT eryaf DOT com>
 #
@@ -99,6 +99,7 @@ def main(args):
         buildpackages_script = Buildpackages_script(
             args.path, args.host_architecture)
         buildpackages_script.build_packages()
+        print("Packages built successfully!")
     except ValueError as e:
         print(e)
         sys.exit(1)

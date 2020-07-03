@@ -37,10 +37,12 @@
 
 sudo: required
 
+dist: bionic
+
 notifications:
   email:
     on_success: never
-    on_failure: always
+    on_failure: never
   webhooks:
     urls:
       - $GITTER_IM_URL
@@ -56,36 +58,76 @@ cache: ccache
 services:
   - docker
 
-env:
-  global:
-    - TEST_DEBUG=false
-    - TEST_ARGS=
-  matrix:
+matrix:
+  include:
+    - os: linux
+      arch: amd64
+      env: ARCHITECTURE=amd64 VERSION=10
+    - os: linux
+      arch: arm64
+      env: ARCHITECTURE=arm64 VERSION=10
+    - os: linux
+      arch: amd64
+      env: ARCHITECTURE=amd64 VERSION=9
+    - os: linux
+      arch: arm64
+      env: ARCHITECTURE=arm64 VERSION=9
+    - os: linux
+      arch: amd64
+      env: ARCHITECTURE=i386 VERSION=10
+    - os: linux
+      arch: amd64
+      env: ARCHITECTURE=armhf VERSION=10
+    - os: linux
+      arch: amd64
+      env: ARCHITECTURE=arm64 VERSION=10
+    - os: linux
+      arch: amd64
+      env: ARCHITECTURE=i386 VERSION=9
+    - os: linux
+      arch: amd64
+      env: ARCHITECTURE=armhf VERSION=9
+    - os: linux
+      arch: amd64
+      env: ARCHITECTURE=arm64 VERSION=9
+    - os: linux
+      arch: arm64
+      env: ARCHITECTURE=armhf VERSION=10
+    - os: linux
+      arch: arm64
+      env: ARCHITECTURE=amd64 VERSION=10
+    - os: linux
+      arch: arm64
+      env: ARCHITECTURE=i386 VERSION=10
+    - os: linux
+      arch: arm64
+      env: ARCHITECTURE=armhf VERSION=9
     # Tests
     # - Reduce total build time by starting longest jobs first
-    - ARCHITECTURE=amd64 VERSION=10   CMD=test
-    - ARCHITECTURE=amd64 VERSION=9    CMD=test
+    #- ARCHITECTURE=amd64 VERSION=10   CMD=test
+    #- ARCHITECTURE=amd64 VERSION=9    CMD=test
     # Packages
     # - Buster
-    - ARCHITECTURE=amd64 VERSION=10    CMD=deb
-    - ARCHITECTURE=arm64 VERSION=10    CMD=deb
-    - ARCHITECTURE=i386  VERSION=10    CMD=deb
-    - ARCHITECTURE=armhf VERSION=10    CMD=deb
+    #- ARCHITECTURE=amd64 VERSION=10    CMD=deb
+    #- ARCHITECTURE=arm64 VERSION=10    CMD=deb
+    #- ARCHITECTURE=i386  VERSION=10    CMD=deb
+    #- ARCHITECTURE=armhf VERSION=10    CMD=deb
     # - Stretch
-    - ARCHITECTURE=amd64 VERSION=9    CMD=deb
-    - ARCHITECTURE=arm64 VERSION=9    CMD=deb
-    - ARCHITECTURE=i386  VERSION=9    CMD=deb
-    - ARCHITECTURE=armhf VERSION=9    CMD=deb
+    #- ARCHITECTURE=amd64 VERSION=9    CMD=deb
+    #- ARCHITECTURE=arm64 VERSION=9    CMD=deb
+    #- ARCHITECTURE=i386  VERSION=9    CMD=deb
+    #- ARCHITECTURE=armhf VERSION=9    CMD=deb
 
-addons:
-  apt:
-    packages:
-    - lftp
-    - sshpass
+#addons:
+#  apt:
+#    packages:
+#    - lftp
+#    - sshpass
 
 before_install:
   # Show environment for debugging purposes
   - env
+  # Dependency needed for Docker image build
   - sudo apt-get -y install python3-sh
   # Build the Docker build image
   - scripts/buildcontainerimage.py debian $VERSION $ARCHITECTURE
@@ -96,31 +138,29 @@ before_install:
 
 script:
   - |
-    if [ "$CMD" == "deb" ]; then
-          LOCAL_DIR="$(pwd)";
-          PARENT_DIR="$(dirname ${LOCAL_DIR})";
-          DOCKER_IMAGE="machinekit-hal-debian-builder-v.${ARCHITECTURE}_${VERSION}:latest";
-          docker run --tty --rm -u "$(id -u):$(id -g)" \
-            -v "${PARENT_DIR}:/home/machinekit/build" \
-            -w "/home/machinekit/build/machinekit-hal" \
-            ${DOCKER_IMAGE} debian/bootstrap;
-          docker run --tty --rm -u "$(id -u):$(id -g)" \
-            -v "${PARENT_DIR}:/home/machinekit/build" \
-            -w "/home/machinekit/build/machinekit-hal" \
-            ${DOCKER_IMAGE} debian/configure.py -c;
-          docker run --tty --rm -u "$(id -u):$(id -g)" \
-            -v "${PARENT_DIR}:/home/machinekit/build" \
-            -w "/home/machinekit/build/machinekit-hal" \
-            ${DOCKER_IMAGE} debian/buildpackages.py; 
-        else
-          LOCAL_DIR="$(pwd)";
-          PARENT_DIR="$(dirname ${LOCAL_DIR})";
-          DOCKER_IMAGE="machinekit-hal-debian-builder-v.${ARCHITECTURE}_${VERSION}:latest";
-          docker run --tty --rm -u "$(id -u):$(id -g)" \
-            -v "${PARENT_DIR}:/home/machinekit/build" \
-            -w "/home/machinekit/build/machinekit-hal" \
-            ${DOCKER_IMAGE} debian/ripruntests.py; 
-        fi
+    LOCAL_DIR="$(pwd)";
+    PARENT_DIR="$(dirname ${LOCAL_DIR})";
+    DOCKER_IMAGE="machinekit-hal-debian-builder-v.${ARCHITECTURE}_${VERSION}:latest";
+    docker run --tty --rm -u "$(id -u):$(id -g)" \
+      -v "${PARENT_DIR}:/home/machinekit/build" \
+      -w "/home/machinekit/build/machinekit-hal" \
+      ${DOCKER_IMAGE} debian/bootstrap;
+    docker run --tty --rm -u "$(id -u):$(id -g)" \
+      -v "${PARENT_DIR}:/home/machinekit/build" \
+      -w "/home/machinekit/build/machinekit-hal" \
+      ${DOCKER_IMAGE} debian/configure.py -c;
+    docker run --tty --rm -u "$(id -u):$(id -g)" \
+      -v "${PARENT_DIR}:/home/machinekit/build" \
+      -w "/home/machinekit/build/machinekit-hal" \
+      ${DOCKER_IMAGE} debian/buildpackages.py; 
+    if [[ "$ARCHITECTURE" == "$TRAVIS_ARCH" ]];
+    then
+      git -C ${LOCAL_DIR} clean -xdf; 
+      docker run --tty --rm -u "$(id -u):$(id -g)" \
+        -v "${PARENT_DIR}:/home/machinekit/build" \
+        -w "/home/machinekit/build/machinekit-hal" \
+        ${DOCKER_IMAGE} debian/ripruntests.py; 
+    fi
 
 after_success:
   # Upload packages to packagecloud.io

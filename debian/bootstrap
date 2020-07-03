@@ -43,7 +43,6 @@ set -o pipefail
 ################################################################################
 
 MK_PATH=${MK_PATH:-}
-DPKG_ROOT=${DPKG_ROOT:-}
 BUILDTIME_DEPENDENCIES=${BUILDTIME_DEPENDENCIES:-}
 RUNTIME_DEPENDENCIES=${RUNTIME_DEPENDENCIES:-}
 SKIP_CHECKS=${SKIP_CHECKS:-}
@@ -124,12 +123,7 @@ failure() {
 ################################################################################
 
 devscript_installed(){
-    local DPKG_QUERY_ARGS=""
-    if test -n "$DPKG_ROOT"; then
-        DPKG_QUERY_ARGS="--admindir=$DPKG_ROOT/var/lib/dpkg"
-    fi
-
-    dpkg-query $DPKG_QUERY_ARGS -W 'devscripts' > /dev/null 2>&1
+    dpkg-query -W 'devscripts' > /dev/null 2>&1
     local retval="$?"
 
     if (( retval != 0 ))
@@ -146,12 +140,7 @@ devscript_installed(){
 }
 
 search_for_xenomai() {
-    local DPKG_QUERY_ARGS=""
-    if test -n "$DPKG_ROOT"; then
-        DPKG_QUERY_ARGS="--admindir=$DPKG_ROOT/var/lib/dpkg"
-    fi
-
-    if ! dpkg-query $DPKG_QUERY_ARGS -W | grep -q libxenomai-dev;
+    if ! dpkg-query -W | grep -q libxenomai-dev;
     then
         log_info "Not configuring build for Xenomai (no libxenomai-dev package)"
         return 0
