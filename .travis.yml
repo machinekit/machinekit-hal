@@ -153,7 +153,7 @@ script:
       -v "${PARENT_DIR}:/home/machinekit/build" \
       -w "/home/machinekit/build/machinekit-hal" \
       ${DOCKER_IMAGE} debian/buildpackages.py; 
-    if [[ "$ARCHITECTURE" == "$TRAVIS_ARCH" ]];
+    if [[ "$ARCHITECTURE" == "$TRAVIS_CPU_ARCH" ]];
     then
       git -C ${LOCAL_DIR} clean -xdf; 
       docker run --tty --rm -u "$(id -u):$(id -g)" \
