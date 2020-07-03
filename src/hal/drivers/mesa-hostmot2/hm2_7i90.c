@@ -203,7 +203,7 @@ int hm2_7i90_read(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
 
 
 
-int hm2_7i90_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
+int hm2_7i90_write(hm2_lowlevel_io_t *this, u32 addr, const void *buffer, int size) {
     int bytes_remaining = size;
     hm2_7i90_t *board = this->private;
 
@@ -369,4 +369,3 @@ void rtapi_app_exit(void) {
     hal_exit(comp_id);
     LL_PRINT("driver unloaded\n");
 }
-

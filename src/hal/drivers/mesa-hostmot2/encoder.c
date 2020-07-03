@@ -21,7 +21,7 @@
 //
 //  This file contains the driver for the HostMot2 encoder v2 Module.
 //
-//  It supports Index and Index Mask, and high-fidelity velocity 
+//  It supports Index and Index Mask, and high-fidelity velocity
 //  estimation.
 //
 
@@ -108,6 +108,12 @@ static void hm2_encoder_update_control_register(hostmot2_t *hm2,
         );
 
         do_flag(
+            &hm2->encoder.control_reg[i],
+            e->hal.param.index_mode,
+            HM2_ENCODER_INDEX_MODE
+        );
+
+        do_flag(
             &encoder->control_reg[i],
             e->hal.param.filter,
             HM2_ENCODER_FILTER
@@ -150,7 +156,7 @@ static void hm2_encoder_read_control_register(hostmot2_t *hm2,
 static void hm2_encoder_set_filter_rate_and_skew(hostmot2_t *hm2,
 						 hm2_encoder_t *encoder) {
     u32 filter_rate = encoder->clock_frequency/(*encoder->hal->pin.sample_frequency);
-    
+
     if (filter_rate == 1) {
         filter_rate = 0xFFF;
     } else {
@@ -160,7 +166,7 @@ static void hm2_encoder_set_filter_rate_and_skew(hostmot2_t *hm2,
     HM2_DBG("Setting encoder QFilterRate to %d\n", filter_rate);
     if (encoder->has_skew) {
         u32 skew = (*encoder->hal->pin.skew)/(1e9/encoder->clock_frequency);
-        
+
         if (skew > 15) {
             skew = 15;
         }
@@ -171,6 +177,19 @@ static void hm2_encoder_set_filter_rate_and_skew(hostmot2_t *hm2,
     }
     hm2->llio->write(hm2->llio, encoder->filter_rate_addr, &filter_rate, sizeof(u32));
     encoder->written_sample_frequency = *encoder->hal->pin.sample_frequency;
+}
+
+static void hm2_encoder_set_dpll_timer_if_present(hostmot2_t *hm2, hm2_encoder_t *encoder) {
+    if(!encoder->dpll_timer_num_addr) return;
+
+    uint32_t data = encoder->desired_dpll_timer_reg;
+    hm2->llio->write(hm2->llio, encoder->dpll_timer_num_addr,
+        &data, sizeof(data));
+    encoder->written_dpll_timer_reg = data;
+}
+
+static void hm2_encoder_force_write_dpll_timer(hostmot2_t *hm2, hm2_encoder_t *encoder) {
+    hm2_encoder_set_dpll_timer_if_present(hm2, encoder);
 }
 
 void hm2_encoder_write(hostmot2_t *hm2,
@@ -194,6 +213,19 @@ void hm2_encoder_write(hostmot2_t *hm2,
         if (*encoder->hal->pin.skew != encoder->written_skew) {
             goto force_write;
         }
+    }
+
+    if(hm2->encoder.dpll_timer_num_addr) {
+        int32_t dpll_timer_num = *hm2->encoder.hal->pin.dpll_timer_num;
+        if(dpll_timer_num < -1 || dpll_timer_num > 4) dpll_timer_num = -1;
+        if(dpll_timer_num == -1)
+            hm2->encoder.desired_dpll_timer_reg = 0;
+        else
+            hm2->encoder.desired_dpll_timer_reg =
+                (dpll_timer_num << 12) | (1 << 15);
+        if(hm2->encoder.desired_dpll_timer_reg
+                != hm2->encoder.written_dpll_timer_reg)
+            goto force_write;
     }
 
     return;
@@ -230,6 +262,7 @@ void hm2_encoder_force_write(hostmot2_t *hm2,
     );
 
     hm2_encoder_set_filter_rate_and_skew(hm2, encoder);
+    hm2_encoder_force_write_dpll_timer(hm2, encoder);
 }
 
 
@@ -291,7 +324,7 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, hm2_encoder_t *encoder, int md_index, 
 
     //
     // looks good, start initializing
-    // 
+    //
 
 
     if (num_encs == -1) {
@@ -325,6 +358,15 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, hm2_encoder_t *encoder, int md_index, 
     encoder->timestamp_div_addr = md->base_address + (2 * md->register_stride);
     encoder->timestamp_count_addr = md->base_address + (3 * md->register_stride);
     encoder->filter_rate_addr = md->base_address + (4 * md->register_stride);
+    if(hm2->dpll_module_present) {
+        int dpll_timer_num_addr = md->base_address + (5 * md->register_stride);
+        uint32_t data = 0;
+        hm2->llio->write(hm2->llio, dpll_timer_num_addr, &data, sizeof(data));
+        hm2->llio->read(hm2->llio, dpll_timer_num_addr, &data, sizeof(data));
+
+        if(data == 0)
+            encoder->dpll_timer_num_addr = dpll_timer_num_addr;
+    }
 
     // it's important that the TSC gets read *before* the C&T registers below
     r = hm2_register_tram_read_region(hm2, encoder->timestamp_count_addr, sizeof(u32), &encoder->timestamp_count_reg);
@@ -380,6 +422,14 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, hm2_encoder_t *encoder, int md_index, 
                 goto fail1;
             }
             encoder->has_skew = 1;
+        }
+        if(hm2->encoder.dpll_timer_num_addr) {
+            r = hal_pin_s32_newf(HAL_IN, &(hm2->encoder.hal->pin.dpll_timer_num), hm2->llio->comp_id, "%s.encoder.timer-number", hm2->llio->name);
+            if (r < 0) {
+                HM2_ERR("error adding pin %s, aborting\n", name);
+                goto fail1;
+            }
+            *(hm2->encoder.hal->pin.dpll_timer_num) = -1;
         }
 
         for (i = 0; i < encoder->num_instances; i ++) {
@@ -532,6 +582,13 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, hm2_encoder_t *encoder, int md_index, 
                 goto fail1;
             }
 
+            rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.index-mode", hm2->llio->name, i);
+            r = hal_param_bit_new(name, HAL_RW, &(encoder->instance[i].hal.param.index_mode), hm2->llio->comp_id);
+            if (r < 0) {
+                HM2_ERR("error adding param '%s', aborting\n", name);
+                goto fail1;
+            }
+
             rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.filter", hm2->llio->name, i + hm2->encoder_base);
             r = hal_param_bit_new(name, HAL_RW, &(encoder->instance[i].hal.param.filter), hm2->llio->comp_id);
             if (r < 0) {
@@ -562,6 +619,7 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, hm2_encoder_t *encoder, int md_index, 
             encoder->instance[i].hal.param.counter_mode = 0;
             encoder->instance[i].hal.param.filter = 1;
             encoder->instance[i].hal.param.vel_timeout = 0.5;
+
 
             encoder->instance[i].state = HM2_ENCODER_STOPPED;
 
@@ -719,14 +777,7 @@ static void hm2_encoder_instance_update_rawcounts_and_handle_index(hostmot2_t *h
     //
 
     if (e->prev_control & HM2_ENCODER_LATCH_ON_INDEX) {
-        u32 latch_ctrl;
-
-        hm2->llio->read(
-            hm2->llio,
-            encoder->latch_control_addr + (instance * sizeof(u32)),
-            &latch_ctrl,
-            sizeof(u32)
-        );
+        u32 latch_ctrl = encoder->read_control_reg[instance];
 
         if (0 == (latch_ctrl & HM2_ENCODER_LATCH_ON_INDEX)) {
             // hm2 reports index event occurred
@@ -743,14 +794,7 @@ static void hm2_encoder_instance_update_rawcounts_and_handle_index(hostmot2_t *h
             *e->hal.pin.index_enable = 0;
         }
     } else if(e->prev_control & HM2_ENCODER_LATCH_ON_PROBE) {
-        u32 latch_ctrl;
-
-        hm2->llio->read(
-            hm2->llio,
-            encoder->latch_control_addr + (instance * sizeof(u32)),
-            &latch_ctrl,
-            sizeof(u32)
-        );
+        u32 latch_ctrl = encoder->read_control_reg[instance];
 
         if (0 == (latch_ctrl & HM2_ENCODER_LATCH_ON_PROBE)) {
             // hm2 reports probe event occurred
@@ -805,7 +849,7 @@ static void hm2_encoder_instance_update_position(hostmot2_t *hm2,
     hm2_encoder_instance_t *e = &encoder->instance[instance];
 
 
-    // 
+    //
     // reset count if the user wants us to (by just setting the zero offset to the current rawcounts)
     //
 
@@ -814,7 +858,7 @@ static void hm2_encoder_instance_update_position(hostmot2_t *hm2,
     }
 
 
-    // 
+    //
     // Now we know the current rawcounts and zero_offset, which together
     // tell us the current count.
     //
@@ -906,7 +950,7 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2,
                 //
                 // we're moving, but so slow that we didnt get an event
                 // since last time we checked
-                // 
+                //
 
                 // .reset can still change the position
                 hm2_encoder_instance_update_position(hm2, encoder, instance);

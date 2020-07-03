@@ -155,7 +155,7 @@ int hm2_ioport_parse_md(hostmot2_t *hm2, int md_index) {
         hm2->ioport.open_drain_reg[i] = 0;         // none are open drain
         hm2->ioport.written_open_drain[i] = 0;     // starting out in sync
         hm2->ioport.output_invert_reg[i] = 0;      // none are output-inverted
-        hm2->ioport.written_output_invert[i] = 0;  // starting out in sync 
+        hm2->ioport.written_output_invert[i] = 0;  // starting out in sync
     }
 
     // we can't export this one to HAL yet, because some pins may be allocated to other modules
@@ -541,6 +541,7 @@ void hm2_ioport_gpio_read(hostmot2_t *hm2) {
     // this should never happen - what's an AnyIO board without IO?
     if (hm2->ioport.num_instances <= 0) return;
 
+    // llio->read is OK here, as this function is not used by hm2_eth
     hm2->llio->read(
         hm2->llio,
         hm2->ioport.data_addr,
@@ -592,5 +593,3 @@ void hm2_ioport_gpio_write(hostmot2_t *hm2) {
         hm2->ioport.num_instances * sizeof(u32)
     );
 }
-
-

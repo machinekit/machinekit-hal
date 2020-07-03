@@ -34,9 +34,9 @@
 
 
 
-// 
+//
 // read accumulator to figure out where the stepper has gotten to
-// 
+//
 
 void hm2_stepgen_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
     int i;
@@ -119,13 +119,13 @@ static void hm2_stepgen_instance_position_control(hostmot2_t *hm2, long l_period
     // If maxaccel is not zero, the user has specified a maxaccel and we
     // adhere to that.
     if (velocity_error > 0.0) {
-        if (s->hal.pin.maxaccel == 0) {
+        if (*s->hal.pin.maxaccel == 0) {
             match_accel = -velocity_error / f_period_s;
         } else {
             match_accel = -(*s->hal.pin.maxaccel);
         }
     } else if (velocity_error < 0.0) {
-        if (s->hal.pin.maxaccel == 0) {
+        if (*s->hal.pin.maxaccel == 0) {
             match_accel = velocity_error / f_period_s;
         } else {
             match_accel = *s->hal.pin.maxaccel;
@@ -162,7 +162,7 @@ static void hm2_stepgen_instance_position_control(hostmot2_t *hm2, long l_period
         velocity_cmd = ff_vel - (0.5 * error_at_match / f_period_s);
 
         // apply accel limits?
-        if (s->hal.pin.maxaccel > 0) {
+        if (*s->hal.pin.maxaccel > 0) {
             if (velocity_cmd > (*s->hal.pin.velocity_fb + (*s->hal.pin.maxaccel * f_period_s))) {
                 velocity_cmd = *s->hal.pin.velocity_fb + (*s->hal.pin.maxaccel * f_period_s);
             } else if (velocity_cmd < (*s->hal.pin.velocity_fb - (*s->hal.pin.maxaccel * f_period_s))) {
@@ -276,6 +276,10 @@ static void hm2_stepgen_instance_prepare_tram_write(hostmot2_t *hm2, long l_peri
     *s->hal.pin.velocity_fb = (hal_float_t)new_vel;
 
     steps_per_sec_cmd = new_vel * (*s->hal.pin.position_scale);
+    // the double cast here is intentional.  (uint32_t)(-1.0) is undefined in
+    // C (and in practice it gives the undesired value 0 on arm systems), but
+    // (uint32_t)(int32-t)(-1.0) is defined and gives the desired value on all
+    // systems.
     hm2->stepgen.step_rate_reg[i] = (u32)(s32)(steps_per_sec_cmd * (4294967296.0 / (double)hm2->stepgen.clock_frequency));
     *s->hal.pin.dbg_step_rate = hm2->stepgen.step_rate_reg[i];
 }
@@ -354,14 +358,14 @@ static void hm2_stepgen_update_mode(hostmot2_t *hm2, int i) {
         hm2->stepgen.mode_reg[i] = *inst->hal.pin.step_type;
         return;
     }
-    inst->hal.table_hash = (((*inst->hal.pin.table[0] ^ *inst->hal.pin.table[1]) 
+    inst->hal.table_hash = (((*inst->hal.pin.table[0] ^ *inst->hal.pin.table[1])
 			     ^ *inst->hal.pin.table[2]) ^ *inst->hal.pin.table[3]);
 
 
     if (inst->table_width <  *inst->hal.pin.step_type){
         HM2_ERR("the firmware only supports %i pins in the step pattern for "
                 "stepgen instance %i, you asked for %i. Reverting to step type 0\n",
-                inst->table_width, 
+                inst->table_width,
                 i,
                 *inst->hal.pin.step_type);
         hm2->stepgen.mode_reg[i] = 0;
@@ -377,10 +381,10 @@ static void hm2_stepgen_update_mode(hostmot2_t *hm2, int i) {
 
     for (j = *inst->hal.pin.step_type - 1; j >= 0 ; j--){
         buff = ((*inst->hal.pin.table[j / 4] >> ((j % 4) * 8)) & 0xFF);
-        hm2->llio->write(hm2->llio, hm2->stepgen.table_sequence_data_setup_addr 
+        hm2->llio->write(hm2->llio, hm2->stepgen.table_sequence_data_setup_addr
                 + (i * sizeof(u32)), &buff, sizeof(u32));
     }
-    
+
     hm2->stepgen.mode_reg[i] = 3;
     buff = *inst->hal.pin.step_type;
     hm2->llio->write(hm2->llio, hm2->stepgen.table_sequence_length_addr
@@ -438,7 +442,7 @@ void hm2_stepgen_write(hostmot2_t *hm2) {
             hm2->llio->write(hm2->llio, hm2->stepgen.mode_addr + (i * sizeof(u32)), &hm2->stepgen.mode_reg[i], sizeof(u32));
         }
     }
-    if (hm2->dpll_module_present && (hm2->stepgen.num_instances > 0)) {
+    if (hm2->stepgen.num_instances > 0 && hm2->dpll_module_present) {
         if (*hm2->stepgen.hal->pin.dpll_timer_num != hm2->stepgen.written_dpll_timer_num) {
             hm2_stepgen_set_dpll_timer(hm2);
         }
@@ -527,9 +531,8 @@ static void hm2_stepgen_force_write_master_dds(hostmot2_t *hm2) {
     );
 }
 
-
 static void hm2_stepgen_force_write_dpll_timer(hostmot2_t *hm2) {
-    if (hm2->dpll_module_present) {
+    if (hm2->stepgen.num_instances > 0 && hm2->dpll_module_present) {
         hm2_stepgen_set_dpll_timer(hm2);
     }
 }
@@ -643,6 +646,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
     } else {
         hm2->stepgen.num_instances = hm2->config.num_stepgens;
     }
+
 
     // allocate the module-global HAL shared memory
     hm2->stepgen.hal = (hm2_stepgen_module_global_t *)hal_malloc(sizeof(hm2_stepgen_module_global_t));
@@ -861,7 +865,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
 
 
             rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.position-scale", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.pin.position_scale), hm2->llio->comp_id);
+            r = hal_pin_float_new(name, HAL_IO, &(hm2->stepgen.instance[i].hal.pin.position_scale), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -869,7 +873,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             }
 
             rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.maxvel", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.pin.maxvel), hm2->llio->comp_id);
+            r = hal_pin_float_new(name, HAL_IO, &(hm2->stepgen.instance[i].hal.pin.maxvel), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -877,7 +881,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             }
 
             rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.maxaccel", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.pin.maxaccel), hm2->llio->comp_id);
+            r = hal_pin_float_new(name, HAL_IO, &(hm2->stepgen.instance[i].hal.pin.maxaccel), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -885,7 +889,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             }
 
             rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.steplen", hm2->llio->name, i);
-            r = hal_pin_u32_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.pin.steplen), hm2->llio->comp_id);
+            r = hal_pin_u32_new(name, HAL_IO, &(hm2->stepgen.instance[i].hal.pin.steplen), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -893,7 +897,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             }
 
             rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.stepspace", hm2->llio->name, i);
-            r = hal_pin_u32_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.pin.stepspace), hm2->llio->comp_id);
+            r = hal_pin_u32_new(name, HAL_IO, &(hm2->stepgen.instance[i].hal.pin.stepspace), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -901,7 +905,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             }
 
             rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dirsetup", hm2->llio->name, i);
-            r = hal_pin_u32_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.pin.dirsetup), hm2->llio->comp_id);
+            r = hal_pin_u32_new(name, HAL_IO, &(hm2->stepgen.instance[i].hal.pin.dirsetup), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -909,7 +913,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             }
 
             rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.dirhold", hm2->llio->name, i);
-            r = hal_pin_u32_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.pin.dirhold), hm2->llio->comp_id);
+            r = hal_pin_u32_new(name, HAL_IO, &(hm2->stepgen.instance[i].hal.pin.dirhold), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -917,7 +921,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
             }
 
             rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.step_type", hm2->llio->name, i);
-            r = hal_pin_u32_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.pin.step_type), hm2->llio->comp_id);
+            r = hal_pin_u32_new(name, HAL_IO, &(hm2->stepgen.instance[i].hal.pin.step_type), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 r = -ENOMEM;
@@ -926,28 +930,28 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
 
             if (hm2->stepgen.instance[i].table_width > 2){
                 rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.table-data-0", hm2->llio->name, i);
-                r = hal_pin_u32_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.pin.table[0]), hm2->llio->comp_id);
+                r = hal_pin_u32_new(name, HAL_IO, &(hm2->stepgen.instance[i].hal.pin.table[0]), hm2->llio->comp_id);
                 if (r < 0) {
                     HM2_ERR("error adding pin '%s', aborting\n", name);
                     r = -ENOMEM;
                     goto fail5;
                 }
                 rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.table-data-1", hm2->llio->name, i);
-                r = hal_pin_u32_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.pin.table[1]), hm2->llio->comp_id);
+                r = hal_pin_u32_new(name, HAL_IO, &(hm2->stepgen.instance[i].hal.pin.table[1]), hm2->llio->comp_id);
                 if (r < 0) {
                     HM2_ERR("error adding pin '%s', aborting\n", name);
                     r = -ENOMEM;
                     goto fail5;
                 }
                 rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.table-data-2", hm2->llio->name, i);
-                r = hal_pin_u32_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.pin.table[2]), hm2->llio->comp_id);
+                r = hal_pin_u32_new(name, HAL_IO, &(hm2->stepgen.instance[i].hal.pin.table[2]), hm2->llio->comp_id);
                 if (r < 0) {
                     HM2_ERR("error adding pin '%s', aborting\n", name);
                     r = -ENOMEM;
                     goto fail5;
                 }
                 rtapi_snprintf(name, sizeof(name), "%s.stepgen.%02d.table-data-3", hm2->llio->name, i);
-                r = hal_pin_u32_new(name, HAL_IN, &(hm2->stepgen.instance[i].hal.pin.table[3]), hm2->llio->comp_id);
+                r = hal_pin_u32_new(name, HAL_IO, &(hm2->stepgen.instance[i].hal.pin.table[3]), hm2->llio->comp_id);
                 if (r < 0) {
                     HM2_ERR("error adding pin '%s', aborting\n", name);
                     r = -ENOMEM;

@@ -84,7 +84,7 @@ int hm2_register_tram_write_region(hostmot2_t *hm2, u16 addr, u16 size, u32 **bu
 int hm2_allocate_tram_regions(hostmot2_t *hm2) {
     struct list_head *ptr;
     u16 offset;
-    
+
     int old_tram_read_size = hm2->tram_read_size;
     int old_tram_write_size = hm2->tram_write_size;
 
@@ -140,13 +140,13 @@ int hm2_allocate_tram_regions(hostmot2_t *hm2) {
         offset += tram_entry->size;
         HM2_DBG("    addr=0x%04x, size=%d, buffer=%p\n", tram_entry->addr, tram_entry->size, *tram_entry->buffer);
     }
-    
+
     return 0;
 }
 
 
+static u32 tram_read_iteration = 0;
 int hm2_tram_read(hostmot2_t *hm2) {
-    static u32 tram_read_iteration = 0;
     struct list_head *ptr;
 
     list_for_each(ptr, &hm2->tram_read_entries) {
@@ -157,19 +157,40 @@ int hm2_tram_read(hostmot2_t *hm2) {
             return -EIO;
         }
     }
-
-    if (!hm2->llio->queue_read(hm2->llio, 0, NULL, -1)) {
-        HM2_ERR("TRAM read error finishing read! iter=%u)\n",
-            tram_read_iteration);
-    }
     tram_read_iteration ++;
 
     return 0;
 }
 
+int hm2_queue_read(hostmot2_t *hm2) {
+    if (!hm2->llio->send_queued_reads) return 0;
+    if (!hm2->llio->send_queued_reads(hm2->llio)) {
+        HM2_ERR("error finishing send queued read! iter=%u)\n",
+            tram_read_iteration);
+        return -EIO;
+    }
+    return 0;
+}
 
+
+// Mostly 0 means failure and !0 means success.
+// Except that hostmot2.c has a special case check for -EAGAIN
+// and tries to treat that as harmless.
+int hm2_finish_read(hostmot2_t *hm2) {
+    if (!hm2->llio->receive_queued_reads) return 0;
+    int r = hm2->llio->receive_queued_reads(hm2->llio);
+    if (r < 0) return r;
+    if (!r) {
+        HM2_ERR("error finishing receive queued read! iter=%u\n",
+            tram_read_iteration);
+        return -EIO;
+    }
+    return 0;
+}
+
+
+static u32 tram_write_iteration = 0;
 int hm2_tram_write(hostmot2_t *hm2) {
-    static u32 tram_write_iteration = 0;
     struct list_head *ptr;
 
     list_for_each(ptr, &hm2->tram_write_entries) {
@@ -180,12 +201,18 @@ int hm2_tram_write(hostmot2_t *hm2) {
             return -EIO;
         }
     }
-
-    if (!hm2->llio->queue_write(hm2->llio, 0, NULL, -1)) {
-        HM2_ERR("TRAM write error finishing write! iter=%u)\n",
-            tram_write_iteration);
-    }
     tram_write_iteration ++;
+
+    return 0;
+}
+
+int hm2_finish_write(hostmot2_t *hm2) {
+    if (!hm2->llio->send_queued_writes) return 0;
+    if (!hm2->llio->send_queued_writes(hm2->llio)) {
+        HM2_ERR("error finishing write! iter=%u)\n",
+            tram_write_iteration);
+        return -EIO;
+    }
 
     return 0;
 }
