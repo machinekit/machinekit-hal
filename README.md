@@ -9,8 +9,8 @@
 <img alt="Github Actions build status" src="https://img.shields.io/github/workflow/status/machinekit/machinekit-hal/Test application and publish packages (Debian linux)/master?style=for-the-badge&logo=github" />
 </a>
 
-<a href="https://travis-ci.org/machinekit/machinekit-hal/builds" target="_blank">
-<img alt="Travis-CI build status" src="https://img.shields.io/travis/machinekit/machinekit-hal/master?style=for-the-badge&logo=travis" />
+<a href="https://travis-ci.com/github/machinekit/machinekit-hal/builds" target="_blank">
+<img alt="Travis-CI build status" src="https://img.shields.io/travis/com/machinekit/machinekit-hal?style=for-the-badge&logo=travis" />
 </a>
 
 <a href="https://scan.coverity.com/projects/machinekit-machinekit-hal">
