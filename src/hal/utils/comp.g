@@ -98,7 +98,7 @@ parser Hal:
                 | {{ return 1 }}
 %%
 
-import os, sys, tempfile, shutil, getopt, time
+import os, sys, tempfile, shutil, getopt, time, stat
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 
@@ -121,13 +121,13 @@ def parse(filename):
     initialize()
     f = open(filename).read()
     if '\r' in f:
-	raise SystemExit, "Error: Mac or DOS style line endings in file %s" % filename
+        raise SystemExit("Error: Mac or DOS style line endings in file %s" % filename)
     a, b = f.split("\n;;\n", 1)
     p = _parse('File', a + "\n\n", filename)
-    if not p: raise SystemExit, 1
+    if not p: raise SystemExit(1)
     if require_license:
         if not finddoc('license'):
-            raise SystemExit, "Error: %s:0: License not specified" % filename
+            raise SystemExit("Error: %s:0: License not specified" % filename)
     return a, b
 
 dirmap = {'r': 'HAL_RO', 'rw': 'HAL_RW', 'in': 'HAL_IN', 'out': 'HAL_OUT', 'io': 'HAL_IO' }
@@ -391,7 +391,7 @@ static int comp_id;
         f.write("    inst->_personality = personality;\n")
     if options.get("extra_setup"):
         f.write("    r = extra_setup(inst, prefix, extra_arg);\n")
-	f.write("    if(r != 0) return r;\n")
+        f.write("    if(r != 0) return r;\n")
         # the extra_setup() function may have changed the personality
         if has_personality:
             f.write("    personality = inst->_personality;\n")
@@ -512,8 +512,8 @@ static int comp_id;
                 f.write("        r = export(buf, i, personality[i%16]);\n")
             else:
                 f.write("        r = export(buf, i);\n")
-	    f.write("    }\n")
-	else:
+            f.write("    }\n")
+        else:
             f.write("    if(count && names[0]) {\n")
             f.write("        rtapi_print_msg(RTAPI_MSG_ERR," \
                     "\"count= and names= are mutually exclusive\\n\");\n")
@@ -545,7 +545,7 @@ static int comp_id;
         if options.get("constructable") and not options.get("singleton"):
             f.write("    hal_set_constructor(comp_id, export_1);\n")
         f.write("    if(r) {\n")
-	if options.get("extra_cleanup"):
+        if options.get("extra_cleanup"):
             f.write("    extra_cleanup();\n")
         f.write("        hal_exit(comp_id);\n")
         f.write("    } else {\n")
@@ -556,7 +556,7 @@ static int comp_id;
 
         f.write("\n")
         f.write("void rtapi_app_exit(void) {\n")
-	if options.get("extra_cleanup"):
+        if options.get("extra_cleanup"):
             f.write("    extra_cleanup();\n")
         f.write("    hal_exit(comp_id);\n")
         f.write("}\n")
@@ -646,7 +646,7 @@ def find_modinc():
         if os.path.exists(e):
             modinc = e
             return e
-    raise SystemExit, "Error: Unable to locate Makefile.modinc"
+    raise SystemExit("Error: Unable to locate Makefile.modinc")
 
 def build_usr(tempdir, filename, mode, origfilename):
     binname = os.path.basename(os.path.splitext(filename)[0])
@@ -663,7 +663,7 @@ def build_usr(tempdir, filename, mode, origfilename):
     f.close()
     result = os.system("cd %s && make -S %s" % (tempdir, binname))
     if result != 0:
-        raise SystemExit, os.WEXITSTATUS(result) or 1
+        raise SystemExit(os.WEXITSTATUS(result) or 1)
     output = os.path.join(tempdir, binname)
     if mode == INSTALL:
         shutil.copy(output, os.path.join(BASE, "bin", binname))
@@ -686,7 +686,7 @@ def build_rt(tempdir, filename, mode, origfilename):
         target = "modules"
     result = os.system("cd %s && make -S %s" % (tempdir, target))
     if result != 0:
-        raise SystemExit, os.WEXITSTATUS(result) or 1
+        raise SystemExit(os.WEXITSTATUS(result) or 1)
     if mode == COMPILE:
         for extension in ".ko", ".so", ".o":
             kobjname = os.path.splitext(filename)[0] + extension
@@ -694,7 +694,7 @@ def build_rt(tempdir, filename, mode, origfilename):
                 shutil.copy(kobjname, os.path.basename(kobjname))
                 break
         else:
-            raise SystemExit, "Error: Unable to copy module from temporary directory"
+            raise SystemExit("Error: Unable to copy module from temporary directory")
 
 ############################################################
 
@@ -757,7 +757,7 @@ def adocument(filename, outfilename, frontmatter):
             f.write("%s\n" % fm)
         f.write("edit-path: src/%s\n" % (filename))
         f.write("generator: comp\n")
-	f.write("description: This page was generated from src/%s. Do not edit directly, edit the source.\n" % filename)
+        f.write("description: This page was generated from src/%s. Do not edit directly, edit the source.\n" % filename)
         f.write("---\n")
         f.write(":skip-front-matter:\n\n")
 
@@ -797,46 +797,46 @@ def adocument(filename, outfilename, frontmatter):
         f.write("*%s*\n" % rest)
         f.write("\n"                    )
     else:
-	if options.get("userspace"):
-    	    f.write("%s [-W]\n" % comp_name)
+        if options.get("userspace"):
+            f.write("%s [-W]\n" % comp_name)
             f.write("\n")
-	else:
-    	    if rest:
-        	f.write("%s\n" % rest)
+        else:
+            if rest:
+                f.write("%s\n" % rest)
                 f.write("\n")
-	    else:
-    	        if options.get("singleton") or options.get("count_function"):
-        	    if has_personality:
-            	        f.write("*loadrt %s personality=_P_*\n" % comp_name)
+            else:
+                if options.get("singleton") or options.get("count_function"):
+                    if has_personality:
+                        f.write("*loadrt %s personality=_P_*\n" % comp_name)
                     else:
-	                f.write("*loadrt %s*\n" % comp_name)
-    	        else:
-        	    if has_personality:
-            	        f.write("*loadrt %s [count=_N_|names=_name1_[,_name2..._]] [personality=_P,P,..._]*\n" % comp_name)
+                        f.write("*loadrt %s*\n" % comp_name)
+                else:
+                    if has_personality:
+                        f.write("*loadrt %s [count=_N_|names=_name1_[,_name2..._]] [personality=_P,P,..._]*\n" % comp_name)
                     else:
-	                f.write("*loadrt %s [count=_N_|names=_name1_[,_name2..._]]*\n" % comp_name)
+                        f.write("*loadrt %s [count=_N_|names=_name1_[,_name2..._]]*\n" % comp_name)
 
-    	        for type, name, default, doc in modparams:
-        	    f.write("[%s=_N_]" % name)
-        	f.write("\n")
+                for type, name, default, doc in modparams:
+                    f.write("[%s=_N_]" % name)
+                f.write("\n")
 
                 hasparamdoc = False
-	        for type, name, default, doc in modparams:
-    	            if doc: hasparamdoc = True
+                for type, name, default, doc in modparams:
+                    if doc: hasparamdoc = True
 
-        	if hasparamdoc:
-            	    for type, name, default, doc in modparams:
-                	f.write("\n")
+                if hasparamdoc:
+                    for type, name, default, doc in modparams:
+                        f.write("\n")
                         f.write("*%s*" % name)
-	                if default:
-    	                    f.write("*[default: %s]*\n" % default)
-        	        else:
-            	            f.write("\n")
-                	f.write("%s\n" % doc)
+                        if default:
+                            f.write("*[default: %s]*\n" % default)
+                        else:
+                            f.write("\n")
+                        f.write("%s\n" % doc)
                     f.write("\n")
 
-    	    if options.get("constructable") and not options.get("singleton"):
-        	f.write("\n*newinst %s _name_*\n" % comp_name)
+            if options.get("constructable") and not options.get("singleton"):
+                f.write("\n*newinst %s _name_*\n" % comp_name)
         f.write("\n")
 
     doc = finddoc('descr')
@@ -857,7 +857,7 @@ def adocument(filename, outfilename, frontmatter):
         f.write("=== FUNCTIONS\n")
         f.write("\n")
         for _, name, fp, doc in finddocs('funct'):
-    	    if name != None and name != "_":
+            if name != None and name != "_":
                 f.write("*%s.N.%s*\n" % (comp_name, to_hal(name)))
             else :
                 f.write("*%s.N*\n" % comp_name )
@@ -887,7 +887,7 @@ def adocument(filename, outfilename, frontmatter):
         if doc:
             f.write(" - %s\n\n" % doc)
         else:
-	    f.write("\n\n")
+            f.write("\n\n")
 
     f.write("\n\n")
 
@@ -910,9 +910,9 @@ def adocument(filename, outfilename, frontmatter):
             if doc:
                 f.write(" - %s\n\n" % doc)
             else:
-        	f.write("\n\n")
+                f.write("\n\n")
 
-	f.write("\n\n")
+        f.write("\n\n")
 
     doc = finddoc('see_also')
     if doc and doc[1]:
@@ -964,7 +964,7 @@ def process(filename, mode, outfilename):
         a, b = parse(filename)
         base_name = os.path.splitext(os.path.basename(outfilename))[0]
         if comp_name != base_name:
-            raise SystemExit, "Error: Component name (%s) does not match filename (%s)" % (comp_name, base_name)
+            raise SystemExit("Error: Component name (%s) does not match filename (%s)" % (comp_name, base_name))
         f = open(outfilename, "w")
 
         if options.get("userinit") and not options.get("userspace"):
@@ -972,15 +972,15 @@ def process(filename, mode, outfilename):
 
         if options.get("userspace"):
             if functions:
-                raise SystemExit, "Error: Userspace components may not have functions"
+                raise SystemExit("Error: Userspace components may not have functions")
         if not pins:
-            raise SystemExit, "Error: Component must have at least one pin"
+            raise SystemExit("Error: Component must have at least one pin")
         prologue(f)
         lineno = a.count("\n") + 3
 
         if options.get("userspace"):
             if functions:
-                raise SystemExit, "Error: May not specify functions with a userspace component."
+                raise SystemExit("Error: May not specify functions with a userspace component.")
             f.write("#line %d \"%s\"\n" % (lineno, filename))
             f.write(b)
         else:
@@ -993,7 +993,7 @@ def process(filename, mode, outfilename):
                 f.write(b)
                 f.write("}\n")
             else:
-                raise SystemExit, "Error: Must use FUNCTION() when more than one function is defined"
+                raise SystemExit("Error: Must use FUNCTION() when more than one function is defined")
         epilogue(f)
         f.close()
 
@@ -1017,7 +1017,7 @@ Usage:
     [sudo] %(name)s --install --userspace pyfile...
            %(name)s --print-modinc
 """) % {'name': os.path.basename(sys.argv[0])}
-    raise SystemExit, exitval
+    raise SystemExit(exitval)
 
 def main():
     global require_license
@@ -1056,7 +1056,7 @@ def main():
             require_license = True
         if k in ("-o", "--outfile"):
             if len(args) != 1:
-                raise SystemExit, "Error: Cannot specify -o with multiple input files"
+                raise SystemExit("Error: Cannot specify -o with multiple input files")
             outfile = v
         if k in ("-f", "--frontmatter"):
             frontmatter.append(v)
@@ -1064,7 +1064,7 @@ def main():
             usage(0)
 
     if outfile and mode != PREPROCESS and mode != DOCUMENT:
-        raise SystemExit, "Error: Can only specify -o when preprocessing or documenting"
+        raise SystemExit("Error: Can only specify -o when preprocessing or documenting")
 
     if mode == MODINC:
         if args:
@@ -1077,23 +1077,23 @@ def main():
         try:
             basename = os.path.basename(os.path.splitext(f)[0])
             if f.endswith(".comp") and mode == DOCUMENT:
-		adocument(f, outfile, frontmatter)
+                adocument(f, outfile, frontmatter)
             elif f.endswith(".comp") and mode == VIEWDOC:
                 tempdir = tempfile.mkdtemp()
                 try:
                     outfile = os.path.join(tempdir, basename + ".asciidoc")
                     adocument(f, outfile, frontmatter)
                     cmd = "mank -f %s -p %s -s" % (basename, tempdir)
-		    os.system(cmd)
+                    os.system(cmd)
                 finally:
                     shutil.rmtree(tempdir)
             elif f.endswith(".comp") and mode == INSTALLDOC:
-		manpath = os.path.join(BASE, "share/man/man9")
+                manpath = os.path.join(BASE, "share/man/man9")
                 if not os.path.isdir(manpath):
-		    manpath = os.path.join(BASE, "man/man9")
-		outfile = os.path.join(manpath, basename + ".asciidoc")
-    		print ("INSTALLDOC", outfile)
-		adocument(f, outfile, frontmatter)
+                    manpath = os.path.join(BASE, "man/man9")
+                outfile = os.path.join(manpath, basename + ".asciidoc")
+                print ("INSTALLDOC", outfile)
+                adocument(f, outfile, frontmatter)
             elif f.endswith(".comp"):
                 process(f, mode, outfile)
             elif f.endswith(".py") and mode == INSTALL:
@@ -1104,7 +1104,7 @@ def main():
                 try: os.unlink(outfile)
                 except os.error: pass
                 open(outfile, "w").writelines(lines)
-                os.chmod(outfile, 0555)
+                os.chmod(outfile, stat.S_IREAD & stat.S_IEXEC)
             elif f.endswith(".c") and mode != PREPROCESS:
                 initialize()
                 tempdir = tempfile.mkdtemp()
@@ -1117,14 +1117,14 @@ def main():
                 finally:
                     shutil.rmtree(tempdir)
             else:
-                raise SystemExit, "Error: Unrecognized file type for mode %s: %r" % (modename[mode], f)
+                raise SystemExit("Error: Unrecognized file type for mode %s: %r" % (modename[mode], f))
         except:
             ex_type, ex_value, exc_tb = sys.exc_info()
             try:
                 os.unlink(outfile)
             except: # os.error:
                 pass
-            raise ex_type, ex_value, exc_tb
+            raise ex_type(ex_value, exc_tb)
 if __name__ == '__main__':
     main()
 
