@@ -56,18 +56,18 @@ class Buildcontainerimage_script():
                               "HEAD",
                               _tty_out=False,
                               _cwd=self.normalized_path).strip()
-        self.commiter_name = sh.git("show",
-                                    "-s",
-                                    "--pretty=%cn",
-                                    "HEAD",
-                                    _tty_out=False,
-                                    _cwd=self.normalized_path).strip()
-        self.commiter_email = sh.git("show",
-                                     "-s",
-                                     "--format=%ce",
-                                     "HEAD",
-                                     _tty_out=False,
-                                     _cwd=self.normalized_path).strip()
+        self.author_name = sh.git("show",
+                                  "-s",
+                                  "--pretty=%an",
+                                  "HEAD",
+                                  _tty_out=False,
+                                  _cwd=self.normalized_path).strip()
+        self.author_email = sh.git("show",
+                                   "-s",
+                                   "--format=%ae",
+                                   "HEAD",
+                                   _tty_out=False,
+                                   _cwd=self.normalized_path).strip()
         self.git_remote_url = sh.git("ls-remote",
                                      "--get-url",
                                      _tty_out=False,
@@ -122,7 +122,7 @@ class Buildcontainerimage_script():
             "--label", "io.machinekit.machinekit-hal.name={0}".format(
                 docker_tag),
             "--label", "io.machinekit.machinekit-hal.maintainer={0} <{1}>".format(
-                self.commiter_name, self.commiter_email),
+                self.author_name, self.author_email),
             "--label", "io.machinekit.machinekit-hal.description=Machinekit-HAL {0} {1} Docker image for {2} architecture.".format(
                 self.armed_os_name.capitalize(), self.armed_os_codename.capitalize(), self.armed_image_architecture),
             "--label", "io.machinekit.machinekit-hal.build-date={0}".format(

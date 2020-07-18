@@ -93,18 +93,18 @@ class Configure_script():
                                        "HEAD",
                                        _tty_out=False,
                                        _cwd=self.normalized_path).strip())
-        self.commiter_name = sh.git("show",
-                                    "-s",
-                                    "--pretty=%cn",
-                                    "HEAD",
-                                    _tty_out=False,
-                                    _cwd=self.normalized_path).rstrip('\n')
-        self.commiter_email = sh.git("show",
-                                     "-s",
-                                     "--format=%ce",
-                                     "HEAD",
-                                     _tty_out=False,
-                                     _cwd=self.normalized_path).strip()
+        self.author_name = sh.git("show",
+                                  "-s",
+                                  "--pretty=%an",
+                                  "HEAD",
+                                  _tty_out=False,
+                                  _cwd=self.normalized_path).rstrip('\n')
+        self.author_email = sh.git("show",
+                                   "-s",
+                                   "--format=%ae",
+                                   "HEAD",
+                                   _tty_out=False,
+                                   _cwd=self.normalized_path).strip()
         self.commit_message_short = sh.git("show",
                                            "-s",
                                            "--format=format:%s",
@@ -162,8 +162,8 @@ class Configure_script():
                                   self.debian_build_architecture,
                                   self.debian_host_architecture,
                                   self.commit_count,
-                                  self.commiter_name,
-                                  self.commiter_email,
+                                  self.author_name,
+                                  self.author_email,
                                   self.commit_time)
         machinekit_hal_changelog = self.get_machinekit_hal_base_changelog()
         if self.machinekit_hal_version_string not in machinekit_hal_changelog[1]:
