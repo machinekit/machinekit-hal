@@ -13,6 +13,10 @@
 <img alt="Travis-CI build status" src="https://img.shields.io/travis/com/machinekit/machinekit-hal?style=for-the-badge&logo=travis" />
 </a>
 
+<a href="https://cloud.drone.io/machinekit/machinekit-hal" target="_blank">
+<img alt="Drone Cloud build status" src="https://img.shields.io/drone/build/machinekit/machinekit-hal/master?style=for-the-badge&logo=drone" />
+</a>
+
 <a href="https://scan.coverity.com/projects/machinekit-machinekit-hal">
 <img alt="Coverity Scan Build Status" src="https://img.shields.io/coverity/scan/20589.svg?style=for-the-badge" />
 </a>
