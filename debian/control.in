@@ -84,7 +84,7 @@ Depends:
     python-gst-1.0 | python-gst0.10,
     python-imaging | python-pil,
     uuid-runtime,
-    python-gtksourceview2 @RUNTIME_DEPENDENCIES@
+    @RUNTIME_DEPENDENCIES@,
 Description: Universal framework for machine control based on Hardware Abstraction Layer principle
     .
     Machinekit is the next-generation Machine Controller.  It provides
