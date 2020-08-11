@@ -1619,56 +1619,6 @@ cp ../scripts/gen-rtapi.ini.sh.in.tmpl ../scripts/gen-rtapi.ini.sh.in
 DATE=$(date)
 AC_SUBST([DATE])
 AC_PATH_XTRA
-#X_CFLAGS gets set
-#X_LIBS and X_EXTRA_LIBS likewise
-
-AC_SUBST([X_LIBS])
-AC_SUBST([X_CFLAGS])
-
-AC_CHECK_HEADERS(X11/extensions/Xinerama.h,
-	    [HAVE_XINERAMA=yes],
-	    [HAVE_XINERAMA=no])
-
-AC_CHECK_LIB(Xinerama, XineramaQueryExtension,
-	    [],
-	    [HAVE_XINERAMA=no])
-
-if test "x$HAVE_XINERAMA" = "xno"; then
-    AC_MSG_ERROR([Xinerama library or headers not found])
-fi
-
-# check for Xaw, that is needed for emc2/src/emc/usr_intf/xemc.cc
-
-if test "$have_x" = "yes"; then
-CFLAGS_hold=$CFLAGS
-LIBS_hold=$LIBS
-CFLAGS="$CFLAGS $X_CFLAGS"
-LIBS="$LIBS $X_PRE_LIBS $X_LIBS"
-
-AC_CHECK_HEADERS(X11/Xaw/XawInit.h,
-	    [HAVE_XAW=yes],
-	    [HAVE_XAW=no],
-	    [[#include <X11/Intrinsic.h>
-	    ]])
-
-AC_CHECK_LIB(Xaw, XawDialogGetValueString,
-	    [],
-	    [HAVE_XAW=no])
-CFLAGS=$CFLAGS_hold
-LIBS=$LIBS_hold
-fi
-
-if test "x$HAVE_XAW" = "xno"; then
-    AC_MSG_WARN([Xaw lib missing, you won't be able to build/run xemc. try installing it with 'apt-get install libxaw7-dev'])
-else
-    XAW_LIBS="-lX11 -lXaw -lXt"
-fi
-AC_SUBST([HAVE_XAW])
-AC_SUBST([XAW_LIBS])
-
-#clean out LIBS, or else all future tests will check with -lXaw (which fails on odd systems)
-temp_LIBS=$LIBS
-LIBS=
 
 # check for readline.h and friends, optional for halcmd
 AC_CHECK_HEADERS(readline/readline.h, [HAVE_READLINE=yes], [HAVE_READLINE=no])
@@ -1699,24 +1649,6 @@ fi
 AC_SUBST([HAVE_READLINE])
 AC_SUBST([READLINE_LIBS])
 
-
-#check for ncurses.h needed for emc2/src/emc/usr_intf/keystick.cc
-
-AC_CHECK_HEADERS(ncurses.h,
-	    [HAVE_NCURSES=yes],
-	    [HAVE_NCURSES=no])
-
-AC_CHECK_LIB(ncurses, initscr,
-	    [],
-	    [HAVE_NCURSES=no])
-
-if test "x$HAVE_NCURSES" = "xno"; then
-    AC_MSG_WARN(ncurses lib missing, you won't be able to build/run keystick. try installing it with 'apt-get install libncurses-dev')
-else
-    NCURSES_LIBS="-lncurses"
-fi
-AC_SUBST([HAVE_NCURSES])
-AC_SUBST([NCURSES_LIBS])
 
 # libbacktrace library:
 # with gcc 4.8 and later, libbacktrace is bundled with libgcc-dev-<gcc-version>
@@ -1790,9 +1722,6 @@ if test "$USE_NLS" = "yes"; then
   AC_SUBST(LOCALEDIR)
 fi
 
-#restore LIBS
-LIBS="$X_LIBS $temp_LIBS"
-
 AC_PATH_PROG(XGETTEXT,xgettext,none)
 AC_PATH_PROG(MSGFMT,msgfmt,none)
 if test "$MSGFMT" = none -o "$XGETTEXT" = none; then
@@ -1831,24 +1760,6 @@ if test "$BUILD_PYTHON" = "yes"; then
     SITEPY=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_python_lib(1)'`
     AC_MSG_RESULT($SITEPY)
 
-    AC_CHECK_HEADERS(GL/gl.h GL/glu.h,[],[AC_MSG_ERROR([Required OpenGL header missing.  Install it, or specify --disable-python to skip the parts of Machinekit that depend on Python])])
-
-    AC_CHECK_LIB(GL, glBegin, [], [AC_MSG_ERROR([Required GL library missing.  Install it, or specify --disable-python to skip the parts of Machinekit that depend on Python])])
-
-    AC_MSG_CHECKING(for working GLU quadrics)
-
-    AC_TRY_COMPILE([
-#include <GL/gl.h>
-#include <GL/glu.h>
-],
-	[GLUquadric *q;],
-	[AC_MSG_RESULT(yes)],[
-		AC_MSG_ERROR([Required GLU library missing.  Install it or specify --disable-python to skip the parts of Machinekit that depend on Python])]
-
-    )
-
-    AC_MSG_CHECKING(for Xmu headers)
-    AC_CHECK_HEADERS(X11/Xmu/Xmu.h,[],[AC_MSG_ERROR([Required Xmu header missing.  Install it, or specify --disable-python to skip the parts of Machinekit that depend on Python])])
 fi
 
 AC_SUBST([BUILD_PYTHON])
