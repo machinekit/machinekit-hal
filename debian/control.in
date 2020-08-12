@@ -13,24 +13,18 @@ Build-Depends:
     automake,
     git,
     lsb-release,
-    libgl1-mesa-dev,
-    libglu1-mesa-dev,
     libmodbus-dev (>= 3.0),
     libudev-dev,
     libglib2.0-dev,
     libgtk2.0-dev,
-    libncurses-dev,
     libreadline-gplv2-dev,
     libusb-1.0-0-dev,
-    libxmu-dev,
-    libxmu-headers,
     python:native (>= 2.6.6),
     libpython-dev (>= 2.6.6),
     cython:native (>= 0.19),
     dh-python,
     pkg-config,
     psmisc,
-    libxaw7-dev,
     libboost-dev,
     libzmq3-dev (>= 4.0.4),
     libczmq-dev (>= 4.0.2),
@@ -84,7 +78,7 @@ Depends:
     python-gst-1.0 | python-gst0.10,
     python-imaging | python-pil,
     uuid-runtime,
-    python-gtksourceview2 @RUNTIME_DEPENDENCIES@
+    @RUNTIME_DEPENDENCIES@,
 Description: Universal framework for machine control based on Hardware Abstraction Layer principle
     .
     Machinekit is the next-generation Machine Controller.  It provides

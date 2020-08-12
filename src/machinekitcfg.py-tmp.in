@@ -139,15 +139,6 @@ class Config(object):
         self.LIBUDEV_CFLAGS="@LIBUDEV_CFLAGS@"
         self.LIBUDEV_LIBS="@LIBUDEV_LIBS@"
 
-        # deps for xemc
-        self.CFLAGS_X = "@X_CFLAGS@"
-        self.XLIBS = "@XAW_LIBS@"
-        self.HAVE_XAW = "@HAVE_XAW@"
-
-        # ncurses support for keystick
-        self.KEYSTICKLIBS =  "@NCURSES_LIBS@"
-        self.HAVE_NCURSES = "@HAVE_NCURSES@"
-
         # readline support for halcmd
         self.READLINE_LIBS =  "@READLINE_LIBS@"
 
