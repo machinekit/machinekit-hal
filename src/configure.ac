@@ -1733,14 +1733,14 @@ if test "$BUILD_PYTHON" = "yes"; then
 	AC_MSG_ERROR([Python missing.  Install it or specify --disable-python to skip the parts of Machinekit that depend on Python])
     fi
 
-    AX_PYTHON_DEVEL(">= '3.2'")
+    AX_PYTHON_DEVEL(>= '3.2')
     AC_PRUNE_DEFAULT_LDFLAGS(PYTHON_LIBS)
 
     # Get the CFLAGS and LIBS for Boost
     AX_BOOST_BASE(1.34, , [AC_MSG_ERROR([Boost 1.34.0 or newer required])])
 
     AC_MSG_CHECKING(for site-package location)
-    SITEPY=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_python_lib(1)'`
+    SITEPY=`$PYTHON -c 'import distutils.sysconfig; print(distutils.sysconfig.get_python_lib(1))'`
     AC_MSG_RESULT($SITEPY)
 
 fi
