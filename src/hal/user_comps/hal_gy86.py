@@ -117,26 +117,26 @@ try:
 
         ms5611.writeList(0x48,[])
         time.sleep(9/1000.0)
-	adc=ms5611.readList(0x00,3)
-	d1=adc[0]*65536+adc[1]*256+adc[2]
-	#d1=9085466
+        adc=ms5611.readList(0x00,3)
+        d1=adc[0]*65536+adc[1]*256+adc[2]
+        #d1=9085466
 
-	ms5611.writeList(0x58,[])
-	time.sleep(9/1000.0)
-	adc=ms5611.readList(0x00,3)
-	d2=adc[0]*65536+adc[1]*256+adc[2]
-	#d2=8569150
+        ms5611.writeList(0x58,[])
+        time.sleep(9/1000.0)
+        adc=ms5611.readList(0x00,3)
+        d2=adc[0]*65536+adc[1]*256+adc[2]
+        #d2=8569150
 
-	dt = d2 - c5*(1<<8)
-	temp=2000+ dt*c6/(1<<23)
-	off= c2*(1<<16) + c4*dt/(1<<7)
-	sens=c1*(1<<15) + c3*dt/(1<<8)
-	p=(d1*sens/(1<<21) - off)/(1<<15)
+        dt = d2 - c5*(1<<8)
+        temp=2000+ dt*c6/(1<<23)
+        off= c2*(1<<16) + c4*dt/(1<<7)
+        sens=c1*(1<<15) + c3*dt/(1<<8)
+        p=(d1*sens/(1<<21) - off)/(1<<15)
 
-	#print c1,c2,c3,c4,c5,c6,d1,d2,dt,temp,off,sens,p
+        #print c1,c2,c3,c4,c5,c6,d1,d2,dt,temp,off,sens,p
 
-	tempPin.value = temp/100.0
-	pressPin.value = p/100.0
+        tempPin.value = temp/100.0
+        pressPin.value = p/100.0
 
         anglexPin.value = x
         angleyPin.value = y
