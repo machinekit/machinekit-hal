@@ -351,7 +351,7 @@ static int comp_id;
 
     f.write("\n")
     for name, fp in functions:
-        if names.has_key(name):
+        if name in names:
             Error("Duplicate item name: %s" % name)
         f.write("static void %s(struct __comp_state *__comp_inst, long period);\n" % to_c(name))
         names[name] = 1
