@@ -721,9 +721,9 @@ then
     AC_MSG_ERROR([protoc not found - protobuf-compiler package not installed?])
 fi
 
-AX_PYTHON_MODULE(google.protobuf.descriptor, 1)
-AX_PYTHON_MODULE(google.protobuf.descriptor_pb2, 1)
-AX_PYTHON_MODULE(google.protobuf.compiler.plugin_pb2, 1)
+AC_PYTHON_MODULE(google.protobuf.descriptor, 1)
+AC_PYTHON_MODULE(google.protobuf.descriptor_pb2, 1)
+AC_PYTHON_MODULE(google.protobuf.compiler.plugin_pb2, 1)
 
 PKG_CHECK_MODULES([JANSSON], [jansson > 2.4],
     [
@@ -792,9 +792,9 @@ PKG_CHECK_MODULES([LIBCGROUP], libcgroup,
 # pyftpdlib                                                                  #
 ##############################################################################
 
-AX_PYTHON_MODULE(pyftpdlib.authorizers, 1)
-AX_PYTHON_MODULE(pyftpdlib.handlers, 1)
-AX_PYTHON_MODULE(pyftpdlib.servers, 1)
+AC_PYTHON_MODULE(pyftpdlib.authorizers, 1)
+AC_PYTHON_MODULE(pyftpdlib.handlers, 1)
+AC_PYTHON_MODULE(pyftpdlib.servers, 1)
 
 
 ##############################################################################
@@ -1482,7 +1482,7 @@ AC_ARG_ENABLE(pydot,
     [  --enable-pydot      enable python-pydot graphing],
     [
     PYDOT=yes
-    AX_PYTHON_MODULE(pydot, 1)
+    AC_PYTHON_MODULE(pydot, 1)
 
     AC_PATH_PROG(XDOT, xdot, "none")
     if test $XDOT = "none"
@@ -1733,14 +1733,14 @@ if test "$BUILD_PYTHON" = "yes"; then
 	AC_MSG_ERROR([Python missing.  Install it or specify --disable-python to skip the parts of Machinekit that depend on Python])
     fi
 
-    AX_PYTHON_DEVEL(">= '3.2'")
+    AX_PYTHON_DEVEL(>= '3.2')
     AC_PRUNE_DEFAULT_LDFLAGS(PYTHON_LIBS)
 
     # Get the CFLAGS and LIBS for Boost
     AX_BOOST_BASE(1.34, , [AC_MSG_ERROR([Boost 1.34.0 or newer required])])
 
     AC_MSG_CHECKING(for site-package location)
-    SITEPY=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_python_lib(1)'`
+    SITEPY=`$PYTHON -c 'import distutils.sysconfig; print(distutils.sysconfig.get_python_lib(1))'`
     AC_MSG_RESULT($SITEPY)
 
 fi
