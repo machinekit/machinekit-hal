@@ -43,7 +43,7 @@ d6 =   50.0
 j3min =  40.0
 j3max = 270.0
 
-for setting in sys.argv[1:]: exec setting
+for setting in sys.argv[1:]: exec(setting)
 
 # calculate a bunch of other dimensions that are used
 # to scale the model of the machine
