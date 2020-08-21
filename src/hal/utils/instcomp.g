@@ -639,7 +639,7 @@ def prologue(f):
     for name, fp in functions:
         global funct_name
         global funct_
-        if names.has_key(name):
+        if name in names:
             Error("Duplicate item name: %s" % name)
         if funct_ :
             f.write("static int %s(void *arg, const hal_funct_args_t *fa);\n\n" % funct_name)
