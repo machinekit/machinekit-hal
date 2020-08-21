@@ -312,8 +312,8 @@ jobs:
 
   buildMachinekitHALDebianPackages:
     name: >
-      Build Machinekit HAL packages for ${{ matrix.osDistribution }}
-      ${{ matrix.osVersionCodename }}, ${{ matrix.architecture }}
+      Package ${{ matrix.osDistribution }} ${{ matrix.osVersionCodename }},
+      ${{ matrix.architecture }}
     runs-on: ubuntu-latest
     needs: prepareState
     strategy:
@@ -461,8 +461,7 @@ jobs:
 
   testMachinekitHALBuild:
     name: >
-      Test Machinekit HAL code on ${{ matrix.osDistribution }}
-      ${{ matrix.osVersionCodename }}
+      Test ${{ matrix.osDistribution }} ${{ matrix.osVersionCodename }}
     runs-on: ubuntu-latest
     needs: prepareState
     strategy:

@@ -60,42 +60,42 @@ RUN sed -i /etc/apt/sources.list                          \
     -e "s/security.debian.org/${DEBIAN_SECURITY_MIRROR}/"
 
 # Add Machinekit Dependencies repository
-RUN apt-get update;                                                               \
+RUN apt-get update &&                                                             \
     apt-get install -y                                                            \
         curl                                                                      \
         apt-transport-https                                                       \
-        ca-certificates;                                                          \
+        ca-certificates &&                                                        \
     curl -1sLf                                                                    \
     'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
-        | bash;                                                                   \
-    apt-get clean;
+        | bash &&                                                                 \
+    apt-get clean
 
 # Update system OS
-RUN apt-get update;     \
-    apt-get -y upgrade; \
-    apt-get clean;
+RUN apt-get update &&     \
+    apt-get -y upgrade && \
+    apt-get clean
 
 ####################################
 # Set up Machinekit user environment
 
 ENV USER=machinekit
 
-RUN addgroup --gid 1000 ${USER};                              \
+RUN addgroup --gid 1000 ${USER} &&                            \
     adduser --uid 1000 --ingroup ${USER} --home /home/${USER} \
-    --shell /bin/bash --disabled-password --gecos "" ${USER};
+    --shell /bin/bash --disabled-password --gecos "" ${USER}
 
-RUN apt-get update;        \
-    apt-get install -y     \
-        sudo               \
-        machinekit-fixuid; \
-    apt-get clean;
+RUN apt-get update &&        \
+    apt-get install -y       \
+        sudo                 \
+        machinekit-fixuid && \
+    apt-get clean
 
 COPY scripts/buildsystem/debian/base-entrypoint.sh /opt/bin/base-entrypoint.sh
 
-RUN chmod +x /opt/bin/base-entrypoint.sh;                       \
-    mkdir /opt/environment;                                     \
-    echo "${USER} ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers; \
-    mkdir -p /etc/fixuid;                                       \
+RUN chmod +x /opt/bin/base-entrypoint.sh &&                       \
+    mkdir /opt/environment &&                                     \
+    echo "${USER} ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers && \
+    mkdir -p /etc/fixuid &&                                       \
     printf "user: ${USER}\ngroup: ${USER}\n" > /etc/fixuid/config.yml
 
 ENTRYPOINT [ "/opt/bin/base-entrypoint.sh" ]
@@ -104,12 +104,12 @@ ENTRYPOINT [ "/opt/bin/base-entrypoint.sh" ]
 
 FROM machinekit-hal_base AS machinekit-hal_builder_base
 
-RUN apt-get update;         \
+RUN apt-get update &&       \
     apt-get install -y      \
         build-essential     \
         fakeroot            \
         devscripts          \
-        equivs;             \
+        equivs &&           \
     apt-get clean;
 
 ######################################################################
@@ -123,24 +123,24 @@ RUN if ! dpkg-architecture -e${HOST_ARCHITECTURE};    \
         dpkg --add-architecture ${HOST_ARCHITECTURE}; \
     fi
 
-RUN apt-get update;    \
+RUN apt-get update &&  \
     apt-get install -y \
-        lsb-release;   \
-    apt-get clean;
+        lsb-release && \
+    apt-get clean
 
 # Non-standard exception, using the non-standard crossbuild-essential-i386:amd64
 # package in Machinekit/Machinekit Cloudsmith repository
-RUN if [[ "$(dpkg --print-architecture)" == "amd64" &&                  \
-          "$HOST_ARCHITECTURE" == "i386" &&                             \
-          "$(lsb_release -cs)" == "stretch" ]];                         \
-    then                                                                \
-        apt-get install -y                                              \
-            gcc-multilib                                                \
-            g++-multilib;                                               \
-        apt-get clean;                                                  \
-        ln -s x86_64-linux-gnu-objcopy /usr/bin/i686-linux-gnu-objcopy; \
-        ln -s x86_64-linux-gnu-objdump /usr/bin/i686-linux-gnu-objdump; \
-        ln -s x86_64-linux-gnu-strip /usr/bin/i686-linux-gnu-strip;     \
+RUN if [[ "$(dpkg --print-architecture)" == "amd64" &&                    \
+          "$HOST_ARCHITECTURE" == "i386" &&                               \
+          "$(lsb_release -cs)" == "stretch" ]];                           \
+    then                                                                  \
+        apt-get install -y                                                \
+            gcc-multilib                                                  \
+            g++-multilib &&                                               \
+        apt-get clean &&                                                  \
+        ln -s x86_64-linux-gnu-objcopy /usr/bin/i686-linux-gnu-objcopy && \
+        ln -s x86_64-linux-gnu-objdump /usr/bin/i686-linux-gnu-objdump && \
+        ln -s x86_64-linux-gnu-strip /usr/bin/i686-linux-gnu-strip;       \
     fi
 
 RUN if [[ "$(dpkg --print-architecture)" == "amd64" && \
@@ -172,13 +172,13 @@ RUN printf "%b"                                               \
 
 COPY debian/ /tmp/debian/
 
-RUN cd /tmp;                                                                  \
-    ./debian/bootstrap -s -p /tmp;                                            \
+RUN cd /tmp &&                                                                \
+    ./debian/bootstrap -s -p /tmp &&                                          \
     mk-build-deps --build-arch=$(dpkg-architecture -qDEB_BUILD_ARCH)          \
                   --host-arch=${HOST_ARCHITECTURE}                            \
                   -ir -t                                                      \
         "apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y" \
-                  ./debian/control;
+                  ./debian/control
 
 # This on Debian 9 Stretch, HOST_ARCHITECTURE i386 actually abuses the fact
 # that the i686-linux-gnu-gcc does not exists (the $CC is set to 'gcc -m32'),
