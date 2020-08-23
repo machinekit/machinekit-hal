@@ -10,7 +10,6 @@ from libc.errno cimport EAGAIN
 from libc.string cimport memcpy
 from buffer cimport PyBuffer_FillInfo
 from cpython.bytes cimport PyBytes_AsString, PyBytes_Size, PyBytes_FromStringAndSize
-from cpython.string cimport PyString_FromStringAndSize
 from cpython cimport bool
 
 from .ring cimport *
@@ -230,12 +229,12 @@ cdef class StreamRing:
         stream_get_read_vector(self._rb, v)
 
         if v[0].rv_len:
-            b1 = PyString_FromStringAndSize(<const char *>v[0].rv_base, v[0].rv_len)
+            b1 = PyBytes_FromStringAndSize(<const char *>v[0].rv_base, v[0].rv_len)
             if v[1].rv_len == 0:
                 stream_read_advance(self._rb,v[0].rv_len)
                 return b1
 
-            b2 = PyString_FromStringAndSize(<const char *>v[1].rv_base, v[1].rv_len)
+            b2 = PyBytes_FromStringAndSize(<const char *>v[1].rv_base, v[1].rv_len)
             stream_read_advance(self._rb,v[0].rv_len + v[1].rv_len)
             return b1 + b2
         return None

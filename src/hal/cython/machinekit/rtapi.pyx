@@ -9,7 +9,7 @@ from .global_data cimport *
 from .rtapi_app cimport *
 from os import strerror, getpid
 from libc.stdlib cimport malloc, free
-from cpython.string cimport PyString_AsString
+from cpython.bytes cimport PyBytes_AsString
 
 
 # the PyBuffer_FillInfo declaration is broken in cython 0.19
@@ -134,7 +134,7 @@ cdef char ** _to_argv(args):
     if not ret:
         raise MemoryError()
     for i in xrange(l):
-        ret[i] = PyString_AsString(args[i])
+        ret[i] = PyBytes_AsString(args[i])
     ret[l] =  NULL # zero-terminate
     return ret
 
