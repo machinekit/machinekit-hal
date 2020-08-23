@@ -23,7 +23,7 @@ def test_ring_write_read():
         r1.write("record %d" % n)
         record = r1.read()
         if record is None:
-            raise RuntimeError, "no record after write %d" % n
+            raise RuntimeError("no record after write %d" % n)
         nr += 1
         r1.shift()
     assert nr == count

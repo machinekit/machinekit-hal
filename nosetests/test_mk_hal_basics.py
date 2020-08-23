@@ -30,7 +30,7 @@ def test_component_creation():
 def test_pin_creation_after_ready():
     try:
         c.newpin("in2", hal.HAL_S32, hal.HAL_IN)
-        print "could create pin after ready() ?"
+        print("could create pin after ready() ?")
     except RuntimeError:
         pass
     else:
@@ -144,7 +144,7 @@ def test_ccomp_and_epsilon():
     # but use epsilon[2] - 1000.0 for out2
     p2 = c.newpin("out2", hal.HAL_FLOAT, hal.HAL_OUT, eps=2)
     c.ready()
-    print p1.eps, p1.epsilon, p2.eps, p2.epsilon
+    print(p1.eps, p1.epsilon, p2.eps, p2.epsilon)
 
     # we havent changed pins yet from default, so c.changed() reports 0
     # (the number of pin changes detected)

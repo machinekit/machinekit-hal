@@ -18,10 +18,10 @@ while True:
     if socket in events and events[socket] == zmq.POLLIN:
         rx = socket.recv()
         if rx[0] == '\001':
-            print "subscribe event for topic: '%s'" % rx[1:]
+            print("subscribe event for topic: '%s'" % rx[1:])
 
         if rx[0] == '\00':
-            print "unsubscribe event for topic: '%s'" % rx[1:]
+            print("unsubscribe event for topic: '%s'" % rx[1:])
 
     for topic in sys.argv[1:]:
         socket.send_multipart([topic,"update #%d for topic %s" % (count, topic)])

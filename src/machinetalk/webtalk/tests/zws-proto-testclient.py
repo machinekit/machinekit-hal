@@ -31,7 +31,7 @@ def subscribe(s, topic):
     send(s, buffer)
 
 def on_open(ws):
-    print "---opened, sending HELLO"
+    print("---opened, sending HELLO")
     f = Frame()
     f.type = MT_HELLO
     f.version = 3
@@ -45,7 +45,7 @@ def on_message(ws, message):
     else:
         f.ParseFromString(message)
     if f.type == MT_HELLO:
-        print "hello: ", str(f)
+        print("hello: ", str(f))
         c = Frame()
         c.type = MT_SOCKET
         c.stype = ST_ZMQ_SUB
@@ -64,21 +64,21 @@ def on_message(ws, message):
         return
 
     if f.type == MT_PAYLOAD:
-        print "payload:", f.payload
+        print("payload:", f.payload)
         c = Frame()
         c.type = MT_ERROR
         c.errormsg = "foobar!"
         send(ws, c.SerializeToString())
 
 
-    print "message", str(f)
+    print("message", str(f))
 
 
 def on_error(ws, error):
-    print error
+    print(error)
 
 def on_close(ws):
-    print "### closed ###"
+    print("### closed ###")
 
 if __name__ == "__main__":
     uri = "ws://"

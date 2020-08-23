@@ -34,7 +34,7 @@ try:
          time.sleep(0.01)
          continue
       count += 1
-      print "--RT recv on %s.in: " % me, msg
+      print("--RT recv on %s.in: " % me, msg)
       msg += " processed by %s count=%d" % (me, count)
       inring.shift()
       outring.write(msg, len(msg))

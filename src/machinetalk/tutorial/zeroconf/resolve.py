@@ -83,7 +83,7 @@ class ZeroconfBrowser:
             self.resolvecb(tr)
 
     def failure(self, exception):
-        print "Browse error:", exception
+        print("Browse error:", exception)
 
     def item_new(self, interface, protocol, name, stype, domain, flags):
         with self.lock:
@@ -92,14 +92,14 @@ class ZeroconfBrowser:
                     reply_handler=self.resolved, error_handler=self.resolve_error)
 
     def item_remove(self, interface, protocol, name, service, domain, flags):
-        print "removed", interface, protocol, name, service, domain, flags
+        print("removed", interface, protocol, name, service, domain, flags)
 
     def all_for_now(self):
-        print "all for now"
+        print("all for now")
 
     def resolve_error(self, *args, **kwargs):
         with self.lock:
-            print "Resolve error:", args, kwargs
+            print("Resolve error:", args, kwargs)
 
 import time
 
@@ -110,7 +110,7 @@ def resolved(tdict):
         return
     dsn =  tdict['dsn']
     dsns[service] = dsn
-    print "resolved", service, dsn #, dsns
+    print("resolved", service, dsn) #, dsns
 
 def main():
     mkini = os.getenv("MACHINEKIT_INI")

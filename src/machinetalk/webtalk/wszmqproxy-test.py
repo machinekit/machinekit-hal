@@ -10,13 +10,13 @@ import thread
 import time
 
 def on_message(ws, message):
-    print message
+    print(message)
 
 def on_error(ws, error):
-    print error
+    print(error)
 
 def on_close(ws):
-    print "### closed ###"
+    print("### closed ###")
 
 
 

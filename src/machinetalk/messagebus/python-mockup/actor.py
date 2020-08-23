@@ -46,25 +46,25 @@ while True:
    sender = msg[1]
    payload = str(msg[2:])
    if options.verbose:
-      print "--- %s fetched: sender=%s payload=%s " % (me, sender, payload)
+      print("--- %s fetched: sender=%s payload=%s " % (me, sender, payload))
 
    subresult = ""
    if i % 2 == 0:
       # every other command, pass a subjob to other actors
       for actor in options.subactors:
          if options.verbose:
-            print "---%s invoke %s" % (me, actor)
+            print("---%s invoke %s" % (me, actor))
          cmd.send_multipart([me,actor, "a job for " + actor])
 
       # collect responses
       for actor in options.subactors:
           reply = response.recv_multipart()
           if options.verbose:
-             print "---%s got reply from %s" % (me, reply[1])
+             print("---%s got reply from %s" % (me, reply[1]))
           subresult += " " + reply[2]
 
       if options.subactors and options.verbose:
-         print "---%s all responses in: %s" % (me, subresult)
+         print("---%s all responses in: %s" % (me, subresult))
 
    result = payload + " processed by " + me + "  " + subresult
    response.send_multipart([me,sender, result])

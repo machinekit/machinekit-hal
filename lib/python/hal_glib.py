@@ -51,7 +51,7 @@ class GPin(gobject.GObject, hal.Pin):
                 p.update()
             except:
                 kill.append(p)
-                print "Error updating pin %s; Removing" % p
+                print("Error updating pin %s; Removing" % p)
         for p in kill:
             self.REGISTRY.remove(p)
         return self.UPDATE
@@ -109,13 +109,13 @@ class GRemotePin(gobject.GObject):
         self.widget = w
 
     def set(self, value):
-        # print "set local",self.name,value
+        # print("set local",self.name,value)
         self.value = value
         self.emit('value-changed')
 
 
     def set_remote(self, value):
-        #print "set remote",self.name,value
+        #print("set remote",self.name,value)
         if self.setter:
             self.setter(value)
 
@@ -145,8 +145,8 @@ def enum(*sequential, **named):
     return type('Enum', (), enums)
 
 levels = enum('DEBUG', 'INFO', 'WARNING', 'ERROR')
-# print levels.DEBUG, levels.ERROR
-# print levels.reverse_mapping[levels.ERROR]
+# print(levels.DEBUG, levels.ERROR)
+# print(levels.reverse_mapping[levels.ERROR])
 
 class GServiceResolver(gobject.GObject):
     __gtype_name__ = 'GServiceResolver'
@@ -255,8 +255,8 @@ class GServiceResolver(gobject.GObject):
 
 
 fsm = enum('STARTUP','DISCONNECTED', 'CONNECTING', 'ERROR', 'CONNECTED')
-# print fsm.DOWN, fsm.UP,
-# print fsm.reverse_mapping[fsm.UP]
+# print(fsm.DOWN, fsm.UP)
+# print(fsm.reverse_mapping[fsm.UP])
 
 
 class GRemoteComponent(gobject.GObject):
@@ -271,7 +271,7 @@ class GRemoteComponent(gobject.GObject):
         }
 
     def connect_halrcmd(self, cmd_uri):
-        if self.sddebug: print "connect halrcmd:", cmd_uri
+        if self.sddebug: print("connect halrcmd:", cmd_uri)
         self.cmd = self.ctx.socket(zmq.DEALER)
         self.cmd.identity = "%s-%d" % (self.name,os.getpid())
         self.cmd.connect(cmd_uri)
@@ -302,7 +302,7 @@ class GRemoteComponent(gobject.GObject):
         self.state = fsm.DISCONNECTED
 
     def connect_halrcomp(self, update_uri):
-        if self.sddebug: print "connect halrcomp:", update_uri
+        if self.sddebug: print("connect halrcomp:", update_uri)
         self.update = self.ctx.socket(zmq.XSUB)
         self.update.connect(update_uri)
         self.update_notify = gobject.io_add_watch(self.update.get(zmq.FD),
@@ -327,18 +327,18 @@ class GRemoteComponent(gobject.GObject):
         if self.server_uuid != u:
             self.server_uuid = u
             self.emit('server-instance', str(uuid.UUID(bytes=self.server_uuid)))
-            if self.debug: print "haltalk uuid:",uuid.UUID(bytes=self.server_uuid)
+            if self.debug: print("haltalk uuid:",uuid.UUID(bytes=self.server_uuid))
 
     def uri_resolved(self, resolver, key, uri):
         if self.required[key]:
             return # got that one already
         self.required[key] = uri
         if self.debug:
-            print "uri_resolved: %s -> %s, connecting" % (key, uri)
+            print("uri_resolved: %s -> %s, connecting" % (key, uri))
         self.connector[key](uri)
 
     def uri_removed(self, resolver,key):
-        if self.debug: print "announcement removed for %s" % key
+        if self.debug: print("announcement removed for %s" % key)
         if self.disconnect:
             self.disconnector[key]()
             self.required[key] = None
@@ -415,7 +415,7 @@ class GRemoteComponent(gobject.GObject):
             p.name = self.name +  "." + pin_name
             p.type = pin.get_type()
             p.dir = pin.get_dir()
-        if self.debug: print "bind:" , str(self.tx)
+        if self.debug: print("bind:" , str(self.tx))
         self.cmd.send(self.tx.SerializeToString())
         self.tx.Clear()
 
@@ -430,7 +430,7 @@ class GRemoteComponent(gobject.GObject):
         m = socket.recv_multipart()
         topic = m[0]
         self.rx.ParseFromString(m[1])
-        if self.debug: print "status_update ", topic, str(self.rx)
+        if self.debug: print("status_update ", topic, str(self.rx))
 
         if self.rx.type == MT_HALRCOMP_INCREMENTAL_UPDATE: # incremental update
             for rp in self.rx.pin:
@@ -442,7 +442,7 @@ class GRemoteComponent(gobject.GObject):
             if self.rx.uuid:
                 self.set_uuid(self.rx.uuid)
             if self.rx.pparams:
-                if self.debug: print "pparams keepalive=", self.rx.pparams.keepalive_timer
+                if self.debug: print("pparams keepalive=", self.rx.pparams.keepalive_timer)
             for c in self.rx.comp:
                 for rp in c.pin:
                     lname = str(rp.name)
@@ -459,21 +459,21 @@ class GRemoteComponent(gobject.GObject):
             # for now, ignore
             # TBD: add a timer, reset on any message received
             # if timeout, emit "rcomp channel down" signal
-            if self.debug: print "halrcomp ping"
+            if self.debug: print("halrcomp ping")
             return
 
         if self.rx.type == MT_HALRCOMP_ERROR:
-            print "proto error on subscribe: ",str(self.rx.note)
+            print("proto error on subscribe: ",str(self.rx.note))
             self.emit('state', state.ERROR,str(self.rx.note))
 
-        print "status_update: unknown message type: ",str(self.rx)
+        print("status_update: unknown message type: ",str(self.rx))
 
     # process replies received on command socket
     def cmd_readable(self, socket):
         f = socket.recv()
         self.rx.ParseFromString(f)
 
-        if self.debug: print "haltalk message:" + str(self.rx)
+        if self.debug: print("haltalk message:" + str(self.rx))
 
         if self.rx.type == MT_PING_ACKNOWLEDGE:
             if self.state == fsm.CONNECTING:
@@ -494,7 +494,7 @@ class GRemoteComponent(gobject.GObject):
             return
 
         if self.rx.type == MT_HALRCOMP_BIND_CONFIRM:
-            if self.debug: print "bind confirmed "
+            if self.debug: print("bind confirmed ")
             self.update.send("\001" + self.name)
             self.emit('state',self.state, fsm.CONNECTED,"bind confirmed")
             self.state = fsm.CONNECTED
@@ -503,7 +503,7 @@ class GRemoteComponent(gobject.GObject):
 
         if self.rx.type == MT_HALRCOMP_BIND_REJECT:
             self.emit('state', self.state,fsm.ERROR, str(self.rx.note))
-            print "bind rejected: %s" % (str(self.rx.note))
+            print("bind rejected: %s" % (str(self.rx.note)))
             self.emit('state',self.state, fsm.ERROR,"bind rejected: %s" % (str(self.rx.note)))
             self.state = fsm.ERROR
             self.toplevel.set_sensitive(False)
@@ -513,10 +513,10 @@ class GRemoteComponent(gobject.GObject):
             self.emit('state',self.state, fsm.ERROR,"setpin rejected: %s" % (str(self.rx.note)))
             self.state = fsm.ERROR
             self.toplevel.set_sensitive(False)
-            print "------ setpin rejected: %s" % (str(self.rx.note))
+            print("------ setpin rejected: %s" % (str(self.rx.note)))
             return
 
-        print "----------- UNKNOWN server message type ", str(self.rx)
+        print("----------- UNKNOWN server message type ", str(self.rx))
 
     def timer_tick(self):
         if self.ping_outstanding:
@@ -535,7 +535,7 @@ class GRemoteComponent(gobject.GObject):
         self.ping_outstanding = True
 
     def pin_change(self, rpin):
-        if self.debug: print "pinchange", self.synced
+        if self.debug: print("pinchange", self.synced)
         if not self.synced: return
         if rpin.direction == HAL_IN: return
         self.tx.type = MT_HALRCOMP_SET
@@ -565,7 +565,7 @@ class GRemoteComponent(gobject.GObject):
     #---- HAL 'emulation' --
 
     def newpin(self, name, type, direction):
-        if self.debug: print "-------newpin ",name
+        if self.debug: print("-------newpin ",name)
         p = GRemotePin(name,type, direction,self)
         p.connect('value-changed', self.pin_change)
         self.pinsbyname[name] = p
@@ -575,12 +575,12 @@ class GRemoteComponent(gobject.GObject):
         return self.pinsbyname[name]
 
     def ready(self, *a, **kw):
-        if self.debug: print self.name, "ready"
+        if self.debug: print(self.name, "ready")
         #self.bind()
 
     def exit(self, *a, **kw):
         pass
-        #print "shutdown here"
+        #print("shutdown here")
 
     def __getitem__(self, k): return self.pinsbyname[k]
     def __setitem__(self, k, v): self.pinsbyname[k].set(v)
@@ -687,7 +687,7 @@ class _GStat(gobject.GObject):
         interp_new = self.old['interp']
         if interp_new != interp_old:
             if not interp_old or interp_old == linuxcnc.INTERP_IDLE:
-                print "Emit", "interp-run"
+                print("Emit", "interp-run")
                 self.emit('interp-run')
             self.emit(self.INTERP[interp_new])
 

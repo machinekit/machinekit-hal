@@ -12,7 +12,7 @@ class GetApp:
                               rrtype, rrclass, rdata, ttl):
         if errorCode == pybonjour.kDNSServiceErr_NoError:
             self.quip =  socket.inet_ntoa(rdata)
-            print '  IP         =', socket.inet_ntoa(rdata)
+            print('  IP         =', socket.inet_ntoa(rdata))
             self.queried.append(True)
 
     def resolve_callback(self, sdRef, flags, interfaceIndex, errorCode, fullname,
@@ -20,10 +20,10 @@ class GetApp:
         if errorCode != pybonjour.kDNSServiceErr_NoError:
             return
 
-        print 'Resolved service:'
-        print '  fullname   =', fullname
-        print '  hosttarget =', hosttarget
-        print '  port       =', port
+        print('Resolved service:')
+        print('  fullname   =', fullname)
+        print('  hosttarget =', hosttarget)
+        print('  port       =', port)
 
         query_sdRef = \
             pybonjour.DNSServiceQueryRecord(interfaceIndex = interfaceIndex,
@@ -34,7 +34,7 @@ class GetApp:
             while not self.queried:
                 ready = select.select([query_sdRef], [], [], self.querytimeout)
                 if query_sdRef not in ready[0]:
-                    print 'Query record timed out'
+                    print('Query record timed out')
                     break
                 pybonjour.DNSServiceProcessResult(query_sdRef)
             else:
@@ -43,7 +43,7 @@ class GetApp:
             query_sdRef.close()
         self.results.append((fullname, hosttarget, port, txtRecord,self.quip))
 
-        print "resolve.. done."
+        print("resolve.. done.")
         self.resolved.append(True)
 
     def browse_callback(self, sdRef, flags, interfaceIndex, errorCode, serviceName,
@@ -52,10 +52,10 @@ class GetApp:
             return
 
         if not (flags & pybonjour.kDNSServiceFlagsAdd):
-            print 'Service removed'
+            print('Service removed')
             return
 
-        print 'Service added; resolving'
+        print('Service added; resolving')
 
         resolve_sdRef = pybonjour.DNSServiceResolve(0,
                                                     interfaceIndex,
@@ -67,7 +67,7 @@ class GetApp:
             while not self.resolved:
                 ready = select.select([resolve_sdRef], [], [], self.timeout)
                 if resolve_sdRef not in ready[0]:
-                    print 'Resolve timed out'
+                    print('Resolve timed out')
                     break
                 pybonjour.DNSServiceProcessResult(resolve_sdRef)
             else:
@@ -99,15 +99,15 @@ class GetApp:
         finally:
             browse_sdRef.close()
 
-        print "results: ", self.results
+        print("results: ", self.results)
 
         # connect to first result
         if len(self.results) == 0:
-            print "no results"
+            print("no results")
             sys.exit(1)
         (fullname, hosttarget, port, txt,ip) = self.results[0]
 
-        print "connecting to '%s'" % fullname
+        print("connecting to '%s'" % fullname)
         uri = "tcp://%s:%d" % (ip, port)
 
         self.socket = context.socket(zmq.DEALER)
@@ -128,20 +128,20 @@ class GetApp:
         reply = self.socket.recv()
         if reply:
              self.rx.ParseFromString(reply)
-             print "list apps response", str(self.rx)
+             print("list apps response", str(self.rx))
              return self.rx.app
         else:
             raise "reply timeout"
 
     def get_app(self, name):
-        print "get_app", name
+        print("get_app", name)
         a = self.tx.app.add()
         a.name = name
         self.request(MT_RETRIEVE_APPLICATION)
         reply = self.socket.recv()
         if reply:
              self.rx.ParseFromString(reply)
-             print "get_app response", str(self.rx)
+             print("get_app response", str(self.rx))
              return self.rx.app
         else:
             raise "reply timeout"

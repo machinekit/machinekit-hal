@@ -14,8 +14,8 @@ name = "ring_0"
 try:
     # attach to existing ring
     r = hal.Ring(name)
-except NameError,e:
-    print e
+except NameError as e:
+    print(e)
 
 else:
     while True:

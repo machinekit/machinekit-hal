@@ -45,7 +45,7 @@ s.acceleration = 200.0
 
 
 if sys.argv[1] == "text":
-    print str(d)
+    print(str(d))
 
 buffer = d.SerializeToString()
 size =  d.ByteSize()
@@ -54,8 +54,8 @@ if sys.argv[1] == "binary":
     os.write(1,str(buffer))
 
 if sys.argv[1] == "hex":
-    print size,  binascii.hexlify(buffer)
+    print(size,  binascii.hexlify(buffer))
 
 if sys.argv[1] == "json":
     jsonout = d.SerializeToJSON()
-    print json.dumps(json.loads(jsonout), indent=4)
+    print(json.dumps(json.loads(jsonout), indent=4))

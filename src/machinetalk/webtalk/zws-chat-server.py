@@ -26,14 +26,14 @@ while True:
     if xpub in events and events[xpub] == zmq.POLLIN:
         rx = xpub.recv()
         if rx[0] == '\001':
-            print "subscribe event for topic: '%s'" % rx[1:]
+            print("subscribe event for topic: '%s'" % rx[1:])
 
         if rx[0] == '\00':
-            print "unsubscribe event for topic: '%s'" % rx[1:]
+            print("unsubscribe event for topic: '%s'" % rx[1:])
 
     if dealer in events and events[dealer] == zmq.POLLIN:
         rx = dealer.recv_multipart()
-        print "dealer rx: ", str(rx)
+        print("dealer rx: ", str(rx))
         xpub.send_multipart([topic, "%s said: '%s'" % (rx[0],rx[1])])
 
     # periodic chat message

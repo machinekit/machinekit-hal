@@ -70,7 +70,7 @@ for j in range(options.iter):
 
         i += 1
         if options.verbose:
-            print "---%s send command to %s: %s" % (me,options.destination, pbmsg)
+            print("---%s send command to %s: %s" % (me,options.destination, pbmsg))
         cmd.send_multipart([me,options.destination,pbmsg])
 
     for n in range(options.batch):
@@ -78,7 +78,7 @@ for j in range(options.iter):
         reply = Container()
         reply.ParseFromString(msg[2])
         if options.verbose:
-            print "---%s receive response: %s" %(me, str(reply))
+            print("---%s receive response: %s" %(me, str(reply)))
     if not options.fast:
         time.sleep(1)
 

@@ -23,19 +23,19 @@ def main():
 
     # manage subscriptions
     if not topics:
-        print "Receiving messages on ALL topics..."
+        print("Receiving messages on ALL topics...")
         s.setsockopt(zmq.SUBSCRIBE,'')
     else:
-        print "Receiving messages from topics: %s ..." % topics
+        print("Receiving messages from topics: %s ..." % topics)
         for t in topics:
             s.setsockopt(zmq.SUBSCRIBE,t)
     try:
         while True:
             topic, msg = s.recv_multipart()
-            print 'topic: %s, msg:%s' % (topic, msg)
+            print('topic: %s, msg:%s' % (topic, msg))
     except KeyboardInterrupt:
         pass
-    print "Done."
+    print("Done.")
 
 if __name__ == "__main__":
     main()

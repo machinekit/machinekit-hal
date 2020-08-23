@@ -31,14 +31,14 @@ arg.pin.type = HAL_S32
 arg.pin.name = "foo.1.bar"
 arg.pin.hals32 = 4711
 
-print "payload:", container.ByteSize()
-print "text format:", str(container)
+print("payload:", container.ByteSize())
+print("text format:", str(container))
 
 buffer = container.SerializeToString()
-print "wire format length=%d %s" % (len(buffer), binascii.hexlify(buffer))
+print("wire format length=%d %s" % (len(buffer), binascii.hexlify(buffer)))
 
 jsonout = container.SerializeToJSON()
-print "json format:",json.dumps(json.loads(jsonout), indent=4)
+print("json format:",json.dumps(json.loads(jsonout), indent=4))
 
 jsonmsg = '''
 {
@@ -58,8 +58,8 @@ jsonmsg = '''
 '''
 request = Container()
 
-print "Parsing message from JSON into protobuf: ", jsonmsg
+print("Parsing message from JSON into protobuf: ", jsonmsg)
 request.ParseFromJSON(jsonmsg)
-print "and its protobuf text format parsed back from JSON is:\n", str(request)
+print("and its protobuf text format parsed back from JSON is:\n", str(request))
 buffer3 = request.SerializeToString()
-print "the protobuf wire format - length=%d:\n%s" % (len(buffer3), binascii.hexlify(buffer3))
+print("the protobuf wire format - length=%d:\n%s" % (len(buffer3), binascii.hexlify(buffer3)))

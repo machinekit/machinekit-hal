@@ -18,5 +18,5 @@ while True:
     if record is None:
         time.sleep(polltime)
     else:
-        print "got: ", record.tobytes()
+        print("got: ", record.tobytes())
         r.shift() # consume
