@@ -144,18 +144,18 @@ script:
     docker run --tty --rm -u "$(id -u):$(id -g)" \
       -v "${PARENT_DIR}:/home/machinekit/build" \
       -w "/home/machinekit/build/machinekit-hal" \
-      ${DOCKER_IMAGE} debian/bootstrap;
+      ${DOCKER_IMAGE} debian/bootstrap &&
     docker run --tty --rm -u "$(id -u):$(id -g)" \
       -v "${PARENT_DIR}:/home/machinekit/build" \
       -w "/home/machinekit/build/machinekit-hal" \
-      ${DOCKER_IMAGE} debian/configure.py -c;
+      ${DOCKER_IMAGE} debian/configure.py -c &&
     docker run --tty --rm -u "$(id -u):$(id -g)" \
       -v "${PARENT_DIR}:/home/machinekit/build" \
       -w "/home/machinekit/build/machinekit-hal" \
-      ${DOCKER_IMAGE} debian/buildpackages.py; 
+      ${DOCKER_IMAGE} debian/buildpackages.py &&
     if [[ "$ARCHITECTURE" == "$TRAVIS_CPU_ARCH" ]];
     then
-      git -C ${LOCAL_DIR} clean -xdf; 
+      git -C ${LOCAL_DIR} clean -xdf &&
       docker run --tty --rm -u "$(id -u):$(id -g)" \
         -v "${PARENT_DIR}:/home/machinekit/build" \
         -w "/home/machinekit/build/machinekit-hal" \
