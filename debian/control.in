@@ -57,7 +57,7 @@ Conflicts: machinekit
 Architecture: any
 Depends: 
     ${shlibs:Depends},
-    ${python:Depends},
+    ${python3:Depends},
     ${misc:Depends},
     python3-numpy,
     libmodbus-dev (>= 3.0),
