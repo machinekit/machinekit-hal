@@ -72,6 +72,11 @@ class Buildcontainerimage_script():
                                      "--get-url",
                                      _tty_out=False,
                                      _cwd=self.normalized_path).strip()
+        self.git_branch = sh.git("rev-parse",
+                                 "--abbrev-ref",
+                                 "HEAD",
+                                 _tty_out=False,
+                                 _cwd=self.normalized_path).strip()
 
     def load_debian_distro_settings(self: object) -> None:
         json_path = "{0}/scripts/debian-distro-settings.json".format(
@@ -129,6 +134,8 @@ class Buildcontainerimage_script():
                 datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")),
             "--label", "io.machinekit.machinekit-hal.vcs-ref={0}".format(
                 self.git_sha),
+            "--label", "io.machinekit.machinekit-hal.vcs-branch={0}".format(
+                self.git_branch),
             "--label", "io.machinekit.machinekit-hal.vcs-url={0}".format(
                 self.git_remote_url)
         ]

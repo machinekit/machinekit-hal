@@ -38,8 +38,8 @@ on:
 
 jobs:
   prepareState:
-    name: Prepare data used in subsequent jobs
-    runs-on: ubuntu-latest
+    name: Preparatory controlling job
+    runs-on: ubuntu-20.04
     outputs:
       BuildDockerImages: ${{ env.BuildDockerImage }}
       HasCloudsmithToken: ${{ steps.cloudsmith_checker.outputs.tokenPresent }}
@@ -55,6 +55,11 @@ jobs:
         echo "$GITHUB_CONTEXT"
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
+    
+    - name: Cancel any previous run of the same workflow on the same branch
+      uses: styfle/cancel-workflow-action@0.4.1
+      with:
+        access_token: ${{ github.token }}
 
       # Fetch the whole history here as there is no way of knowing how many
       # commits there were in push event
@@ -69,12 +74,13 @@ jobs:
       #         a new Docker image name!
       #         Public Docker images in GitHub Packages cannot be deleted,
       #         every change will stay visible 'forever' in form of old packages  
-    - name: Prepare data and matrix from JSON file used in subsequent jobs
-      id: data_matrix_normalizer
+    - name: >
+        Prepare data matrix with operating system and architecture combinations
+        from JSON file
+      id: system_combinations_normalizer
       run: |
-        IMAGE_NAME_ROOT=$(cat ${BASE_JSON_FILE} | \
-          jq -r '.imageNameRoot')
-        MAIN_MATRIX=$(cat ${BASE_JSON_FILE} | \
+        IMAGE_NAME_ROOT=$(jq -r '.imageNameRoot' ${BASE_JSON_FILE})
+        ALLOWED_COMBINATIONS=$(cat ${BASE_JSON_FILE} | \
           jq -c --arg IMAGE_NAME_ROOT "$IMAGE_NAME_ROOT" \
          '{include: [.allowedCombinations[]+.osVersions[] |
           select(.osVersionNumber == .releaseNumber) |
@@ -85,161 +91,189 @@ jobs:
           osVersionNumber: .osVersionNumber,
           architecture: .architecture,
           osVersionCodename: .distributionCodename,
-          dockerImage: $IMAGE_NAME_ROOT |  sub( "@DISTRIBUTION@"; $distribution ) |
-            sub( "@TAG@"; $tag ),
-          tag: $tag
+          dockerImage: {basename: $IMAGE_NAME_ROOT |  
+              sub( "@DISTRIBUTION@"; $distribution ) |
+              sub( "@TAG@"; $tag ),
+            tag: $tag}
           }]}')
-        OS_MATRIX=$(printf "$MAIN_MATRIX" |  \
-          jq -c '{include: [.include[] | select(.architecture == "amd64")]}')
-        DOCKER_IMAGES=$(printf "$MAIN_MATRIX" | jq -c '[.include[].dockerImage]')
-        echo "::set-output name=matrix::$MAIN_MATRIX"
-        echo "::set-output name=osMatrix::$OS_MATRIX"
-        echo "::set-output name=dockerImages::$DOCKER_IMAGES"
-        printf "JSON object for Main Matrix:\n====\n%s\n" "$MAIN_MATRIX"
-        printf "JSON object for OS Matrix:\n====\n%s\n" "$OS_MATRIX"
-        printf "JSON object for Docker Images:\n====\n%s\n" "$DOCKER_IMAGES"
+        echo "::set-output name=matrix::$ALLOWED_COMBINATIONS"
+        printf "%b"                                                            \
+               "JSON for allowed combinations of OS and architecture:\n"       \
+               "===========================================================\n"
+        echo "$ALLOWED_COMBINATIONS" | jq '.'
       env:
         BASE_JSON_FILE: './machinekit-hal/scripts/debian-distro-settings.json'
-    
-    - name: Get SHAs needed for file changes checking
-      id: event_normalizer 
-      run: |
-        if [ "${{ github.event_name }}" == "push" ]
-        then
-          echo "::set-output name=before::${{ github.event.before }}"
-          echo "::set-output name=after::${{ github.sha }}"
-          printf "Output ::before set to %s\n" "${{ github.event.before }}"
-          printf "Output ::before set to %s\n" "${{ github.sha }}"
-          exit 0
-        fi
-        if [ "${{ github.event_name }}" == "pull_request" ]
-        then
-          echo "::set-output name=before::${{ github.event.pull_request.base.sha }}"
-          echo "::set-output name=after::${{ github.sha }}"
-          printf "Output ::before set to %s\n" \
-                 "${{ github.event.pull_request.base.sha }}"
-          printf "Output ::after set to %s\n" "${{ github.sha }}"
-          exit 0
-        fi
-        printf "Disallowed event type\n"
-        exit 1
 
-      # Force-push checking should be done better, this implementation doesn't
-      # take into account changes in the force push: How to get from Github API
-      # the last SHA before push?
-      # There is also thread on GitHub.community about this issue:
-      # https://github.community/t5/GitHub-Actions/Workflow-paths-on-forced-pushs/m-p/49576
-    - name: Check if Docker images related files were changed in this event
+    - name: Download data from Github Packages Docker registry
+      id: docker_data_downloader
       run: |
-        if [[ ${BEFORE} =~ ^0+$ ]]
+        HEADERS=('-H' "Authorization: Bearer $AUTHORIZATION_TOKEN")
+        HEADERS+=('-H' "Accept: application/vnd.docker.distribution.manifest.v2+json")
+        readarray -t test_array < <(echo "$INPUT_JSON" | jq -c -r \
+          '.include[].dockerImage.basename')
+        IMAGE_DATA="[]"
+        for image in ${test_array[@]}
+        do
+          IMAGE_NAME="$IMAGE_PREFIX/$image"
+          printf "Querying for Docker image %s/%s:%s\n" \
+                 "$DOCKER_BASE_ADDRESS"                 \
+                 "$IMAGE_NAME"                          \
+                 "$DOCKER_TAG"
+          ADDRESS="$API_BASE_ADDRESS/$IMAGE_NAME/manifests/$DOCKER_TAG"
+          MANIFEST_JSON=$(curl -sL "${HEADERS[@]}" "$ADDRESS")
+          DIGEST=$(jq -r '.config.digest | select(. != null)' \
+            <<< "$MANIFEST_JSON")
+          if [[ ! -z ${DIGEST} ]]
+          then
+            ADDRESS="$API_BASE_ADDRESS/$IMAGE_NAME/blobs/$DIGEST"
+            BLOB_JSON=$(curl -sL "${HEADERS[@]}" "$ADDRESS")
+            LABELS_JSON=$(jq -c '.config.Labels' <<< "$BLOB_JSON")
+            VCS_BRANCH=$(echo "$LABELS_JSON" | jq -r \
+              '.["io.machinekit.machinekit-hal.vcs-branch"] | select(. != null)')
+            VCS_REF=$(echo "$LABELS_JSON" | jq -r \
+              '.["io.machinekit.machinekit-hal.vcs-ref"] | select(. != null)')
+          else
+            WARNING=$(printf "%b"                                       \
+                             "Docker image $image:$DOCKER_TAG does not" \
+                             " exist in registry $DOCKER_BASE_ADDRESS"  \
+                             "/$IMAGE_PREFIX\n")
+            echo "::warning::$WARNING"
+            echo "::set-env name=BuildDockerImage::true"
+            printf "Going to force rebuild of all Docker images!\n"
+            exit 0
+          fi
+          IMAGE_DATA=$(jq -c --arg BASENAME "$image"                       \
+            --arg VCS_BRANCH "$VCS_BRANCH" --arg VCS_REF "$VCS_REF"        \
+            --arg DIGEST "$DIGEST" '. += [{basename: $BASENAME, vcsBranch:
+            $VCS_BRANCH, vcsRef: $VCS_REF, imageDigest: $DIGEST}]'         \
+            <<< "$IMAGE_DATA")
+        done
+        printf "%b"                                         \
+               "All images present in registry, no missing" \
+               " packages waiting to be build.\n"
+        echo "::set-output name=image_data::$IMAGE_DATA"
+      env:
+        AUTHORIZATION_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        API_BASE_ADDRESS: "https://docker.pkg.github.com/v2"
+        DOCKER_BASE_ADDRESS: "docker.pkg.github.com"
+        DOCKER_TAG: 'latest'
+        IMAGE_PREFIX: '${{ github.repository }}'
+        INPUT_JSON: '${{ steps.system_combinations_normalizer.outputs.matrix }}'
+
+    - name: >
+        Check for correctness of branch and git commit SHA metadata stored in
+        Docker images labels
+      id: docker_metadata_normalizer
+      if: env.BuildDockerImage != 'true'
+      run: |
+        COMMON_REF=$(jq -r '[.[] | .vcsRef] | unique |
+          if (. as $ref | "" | IN($ref[])) or
+          (. | length > 1) then -1 else (.[]) end' <<< "$INPUT_JSON")
+        if [[ "$COMMON_REF" == "-1" ]]
         then
-          printf "This is new branch\n"
+          DOCKER_GIT_TABLE=$(jq -r --arg DOCKER_TAG "$DOCKER_TAG"        \
+            --arg DOCKER_PREFIX "$DOCKER_PREFIX"                         \
+            '. | map("Docker image " + $DOCKER_PREFIX +
+            .basename + ":" + $DOCKER_TAG + " has git SHA " + .vcsRef) |
+            join(",\n")' <<< "$INPUT_JSON")
+          WARNING=$(printf "%b"                                             \
+                           "Some cached Docker images have invalid vcs-ref" \
+                           " label metadatafor current run.\n"              \
+                           "Found data:\n"                                  \
+                           "============================================\n" \
+                           "$DOCKER_GIT_TABLE\n")
+          echo "::warning::$WARNING"
+          echo "::set-env name=BuildDockerImage::true"
+          printf "Going to force rebuild of all Docker images!\n"
           exit 0
         fi
-        if ! git rev-parse -q --verify "$BEFORE^{commit}" > /dev/null
+        printf "%b"                                                        \
+               "All cached Docker images have valid vcs-ref ($COMMON_REF)" \
+               " labels.\n"
+        echo "::set-output name=git_sha::$COMMON_REF"
+      env:
+        INPUT_JSON: '${{ steps.docker_data_downloader.outputs.image_data }}'
+        DOCKER_PREFIX: 'docker.pkg.github.com/${{ github.repository }}'
+        DOCKER_TAG: 'latest'
+      working-directory: ./machinekit-hal
+
+    - name: >
+        Check if the Git commit from which cached Docker image set was built
+        exists in the current Git history
+      if: env.BuildDockerImage != 'true'
+      run: |
+        if git cat-file -e ${GIT_COMMIT_SHA} 2> /dev/null 
         then
-          printf "Commit $BEFORE does not exists, this is probably force push\n"
-          exit 0
+          printf "%b"                                                       \
+                 "Git commit $GIT_COMMIT_SHA from which the current cached" \
+                 " Docker images were built can be found in history.\n"
+        else
+          printf "%b"                                                       \
+                 "Git commit $GIT_COMMIT_SHA from which the current cached" \
+                 " Docker images were built cannot be found in history.\n"  \
+                 "Going to force rebuild of all Docker images!\n"
+          echo "::set-env name=BuildDockerImage::true"
         fi
+      env:
+        GIT_COMMIT_SHA: ${{ steps.docker_metadata_normalizer.outputs.git_sha }}
+      working-directory: ./machinekit-hal
+
+    - name: Check if Docker images related files were changed in this event
+      if: env.BuildDockerImage != 'true'
+      run: |
         CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r \
-                        ${BEFORE} ${AFTER})
-        printf "Found changed files in this event:\n$CHANGED_FILES\n====\n"
+                        ${BEFORE_COMMIT_SHA} HEAD)
+        printf "%b"                                                            \
+               "Found changed files in this event:\n"                          \
+               "$CHANGED_FILES\n"                                              \
+               "==========================================================\n"
         while IFS= read -r line; do
-          if [[ $line =~ $DOCKER_REGEX ]]; then 
-            printf "%b" \
-                   "Found file $line matching the regular expression for" \
-                   " Debian builder files\n"
+          if [[ $line =~ $DOCKER_REGEX ]]
+          then 
+            printf "%b"                                               \
+                   "Found file $line matching the regular expression" \
+                   " for Debian builder files.\n"
             echo "::set-env name=BuildDockerImage::true"
             exit 0
           fi
         done <<< "$CHANGED_FILES"
-        printf "%b" \
-               "No changes in Debian builder files were found, not going" \
-               " to force rebuild\n"
+        printf "%b"                                             \
+               "No changes in Debian builder files were found," \
+               " not going to force rebuild.\n"
       env:
-        BEFORE: ${{ steps.event_normalizer.outputs.before }}
-        AFTER: ${{ steps.event_normalizer.outputs.after }}
+        BEFORE_COMMIT_SHA: ${{ steps.docker_metadata_normalizer.outputs.git_sha }}
         DOCKER_REGEX: '^(scripts/(((containers/){0,1}buildsystem/debian/.{1,})|buildcontainerimage.py|debian-distro-settings.json))|debian/.{1,}$'
       working-directory: ./machinekit-hal
-
-    - name: Build a GraphQL query for questioning Github Packages Docker registry
-      if: env.BuildDockerImage != 'true'
+    
+    - name: Prepare matrixes for creation of following jobs
+      id: data_matrix_normalizer
       run: |
-        echo "
-          query: 
-            'query getDockerImages(\$owner: String!, \$repository: String!, \$names: [String!]) {
-              repository(owner: \$owner, name: \$repository) {
-                 packages(first: 100, packageType: DOCKER, names: \$names) {
-                  totalCount
-                  nodes {
-                    name
-                    version(version: \"latest\") {
-                      id
-                    }
-                  }
-                }
-              }
-            }'
-          variables:
-            owner: ${OWNER}
-            repository: ${REPOSITORY}
-            names: ${NAMES}
-        " > DockerImagesInGithubPackagesQuery.yaml
-      env:
-        OWNER: ${{ github.event.repository.owner.login }}
-        REPOSITORY: ${{ github.event.repository.name }}
-        NAMES: ${{ steps.data_matrix_normalizer.outputs.dockerImages }}
-
-    - name: Query GitHub Packages registry for Docker images
-      if: env.BuildDockerImage != 'true'
-      uses: helaili/github-graphql-action@2.0.1
-      id: get_debian_builders_data
-      with:
-        query: DockerImagesInGithubPackagesQuery.yaml
-        outputFile: DockerImagesInGithubPackagesResponse.json
-        logLevel: debug
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Check if all Debian builder Docker images are present
-      if: env.BuildDockerImage != 'true'
-      run: |
-        readarray -t test_array < <(echo "$IMAGE_JSON" | jq -c -r '.[]')
-        MISSING=0
-        for image in ${test_array[@]}
-        do
-          IMAGEID=$(jq -r --arg IMAGENAME "$image" \
-            '.data.repository.packages.nodes[] |
-            select(.name == $IMAGENAME).version.id |
-            select(.!=null)' ${INPUT_JSON_FILE})
-          if [ -z "$IMAGEID" ]
-                then
-                  printf "Docker image %s:latest does not exist in registry %s\n" \
-                         "$image" \
-                         "$REPOSITORY_FULL"
-                  (( MISSING=MISSING+1 ))
-          fi
-        done
-        if (( MISSING > 0 ))
+        MAIN_MATRIX=""
+        if [[ "${{ env.BuildDockerImage }}" != "true" ]]
         then
-          printf "Registry is missing $MISSING Docker image(s)\n"
-          echo ::set-env name=BuildDockerImage::true
+          MAIN_MATRIX=$(jq -c --argjson DOCKER_METADATA "$DOCKER_METADATA_JSON" \
+            '.include[].dockerImage |= . as $base_matrix | 
+            $base_matrix + ($DOCKER_METADATA[] | 
+            select(.basename == $base_matrix.basename))'                        \
+            <<< "$SUPPORTED_SYSTEMS_JSON")
         else
-          printf "%b" \
-                 "All images present in registry, no missing packages waiting" \
-                 " to be build\n"  
+          MAIN_MATRIX="$SUPPORTED_SYSTEMS_JSON"
         fi
+        OS_MATRIX=$(jq -c '{include: [.include[] | 
+          select(.architecture == "amd64")]}' <<< "$MAIN_MATRIX")
+        echo "::set-output name=matrix::$MAIN_MATRIX"
+        echo "::set-output name=osMatrix::$OS_MATRIX"
+        printf "%b"                                                            \
+               "JSON string for Main Matrix:\n"                                \
+               "===========================================================\n"
+        jq '.' <<< "$MAIN_MATRIX"
+        printf "%b"                                                            \
+               "JSON string for Runtests Matrix:\n"                            \
+               "===========================================================\n"
+        jq '.' <<< "$OS_MATRIX"
       env:
-        IMAGE_JSON: '${{ steps.data_matrix_normalizer.outputs.dockerImages }}'
-        REPOSITORY_FULL: 'docker.pkg.github.com/${{ github.repository }}'
-        INPUT_JSON_FILE: 'DockerImagesInGithubPackagesResponse.json'
-      
-      # Not Yet Implemented: 
-      # Check if the :latest Docker image in GitHub Packages is relevant to the 
-      # current branch by way of implementing a new label in Docker build with 
-      # SHA of Machinekit-HAL git commit, querying it here in workflow and then 
-      # check if SHA is in history of this ref before 
-      # ${{ steps.event_normalizer.outputs.before }}, if not, force rebuild
+        SUPPORTED_SYSTEMS_JSON: '${{ steps.system_combinations_normalizer.outputs.matrix }}'
+        DOCKER_METADATA_JSON: '${{ steps.docker_data_downloader.outputs.image_data }}'
     
     - name: >
         Check if Cloudsmith authorization token is present in GitHub secrets
@@ -361,15 +395,33 @@ jobs:
           fi
           printf "${{ env.GITHUB_TOKEN}}" | docker login docker.pkg.github.com \
             -u $GITHUB_OWNER --password-stdin
-          docker pull ${IMAGE_NAME_PREFIX}/${IMAGE_NAME_BASE}:latest
+          docker pull ${IMAGE_NAME_PREFIX}/${IMAGE_NAME_BASE}:${DOCKER_TAG}
+          IMAGE_INFO=$(docker image inspect \
+            ${IMAGE_NAME_PREFIX}/${IMAGE_NAME_BASE}:${DOCKER_TAG})
+          IMAGE_ID=$(jq -r '.[].Id' <<< "$IMAGE_INFO")
+          printf "%b"                                                          \
+                 "Git SHA of downloaded Docker image: $IMAGE_ID\n"             \
+                 "Git SHA of cached Docker image passed from preparatory job:" \
+                 " $ {{ matrix.dockerImage.imageDigest }}"
+          if [[ "$IMAGE_ID" != "${{ matrix.dockerImage.imageDigest }}" ]]
+          then
+          ERROR=$(printf "%b"                                                 \
+                         "Git SHA label of downloaded docker image IMAGE_ID") \
+                         " does not match the expected"                       \
+                         "${{ matrix.dockerImage.imageDigest }}.\n"           \
+                         "Please try rerunning this workflow!\n"
+            echo "::error::$ERROR"
+            exit 1
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           IMAGE_NAME_PREFIX: 'docker.pkg.github.com/${{ github.repository }}'
-          IMAGE_NAME_BASE: '${{ matrix.dockerImage }}'
+          IMAGE_NAME_BASE: '${{ matrix.dockerImage.basename }}'
           GITHUB_OWNER: ${{ github.actor }}
           DISTRIBUTION: ${{ matrix.osDistribution}}
           VERSION: ${{ matrix.osVersionCodename}}
           ARCHITECTURE: ${{ matrix.architecture}}
+          DOCKER_TAG: 'latest'
         working-directory: ./build/machinekit-hal
 
       - name: >
@@ -383,7 +435,7 @@ jobs:
             ${DOCKER_IMAGE} \
             debian/bootstrap
         env:
-          DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ matrix.dockerImage }}:latest'
+          DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ matrix.dockerImage.basename }}:latest'
         working-directory: ./build
 
       - name: >
@@ -397,7 +449,7 @@ jobs:
             ${DOCKER_IMAGE} \
             debian/configure.py -c
         env:
-          DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ matrix.dockerImage }}:latest'
+          DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ matrix.dockerImage.basename }}:latest'
         working-directory: ./build
 
       - name: >
@@ -410,7 +462,7 @@ jobs:
             ${DOCKER_IMAGE} \
             debian/buildpackages.py
         env:
-          DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ matrix.dockerImage }}:latest'
+          DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ matrix.dockerImage.basename }}:latest'
         working-directory: ./build
 
       - name: Sign the package with Machinekit Builder Signer Key
@@ -438,7 +490,7 @@ jobs:
         env:
           ROOT_DIR: ${{ github.workspace }}
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
-          DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ matrix.dockerImage }}:latest'
+          DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ matrix.dockerImage.basename }}:latest'
         working-directory: ./build
 
       - name: Prepare build artifact for upload
@@ -461,7 +513,8 @@ jobs:
 
   testMachinekitHALBuild:
     name: >
-      Test ${{ matrix.osDistribution }} ${{ matrix.osVersionCodename }}
+      Test on ${{ matrix.osDistribution }} ${{ matrix.osVersionCodename }},
+      ${{ matrix.architecture }}
     runs-on: ubuntu-latest
     needs: prepareState
     strategy:
@@ -514,15 +567,33 @@ jobs:
           fi
           printf "${{ env.GITHUB_TOKEN}}" | docker login docker.pkg.github.com \
             -u $GITHUB_OWNER --password-stdin
-          docker pull ${IMAGE_NAME_PREFIX}/${IMAGE_NAME_BASE}:latest
+          docker pull ${IMAGE_NAME_PREFIX}/${IMAGE_NAME_BASE}:${DOCKER_TAG}
+          IMAGE_INFO=$(docker image inspect \
+            ${IMAGE_NAME_PREFIX}/${IMAGE_NAME_BASE}:${DOCKER_TAG})
+          IMAGE_ID=$(jq -r '.[].Id' <<< "$IMAGE_INFO")
+          printf "%b"                                                          \
+                 "Git SHA of downloaded Docker image: $IMAGE_ID\n"             \
+                 "Git SHA of cached Docker image passed from preparatory job:" \
+                 " $ {{ matrix.dockerImage.imageDigest }}"
+          if [[ "$IMAGE_ID" != "${{ matrix.dockerImage.imageDigest }}" ]]
+          then
+          ERROR=$(printf "%b"                                                 \
+                         "Git SHA label of downloaded docker image IMAGE_ID") \
+                         " does not match the expected"                       \
+                         "${{ matrix.dockerImage.imageDigest }}.\n"           \
+                         "Please try rerunning this workflow!\n"
+            echo "::error::$ERROR"
+            exit 1
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           IMAGE_NAME_PREFIX: 'docker.pkg.github.com/${{ github.repository }}'
-          IMAGE_NAME_BASE: '${{ matrix.dockerImage }}'
+          IMAGE_NAME_BASE: '${{ matrix.dockerImage.basename }}'
           GITHUB_OWNER: ${{ github.actor }}
           DISTRIBUTION: ${{ matrix.osDistribution}}
           VERSION: ${{ matrix.osVersionCodename}}
           ARCHITECTURE: ${{ matrix.architecture}}
+          DOCKER_TAG: 'latest'
         working-directory: ./build/machinekit-hal
 
       - name: Execute Runtests
@@ -533,7 +604,7 @@ jobs:
             ${DOCKER_IMAGE} \
             debian/ripruntests.py
         env:
-          DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ matrix.dockerImage }}:latest'
+          DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ matrix.dockerImage.basename }}:latest'
         working-directory: ./build/machinekit-hal
 
       - name: Execute CMOCKA UNIT tests
@@ -551,9 +622,8 @@ jobs:
   # Source repository, I am going to let it be limited to :latest for now
   buildContainerImagesForUpload:
     name: >
-      Build and upload Machinekit HAL builder Docker image for
-      ${{ matrix.osDistribution }} ${{ matrix.osVersionCodename }},
-      ${{ matrix.architecture }}
+      Cache ${{ matrix.osDistribution }}
+      ${{ matrix.osVersionCodename }}, ${{ matrix.architecture }}
     runs-on: ubuntu-latest
     if: >
       needs.prepareState.outputs.BuildDockerImages == 'true' &&
@@ -620,7 +690,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_OWNER: ${{ github.actor }}
           MAX_TRIES: 50
-          DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ matrix.dockerImage }}:latest'
+          DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ matrix.dockerImage.basename }}:latest'
       
       - name: Upload the container image to third party registry
         if: needs.prepareState.outputs.HasSpecificDockerRegistry == 'true'
@@ -648,7 +718,7 @@ jobs:
           done
           exit ${RETVAL}           
         env:
-          DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ matrix.dockerImage }}:latest'
+          DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ matrix.dockerImage.basename }}:latest'
           MAX_TRIES: 50
           DOCKER_TAG: '${{ github.sha }}'
           DOCKER_REGISTRY_NAME: ${{ secrets.DOCKER_REGISTRY_NAME }}
@@ -656,7 +726,7 @@ jobs:
           DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
 
   uploadMachinekitHALDebianPackagesToCloudsmith:
-    name: Upload Machinekit HAL Debian packages to Cloudsmith hosting service
+    name: Upload packages to Cloudsmith hosting service
     runs-on: ubuntu-latest
     if: >
       needs.prepareState.outputs.HasCloudsmithToken == 'true' &&
@@ -730,3 +800,4 @@ jobs:
           PACKAGES_REGEX: '^.*/machinekit-hal-([a-z]{1,})-([a-z0-9]{1,})-([0-9]{1,})-${{ github.sha }}-${{ needs.prepareState.outputs.Timestamp }}/.{1,}\.deb$'
           REPOSITORY_REGEX: '^${{ github.event.repository.name }}$'
           CLOUDSMITH_API_KEY: '${{ secrets.CLOUDSMITH_TOKEN }}'
+
