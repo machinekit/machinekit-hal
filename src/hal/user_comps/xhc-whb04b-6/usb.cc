@@ -730,7 +730,11 @@ bool Usb::init()
 
     libusb_log_level logLevel = LIBUSB_LOG_LEVEL_INFO;
     //logLevel = LIBUSB_LOG_LEVEL_DEBUG;
+#if LIBUSB_API_VERSION >= 0x01000106
+    libusb_set_option(context, LIBUSB_OPTION_LOG_LEVEL, logLevel);
+#else
     libusb_set_debug(context, logLevel);
+#endif
 
     std::ios init(NULL);
     init.copyfmt(*verboseInitOut);
