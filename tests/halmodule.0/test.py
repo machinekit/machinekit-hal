@@ -32,35 +32,35 @@ try:
     try_set("s", -1)
     try_set("s", 0)
     try_set("s", 1)
-    try_set("s", -1)
-    try_set("s", 0)
-    try_set("s", 1)
     try_set("s", 0x7fffffff)
     try_set("s", -0x80000000)
 
+    print("part 2")
     try_set("u", 0)
     try_set("u", 1)
     try_set("u", 0xffffffff)
 
+    print("part 3")
     try_set("f", 0)
     try_set("f", 0.0)
-    try_set("f", 0)
     try_set("f", -1)
     try_set("f", -1.0)
-    try_set("f", -1)
     try_set("f", 1)
     try_set("f", 1.0)
-    try_set("f", 1)
 
-    try_set("f", 1 << 1023)
+    print("part 4")
+    try_set("f", 1 <<1023)
 
+    print("part 5")
     try_set("s", 0x80000000)
     try_set("s", -0x80000001)
 
+    print("part 6")
     try_set("u", -1)
-    try_set("u", 1 << 32)
+    try_set("u", 1 <<32)
 
-    try_set("f", 1 << 1024)
+    print("part 7")
+    try_set("f", 1 <<1024)
 
     pin = h.getitem("s")
 
