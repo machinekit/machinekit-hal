@@ -122,7 +122,7 @@ int mk_bindsocket(mk_netopts_t *n, mk_socket_t *s)
 {
     argvec_t ifs;
     int retval = 0;
-    char buf[PATH_MAX];
+    char buf[PATH_MAX-4];  // Leave space for "dsn="
     string delims("\t ");
 
     assert(n != NULL);

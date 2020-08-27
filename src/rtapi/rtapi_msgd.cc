@@ -176,7 +176,10 @@ static int port = -1; // defaults to ephemeral port
 
 static ringbuffer_t rtapi_msg_buffer;   // ring access strcuture for messages
 static const char *progname;
-static char proctitle[20];
+// Hack:  Pick constant length 10, enough space for "rtapi:xxx", to
+// silence compiler warnings
+#define PROC_TITLE_LEN 10
+static char proctitle[PROC_TITLE_LEN];
 static int exit_code  = 0;
 static const char *origins[] = { "kernel", "rt", "user" };
 
@@ -688,7 +691,6 @@ int main(int argc, char **argv)
     int c, i, retval;
     int option = LOG_NDELAY;
     pid_t pid, sid;
-    size_t argv0_len, procname_len, max_procname_len;
 
     inifile = getenv("MACHINEKIT_INI");
 
@@ -820,7 +822,7 @@ int main(int argc, char **argv)
         }
     }
 
-    snprintf(proctitle, sizeof(proctitle), "msgd:%d",rtapi_instance);
+    snprintf(proctitle, PROC_TITLE_LEN, "msgd:%d",rtapi_instance);
     backtrace_init(proctitle);
 
     openlog_async(proctitle, option , SYSLOG_FACILITY);
@@ -828,15 +830,9 @@ int main(int argc, char **argv)
     // max out async syslog buffers for slow system in debug mode
     tunelog_async(99,10);
 
-    // set new process name
-    argv0_len = strlen(argv[0]);
-    procname_len = strlen(proctitle);
-    max_procname_len = (argv0_len > procname_len) ? (procname_len) : (argv0_len);
-    // Compiler warnings.
-    // `specified bound depends on the length of the source argument [-Wstringop-overflow=]`
-    // which isn't actually correct since it is limited to size of smallest string by preceding lines.
-    strncpy(argv[0], proctitle, max_procname_len);
-    memset(&argv[0][max_procname_len], '\0', argv0_len - max_procname_len);
+    // Hack:  Pick constant 10, enough space for "rtapi:xxx", to
+    // silence compiler warnings
+    strncpy(argv[0], proctitle, PROC_TITLE_LEN);
 
     for (i = 1; i < argc; i++)
 	memset(argv[i], '\0', strlen(argv[i]));

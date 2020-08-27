@@ -19,7 +19,7 @@ retCode create_HAL_pins()
 retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
 {
     char *fnct_name = "create_each_mb_tx_hal_pins";
-    char hal_pin_name[HAL_NAME_LEN + 1];
+    char hal_pin_name[HAL_NAME_LEN];
     int pin_counter;
 
     if (mb_tx == NULL) {
@@ -35,7 +35,11 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
         return retERR;
     }
     memset(mb_tx->num_errors, 0, sizeof(hal_u32_t *));
-    snprintf(hal_pin_name, HAL_NAME_LEN, "%s.%s.num_errors", gbl.hal_mod_name, mb_tx->hal_tx_name);
+    if (snprintf(hal_pin_name, HAL_NAME_LEN-1,
+                 "%s.%s.num_errors", gbl.hal_mod_name, mb_tx->hal_tx_name) < 0) {
+        ERR(gbl.init_dbg, "num_errors pin name too long");
+        return retERR;
+    }
     if (0 != hal_pin_u32_newf(HAL_OUT, mb_tx->num_errors, gbl.hal_mod_id, "%s", hal_pin_name)) {
         ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_u32_newf failed", mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
         return retERR;
@@ -85,9 +89,17 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
 
     for (pin_counter = 0; pin_counter < mb_tx->mb_tx_nelem; pin_counter++) {
         if(mb_tx->mb_tx_names){
-            snprintf(hal_pin_name, HAL_NAME_LEN, "%s.%s.%s", gbl.hal_mod_name, mb_tx->hal_tx_name, mb_tx->mb_tx_names[pin_counter]);
+          if(snprintf(hal_pin_name, HAL_NAME_LEN-1,
+                      "%s.%s.%s", gbl.hal_mod_name, mb_tx->hal_tx_name, mb_tx->mb_tx_names[pin_counter]) < 0) {
+            ERR(gbl.init_dbg, "counter pin name too long");
+            return retERR;
+          }
         }else{
-            snprintf(hal_pin_name, HAL_NAME_LEN, "%s.%s.%02d", gbl.hal_mod_name, mb_tx->hal_tx_name, pin_counter);
+          if(snprintf(hal_pin_name, HAL_NAME_LEN-1,
+                      "%s.%s.%02d", gbl.hal_mod_name, mb_tx->hal_tx_name, pin_counter) < 0) {
+            ERR(gbl.init_dbg, "counter pin name too long");
+            return retERR;
+          }
         }
         DBG(gbl.init_dbg, "mb_tx_num [%d] pin_name [%s]", mb_tx->mb_tx_num, hal_pin_name);
 

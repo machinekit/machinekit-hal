@@ -908,11 +908,9 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars, char **
 		}
 		if (replacement==NULL) {
                     *detail = info;
-// Compiler warnings
-// Copying a buffer plus extra formatting to a buffer of same size
-// and restricting copy size to buffer size, will always raise
-// a warning re possible truncation
-                    snprintf(info, sizeof(info), "[%s]%s", sec, var);
+                    if (snprintf(info, sizeof(info)-1, "[%s]%s", sec, var) < 0) {
+                      return -7;                 // var name too long
+                    }
 		    return -5;
                 }
 		if (strlimcpy(&dp, replacement, strlen(replacement), &buf_space) < 0)
