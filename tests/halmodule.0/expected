@@ -31,5 +31,5 @@ pincheck s True True True
 getitem not-found fail
 pincheck param False True True
 pincheck param False True True
-set u 0 0
-set u -1 fail
+setpin u 0 0
+setpin u -1 OverflowError: Value -1 out of range

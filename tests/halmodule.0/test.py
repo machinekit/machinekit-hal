@@ -15,15 +15,19 @@ try:
             h[p] = v
             hp = h[p]
             print("set {} {} {}".format(p, v, "ok" if hp == v else repr(hp)))
-        except (ValueError, OverflowError) as e:
-            print("set {} {} {}".format(p, v, "fail"))
+        except ValueError as e:
+            print("set {} {} {}".format(p, v, "ValueError: %s" % e))
+        except OverflowError as e:
+            print("set {} {} {}".format(p, v, "OverflowError: %s" % e))
 
     def try_set_pin(p, v):
         try:
             p.set(v)
-            print("set {} {} {}".format(p.get_name(), v, p.get()))
-        except (ValueError, OverflowError):
-            print("set {} {} {}".format(p.get_name(), v, "fail"))
+            print("setpin {} {} {}".format(p.get_name(), v, p.get()))
+        except ValueError as e:
+            print("setpin {} {} {}".format(p.get_name(), v, "ValueError: %s" % e))
+        except OverflowError as e:
+            print("setpin {} {} {}".format(p.get_name(), v, "OverflowError: %s" % e))
 
     try_set("s", -1)
     try_set("s", 0)
