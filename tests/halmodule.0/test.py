@@ -4,12 +4,17 @@ import os
 
 h = hal.component("x")
 try:
-    ps = h.newpin("s", hal.HAL_S32, hal.HAL_OUT)
-    pu = h.newpin("u", hal.HAL_U32, hal.HAL_OUT)
-    pf = h.newpin("f", hal.HAL_FLOAT, hal.HAL_OUT)
+    pins = dict(
+        HAL_S32 = h.newpin("HAL_S32", hal.HAL_S32, hal.HAL_OUT),
+        HAL_U32 = h.newpin("HAL_U32", hal.HAL_U32, hal.HAL_OUT),
+        HAL_S64 = h.newpin("HAL_S64", hal.HAL_S64, hal.HAL_OUT),
+        HAL_U64 = h.newpin("HAL_U64", hal.HAL_U64, hal.HAL_OUT),
+        HAL_FLOAT = h.newpin("HAL_FLOAT", hal.HAL_FLOAT, hal.HAL_OUT)
+    )
     param = h.newparam("param", hal.HAL_BIT, hal.HAL_RW)
     h.ready()
 
+    ########## Set and read pin values; access pins via hal.compenent.__getitem__()
     def try_set(p, v):
         try:
             h[p] = v
@@ -20,6 +25,85 @@ try:
         except OverflowError as e:
             print("set {} {} {}".format(p, v, "OverflowError: %s" % e))
 
+    print("S32 pass")
+    # pass
+    try_set("HAL_S32", -1)
+    try_set("HAL_S32", 0)
+    try_set("HAL_S32", 1)
+    try_set("HAL_S32", 0x7fffffff) # INT32_MAX
+    try_set("HAL_S32", -0x80000000) # INT32_MIN
+    print("S32 fail")
+    try_set("HAL_S32", 0x80000000) # INT32_MAX + 1
+    try_set("HAL_S32", -0x80000001) # INT32_MIN - 1
+
+    print("U32 pass")
+    try_set("HAL_U32", 0)
+    try_set("HAL_U32", 1)
+    try_set("HAL_U32", 0xffffffff) # UINT32_MAX
+    print("U32 fail")
+    try_set("HAL_U32", -1) # Negative
+    try_set("HAL_U32", 1 <<32) # UINT32_MAX + 1
+
+    print("S64 pass")
+    # pass
+    try_set("HAL_S64", -1)
+    try_set("HAL_S64", 0)
+    try_set("HAL_S64", 1)
+    try_set("HAL_S64", 0x7fffffffffffffff) # INT64_MAX
+    try_set("HAL_S64", -0x8000000000000000) # INT64_MIN
+    print("S64 fail")
+    try_set("HAL_S64", 0x8000000000000000) # INT64_MAX + 1
+    try_set("HAL_S64", -0x8000000000000001) # INT64_MIN - 1
+
+    print("U64 pass")
+    try_set("HAL_U64", 0)
+    try_set("HAL_U64", 1)
+    try_set("HAL_U64", 0xffffffffffffffff) # UINT64_MAX
+    print("U64 fail")
+    try_set("HAL_U64", -1) # Negative
+    try_set("HAL_U64", 1 <<64) # UINT64_MAX + 1
+
+    print("FLOAT pass")
+    try_set("HAL_FLOAT", 0)
+    try_set("HAL_FLOAT", 0.0)
+    try_set("HAL_FLOAT", -1)
+    try_set("HAL_FLOAT", -1.0)
+    try_set("HAL_FLOAT", 1)
+    try_set("HAL_FLOAT", 1.0)
+    try_set("HAL_FLOAT", 1 <<1023) # Largest float (?)
+    print("FLOAT fail")
+    try_set("HAL_FLOAT", 1 <<1024) # 2x largest float (?)
+
+    ########## Check pin and param attributes and hal.component.getitem() accessor
+    print("Validate pins")
+    def pin_validate(i, t, d):
+        print("pincheck {} {} {} {}".format(
+            i.get_name(), i.is_pin(), i.get_type() == t, i.get_dir() == d))
+
+    for pin_name in pins:
+        pin_type = getattr(hal, pin_name)
+
+        # Check pin object directly
+        pin_validate(pins[pin_name], pin_type, hal.HAL_OUT)
+
+        # Check getitem()
+        pin = h.getitem(pin_name)
+        pin_validate(pin, pin_type, hal.HAL_OUT)
+
+    # Test getitem() failure
+    try:
+        pin = h.getitem("not-found")
+        print("{} {} {}".format("getitem", "not-found", "ok"))
+    except:
+        print("{} {} {}".format("getitem", "not-found", "fail"))
+
+    # Test params and getitem(param)
+    pin_validate(param, hal.HAL_BIT, hal.HAL_RW)
+    param = h.getitem("param")
+    pin_validate(param, hal.HAL_BIT, hal.HAL_RW)
+
+    ########## Check pin set(), get(), get_name() methods
+    print("Validate set/get")
     def try_set_pin(p, v):
         try:
             p.set(v)
@@ -29,64 +113,8 @@ try:
         except OverflowError as e:
             print("setpin {} {} {}".format(p.get_name(), v, "OverflowError: %s" % e))
 
-    try_set("s", -1)
-    try_set("s", 0)
-    try_set("s", 1)
-    try_set("s", 0x7fffffff)
-    try_set("s", -0x80000000)
-
-    print("part 2")
-    try_set("u", 0)
-    try_set("u", 1)
-    try_set("u", 0xffffffff)
-
-    print("part 3")
-    try_set("f", 0)
-    try_set("f", 0.0)
-    try_set("f", -1)
-    try_set("f", -1.0)
-    try_set("f", 1)
-    try_set("f", 1.0)
-
-    print("part 4")
-    try_set("f", 1 <<1023)
-
-    print("part 5")
-    try_set("s", 0x80000000)
-    try_set("s", -0x80000001)
-
-    print("part 6")
-    try_set("u", -1)
-    try_set("u", 1 <<32)
-
-    print("part 7")
-    try_set("f", 1 <<1024)
-
-    pin = h.getitem("s")
-
-    def pin_validate(i, t, d):
-        print("pincheck {} {} {} {}".format(
-            i.get_name(), i.is_pin(), i.get_type() == t, i.get_dir() == d))
-
-    pin_validate(ps, hal.HAL_S32, hal.HAL_OUT)
-    pin_validate(pu, hal.HAL_U32, hal.HAL_OUT)
-    pin_validate(pf, hal.HAL_FLOAT, hal.HAL_OUT)
-
-    pin = h.getitem("s")
-
-    pin_validate(pin, hal.HAL_S32, hal.HAL_OUT)
-    try:
-        pin = h.getitem("not-found")
-        print("{} {} {}".format("getitem", "not-found", "ok"))
-    except:
-        print("{} {} {}".format("getitem", "not-found", "fail"))
-
-    pin_validate(param, hal.HAL_BIT, hal.HAL_RW)
-    param = h.getitem("param")
-    pin_validate(param, hal.HAL_BIT, hal.HAL_RW)
-
-    try_set_pin(pu, 0)
-    try_set_pin(pu, -1)
+    try_set_pin(pins["HAL_U32"], 0)
+    try_set_pin(pins["HAL_U32"], -1)
 except:
     import traceback
     print("Exception: {}".format(traceback.format_exc()))
