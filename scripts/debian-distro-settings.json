@@ -23,6 +23,12 @@
       "distributionCodename": "Bionic",
       "baseImage": "ubuntu:bionic",
       "releaseNumber": 18.04
+    },
+    {
+      "distributionID": "Ubuntu",
+      "distributionCodename": "Focal",
+      "baseImage": "ubuntu:focal",
+      "releaseNumber": 20.04
     }
   ],
   "allowedCombinations": [
@@ -43,11 +49,19 @@
       "architecture": "amd64"
     },
     {
+      "osVersionNumber": 20.04,
+      "architecture": "amd64"
+    },
+    {
       "osVersionNumber": 9,
       "architecture": "armhf"
     },
     {
       "osVersionNumber": 10,
+      "architecture": "armhf"
+    },
+    {
+      "osVersionNumber": 20.04,
       "architecture": "armhf"
     },
     {
@@ -56,6 +70,10 @@
     },
     {
       "osVersionNumber": 10,
+      "architecture": "arm64"
+    },
+    {
+      "osVersionNumber": 20.04,
       "architecture": "arm64"
     }
   ],
