@@ -797,7 +797,7 @@ jobs:
           done
         env:
           MATRIX_JSON: '${{ needs.prepareState.outputs.MainMatrix }}'
-          PACKAGES_REGEX: '^.*/machinekit-hal-([a-z]{1,})-([a-z0-9]{1,})-([0-9]{1,})-${{ github.sha }}-${{ needs.prepareState.outputs.Timestamp }}/.{1,}\.deb$'
+          PACKAGES_REGEX: '^.*/machinekit-hal-([a-z]{1,})-([a-z0-9]{1,})-([0-9\.]{1,})-${{ github.sha }}-${{ needs.prepareState.outputs.Timestamp }}/.{1,}\.d?deb$'
           REPOSITORY_REGEX: '^${{ github.event.repository.name }}$'
           CLOUDSMITH_API_KEY: '${{ secrets.CLOUDSMITH_TOKEN }}'
 
