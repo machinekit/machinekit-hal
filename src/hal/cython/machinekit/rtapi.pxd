@@ -1,4 +1,5 @@
 # vim: sts=4 sw=4 et
+# cython: language_level=3
 from libc.stddef cimport size_t
 
 cdef extern from "stdarg.h":

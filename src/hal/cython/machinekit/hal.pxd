@@ -1,4 +1,5 @@
 # vim: sts=4 sw=4 et
+# cython: language_level=3
 cimport libcpp
 cimport hal_const
 from libc.stdint cimport uint64_t, int64_t
