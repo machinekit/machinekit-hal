@@ -24,7 +24,7 @@ DRIVER_COMPS := $(patsubst %,hal/drivers/%, \
         $(if $(TARGET_PLATFORM_PC), \
 	    pcl720.comp \
 		) \
-		$(ifeq $(HAS_SYS_IO),yes \
+		$(ifeq $(HAVE_SYS_IO),yes \
 	    serport.comp \
             ) \
 	)

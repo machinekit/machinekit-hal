@@ -75,7 +75,7 @@ using namespace google::protobuf;
 #include "hal_priv.h"
 #include "shmdrv.h"
 
-#ifdef SYS_IO_DEFINED
+#ifdef HAVE_SYS_IO_H
 #include "rtapi_io.h"
 #endif
 
@@ -1399,7 +1399,8 @@ static int harden_rt()
 	}
     }
 
-#if defined(SYS_IO_DEFINED) 
+#if defined(HAVE_SYS_IO_H)
+    // FIXME put this in the module where it belongs!
 
     // this is a bit of a shotgun approach and should be made more selective
     // however, due to serial invocations of rtapi_app during setup it is not

@@ -531,10 +531,13 @@ HEADERS := \
     rtapi/flavor/rt-preempt.h \
     rtapi/flavor/ulapi.h
 
-ifeq ($(HAS_SYS_IO),yes)
+ifeq ($(HAVE_SYS_IO),yes)
     HEADERS += \
-		hal/lib/hal_parport.h \
-		rtapi/rtapi_io.h
+        rtapi/rtapi_io.h
+endif
+ifeq ($(TARGET_PLATFORM_PC),yes)
+    HEADERS += \
+        hal/lib/hal_parport.h
 endif
 
 ## the "headers" target installs all the header files in ../include
@@ -598,7 +601,7 @@ fix_perms = test ! -f $(1) || (chown root $(1) && chmod 4750 $(1))
 
 ifeq ($(BUILD_DRIVERS),yes)
 setuid:
-ifeq ($(HAS_SYS_IO),yes)
+ifeq ($(HAVE_SYS_IO),yes)
 	$(call fix_perms,../libexec/pci_read)
 	$(call fix_perms,../libexec/pci_write)
 endif
@@ -717,7 +720,7 @@ endif
 install-kernel-dep: install-dirs
 	$(SETUID) ../libexec/rtapi_app $(DESTDIR)$(HAL_LIBEXEC_DIR)
 ifeq ($(BUILD_DRIVERS),yes)
-ifeq ($(HAS_SYS_IO),yes)
+ifeq ($(HAVE_SYS_IO),yes)
 	$(SETUID) ../libexec/pci_write $(DESTDIR)$(HAL_LIBEXEC_DIR)
 	$(SETUID) ../libexec/pci_read $(DESTDIR)$(HAL_LIBEXEC_DIR)
 endif

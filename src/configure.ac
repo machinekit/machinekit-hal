@@ -267,23 +267,10 @@ cmdl_disab_msg="disabled on command line"
 cmdl_notspec_msg="not specified on command line"
 
 AC_CANONICAL_HOST
-HAS_SYS_IO=""
-AS_CASE([$host_cpu],
-                   [arm64],
-                   [
-                       HAS_SYS_IO=no
-                   ],
-                   [aarch64],
-                   [
-                       HAS_SYS_IO=no
-                   ],
-                   [*],
-                   [
-                       HAS_SYS_IO=yes
-                       AC_DEFINE([SYS_IO_DEFINED], [1],
-                               [The sys/io header exists.])
-                   ])
-AC_SUBST([HAS_SYS_IO])
+
+# Needed for PCI access
+AC_CHECK_HEADERS([sys/io.h],[HAVE_SYS_IO=yes], [HAVE_SYS_IO=no])
+AC_SUBST([HAVE_SYS_IO])
 
 AC_ARG_WITH(platform-pc,
     [AS_HELP_STRING(
