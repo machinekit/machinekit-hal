@@ -27,9 +27,6 @@
 
 #include "config.h"
 
-#ifdef SYS_IO_DEFINED
-#include <sys/io.h>
-#endif
 #include <rtapi.h>
 #include <rtapi/rtapi_pci.h>
 

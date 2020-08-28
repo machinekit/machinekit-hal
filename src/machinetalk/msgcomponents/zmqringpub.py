@@ -29,13 +29,13 @@ ringlist = []
 
 for name in hal.rings():
     r = hal.Ring(name) # no size parameter: attach to existing ring
-    if debug: print "inspecting ring %s: reader=%d writer=%d " %  (name,r.reader,r.writer)
+    if debug: print("inspecting ring %s: reader=%d writer=%d " %  (name,r.reader,r.writer))
     if r.reader == 0 and r.writer:
         ringlist.append((name,r))
-        if debug: print "reading from ring",name
+        if debug: print("reading from ring",name)
 
 if not len(ringlist):
-    print "no readable rings found"
+    print("no readable rings found")
     sys.exit(1)
 
 context = zmq.Context()
@@ -47,7 +47,7 @@ while True:
     for name,ring in ringlist:
         record = ring.read()
         if record:
-            if debug: print "publish topic '%s': '%s'" % (name,record.tobytes())
+            if debug: print("publish topic '%s': '%s'" % (name,record.tobytes()))
             s.send_multipart([name, record.tobytes()])
             ring.shift()
         else:

@@ -43,7 +43,7 @@ while True:
    sender = msg[1]
    payload = str(msg[2:])
    if options.verbose:
-      print "--- %s fetched: sender=%s payload=%s " % (me, sender, payload)
+      print("--- %s fetched: sender=%s payload=%s " % (me, sender, payload))
 
    reply = [me, sender]
    reply.append(payload)

@@ -10,7 +10,7 @@ polltime = 0.1
 try:
     # to attach if no size given
     r = hal.Ring(name)
-except RuntimeError,e:
+except RuntimeError as e:
     # else create
     r = hal.Ring(name, size=ringsize)
 
@@ -18,5 +18,5 @@ count = 10
 for n in range(count):
     try:
         r.write("record %d" % n)
-    except RuntimeError,e:
-        print e
+    except RuntimeError as e:
+        print(e)

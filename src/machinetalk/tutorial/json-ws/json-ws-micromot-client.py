@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # examaple websockets command line client
 # reads JSON-encoded log messages off the msgd Websocket server
@@ -53,18 +53,18 @@ request = '''{
 }'''
 
 def on_message(ws, message):
-    print message
+    print(message)
 
 def on_error(ws, error):
-    print error
+    print(error)
 
 def on_open(ws):
-    print "### connected ###"
+    print("### connected ###")
     ws.send(request)
 
 
 def on_close(ws):
-    print "### closed ###"
+    print("### closed ###")
 
 
 if __name__ == "__main__":

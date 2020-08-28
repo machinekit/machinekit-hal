@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from nose import with_setup
 from machinekit.nosetests.realtime import setup_module,teardown_module
@@ -42,7 +42,7 @@ class TestGroup(TestCase):
         try:
             # try to add a duplicate
             self.g2.add("sigu32")
-            raise Exception, "should not happen!"
+            raise Exception("should not happen!")
         except RuntimeError:
             pass
 
@@ -65,7 +65,7 @@ class TestGroup(TestCase):
 
         # retrieve changed values
         for s in self.g2.changed():
-            print "\t",s.name,s.type,s.get(),s.writers, s.readers
+            print("\t",s.name,s.type,s.get(),s.writers, s.readers)
 
         # one more group
         self.g3 = hal.Group("group3")
@@ -79,7 +79,7 @@ class TestGroup(TestCase):
             # m is a Member() object
             # m.item is the object the member is referring to -
             # Signal or Group instance
-            print m,m.item,m.epsilon,m.handle,m.userarg1,m.type
+            print(m,m.item,m.epsilon,m.handle,m.userarg1,m.type)
 
 (lambda s=__import__('signal'):
      s.signal(s.SIGTERM, s.SIG_IGN))()

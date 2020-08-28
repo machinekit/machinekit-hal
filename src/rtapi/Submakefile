@@ -93,7 +93,7 @@ TARGETS += $(ULAPI_LIB) $(ULAPI_LIB).0
 #               rtapi.so and flavor modules
 ##################################################################
 
-ifeq ($(HAS_SYS_IO),yes)
+ifeq ($(HAVE_SYS_IO),yes)
 PCI_SRC:= rtapi/rtapi_pci.c
 else
 PCI_SRC:=
@@ -110,7 +110,7 @@ $(eval $(call c_comp_build_rules,rtapi/rtapi.o,$(patsubst %.c,%.o,\
 	machinetalk/nanopb/pb_common.c \
 )))
 
-ifeq ($(HAS_SYS_IO),yes)
+ifeq ($(HAVE_SYS_IO),yes)
 # compile userland PCI support with udev cflags if any
 $(call TORTOBJS, rtapi/rtapi_pci.c): EXTRAFLAGS += $(LIBUDEV_CFLAGS)
 endif

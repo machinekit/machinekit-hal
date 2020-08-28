@@ -15,4 +15,4 @@ g2.add(s2)
 g2.add("sigbit")
 g2.add("sigu32")
 
-print g2.members()
+print(g2.members())

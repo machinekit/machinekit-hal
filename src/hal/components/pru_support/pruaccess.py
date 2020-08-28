@@ -157,31 +157,31 @@ IEP_CMP7 = 0x64
 #define ECAP_INT_BIT 15
 
 #//ecap registers
-ECAP0_TSCTR 	= 0x0
-ECAP0_CTRPHS	= 0x4
-ECAP0_CAP1	= 0x8
-ECAP0_CAP2	= 0xC
-ECAP0_CAP3	= 0x10
-ECAP0_CAP4	= 0x14
-ECAP0_ECCTL1	= 0x28
+ECAP0_TSCTR     = 0x0
+ECAP0_CTRPHS    = 0x4
+ECAP0_CAP1      = 0x8
+ECAP0_CAP2      = 0xC
+ECAP0_CAP3      = 0x10
+ECAP0_CAP4      = 0x14
+ECAP0_ECCTL1    = 0x28
 
 #TSCTRSTOP = 16  # 1=run !!
 
-ECAP0_ECCTL2	= 0x2A
-ECAP0_ECEINT	= 0x2C
-ECAP0_ECFLG	= 0x2E
-ECAP0_ECCLR	= 0x30
-ECAP0_ECFRC	= 0x32
-ECAP0_REVID	= 0x5C
+ECAP0_ECCTL2    = 0x2A
+ECAP0_ECEINT    = 0x2C
+ECAP0_ECFLG     = 0x2E
+ECAP0_ECCLR     = 0x30
+ECAP0_ECFRC     = 0x32
+ECAP0_REVID     = 0x5C
 
 ECAP_REVID = 0x44D22100
 
 #//ecap bit fields
-#define ECCTL2_APWMPOL_BIT		10
-#define ECCTL2_CAP_APWM_BIT		9
-#define ECCTL2_TSCTRSTOP_BIT	4
+#define ECCTL2_APWMPOL_BIT              10
+#define ECCTL2_CAP_APWM_BIT             9
+#define ECCTL2_TSCTRSTOP_BIT    4
 
-#define ECEINT_CTRPRD_BIT		6
+#define ECEINT_CTRPRD_BIT               6
 
 #//ecap cfg values
 #define ECCTL2_VAL 1<<ECCTL2_APWMPOL_BIT |(1<<ECCTL2_CAP_APWM_BIT)
@@ -243,12 +243,12 @@ class Mem:
 
     def __setitem__(self, key, value):
         if key < 0 or key > self.size-1:
-            raise ValueError, "key out of range: " + str(key)
+            raise ValueError("key out of range: " + str(key))
         self.memory[key >> self.shift] = value
 
     def __getitem__(self, key):
         if key < 0 or key > self.size-1:
-            raise ValueError, "key out of range: " + str(key)
+            raise ValueError("key out of range: " + str(key))
         return self.memory[key >> self.shift]
 
 class Pru:
@@ -258,44 +258,44 @@ class Pru:
         self.pruss = pruss
 
     def iram(self):
-	if self.pruss.version == PRUSS_V1:
-		return AM18XX_PRU0IRAM if self.num == 0 else AM18XX_PRU1IRAM
-	if self.pruss.version == PRUSS_V2:
-		return AM33XX_PRU0IRAM if self.num == 0 else AM33XX_PRU1IRAM
+        if self.pruss.version == PRUSS_V1:
+                return AM18XX_PRU0IRAM if self.num == 0 else AM18XX_PRU1IRAM
+        if self.pruss.version == PRUSS_V2:
+                return AM33XX_PRU0IRAM if self.num == 0 else AM33XX_PRU1IRAM
 
     def control(self):
-	if self.pruss.version == PRUSS_V1:
-		return AM18XX_PRU0CONTROL if self.num == 0 else AM18XX_PRU1CONTROL
-	if self.pruss.version == PRUSS_V2:
-		return AM33XX_PRU0CONTROL if self.num == 0 else AM33XX_PRU1CONTROL
+        if self.pruss.version == PRUSS_V1:
+                return AM18XX_PRU0CONTROL if self.num == 0 else AM18XX_PRU1CONTROL
+        if self.pruss.version == PRUSS_V2:
+                return AM33XX_PRU0CONTROL if self.num == 0 else AM33XX_PRU1CONTROL
 
     def iep(self):
-	if self.pruss.version == PRUSS_V1:
-		raise ValueError,"iep not supported on V1"
-	if self.pruss.version == PRUSS_V2:
-		return AM33XX_PRUSS_IEP_BASE
+        if self.pruss.version == PRUSS_V1:
+                raise ValueError("iep not supported on V1")
+        if self.pruss.version == PRUSS_V2:
+                return AM33XX_PRUSS_IEP_BASE
 
     def ecap(self):
-	if self.pruss.version == PRUSS_V1:
-		raise ValueError,"ecap not supported on V1"
-	if self.pruss.version == PRUSS_V2:
-		return AM33XX_PRUSS_ECAP_BASE
+        if self.pruss.version == PRUSS_V1:
+                raise ValueError("ecap not supported on V1")
+        if self.pruss.version == PRUSS_V2:
+                return AM33XX_PRUSS_ECAP_BASE
 
     def config(self):
         if self.pruss.version == PRUSS_V1:
-		raise ValueError,"CFG not supported on V1"
-	if self.pruss.version == PRUSS_V2:
-		return AM33XX_PRUSS_CFG_BASE
+                raise ValueError("CFG not supported on V1")
+        if self.pruss.version == PRUSS_V2:
+                return AM33XX_PRUSS_CFG_BASE
 
     def load(self,pru, code):
-	status = self.halt(pru)
-	bytes_read = open(code, "r").read()
-	if len(bytes_read) & 3:
-		raise Exception, "file size not a multiple of 4 : " + code
-	loc = self.iram(pru) * 4
-	for b in bytes_read:
-		self.dataram_b[b]
-		b += 1
+        status = self.halt(pru)
+        bytes_read = open(code, "r").read()
+        if len(bytes_read) & 3:
+                raise Exception("file size not a multiple of 4 : " + code)
+        loc = self.iram(pru) * 4
+        for b in bytes_read:
+                self.dataram_b[b]
+                b += 1
 
 class Pruss:
 
@@ -303,12 +303,12 @@ class Pruss:
     def detect_hw_version(self):
         version = self.drw[AM18XX_INTC]
         if version == AM18XX_PRUSS_INTC_REV:
-            print "V1"
+            print("V1")
             return PRUSS_V1
         else:
             version = self.drw[AM33XX_INTC]
             if version == AM33XX_PRUSS_INTC_REV:
-                print "V2"
+                print("V2")
                 return PRUSS_V2
             else:
                 return -1
@@ -331,7 +331,7 @@ class Pruss:
 
         self.version =  self.detect_hw_version()
         if self.version < 0:
-            raise Exception, "cannot detect hardware version"
+            raise Exception("cannot detect hardware version")
 
         self.extram_phys_base = readhex(extram_base)
         self.extram_map_size = readhex(extram_size)
@@ -367,23 +367,23 @@ def main():
 
     # PRU 0 processor status register
     control =  p.drw[pructrl + PRU_CONTROL]
-    print "pr0 control %8.8x" % control
+    print("pr0 control %8.8x" % control)
 
     # PRU 0 program counter
-    print "pr0 PC %d" % p.drw[pructrl + PRU_STATUS]
+    print("pr0 PC %d" % p.drw[pructrl + PRU_STATUS])
 
-    print "pr0 IEP lap count %d (*5nS)" % p.drw[AM33XX_PRUSS_IEP_BASE + IEP_COUNT]
+    print("pr0 IEP lap count %d (*5nS)" % p.drw[AM33XX_PRUSS_IEP_BASE + IEP_COUNT])
 
     if control & 0x8000:
-        print "disabling pr0"
+        print("disabling pr0")
         p.drw[pructrl  + PRU_CONTROL] = 0
         # dump few words from PRU0 iram
         # this works only if PRU disabled
         for i in range(4):
-            print "%8.8x " % (p.drw[iram + (i << 2)]),
+            print("%8.8x " % (p.drw[iram + (i << 2)]),)
         print
     else:
-        print "enabling pr0"
+        print("enabling pr0")
         p.drw[pructrl + PRU_CONTROL] = 2
 
 

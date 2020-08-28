@@ -31,15 +31,18 @@ if test "$srcdir" != "."; then
     AC_MSG_ERROR([Building outside of srcdir is not supported])
 fi
 
-## _PYTHON_SYSCONFIG(expression, [action-if-succeeded], [action-if-failed])
-##
-m4_define([_PYTHON_SYSCONFIG],
-[dnl
-py_val=`$PYTHON -c "dnl
-[import sys; from distutils import sysconfig; sys.stdout.write]dnl
-([sysconfig.]$1 or '')" 2>&AS_MESSAGE_LOG_FD`
-AS_IF([test "[$]?" -eq 0 && test "x$py_val" != x], [$2], [$3])[]dnl
-])
+AC_ARG_WITH(python,
+    [  --with-python=<path>                    Specify the Python interpreter],
+    [
+        PYTHON=$withval
+    ],[
+        PYTHON=python3
+    ])
+AC_PATH_PROG(PYTHON,$PYTHON,"none")
+if test $PYTHON = "none"
+then
+    AC_MSG_ERROR([python not found])
+fi
 
 # Cython Python Bindings generator
 # 0.19.1 is the version currently in wheezy-backports
@@ -264,23 +267,10 @@ cmdl_disab_msg="disabled on command line"
 cmdl_notspec_msg="not specified on command line"
 
 AC_CANONICAL_HOST
-HAS_SYS_IO=""
-AS_CASE([$host_cpu],
-                   [arm64],
-                   [
-                       HAS_SYS_IO=no
-                   ],
-                   [aarch64],
-                   [
-                       HAS_SYS_IO=no
-                   ],
-                   [*],
-                   [
-                       HAS_SYS_IO=yes
-                       AC_DEFINE([SYS_IO_DEFINED], [1],
-                               [The sys/io header exists.])
-                   ])
-AC_SUBST([HAS_SYS_IO])
+
+# Needed for PCI access
+AC_CHECK_HEADERS([sys/io.h],[HAVE_SYS_IO=yes], [HAVE_SYS_IO=no])
+AC_SUBST([HAVE_SYS_IO])
 
 AC_ARG_WITH(platform-pc,
     [AS_HELP_STRING(
@@ -731,12 +721,9 @@ then
     AC_MSG_ERROR([protoc not found - protobuf-compiler package not installed?])
 fi
 
-AC_PYTHON_MODULE(google.protobuf.descriptor, failed to import google.protobuf.descriptor
- - python-protobuf package missing? )
-AC_PYTHON_MODULE(google.protobuf.descriptor_pb2, failed to import google.protobuf.descriptor_pb2
- - python-protobuf package missing? )
-AC_PYTHON_MODULE(google.protobuf.compiler.plugin_pb2, failed to import google.protobuf.compiler.plugin_pb2
- - python-protobuf package missing? )
+AX_PYTHON_MODULE(google.protobuf.descriptor, 1)
+AX_PYTHON_MODULE(google.protobuf.descriptor_pb2, 1)
+AX_PYTHON_MODULE(google.protobuf.compiler.plugin_pb2, 1)
 
 PKG_CHECK_MODULES([JANSSON], [jansson > 2.4],
     [
@@ -805,12 +792,9 @@ PKG_CHECK_MODULES([LIBCGROUP], libcgroup,
 # pyftpdlib                                                                  #
 ##############################################################################
 
-AC_PYTHON_MODULE(pyftpdlib.authorizers, failed to import pyftpdlib.authorizers
- - python-pyftpdlib package missing or too old? )
-AC_PYTHON_MODULE(pyftpdlib.handlers, failed to import pyftpdlib.handlers
- - python-pyftpdlib package missing or too old? )
-AC_PYTHON_MODULE(pyftpdlib.servers, failed to import pyftpdlib.servers
- - python-pyftpdlib package missing or too old? )
+AX_PYTHON_MODULE(pyftpdlib.authorizers, 1)
+AX_PYTHON_MODULE(pyftpdlib.handlers, 1)
+AX_PYTHON_MODULE(pyftpdlib.servers, 1)
 
 
 ##############################################################################
@@ -1480,26 +1464,12 @@ AC_PATH_PROG(MANDB, mandb, "")
 # (Optional, if not present, just don't build the docs.)                     #
 ##############################################################################
 
-AC_ARG_WITH(python,
-    [  --with-python=<path>                    Specify the Python interpreter],
-    [
-        PYTHON=$withval
-    ],[
-        PYTHON=python
-    ])
-AC_PATH_PROG(PYTHON,$PYTHON,"none")
-if test $PYTHON = "none"
-then
-    AC_MSG_ERROR([python not found])
-fi
-
 AC_MSG_CHECKING(whether pydot capability required)
 AC_ARG_ENABLE(pydot,
     [  --enable-pydot      enable python-pydot graphing],
     [
     PYDOT=yes
-    AC_PYTHON_MODULE(pydot, failed to import pydot
-     - python-pydot package missing? )
+    AX_PYTHON_MODULE(pydot, 1)
 
     AC_PATH_PROG(XDOT, xdot, "none")
     if test $XDOT = "none"
@@ -1750,14 +1720,14 @@ if test "$BUILD_PYTHON" = "yes"; then
 	AC_MSG_ERROR([Python missing.  Install it or specify --disable-python to skip the parts of Machinekit that depend on Python])
     fi
 
-    AX_PYTHON_DEVEL(>= 2.6)
+    AX_PYTHON_DEVEL(>= '3.2')
     AC_PRUNE_DEFAULT_LDFLAGS(PYTHON_LIBS)
 
     # Get the CFLAGS and LIBS for Boost
     AX_BOOST_BASE(1.34, , [AC_MSG_ERROR([Boost 1.34.0 or newer required])])
 
     AC_MSG_CHECKING(for site-package location)
-    SITEPY=`$PYTHON -c 'import distutils.sysconfig; print distutils.sysconfig.get_python_lib(1)'`
+    SITEPY=`$PYTHON -c 'import distutils.sysconfig; print(distutils.sysconfig.get_python_lib(1))'`
     AC_MSG_RESULT($SITEPY)
 
 fi
@@ -1829,7 +1799,7 @@ done
 cat machinekitcfg.py-tmp2 > $BUILD_TOPLEVEL/lib/python/machinekit/config.py
 rm machinekitcfg.py-tmp2
 AC_MSG_CHECKING(usability of $BUILD_TOPLEVEL/lib/python/machinekit/config.py)
-python $BUILD_TOPLEVEL/lib/python/machinekit/config.py
+$PYTHON $BUILD_TOPLEVEL/lib/python/machinekit/config.py
 AC_MSG_RESULT(done)
 
 ##############################################################################

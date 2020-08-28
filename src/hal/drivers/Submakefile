@@ -9,12 +9,14 @@ $(eval $(call c_comp_build_rules,hal/drivers/hal_p260c.o))
 
 # C-language components
 ifeq ($(BUILD_DRIVERS),yes)
-ifeq ($(HAS_SYS_IO),yes)
-$(eval $(call c_comp_build_rules,hal/drivers/hal_parport.o))
+ifeq ($(HAVE_SYS_IO),yes)
 $(eval $(call c_comp_build_rules,hal/drivers/pci_8255.o))
 $(eval $(call c_comp_build_rules,hal/drivers/hal_tiro.o))
 $(eval $(call c_comp_build_rules,hal/drivers/hal_stg.o))
 $(eval $(call c_comp_build_rules,hal/drivers/hal_ax5214h.o))
+endif
+ifdef TARGET_PLATFORM_PC
+$(eval $(call c_comp_build_rules,hal/drivers/hal_parport.o))
 $(eval $(call c_comp_build_rules,hal/drivers/hal_speaker.o))
 $(eval $(call c_comp_build_rules,hal/drivers/hal_skeleton.o))
 endif
@@ -108,7 +110,7 @@ $(eval $(call c_comp_build_rules,hal/drivers/mesa-hostmot2/hostmot2.o,\
     rtapi/userpci/string.o                \
 ))
 
-ifeq ($(HAS_SYS_IO),yes)
+ifeq ($(HAVE_SYS_IO),yes)
 $(eval $(call c_comp_build_rules,hal/drivers/mesa-hostmot2/hm2_7i43.o,\
     hal/drivers/mesa-hostmot2/hm2_7i43.o  \
     hal/drivers/mesa-hostmot2/bitfile.o   \
@@ -130,11 +132,7 @@ $(eval $(call c_comp_build_rules,hal/drivers/mesa-hostmot2/setsserial.o, \
     rtapi/userpci/firmware.o		  \
     rtapi/userpci/string.o                \
 ))
-ifeq ($(HAS_SYS_IO),yes)
-$(eval $(call c_comp_build_rules,hal/drivers/mesa-hostmot2/hm2_pci.o, \
-    hal/drivers/mesa-hostmot2/bitfile.o   \
-))
-endif
+
 endif # BUILD_HOSTMOT2
 
 $(eval $(call c_comp_build_rules,hal/drivers/probe_parport.o))

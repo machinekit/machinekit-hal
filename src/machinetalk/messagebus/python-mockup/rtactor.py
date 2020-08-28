@@ -51,8 +51,8 @@ try:
     # attach to existing ring
     to_rt = comp.attach(me + ".in")
     from_rt = comp.attach(me + ".out")
-except NameError,e:
-    print e
+except NameError as e:
+    print(e)
 
 # TODO: check if reader/writer exists, issue warning message if not
 
@@ -64,7 +64,7 @@ while True:
    sender = msg[1]
    payload = str(msg[2:])
    if options.verbose:
-      print "--- %s fetched: sender=%s payload=%s " % (me, sender, payload)
+      print("--- %s fetched: sender=%s payload=%s " % (me, sender, payload))
 
    # push payload down tx ringbuffer
    to_rt.write(payload, len(payload))
@@ -78,7 +78,7 @@ while True:
             continue
          from_rt.shift()
          i += 1
-         print "--RT recv on %s.in: " % me, reply
+         print("--RT recv on %s.in: " % me, reply)
          reply += " processed by %s.proxy count=%d" % (me, i)
          response.send_multipart([me, sender, reply])
          break

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 import re, sys, os
 from pprint import pprint
@@ -41,7 +41,7 @@ def gpio_info(pins={}):
         chipdirs = [i for i in os.listdir(dirname)
                  if gpiochip_re.match(i) ]
         if len(chipdirs) != 1:
-            print "Error:  want exactly one 'gpiochip*' entry in %d" % dirname
+            print("Error:  want exactly one 'gpiochip*' entry in %d" % dirname)
             sys.exit(1)
         chipno = int(gpiochip_re.match(chipdirs[0]).group(1))
         gpios[chipno] = dict(
@@ -87,24 +87,24 @@ def print_beaglebone_gpio_h(pins, board_name, board_id):
 
     max_pins = 0; hlo = 100; hhi = 0
     for header, pin in pins:
-    	if header > hhi: hhi = header
+        if header > hhi: hhi = header
         if header < hlo: hlo = header
         if max_pins < pin: max_pins = pin
 
-    print "#define %s %d  // board ID" % (board_name, board_id)
-    print "#define %s_PINS_PER_HEADER %d" % (board_name, max_pins)
-    print "#define %s_HLO_HEADER %d" % (board_name, hlo)
-    print "#define %s_HHI_HEADER %d" % (board_name, hhi)
+    print("#define %s %d  // board ID" % (board_name, board_id))
+    print("#define %s_PINS_PER_HEADER %d" % (board_name, max_pins))
+    print("#define %s_HLO_HEADER %d" % (board_name, hlo))
+    print("#define %s_HHI_HEADER %d" % (board_name, hhi))
 
     for h,n in ((hlo, "HLO"), (hhi,"HHI")):
-        print "pb_gpio_pin %s_%s_PINS[%s_PINS_PER_HEADER+1] = {" % (
-            board_name, n, board_name)
+        print("pb_gpio_pin %s_%s_PINS[%s_PINS_PER_HEADER+1] = {" % (
+            board_name, n, board_name))
         print
         for p in range(max_pins):
             data = pins.get((h,p), dict(chip=-1, num=p, offset=-1, chipgpio=-1))
             print ("\t{ NULL, %(chip)2d, %(chipgpio)2d, %(offset)5s, 0 }, "
                    "// pin %(num)d" % data)
-        print "};"
+        print("};")
         print
 
 # Command line args

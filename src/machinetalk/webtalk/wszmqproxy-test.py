@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # examaple websockets command line client
 # reads JSON-encoded log messages off the msgd Websocket server
@@ -10,13 +10,13 @@ import thread
 import time
 
 def on_message(ws, message):
-    print message
+    print(message)
 
 def on_error(ws, error):
-    print error
+    print(error)
 
 def on_close(ws):
-    print "### closed ###"
+    print("### closed ###")
 
 
 

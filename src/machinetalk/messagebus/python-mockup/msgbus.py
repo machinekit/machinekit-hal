@@ -26,7 +26,7 @@ class MsgbusTask(threading.Thread):
 
     def handle(self, socket, error, sname, presence):
         msg = socket.recv_multipart()
-        if options.verbose: print "---%s %s recv: %s" % (me,sname,msg)
+        if options.verbose: print("---%s %s recv: %s" % (me,sname,msg))
         if len(msg) == 1:
             frame = msg[0]
             sub = ord(frame[0])
@@ -34,12 +34,12 @@ class MsgbusTask(threading.Thread):
 
             if sub == 1:
                 presence[topic] = True
-                if options.verbose: print "--- %s %s subscribe: %s" % (me,sname,topic)
+                if options.verbose: print("--- %s %s subscribe: %s" % (me,sname,topic))
             elif sub == 0:
-                if options.verbose: print "--- %s %s unsubscribe: %s" % (me,sname,topic)
+                if options.verbose: print("--- %s %s unsubscribe: %s" % (me,sname,topic))
                 del presence[topic]
             else:
-                if options.verbose: print "---%s %s recv: invalid frame: %s" % (me,sname,msg)
+                if options.verbose: print("---%s %s recv: invalid frame: %s" % (me,sname,msg))
 
         else:
             dest = msg[1]
@@ -51,7 +51,7 @@ class MsgbusTask(threading.Thread):
                 # an unroutable response will be logged and dropped
                 if error:
                     error.send_multipart([msg[0], "--- no destination: " + dest])
-                if options.verbose: print "no %s destination: %s" % (sname,dest)
+                if options.verbose: print("no %s destination: %s" % (sname,dest))
 
 
     def run(self):

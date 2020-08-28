@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # icomp is the demo/test comp for the HAL instantiation API
 # it has the following parameters:

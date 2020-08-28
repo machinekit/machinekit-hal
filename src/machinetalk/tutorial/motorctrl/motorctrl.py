@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # vim: sts=4 sw=4 et
 #    This is a component of LinuxCNC
 #    classhandler.py  Copyright 2010 Michael Haberler
@@ -31,9 +31,10 @@ class HandlerClass:
         halcomp.connect('state', self._on_state_change)
         self._on_state_change(halcomp, fsm.STARTUP, fsm.STARTUP, "startup")
 
-def get_handlers(halcomp,builder,useropts, compname):
+# FIXME:  I have no idea what the `exec` line was supposed to do
+# def get_handlers(halcomp,builder,useropts, compname):
 
-    for cmd in useropts:
-        exec cmd in globals()
+#     for cmd in useropts:
+#         exec cmd in globals()
 
-    return [HandlerClass(halcomp,builder,useropts,compname)]
+#     return [HandlerClass(halcomp,builder,useropts,compname)]

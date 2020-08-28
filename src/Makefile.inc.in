@@ -83,8 +83,7 @@ YAPPS2 = @YAPPS2@
 MANDB = @MANDB@
 HIDRAW_H_USABLE = @HIDRAW_H_USABLE@
 
-HAS_SYS_IO = @HAS_SYS_IO@
-SYS_IO_DEFINED = @SYS_IO_DEFINED@
+HAVE_SYS_IO = @HAVE_SYS_IO@
 
 BUILD_DRIVERS = @BUILD_DRIVERS@
 USE_PORTABLE_PARPORT_IO = @USE_PORTABLE_PARPORT_IO@
@@ -218,12 +217,6 @@ LTTNG_UST_CFLAGS = @LTTNG_UST_CFLAGS@
 
 # To disable compilation of any particular module,
 # edit the following lines replacing "m" with "n".
-
-ifeq ($(HAS_SYS_IO),yes)
-CONFIG_PLATFORM_PC=m
-else
-CONFIG_PLATFORM_PC=n
-endif
 
 # usually you need rtapi,
 # so you probably don't want to change this

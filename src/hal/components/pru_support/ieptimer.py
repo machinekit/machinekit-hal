@@ -38,7 +38,7 @@ def main():
             t = now
             # match event occurred, clear it
             p.drw[iep + IEP_CMP_STATUS] = IEP_CMP_HIT0
-            print "CMP0 match lap time=",lap
+            print("CMP0 match lap time=",lap)
         time.sleep(0.01)
 
 

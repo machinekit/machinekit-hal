@@ -45,7 +45,7 @@ request = d.SerializeToString()
 
 if len(sys.argv) > 1:
     jsonout = d.SerializeToJSON()
-    print json.dumps(json.loads(jsonout), indent=4)
+    print(json.dumps(json.loads(jsonout), indent=4))
 
 reply = DemoContainer()
 
@@ -59,5 +59,5 @@ for i in range(3):
     socket.send(request)
     r = socket.recv()
     reply.ParseFromString(r)
-    print str(reply)
+    print(str(reply))
     time.sleep(1)

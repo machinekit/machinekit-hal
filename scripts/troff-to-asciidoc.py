@@ -3,8 +3,8 @@ import os, sys, re
 SourceFilePath = sys.argv[1]
 TargetFilePath = sys.argv[2]
 
-print "source  = " + SourceFilePath
-print "target  = " + TargetFilePath
+print("source  = " + SourceFilePath)
+print("target  = " + TargetFilePath)
 
 # open the source file
 SourceLines = open(SourceFilePath, 'rU').readlines()

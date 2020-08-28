@@ -21,4 +21,4 @@ while True:
     if buffer is None:
         time.sleep(polltime)
     else:
-        print "got: ", buffer,
+        print("got: ", buffer,)

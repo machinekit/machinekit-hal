@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import os,time,sys
 
 from nose import with_setup
@@ -52,7 +52,7 @@ def test_ring_read():
         record = r1.read()
         if record is None:
             break
-        print "consume record %d: '%s'" % (nr, record)
+        print("consume record %d: '%s'" % (nr, record))
         nr += 1
         r1.shift()
     assert nr > 0

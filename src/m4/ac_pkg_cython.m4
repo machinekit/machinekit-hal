@@ -1,6 +1,6 @@
 
 AC_DEFUN([AC_PROG_CYTHON],[
-        AC_PATH_PROG([CYTHON],[cython])
+        AC_PATH_PROGS([CYTHON],[cython cython3])
         if test -z "$CYTHON" ; then
                # AC_MSG_WARN([cannot find 'cython' program. You should look at http://www.cython.org] or install your distribution specific cython package.)
                 CYTHON=false

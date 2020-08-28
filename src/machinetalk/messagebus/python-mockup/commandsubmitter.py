@@ -62,18 +62,18 @@ for j in range(options.iter):
         i += 1
         mp = [me, options.destination,msg,c, c]
         if options.verbose:
-            print "---%s msg %s" % (me,mp)
+            print("---%s msg %s" % (me,mp))
         cmd.send_multipart(mp)
 
     for n in range(options.batch):
         msg = response.recv_multipart()
         if options.verbose:
 
-            #print "---%s receive response: %s" %(me, msg)
-            print "---%s receive response: %s" %(me, msg)
+            #print("---%s receive response: %s" %(me, msg))
+            print("---%s receive response: %s" %(me, msg))
             for m in msg[3:]:
                 rx.ParseFromString(m)
-                print str(rx)
+                print(str(rx))
     if not options.fast:
         time.sleep(1)
 

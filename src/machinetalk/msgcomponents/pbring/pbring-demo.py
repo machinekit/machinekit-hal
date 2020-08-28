@@ -28,8 +28,8 @@ interval = 0.1
 try:
     c = hal.Ring("first.in")
     r = hal.Ring("first.out")
-except Exception,e:
-    print e
+except Exception as e:
+    print(e)
 
 r.reader = c.writer = os.getpid()
 
@@ -61,11 +61,11 @@ for i in range(10):
             reply.ParseFromString(b)
 
             # protobuf text format
-            print "reply:", str(reply)
+            print("reply:", str(reply))
 
             # automatic JSON conversion
             jsonout = reply.SerializeToJSON()
-            print json.dumps(json.loads(jsonout), indent=4)
+            print(json.dumps(json.loads(jsonout), indent=4))
 
             del reply
 

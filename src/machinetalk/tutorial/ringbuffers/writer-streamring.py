@@ -9,7 +9,7 @@ polltime = 0.1
 
 try:
     r = hal.Ring(name)
-except RuntimeError,e:
+except RuntimeError as e:
     r = hal.Ring(name, size=ringsize, flags=hal.RINGTYPE_STREAM)
 
 r.writer = os.getpid()
@@ -19,5 +19,5 @@ count = 10
 for n in range(count):
     try:
         r.write("message %d\n" % n)
-    except RuntimeError,e:
-        print e
+    except RuntimeError as e:
+        print(e)

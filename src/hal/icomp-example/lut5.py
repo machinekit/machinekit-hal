@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # script to determine function value for lut5.9 given a
 # boolean expression using inputs 0-4 (named i0..i4)
@@ -30,17 +30,17 @@ def main():
 
     if not args:
         parser.print_help()
-        print "examples:"
-        print "  lut5 'i0 &  i1 &  i2 &  i3 &  i4'"
-        print "  lut5 'i0 |  i1 |  i2 |  i3 |  i4'"
-        print "  lut5 -n2 'i0 ^  i1'"
-        print "# a two-line mux:"
-        print "  lut5 -n3 '(i2 and i1) or (not i2 and i0)'"
+        print("examples:")
+        print("  lut5 'i0 &  i1 &  i2 &  i3 &  i4'")
+        print("  lut5 'i0 |  i1 |  i2 |  i3 |  i4'")
+        print("  lut5 -n2 'i0 ^  i1'")
+        print("# a two-line mux:")
+        print("  lut5 -n3 '(i2 and i1) or (not i2 and i0)'")
         sys.exit(1)
     expression = args[0]
 
-    print "# expression = %s" % (expression)
-    print "#in: i4 i3 i2 i1 i0 out weight"
+    print("# expression = %s" % (expression))
+    print("#in: i4 i3 i2 i1 i0 out weight")
 
     function = 0
     for i in range(1 << int(opts.inputs)):
@@ -51,13 +51,13 @@ def main():
         i3 = True if i & 8 else False
         i4 = True if i & 16 else False
         result = eval(expression)
-        print "#%2d:  %d  %d  %d  %d  %d  %d" % (i,int(i4),int(i3),int(i2),int(i1),int(i0),int(result)),
+        print("#%2d:  %d  %d  %d  %d  %d  %d" % (i,int(i4),int(i3),int(i2),int(i1),int(i0),int(result)),)
         if result:
             function += weight
-            print "  0x%x" % (weight)
+            print("  0x%x" % (weight))
         else:
             print
-    print "# setp lut5.N.function 0x%x" % (function)
+    print("# setp lut5.N.function 0x%x" % (function))
 
 
 if __name__ == '__main__':
