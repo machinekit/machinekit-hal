@@ -88,7 +88,8 @@ RUN apt-get update &&        \
     apt-get install -y       \
         sudo                 \
         machinekit-fixuid && \
-    apt-get clean
+    apt-get clean &&         \
+    chmod u+s /usr/bin/machinekit-fixuid # For Ubuntu Focal (?)
 
 COPY scripts/buildsystem/debian/base-entrypoint.sh /opt/bin/base-entrypoint.sh
 
