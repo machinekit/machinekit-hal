@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 # script to determine function value for lut5.9 given a
 # boolean expression using inputs 0-4 (named i0..i4)
