@@ -129,7 +129,9 @@ cdef class Member(HALObject):
         def __get__(self): return self._o.member.eps_index
         def __set__(self, int eps):
             if (eps < 0) or (eps > MAX_EPSILON-1):
-                raise InternalError("member %s : epsilon index out of range" % (self._name(), eps))
+                raise InternalError(
+		    "member %s : epsilon index %s out of range" %
+		        (self._name(), eps))
             self._o.member.eps_index = eps
 
     property userarg1:
