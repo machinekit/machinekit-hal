@@ -52,13 +52,6 @@ RUN printf "%s;\n%s;\n"                 \
     'APT::Install-Suggests "0"'         \
     > /etc/apt/apt.conf.d/01norecommend
 
-# Use stable Debian mirror - TODO change to support UBUNTU
-ARG DEBIAN_MIRROR=ftp.debian.org
-ARG DEBIAN_SECURITY_MIRROR=security.debian.org
-RUN sed -i /etc/apt/sources.list                          \
-    -e "s/deb.debian.org/${DEBIAN_MIRROR}/"               \
-    -e "s/security.debian.org/${DEBIAN_SECURITY_MIRROR}/"
-
 # Add Machinekit Dependencies repository
 RUN apt-get update &&                                                             \
     apt-get install -y                                                            \
@@ -118,33 +111,23 @@ FROM machinekit-hal_builder_base AS machinekit-hal_builder
 
 ARG HOST_ARCHITECTURE
 
-RUN if ! dpkg-architecture -e${HOST_ARCHITECTURE};    \
-    then                                              \
-        dpkg --add-architecture ${HOST_ARCHITECTURE}; \
-    fi
-
-# Ubuntu ports repos for cross-building
-RUN if test $(source /etc/os-release; echo $ID) = ubuntu \
-           -a $(dpkg --print-architecture) = amd64 \
-           -a ${HOST_ARCHITECTURE} != amd64 \
-           -a ${HOST_ARCHITECTURE} != i386; then \
-       CODENAME=$(source /etc/os-release; echo $VERSION_CODENAME) && \
-       sed </etc/apt/sources.list \
-           >/etc/apt/sources.list.d/ubuntu-ports-${HOST_ARCHITECTURE}.list \
-           -e "/http:\/\/security/ d"  -e "/^#/ d"  -e "/^$/ d" \
-           -e "s/^deb /deb [arch=${HOST_ARCHITECTURE}] /" \
-           -e "s,http://archive.ubuntu.com/ubuntu/,http://ports.ubuntu.com/ubuntu-ports/," && \
-        cat /etc/apt/sources.list.d/ubuntu-ports-${HOST_ARCHITECTURE}.list && \
-       sed -i /etc/apt/sources.list \
-           -e "/^#/ d"  -e "/^$/ d" \
-           -e "s/^deb /deb [arch=amd64] /" && \
-        cat /etc/apt/sources.list; \
-    fi
-
 RUN apt-get update &&  \
     apt-get install -y \
         lsb-release && \
     apt-get clean
+
+# This could be squashed into one layer, but it would require using BuildKit
+COPY scripts/buildsystem/debian/doctor-multiarch-apt-repositories.sh \
+     /doctor-multiarch-apt-repositories.sh
+RUN bash /doctor-multiarch-apt-repositories.sh -a ${HOST_ARCHITECTURE} && \
+    apt-get update && \
+    rm -f /doctor-multiarch-apt-repositories.sh
+
+RUN if ! dpkg-architecture -e${HOST_ARCHITECTURE};      \
+    then                                                \
+        dpkg --add-architecture ${HOST_ARCHITECTURE} && \
+        apt-get update;                                 \
+    fi
 
 # Non-standard exception, using the non-standard crossbuild-essential-i386:amd64
 # package in Machinekit/Machinekit Cloudsmith repository
