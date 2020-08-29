@@ -10,13 +10,7 @@ from .rtapi_app cimport *
 from os import strerror, getpid
 from libc.stdlib cimport malloc, free
 from cpython.bytes cimport PyBytes_AsString
-
-
-# the PyBuffer_FillInfo declaration is broken in cython 0.19
-# from cpython.buffer cimport PyBuffer_FillInfo
-# use a temporary replacement
-# XXX make this conditional on cython version
-from buffer cimport PyBuffer_FillInfo
+from cpython.buffer cimport PyBuffer_FillInfo
 
 _HAL_KEY                   = HAL_KEY
 _RTAPI_KEY                 = RTAPI_KEY
