@@ -27,12 +27,6 @@ using namespace std;
 #include "hal_priv.h"
 #include "rtapi_compat.h"
 
-#if PY_VERSION_HEX < 0x02050000 && !defined(PY_SSIZE_T_MIN)
-typedef int Py_ssize_t;
-#define PY_SSIZE_T_MAX INT_MAX
-#define PY_SSIZE_T_MIN INT_MIN
-#endif
-
 #define EXCEPTION_IF_NOT_LIVE(retval) do { \
     if(self->hal_id <= 0) { \
         PyErr_SetString(PyExc_RuntimeError, "Invalid operation on closed HAL component"); \
@@ -40,24 +34,34 @@ typedef int Py_ssize_t;
     } \
 } while(0)
 
-PyObject *to_python(bool b) {
+PyObject *to_python(hal_bit_t b) {
     return PyBool_FromLong(b);
 }
 
-PyObject *to_python(unsigned u) {
+PyObject *to_python(hal_u32_t u) {
     return PyLong_FromUnsignedLong(u);
 }
 
-PyObject *to_python(int u) {
-    return PyLong_FromLong(u);
+PyObject *to_python(hal_s32_t i) {
+    return PyLong_FromLong(i);
 }
 
-PyObject *to_python(double d) {
+PyObject *to_python(hal_u64_t u) {
+    return PyLong_FromUnsignedLongLong(u);
+}
+
+PyObject *to_python(hal_s64_t i) {
+    return PyLong_FromLongLong(i);
+}
+
+PyObject *to_python(hal_float_t d) {
     return PyFloat_FromDouble(d);
 }
 
-bool from_python(PyObject *o, double *d) {
-    if(PyFloat_Check(o)) {
+bool from_python(PyObject *o, hal_float_t *d) {
+    // First try more specific conversions that throw more specific
+    // exceptions, e.g. OverflowError
+    if (PyFloat_Check(o)) {
         *d = PyFloat_AsDouble(o);
         return true;
     } else if(PyLong_Check(o)) {
@@ -65,9 +69,13 @@ bool from_python(PyObject *o, double *d) {
         return !PyErr_Occurred();
     }
 
+    // Otherwise, use generic conversion ard catch number protocol
+    // exceptions
     PyObject *tmp = PyNumber_Float(o);
     if(!tmp) {
-        PyErr_Format(PyExc_TypeError, "Number expected, not %s", Py_TYPE(o)->tp_name);
+        PyErr_Format(PyExc_TypeError,
+                     "Failed to convert %s(%R) to float type",
+                     Py_TYPE(o)->tp_name, o);
         return false;
     }
 
@@ -76,53 +84,110 @@ bool from_python(PyObject *o, double *d) {
     return true;
 }
 
-bool from_python(PyObject *o, uint32_t *u) {
-    PyObject *tmp = 0;
-    unsigned long long l;
-    tmp = PyLong_Check(o) ? o : PyNumber_Long(o);
-    if(!tmp) goto fail;
-
-    l = PyLong_AsUnsignedLongLong(tmp);
-    if(PyErr_Occurred()) goto fail;
-
-    if(l < 0 || l != (uint32_t)l) {
-        PyErr_Format(PyExc_OverflowError, "Value %lld out of range", l);
-        goto fail;
+bool from_python(PyObject *o, hal_u32_t *i) {
+    // int- or float-specific conversions:  32-bit int types need
+    // annoying extra checks on 64-bit, since long int is 64-bits
+    if (PyLong_Check(o)) { // PyLong_AsUnsignedLong() doesn't like floats
+        unsigned long ul = PyLong_AsUnsignedLong(o);
+        if (PyErr_Occurred()) return false;
+        if ((*i = (hal_u32_t)ul) != ul) {
+            PyErr_Format(PyExc_OverflowError,
+                         "Python int too large to convert to C unsigned long");
+            return false;
+        }
+        return true;
     }
 
-    *u = l;
-    if(tmp != o) Py_XDECREF(tmp);
+    // Other type conversions
+    PyObject *tmp = PyNumber_Long(o);
+    if(!tmp) {
+        PyErr_Format(PyExc_TypeError,
+                     "Failed to convert %s(%R) to int type",
+                     Py_TYPE(o)->tp_name, o);
+        return false;
+    }
+
+    *i = PyLong_AsUnsignedLong(tmp);
+    if (PyErr_Occurred())
+      return false;
+    Py_XDECREF(tmp);
     return true;
-fail:
-    if(tmp != o) Py_XDECREF(tmp);
-    return false;
 }
 
-bool from_python(PyObject *o, int32_t *i) {
-    PyObject *tmp = 0;
-    long long l;
-    int overflow;
-    tmp = PyLong_Check(o) ? o : PyNumber_Long(o);
-    if(!tmp) goto fail;
-
-    l = PyLong_AsLongLongAndOverflow(tmp, &overflow);
-    if(PyErr_Occurred()) goto fail;
-    if (overflow) {
-        PyErr_Format(PyExc_OverflowError, "Value %lld out of range", l);
-        goto fail;
+bool from_python(PyObject *o, hal_s32_t *i) {
+    // int- or float-specific conversions:  32-bit int types need
+    // annoying extra checks on 64-bit, since long int is 64-bits
+    if (PyLong_Check(o) || PyFloat_Check(o)) {
+        long l = PyLong_AsLong(o);
+        if (PyErr_Occurred()) return false;
+        if ((*i = (hal_s32_t)l) != l) {
+            PyErr_Format(PyExc_OverflowError,
+                         "Python int too large to convert to C long");
+            return false;
+        }
+        return true;
     }
 
-    if(l != (int32_t)l) {
-        PyErr_Format(PyExc_OverflowError, "Value %lld out of range", l);
-        goto fail;
+    // Other type conversions
+    PyObject *tmp = PyNumber_Long(o);
+    if(!tmp) {
+        PyErr_Format(PyExc_TypeError,
+                     "Failed to convert %s(%R) to int type",
+                     Py_TYPE(o)->tp_name, o);
+        return false;
     }
 
-    *i = l;
-    if(tmp != o) Py_XDECREF(tmp);
+    *i = PyLong_AsLong(tmp);
+    if (PyErr_Occurred())
+      return false;
+    Py_XDECREF(tmp);
     return true;
-fail:
-    if(tmp != o) Py_XDECREF(tmp);
-    return false;
+}
+
+bool from_python(PyObject *o, hal_u64_t *i) {
+    // int- or float-specific conversions
+    if (PyLong_Check(o)) { // PyLong_AsUnsignedLongLong() doesn't like floats
+        *i = PyLong_AsUnsignedLongLong(o);
+        return !PyErr_Occurred();
+    }
+
+    // Other type conversions
+    PyObject *tmp = PyNumber_Long(o);
+    if(!tmp) {
+        PyErr_Format(PyExc_TypeError,
+                     "Failed to convert %s(%R) to int type",
+                     Py_TYPE(o)->tp_name, o);
+        return false;
+    }
+
+    *i = PyLong_AsUnsignedLongLong(tmp);
+    if (PyErr_Occurred())
+      return false;
+    Py_XDECREF(tmp);
+    return true;
+}
+
+bool from_python(PyObject *o, hal_s64_t *i) {
+    // int- or float-specific conversions
+    if (PyLong_Check(o) || PyFloat_Check(o)) {
+        *i = PyLong_AsLongLong(o);
+        return !PyErr_Occurred();
+    }
+
+    // Other type conversions
+    PyObject *tmp = PyNumber_Long(o);
+    if(!tmp) {
+        PyErr_Format(PyExc_TypeError,
+                     "Failed to convert %s(%R) to int type",
+                     Py_TYPE(o)->tp_name, o);
+        return false;
+    }
+
+    *i = PyLong_AsLongLong(tmp);
+    if (PyErr_Occurred())
+      return false;
+    Py_XDECREF(tmp);
+    return true;
 }
 
 union paramunion {
@@ -256,15 +321,27 @@ static int pyhal_write_common(halitem *pin, PyObject *value) {
                 break;
             }
             case HAL_U32: {
-                uint32_t tmp;
+                hal_u32_t tmp;
                 if(!from_python(value, &tmp)) return -1;
                 *pin->u->pin.u32 = tmp;
                 break;
             }
             case HAL_S32: {
-                int32_t tmp;
+                hal_s32_t tmp;
                 if(!from_python(value, &tmp)) return -1;
                 *pin->u->pin.s32 = tmp;
+                break;
+            }
+            case HAL_U64: {
+                hal_u64_t tmp;
+                if(!from_python(value, &tmp)) return -1;
+                *pin->u->pin.u64 = tmp;
+                break;
+            }
+            case HAL_S64: {
+                hal_s64_t tmp;
+                if(!from_python(value, &tmp)) return -1;
+                *pin->u->pin.s64 = tmp;
                 break;
             }
             default:
@@ -282,16 +359,28 @@ static int pyhal_write_common(halitem *pin, PyObject *value) {
                 break;
             }
             case HAL_U32: {
-                uint32_t tmp;
+                hal_u32_t tmp;
                 if(!from_python(value, &tmp)) return -1;
                 pin->u->param.u32 = tmp;
                 break;
             }
             case HAL_S32:
-                int32_t tmp;
+                hal_s32_t tmp;
                 if(!from_python(value, &tmp)) return -1;
                 pin->u->param.s32 = tmp;
                 break;
+            case HAL_U64: {
+                hal_u64_t tmp;
+                if(!from_python(value, &tmp)) return -1;
+                *pin->u->pin.u64 = tmp;
+                break;
+            }
+            case HAL_S64: {
+                hal_s64_t tmp;
+                if(!from_python(value, &tmp)) return -1;
+                *pin->u->pin.s64 = tmp;
+                break;
+            }
             default:
                 PyErr_Format(pyhal_error_type, "Invalid pin type %d", pin->type);
         }
@@ -306,9 +395,9 @@ static PyObject *pyhal_read_common(halitem *item) {
             case HAL_BIT: return to_python(*(item->u->pin.b));
             case HAL_U32: return to_python(*(item->u->pin.u32));
             case HAL_S32: return to_python(*(item->u->pin.s32));
+            case HAL_U64: return to_python(*(item->u->pin.u64));
+            case HAL_S64: return to_python(*(item->u->pin.s64));
             case HAL_FLOAT: return to_python(*(item->u->pin.f));
-            case HAL_S64: /* fallthrough */ ;
-            case HAL_U64: /* fallthrough */ ;
             case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
             case HAL_TYPE_UNINITIALIZED: /* fallthrough */ ;
             case HAL_TYPE_MAX: /* fallthrough */ ;
@@ -318,9 +407,9 @@ static PyObject *pyhal_read_common(halitem *item) {
             case HAL_BIT: return to_python(item->u->param.b);
             case HAL_U32: return to_python(item->u->param.u32);
             case HAL_S32: return to_python(item->u->param.s32);
+            case HAL_U64: return to_python(item->u->param.u64);
+            case HAL_S64: return to_python(item->u->param.s64);
             case HAL_FLOAT: return to_python(item->u->param.f);
-            case HAL_S64: /* fallthrough */ ;
-            case HAL_U64: /* fallthrough */ ;
             case HAL_TYPE_UNSPECIFIED: /* fallthrough */ ;
             case HAL_TYPE_UNINITIALIZED: /* fallthrough */ ;
             case HAL_TYPE_MAX: /* fallthrough */ ;
@@ -379,7 +468,7 @@ static PyObject * pyhal_create_pin(halobject *self, char *name, hal_type_t type,
     halitem pin;
     pin.is_pin = 1;
 
-    if(type < HAL_BIT || type > HAL_U32) {
+    if(type <= HAL_TYPE_UNINITIALIZED || type >= HAL_TYPE_MAX) {
         PyErr_Format(pyhal_error_type, "Invalid pin type %d", type);
         return NULL;
     }
@@ -470,8 +559,8 @@ static PyObject *pyhal_exit(PyObject *_self, PyObject *o) {
 
 static PyObject *pyhal_repr(PyObject *_self) {
     halobject *self = (halobject *)_self;
-    return PyUnicode_FromFormat("<hal component %s(%d) with %d pins and params>",
-            self->name, self->hal_id, (int)self->items->size());
+    return PyUnicode_FromFormat("<hal component %s(%d) with %zu pins and params>",
+            self->name, self->hal_id, self->items->size());
 }
 
 static PyObject *pyhal_getattro(PyObject *_self, PyObject *attro)  {
@@ -601,6 +690,8 @@ static const char * pin_type2name(hal_type_t type) {
 	case HAL_BIT: return "BIT";
 	case HAL_S32: return "S32";
 	case HAL_U32: return "U32";
+	case HAL_S64: return "S64";
+	case HAL_U64: return "U64";
 	case HAL_FLOAT: return "FLOAT";
 	default: return "unknown";
     }
@@ -823,6 +914,12 @@ PyObject *new_sig(PyObject *self, PyObject *args) {
 	case HAL_U32:
         retval = hal_signal_new(name, HAL_U32);
         break;
+	case HAL_S64:
+        retval = hal_signal_new(name, HAL_S64);
+        break;
+	case HAL_U64:
+        retval = hal_signal_new(name, HAL_U64);
+        break;
 	case HAL_FLOAT:
         retval = hal_signal_new(name, HAL_FLOAT);
         break;
@@ -851,6 +948,8 @@ static int set_common(hal_type_t type, void *d_ptr, char *value) {
     double fval;
     long lval;
     unsigned long ulval;
+    long long llval;
+    unsigned long long ullval;
     char *cp = value;
 
     switch (type) {
@@ -893,6 +992,26 @@ static int set_common(hal_type_t type, void *d_ptr, char *value) {
 	    retval = -EINVAL;
 	} else {
 	    *((hal_u32_t *) (d_ptr)) = ulval;
+	}
+	break;
+    case HAL_S64:
+	llval = strtoll(value, &cp, 0);
+	if ((*cp != '\0') && (!isspace(*cp))) {
+	    // invalid chars in string
+
+	    retval = -EINVAL;
+	} else {
+	    *((hal_s64_t *) (d_ptr)) = llval;
+	}
+	break;
+    case HAL_U64:
+	ullval = strtoull(value, &cp, 0);
+	if ((*cp != '\0') && (!isspace(*cp))) {
+	    // invalid chars in string
+
+	    retval = -EINVAL;
+	} else {
+	    *((hal_u64_t *) (d_ptr)) = ullval;
 	}
 	break;
     default:
@@ -1037,8 +1156,8 @@ static Py_ssize_t shm_segcount(PyObject *_self, Py_ssize_t *lenp) {
 #endif
 static PyObject *pyshm_repr(PyObject *_self) {
     shmobject *self = (shmobject *)_self;
-    return PyUnicode_FromFormat("<shared memory buffer key=%08x id=%d size=%ld>",
-	    self->key, self->shm_id, (unsigned long)self->size);
+    return PyUnicode_FromFormat("<shared memory buffer key=%08x id=%d size=%zu>",
+	    self->key, self->shm_id, self->size);
 }
 
 static PyObject *shm_setsize(PyObject *_self, PyObject *args) {
@@ -1218,6 +1337,8 @@ PyMODINIT_FUNC PyInit__hal(void)
     PyModule_AddIntConstant(m, "HAL_FLOAT", HAL_FLOAT);
     PyModule_AddIntConstant(m, "HAL_S32", HAL_S32);
     PyModule_AddIntConstant(m, "HAL_U32", HAL_U32);
+    PyModule_AddIntConstant(m, "HAL_S64", HAL_S64);
+    PyModule_AddIntConstant(m, "HAL_U64", HAL_U64);
 
     PyModule_AddIntConstant(m, "HAL_RO", HAL_RO);
     PyModule_AddIntConstant(m, "HAL_RW", HAL_RW);
