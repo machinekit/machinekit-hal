@@ -4,13 +4,14 @@
 # RT logger
 # rtapi_app command interface
 
-from .rtapi cimport *
-from .global_data cimport *
-from .rtapi_app cimport *
 from os import strerror, getpid
 from libc.stdlib cimport malloc, free
 from cpython.bytes cimport PyBytes_AsString
 from cpython.buffer cimport PyBuffer_FillInfo
+from rtapi_app cimport (
+    rtapi_connect, rtapi_newthread, rtapi_delthread,
+    rtapi_loadrt, rtapi_unloadrt, rtapi_newinst, rtapi_delinst, rtapi_cleanup
+    )
 
 _HAL_KEY                   = HAL_KEY
 _RTAPI_KEY                 = RTAPI_KEY

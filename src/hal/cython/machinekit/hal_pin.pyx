@@ -1,5 +1,8 @@
-from .hal_priv cimport MAX_EPSILON, hal_data_u,pin_is_linked, signal_of, hals_type, hals_pindir
-from .hal_util cimport shmptr, py2hal,hal2py
+from hal_priv cimport (
+    MAX_EPSILON, hal_data_u,pin_is_linked, signal_of, hals_type,
+    hals_pindir, halg_pin_newf, _halerrno,
+    )
+from hal_util cimport shmptr, py2hal,hal2py
 
 
 def describe_hal_type(haltype):

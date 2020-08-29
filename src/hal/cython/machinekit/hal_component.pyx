@@ -1,4 +1,11 @@
-from .hal_util cimport pypin_value
+from hal_util cimport pypin_value
+from hal_rcomp cimport (
+    hal_compiled_comp_t, hal_ccomp_free, hal_bind, hal_unbind,
+    hal_acquire, hal_release, halg_compile_comp, hal_ccomp_match,
+    hal_ccomp_report,
+    )
+from hal_objectops cimport hal_pin_t
+from hal_priv cimport halg_xinitf
 
 class ComponentExit(Exception):
     pass

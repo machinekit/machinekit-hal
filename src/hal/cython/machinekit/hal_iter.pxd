@@ -1,7 +1,4 @@
-
-from .hal_priv cimport *
-from .hal_ring cimport *
-from .hal_group cimport hal_group_t, hal_member_t
+from hal_group cimport hal_group_t, hal_member_t
 
 cdef extern from "hal_iter.h":
     ctypedef int (*hal_comp_callback_t)  (hal_comp_t *comp,  void *arg)

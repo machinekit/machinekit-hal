@@ -4,17 +4,17 @@ from cpython.int   cimport PyInt_Check
 from cpython.float cimport PyFloat_Check
 from cpython.bool  cimport bool
 
-from .hal_priv     cimport hal_shmem_base, hal_data_u, hal_pin_t, hal_sig_t, hal_data
-from .hal_priv     cimport pin_type, pin_value, pin_is_linked
+from hal_priv     cimport hal_shmem_base, hal_data_u, hal_pin_t, hal_sig_t, hal_data
+from hal_priv     cimport pin_type, pin_value, pin_is_linked
 
-from .hal_priv     cimport set_bit_value, set_s32_value, set_u32_value, set_float_value
-from .hal_priv     cimport set_s64_value, set_u64_value
-from .hal_priv     cimport get_bit_value, get_s32_value, get_u32_value, get_float_value
-from .hal_priv     cimport get_s64_value, get_u64_value
+from hal_priv     cimport set_bit_value, set_s32_value, set_u32_value, set_float_value
+from hal_priv     cimport set_s64_value, set_u64_value
+from hal_priv     cimport get_bit_value, get_s32_value, get_u32_value, get_float_value
+from hal_priv     cimport get_s64_value, get_u64_value
 
-from .hal_const    cimport HAL_BIT, HAL_FLOAT,HAL_S32,HAL_U32, HAL_S64,HAL_U64,HAL_TYPE_UNSPECIFIED
-from .hal_const    cimport HAL_IN, HAL_OUT, HAL_IO
-from .rtapi cimport rtapi_mutex_get,rtapi_mutex_give
+from hal_const    cimport HAL_BIT, HAL_FLOAT,HAL_S32,HAL_U32, HAL_S64,HAL_U64,HAL_TYPE_UNSPECIFIED
+from hal_const    cimport HAL_IN, HAL_OUT, HAL_IO
+from rtapi cimport rtapi_mutex_get,rtapi_mutex_give
 import sys
 
 cdef inline void *shmptr(int offset):

@@ -1,3 +1,10 @@
+from hal_objectops cimport (
+    hal_object_ptr, halg_foreach, foreach_args_t, halg_find_object_by_name,
+    hh_get_name, hh_get_id, hh_get_owner_id, hh_get_object_type, hh_get_refcnt,
+    hh_incr_refcnt, hh_decr_refcnt,
+    hh_valid, hal_object_typestr, hh_snprintf,
+    )
+
 # generic finders: find names, count of a given type of object
 cdef int _append_name_cb(hal_object_ptr o,  foreach_args_t *args):
     arg =  <object>args.user_ptr1

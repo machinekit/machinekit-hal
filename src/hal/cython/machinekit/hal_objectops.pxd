@@ -1,6 +1,10 @@
-from .hal_priv cimport *
-from .hal_group cimport *
-from .hal_ring cimport *
+from hal_priv cimport (
+    halhdr_t, hal_inst_t, hal_comp_t,
+    hal_funct_t, hal_thread_t, hal_vtable_t,
+    hal_pin_t, hal_param_t, hal_sig_t,
+    )
+from hal_group cimport hal_group_t, hal_member_t
+from hal_ring cimport hal_ring_t
 from cpython.bool  cimport bool
 from libc.stdint cimport uint8_t,uint32_t
 

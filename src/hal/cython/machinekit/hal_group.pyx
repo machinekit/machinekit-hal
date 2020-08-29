@@ -1,7 +1,10 @@
-from .hal_util cimport shmptr #hal2py, py2hal, shmptr, valid_dir, valid_type
-from .hal_priv cimport MAX_EPSILON, hal_data
-from .hal_group cimport *
-from .rtapi cimport  RTAPI_BIT_TEST
+from hal_util cimport shmptr #hal2py, py2hal, shmptr, valid_dir, valid_type
+from hal_priv cimport MAX_EPSILON, hal_data
+from hal_group cimport (
+    hal_compiled_group_t, hal_group_t, halg_group_new, hal_cgroup_match,
+    hal_cgroup_free, halpr_group_compile, halg_member_new, halg_member_delete,
+    )
+from rtapi cimport  RTAPI_BIT_TEST
 
 
 cdef class Group(HALObject):

@@ -8,11 +8,30 @@
 
 from libc.errno cimport EAGAIN
 from libc.string cimport memcpy
+from libc.stdint cimport uint32_t
 from buffer cimport PyBuffer_FillInfo
-from cpython.bytes cimport PyBytes_AsString, PyBytes_Size, PyBytes_FromStringAndSize
+from cpython.bytes cimport (
+    PyBytes_AsString, PyBytes_Size, PyBytes_FromStringAndSize,
+    )
 from cpython cimport bool
+from hal_objectops cimport hal_ring_t
 
-from .ring cimport *
+from ring cimport (
+    ringbuffer_t, ringsize_t, ringiter_t, ringvec_t,
+    msgbuffer_t, msg_read_abort, msg_read_flush, msg_write_flush,
+    record_write_begin, record_write_end, record_read, record_shift,
+    record_write_space, record_next_size,
+    record_iter_init, record_iter_read, record_iter_shift,
+    ring_scratchpad_size,
+    ring_use_rmutex, ring_use_wmutex,
+    stream_write_space, stream_flush, stream_read_space, stream_read_advance,
+    stream_write, stream_get_read_vector,
+    frame_readv, frame_shift, frame_write,
+    )
+from hal_ring cimport (
+    halg_ring_newf, halg_ring_attachf, halpr_find_ring_by_name,
+    halg_ring_detach,
+    )
 
 
 cdef class Ring:

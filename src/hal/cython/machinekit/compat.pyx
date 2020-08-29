@@ -1,6 +1,5 @@
 # rtapi_compat.c  python bindings
 
-from .compat cimport *
 from os import strerror
 
 

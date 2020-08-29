@@ -1,5 +1,10 @@
-from .hal_priv cimport hal_data_u, hal_valid_dir, hal_valid_type
-from .hal_util cimport hal2py, py2hal, shmptr
+from hal_priv cimport (
+    hal_data_u, hal_valid_dir, hal_valid_type, sig_value,
+    halg_foreach_pin_by_signal,
+    )
+from hal_util cimport hal2py, py2hal, shmptr
+from hal_objectops cimport hal_pin_t, hal_sig_t, hal_comp_t
+from hal_const cimport hal_type_t
 
 cdef int _pin_by_signal_cb(hal_pin_t *pin,
                            hal_sig_t *sig,

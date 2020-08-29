@@ -2,7 +2,7 @@
 
 from libc.stdint cimport uint64_t, uint8_t, uint32_t, int32_t
 from libc.stddef cimport size_t
-from .rtapi cimport rtapi_atomic_type
+from rtapi cimport rtapi_atomic_type
 
 cdef extern from "ring.h":
     int RINGTYPE_RECORD

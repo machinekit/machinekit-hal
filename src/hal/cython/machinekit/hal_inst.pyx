@@ -1,4 +1,6 @@
-from .hal_util cimport shmptr
+from hal_util cimport shmptr
+from hal_objectops cimport hal_comp_t
+from hal_priv cimport halg_inst_delete, halpr_find_owning_comp
 
 cdef class Instance(HALObject):
     cdef hal_comp_t *_comp # owning comp

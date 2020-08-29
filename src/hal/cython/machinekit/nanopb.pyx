@@ -1,5 +1,3 @@
-from .nanopb  cimport *
-from .msginfo cimport *
 from libc.stdlib cimport malloc, free
 from libc.string cimport memset
 from buffer cimport PyBuffer_FillInfo
