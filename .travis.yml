@@ -62,46 +62,64 @@ matrix:
   include:
     - os: linux
       arch: amd64
-      env: ARCHITECTURE=amd64 VERSION=10
+      env: ARCHITECTURE=amd64 VERSION=20.04 DISTRIBUTION=ubuntu
     - os: linux
       arch: arm64
-      env: ARCHITECTURE=arm64 VERSION=10
+      env: ARCHITECTURE=arm64 VERSION=20.04 DISTRIBUTION=ubuntu
     - os: linux
       arch: amd64
-      env: ARCHITECTURE=amd64 VERSION=9
+      env: ARCHITECTURE=amd64 VERSION=10 DISTRIBUTION=debian
     - os: linux
       arch: arm64
-      env: ARCHITECTURE=arm64 VERSION=9
+      env: ARCHITECTURE=arm64 VERSION=10 DISTRIBUTION=debian
     - os: linux
       arch: amd64
-      env: ARCHITECTURE=i386 VERSION=10
-    - os: linux
-      arch: amd64
-      env: ARCHITECTURE=armhf VERSION=10
-    - os: linux
-      arch: amd64
-      env: ARCHITECTURE=arm64 VERSION=10
-    - os: linux
-      arch: amd64
-      env: ARCHITECTURE=i386 VERSION=9
-    - os: linux
-      arch: amd64
-      env: ARCHITECTURE=armhf VERSION=9
-    - os: linux
-      arch: amd64
-      env: ARCHITECTURE=arm64 VERSION=9
+      env: ARCHITECTURE=amd64 VERSION=9 DISTRIBUTION=debian
     - os: linux
       arch: arm64
-      env: ARCHITECTURE=armhf VERSION=10
+      env: ARCHITECTURE=arm64 VERSION=9 DISTRIBUTION=debian
+    - os: linux
+      arch: amd64
+      env: ARCHITECTURE=armhf VERSION=20.04 DISTRIBUTION=ubuntu
+    - os: linux
+      arch: amd64
+      env: ARCHITECTURE=arm64 VERSION=20.04 DISTRIBUTION=ubuntu
+    - os: linux
+      arch: amd64
+      env: ARCHITECTURE=i386 VERSION=10 DISTRIBUTION=debian
+    - os: linux
+      arch: amd64
+      env: ARCHITECTURE=armhf VERSION=10 DISTRIBUTION=debian
+    - os: linux
+      arch: amd64
+      env: ARCHITECTURE=arm64 VERSION=10 DISTRIBUTION=debian
+    - os: linux
+      arch: amd64
+      env: ARCHITECTURE=i386 VERSION=9 DISTRIBUTION=debian
+    - os: linux
+      arch: amd64
+      env: ARCHITECTURE=armhf VERSION=9 DISTRIBUTION=debian
+    - os: linux
+      arch: amd64
+      env: ARCHITECTURE=arm64 VERSION=9 DISTRIBUTION=debian
     - os: linux
       arch: arm64
-      env: ARCHITECTURE=amd64 VERSION=10
+      env: ARCHITECTURE=armhf VERSION=20.04 DISTRIBUTION=ubuntu
     - os: linux
       arch: arm64
-      env: ARCHITECTURE=i386 VERSION=10
+      env: ARCHITECTURE=amd64 VERSION=20.04 DISTRIBUTION=ubuntu
     - os: linux
       arch: arm64
-      env: ARCHITECTURE=armhf VERSION=9
+      env: ARCHITECTURE=armhf VERSION=10 DISTRIBUTION=debian
+    - os: linux
+      arch: arm64
+      env: ARCHITECTURE=amd64 VERSION=10 DISTRIBUTION=debian
+    - os: linux
+      arch: arm64
+      env: ARCHITECTURE=i386 VERSION=10 DISTRIBUTION=debian
+    - os: linux
+      arch: arm64
+      env: ARCHITECTURE=armhf VERSION=9 DISTRIBUTION=debian
     # Tests
     # - Reduce total build time by starting longest jobs first
     #- ARCHITECTURE=amd64 VERSION=10   CMD=test
@@ -130,7 +148,7 @@ before_install:
   # Dependency needed for Docker image build
   - sudo apt-get -y install python3-sh
   # Build the Docker build image
-  - scripts/buildcontainerimage.py debian $VERSION $ARCHITECTURE
+  - scripts/buildcontainerimage.py $DISTRIBUTION $VERSION $ARCHITECTURE
   # Clear ccache stats
   - ccache -z
   # Install the packagecloud gem for pushing packages
@@ -140,7 +158,7 @@ script:
   - |
     LOCAL_DIR="$(pwd)";
     PARENT_DIR="$(dirname ${LOCAL_DIR})";
-    DOCKER_IMAGE="machinekit-hal-debian-builder-v.${ARCHITECTURE}_${VERSION}:latest";
+    DOCKER_IMAGE="machinekit-hal-${DISTRIBUTION}-builder-v.${ARCHITECTURE}_${VERSION}:latest";
     docker run --tty --rm -u "$(id -u):$(id -g)" \
       -v "${PARENT_DIR}:/home/machinekit/build" \
       -w "/home/machinekit/build/machinekit-hal" \
