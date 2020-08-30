@@ -57,10 +57,11 @@ RUN apt-get update &&                                                           
     apt-get install -y                                                            \
         curl                                                                      \
         apt-transport-https                                                       \
+        lsb-release                                                               \ 
         ca-certificates &&                                                        \
     curl -1sLf                                                                    \
     'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
-        | bash &&                                                                 \
+        | distro="$(lsb_release -is)" codename="$(lsb_release -cs)" bash &&                                                                 \
     apt-get clean
 
 # Update system OS
@@ -111,16 +112,11 @@ FROM machinekit-hal_builder_base AS machinekit-hal_builder
 
 ARG HOST_ARCHITECTURE
 
-RUN apt-get update &&  \
-    apt-get install -y \
-        lsb-release && \
-    apt-get clean
-
 # This could be squashed into one layer, but it would require using BuildKit
 COPY scripts/buildsystem/debian/doctor-multiarch-apt-repositories.sh \
      /doctor-multiarch-apt-repositories.sh
 RUN bash /doctor-multiarch-apt-repositories.sh -a ${HOST_ARCHITECTURE} && \
-    apt-get update && \
+    apt-get update &&                                                     \
     rm -f /doctor-multiarch-apt-repositories.sh
 
 RUN if ! dpkg-architecture -e${HOST_ARCHITECTURE};      \
