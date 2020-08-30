@@ -276,7 +276,8 @@ void log_write_async(void)
 	  memmove(entries->payload, start, entries->length);
 	  entries->payload[entries->length - 1] = '\r';
 	  entries->payload[entries->length] = '\n';
-	  write(fd, entries->payload, entries->length + 1);
+          if (write(fd, entries->payload, entries->length + 1))
+            do {} while (0); // Silence -Werror=unused-result
 	  close(fd);
 	}
 
