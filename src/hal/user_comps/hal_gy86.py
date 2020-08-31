@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 
 # read GY-86 10DOF board via i2c, mirror values to HAL pins

@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 #    This is 'instcomp', a tool to write instantiated components for
 #    Machinekit
 #

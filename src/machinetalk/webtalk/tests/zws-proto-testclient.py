@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 #
 # ZWS1.0 - protobuf - encoded variant, with or without base64 wrapping
 #

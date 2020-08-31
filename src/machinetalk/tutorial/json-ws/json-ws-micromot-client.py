@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 # examaple websockets command line client
 # reads JSON-encoded log messages off the msgd Websocket server

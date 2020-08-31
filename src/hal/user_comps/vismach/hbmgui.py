@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 #
 #    Visulization model of a Horizontal Boring Mill with quill
 #

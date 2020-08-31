@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 #
 # example how to retrieve machinekit service URI's via zeroconf
 
