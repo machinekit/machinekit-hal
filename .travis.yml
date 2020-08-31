@@ -74,6 +74,12 @@ matrix:
       env: ARCHITECTURE=arm64 VERSION=10 DISTRIBUTION=debian
     - os: linux
       arch: amd64
+      env: ARCHITECTURE=amd64 VERSION=18.04 DISTRIBUTION=ubuntu
+    - os: linux
+      arch: arm64
+      env: ARCHITECTURE=arm64 VERSION=18.04 DISTRIBUTION=ubuntu
+    - os: linux
+      arch: amd64
       env: ARCHITECTURE=amd64 VERSION=9 DISTRIBUTION=debian
     - os: linux
       arch: arm64
@@ -93,6 +99,15 @@ matrix:
     - os: linux
       arch: amd64
       env: ARCHITECTURE=arm64 VERSION=10 DISTRIBUTION=debian
+    - os: linux
+      arch: amd64
+      env: ARCHITECTURE=i386 VERSION=18.04 DISTRIBUTION=ubuntu
+    - os: linux
+      arch: amd64
+      env: ARCHITECTURE=armhf VERSION=18.04 DISTRIBUTION=ubuntu
+    - os: linux
+      arch: amd64
+      env: ARCHITECTURE=arm64 VERSION=18.04 DISTRIBUTION=ubuntu
     - os: linux
       arch: amd64
       env: ARCHITECTURE=i386 VERSION=9 DISTRIBUTION=debian
@@ -117,6 +132,15 @@ matrix:
     - os: linux
       arch: arm64
       env: ARCHITECTURE=i386 VERSION=10 DISTRIBUTION=debian
+    - os: linux
+      arch: arm64
+      env: ARCHITECTURE=armhf VERSION=18.04 DISTRIBUTION=ubuntu
+    - os: linux
+      arch: arm64
+      env: ARCHITECTURE=amd64 VERSION=18.04 DISTRIBUTION=ubuntu
+    - os: linux
+      arch: arm64
+      env: ARCHITECTURE=i386 VERSION=18.04 DISTRIBUTION=ubuntu
     - os: linux
       arch: arm64
       env: ARCHITECTURE=armhf VERSION=9 DISTRIBUTION=debian
