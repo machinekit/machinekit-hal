@@ -1,7 +1,10 @@
-from .hal_util cimport shmptr #hal2py, py2hal, shmptr, valid_dir, valid_type
-from .hal_priv cimport MAX_EPSILON, hal_data
-from .hal_group cimport *
-from .rtapi cimport  RTAPI_BIT_TEST
+from hal_util cimport shmptr #hal2py, py2hal, shmptr, valid_dir, valid_type
+from hal_priv cimport MAX_EPSILON, hal_data
+from hal_group cimport (
+    hal_compiled_group_t, hal_group_t, halg_group_new, hal_cgroup_match,
+    hal_cgroup_free, halpr_group_compile, halg_member_new, halg_member_delete,
+    )
+from rtapi cimport  RTAPI_BIT_TEST
 
 
 cdef class Group(HALObject):
@@ -129,7 +132,9 @@ cdef class Member(HALObject):
         def __get__(self): return self._o.member.eps_index
         def __set__(self, int eps):
             if (eps < 0) or (eps > MAX_EPSILON-1):
-                raise InternalError("member %s : epsilon index out of range" % (self._name(), eps))
+                raise InternalError(
+		    "member %s : epsilon index %s out of range" %
+		        (self._name(), eps))
             self._o.member.eps_index = eps
 
     property userarg1:

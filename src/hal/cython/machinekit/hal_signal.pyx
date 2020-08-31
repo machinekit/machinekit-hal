@@ -1,5 +1,10 @@
-from .hal_priv cimport hal_data_u, hal_valid_dir, hal_valid_type
-from .hal_util cimport hal2py, py2hal, shmptr
+from hal_priv cimport (
+    hal_data_u, hal_valid_dir, hal_valid_type, sig_value,
+    halg_foreach_pin_by_signal,
+    )
+from hal_util cimport hal2py, py2hal, shmptr
+from hal_objectops cimport hal_pin_t, hal_sig_t, hal_comp_t
+from hal_const cimport hal_type_t
 
 cdef int _pin_by_signal_cb(hal_pin_t *pin,
                            hal_sig_t *sig,
@@ -172,7 +177,7 @@ cdef int _find_writer(hal_object_ptr o,  foreach_args_t *args):
     if signal_of(pin) == args.user_ptr1 and pin.dir == args.user_arg1:
         result =  <object>args.user_ptr2
         result.append(hh_get_name(o.hdr))
-        if pin.dir == HAL_OUT:
+        if int(pin.dir) == int(HAL_OUT):
             return 1  # stop iteration, there can only be one writer
     return 0 # continue
 

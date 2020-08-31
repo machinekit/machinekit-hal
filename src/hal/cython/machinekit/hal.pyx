@@ -10,12 +10,9 @@
 cimport cython
 cimport hal_const
 cimport ring_const
-from .hal cimport *
-from .rtapi cimport *
-from .hal_priv cimport *
-from .hal_rcomp cimport *
-from .hal_ring cimport *
-from .hal_objectops cimport *
+from hal cimport hal_init, hal_exit, hal_ready
+from rtapi cimport rtapi_mutex_get, rtapi_mutex_give
+from hal_objectops cimport foreach_args_t
 
 from os import strerror,getpid
 
@@ -113,7 +110,7 @@ cdef hal_required():
     if not _comps:
         # dummy comp for connecting to HAL
         p = "machinekit::hal%d" % getpid()
-        id = hal_init(p)
+        id = hal_init(p.encode())
         if hal_data == NULL:
             raise RuntimeError("cant connect to HAL - realtime not running?")
         hal_ready(id)

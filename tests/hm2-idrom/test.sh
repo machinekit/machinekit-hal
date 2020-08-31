@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -xe
 
 
 Error[0]="hm2/hm2_test.0: invalid cookie"
@@ -20,7 +20,7 @@ Error[14]="hm2/hm2_test\.0: IDROM IOPorts is 0 but llio num_ioport_connectors is
 
 # obtain one logfile per test, and search only that for the pattern
 
-realtime stop
+realtime stop || true
 
 LOG=realtime.log
 retval=0
@@ -31,7 +31,7 @@ ls ${LOG}.* >&/dev/null && rm -f ${LOG}.*
 TEST_PATTERN=0
 while [ ! -z "${Error[$TEST_PATTERN]}" ]; do
 
-    MSGD_OPTS="--stderr" DEBUG=5 realtime start  >$LOG 2>&1
+    MSGD_OPTS="--stderr" RTAPI_APP_OPTS="-s" DEBUG=5 realtime start  >$LOG 2>&1
 
     halcmd loadrt hostmot2 >/dev/null 2>&1
     halcmd loadrt hm2_test test_pattern=$TEST_PATTERN >/dev/null 2>&1

@@ -1,7 +1,10 @@
 # net - link signal and pins by name
 import sys
 
-from .hal_const cimport HAL_BIT, HAL_FLOAT,HAL_S32,HAL_U32,HAL_S64,HAL_U64, HAL_TYPE_UNSPECIFIED, HAL_IN, HAL_OUT, HAL_IO
+from hal_const cimport (
+    HAL_BIT, HAL_FLOAT,HAL_S32,HAL_U32,HAL_S64,HAL_U64,
+    HAL_TYPE_UNSPECIFIED, HAL_IN, HAL_OUT, HAL_IO,
+    )
 
 cdef _dirdict =  { HAL_IN : "HAL_IN",
                    HAL_OUT : "HAL_OUT",

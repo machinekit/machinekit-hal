@@ -65,8 +65,8 @@ int Module::load(string module)
     // First look in `$MK_MODULE_DIR` if `module` contains no `/` chars
     if (getenv("MK_MODULE_DIR") != NULL && is_rpath) {
         // If $MK_MODULE_DIR/module.so exists, load it (or fail)
-        strncpy(module_path, getenv("MK_MODULE_DIR"), PATH_MAX);
-        strncat(module_path, ("/" + dlpath).c_str(), PATH_MAX);
+        strncpy(module_path, getenv("MK_MODULE_DIR"), PATH_MAX-1);
+        strncat(module_path, ("/" + dlpath).c_str(), PATH_MAX-1);
         if (stat(module_path, &st) == 0) {
             handle = dlopen(module_path, RTLD_GLOBAL|RTLD_NOW);
             if (!handle) {
@@ -97,7 +97,7 @@ string Module::path()
         rtapi_print_msg(RTAPI_MSG_ERR, "dlinfo(%s):  %s", path, dlerror());
         return NULL;
     }
-    strncat(path, ("/" + name + ".so").c_str(), PATH_MAX);
+    strncat(path, ("/" + name + ".so").c_str(), PATH_MAX-1);
 
     return string(path);
 }

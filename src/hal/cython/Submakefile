@@ -90,7 +90,7 @@ TARGETS += ../lib/python/machinekit/shmcommon.so
 
 $(HALNGDIR)/machinekit/%.c: $(addprefix $(HALNGDIR)/machinekit/, %.pyx %.pxd)
 	$(ECHO) Cython compiling $<
-	$(Q)$(CYTHON) -o $@ $<
+	$(Q)$(CYTHON) -I $(HALNGDIR)/machinekit -o $@ $<
 
 clean: cython-clean
 cython-clean:

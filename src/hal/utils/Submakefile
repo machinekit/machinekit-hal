@@ -63,6 +63,9 @@ HALMETERSRCS := \
 
 USERSRCS += $(HALMETERSRCS)
 
+# FIXME in Focal, gtk2 headers contain deprecated declarations
+$(call TOOBJS, $(HALMETERSRCS)): CFLAGS += -Wno-deprecated-declarations
+
 ../bin/halmeter: \
 		$(call TOOBJS, $(HALMETERSRCS)) \
 		../lib/libhal.so.0 \
@@ -81,6 +84,9 @@ HALSCOPESRCS := \
     hal/utils/miscgtk.c
 
 USERSRCS += $(HALSCOPESRCS)
+
+# FIXME in Focal, gtk2 headers contain deprecated declarations
+$(call TOOBJS, $(HALSCOPESRCS)): CFLAGS += -Wno-deprecated-declarations
 
 ../bin/halscope: $(call TOOBJS, $(HALSCOPESRCS)) \
 		../lib/libhal.so.0 \

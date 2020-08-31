@@ -1,5 +1,8 @@
-from .hal_priv cimport MAX_EPSILON, hal_data_u,pin_is_linked, signal_of, hals_type, hals_pindir
-from .hal_util cimport shmptr, py2hal,hal2py
+from hal_priv cimport (
+    MAX_EPSILON, hal_data_u,pin_is_linked, signal_of, hals_type,
+    hals_pindir, halg_pin_newf, _halerrno,
+    )
+from hal_util cimport shmptr, py2hal,hal2py
 
 
 def describe_hal_type(haltype):
@@ -39,7 +42,7 @@ cdef class _Pin(HALObject):
 
                 if (eps < 0) or (eps > MAX_EPSILON-1):
                     raise RuntimeError("pin %s : epsilon"
-                                       " index out of range" % (name, eps))
+                                       " index %s out of range" % (name, eps))
 
                 c_bytes = name.encode()
                 c_name = c_bytes
@@ -79,7 +82,7 @@ cdef class _Pin(HALObject):
         def __get__(self): return self._o.pin.eps_index
         def __set__(self, int eps):
             if (eps < 0) or (eps > MAX_EPSILON-1):
-                raise RuntimeError("pin %s : epsilon index out of range" %
+                raise RuntimeError("pin %s : epsilon index %s out of range" %
                                    (hh_get_name(&self._o.pin.hdr), eps))
             self._o.pin.eps_index = eps
 

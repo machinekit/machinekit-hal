@@ -1,7 +1,6 @@
 #
 
-from .hal cimport *
-from .hal_rcomp cimport *
+from hal_rcomp cimport RCOMP_ACCEPT_VALUES_ON_BIND
 from os import strerror
 
 

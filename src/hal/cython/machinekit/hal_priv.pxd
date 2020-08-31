@@ -1,6 +1,9 @@
 # hal_priv.h declarations
 
-from .hal cimport *
+from hal cimport (
+    hal_bit_t, hal_s32_t, hal_u32_t, hal_s64_t, hal_u64_t, hal_float_t,
+    hal_constructor_t, hal_destructor_t,
+    )
 from hal_const cimport hal_type_t, hal_pin_dir_t, hal_param_dir_t
 from rtapi cimport rtapi_heap
 from cpython.bool  cimport bool

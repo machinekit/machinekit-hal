@@ -1,6 +1,3 @@
-from .rtapi_app cimport *
-
-
 
 def connect(char *uuid, instance=0, uri=None):
     r = rtapi_connect(instance, uri, uuid)

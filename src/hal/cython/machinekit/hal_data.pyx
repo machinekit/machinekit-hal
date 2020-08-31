@@ -2,6 +2,10 @@
 # and the HAL heap
 
 from libc.stdint cimport uintptr_t
+from rtapi cimport (
+     rtapi_heap_stat, rtapi_heap_status,
+     rtapi_heap_setflags, rtapi_heap_walk_freelist,
+     )
 
 cdef class HALData:
     def __cinit__(self):

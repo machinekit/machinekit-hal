@@ -1,5 +1,5 @@
-from .hal_priv cimport hal_shmem_base, hal_data_u, hal_data, hal_sig_t,halhdr_t
-from .rtapi cimport rtapi_atomic_type
+from hal_priv cimport hal_shmem_base, hal_data_u, hal_data, hal_sig_t,halhdr_t
+from rtapi cimport rtapi_atomic_type
 from libc.stdint cimport uint8_t
 
 cdef extern from "hal_group.h" :

@@ -877,7 +877,7 @@ static int rtapi_request(zloop_t *loop, zsock_t *socket, void *arg)
         args.uses_fp = pbreq.rtapicmd().use_fp();
         args.cpu_id = pbreq.rtapicmd().cpu();
         args.flags = (rtapi_thread_flags_t) pbreq.rtapicmd().flags();
-        strncpy(args.cgname, pbreq.rtapicmd().cgname().c_str(), RTAPI_LINELEN);
+        strncpy(args.cgname, pbreq.rtapicmd().cgname().c_str(), RTAPI_LINELEN-1);
 
         retval = create_thread(&args);
         if (retval < 0) {
@@ -1063,17 +1063,14 @@ static int mainloop(size_t  argc, char **argv)
 {
     int retval;
     unsigned i;
-    static char proctitle[20];
+    // Hack:  Pick constant length 10, enough space for "msgd:xxx", to
+    // silence compiler warnings
+#   define PROC_TITLE_LEN 10
+    static char proctitle[PROC_TITLE_LEN];
 
     // set new process name
-    snprintf(proctitle, sizeof(proctitle), "rtapi:%d",rtapi_instance_loc);
-    size_t argv0_len = strlen(argv[0]);
-    size_t procname_len = strlen(proctitle);
-    size_t max_procname_len = (argv0_len > procname_len) ?
-	(procname_len) : (argv0_len);
-
-    strncpy(argv[0], proctitle, max_procname_len);
-    memset(&argv[0][max_procname_len], '\0', argv0_len - max_procname_len);
+    snprintf(proctitle, PROC_TITLE_LEN, "rtapi:%d",rtapi_instance_loc);
+    strncpy(argv[0], proctitle, PROC_TITLE_LEN);
 
     for (i = 1; i < argc; i++)
 	memset(argv[i], '\0', strlen(argv[i]));
@@ -1082,7 +1079,7 @@ static int mainloop(size_t  argc, char **argv)
 
     // set this thread's name so it can be identified in ps/top as
     // rtapi:<instance>
-    if (prctl(PR_SET_NAME, argv[0]) < 0) {
+    if (prctl(PR_SET_NAME, proctitle) < 0) {
 	syslog_async(LOG_ERR,	"rtapi_app: prctl(PR_SETNAME,%s) failed: %s\n",
 	       argv[0], strerror(errno));
     }
@@ -1487,7 +1484,7 @@ int main(int argc, char **argv)
 	    break;
 
 	case 'f':
-            strncpy(flavor_name_opt, optarg, MAX_FLAVOR_NAME_LEN);
+            strncpy(flavor_name_opt, optarg, MAX_FLAVOR_NAME_LEN-1);
 	    break;
 
 	case 'U':

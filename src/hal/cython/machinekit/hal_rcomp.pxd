@@ -1,7 +1,6 @@
 # hal_ring.h definitions
 
-from .hal cimport *
-from .hal_priv cimport *
+from hal_priv cimport hal_data_u, hal_pin_t
 
 cdef extern from "hal_rcomp.h":
     int RCOMP_ACCEPT_VALUES_ON_BIND

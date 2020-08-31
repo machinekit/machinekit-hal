@@ -698,7 +698,11 @@ int main (int argc,char **argv)
 			perror("libusb_init");
 			return 1;
 		}
-		libusb_set_debug(ctx, 3);
+#if LIBUSB_API_VERSION >= 0x01000106
+		libusb_set_option(ctx, LIBUSB_OPTION_LOG_LEVEL, 3);
+#else
+		libusb_set_debug(ctx, 3);  // Deprecated in libusb 1.0.22
+#endif
 
 		printf("%s: waiting for XHC-HB04 device\n",modname);
 		*(xhc.hal->connected) = 0;

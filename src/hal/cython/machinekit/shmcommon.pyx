@@ -1,6 +1,3 @@
-from .shmcommon cimport *
-from .global_data cimport *
-#from os import strerror
 
 def shmdrv_loaded():
     return c_shmdrv_loaded != 0
