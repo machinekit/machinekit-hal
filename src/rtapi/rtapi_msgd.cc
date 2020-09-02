@@ -176,10 +176,6 @@ static int port = -1; // defaults to ephemeral port
 
 static ringbuffer_t rtapi_msg_buffer;   // ring access strcuture for messages
 static const char *progname;
-// Hack:  Pick constant length 10, enough space for "rtapi:xxx", to
-// silence compiler warnings
-#define PROC_TITLE_LEN 10
-static char proctitle[PROC_TITLE_LEN];
 static int exit_code  = 0;
 static const char *origins[] = { "kernel", "rt", "user" };
 
@@ -822,21 +818,19 @@ int main(int argc, char **argv)
         }
     }
 
-    snprintf(proctitle, PROC_TITLE_LEN, "msgd:%d",rtapi_instance);
-    backtrace_init(proctitle);
 
-    openlog_async(proctitle, option , SYSLOG_FACILITY);
-    setlogmask_async(LOG_UPTO(debug + 2));
-    // max out async syslog buffers for slow system in debug mode
-    tunelog_async(99,10);
-
-    // Hack:  Pick constant 10, enough space for "rtapi:xxx", to
-    // silence compiler warnings
-    strncpy(argv[0], proctitle, PROC_TITLE_LEN);
-
+    // set new process name and clean out cl args
+    memset(argv[0], '\0', strlen(argv[0]));
+    snprintf(argv[0], 10, "msgd:%d", rtapi_instance);
     for (i = 1; i < argc; i++)
 	memset(argv[i], '\0', strlen(argv[i]));
 
+    backtrace_init(argv[0]);
+
+    openlog_async(argv[0], option , SYSLOG_FACILITY);
+    setlogmask_async(LOG_UPTO(debug + 2));
+    // max out async syslog buffers for slow system in debug mode
+    tunelog_async(99,10);
 
     // suppress default handling of signals in zsock_new()
     // since we're using signalfd()
