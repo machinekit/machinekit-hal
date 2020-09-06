@@ -215,7 +215,7 @@ static inline hal_s32_t rtapi_load_s32(const hal_s32_t *target)
 static inline void * rtapi_load_ptr(const void *target)
 {
     void *v;
-    __atomic_load((rtapi_uintptr_t *)target, &v, RTAPI_MEMORY_MODEL);
+    __atomic_load((size_t *)target, &v, RTAPI_MEMORY_MODEL);
     return v;
 }
 
@@ -236,7 +236,7 @@ static inline void rtapi_store_s32(hal_s32_t *target, hal_s32_t value)
 
 static inline void rtapi_store_ptr(void *target, void *value)
 {
-    __atomic_store((rtapi_uintptr_t *)target, &value, RTAPI_MEMORY_MODEL);
+    __atomic_store((size_t *)target, &value, RTAPI_MEMORY_MODEL);
 }
 
 
