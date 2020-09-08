@@ -68,10 +68,7 @@ class ConfigServer(object):
         self.topdir = topdir
         self.context = context
         self.baseUri = "tcp://"
-        if self.loopback:
-            self.baseUri += '127.0.0.1'
-        else:
-            self.baseUri += '*'
+        self.baseUri += '127.0.0.1' if self.loopback else '*'
         self.socket = context.socket(zmq.ROUTER)
         self.port = self.socket.bind_to_random_port(self.baseUri)
         self.dsname = self.socket.get_string(zmq.LAST_ENDPOINT, encoding='utf-8')

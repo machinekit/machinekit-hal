@@ -102,7 +102,7 @@ class GetApp:
         print("results: ", self.results)
 
         # connect to first result
-        if len(self.results) == 0:
+        if not self.results:
             print("no results")
             sys.exit(1)
         (fullname, hosttarget, port, txt,ip) = self.results[0]
