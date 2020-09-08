@@ -211,7 +211,7 @@ class Mklauncher(object):
                     launcher.terminating = False
                     # storing the image file
                     image_file = cfg.get(section, 'image')
-                    if image_file is not '':
+                    if image_file != '':
                         if not os.path.isabs(image_file):
                             image_file = os.path.join(root, image_file)
                         file_buffer = open(image_file, 'rb').read()
@@ -237,10 +237,7 @@ class Mklauncher(object):
     def _create_sockets(self, context):
         self.context = context
         base_uri = "tcp://"
-        if self.loopback:
-            base_uri += '127.0.0.1'
-        else:
-            base_uri += '*'
+        base_uri += '127.0.0.1' if self.loopback else '*'
         self.launcher_socket = context.socket(zmq.XPUB)
         self.launcher_socket.setsockopt(zmq.XPUB_VERBOSE, 1)
         self.launcher_port = self.launcher_socket.bind_to_random_port(base_uri)
@@ -568,8 +565,8 @@ class Mklauncher(object):
 
         elif self.rx.type == pb.MT_LAUNCHER_SET:
             for launcher in self.rx.launcher:
-                if not launcher.HasField('index') or not launcher.HasField(
-                    'importance'
+                if not (
+                    launcher.HasField('index') and launcher.HasField('importance')
                 ):
                     self._send_command_wrong_params(identity)
                     continue
