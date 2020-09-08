@@ -86,11 +86,7 @@ class VideoServer(threading.Thread):
         sock.close()
 
         base_uri = "tcp://"
-        if self.loopback:
-            base_uri += "127.0.0.1"
-        else:
-            base_uri += "*"
-
+        base_uri += '127.0.0.1' if self.loopback else '*'
         video_device.port = port
         video_device.zmq_uri = "%s:%i" % (base_uri, video_device.port)
         video_device.dsname = video_device.zmq_uri.replace("*", self.host)
@@ -99,7 +95,7 @@ class VideoServer(threading.Thread):
             print("dsname = ", video_device.dsname, "port =", video_device.port)
 
         arguments = ""
-        if video_device.arguments is not "":
+        if video_device.arguments != "":
             arguments = " " + video_device.arguments
 
         if which("videoserver_pub"):
