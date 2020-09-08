@@ -15,22 +15,24 @@ cdef class Component(HALObject):
     cdef dict _itemdict
     cdef int _handle
 
-    def __cinit__(self, char *name, mode=TYPE_USER, int userarg1=0, int userarg2=0,
+    def __cinit__(self, str name, int mode=TYPE_USER, int userarg1=0, int userarg2=0,
                   wrap=False, noexit=False, lock=True):
         global _comps
         hal_required()
+        name_bytes = name.encode()
+        cdef char * name_char = name_bytes
         self._itemdict = dict()
         with HALMutexIf(lock):
             self._cc = NULL
             if not wrap:
-                self._o.comp = halg_xinitf(0, mode, userarg1, userarg2, NULL, NULL, "%s", name)
+                self._o.comp = halg_xinitf(0, mode, userarg1, userarg2, NULL, NULL, "%s", name_char)
                 if self._o.comp == NULL:
                     raise RuntimeError(f"Failed to create component '{name}': - {hal_lasterror()}")
                 if not noexit:
                     _comps.append(hh_get_id(&self._o.comp.hdr))  # to exit list
             else:
                 self._o.comp = halg_find_object_by_name(0, hal_const.HAL_COMPONENT,
-                                                        name).comp
+                                                        name.encode()).comp
             if self._o.comp == NULL:
                 raise RuntimeError(f"halpr_find_comp_by_name({name}) failed")
 
@@ -83,7 +85,7 @@ cdef class Component(HALObject):
                 f" {rc} - {hal_lasterror()}"
             )
     def bind(self):
-        rc = hal_bind(self.name)
+        rc = hal_bind(self.name.encode())
         if rc < 0:
             raise RuntimeError(
                 f"Failed to bind component '{self.name}' - {hh_get_id(&self._o.comp.hdr)} : "
@@ -134,15 +136,15 @@ cdef class Component(HALObject):
 
     property last_update:
         def __get__(self): return self._o.comp.last_update
-        def __set__(self,int value):  self._o.comp.last_update = value
+        def __set__(self, int value):  self._o.comp.last_update = value
 
     property last_bound:
         def __get__(self): return self._o.comp.last_bound
-        def __set__(self,int value):  self._o.comp.last_bound = value
+        def __set__(self, int value):  self._o.comp.last_bound = value
 
     property last_unbound:
         def __get__(self): return self._o.comp.last_unbound
-        def __set__(self,int value):  self._o.comp.last_unbound = value
+        def __set__(self, int value):  self._o.comp.last_unbound = value
 
     property userarg1:
         def __get__(self): return self._o.comp.userarg1
@@ -154,7 +156,7 @@ cdef class Component(HALObject):
 
     def changed(self,  userdata=None, report_all=False):
         if self._cc == NULL:
-            rc = halg_compile_comp(1, self.name, &self._cc)
+            rc = halg_compile_comp(1, self.name.encode(), &self._cc)
             if rc < 0:
                 raise RuntimeError(
                     f"Failed to compile component '{self.name}' - {self.oid} : "
@@ -186,18 +188,18 @@ cdef int comp_callback(const int phase,
     arg =  <object>userdata
     if callable(arg):
         if phase == REPORT_BEGIN:
-            (arg)(phase, None, None)
+            arg(phase, None, None)
         elif phase == REPORT_PIN:
-            (arg)(phase, hh_get_name(&p.hdr),pypin_value(p))
+            arg(phase, hh_get_name( & p.hdr), pypin_value(p))
         elif phase == REPORT_END:
-            (arg)(phase, None, None)
+            arg(phase, None, None)
         else:
-            raise RuntimeError("invalid phase %d" % phase)
+            raise RuntimeError(f"invalid phase {phase}")
         return 0
 
     if  isinstance(arg, list):
         if phase == REPORT_PIN:
-            arg.append((hh_get_name(&p.hdr),pypin_value(p)))
+            arg.append((hh_get_name(&p.hdr), pypin_value(p)))
         elif phase == REPORT_BEGIN:
             del arg[0:len(arg)]  # clear result list
         return 0

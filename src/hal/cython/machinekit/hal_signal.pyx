@@ -10,7 +10,7 @@ cdef int _pin_by_signal_cb(hal_pin_t *pin,
                            hal_sig_t *sig,
                            void *user):
     arg =  <object>user
-    arg.append(hh_get_name(&pin.hdr))
+    arg.append(bytes(hh_get_name(&pin.hdr)).decode())
     return 0
 
 
@@ -23,14 +23,14 @@ cdef class Signal(HALObject):
             # the underlying HAL signal was deleted.
             raise RuntimeError("link: underlying HAL signal already deleted")
 
-    def __init__(self, char *name, type=HAL_TYPE_UNSPECIFIED,
+    def __init__(self, name, type=HAL_TYPE_UNSPECIFIED,
                  init=None, wrap=True, lock=True):
         hal_required()
         # if no type given, wrap existing signal
         if type == HAL_TYPE_UNSPECIFIED:
             self._o.sig = halg_find_object_by_name(lock,
                                                    hal_const.HAL_SIGNAL,
-                                                   name).sig
+                                                   name.encode()).sig
             if self._o.sig == NULL:
                 raise RuntimeError(f"signal '{name}' does not exist")
 
@@ -47,13 +47,13 @@ cdef class Signal(HALObject):
                         f" does not match type '{describe_hal_type(type)}'"
                     )
             else:
-                r = halg_signal_new(lock, name, type)
+                r = halg_signal_new(lock, name.encode(), type)
                 if r:
                     raise RuntimeError(f"Failed to create signal {name}: {hal_lasterror()}")
 
             self._o.sig = halg_find_object_by_name(lock,
                                                    hal_const.HAL_SIGNAL,
-                                                   name).sig
+                                                   name.encode()).sig
             if self._o.sig == NULL:
                 raise RuntimeError(f"BUG: couldnt lookup signal {name}")
 
@@ -69,7 +69,7 @@ cdef class Signal(HALObject):
 
     def __iadd__(self, pins):
         self._alive_check()
-        if not hasattr(pins, '__iter__'):
+        if not hasattr(pins, '__iter__') or isinstance(pins, str):
             pins = [pins]
         for pin in pins:
             if isinstance(pin, str):
@@ -81,7 +81,7 @@ cdef class Signal(HALObject):
         return self
 
     def __isub__(self, pins):
-        if not hasattr(pins, '__iter__'):
+        if not hasattr(pins, '__iter__') or isinstance(pins, str):
             pins = [pins]
         for pin in pins:
             if isinstance(pin, str):
@@ -95,7 +95,7 @@ cdef class Signal(HALObject):
 
     def delete(self):
         # this will cause a handle mismatch if later operating on a deleted signal wrapper
-        r = hal_signal_delete(self.name)
+        r = hal_signal_delete(self.name.encode())
         if (r < 0):
             raise RuntimeError(f"Fail to delete signal {self.name}: {hal_lasterror()}")
 
@@ -115,7 +115,7 @@ cdef class Signal(HALObject):
         pinnames = []
         with HALMutex():
             # collect pin names
-            halg_foreach_pin_by_signal(0,self._o.sig, _pin_by_signal_cb,
+            halg_foreach_pin_by_signal(0, self._o.sig, _pin_by_signal_cb,
                                        <void *>pinnames)
             # now the wrapped objects, all under the HAL mutex held:
             pinlist = []
@@ -135,7 +135,6 @@ cdef class Signal(HALObject):
 
     property bidirname:
         def __get__(self):
-            cdef char *name
             self._alive_check()
             s =  modifier_name(self._o.sig, HAL_IO)
             if s:
@@ -171,7 +170,7 @@ cdef int _find_writer(hal_object_ptr o,  foreach_args_t *args):
     pin = o.pin
     if signal_of(pin) == args.user_ptr1 and pin.dir == args.user_arg1:
         result =  <object>args.user_ptr2
-        result.append(hh_get_name(o.hdr))
+        result.append(bytes(hh_get_name(o.hdr)).decode())
         if int(pin.dir) == int(HAL_OUT):
             return 1  # stop iteration, there can only be one writer
     return 0 # continue
@@ -190,7 +189,7 @@ cdef modifier_name(hal_sig_t *sig, int dir):
     return names
 
 
-cdef _newsig(char *name, hal_type_t type, init=None):
+cdef _newsig(str name, hal_type_t type, init=None):
     if not hal_valid_type(type):
         raise TypeError(f"newsig: {name} - invalid type {type}")
     return Signal(name, type=type, init=init, wrap=False)

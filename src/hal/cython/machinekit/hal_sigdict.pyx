@@ -4,7 +4,7 @@
 cdef int _collect_sig_names(hal_sig_t *sig,  void *userdata):
     arg =  <object>userdata
     if  isinstance(arg, list):
-        arg.append(sig.name)
+        arg.append(sig.name.decode())
         return 0
     else:
         return -1
@@ -26,9 +26,9 @@ cdef class Signals:
     cdef dict sigs
 
     def __cinit__(self):
-        self.sigs = dict()
+        self.sigs = {}
 
-    def __getitem__(self, char *name):
+    def __getitem__(self, name):
         hal_required()
 
         if isinstance(name, int):
@@ -40,9 +40,9 @@ cdef class Signals:
         cdef hal_sig_t *s
 
         with HALMutex():
-            s = halpr_find_sig_by_name(name)
+            s = halpr_find_sig_by_name(name.encode())
             if s == NULL:
-                raise NameError, name
+                raise NameError(name)
 
         sig =  Signal(name)
         self.sigs[name] = sig
@@ -61,10 +61,10 @@ cdef class Signals:
         hal_required()
         return sig_count()
 
-    def __delitem__(self, char *name):
+    def __delitem__(self, name):
         hal_required()
         del self.sigs[name]
-        r = hal_signal_delete(name)
+        r = hal_signal_delete(name.encode())
         if r:
             raise RuntimeError(f"hal_signal_delete {name} failed: {r} {hal_lasterror()}")
 

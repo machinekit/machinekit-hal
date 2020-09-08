@@ -3,8 +3,8 @@
 # hal_iter callback: add comp names into list
 cdef int _collect_comp_names(hal_comp_t *comp,  void *userdata):
     arg =  <object>userdata
-    if  isinstance(arg, list):
-        arg.append(comp.name)
+    if isinstance(arg, list):
+        arg.append(comp.name.decode())
         return 0
     else:
         return -1
@@ -13,14 +13,14 @@ cdef list comp_names():
     names = []
 
     with HALMutex():
-        rc = halpr_foreach_comp(NULL,  _collect_comp_names, <void *>names);
+        rc = halpr_foreach_comp(NULL,  _collect_comp_names, <void *>names)
         if rc < 0:
             raise RuntimeError(f"comp_names: halpr_foreach_comp failed {rc}: {hal_lasterror()}")
     return names
 
 cdef int comp_count():
     with HALMutex():
-        rc = halpr_foreach_comp(NULL, NULL, NULL);
+        rc = halpr_foreach_comp(NULL, NULL, NULL)
         if rc < 0:
             raise RuntimeError(f"comp_count: halpr_foreach_comp failed {rc}: {hal_lasterror()}")
     return rc
@@ -30,9 +30,9 @@ cdef class Components:
     cdef dict comps
 
     def __cinit__(self):
-        self.comps = dict()
+        self.comps = {}
 
-    def __getitem__(self, char *name):
+    def __getitem__(self, name):
         hal_required()
 
         if isinstance(name, int):
@@ -43,10 +43,10 @@ cdef class Components:
         cdef hal_comp_t *comp
 
         with HALMutex():
-            comp = halpr_find_comp_by_name(name)
+            comp = halpr_find_comp_by_name(name.encode())
 
         if comp == NULL:
-            raise NameError, name
+            raise NameError(name)
 
         c = Component(name, wrap=True)
         self.comps[name] = c

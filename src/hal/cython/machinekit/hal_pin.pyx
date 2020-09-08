@@ -14,7 +14,7 @@ def describe_hal_dir(haldir):
 
 cdef class _Pin(HALObject):
 
-    def __cinit__(self, *args,  init=None, eps=0, wrap=True, lock=True):
+    def __cinit__(self, *args, init=None, eps=0, wrap=True, lock=True):
         cdef bytes c_bytes
         cdef char *c_name
         hal_required()
@@ -27,7 +27,7 @@ cdef class _Pin(HALObject):
             if wrap:
                 name = args[0] # string - wrapping existing pin
                 self._o.pin = halg_find_object_by_name(0, hal_const.HAL_PIN,
-                                                       name).pin
+                                                       name.encode()).pin
                 if self._o.pin == NULL:
                     raise RuntimeError(f"no such pin {name}")
             else:
@@ -62,7 +62,7 @@ cdef class _Pin(HALObject):
     property signame:
         def __get__(self):
             if not  pin_is_linked(self._o.pin): return None  # raise exception?
-            return hh_get_name(&signal_of(self._o.pin).hdr)
+            return bytes(hh_get_name(&signal_of(self._o.pin).hdr)).decode()
 
     property signal:
         def __get__(self):
@@ -90,7 +90,7 @@ cdef class _Pin(HALObject):
         # check if we have a pin or a list of pins
         if isinstance(arg, Pin) \
            or (isinstance(arg, str) and (arg in pins)) \
-           or hasattr(arg, '__iter__'):
+           or (hasattr(arg, '__iter__') and not isinstance(arg, str)):
             return net(self, arg)  # net is more verbose than link
 
         # we got a signal or a new signal
@@ -121,7 +121,7 @@ cdef class _Pin(HALObject):
 
 
 class Pin(_Pin):
-    def __init__(self, *args, init=None,eps=0,wrap=True,lock=True):
+    def __init__(self, *args, init=None, eps=0, wrap=True, lock=True):
         if len(args) == 1: # wrapped existing pin
             t = self.type
             dir = self.dir

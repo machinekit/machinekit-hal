@@ -3,6 +3,7 @@ import subprocess
 import shlex
 import time
 
+
 def loadusr(command, wait=False, wait_name=None, wait_timeout=5.0, shell=False, **kwargs):
     cmd = command
 

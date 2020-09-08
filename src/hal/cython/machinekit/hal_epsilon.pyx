@@ -15,13 +15,10 @@ cdef class Epsilon:
         return hal_data.epsilon[n]
 
     def __len__(self):
-        return  MAX_EPSILON
+        return MAX_EPSILON
 
     def __call__(self):
         hal_required()
-        values = []
-        for i in range(MAX_EPSILON):
-            values.append(hal_data.epsilon[i])
-        return values
+        return [hal_data.epsilon[i] for i in range(MAX_EPSILON)]
 
 epsilon = Epsilon()

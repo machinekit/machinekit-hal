@@ -20,9 +20,9 @@ cdef list pin_names():
 
 cdef int pin_count():
     with HALMutex():
-        rc = halpr_foreach_pin(NULL, NULL, NULL);
+        rc = halpr_foreach_pin(NULL, NULL, NULL)
         if rc < 0:
-            raise RuntimeError("pin_count: halpr_foreach_pin failed %d: %s" % (rc,hal_lasterror()))
+            raise RuntimeError(f"pin_count: halpr_foreach_pin failed {rc}: {hal_lasterror()}")
     return rc
 
 
@@ -30,7 +30,7 @@ cdef class Pins:
     cdef dict pins
 
     def __cinit__(self):
-        self.pins = dict()
+        self.pins = {}
 
     def __getitem__(self, name):
         hal_required()
@@ -42,9 +42,9 @@ cdef class Pins:
             return self.pins[name]
         cdef hal_pin_t *p
         with HALMutex():
-            p = halpr_find_pin_by_name(name)
+            p = halpr_find_pin_by_name(name.encode())
         if p == NULL:
-            raise NameError, "no such pin: %s" % (name)
+            raise NameError("no such pin: %s" % (name))
         pin =  Pin(name)
         self.pins[name] = pin
         return pin

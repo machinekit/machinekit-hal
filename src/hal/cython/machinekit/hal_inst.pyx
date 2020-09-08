@@ -13,7 +13,7 @@ cdef class Instance(HALObject):
         # NB: self._o lives in the HALObject
         self._o.inst = halg_find_object_by_name(lock,
                                                 hal_const.HAL_INST,
-                                                name).inst
+                                                name.encode()).inst
         if self._o.inst == NULL:
             raise RuntimeError(f"instance {name} does not exist")
 
@@ -21,7 +21,7 @@ cdef class Instance(HALObject):
         # delete wrapper
         instances.pop(self.name, None)
         # and the HAL object
-        r = halg_inst_delete(1, self.name)
+        r = halg_inst_delete(1, self.name.encode())
         if (r < 0):
             raise RuntimeError(f"Fail to delete instance {self._name}: {hal_lasterror()}")
 
@@ -35,7 +35,7 @@ cdef class Instance(HALObject):
                     f"BUG: Failed to find  owning comp {self.id} of instance {self.name}: {hal_lasterror()}"
                 )
             # XXX use get_unlocked here!
-            return Component(hh_get_name(&self._comp.hdr), wrap=True)
+            return Component(bytes(hh_get_name(&self._comp.hdr)).decode(), wrap=True)
 
 
     property pins:

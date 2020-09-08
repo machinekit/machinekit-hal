@@ -10,20 +10,20 @@ from rtapi cimport  RTAPI_BIT_TEST
 cdef class Group(HALObject):
     cdef hal_compiled_group_t *_cg
 
-    def __cinit__(self, char *name, int arg1=0, int arg2=0, lock=True):
+    def __cinit__(self, str name, int arg1=0, int arg2=0, bool lock=True):
         hal_required()
         self._cg = NULL
         self._o.group = halg_find_object_by_name(lock,
                                                  hal_const.HAL_GROUP,
-                                                 name).group
+                                                 name.encode()).group
         if self._o.group == NULL:
             # not found, create a new group
-            r = halg_group_new(lock, name, arg1, arg2)
+            r = halg_group_new(lock, name.encode(), arg1, arg2)
             if r:
                 raise RuntimeError(f"Failed to create group {name}: {hal_lasterror()}")
             self._o.group = halg_find_object_by_name(lock,
                                                      hal_const.HAL_GROUP,
-                                                     name).group
+                                                     name.encode()).group
             if self._o.group == NULL:
                 raise InternalError(f"BUG: cannot find group '{name}'")
 
@@ -54,27 +54,27 @@ cdef class Group(HALObject):
         for i in range(self._cg.n_members):
             if RTAPI_BIT_TEST(self._cg.changed, i):
                 s = <hal_sig_t *>shmptr(self._cg.member[i].sig_ptr)
-                result.append(signals[hh_get_name(&s.hdr)])
+                result.append(signals[bytes(hh_get_name(&s.hdr)).decode()])
         return result
 
     def compile(self):
         with HALMutex():
             hal_cgroup_free(self._cg)
-            rc =  halpr_group_compile(self.name, &self._cg)
+            rc =  halpr_group_compile(self.name.encode(), &self._cg)
             if rc < 0:
                 raise RuntimeError(f"hal_group_compile({self.name}) failed: {hal_lasterror()}")
 
     def add(self, member, int arg1=0, int eps_index=0):
         if isinstance(member, Signal):
             member = member.name
-        rc = halg_member_new(1, self.name, member, arg1, eps_index)
+        rc = halg_member_new(1, self.name.encode(), member.encode(), arg1, eps_index)
         if rc:
             raise RuntimeError(f"Failed to add member '{member}' to  group '{self.name}': {hal_lasterror()}")
 
     def delete(self, member):
         if isinstance(member, Signal) or isinstance(member, Group):
             member = member.name
-        rc = halg_member_delete(1, self.name, member)
+        rc = halg_member_delete(1, self.name.encode(), member)
         if rc:
             raise RuntimeError(f"Failed to delete member '{member}' from  group '{self.name}': {hal_lasterror()}")
     property userarg1:
@@ -97,7 +97,7 @@ cdef class Member(HALObject):
             # create a new member and wrap it
             group = args[0]
             member = args[1]
-            r = halg_member_new(lock, group, member,
+            r = halg_member_new(lock, group.encode(), member.encode(),
                                 userarg1, eps)
             if r:
                 raise RuntimeError(f"Failed to create group {group} member {member}: {r} {hal_lasterror()}")
@@ -106,7 +106,7 @@ cdef class Member(HALObject):
         #  member now must exist, look it up
         self._o.member = halg_find_object_by_name(lock,
                                                   hal_const.HAL_MEMBER,
-                                                  args[0]).member
+                                                  member.encode()).member
         if self._o.member == NULL:
             raise RuntimeError(f"no such member {member}")
 

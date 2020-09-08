@@ -39,7 +39,7 @@ cdef class Ring:
     cdef hal_ring_t *_hr
     cdef uint32_t flags,aflags
 
-    def __cinit__(self, char *name,
+    def __cinit__(self, str name,
                   int size = 0,
                   int scratchpad_size = 0,
                   int type = RINGTYPE_RECORD,
@@ -47,7 +47,7 @@ cdef class Ring:
                   bool use_wmutex = False,
                   bool in_halmem = False):
         self._hr = NULL
-        self.flags = (type & RINGTYPE_MASK);
+        self.flags = (type & RINGTYPE_MASK)
         if use_rmutex: self.flags |= USE_RMUTEX;
         if use_wmutex: self.flags |= USE_RMUTEX;
         if in_halmem:  self.flags |= ALLOC_HALMEM;
@@ -60,7 +60,7 @@ cdef class Ring:
                 raise NameError(f"hal_ring_attach({name}) failed: {hal_lasterror()}")
 
         with HALMutex():
-            self._hr = halpr_find_ring_by_name(name)
+            self._hr = halpr_find_ring_by_name(name.encode())
             if self._hr == NULL:
                 raise RuntimeError(f"halpr_find_ring_by_name({name}) failed: {hal_lasterror()}")
 
@@ -120,16 +120,16 @@ cdef class Ring:
         def __get__(self): return self._rb.header.type
 
     property in_halmem:
-        def __get__(self): return (self._hr.flags & ALLOC_HALMEM != 0)
+        def __get__(self): return self._hr.flags & ALLOC_HALMEM != 0
 
     property rmutex_mode:
-        def __get__(self): return (ring_use_rmutex(&self._rb) != 0)
+        def __get__(self): return ring_use_rmutex(&self._rb) != 0
 
     property wmutex_mode:
-        def __get__(self): return (ring_use_wmutex(&self._rb) != 0)
+        def __get__(self): return ring_use_wmutex(&self._rb) != 0
 
     property name:
-        def __get__(self): return hh_get_name(&self._hr.hdr)
+        def __get__(self): return bytes(hh_get_name(&self._hr.hdr)).decode()
 
     property scratchpad_size:
         def __get__(self): return ring_scratchpad_size(&self._rb)
@@ -218,7 +218,7 @@ cdef class StreamRing:
         available bytes are consumed"""
 
         cdef size_t avail
-        avail = stream_read_space(self._rb.header);
+        avail = stream_read_space(self._rb.header)
         if (nbytes > <int>avail):
             raise IOError(f"consume({nbytes}): argument larger than bytes available ({avail})")
         stream_read_advance(self._rb, nbytes)

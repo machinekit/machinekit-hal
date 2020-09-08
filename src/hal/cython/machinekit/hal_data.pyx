@@ -60,7 +60,7 @@ cdef class HALData:
             rhs.fragments = 0
             rhs.largest = 0
             rtapi_heap_status(&hal_data.heap, &rhs)
-            return (rhs.total_avail, rhs.fragments, rhs.largest)
+            return rhs.total_avail, rhs.fragments, rhs.largest
 
     property heap_flags:
         def __set__(self, int f):

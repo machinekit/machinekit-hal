@@ -9,10 +9,10 @@ TYPE_USER =    hal_const.TYPE_USER
 
 # testiter callback: add pin names into list
 cdef int _testme(hal_object_ptr o,  foreach_args_t *args):
-    print "CB!"
-    arg =  <object>args.user_ptr1
+    print("CB!")
+arg =  <object>args.user_ptr1
     if  isinstance(arg, list):
-        arg.append(hh_get_name(o.hdr))
+        arg.append(bytes(hh_get_name(o.hdr)).decode())
         return 0
     else:
         return -1

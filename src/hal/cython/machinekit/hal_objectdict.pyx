@@ -6,7 +6,7 @@ cdef class HALObjectDict:
     cdef int  _type
     cdef dict _objects
 
-    def __cinit__(self, int type):
+    def __cinit__(self, int type_):
         #hal_required()
         if not type_ in _wrapdict:
             raise RuntimeError(f"unsupported type {type_}")
@@ -30,7 +30,7 @@ cdef class HALObjectDict:
             return self._objects[name]
 
         cdef hal_object_ptr ptr
-        ptr = halg_find_object_by_name(0, self._type, name)
+        ptr = halg_find_object_by_name(0, self._type, name.encode())
         if ptr.any == NULL:
             raise NameError(f"no such {hal_object_typestr(self._type)}: {name}")
         method = _wrapdict[self._type]
@@ -58,7 +58,7 @@ cdef class HALObjectDict:
         hal_required()
         return object_count(1, self._type)
 
-    def __delitem__(self, char *name):
+    def __delitem__(self, name):
         hal_required()
         # this calls the wrapper dtor
         # but does not delete the underlying HAL object

@@ -19,7 +19,7 @@ cdef list inst_names():
 
 cdef int inst_count():
     with HALMutex():
-        rc = halpr_foreach_inst(NULL, NULL, NULL);
+        rc = halpr_foreach_inst(NULL, NULL, NULL)
         if rc < 0:
             raise RuntimeError(f"inst_count: halpr_foreach_inst failed {rc}: {hal_lasterror()}")
     return rc
@@ -29,9 +29,9 @@ cdef class Instances:
     cdef dict insts
 
     def __cinit__(self):
-        self.insts = dict()
+        self.insts = {}
 
-    def __getitem__(self, char *name):
+    def __getitem__(self, name):
         hal_required()
 
         if isinstance(name, int):
@@ -41,7 +41,7 @@ cdef class Instances:
             return self.insts[name]
         cdef hal_inst_t *p
         with HALMutex():
-            p = halpr_find_inst_by_name(name)
+            p = halpr_find_inst_by_name(name.encode())
         if p == NULL:
             raise NameError(f"no such inst: {name}")
         inst =  Instance(name)

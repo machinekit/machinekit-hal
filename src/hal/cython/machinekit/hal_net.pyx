@@ -67,7 +67,7 @@ def net(sig,*pinnames):
 
     pinlist = []
     for names in pinnames:
-        if not hasattr(names, '__iter__'):
+        if not hasattr(names, '__iter__') or isinstance(names, str):
             names = [names]
         for pin in names:
             if isinstance(pin, str):
@@ -117,13 +117,13 @@ def net(sig,*pinnames):
             bidirs += 1
 
     if not s:
-        s = Signal(signame,type=t,wrap=False)
+        s = Signal(signame, type=t, wrap=False)
 
     if not pinlist:
         raise RuntimeError("'net' requires at least one pin, none given")
 
     for p in pinlist:
-        r = hal_link(p.name, signame)
+        r = hal_link(p.name.encode(), signame.encode())
         if r:
             raise RuntimeError(f"Failed to link pin {p.name} to {signame}: {r} - {hal_lasterror()}")
 
