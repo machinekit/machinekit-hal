@@ -21,7 +21,7 @@ def end_session():
 
 # checks wheter a single command is available or not
 def check_command(command):
-    process = subprocess.Popen('which ' + command, stdout=subprocess.PIPE, shell=True)
+    process = subprocess.Popen('which ' + command, stdout=subprocess.PIPE, shell=True, universal_newlines=True)
     process.wait()
     if process.returncode != 0:
         print(command + ' not found, check Machinekit installation')
@@ -39,7 +39,7 @@ def check_installation():
 def cleanup_session():
     pids = []
     commands = ['configserver', 'halcmd', 'haltalk', 'webtalk', 'rtapi']
-    process = subprocess.Popen(['ps', '-A'], stdout=subprocess.PIPE)
+    process = subprocess.Popen(['ps', '-A'], stdout=subprocess.PIPE, universal_newlines=True)
     out, _ = process.communicate()
     for line in out.splitlines():
         for command in commands:
@@ -71,7 +71,7 @@ def check_process(command):
 def start_process(command, check=True, wait=1.0):
     sys.stdout.write("starting " + command.split(None, 1)[0] + "... ")
     sys.stdout.flush()
-    process = subprocess.Popen(command, shell=True, preexec_fn=os.setsid)
+    process = subprocess.Popen(command, shell=True, preexec_fn=os.setsid, universal_newlines=True)
     process.command = command
     if check:
         sleep(wait)
@@ -221,7 +221,7 @@ def rip_environment(path=None, force=False):
     else:
         command = '. ' + path + '/scripts/rip-environment'
 
-    process = subprocess.Popen(command + ' && env', stdout=subprocess.PIPE, shell=True)
+    process = subprocess.Popen(command + ' && env', stdout=subprocess.PIPE, shell=True, universal_newlines=True)
     for line in process.stdout:
         (key, _, value) = line.partition('=')
         os.environ[key] = value.rstrip()
@@ -272,11 +272,11 @@ def set_machinekit_ini(ini):
 def _check_for_non_zombie_process(program):
     try:
         # get process ids
-        pids = subprocess.check_output(shlex.split('pgrep {}'.format(program))).strip()
+        pids = subprocess.check_output(shlex.split('pgrep {}'.format(program)), universal_newlines=True).strip()
         pids = ' '.join(pids.split('\n'))
         # check each id if it is not zombie
         ps_out = subprocess.check_output(
-            shlex.split('ps -p "{}" -o pid=,s='.format(pids))
+            shlex.split('ps -p "{}" -o pid=,s='.format(pids)), universal_newlines=True
         ).strip()
         lines = ps_out.split('\n')
         for line in lines:
