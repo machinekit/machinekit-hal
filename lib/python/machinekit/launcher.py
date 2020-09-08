@@ -119,9 +119,9 @@ def load_hal_file(filename, ini=None):
             from machinekit import config
 
             config.load_ini(ini)
-        globals_ = {}
         with open(filename, 'r') as f:
             data = compile(f.read(), filename, 'exec')
+            globals_ = {}
             exec(data, globals_)
     else:
         command = 'halcmd'
@@ -155,11 +155,8 @@ def install_comp(filename):
         if comp_time < module_time:
             install = False
 
-    if install is True:
-        if ext == '.icomp':
-            cmd_base = 'instcomp'
-        else:
-            cmd_base = 'comp'
+    if install:
+        cmd_base = 'instcomp' if ext == '.icomp' else 'comp'
         sys.stdout.write("installing " + filename + '... ')
         sys.stdout.flush()
         if os.access(
