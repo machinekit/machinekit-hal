@@ -511,14 +511,14 @@ class LinuxCNCWrapper(object):
                     if extension[0] == '.':
                         extension = extension[1:]
                     program = self.ini.find("FILTER", extension) or ""
-                    if program is not "":
+                    if program != "":
                         self.program_extensions[extension] = program
 
             # initialize total line count
             self.total_lines = 0
             # initialize tool table path
             self.tool_table_path = self.ini.find('EMCIO', 'TOOL_TABLE') or ''
-            if self.tool_table_path is not '':
+            if self.tool_table_path != '':
                 self.tool_table_path = os.path.abspath(
                     os.path.expanduser(self.tool_table_path)
                 )
@@ -555,10 +555,7 @@ class LinuxCNCWrapper(object):
         self.tx_error = Container()  # Error socket - PUB-SUB
         self.context = context
         self.base_uri = "tcp://"
-        if self.loopback:
-            self.base_uri += '127.0.0.1'
-        else:
-            self.base_uri += '*'
+        self.base_uri += '127.0.0.1' if self.loopback else '*'
         self.status_socket = context.socket(zmq.XPUB)
         self.status_socket.setsockopt(zmq.XPUB_VERBOSE, 1)
         self.status_port = self.status_socket.bind_to_random_port(self.base_uri)
@@ -758,7 +755,7 @@ class LinuxCNCWrapper(object):
         return file_path
 
     def load_tool_table(self, io, tx_io):
-        if self.tool_table_path is '':
+        if self.tool_table_path == '':
             return
 
         with codecs.open(self.tool_table_path, 'r', encoding='utf-8') as f:
@@ -793,7 +790,7 @@ class LinuxCNCWrapper(object):
                 tx_tool_result.comment = tool_map[id_]['comment'] or ''
 
     def update_tool_table(self, tool_table):
-        if self.tool_table_path is '':
+        if self.tool_table_path == '':
             return False
 
         with codecs.open(self.tool_table_path, 'w', encoding='utf-8') as f:
@@ -1267,7 +1264,7 @@ class LinuxCNCWrapper(object):
                     tool_result, tx_tool_result, name, value
                 )
 
-            position = range(0, 9)
+            position = list(range(9))
             for i, axis in enumerate(['x', 'y', 'z', 'a', 'b', 'c', 'u', 'v', 'w']):
                 value = getattr(stat_tool_result, axis + 'offset')
                 position[i] = value
@@ -1741,10 +1738,7 @@ class LinuxCNCWrapper(object):
 
     @staticmethod
     def get_ui_element_visible(*hal_pins):
-        for name in hal_pins:
-            if hal.pins[name].linked:
-                return True
-        return False
+        return any(hal.pins[name].linked for name in hal_pins)
 
     def update_status(self, stat):
         self.status_tx.clear()
@@ -1967,10 +1961,10 @@ class LinuxCNCWrapper(object):
 
     def get_active_gcodes(self):
         raw_gcodes = self.stat.gcodes
-        gcodes = []
-        for rawGCode in raw_gcodes:
-            if rawGCode > -1:
-                gcodes.append('G' + str(rawGCode / 10.0))
+        gcodes = [
+            'G' + str(rawGCode / 10.0) for rawGCode in raw_gcodes if rawGCode > -1
+        ]
+
         return ' '.join(gcodes)
 
     def send_command_wrong_params(self, identity, note="wrong parameters"):
@@ -2259,7 +2253,7 @@ class LinuxCNCWrapper(object):
                 ):
                     file_name = self.rx.emc_command_params.path
                     file_name = self.preprocess_program(file_name)
-                    if file_name is not '':
+                    if file_name != '':
                         if self.rx.interp_name == 'execute':
                             self.command.program_open(file_name)
                             if self.rx.HasField('ticket'):
