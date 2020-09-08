@@ -14,7 +14,7 @@ cdef list sig_names():
     with HALMutex():
         rc = halpr_foreach_sig(NULL, _collect_sig_names, <void *>names);
         if rc < 0:
-            raise RuntimeError("halpr_foreach_sig failed %d" % rc)
+            raise RuntimeError(f"halpr_foreach_sig failed {rc}")
     return names
 
 cdef int sig_count():
@@ -66,7 +66,7 @@ cdef class Signals:
         del self.sigs[name]
         r = hal_signal_delete(name)
         if r:
-            raise RuntimeError("hal_signal_delete %s failed: %d %s" % (name, r, hal_lasterror()))
+            raise RuntimeError(f"hal_signal_delete {name} failed: {r} {hal_lasterror()}")
 
     def __call__(self):
         hal_required()

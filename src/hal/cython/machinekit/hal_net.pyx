@@ -63,7 +63,7 @@ def net(sig,*pinnames):
         t = s.type
 
     if signame in pins:
-        raise TypeError("net: '%s' is a pin - first argument must be a signal name" % signame)
+        raise TypeError(f"net: '{signame}' is a pin - first argument must be a signal name")
 
     pinlist = []
     for names in pinnames:
@@ -82,23 +82,25 @@ def net(sig,*pinnames):
             if w.signame == signame:  # already on same signal
                 continue
             # linked already - but to another signal
-            raise RuntimeError("net: pin '%s'  was already linked to signal '%s'" %
-                               (w.name, w.signame))
+            raise RuntimeError(f"net: pin '{w.name}'  was already linked to signal '{w.signame}'")
 
         if t == HAL_TYPE_UNSPECIFIED: # no pre-existing type, use this pin's type
             t = w.type
 
         if t != w.type: # pin type doesnt match net type
-            raise TypeError("net: signal '%s' of type '%s' cannot add pin '%s' of type '%s'\n" %
-                               (signame, _haltype(t), w.name, _haltype(w.type)))
+            raise TypeError(
+                f"net: signal '{signame}' of type '{_haltype(t)}' cannot add pin"
+                f" '{w.name}' of type '{_haltype(w.type)}'\n"
+            )
 
         if w.dir == HAL_OUT:
             if writers:
                 if not writer:
                     writer = pins[s.writername]
-                raise TypeError("net: signal '%s' can not add writer pin '%s', "
-                                "it already has %s pin '%s" %
-                                (signame, w.name, _pindir(writer.dir), writer.name))
+                raise TypeError(
+                    f"net: signal '{signame}' can not add writer pin '{w.name}', "
+                    f"it already has {_pindir(writer.dir)} pin '{writer.name}'"
+                )
             writer = w
             writers += 1
 
@@ -106,9 +108,10 @@ def net(sig,*pinnames):
             if writers:
                 if not writer:
                     writer = pins[s.writername]
-                raise TypeError("net: signal '%s' can not add writer pin '%s', "
-                                "it already has %s pin '%s" %
-                                (signame, w.name, _pindir(writer.dir), writer.name))
+                raise TypeError(
+                    f"net: signal '{signame}' can not add writer pin '{w.name}', "
+                    f"it already has {_pindir(writer.dir)} pin '{writer.name}'"
+                )
 
             bidir = w
             bidirs += 1
@@ -122,7 +125,6 @@ def net(sig,*pinnames):
     for p in pinlist:
         r = hal_link(p.name, signame)
         if r:
-            raise RuntimeError("Failed to link pin %s to %s: %d - %s" %
-                               (p.name, signame, r, hal_lasterror()))
+            raise RuntimeError(f"Failed to link pin {p.name} to {signame}: {r} - {hal_lasterror()}")
 
     return s

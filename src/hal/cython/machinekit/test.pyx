@@ -45,7 +45,7 @@ cdef hal_required():
     global _comps
     if not _comps:
         # dummy comp for connecting to HAL
-        p = "machinekit::hal%d" % getpid()
+        p = f"machinekit::hal{getpid()}"
         id = hal_init(p)
         if hal_data == NULL:
             raise RuntimeError("cant connect to HAL - realtime not running?")

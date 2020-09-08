@@ -58,7 +58,7 @@ cdef class RtapiModule:
             self._name = name
         self._id = rtapi_init(self._name)
         if self._id < 0:
-            raise RuntimeError("Fail to create RTAPI - realtime not running?  %s" % strerror(-self._id))
+            raise RuntimeError(f"Fail to create RTAPI - realtime not running?  {strerror(-self._id)}")
 
     def __dealloc__(self):
         if self._id > 0:
@@ -162,7 +162,7 @@ def classify_comp(comp):
 
 
 class RTAPIcommand:
-    ''' connect to the rtapi_app RT demon to pass commands '''
+    """ connect to the rtapi_app RT demon to pass commands """
 
     def __init__(self, uuid="", instance=0, uri=""):
         rtapi_required()
@@ -197,13 +197,13 @@ class RTAPIcommand:
             c_cgname = NULL
         r = rtapi_newthread(instance, c_name, period, cpu, cgname, fp, flags)
         if r:
-            raise RuntimeError("rtapi_newthread failed:  %s" % strerror(-r))
+            raise RuntimeError(f"rtapi_newthread failed:  {strerror(-r)}")
 
     def delthread(self,char *name, instance=0):
         cdef char *c_name = name
         r = rtapi_delthread(instance, c_name)
         if r:
-            raise RuntimeError("rtapi_delthread failed:  %s" % strerror(-r))
+            raise RuntimeError(f"rtapi_delthread failed:  {strerror(-r)}")
 
     def loadrt(self,*args, instance=0, **kwargs):
         cdef char** argv
@@ -218,7 +218,7 @@ class RTAPIcommand:
         r = rtapi_loadrt( instance, name, <const char **>argv)
         free(argv)
         if r:
-            raise RuntimeError("rtapi_loadrt '%s' failed: %s" % (args,strerror(-r)))
+            raise RuntimeError(f"rtapi_loadrt '{args}' failed: {strerror(-r)}")
 
         return hal.components[name.split('/')[-1]]
 
@@ -227,7 +227,7 @@ class RTAPIcommand:
             raise RuntimeError("unloadrt needs at least the module name as argument")
         r = rtapi_unloadrt( instance, name)
         if r:
-            raise RuntimeError("rtapi_unloadrt '%s' failed: %s" % (name,strerror(-r)))
+            raise RuntimeError(f"rtapi_unloadrt '{name}' failed: {strerror(-r)}")
 
     def newinst(self, *args, instance=0, **kwargs):
         cdef char** argv
@@ -248,30 +248,30 @@ class RTAPIcommand:
                 tmpArgv = _to_argv([])
                 rtapi_loadrt(instance, comp, <const char **>tmpArgv)
             else:
-                raise RuntimeError("component '%s' not loaded\n" % comp)
+                raise RuntimeError(f"component '{comp}' not loaded\n")
         elif status is CS_NOT_RT:
-            raise RuntimeError("'%s' not an RT component\n" % comp)
+            raise RuntimeError(f"'{comp}' not an RT component\n")
         elif status is CS_RTLOADED_NOT_INSTANTIABLE:
-            raise RuntimeError("legacy component '%s' loaded, but not instantiable\n" % comp)
+            raise RuntimeError(f"legacy component '{comp}' loaded, but not instantiable\n")
         elif status is CS_RTLOADED_AND_INSTANTIABLE:
             pass  # good
 
         #TODO check singleton
 
         if instname in hal.instances:
-            raise RuntimeError('instance with name ' + instname + ' already exists')
+            raise RuntimeError(f'instance with name {instname} already exists')
 
         r = rtapi_newinst(instance, comp, instname, <const char **>argv)
         free(argv)
         if r:
-            raise RuntimeError("rtapi_newinst '%s' failed: %s" % (args,strerror(-r)))
+            raise RuntimeError(f"rtapi_newinst '{args}' failed: {strerror(-r)}")
 
         return hal.instances[instname]
 
     def delinst(self, char *instname, instance=0):
         r = rtapi_delinst( instance, instname)
         if r:
-            raise RuntimeError("rtapi_delinst '%s' failed: %s" % (instname,strerror(-r)))
+            raise RuntimeError(f"rtapi_delinst '{instname}' failed: {strerror(-r)}")
 
 
 # default module to connect to RTAPI:

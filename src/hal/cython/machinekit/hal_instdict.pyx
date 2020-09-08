@@ -14,14 +14,14 @@ cdef list inst_names():
     with HALMutex():
         rc = halpr_foreach_inst(NULL,  _collect_inst_names, <void *>names);
         if rc < 0:
-            raise RuntimeError("inst_names: halpr_foreach_inst failed %d: %s" % (rc,hal_lasterror()))
+            raise RuntimeError(f"inst_names: halpr_foreach_inst failed {rc}: {hal_lasterror()}")
     return names
 
 cdef int inst_count():
     with HALMutex():
         rc = halpr_foreach_inst(NULL, NULL, NULL);
         if rc < 0:
-            raise RuntimeError("inst_count: halpr_foreach_inst failed %d: %s" % (rc,hal_lasterror()))
+            raise RuntimeError(f"inst_count: halpr_foreach_inst failed {rc}: {hal_lasterror()}")
     return rc
 
 
@@ -43,7 +43,7 @@ cdef class Instances:
         with HALMutex():
             p = halpr_find_inst_by_name(name)
         if p == NULL:
-            raise NameError, "no such inst: %s" % (name)
+            raise NameError(f"no such inst: {name}")
         inst =  Instance(name)
         self.insts[name] = inst
         return inst

@@ -20,24 +20,21 @@ cdef class Group(HALObject):
             # not found, create a new group
             r = halg_group_new(lock, name, arg1, arg2)
             if r:
-                raise RuntimeError("Failed to create group %s: %s" %
-                                   (name, hal_lasterror()))
+                raise RuntimeError(f"Failed to create group {name}: {hal_lasterror()}")
             self._o.group = halg_find_object_by_name(lock,
                                                      hal_const.HAL_GROUP,
                                                      name).group
             if self._o.group == NULL:
-                raise InternalError("BUG: cannot find group '%s'" % name)
+                raise InternalError(f"BUG: cannot find group '{name}'")
 
         else:
             # if wrapping existing group and args are nonzero, they better match up
             if arg1:
                 if self.userarg1 != arg1:
-                    raise RuntimeError("userarg1 does not match for existing group %s: %d, was %d" %
-                                       (name, arg1, self.userarg1))
+                    raise RuntimeError(f"userarg1 does not match for existing group {name}: {arg1}, was {self.userarg1}")
             if arg2:
                 if self.userarg2 != arg2:
-                    raise RuntimeError("userarg2 does not match for existing group %s: %d, was %d" %
-                                       (name, arg2, self.userarg2))
+                    raise RuntimeError(f"userarg2 does not match for existing group {name}: {arg2}, was {self.userarg2}")
 
     def members(self):  # member wrappers
         return [members[n] for n in owned_names(1, hal_const.HAL_MEMBER, self.id)]
@@ -65,24 +62,21 @@ cdef class Group(HALObject):
             hal_cgroup_free(self._cg)
             rc =  halpr_group_compile(self.name, &self._cg)
             if rc < 0:
-                raise RuntimeError("hal_group_compile(%s) failed: %s" %
-                                   (self.name, hal_lasterror()))
+                raise RuntimeError(f"hal_group_compile({self.name}) failed: {hal_lasterror()}")
 
     def add(self, member, int arg1=0, int eps_index=0):
         if isinstance(member, Signal):
             member = member.name
         rc = halg_member_new(1, self.name, member, arg1, eps_index)
         if rc:
-            raise RuntimeError("Failed to add member '%s' to  group '%s': %s" %
-                               (member, self.name, hal_lasterror()))
+            raise RuntimeError(f"Failed to add member '{member}' to  group '{self.name}': {hal_lasterror()}")
 
     def delete(self, member):
         if isinstance(member, Signal) or isinstance(member, Group):
             member = member.name
         rc = halg_member_delete(1, self.name, member)
         if rc:
-            raise RuntimeError("Failed to delete member '%s' from  group '%s': %s" %
-                               (member, self.name, hal_lasterror()))
+            raise RuntimeError(f"Failed to delete member '{member}' from  group '{self.name}': {hal_lasterror()}")
     property userarg1:
         def __get__(self): return self._o.group.userarg1
         def __set__(self, int r): self._o.group.userarg1 = r
@@ -106,8 +100,7 @@ cdef class Member(HALObject):
             r = halg_member_new(lock, group, member,
                                 userarg1, eps)
             if r:
-                raise RuntimeError("Fail to create group %s member %s:"
-                                   " %d %s" % (group, member, r, hal_lasterror()))
+                raise RuntimeError(f"Failed to create group {group} member {member}: {r} {hal_lasterror()}")
         else:
             member = args[0]
         #  member now must exist, look it up
@@ -115,7 +108,7 @@ cdef class Member(HALObject):
                                                   hal_const.HAL_MEMBER,
                                                   args[0]).member
         if self._o.member == NULL:
-            raise RuntimeError("no such member %s" %member)
+            raise RuntimeError(f"no such member {member}")
 
     property sig:
         def __get__(self):
@@ -132,9 +125,7 @@ cdef class Member(HALObject):
         def __get__(self): return self._o.member.eps_index
         def __set__(self, int eps):
             if (eps < 0) or (eps > MAX_EPSILON-1):
-                raise InternalError(
-		    "member %s : epsilon index %s out of range" %
-		        (self._name(), eps))
+                raise InternalError(f"member {self.name} : epsilon index {eps} out of range")
             self._o.member.eps_index = eps
 
     property userarg1:

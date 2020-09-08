@@ -15,7 +15,7 @@ cdef class Instance(HALObject):
                                                 hal_const.HAL_INST,
                                                 name).inst
         if self._o.inst == NULL:
-            raise RuntimeError("instance %s does not exist" % name)
+            raise RuntimeError(f"instance {name} does not exist")
 
     def __del__(self):
         # delete wrapper
@@ -23,7 +23,7 @@ cdef class Instance(HALObject):
         # and the HAL object
         r = halg_inst_delete(1, self.name)
         if (r < 0):
-            raise RuntimeError("Fail to delete instance %s: %s" % (self._name, hal_lasterror()))
+            raise RuntimeError(f"Fail to delete instance {self._name}: {hal_lasterror()}")
 
     property owner:
         def __get__(self):
@@ -31,16 +31,16 @@ cdef class Instance(HALObject):
                 with HALMutex():
                     self._comp = halpr_find_owning_comp(self.id)
             if self._comp == NULL:
-                raise RuntimeError("BUG: Failed to find"
-                                   " owning comp %d of instance %s: %s" %
-                                   (self.id, self.name, hal_lasterror()))
+                raise RuntimeError(
+                    f"BUG: Failed to find  owning comp {self.id} of instance {self.name}: {hal_lasterror()}"
+                )
             # XXX use get_unlocked here!
             return Component(hh_get_name(&self._comp.hdr), wrap=True)
 
 
     property pins:
         def __get__(self):
-            ''' return a list of Pin objects owned by this instance'''
+            """ return a list of Pin objects owned by this instance"""
             pinnames = []
             with HALMutex():
                 # collect pin names
@@ -52,16 +52,16 @@ cdef class Instance(HALObject):
                 return pinlist
 
     def pin(self, name, base=None):
-        ''' return component Pin object, base does not need to be supplied if pin name matches component name '''
-        if base == None:
+        """ return component Pin object, base does not need to be supplied if pin name matches component name """
+        if base is None:
             base = self.name
-        return Pin('%s.%s' % (base, name))
+        return Pin(f'{base}.{name}')
 
     property size:
         def __get__(self): return self._o.inst.inst_size
 
     property blob:
-        ''' return a MemoryView of this instances HAL'''
+        """ return a MemoryView of this instances HAL"""
         def __get__(self):
             cdef void *ptr
             ptr = shmptr(self._o.inst.inst_data_ptr)

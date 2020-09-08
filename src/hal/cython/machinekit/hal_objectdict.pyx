@@ -8,9 +8,9 @@ cdef class HALObjectDict:
 
     def __cinit__(self, int type):
         #hal_required()
-        if not type in _wrapdict:
-            raise RuntimeError("unsupported type %d" % type)
-        self._type = type
+        if not type_ in _wrapdict:
+            raise RuntimeError(f"unsupported type {type_}")
+        self._type = type_
         self._objects = dict()
 
     # supposed to be 'private' - must be called
@@ -32,7 +32,7 @@ cdef class HALObjectDict:
         cdef hal_object_ptr ptr
         ptr = halg_find_object_by_name(0, self._type, name)
         if ptr.any == NULL:
-            raise NameError, "no such %s: %s" % (hal_object_typestr(self._type), name)
+            raise NameError(f"no such {hal_object_typestr(self._type)}: {name}")
         method = _wrapdict[self._type]
         w = method(name, lock=False, wrap=True)
         # add new wrapper

@@ -15,16 +15,14 @@ cdef list comp_names():
     with HALMutex():
         rc = halpr_foreach_comp(NULL,  _collect_comp_names, <void *>names);
         if rc < 0:
-            raise RuntimeError("comp_names: halpr_foreach_comp failed %d: %s" %
-                               (rc, hal_lasterror()))
+            raise RuntimeError(f"comp_names: halpr_foreach_comp failed {rc}: {hal_lasterror()}")
     return names
 
 cdef int comp_count():
     with HALMutex():
         rc = halpr_foreach_comp(NULL, NULL, NULL);
         if rc < 0:
-            raise RuntimeError("comp_count: halpr_foreach_comp failed %d: %s" %
-                               (rc, hal_lasterror()))
+            raise RuntimeError(f"comp_count: halpr_foreach_comp failed {rc}: {hal_lasterror()}")
     return rc
 
 
@@ -67,7 +65,7 @@ cdef class Components:
         hal_required()
         rc = comp_count()
         if rc < 0:
-            raise RuntimeError("halpr_foreach_comp failed %d" % rc)
+            raise RuntimeError(f"halpr_foreach_comp failed {rc}")
         return rc
 
     def __call__(self):

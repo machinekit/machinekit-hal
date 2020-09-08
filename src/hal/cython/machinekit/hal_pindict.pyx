@@ -15,7 +15,7 @@ cdef list pin_names():
     with HALMutex():
         rc = halpr_foreach_pin(NULL,  _collect_pin_names, <void *>names);
         if rc < 0:
-            raise RuntimeError("pin_names: halpr_foreach_pin failed %d: %s" % (rc,hal_lasterror()))
+            raise RuntimeError(f"pin_names: halpr_foreach_pin failed {rc}: {hal_lasterror()}")
     return names
 
 cdef int pin_count():

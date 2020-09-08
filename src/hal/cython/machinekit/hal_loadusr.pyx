@@ -13,9 +13,9 @@ def loadusr(command, wait=False, wait_name=None, wait_timeout=5.0, shell=False, 
             prefix = '-'
         if isinstance(arg, bool):  # boolean is store_true type argument
             if arg is True:
-                cmd += ' %s%s' % (prefix, key)
+                cmd += f' {prefix}{key}'
         else:
-            cmd += ' %s%s %s' % (prefix, key, str(arg))
+            cmd += f' {prefix}{key} {str(arg)}'
 
     if not shell:
         cmd = shlex.split(cmd)  # correctly split the command
@@ -35,14 +35,14 @@ def loadusr(command, wait=False, wait_name=None, wait_timeout=5.0, shell=False, 
         # check if process is alive
         ret = p.returncode
         if ret is not None:
-            raise RuntimeError(' '.join(cmd) + ' exited with return code ' + str(ret))
+            raise RuntimeError(f"{' '.join(cmd)} exited with return code {ret}")
         # check if component exists
         if (wait_name is not None) and (wait_name in components) and (components[wait_name].state == COMP_READY):
             return components[wait_name]
         # check for timeout
         if timeout >= wait_timeout:
             p.kill()
-            raise RuntimeError(command + ' did not start')
+            raise RuntimeError(f'{command} did not start')
 
         timeout += 0.1
         time.sleep(0.1)

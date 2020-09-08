@@ -29,7 +29,7 @@ cdef class _Pin(HALObject):
                 self._o.pin = halg_find_object_by_name(0, hal_const.HAL_PIN,
                                                        name).pin
                 if self._o.pin == NULL:
-                    raise RuntimeError("no such pin %s" % name)
+                    raise RuntimeError(f"no such pin {name}")
             else:
                 # create a new pin and wrap it
                 comp = args[0]  # a Component instance
@@ -41,8 +41,7 @@ cdef class _Pin(HALObject):
                 name = "{}.{}".format(comp.name, name)
 
                 if (eps < 0) or (eps > MAX_EPSILON-1):
-                    raise RuntimeError("pin %s : epsilon"
-                                       " index %s out of range" % (name, eps))
+                    raise RuntimeError(f"pin {name} : epsilon index {eps} out of range")
 
                 c_bytes = name.encode()
                 c_name = c_bytes
@@ -50,12 +49,11 @@ cdef class _Pin(HALObject):
                                             NULL, #v2 # <void **>(self._storage),
                                             (<Component>comp).id, "%s", c_name)
                 if self._o.pin == NULL:
-                    raise RuntimeError("Fail to create pin %s:"
-                                       " %d %s" % (name, _halerrno, hal_lasterror()))
+                    raise RuntimeError(f"Fail to create pin {name}: {_halerrno} {hal_lasterror()}")
 
                 self._o.pin.eps_index = eps
                 if self._o.pin == NULL:
-                    raise RuntimeError("failed to lookup newly created pin %s" % name)
+                    raise RuntimeError(f"failed to lookup newly created pin {name}")
             # handle initial value assignment!!
 
     property linked:
@@ -82,8 +80,7 @@ cdef class _Pin(HALObject):
         def __get__(self): return self._o.pin.eps_index
         def __set__(self, int eps):
             if (eps < 0) or (eps > MAX_EPSILON-1):
-                raise RuntimeError("pin %s : epsilon index %s out of range" %
-                                   (hh_get_name(&self._o.pin.hdr), eps))
+                raise RuntimeError(f"pin {hh_get_name(&self._o.pin.hdr)} : epsilon index {eps} out of range")
             self._o.pin.eps_index = eps
 
     property dir:
@@ -105,16 +102,14 @@ cdef class _Pin(HALObject):
     def unlink(self):
         r = hal_unlink(hh_get_name(&self._o.pin.hdr))
         if r:
-            raise RuntimeError("Failed to unlink pin %s: %d - %s" %
-                               (hh_get_name(&self._o.pin.hdr), r, hal_lasterror()))
+            raise RuntimeError(f"Failed to unlink pin {hh_get_name(&self._o.pin.hdr)}: {r} - {hal_lasterror()}")
 
     def _set(self, v):
 
         cdef hal_data_u *_dptr
 
         if pin_is_linked(self._o.pin):
-            raise RuntimeError("cannot set value of linked pin %s:" %
-                               hh_get_name(&self._o.pin.hdr))
+            raise RuntimeError(f"cannot set value of linked pin {hh_get_name(&self._o.pin.hdr)}:")
 
         # retrieve address of dummy signal
         _dptr = <hal_data_u *>&self._o.pin.dummysig
@@ -146,10 +141,7 @@ class Pin(_Pin):
     def get(self): raise NotImplementedError("Pin is write-only")
 
     def __repr__(self):
-        return "<hal.Pin %s %s %s %s>" % (self.name,
-                                          describe_hal_type(self.type),
-                                          describe_hal_dir(self.dir),
-                                          self.get())
+        return f"<hal.Pin {self.name} {describe_hal_type(self.type)} {describe_hal_dir(self.dir)} {self.get()}>"
 # instantiate the pins dict
 _wrapdict[hal_const.HAL_PIN] = Pin
 pins = HALObjectDict(hal_const.HAL_PIN)
