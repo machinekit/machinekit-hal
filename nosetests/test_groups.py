@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
 
-from nose import with_setup
-from machinekit.nosetests.realtime import setup_module,teardown_module
-from machinekit.nosetests.support import fnear
-from unittest import TestCase
-
+import pytest
 from machinekit import hal
 
-class TestGroup(TestCase):
+@pytest.mark.usefixtures("realtime")
+class TestGroup(object):
+    @pytest.fixture
     def setUp(self):
         self.g1 = hal.Group("group1",arg1=123,arg2=4711)
         hal.epsilon[2] = 0.1
 
-    def test_group__ops(self):
+    def test_group__ops(self, setUp):
         assert self.g1.userarg1 == 123
         assert self.g1.userarg2 == 4711
 

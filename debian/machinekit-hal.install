@@ -16,6 +16,5 @@ usr/lib/python*/*/*/*.py
 usr/lib/python*/*/machinekit/*.so
 usr/lib/python*/*/machinetalk/protobuf/*.py
 usr/lib/python*/*/machinetalk/*.py
-usr/lib/python*/*/machinekit/nosetests/*.py
 usr/libexec/machinekit
 usr/share/machinekit/udev

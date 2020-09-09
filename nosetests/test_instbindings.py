@@ -2,17 +2,16 @@
 
 # verify the cython inst bindings
 
-from nose import with_setup
-from machinekit.nosetests.realtime import setup_module ,teardown_module
-from machinekit.nosetests.support import fnear
-from unittest import TestCase
-import time,os,ConfigParser
+import pytest
+import time,os
+from configparser import ConfigParser
 
 from machinekit import rtapi,hal
 
-class TestIinst(TestCase):
-    def setUp(self):
-        self.cfg = ConfigParser.ConfigParser()
+@pytest.mark.usefixtures("realtime")
+class TestIinst():
+    def test_inst(self):
+        self.cfg = ConfigParser()
         self.cfg.read(os.getenv("MACHINEKIT_INI"))
         self.uuid = self.cfg.get("MACHINEKIT", "MKUUID")
         rt = rtapi.RTAPIcommand(uuid=self.uuid)
