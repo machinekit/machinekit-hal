@@ -3,6 +3,7 @@ from hal_priv cimport MAX_EPSILON, hal_data
 from hal_group cimport (
     hal_compiled_group_t, hal_group_t, halg_group_new, hal_cgroup_match,
     hal_cgroup_free, halpr_group_compile, halg_member_new, halg_member_delete,
+    hal_unref_group,
     )
 from rtapi cimport  RTAPI_BIT_TEST
 
@@ -63,6 +64,7 @@ cdef class Group(HALObject):
             rc =  halpr_group_compile(self.name.encode(), &self._cg)
             if rc < 0:
                 raise RuntimeError(f"hal_group_compile({self.name}) failed: {hal_lasterror()}")
+        hal_unref_group(self.name.encode())
 
     def add(self, member, int arg1=0, int eps_index=0):
         if isinstance(member, Signal):
