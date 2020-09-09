@@ -1,5 +1,6 @@
 from hal_util cimport shmptr #hal2py, py2hal, shmptr, valid_dir, valid_type
 from hal_priv cimport MAX_EPSILON, hal_data
+from hal_objectops cimport halg_find_object_by_id
 from hal_group cimport (
     hal_compiled_group_t, hal_group_t, halg_group_new, hal_cgroup_match,
     hal_cgroup_free, halpr_group_compile, halg_member_new, halg_member_delete,
@@ -11,13 +12,18 @@ from rtapi cimport  RTAPI_BIT_TEST
 cdef class Group(HALObject):
     cdef hal_compiled_group_t *_cg
 
-    def __cinit__(self, str name, int arg1=0, int arg2=0, bool lock=True):
+    def __cinit__(self, str name, int arg1=0, int arg2=0, wrap=False, bool lock=True):
         hal_required()
         self._cg = NULL
         self._o.group = halg_find_object_by_name(lock,
                                                  hal_const.HAL_GROUP,
                                                  name.encode()).group
-        if self._o.group == NULL:
+        if wrap:
+            self._o.group = halg_find_object_by_name(
+                0, hal_const.HAL_GROUP, name.encode()).group
+            if self._o.group == NULL:
+                raise RuntimeError(f"halpr_find_group_by_name({name}) failed")
+        elif self._o.group == NULL:
             # not found, create a new group
             r = halg_group_new(lock, name.encode(), arg1, arg2)
             if r:
@@ -112,6 +118,13 @@ cdef class Member(HALObject):
         if self._o.member == NULL:
             raise RuntimeError(f"no such member {member}")
 
+    property group:
+        def __get__(self):
+            cdef hal_object_ptr owner_grp = halg_find_object_by_id(
+                False, hal_const.HAL_GROUP, self.owner_id)
+            name_b = bytes(hh_get_name(owner_grp.hdr))
+            return groups[name_b.decode()]
+
     property sig:
         def __get__(self):
             if self._o.member.sig_ptr == 0:
@@ -127,11 +140,15 @@ cdef class Member(HALObject):
         def __get__(self): return self._o.member.eps_index
         def __set__(self, int eps):
             if (eps < 0) or (eps > MAX_EPSILON-1):
-                raise InternalError(f"member {self.name} : epsilon index {eps} out of range")
+                raise InternalError(f"member {self.name} of {self.group.name}: epsilon index {eps} out of range")
             self._o.member.eps_index = eps
 
     property userarg1:
         def __get__(self): return self._o.member.userarg1
+
+
+    def __repr__(self):
+        return f"<hal.Member {self.name} of {self.group.name}>"
 
 _wrapdict[hal_const.HAL_GROUP] = Group
 groups = HALObjectDict(hal_const.HAL_GROUP)

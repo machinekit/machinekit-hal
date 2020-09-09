@@ -64,4 +64,3 @@ cdef extern from "hal_group.h" :
                              void *cb_data, int flags)
 
     hal_group_t *halpr_find_group_by_name(const char *name)
-    hal_group_t *halpr_find_group_of_member(const char *member)

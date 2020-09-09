@@ -35,7 +35,7 @@ class TestGroup(object):
         self.g2.add("sigbit")
         self.g2.add("sigu32")
 
-        assert len(self.g2.signal_members()) == 4
+        assert len(self.g2.members()) == 4
 
         try:
             # try to add a duplicate
@@ -69,12 +69,8 @@ class TestGroup(object):
         self.g3 = hal.Group("group3")
         self.g3.add(hal.Signal("someu32",   hal.HAL_U32))
 
-        # add as nested group
-        self.g2.add(self.g3)
-
         # iterate members
         for m in self.g2.members():
             # m is a Member() object
-            # m.item is the object the member is referring to -
-            # Signal or Group instance
-            print(m,m.item,m.epsilon,m.handle,m.userarg1,m.type)
+            # m.sig is the signal the member is referring to
+            print(m,m.sig,m.epsilon,m.handle,m.userarg1,m.object_type)
