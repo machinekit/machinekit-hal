@@ -94,11 +94,12 @@ cdef class RTAPILogger:
     cdef int _level
     cdef char *_tag
 
-    def __init__(self, char *tag="cython", int level=RTAPI_MSG_ALL):
+    def __init__(self, tag="cython", int level=RTAPI_MSG_ALL):
+        tag_b = tag.encode()
         rtapi_required()
-        rtapi_set_logtag(tag)
+        rtapi_set_logtag(tag_b)
         self._level = level
-        self._tag = tag
+        self._tag = tag_b
 
     def write(self,line):
         cdef bytes py_bytes = line.rstrip(" \t\f\v\n\r").encode()

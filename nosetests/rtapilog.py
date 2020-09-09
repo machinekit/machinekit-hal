@@ -24,10 +24,8 @@ class Log:
         callerframerecord = inspect.stack()[1]
         frame = callerframerecord[0]
         info = inspect.getframeinfo(frame)
-        print >> self.l, "%s:%s:%s %s" % (info.filename,
-                                          info.function,
-                                          info.lineno,
-                                          " ".join(args)),
+        self.l.write("%s:%s:%s %s" % (
+            info.filename, info.function, info.lineno, " ".join(args)))
 
 if __name__ == "__main__":
     l = Log(level=rtapi.MSG_ERR,tag="testrun")
