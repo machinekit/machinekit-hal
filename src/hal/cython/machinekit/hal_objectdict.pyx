@@ -32,7 +32,7 @@ cdef class HALObjectDict:
         cdef hal_object_ptr ptr
         ptr = halg_find_object_by_name(0, self._type, name.encode())
         if ptr.any == NULL:
-            raise NameError(f"no such {hal_object_typestr(self._type)}: {name}")
+            raise NameError(f"no such {hal_object_typestr(self._type)} '{name}'")
         method = _wrapdict[self._type]
         w = method(name, lock=False, wrap=True)
         # add new wrapper
