@@ -189,15 +189,17 @@ cdef modifier_name(hal_sig_t *sig, int dir):
     return names
 
 
-cdef _newsig(str name, hal_type_t type, init=None):
-    if not hal_valid_type(type):
-        raise TypeError(f"newsig: {name} - invalid type {type}")
-    return Signal(name, type=type, init=init, wrap=False)
 
-def newsig(name, type, init=None):
-    _newsig(name, type, init)
+cdef _newsig(str name, hal_type_t hal_type, init=None):
+    if not hal_valid_type(hal_type):
+        raise TypeError(f"newsig: {name} - invalid type {hal_type}")
+    return Signal(name, type=hal_type, init=init, wrap=False)
+
+def newsig(name, hal_type, init=None):
+    if not isinstance(name, str):
+        raise TypeError(f"newsig: name must be str, not {type(name)}")
+    _newsig(name, hal_type, init)
     return signals[name] # add to sigdict
-
 
 _wrapdict[hal_const.HAL_SIGNAL] = Signal
 signals = HALObjectDict(hal_const.HAL_SIGNAL)
