@@ -129,6 +129,7 @@ static int instantiate(const int argc, char* const *argv)
 	{ 0, 0, 0, 0 }
     };
     int c;
+    optind = 2;  // Set to first arg after name
     while ((c = getopt_long(argc, argv, ":f:", longopts, NULL)) != -1) {
         // char * const argv[]
 	switch (c) {
