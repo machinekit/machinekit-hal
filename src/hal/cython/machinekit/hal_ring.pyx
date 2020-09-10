@@ -234,7 +234,9 @@ cdef class StreamRing:
         nozero return value indicates the number
 	    of bytes actually written. """
 
-        return stream_write(self._rb,  PyBytes_AsString(s), PyBytes_Size(s))
+        if isinstance(s, str):
+            s = s.encode()
+        return stream_write(self._rb, s, PyBytes_Size(s))
 
     def read(self):
         ''' return all bytes readable as a string, or None'''
