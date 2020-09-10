@@ -73,6 +73,8 @@ cdef class Ring:
                 raise RuntimeError(f"hal_ring_detach({name}) failed: {r} {hal_lasterror()}")
 
     def write(self, s):
+        if isinstance(s, str):
+            s = s.encode()
         cdef void *ptr
         cdef size_t size = PyBytes_Size(s)
         cdef int r = record_write_begin(&self._rb, &ptr, size)
