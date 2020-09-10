@@ -20,7 +20,7 @@ class Tests(object):
         r1 = hal.Ring("test", size=16384)
         rt.loadrt("ringread",  "ring=test")
         rt.loadrt("ringwrite", "ring=test")
-        rt.loadrt("charge_pump")
+        rt.newinst("charge_pump", "charge-pump")
 
     def test_net(self):
         hal.net("square-wave","charge-pump.out","ringwrite.write")
