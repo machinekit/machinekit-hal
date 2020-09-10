@@ -45,6 +45,7 @@ Build-Depends:
     libprotoc-dev:native (>= 2.4.1),
     python3-simplejson:native,
     python3-sh:native,
+    python3-pytest:native,
     libcgroup-dev,
     yapps2:native,
     python3-yapps:native,
@@ -91,6 +92,7 @@ Depends:
     g++,
     ${misc:Depends},
     machinekit-hal (= ${binary:Version}),
+    python3-pytest,
     yapps2
 Section: libs
 Description: Universal framework for machine control based on Hardware Abstraction Layer principle

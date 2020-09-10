@@ -55,20 +55,34 @@ class Ripruntests_script():
     def __init__(self: object, path):
         self.normalized_path = helpers.NormalizeMachinekitHALPath(path)()
 
-    def run_runtests(self: object, test_path) -> None:
+    def disable_zeroconf(self: object) -> None:
         rip_ini_file = "{0}/etc/machinekit/machinekit.ini".format(
             self.normalized_path)
         new_ini_items = "ANNOUNCE_IPV4=0\nANNOUNCE_IPV6=0\n"
         with open(rip_ini_file, "a") as writer:
             writer.write(new_ini_items)
+
+    @property
+    def rip_environment_path(self):
+        return "{0}/scripts/rip-environment".format(
+            self.normalized_path)
+
+
+    def run_runtests(self: object, test_path) -> None:
         if test_path is None:
             test_path = "{0}/tests".format(self.normalized_path)
-        rip_environment_path = "{0}/scripts/rip-environment".format(
-            self.normalized_path)
         bash_command_string = ". {0}; runtests {1}".format(
-            rip_environment_path, test_path)
+            self.rip_environment_path, test_path)
         sh.bash("-c", bash_command_string,
                 _cwd=self.normalized_path, _out=sys.stdout.buffer, _err=sys.stderr.buffer)
+
+    def run_python_tests(self: object) -> None:
+        bash_command_string = ". {0}; ./nosetests/runpytest.sh".format(
+            self.rip_environment_path)
+        sh.bash("-c", bash_command_string,
+                _cwd=self.normalized_path,
+                _out=sys.stdout.buffer,
+                _err=sys.stderr.buffer)
 
     def build_rip(self: object) -> None:
         src_directory = "{0}/src".format(self.normalized_path)
@@ -119,8 +133,14 @@ def main(args):
             raise ValueError(
                 "The user has to be able to use 'sudo'.")
 
-        ripruntests_script.build_rip()
-        ripruntests_script.run_runtests(args.test_path)
+        if not args.no_build:
+            ripruntests_script.build_rip()
+        if not (args.no_runtests or args.no_python_tests):
+            ripruntests_script.disable_zeroconf()
+        if not args.no_runtests:
+            ripruntests_script.run_runtests(args.test_path)
+        if not args.no_python_tests:
+            ripruntests_script.run_python_tests()
         print("Machinekit-HAL regression tests ran successfully!")
     except ValueError as e:
         print(e)
@@ -153,6 +173,18 @@ if __name__ == "__main__":
                         action="store",
                         metavar="PASSWORD",
                         help="Password for usage with sudo command.")
+
+    parser.add_argument("--no-build",
+                        action="store_true",
+                        help="Do not build")
+
+    parser.add_argument("--no-runtests",
+                        action="store_true",
+                        help="Do not run 'runtests'")
+
+    parser.add_argument("--no-python-tests",
+                        action="store_true",
+                        help="Do not run python tests")
 
     args = parser.parse_args()
 
