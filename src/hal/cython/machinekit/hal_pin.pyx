@@ -6,7 +6,7 @@ from hal_util cimport shmptr, py2hal,hal2py
 
 
 def describe_hal_type(haltype):
-    return hals_type(haltype)
+    return hals_type(haltype).decode()
 
 def describe_hal_dir(haldir):
     return hals_pindir(haldir)
