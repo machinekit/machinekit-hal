@@ -56,7 +56,7 @@ cdef class Ring:
         if size:
             if halg_ring_newf(1, size, scratchpad_size, self.flags, name.encode()) == NULL:
                 raise RuntimeError(f"hal_ring_new({name}) failed: {hal_lasterror()}")
-        if halg_ring_attachf(1, &self._rb, &self.aflags, name):
+        if halg_ring_attachf(1, &self._rb, &self.aflags, name.encode()):
                 raise NameError(f"hal_ring_attach({name}) failed: {hal_lasterror()}")
 
         with HALMutex():
