@@ -235,7 +235,7 @@ int rtapi_connect(int instance, char *uri, const char *svc_uuid)
 
     char ipcuri[100];
 
-    if (uri == NULL) {
+    if (uri == NULL || strlen(uri) == 0) {
 	snprintf(ipcuri, sizeof(ipcuri),ZMQIPC_FORMAT,
 		 RUNDIR, instance, "rtapi", svc_uuid);
 	uri = ipcuri;

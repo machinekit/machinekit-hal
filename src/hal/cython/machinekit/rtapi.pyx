@@ -166,13 +166,6 @@ class RTAPIcommand:
 
     def __init__(self, unicode uuid="", int instance=0, unicode uri=""):
         rtapi_required()
-        cdef char* c_uuid
-        cdef char* c_uri
-        if uri == "":
-            c_uri = NULL
-        else:
-            pyuri = uri.encode()
-            c_uri = pyuri
         if uuid == "" and uri == "":  # try to get the uuid from the ini
             mkconfig = config.Config()
             mkini = os.getenv("MACHINEKIT_INI")
@@ -187,8 +180,8 @@ class RTAPIcommand:
                 uuid = cfg.get("MACHINEKIT", "MKUUID")
             except configparser.NoSectionError or configparser.NoOptionError:
                 raise RuntimeError("need either a uuid=<uuid> or uri=<uri> parameter")
-        pyuuid = uuid.encode('UTF-8')
-        c_uuid = pyuuid
+        c_uri = uri.encode()
+        c_uuid = uuid.encode()
         r = rtapi_connect(instance, c_uri, c_uuid)
         if r:
             raise RuntimeError("cant connect to rtapi: %s" % strerror(-r))
