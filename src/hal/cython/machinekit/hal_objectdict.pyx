@@ -60,18 +60,9 @@ cdef class HALObjectDict:
 
     def __delitem__(self, name):
         hal_required()
-        # this calls the wrapper dtor
-        # but does not delete the underlying HAL object
-        # so use with a delete factory, see delsig()
-
-        # # for compatibility, in case of signals, also
-        # # delete the signal
-        # o = self._objects[name]
-        # if o.type == hal_const.HAL_SIGNAL:
-        #     r = hal_signal_delete(name)
-        #     if r:
-        #         raise RuntimeError("hal_signal_delete %s failed: %d %s" %
-        #                            (name, r, hal_lasterror()))
+        # this calls the wrapper dtor and deletes the underlying HAL
+        # object
+        self._objects[name].delete()
         del self._objects[name]
 
     def __call__(self):

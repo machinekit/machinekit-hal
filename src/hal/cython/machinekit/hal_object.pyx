@@ -72,6 +72,10 @@ cdef class HALObject:
         if hh_valid(self._o.hdr) == 0:
             raise RuntimeError("invalid object detected")
 
+    def delete(self):
+        # Subclasses may define this
+        pass
+
     property name:
         def __get__(self):
             self._object_check()

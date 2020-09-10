@@ -198,10 +198,6 @@ def newsig(name, type, init=None):
     _newsig(name, type, init)
     return signals[name] # add to sigdict
 
-def delsig(name):
-    signals[name].delete() # deletes HAL descriptor
-    del signals[name]      # deletes wrapper
-
 
 _wrapdict[hal_const.HAL_SIGNAL] = Signal
 signals = HALObjectDict(hal_const.HAL_SIGNAL)

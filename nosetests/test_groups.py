@@ -29,17 +29,17 @@ class TestGroup(object):
         self.s4 = hal.Signal("sigu32",   hal.HAL_U32)
 
         # by object
-        self.g2.add(self.s1, eps_index=2)
-        self.g2.add(self.s2)
+        self.g2.member_add(self.s1, eps_index=2)
+        self.g2.member_add(self.s2)
         # by name
-        self.g2.add("sigbit")
-        self.g2.add("sigu32")
+        self.g2.member_add("sigbit")
+        self.g2.member_add("sigu32")
 
         assert len(self.g2.members()) == 4
 
         try:
             # try to add a duplicate
-            self.g2.add("sigu32")
+            self.g2.member_add("sigu32")
             raise Exception("should not happen!")
         except RuntimeError:
             pass
@@ -67,7 +67,7 @@ class TestGroup(object):
 
         # one more group
         self.g3 = hal.Group("group3")
-        self.g3.add(hal.Signal("someu32",   hal.HAL_U32))
+        self.g3.member_add(hal.Signal("someu32",   hal.HAL_U32))
 
         # iterate members
         for m in self.g2.members():
