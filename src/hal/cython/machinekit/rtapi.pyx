@@ -195,13 +195,7 @@ class RTAPIcommand:
 
     def newthread(self, str name, int period, instance=0, fp=0, cpu=-1,
                   cgname="", flags=0):
-        cdef char *c_cgname
-        if cgname == "":
-            c_cgname = NULL
-        else:
-            cgname_bytes = cgname.encode()
-            c_cgname = cgname_bytes
-
+        c_cgname = cgname.encode()
         r = rtapi_newthread(instance, name.encode(), period, cpu, c_cgname, fp, flags)
         if r:
             raise RuntimeError(f"rtapi_newthread failed:  {strerror(-r)}")
