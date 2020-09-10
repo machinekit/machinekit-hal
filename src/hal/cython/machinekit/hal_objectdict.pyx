@@ -71,10 +71,12 @@ cdef class HALObjectDict:
 
     def __repr__(self):
         hal_required()
-        d = {}
-        for name in object_names(1, self._type):
-            d[name] = self[name]
+        d = {name : self[name] for name in object_names(1, self._type)}
         return str(d)
+
+    def __iter__(self):
+        for name in object_names(1, self._type):
+            yield name
 
 # example instantiation:
 # _wrapdict[hal_const.HAL_INST] = Instance

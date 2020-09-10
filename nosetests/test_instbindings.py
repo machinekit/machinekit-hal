@@ -18,21 +18,25 @@ class TestIinst():
 
         rt.loadrt("icomp");
         rt.newinst("icomp","foo")
-        assert len(instances) == 1
+        assert len(hal.instances) == 1
         rt.newinst("icomp","bar")
-        assert len(instances) == 2
+        assert len(hal.instances) == 2
         rt.delinst("foo")
-        assert len(instances) == 1
-        c = hal.Component("icomp")
-        for i in instances:
-            assert c.id == i.owner_id
-            assert c.name == i.owner().name
-        assert "foo" in instances
-        assert "bar" in instances
-        assert instances["foo"].size > 0
-        assert instances["bar"].size > 0
+        assert len(hal.instances) == 1
+        with pytest.raises(RuntimeError):
+            # HAL error: duplicate component name 'icomp'
+            c = hal.Component("icomp")
+        c = hal.components["icomp"]
+        for name in hal.instances:
+            inst = hal.instances[name]
+            assert c.id == inst.owner_id
+            assert c.name == inst.owner.name
+        assert "foo" in hal.instances
+        assert "bar" in hal.instances
+        assert hal.instances["foo"].size > 0
+        assert hal.instances["bar"].size > 0
         try:
-            x = instances["nonexistent"]
+            x = hal.instances["nonexistent"]
             raise "should not happen"
         except NameError:
             pass
