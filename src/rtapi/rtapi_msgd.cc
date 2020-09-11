@@ -51,6 +51,7 @@
 #include <poll.h>
 #include <assert.h>
 #include <mk-inifile.h>
+#include <sys/prctl.h>
 #include <sys/resource.h>
 
 using namespace std;
@@ -826,6 +827,13 @@ int main(int argc, char **argv)
 	memset(argv[i], '\0', strlen(argv[i]));
 
     backtrace_init(argv[0]);
+
+    // set this thread's name so it can be identified in ps/top as
+    // rtapi:<instance>
+    if (prctl(PR_SET_NAME, argv[0]) < 0) {
+	syslog_async(LOG_ERR,	"rtapi_msgd: prctl(PR_SETNAME,%s) failed: %s\n",
+	       argv[0], strerror(errno));
+    }
 
     openlog_async(argv[0], option , SYSLOG_FACILITY);
     setlogmask_async(LOG_UPTO(debug + 2));

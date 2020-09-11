@@ -1063,23 +1063,18 @@ static int mainloop(size_t  argc, char **argv)
 {
     int retval;
     unsigned i;
-    // Hack:  Pick constant length 10, enough space for "msgd:xxx", to
-    // silence compiler warnings
-#   define PROC_TITLE_LEN 10
-    static char proctitle[PROC_TITLE_LEN];
-
     // set new process name
-    snprintf(proctitle, PROC_TITLE_LEN, "rtapi:%d",rtapi_instance_loc);
-    strncpy(argv[0], proctitle, PROC_TITLE_LEN);
+    memset(argv[0], '\0', strlen(argv[0]));
+    snprintf(argv[0], 10, "rtapi:%d", rtapi_instance_loc);
 
     for (i = 1; i < argc; i++)
 	memset(argv[i], '\0', strlen(argv[i]));
 
-    backtrace_init(proctitle);
+    backtrace_init(argv[0]);
 
     // set this thread's name so it can be identified in ps/top as
     // rtapi:<instance>
-    if (prctl(PR_SET_NAME, proctitle) < 0) {
+    if (prctl(PR_SET_NAME, argv[0]) < 0) {
 	syslog_async(LOG_ERR,	"rtapi_app: prctl(PR_SETNAME,%s) failed: %s\n",
 	       argv[0], strerror(errno));
     }
