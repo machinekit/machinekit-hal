@@ -147,12 +147,12 @@ class Buildcontainerimage_script():
             docker_parameters.append(["--target", target])
 
         argument_list = docker_build_arguments + docker_labels + docker_parameters
+        print("Docker args: docker build", " ".join(argument_list))
 
         docker_build = sh.docker.bake("build")
         docker_build(*argument_list,
                      self.normalized_path,
-                     _out=sys.stdout.buffer,
-                     _err=sys.stderr.buffer,
+                     _fg=True,
                      _cwd=self.normalized_path)
 
 

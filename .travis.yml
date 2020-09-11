@@ -170,7 +170,7 @@ before_install:
   # Show environment for debugging purposes
   - env
   # Dependency needed for Docker image build
-  - sudo apt-get -y install python3-sh
+  - sudo apt-get -y install python3-pip && sudo -H pip3 install sh
   # Build the Docker build image
   - scripts/buildcontainerimage.py $DISTRIBUTION $VERSION $ARCHITECTURE
   # Clear ccache stats
