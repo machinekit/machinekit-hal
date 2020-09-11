@@ -38,7 +38,3 @@ class Tests(object):
         hal.stop_threads()
         rt.delthread("servo-thread")
         rt.unloadrt("or2")
-
-
-(lambda s=__import__('signal'):
-     s.signal(s.SIGTERM, s.SIG_IGN))()

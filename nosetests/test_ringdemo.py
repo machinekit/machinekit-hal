@@ -37,6 +37,3 @@ class Tests(object):
         hal.start_threads()
         cpe.set(1)    # enable charge_pump
         time.sleep(3) # let rt thread write a bit to ring
-
-(lambda s=__import__('signal'):
-     s.signal(s.SIGTERM, s.SIG_IGN))()

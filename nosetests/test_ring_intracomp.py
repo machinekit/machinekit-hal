@@ -28,6 +28,3 @@ class TestCompat(object):
         assert nr == count
         record = r1.read()
         assert record is None # ring must be empty
-
-(lambda s=__import__('signal'):
-     s.signal(s.SIGTERM, s.SIG_IGN))()

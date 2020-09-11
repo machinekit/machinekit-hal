@@ -62,6 +62,3 @@ class TestIcomp():
         assert repeat_value.get() == 314
         prefix_len = hal.Pin("explicit.prefix_len")
         assert prefix_len.get() == 9
-
-(lambda s=__import__('signal'):
-     s.signal(s.SIGTERM, s.SIG_IGN))()

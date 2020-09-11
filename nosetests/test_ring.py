@@ -57,6 +57,3 @@ class Tests(object):
             nr += 1
             r1.shift()
         assert nr > 0
-
-(lambda s=__import__('signal'):
-     s.signal(s.SIGTERM, s.SIG_IGN))()

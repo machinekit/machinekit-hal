@@ -61,6 +61,3 @@ class TestOr2():
         in0.set(True)
         time.sleep(0.1)
         assert out.get() == True
-
-(lambda s=__import__('signal'):
-     s.signal(s.SIGTERM, s.SIG_IGN))()

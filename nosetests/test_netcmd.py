@@ -189,6 +189,3 @@ class Tests(object):
 
         except RuntimeError:
             pass
-
-(lambda s=__import__('signal'):
-     s.signal(s.SIGTERM, s.SIG_IGN))()

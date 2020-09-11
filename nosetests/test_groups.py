@@ -78,6 +78,3 @@ class TestGroup(object):
             # m.item is the object the member is referring to -
             # Signal or Group instance
             print(m,m.item,m.epsilon,m.handle,m.userarg1,m.type)
-
-(lambda s=__import__('signal'):
-     s.signal(s.SIGTERM, s.SIG_IGN))()

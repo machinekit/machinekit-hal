@@ -23,7 +23,3 @@ class Tests(object):
 
         m = sr.read()
         assert len(m) == size -1
-
-
-(lambda s=__import__('signal'):
-     s.signal(s.SIGTERM, s.SIG_IGN))()

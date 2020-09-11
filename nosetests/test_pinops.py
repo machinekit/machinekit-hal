@@ -62,7 +62,3 @@ class TestPinOps():
         assert fnear(self.floatio.set(2.71828) ,2.71828)
 
         self.c1.exit()
-
-
-(lambda s=__import__('signal'):
-     s.signal(s.SIGTERM, s.SIG_IGN))()

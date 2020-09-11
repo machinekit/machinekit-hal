@@ -174,6 +174,3 @@ class TestClass(object):
 
         # since no changes since last report, must be 0:
         assert c.changed() == 0
-
-(lambda s=__import__('signal'):
-     s.signal(s.SIGTERM, s.SIG_IGN))()

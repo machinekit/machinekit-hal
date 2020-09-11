@@ -36,6 +36,3 @@ class TestIinst():
             raise "should not happen"
         except NameError:
             pass
-
-(lambda s=__import__('signal'):
-     s.signal(s.SIGTERM, s.SIG_IGN))()

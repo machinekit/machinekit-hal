@@ -14,6 +14,12 @@ def setup():
 def teardown():
     e=os.environ.copy()
     e["DEBUG"] = DEBUG
+
+    # When `rtapi_app` exits, it may try to kill the python process;
+    # ignore it
+    (lambda s=__import__('signal'):
+         s.signal(s.SIGTERM, s.SIG_IGN))()
+
     subprocess.call("realtime stop", shell=True,stderr=subprocess.STDOUT,env=e)
 
 @contextlib.contextmanager
