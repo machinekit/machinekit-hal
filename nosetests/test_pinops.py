@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
 
-from nose import with_setup
-from machinekit.nosetests.realtime import setup_module,teardown_module
-from machinekit.nosetests.support import fnear
-from unittest import TestCase
-
+import pytest
 from machinekit import hal
 
-class TestPinOps(TestCase):
+@pytest.mark.usefixtures("realtime")
+class TestPinOps():
+    @pytest.fixture
     def setUp(self):
-
         c1 = hal.Component("c1")
 
         self.s32out   = c1.newpin("s32out", hal.HAL_S32, hal.HAL_OUT,init=42)
@@ -30,7 +27,7 @@ class TestPinOps(TestCase):
         c1.ready()
         self.c1 = c1
 
-    def test_getters_and_setters(self):
+    def test_getters_and_setters(self, setUp, fnear):
 
         assert self.s32out.get() == 42
         assert self.s32in.get() == 42
@@ -64,8 +61,4 @@ class TestPinOps(TestCase):
         assert fnear(self.floatin.set(2.71828) ,2.71828)
         assert fnear(self.floatio.set(2.71828) ,2.71828)
 
-    def tearDown(self):
         self.c1.exit()
-
-(lambda s=__import__('signal'):
-     s.signal(s.SIGTERM, s.SIG_IGN))()

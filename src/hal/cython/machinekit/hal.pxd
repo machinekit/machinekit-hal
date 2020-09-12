@@ -13,7 +13,7 @@ cdef extern from "hal.h":
     int hal_exit(int comp_id)
     int hal_ready(int comp_id)
     const char * hal_comp_name(int comp_id)
-    const char * hal_lasterror()
+    const char * c_hal_lasterror "hal_lasterror" ()
     hal_print_msg(int level, const char *msg)
 
     void *hal_malloc(long size)
@@ -58,4 +58,6 @@ cdef extern from "hal.h":
 
     int hal_del_funct_from_thread(const char *funct_name, const char *thread_name)
 
-    char *hal_lasterror()
+cdef inline hal_lasterror():
+    errstr = c_hal_lasterror().decode()
+    return errstr

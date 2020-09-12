@@ -82,7 +82,7 @@ void  *rtapi_malloc_aligned(struct rtapi_heap *h, size_t nbytes, size_t align)
 	return NULL;
     }
     void *base = _rtapig_malloc(0, h, nbytes + align);
-    void *result = (void *)((rtapi_uintptr_t)(base + align) & - align);
+    void *result = (void *)((size_t)(base + align) & - align);
     size_t slack = result - base;
     if (slack < sizeof(rtapi_malloc_tag_t)) {
 	heap_print(h, RTAPI_MSG_ERR, "%s: ASSUMPTION VIOLATED slack=%zu\n",

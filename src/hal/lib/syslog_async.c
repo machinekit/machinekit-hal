@@ -392,26 +392,26 @@ void vsyslog_async(int priority, const char *format, va_list ap)
      but can be tuned for less if needed. Note that for a responsive
      syslog, the log-line we just created will have been writen by the
      call the log_write_async() above, so that this doesn't delay at all. */
-  if (entries && log_delay != 0)
-    {
-      struct timespec waiter;
-      int d;
+  /* if (entries && log_delay != 0) */
+  /*   { */
+  /*     struct timespec waiter; */
+  /*     int d; */
 
-      for (d = 1,entry = entries; entry->next; entry = entry->next)
-        {
-          d *= 2;
-          if (d >= log_delay) /* limit to 999ms */
-            {
-              d = log_delay - 1;
-              break;
-            }
-        }
+  /*     for (d = 1,entry = entries; entry->next; entry = entry->next) */
+  /*       { */
+  /*         d *= 2; */
+  /*         if (d >= log_delay) /\* limit to 999ms *\/ */
+  /*           { */
+  /*             d = log_delay - 1; */
+  /*             break; */
+  /*           } */
+  /*       } */
 
-      waiter.tv_sec = 0;
-      waiter.tv_nsec = d * 1000000; /* 1 ms */
-      nanosleep(&waiter, NULL);
+  /*     waiter.tv_sec = 0; */
+  /*     waiter.tv_nsec = d * 1000000; /\* 1 ms *\/ */
+  /*     nanosleep(&waiter, NULL); */
 
-      /* try and write again */
-      log_write_async();
-    }
+  /*     /\* try and write again *\/ */
+  /*     log_write_async(); */
+  /*   } */
 }

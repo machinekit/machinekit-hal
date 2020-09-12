@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
 
-from nose import with_setup
-from machinekit.nosetests.realtime import setup_module,teardown_module
-from machinekit.nosetests.support import fnear
-from unittest import TestCase
-
+import pytest
 from machinekit import hal
 
-class TestGroup(TestCase):
+@pytest.mark.usefixtures("realtime")
+class TestGroup(object):
+    @pytest.fixture
     def setUp(self):
         self.g1 = hal.Group("group1",arg1=123,arg2=4711)
         hal.epsilon[2] = 0.1
 
-    def test_group__ops(self):
+    def test_group__ops(self, setUp):
         assert self.g1.userarg1 == 123
         assert self.g1.userarg2 == 4711
 
@@ -31,17 +29,17 @@ class TestGroup(TestCase):
         self.s4 = hal.Signal("sigu32",   hal.HAL_U32)
 
         # by object
-        self.g2.add(self.s1, eps_index=2)
-        self.g2.add(self.s2)
+        self.g2.member_add(self.s1, eps_index=2)
+        self.g2.member_add(self.s2)
         # by name
-        self.g2.add("sigbit")
-        self.g2.add("sigu32")
+        self.g2.member_add("sigbit")
+        self.g2.member_add("sigu32")
 
-        assert len(self.g2.signal_members()) == 4
+        assert len(self.g2.members()) == 4
 
         try:
             # try to add a duplicate
-            self.g2.add("sigu32")
+            self.g2.member_add("sigu32")
             raise Exception("should not happen!")
         except RuntimeError:
             pass
@@ -69,17 +67,10 @@ class TestGroup(TestCase):
 
         # one more group
         self.g3 = hal.Group("group3")
-        self.g3.add(hal.Signal("someu32",   hal.HAL_U32))
-
-        # add as nested group
-        self.g2.add(self.g3)
+        self.g3.member_add(hal.Signal("someu32",   hal.HAL_U32))
 
         # iterate members
         for m in self.g2.members():
             # m is a Member() object
-            # m.item is the object the member is referring to -
-            # Signal or Group instance
-            print(m,m.item,m.epsilon,m.handle,m.userarg1,m.type)
-
-(lambda s=__import__('signal'):
-     s.signal(s.SIGTERM, s.SIG_IGN))()
+            # m.sig is the signal the member is referring to
+            print(m,m.sig,m.epsilon,m.handle,m.userarg1,m.object_type)

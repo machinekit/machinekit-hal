@@ -109,7 +109,7 @@ def test_regression_paths_with_dot_cause_problems(tmpdir):
     importances['.:config1'] = 2
     importances.save()
     importances.load()
-    importances['./foo/bar/:config1'] == 3
+    importances['./foo/bar/:config1'] = 3
     importances.save()
 
     assert os.path.exists(str(save_file))

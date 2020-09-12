@@ -690,12 +690,20 @@ AC_ARG_ENABLE(dev,
 # CK, protobuf, zmq, websockets, json, uriparse, avahi-client packages       #
 ##############################################################################
 
-PKG_CHECK_MODULES(
-    [CK],
-    [ck >= 0.4.6],
-    [AC_DEFINE(HAVE_CK, [], [Use concurrencykit])],
-    [true],  dnl libck is optional
-    )
+# FIXME concurrencykit breaks aarch64 tests on Focal, Bionic and
+# Buster (but not Stretch!)
+# https://github.com/machinekit/machinekit-hal/issues/317
+AS_IF(
+    [test $host_cpu != aarch64],
+    [
+	PKG_CHECK_MODULES(
+	    [CK],
+	    [ck >= 0.4.6],
+	    [AC_DEFINE(HAVE_CK, [], [Use concurrencykit])],
+	    [true],  dnl libck is optional
+	)
+    ]
+)
 
 PKG_CHECK_MODULES([ZMQ], [libzmq],
     [

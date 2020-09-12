@@ -6,11 +6,11 @@ cdef class HALObjectDict:
     cdef int  _type
     cdef dict _objects
 
-    def __cinit__(self, int type):
+    def __cinit__(self, int type_):
         #hal_required()
-        if not type in _wrapdict:
-            raise RuntimeError("unsupported type %d" % type)
-        self._type = type
+        if not type_ in _wrapdict:
+            raise RuntimeError(f"unsupported type {type_}")
+        self._type = type_
         self._objects = dict()
 
     # supposed to be 'private' - must be called
@@ -30,9 +30,9 @@ cdef class HALObjectDict:
             return self._objects[name]
 
         cdef hal_object_ptr ptr
-        ptr = halg_find_object_by_name(0, self._type, name)
+        ptr = halg_find_object_by_name(0, self._type, name.encode())
         if ptr.any == NULL:
-            raise NameError, "no such %s: %s" % (hal_object_typestr(self._type), name)
+            raise NameError(f"no such {hal_object_typestr(self._type)} '{name}'")
         method = _wrapdict[self._type]
         w = method(name, lock=False, wrap=True)
         # add new wrapper
@@ -58,20 +58,11 @@ cdef class HALObjectDict:
         hal_required()
         return object_count(1, self._type)
 
-    def __delitem__(self, char *name):
+    def __delitem__(self, name):
         hal_required()
-        # this calls the wrapper dtor
-        # but does not delete the underlying HAL object
-        # so use with a delete factory, see delsig()
-
-        # # for compatibility, in case of signals, also
-        # # delete the signal
-        # o = self._objects[name]
-        # if o.type == hal_const.HAL_SIGNAL:
-        #     r = hal_signal_delete(name)
-        #     if r:
-        #         raise RuntimeError("hal_signal_delete %s failed: %d %s" %
-        #                            (name, r, hal_lasterror()))
+        # this calls the wrapper dtor and deletes the underlying HAL
+        # object
+        self._objects[name].delete()
         del self._objects[name]
 
     def __call__(self):
@@ -80,10 +71,12 @@ cdef class HALObjectDict:
 
     def __repr__(self):
         hal_required()
-        d = {}
-        for name in object_names(1, self._type):
-            d[name] = self[name]
+        d = {name : self[name] for name in object_names(1, self._type)}
         return str(d)
+
+    def __iter__(self):
+        for name in object_names(1, self._type):
+            yield name
 
 # example instantiation:
 # _wrapdict[hal_const.HAL_INST] = Instance

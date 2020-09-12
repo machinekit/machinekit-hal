@@ -160,4 +160,3 @@ class ServiceDiscovery(gobject.GObject):
     def stop_service_discovery(self, component, verb, applet):
         if len(self.domain) == 0:
             return
-        pass

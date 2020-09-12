@@ -1,17 +1,15 @@
 #!/usr/bin/env python3
 
-from nose import with_setup
-from machinekit.nosetests.realtime import setup_module ,teardown_module
-from machinekit.nosetests.support import fnear
-from unittest import TestCase
-import time,os,ConfigParser
-
+import pytest
+import time, os
+from configparser import ConfigParser
 from machinekit import rtapi,hal
 
-class TestOr2(TestCase):
+@pytest.mark.usefixtures("realtime")
+class TestOr2():
+    @pytest.fixture
     def setUp(self):
-
-        self.cfg = ConfigParser.ConfigParser()
+        self.cfg = ConfigParser()
         self.cfg.read(os.getenv("MACHINEKIT_INI"))
         self.uuid = self.cfg.get("MACHINEKIT", "MKUUID")
         self.rt = rtapi.RTAPIcommand(uuid=self.uuid)
@@ -20,7 +18,7 @@ class TestOr2(TestCase):
         hal.addf("or2.0","servo-thread")
         hal.start_threads()
 
-    def test_pin_properties(self):
+    def test_pin_properties(self, setUp):
         in0 = hal.Pin("or2.0.in0")
         assert in0.type == hal.HAL_BIT
         assert in0.dir  == hal.HAL_IN
@@ -63,8 +61,3 @@ class TestOr2(TestCase):
         in0.set(True)
         time.sleep(0.1)
         assert out.get() == True
-
-
-
-(lambda s=__import__('signal'):
-     s.signal(s.SIGTERM, s.SIG_IGN))()

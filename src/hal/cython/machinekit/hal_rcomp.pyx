@@ -13,9 +13,8 @@ class RemoteComponent(Component):
         compargs = 0
         if acceptdefaults:
             compargs |= RCOMP_ACCEPT_VALUES_ON_BIND
-        inst = Component.__new__(cls, name, mode=TYPE_REMOTE, noexit=noexit,
-                                 userarg1=timer, userarg2=compargs, **kwargs)
-        return inst
+        return Component.__new__(cls, name, mode=TYPE_REMOTE, noexit=noexit,
+                                     userarg1=timer, userarg2=compargs, **kwargs)
 
     def __init__(self, name, timer=100, acceptdefaults=False, noexit=True):
         pass

@@ -20,7 +20,7 @@ struct inst_data {
     hal_s32_t    iter; // a param
 
     // instance-level pins
-    // for nosetests/unittest_icomp.py to verify the instance
+    // for nosetests/test_icomp.py to verify the instance
     // parameter passing API works
     // echos the values of the int instance parameter,
     // and the length of the instance string parameter
@@ -42,7 +42,7 @@ static char *prefix = "bar";
 RTAPI_IP_STRING(prefix, "an instance string parameter");
 
 // module-level pins
-// for nosetests/unittest_icomp.py to verify the comp
+// for nosetests/test_icomp.py to verify the comp
 // parameter passing API works
 // echos the values of the int module parameter,
 // and the length of the module string parameter
@@ -129,6 +129,7 @@ static int instantiate(const int argc, char* const *argv)
 	{ 0, 0, 0, 0 }
     };
     int c;
+    optind = 2;  // Set to first arg after name
     while ((c = getopt_long(argc, argv, ":f:", longopts, NULL)) != -1) {
         // char * const argv[]
 	switch (c) {
@@ -208,8 +209,8 @@ int rtapi_app_main(void)
     if (export_halobjs(ip, comp_id, "foo"))
 	return -1;
 #endif
-    // unittest only, see nosetests/unittest_instbindings.py and
-    //    nosetests/unittest_icomp.py
+    // unittest only, see nosetests/test_instbindings.py and
+    //    nosetests/test_icomp.py
     // purpose: echo module params into observer pins
     // (cant set pins to strings, so just echo the string length)
     if ((cd = export_observer_pins(comp_id, compname)) == NULL)

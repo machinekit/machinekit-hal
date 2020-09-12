@@ -39,7 +39,7 @@ cdef class Ring:
     cdef hal_ring_t *_hr
     cdef uint32_t flags,aflags
 
-    def __cinit__(self, char *name,
+    def __cinit__(self, str name,
                   int size = 0,
                   int scratchpad_size = 0,
                   int type = RINGTYPE_RECORD,
@@ -47,25 +47,22 @@ cdef class Ring:
                   bool use_wmutex = False,
                   bool in_halmem = False):
         self._hr = NULL
-        self.flags = (type & RINGTYPE_MASK);
+        self.flags = (type & RINGTYPE_MASK)
         if use_rmutex: self.flags |= USE_RMUTEX;
         if use_wmutex: self.flags |= USE_RMUTEX;
         if in_halmem:  self.flags |= ALLOC_HALMEM;
 
         hal_required()
         if size:
-            if halg_ring_newf(1, size, scratchpad_size, self.flags, name) == NULL:
-                raise RuntimeError("hal_ring_new(%s) failed: %s" %
-                                   (name, hal_lasterror()))
-        if halg_ring_attachf(1, &self._rb, &self.aflags, name):
-                raise NameError("hal_ring_attach(%s) failed: %s" %
-                                   (name, hal_lasterror()))
+            if halg_ring_newf(1, size, scratchpad_size, self.flags, name.encode()) == NULL:
+                raise RuntimeError(f"hal_ring_new({name}) failed: {hal_lasterror()}")
+        if halg_ring_attachf(1, &self._rb, &self.aflags, name.encode()):
+                raise NameError(f"hal_ring_attach({name}) failed: {hal_lasterror()}")
 
         with HALMutex():
-            self._hr = halpr_find_ring_by_name(name)
+            self._hr = halpr_find_ring_by_name(name.encode())
             if self._hr == NULL:
-                raise RuntimeError("halpr_find_ring_by_name(%s) failed: %s" %
-                                   (name, hal_lasterror()))
+                raise RuntimeError(f"halpr_find_ring_by_name({name}) failed: {hal_lasterror()}")
 
 
     def __dealloc__(self):
@@ -73,17 +70,17 @@ cdef class Ring:
             name = self.name
             r = halg_ring_detach(1, &self._rb)
             if r:
-                raise RuntimeError("hal_ring_detach(%s) failed: %d %s" %
-                                       (name, r, hal_lasterror()))
+                raise RuntimeError(f"hal_ring_detach({name}) failed: {r} {hal_lasterror()}")
 
     def write(self, s):
+        if isinstance(s, str):
+            s = s.encode()
         cdef void *ptr
         cdef size_t size = PyBytes_Size(s)
         cdef int r = record_write_begin(&self._rb, &ptr, size)
         if r:
             if r != EAGAIN:
-                raise IOError("Ring %s write failed: %d - %s" %
-                              (self.name, r, strerror(r)))
+                raise IOError(f"Ring {self.name} write failed: {r} - {strerror(r)}")
             return False
         memcpy(ptr, PyBytes_AsString(s), size)
         record_write_end(&self._rb, ptr, size)
@@ -96,8 +93,7 @@ cdef class Ring:
         cdef int r = record_read(&self._rb, &ptr, &size)
         if r:
             if r != EAGAIN:
-                raise IOError("Ring %s read failed: %d - %s" %
-                              (self.name, r, strerror(r)))
+                raise IOError(f"Ring {self.name} read failed: {r} - {strerror(r)}")
             return None
         return memoryview(mview(<long>ptr, size))
 
@@ -126,16 +122,16 @@ cdef class Ring:
         def __get__(self): return self._rb.header.type
 
     property in_halmem:
-        def __get__(self): return (self._hr.flags & ALLOC_HALMEM != 0)
+        def __get__(self): return self._hr.flags & ALLOC_HALMEM != 0
 
     property rmutex_mode:
-        def __get__(self): return (ring_use_rmutex(&self._rb) != 0)
+        def __get__(self): return ring_use_rmutex(&self._rb) != 0
 
     property wmutex_mode:
-        def __get__(self): return (ring_use_wmutex(&self._rb) != 0)
+        def __get__(self): return ring_use_wmutex(&self._rb) != 0
 
     property name:
-        def __get__(self): return hh_get_name(&self._hr.hdr)
+        def __get__(self): return bytes(hh_get_name(&self._hr.hdr)).decode()
 
     property scratchpad_size:
         def __get__(self): return ring_scratchpad_size(&self._rb)
@@ -205,42 +201,42 @@ cdef class StreamRing:
         self._rb = &(<Ring>ring)._rb
         self._hr = (<Ring>ring)._hr
         if self._rb.header.type != RINGTYPE_STREAM:
-            raise RuntimeError("ring '%s' not a stream ring: type=%d" %
-                               (self.name,self._rb.header.type))
+            raise RuntimeError(f"ring '{self.name}' not a stream ring: type={self._rb.header.type}")
 
     def spaceleft(self):
-        '''return number of bytes available to write.'''
+        """return number of bytes available to write."""
 
         return stream_write_space(self._rb.header)
 
     def flush(self):
-        '''clear the buffer contents. Note this is not thread-safe
-        unless all readers and writers use a r/w mutex.'''
+        """clear the buffer contents. Note this is not thread-safe
+        unless all readers and writers use a r/w mutex."""
 
         return stream_flush(self._rb)
 
     def consume(self, int nbytes):
-        '''remove argument number of bytes from stream.
+        """remove argument number of bytes from stream.
         May raise IOError if more than the number of
-        available bytes are consumed'''
+        available bytes are consumed"""
 
         cdef size_t avail
-        avail = stream_read_space(self._rb.header);
+        avail = stream_read_space(self._rb.header)
         if (nbytes > <int>avail):
-            raise IOError("consume(%d): argument larger than bytes available (%zu)" %
-                          (nbytes, avail))
-        stream_read_advance(self._rb, nbytes);
+            raise IOError(f"consume({nbytes}): argument larger than bytes available ({avail})")
+        stream_read_advance(self._rb, nbytes)
 
     def next(self):
-        '''returns the number of bytes readable or 0 if no data is available.'''
+        """returns the number of bytes readable or 0 if no data is available."""
         return stream_read_space(self._rb.header)
 
     def write(self, s):
-        '''write to ring. Returns 0 on success.
+        """write to ring. Returns 0 on success.
         nozero return value indicates the number
-	of bytes actually written. '''
+	    of bytes actually written. """
 
-        return stream_write(self._rb,  PyBytes_AsString(s), PyBytes_Size(s))
+        if isinstance(s, str):
+            s = s.encode()
+        return stream_write(self._rb, s, PyBytes_Size(s))
 
     def read(self):
         ''' return all bytes readable as a string, or None'''
@@ -298,6 +294,6 @@ cdef class MultiframeRing:
         return record_next_size(self._rb.ring) > -1
 
 def rings():
-    ''' return list of ring names'''
+    """ return list of ring names"""
     hal_required()
     return object_names(1, hal_const.HAL_RING)

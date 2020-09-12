@@ -10,23 +10,23 @@
 #    repeat - int, default 1
 #    prefix - string, default "bar"
 
-from nose import with_setup
-from machinekit.nosetests.realtime import setup_module ,teardown_module
-from machinekit.nosetests.support import fnear
-from unittest import TestCase
-import time,os,ConfigParser
+import pytest
+import os
+from configparser import ConfigParser
 
 from machinekit import rtapi,hal
 
-class TestIcomp(TestCase):
+@pytest.mark.usefixtures("realtime")
+class TestIcomp():
+    @pytest.fixture
     def setUp(self):
         global rt
-        self.cfg = ConfigParser.ConfigParser()
+        self.cfg = ConfigParser()
         self.cfg.read(os.getenv("MACHINEKIT_INI"))
         self.uuid = self.cfg.get("MACHINEKIT", "MKUUID")
         rt = rtapi.RTAPIcommand(uuid=self.uuid)
 
-    def test_params(self):
+    def test_params(self, setUp):
         global rt
 
         # verify module params, compiled-in defaults
@@ -62,7 +62,3 @@ class TestIcomp(TestCase):
         assert repeat_value.get() == 314
         prefix_len = hal.Pin("explicit.prefix_len")
         assert prefix_len.get() == 9
-
-
-(lambda s=__import__('signal'):
-     s.signal(s.SIGTERM, s.SIG_IGN))()

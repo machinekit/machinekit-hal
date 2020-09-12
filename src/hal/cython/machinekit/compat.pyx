@@ -5,7 +5,8 @@ from os import strerror
 
 def get_rtapi_config(param):
     cdef char result[1024]
-    rc = c_get_rtapi_config(result, param, 1024)
+    param_b = param.encode()
+    rc = c_get_rtapi_config(result, param_b, 1024)
     if rc:
-        raise RuntimeError("get_rtapiconfig(%s) failed: %d %s " % (param, rc, strerror(-rc)))
-    return str(<char *>result)
+        raise RuntimeError(f"get_rtapiconfig({param}) failed: {rc} {strerror(-rc)}")
+    return result.decode()

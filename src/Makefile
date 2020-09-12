@@ -692,7 +692,6 @@ ifeq ($(BUILD_PYTHON),yes)
 install-kernel-indep: install-python
 install-python: install-dirs
 	$(DIR) $(DESTDIR)$(SITEPY)/machinekit
-	$(DIR) $(DESTDIR)$(SITEPY)/machinekit/nosetests
 	$(DIR) $(DESTDIR)$(SITEPY)/machinetalk
 	$(DIR) $(DESTDIR)$(SITEPY)/machinetalk/protobuf
 	$(DIR) $(DESTDIR)$(SITEPY)/fdm
@@ -706,7 +705,6 @@ install-python: install-dirs
 	$(EXE) ../bin/hal_temp_atlas $(DESTDIR)$(bindir)
 	$(FILE) ../lib/python/*.py ../lib/python/*.so $(DESTDIR)$(SITEPY)
 	$(FILE) ../lib/python/machinekit/*.py $(DESTDIR)$(SITEPY)/machinekit/
-	$(FILE) ../lib/python/machinekit/nosetests/*.py $(DESTDIR)$(SITEPY)/machinekit/nosetests
 	$(FILE) ../lib/python/machinekit/*.so $(DESTDIR)$(SITEPY)/machinekit/
 	$(FILE) ../lib/python/machinetalk/*.py $(DESTDIR)$(SITEPY)/machinetalk/
 	$(FILE) ../lib/python/machinetalk/protobuf/*.py $(DESTDIR)$(SITEPY)/machinetalk/protobuf/
@@ -989,10 +987,6 @@ cscope:
 
 cscope/man/:
 	bash -c 'for f in `find ./ -name "cscope.*out"`;do rm $$f;done'
-
-NOSETESTS := $(wildcard ../nosetests/*.py)
-nosetest:
-	$(foreach var,$(NOSETESTS),nosetests -v $(var);)
 
 ###############################################################################
 # C unit tests

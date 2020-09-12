@@ -18,7 +18,7 @@
 #define RTAPI_BITOPS_H
 
 #define RTAPI_ALIGN(x,boundary)  (x + (-x & ((boundary) - 1)))
-#define RTAPI_ALIGNED(x,boundary)  ((rtapi_uintptr_t)x & ((boundary) - 1))
+#define RTAPI_ALIGNED(x,boundary)  (x & ((boundary) - 1))
 #define RTAPI_CACHE_ALIGN(x)  RTAPI_ALIGN(x, RTAPI_CACHELINE)
 
 // determine which flavor of atomic ops to use:

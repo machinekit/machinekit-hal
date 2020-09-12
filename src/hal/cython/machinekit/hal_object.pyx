@@ -8,7 +8,7 @@ from hal_objectops cimport (
 # generic finders: find names, count of a given type of object
 cdef int _append_name_cb(hal_object_ptr o,  foreach_args_t *args):
     arg =  <object>args.user_ptr1
-    arg.append(hh_get_name(o.hdr))
+    arg.append(bytes(hh_get_name(o.hdr)).decode())
     return 0
 
 cdef list object_names(int lock, int type):
@@ -72,10 +72,14 @@ cdef class HALObject:
         if hh_valid(self._o.hdr) == 0:
             raise RuntimeError("invalid object detected")
 
+    def delete(self):
+        # Subclasses may define this
+        pass
+
     property name:
         def __get__(self):
             self._object_check()
-            return hh_get_name(self._o.hdr)
+            return bytes(hh_get_name(self._o.hdr)).decode()
 
     property id:
         def __get__(self):

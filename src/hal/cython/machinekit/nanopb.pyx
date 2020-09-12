@@ -28,7 +28,7 @@ def pb2nanopb_cstruct(pbuf, unsigned msgid):
 
     _mi = pbmsgdesc_by_id(msgid)
     if _mi == NULL:
-        raise NameError("no such msgid: %d" % (msgid))
+        raise NameError(f"no such msgid: {msgid}")
 
     if _mi.encoded_size < 0:
         raise RuntimeError("cannot decode variable-sized messages to a cstruct")
@@ -40,14 +40,13 @@ def pb2nanopb_cstruct(pbuf, unsigned msgid):
         free(buffer)
         return r
 
-    raise RuntimeError("pb_decode(%s) failed: %s, left=%u" % (
-                       _mi.name, PB_GET_ERROR(&_istream), _istream.bytes_left))
+    raise RuntimeError(f"pb_decode({_mi.name}) failed: {PB_GET_ERROR(&_istream)}, left={_istream.bytes_left}")
 
 # from-rt: takes a memoryview of the cstruct and a msgid, and returns a protobuf
 def nanopb_cstruct2pb(cstruct, unsigned msgid):
     cdef pbmsginfo_t *_mi = pbmsgdesc_by_id(msgid)
     if _mi == NULL:
-        raise NameError("no such msgid: %d" % (msgid))
+        raise NameError(f"no such msgid: {msgid}")
 
     if _mi.encoded_size < 0:
         raise RuntimeError("cannot encode variable-sized messages to a cstruct")
@@ -59,8 +58,7 @@ def nanopb_cstruct2pb(cstruct, unsigned msgid):
     cdef size_t csize = PyBytes_Size(cstruct)
 
     if not pb_encode(&sstream, _mi.fields, cs):
-        raise RuntimeError("sizing(%s) failed, written=%d" % (
-                _mi.name,  sstream.bytes_written))
+        raise RuntimeError(f"sizing({_mi.name}) failed, written={sstream.bytes_written}")
 
     cdef bsize = sstream.bytes_written
     cdef uint8_t* buffer = <uint8_t *>malloc(bsize)
@@ -68,8 +66,7 @@ def nanopb_cstruct2pb(cstruct, unsigned msgid):
     cdef pb_ostream_t rstream = pb_ostream_from_buffer(buffer, bsize)
 
     if not pb_encode(&rstream, _mi.fields, cs):
-        raise RuntimeError("decoding(%s) failed, left=%d" % (
-                _mi.name,  rstream.bytes_written))
+        raise RuntimeError(f"decoding({_mi.name}) failed, left={rstream.bytes_written}")
 
     r = memoryview(mview(<long>buffer, bsize))
     return r

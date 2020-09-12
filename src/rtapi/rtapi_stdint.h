@@ -27,8 +27,6 @@ typedef uint8_t rtapi_u8;
 typedef uint16_t rtapi_u16;
 typedef uint32_t rtapi_u32;
 typedef uint64_t rtapi_u64;
-// FIXME:  Cleaner than the version in rtapi.h
-//typedef uintptr_t rtapi_uintptr_t;
 
 #define RTAPI_INT8_MAX INT8_MAX
 #define RTAPI_INT8_MIN INT8_MIN

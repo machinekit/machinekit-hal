@@ -1,22 +1,16 @@
 #!/usr/bin/env python3
 
-from nose import with_setup
-from machinekit.nosetests.realtime import setup_module,teardown_module
-from unittest import TestCase
-import time,os
+import pytest
 
 from machinekit import compat
 
-class TestCompat(TestCase):
-    def setUp(self):
-        pass
+@pytest.mark.usefixtures('realtime')
+class TestCompat(object):
 
-    def test_compat(self):
-        # nonexistant kernel module
-        assert compat.is_module_loaded("foobarbaz") == False
-
-
-
+    def test_get_rtapi_config(self):
+        ld = compat.get_rtapi_config('LIBEXEC_DIR')
+        print(repr(ld))
+        assert ld.endswith("libexec")
 
 (lambda s=__import__('signal'):
      s.signal(s.SIGTERM, s.SIG_IGN))()

@@ -3,4 +3,4 @@ function' API which makes extra context available to a thread funct,
 see lutn.c:lut()
 
 
-icomp.c doubles as unit test - see nosetests/unittest_icomp.py
+icomp.c doubles as unit test - see nosetests/test_icomp.py
