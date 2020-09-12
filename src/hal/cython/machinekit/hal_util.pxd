@@ -1,8 +1,8 @@
 # some handy inlines
 
-from cpython.int   cimport PyInt_Check
-from cpython.float cimport PyFloat_Check
-from cpython.bool  cimport bool
+from cpython      cimport PyLong_Check
+from cpython      cimport PyFloat_Check
+from cpython      cimport bool
 
 from hal_priv     cimport hal_shmem_base, hal_data_u, hal_pin_t, hal_sig_t, hal_data
 from hal_priv     cimport pin_type, pin_value, pin_is_linked
@@ -41,7 +41,7 @@ cdef inline hal2py(int t, hal_data_u *dp):
 cdef inline py2hal(int t, hal_data_u *dp, object v):
     cdef bint isint,isfloat
 
-    isint = PyInt_Check(v)
+    isint = PyLong_Check(v)
     isfloat = PyFloat_Check(v)
 
     if not (isint or isfloat):

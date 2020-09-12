@@ -6,7 +6,7 @@ from hal cimport (
     )
 from hal_const cimport hal_type_t, hal_pin_dir_t, hal_param_dir_t
 from rtapi cimport rtapi_heap
-from cpython.bool  cimport bool
+from cpython  cimport bool
 
 cdef extern from "hal_object.h":
 

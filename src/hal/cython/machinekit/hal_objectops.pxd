@@ -5,7 +5,7 @@ from hal_priv cimport (
     )
 from hal_group cimport hal_group_t, hal_member_t
 from hal_ring cimport hal_ring_t
-from cpython.bool  cimport bool
+from cpython cimport bool
 from libc.stdint cimport uint8_t,uint32_t
 
 
