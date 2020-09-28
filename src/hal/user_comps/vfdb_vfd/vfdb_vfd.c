@@ -65,7 +65,7 @@
 #include "hal.h"
 #include <modbus/modbus.h>
 #include <modbus/modbus-tcp.h>
-#include "inifile.h"
+#include "mk-inifile.h"
 
 
 // command registers for DELTA VFD-B Inverter

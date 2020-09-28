@@ -58,6 +58,7 @@ install_prubin:
 #	#  Copy .bin and .dbg files to the rtlib/prubin directory
 	$(FILE) $(PRUBINDIR)/*.bin $(DESTDIR)$(HAL_RTLIB_BASE_DIR)/prubin
 	$(FILE) $(PRUBINDIR)/*.dbg $(DESTDIR)$(HAL_RTLIB_BASE_DIR)/prubin
+	$(FILE) $(PRUBINDIR)/*.elf $(DESTDIR)$(HAL_RTLIB_BASE_DIR)/prubin
 #	#  Copy .bin and .dbg symlinks to the rtlib/modules directory
 	$(DIR) $(DESTDIR)$(HAL_RTLIB_DIR)
 	cp -a $(RTLIBDIR)/*.bin $(RTLIBDIR)/*.dbg $(DESTDIR)$(HAL_RTLIB_DIR)
