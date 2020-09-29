@@ -66,6 +66,11 @@ class Configure_script():
             self.commit_count,
             self.git_sha[0:9],
             self.distro_codename)
+        self.machinekit_hal_tarball_string = "{0}.{1}.{2}".format(
+            self.major_version,
+            self.minor_version,
+            self.commit_count,
+        )
 
     def get_machinekit_hal_changelog_data(self: object) -> None:
         control_template_file = "{}/debian/control.in".format(
@@ -176,7 +181,7 @@ class Configure_script():
 
     def create_tarball(self: object, output_path) -> None:
         tarball_file = "{0}/machinekit-hal_{1}.orig.tar.gz".format(
-            output_path, self.machinekit_hal_version_string)
+            output_path, self.machinekit_hal_tarball_string)
         sh.git("archive",
                "--format=tar.gz",
                "-o",
