@@ -181,15 +181,13 @@ START:
     // Clear all outputs
     LDI     r30, 0
 
-#ifdef BBAI
-    LDI r0, 0
-    MOV r1, 0x11e1a300
-INITIALIZELOOP:
-    ADD r0, r0, 1
-    QBLT INITIALIZELOOP, r1, r0 // waits roughly 3 seconds so we have time to load tasks into memory
-#endif
     MOV     GState.Task_Addr, PRU_DATA_START
-    LBBO    r1, GState.Task_Addr, OFFSET(pru_statics.len), SIZE(pru_statics.len)       // which pru are we running on
+
+INITIALIZELOOP:
+    LBBO    r0, GState.Task_Addr, OFFSET(pru_statics.ready), SIZE(pru_statics.ready) // ready flag will equal 1 when task list is ready
+    QBBC INITIALIZELOOP, r0, 0 // keep looping while bit 0 is clear
+
+    LBBO    r1, GState.Task_Addr, OFFSET(pru_statics.pru), SIZE(pru_statics.pru)       // which pru are we running on
     LBBO    r2, GState.Task_Addr, OFFSET(pru_statics.period), SIZE(pru_statics.period) // what is the period to use in the timers
     
     QBBC INIT_IEPTIMER, r1, 0 // If the PRU is odd, initialize the ECAP timer. If even, initialize the IEP timer.

@@ -132,11 +132,15 @@
         .u8     dataY
         .u32    addr
         .u32    period
+        .u32    ready
+        .u32    pru
     .ends
 #else
     typedef struct {
         PRU_task_header_t task;
         u32     period;
+        u32     ready;
+        u32     pru;
     } PRU_statics_t;
 #endif
 

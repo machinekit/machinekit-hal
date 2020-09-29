@@ -58,7 +58,7 @@
 //----------------------------------------------------------------------//
 
 // Use config_module.h instead of config.h so we can use RTAPI_INC_LIST_H
-#define MAX_PATH_LEN 40
+#define MAX_PATH_LEN 100
 #include "config_module.h"
 
 #include RTAPI_INC_LIST_H
@@ -186,6 +186,7 @@ static void *pruevent_thread(void *arg);
 int remoteproc_stop(int pru);
 int remoteproc_start(int pru);
 int remoteproc_copy_firmware(int pru, char* firmware);
+int pru2remoteproc(int pru);
 
 int hpg_wait_init(hal_pru_generic_t *hpg);
 void hpg_wait_force_write(hal_pru_generic_t *hpg);
@@ -562,10 +563,11 @@ rtapi_print_msg(RTAPI_MSG_DBG, "PRU data ram mapped\n");
     hpg->pru_data_free = hpg->pru_stat_addr + sizeof(PRU_statics_t);
 
     // Setup PRU globals
-    hpg->pru_stat.task.hdr.len = pru;
     hpg->pru_stat.task.hdr.dataX = 0xAB;
     hpg->pru_stat.task.hdr.dataY = 0xFE;
     hpg->pru_stat.period = hpg->config.pru_period/5;
+    hpg->pru_stat.pru = pru;
+    hpg->pru_stat.ready = 0;
 
     PRU_statics_t *stat = (PRU_statics_t *) ((u32) hpg->pru_data + (u32) hpg->pru_stat_addr);
     *stat = hpg->pru_stat;
@@ -627,6 +629,60 @@ int remoteproc_copy_firmware(int pru, char* filename) {
   close(prubin_fd);
   close(firm_fd);
   return 0;
+}
+
+// look up the remoteproc number by checking /sys/class/remoteproc/remoteproc{0-7}/firmware
+// for the right value. If it doesn't find the right value, simply return the pru number.
+int pru2remoteproc(int pru) {
+  int remoteproc = pru;
+
+  char firmwareName[MAX_PATH_LEN];
+  char remoteprocPath[MAX_PATH_LEN];
+  char remoteprocFirmware[MAX_PATH_LEN];
+
+  int chip; // chip is 1 or 2
+  int core; // core is 0 or 1
+
+  switch(pru) {
+    case 0:
+      chip = 1;
+      core = 0;
+      break;
+    case 1:
+      chip = 1;
+      core = 1;
+      break;
+    case 2:
+      chip = 2;
+      core = 0;
+      break;
+    case 3:
+      chip = 2;
+      core = 1;
+      break;
+    default:
+      return -1;
+  }
+
+  rtapi_snprintf(firmwareName, sizeof(firmwareName), "am57xx-pru%d_%d-fw\n", chip, core);
+
+  int fd;
+  size_t r;
+  for(int i = 0; i < 7; i++) {
+    rtapi_snprintf(remoteprocPath, sizeof(remoteprocPath), "/sys/class/remoteproc/remoteproc%d/firmware", i);
+    fd = open(remoteprocPath, O_RDWR);
+    if(fd != -1) {
+      r = pread(fd, remoteprocFirmware, sizeof(remoteprocFirmware)-1, 0);
+      remoteprocFirmware[r] = 0;
+      if (strcmp(remoteprocFirmware, firmwareName) == 0) {
+        remoteproc = i;
+        break;
+      }
+      close(fd);
+    }
+  }
+
+  return remoteproc;
 }
 
 
@@ -724,7 +780,7 @@ static void *pruevent_thread(void *arg)
 
 int remoteproc_stop(int pru) {
   char remoteproc_path[MAX_PATH_LEN];
-  rtapi_snprintf(remoteproc_path, sizeof(remoteproc_path), "/sys/class/remoteproc/remoteproc%d/state", pru);
+  rtapi_snprintf(remoteproc_path, sizeof(remoteproc_path), "/sys/class/remoteproc/remoteproc%d/state", pru2remoteproc(pru));
   int remoteproc_fd = open(remoteproc_path, O_WRONLY);
   char stop[] = "stop";
   int written;
@@ -738,7 +794,7 @@ int remoteproc_stop(int pru) {
 
 int remoteproc_start(int pru) {
   char remoteproc_path[MAX_PATH_LEN];
-  rtapi_snprintf(remoteproc_path, sizeof(remoteproc_path), "/sys/class/remoteproc/remoteproc%d/state", pru);
+  rtapi_snprintf(remoteproc_path, sizeof(remoteproc_path), "/sys/class/remoteproc/remoteproc%d/state", pru2remoteproc(pru));
   int remoteproc_fd = open(remoteproc_path, O_WRONLY);
   char start[] = "start";
   int written;
@@ -785,6 +841,8 @@ void hpg_wait_force_write(hal_pru_generic_t *hpg) {
     hpg->wait.pru.task.hdr.dataX = *(hpg->hal.pin.pru_busy_pin);
     hpg->wait.pru.task.hdr.dataY = 0x00;
     hpg->wait.pru.task.hdr.addr = hpg->wait.task.next;
+
+    hpg->pru_stat.ready = 1;
 
     PRU_task_wait_t *pru = (PRU_task_wait_t *) ((u32) hpg->pru_data + (u32) hpg->wait.task.addr);
     *pru = hpg->wait.pru;
