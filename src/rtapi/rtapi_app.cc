@@ -1399,14 +1399,14 @@ static int harden_rt()
     // guaranteed the process executing e.g. hal_parport's rtapi_app_main is
     // the same process which starts the RT threads, causing hal_parport
     // thread functions to fail on inb/outb
-    if (use_drivers || (*flavor_feature_ptr)(NULL, FLAVOR_DOES_IO)) {
-	if (iopl(3) < 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-			    "cannot gain I/O privileges - "
-			    "forgot 'sudo make setuid'?\n");
-	    return -EPERM;
-	}
-    }
+//    if (use_drivers || (*flavor_feature_ptr)(NULL, FLAVOR_DOES_IO)) {
+//	if (iopl(3) < 0) {
+//	    rtapi_print_msg(RTAPI_MSG_ERR,
+//			    "cannot gain I/O privileges - "
+//			    "forgot 'sudo make setuid'?\n");
+//	    return -EPERM;
+//	}
+//    }
 #endif
     return 0;
 }

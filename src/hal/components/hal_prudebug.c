@@ -389,7 +389,7 @@ static int setup_pru(int pru)
     prussdrv_init ();
 
     // opens an event out and initializes memory mapping
-    if (prussdrv_open(event > -1 ? event : PRU_EVTOUT_0) < 0)
+    if (prussdrv_open(event > -1 ? event : PRU_EVTOUT_0, 0, 0) < 0)
 	return -1;
 
     // expose the driver data, filled in by prussdrv_open

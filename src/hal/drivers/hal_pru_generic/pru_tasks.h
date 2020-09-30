@@ -81,7 +81,11 @@
         eMODE_UP_DOWN   = 5,    // Not implemented yet!
         eMODE_DELTA_SIG = 6,
         eMODE_PWM       = 7,
-        eMODE_ENCODER   = 8
+        eMODE_ENCODER   = 8,
+        eMODE_PWM_READ  = 9,
+        eMODE_WAIT_ECAP = 10,
+        eMODE_INIT_ECAP = 11,
+        eMODE_INIT_IEP  = 12
     } pru_task_mode_t;
 #endif
 
@@ -130,11 +134,13 @@
         .u8     dataY
         .u32    addr
         .u32    period
+        .u32    ready
     .ends
 #else
     typedef struct {
         PRU_task_header_t task;
         u32     period;
+        u32     ready;
     } PRU_statics_t;
 #endif
 
@@ -336,5 +342,33 @@
 #else
     typedef struct {
         PRU_task_header_t task;
-    } PRU_task_wait_t;
+    } PRU_task_basic_t;
+#endif
+
+//
+// PWM Read task
+//
+
+#ifndef _hal_pru_generic_H_
+    .struct pwm_read_state
+        .u32    HiTime
+        .u32    LoTime
+        .u32    CurTime
+        .u32    CurPinState
+        .u32    MaxTime
+        .u32    TimeIncr
+        .u32    HiValue
+    .ends
+#else
+    typedef struct  {
+        PRU_task_header_t task;
+
+        u32     hiTime;
+        u32     loTime;
+        u32     curTime;
+        u32     curPinState;
+        u32     maxTime;
+        u32     timeIncr;
+        u32     hiValue;
+    } PRU_task_pwmread_t;
 #endif

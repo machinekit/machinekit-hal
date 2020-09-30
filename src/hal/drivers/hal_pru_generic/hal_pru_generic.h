@@ -1,10 +1,14 @@
 //----------------------------------------------------------------------//
 // hal_pru_generic.h                                                    //
 //                                                                      //
-// Author(s): Charles Steinkuehler                                      //
+// Author(s): Charles Steinkuehler, John Allwine                        //
 // License: GNU GPL Version 2.0 or (at your option) any later version.  //
 //                                                                      //
 // Major Changes:                                                       //
+// 2020-May    John Allwine                                             //
+//             Added support for Beaglebone AI                          //
+//             Made hal_pru_generic an instantiable HAL component       //
+//             Added PWM read task                                      //
 // 2013-May    Charles Steinkuehler                                     //
 //             Split into several files                                 //
 //             Added support for PRU task list                          //
@@ -16,6 +20,7 @@
 //                                                                      //
 // Copyright (C) 2012  Charles Steinkuehler                             //
 //                     <charles AT steinkuehler DOT net>                //
+// Copyright (C) 2020 Pocket NC Company                                 //
 //                                                                      //
 // This program is free software; you can redistribute it and/or        //
 // modify it under the terms of the GNU General Public License          //
@@ -293,11 +298,32 @@ typedef struct {
     hpg_encoder_instance_t  *instance;
 } hpg_encoder_t;
 
+typedef struct {
+    PRU_task_pwmread_t pru;
+    pru_task_t task;
+
+    struct {
+      hal_float_t     *frequency;
+      hal_float_t     *duty_cycle;
+      hal_u32_t       *period;
+
+      hal_u32_t       *max_time;
+      hal_u32_t       *pin;
+    } hal;
+
+    u32 written_max_time;
+    u32 written_pin;
+} hpg_pwmread_instance_t;
 
 typedef struct {
-    PRU_task_wait_t     pru;
+  int num_instances;
+  hpg_pwmread_instance_t *instance;
+} hpg_pwmread_t;
+
+typedef struct {
+    PRU_task_basic_t     pru;
     pru_task_t          task;
-} hpg_wait_t;
+} hpg_basic_t;
 
 typedef struct {
 
@@ -306,9 +332,11 @@ typedef struct {
         int num_pwmgens;
         int num_stepgens;
         int num_encoders;
+        int num_pwmreads;
         int comp_id;
-        const char *name;
-        const char *halname;
+        int inst_id;
+        char halname[10];
+        int pruNumber;
     } config;
 
     struct {
@@ -323,7 +351,8 @@ typedef struct {
     PRU_statics_t   pru_stat;
     pru_addr_t      pru_stat_addr;  // Offset to PRU static variables
 //  pru_addr_t      last_task;      // Offset to last task in the task list
-    pru_task_t      *last_task;     // Pointer to the last task in the task-list
+    pru_task_t      *last_loop_task;     // Pointer to the last task in the task-list that will loop repeatedly
+    pru_task_t      *last_init_task;     // Pointer to the last task in the task-list that will run once at start up
 
     // this keeps track of all the tram entries
     struct list_head tram_read_entries;
@@ -338,8 +367,10 @@ typedef struct {
     hpg_stepgen_t   stepgen;
     hpg_deltasig_t  deltasig;
     hpg_encoder_t   encoder;
+    hpg_pwmread_t   pwmread;
 
-    hpg_wait_t      wait;
+    hpg_basic_t      wait;
+    hpg_basic_t      wait_init;
 
 } hal_pru_generic_t;
 
@@ -349,7 +380,8 @@ typedef struct {
 //
 
 pru_addr_t pru_malloc(hal_pru_generic_t *hpg, int len);
-void pru_task_add(hal_pru_generic_t *hpg, pru_task_t *task);
+void pru_loop_task_add(hal_pru_generic_t *hpg, pru_task_t *task);
+void pru_init_task_add(hal_pru_generic_t *hpg, pru_task_t *task);
 int fixup_pin(u32 hal_pin);
 
 //
@@ -359,6 +391,11 @@ int fixup_pin(u32 hal_pin);
 int hpg_pwmgen_init(hal_pru_generic_t *hpg);
 void hpg_pwmgen_force_write(hal_pru_generic_t *hpg);
 void hpg_pwmgen_update(hal_pru_generic_t *hpg);
+
+int hpg_pwmread_init(hal_pru_generic_t *hpg);
+void hpg_pwmread_force_write(hal_pru_generic_t *hpg);
+void hpg_pwmread_update(hal_pru_generic_t *hpg);
+void hpg_pwmread_read(hal_pru_generic_t *hpg);
 
 
 //

@@ -86,32 +86,32 @@ int export_pwmgen(hal_pru_generic_t *hpg, int i)
     int r, j;
 
     // HAL values common to all outputs in this instance
-    r = hal_pin_u32_newf(HAL_IN, &(hpg->pwmgen.instance[i].hal.pin.pwm_period), hpg->config.comp_id, "%s.pwmgen.%02d.pwm_period", hpg->config.halname, i);
+    r = hal_pin_u32_newf(HAL_IN, &(hpg->pwmgen.instance[i].hal.pin.pwm_period), hpg->config.inst_id, "%s.pwmgen.%02d.pwm_period", hpg->config.halname, i);
     if (r != 0) { return r; }
 
     *(hpg->pwmgen.instance[i].hal.pin.pwm_period) = 10000000;    // Default to 10 mS period, or 100 Hz
 
     for (j=0; j < hpg->pwmgen.instance[i].num_outputs; j++) {
         // Export HAL Pins
-        r = hal_pin_bit_newf(HAL_IN, &(hpg->pwmgen.instance[i].out[j].hal.pin.enable), hpg->config.comp_id, "%s.pwmgen.%02d.out.%02d.enable", hpg->config.halname, i, j);
+        r = hal_pin_bit_newf(HAL_IN, &(hpg->pwmgen.instance[i].out[j].hal.pin.enable), hpg->config.inst_id, "%s.pwmgen.%02d.out.%02d.enable", hpg->config.halname, i, j);
         if (r != 0) {
             HPG_ERR("pwmgen %02d out %02d: error adding pin 'enable', aborting\n", i, j);
             return r;
         }
 
-        r = hal_pin_float_newf(HAL_IN, &(hpg->pwmgen.instance[i].out[j].hal.pin.value), hpg->config.comp_id, "%s.pwmgen.%02d.out.%02d.value", hpg->config.halname, i, j);
+        r = hal_pin_float_newf(HAL_IN, &(hpg->pwmgen.instance[i].out[j].hal.pin.value), hpg->config.inst_id, "%s.pwmgen.%02d.out.%02d.value", hpg->config.halname, i, j);
         if (r != 0) {
             HPG_ERR("pwmgen %02d out %02d: error adding pin 'value', aborting\n", i, j);
             return r;
         }
 
-        r = hal_pin_float_newf(HAL_IN, &(hpg->pwmgen.instance[i].out[j].hal.pin.scale), hpg->config.comp_id, "%s.pwmgen.%02d.out.%02d.scale", hpg->config.halname, i, j);
+        r = hal_pin_float_newf(HAL_IN, &(hpg->pwmgen.instance[i].out[j].hal.pin.scale), hpg->config.inst_id, "%s.pwmgen.%02d.out.%02d.scale", hpg->config.halname, i, j);
         if (r != 0) {
             HPG_ERR("pwmgen %02d out %02d: error adding pin 'scale', aborting\n", i, j);
             return r;
         }
 
-        r = hal_pin_u32_newf(HAL_IN, &(hpg->pwmgen.instance[i].out[j].hal.pin.pin), hpg->config.comp_id, "%s.pwmgen.%02d.out.%02d.pin", hpg->config.halname, i, j);
+        r = hal_pin_u32_newf(HAL_IN, &(hpg->pwmgen.instance[i].out[j].hal.pin.pin), hpg->config.inst_id, "%s.pwmgen.%02d.out.%02d.pin", hpg->config.halname, i, j);
         if (r != 0) {
             HPG_ERR("pwmgen %02d out %02d: error adding pin 'pin', aborting\n", i, j);
             return r;
@@ -165,7 +165,7 @@ rtapi_print_msg(RTAPI_MSG_DBG, "hpg_pwm_init\n");
         hpg->pwmgen.instance[i].task.addr = pru_malloc(hpg, len);
         hpg->pwmgen.instance[i].pru.task.hdr.mode = eMODE_PWM;
 
-        pru_task_add(hpg, &(hpg->pwmgen.instance[i].task));
+        pru_loop_task_add(hpg, &(hpg->pwmgen.instance[i].task));
 
         if ((r = export_pwmgen(hpg,i)) != 0){
             HPG_ERR("ERROR: failed to export pwmgen %i: %i\n",i,r);

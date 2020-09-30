@@ -67,11 +67,21 @@
 
 #define PRUSS_V1                    1
 #define PRUSS_V2                    2
+#define PRUSS_AI                    3
 
 #define AM33XX_PRUSS_INTC_REV         0x4E82A900
 #define AM18XX_PRUSS_INTC_REV         0x4E825900
 
 #define PRUSS_MAX_IRAM_SIZE                  8192
+
+#define AM572X_PRUSS_MMAP_SIZE               0x20000
+#define AM572X_PR1_DATARAM0_PHYS_BASE        0x4b200000
+#define AM572X_PR1_DATARAM1_PHYS_BASE        0x4b202000
+#define AM572X_PR1_SHAREDRAM_BASE            0x4b210000
+
+#define AM572X_PR2_DATARAM0_PHYS_BASE        0x4b280000
+#define AM572X_PR2_DATARAM1_PHYS_BASE        0x4b282000
+#define AM572X_PR2_SHAREDRAM_BASE            0x4b290000
 
 #define AM33XX_PRUSS_IRAM_SIZE               8192
 #define AM33XX_PRUSS_MMAP_SIZE               0x40000
@@ -205,8 +215,9 @@ typedef struct __prussdrv {
     int fd[NUM_PRU_HOSTIRQS];
     pthread_t irq_thread[NUM_PRU_HOSTIRQS];
     int mmap_fd;
+    int mmap_fd2;
 
-    pru_base base[2];
+    pru_base base[4];
 
     void *intc_base;
     void *l3ram_base;

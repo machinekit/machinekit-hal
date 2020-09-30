@@ -5,7 +5,7 @@ PRUBINDIR := ../rtlib/prubin
 # support for ARM335x PRU (Programmable Realtime Unit) components and
 SUPPORT_DIR := hal/support
 PRU_SRC_DIR := hal/drivers/hal_pru_generic
-PRU_MAINS   := pru_generic pru_decamux
+PRU_MAINS   := pru_generic pru_decamux pru_generic_bbai pru_generic_bbai_direct_io_only pru_generic_direct_io_only
 
 # Assembly of PRU code
 # the list of assembly source files
@@ -44,6 +44,9 @@ $(PRU_BIN): $(PRUBINDIR)/%.bin : objects/$(PRU_SRC_DIR)/%.bin
 	cp -f $^ $@
 	$(Q)mkdir -p $(RTLIBDIR)
 	ln -sf ../prubin/$(notdir $@) $(RTLIBDIR)/$(notdir $@)
+	$(OBJCOPY) -I binary -O elf32-little --rename-section .data=.text --add-section .resource_table=hal/drivers/hal_pru_generic/rsct.bin $@ $@.tmp
+	$(OBJCOPY) -I elf32-little --set-section-flags .text=code,alloc,load $@.tmp
+	$(LD) -n --accept-unknown-input-arch $@.tmp -T hal/drivers/hal_pru_generic/linker.txt -o $@.elf
 
 $(PRU_DBG): $(PRUBINDIR)/%.dbg : objects/$(PRU_SRC_DIR)/%.dbg
 	cp -f $^ $@
@@ -55,6 +58,7 @@ install_prubin:
 #	#  Copy .bin and .dbg files to the rtlib/prubin directory
 	$(FILE) $(PRUBINDIR)/*.bin $(DESTDIR)$(HAL_RTLIB_BASE_DIR)/prubin
 	$(FILE) $(PRUBINDIR)/*.dbg $(DESTDIR)$(HAL_RTLIB_BASE_DIR)/prubin
+	$(FILE) $(PRUBINDIR)/*.elf $(DESTDIR)$(HAL_RTLIB_BASE_DIR)/prubin
 #	#  Copy .bin and .dbg symlinks to the rtlib/modules directory
 	$(DIR) $(DESTDIR)$(HAL_RTLIB_DIR)
 	cp -a $(RTLIBDIR)/*.bin $(RTLIBDIR)/*.dbg $(DESTDIR)$(HAL_RTLIB_DIR)

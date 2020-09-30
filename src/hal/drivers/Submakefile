@@ -62,6 +62,7 @@ $(eval $(call c_comp_build_rules,                      \
 	hal/drivers/hal_pru_generic/pwmgen.o           \
 	hal/drivers/hal_pru_generic/stepgen.o          \
 	hal/drivers/hal_pru_generic/encoder.o          \
+	hal/drivers/hal_pru_generic/pwmread.o          \
 	hal/support/pru/prussdrv.o                     \
 	$(LIBPTHREAD)                                  \
 	))
