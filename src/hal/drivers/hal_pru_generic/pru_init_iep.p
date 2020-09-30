@@ -1,12 +1,12 @@
 //----------------------------------------------------------------------//
-// Description: pru_pwmread.p                                           //
-// PRU code implementing reading PWM frequency and duty cycle           //
+// Description: pru_init_iep.p                                          //
+// PRU code that initializes the IEP timer for use by pru_wait.p        //
 //                                                                      //
 // Author(s): John Allwine                                              //
 // License: GNU GPL Version 2.0 or (at your option) any later version.  //
 //                                                                      //
 // Major Changes:                                                       //
-// 2020-May    John Allwine                                             //
+// 2020-Sep    John Allwine                                             //
 //----------------------------------------------------------------------//
 // This file is part of MachineKit HAL                                  //
 //                                                                      //
@@ -40,56 +40,73 @@
 // information, go to www.machinekit.io.                                //
 //----------------------------------------------------------------------//
 
-MODE_PWM_READ:
-.enter PWM_READ_SCOPE
+MODE_INIT_IEP:
+.enter INIT_IEP_SCOPE
+#ifdef BBAI
+    // Setup IEP Timer
+    // Used for even PRU numbers (see pru_wait.p)
+    // http://www.ti.com/lit/ug/spruhz6l/spruhz6l.pdf
+    // Section 30.1.11.2.2.3 PRU-ICSS Industrial Ethernet Timer Basic Programming Sequence
 
-.assign pwm_read_state, GState.State_Reg0, *, State
+    // 1. Initialize timer to known state (default values)
 
-    LBBO State, GTask.addr, SIZE(task_header), SIZE(State)
+    // Disable counter
+    LBCO r6, CONST_IEP, 0x0, 4
+    CLR r6, 0
+    SBCO r6, CONST_IEP, 0x0, 4
 
-    // Increment the current time
-    // The current time represents the time the current hi or low values has been in its current state
-    ADD State.CurTime, State.CurTime, State.TimeIncr
+    // Reset Count Register
+    MOV r0, 0xffffffff
+    SBCO r0, CONST_IEP, 0x10, 4
+    SBCO r0, CONST_IEP, 0x14, 4
 
-    // Read the pin
-    AND r0, r31, State.HiValue
+    // Clear overflow status register
+    LBCO r1, CONST_IEP, 0x04, 4
+    SET r1, 0
+    SBCO r1, CONST_IEP, 0x04, 4
 
-    // If there's no change than continue
-    QBEQ CHECK_MAX_TIME, r0, State.CurPinState
+    // Clear compare status
+    SBCO r0, CONST_IEP, 0x74, 4
 
-    // Otherwise, check if we're moving from hi to low or low to hi
-    QBEQ LO_TO_HI, r0, State.HiValue
+    // 2. Set compare values
+    // Use Task_Addr to point to static variables during init
+    // Load loop period from static variables into CMP0
+    SBCO r2, CONST_IEP, 0x78, 4
+    LDI r1, 0
+    SBCO r1, CONST_IEP, 0x7C, 4
 
-// Hi to lo
-    MOV State.HiTime, State.CurTime
-    LDI State.CurTime, 0
-    LDI State.CurPinState, 0
-    JMP CHECK_MAX_TIME
+    // 3. Enable compare events
+    LBCO r1, CONST_IEP, 0x70, 4
+    OR r1, r1, 0x03
+    SBCO r1, CONST_IEP, 0x70, 4
 
-LO_TO_HI:
-    MOV State.LoTime, State.CurTime
-    LDI State.CurTime, 0
-    MOV State.CurPinState, State.HiValue
+    // 4. Set increment value
+    CLR r6, r6, 7
+    CLR r6, r6, 6
+    CLR r6, r6, 5
+    SET r6, r6, 4 // set increment to 1
+    SBCO r6, CONST_IEP, 0x0, 4
 
-CHECK_MAX_TIME:
-    QBLT PWM_READ_DONE, State.MaxTime, State.CurTime
+    // 5. Set compensation value
+    LDI r1, 0
+    SBCO r1, CONST_IEP, 0x08, 4
+    SBCO r1, CONST_IEP, 0x0C, 4
 
-    // The pin has been in its current state for the max amount of time,
-    // so we can zero the other state
-    QBEQ ZERO_HI, State.CurPinState, 0
-// zero lo
-    LDI State.LoTime, 0
-    MOV State.HiTime, State.MaxTime
-    LDI State.CurTime, 0
-    JMP PWM_READ_DONE
+    // 6. Enable counter
+    SET r6, 0
+    SBCO r6, CONST_IEP, 0x0, 4
+#else
+    // Setup IEP timer
+    LBCO    r6, CONST_IEP, 0x40, 40                 // Read all 10 32-bit CMP registers into r6-r15
+    OR      r6, r6, 0x03                            // Set count reset and enable compare 0 event
+    // Load loop period from static variables into CMP0
+    LBBO    r8, GState.Task_Addr, OFFSET(pru_statics.period), SIZE(pru_statics.period)
 
-ZERO_HI:
-    MOV State.LoTime, State.MaxTime
-    LDI State.HiTime, 0
-    LDI State.CurTime, 0
+    SBCO    r6, CONST_IEP, 0x40, 40                 // Save 10 32-bit CMP registers
+    MOV     r2, 0x00000111                          // Enable counter, configured to count instructions (increments by 1 each clock, to represent 5 ns)
+    SBCO    r2, CONST_IEP, 0x00, 4                  // Save IEP GLOBAL_CFG register
 
-PWM_READ_DONE:
-    
-    SBBO State, GTask.addr, SIZE(task_header), SIZE(State)
+#endif
     JMP     NEXT_TASK
-.leave PWM_READ_SCOPE
+
+.leave INIT_IEP_SCOPE

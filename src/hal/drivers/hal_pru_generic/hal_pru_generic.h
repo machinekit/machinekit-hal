@@ -321,9 +321,9 @@ typedef struct {
 } hpg_pwmread_t;
 
 typedef struct {
-    PRU_task_wait_t     pru;
+    PRU_task_basic_t     pru;
     pru_task_t          task;
-} hpg_wait_t;
+} hpg_basic_t;
 
 typedef struct {
 
@@ -351,7 +351,8 @@ typedef struct {
     PRU_statics_t   pru_stat;
     pru_addr_t      pru_stat_addr;  // Offset to PRU static variables
 //  pru_addr_t      last_task;      // Offset to last task in the task list
-    pru_task_t      *last_task;     // Pointer to the last task in the task-list
+    pru_task_t      *last_loop_task;     // Pointer to the last task in the task-list that will loop repeatedly
+    pru_task_t      *last_init_task;     // Pointer to the last task in the task-list that will run once at start up
 
     // this keeps track of all the tram entries
     struct list_head tram_read_entries;
@@ -368,7 +369,8 @@ typedef struct {
     hpg_encoder_t   encoder;
     hpg_pwmread_t   pwmread;
 
-    hpg_wait_t      wait;
+    hpg_basic_t      wait;
+    hpg_basic_t      wait_init;
 
 } hal_pru_generic_t;
 
@@ -378,7 +380,8 @@ typedef struct {
 //
 
 pru_addr_t pru_malloc(hal_pru_generic_t *hpg, int len);
-void pru_task_add(hal_pru_generic_t *hpg, pru_task_t *task);
+void pru_loop_task_add(hal_pru_generic_t *hpg, pru_task_t *task);
+void pru_init_task_add(hal_pru_generic_t *hpg, pru_task_t *task);
 int fixup_pin(u32 hal_pin);
 
 //

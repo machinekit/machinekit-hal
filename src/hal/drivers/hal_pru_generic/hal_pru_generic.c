@@ -566,7 +566,6 @@ rtapi_print_msg(RTAPI_MSG_DBG, "PRU data ram mapped\n");
     hpg->pru_stat.task.hdr.dataX = 0xAB;
     hpg->pru_stat.task.hdr.dataY = 0xFE;
     hpg->pru_stat.period = hpg->config.pru_period/5;
-    hpg->pru_stat.pru = pru;
     hpg->pru_stat.ready = 0;
 
     PRU_statics_t *stat = (PRU_statics_t *) ((u32) hpg->pru_data + (u32) hpg->pru_stat_addr);
@@ -668,7 +667,7 @@ int pru2remoteproc(int pru) {
 
   int fd;
   size_t r;
-  for(int i = 0; i < 7; i++) {
+  for(int i = 0; i < 8; i++) {
     rtapi_snprintf(remoteprocPath, sizeof(remoteprocPath), "/sys/class/remoteproc/remoteproc%d/firmware", i);
     fd = open(remoteprocPath, O_RDWR);
     if(fd != -1) {
@@ -747,20 +746,51 @@ int setup_pru(int pru, char *filename, int disabled, hal_pru_generic_t *hpg) {
     return retval;
 }
 
-void pru_task_add(hal_pru_generic_t *hpg, pru_task_t *task) {
+void pru_init_task_add(hal_pru_generic_t *hpg, pru_task_t *task) {
+  if(hpg->last_init_task == 0) {
+    // First init task
+    HPG_DBG("Adding first init task: addr=%04x\n", task->addr);
+    if(hpg->last_loop_task != 0) {
+      // If last_init_task is 0, but last_loop_task isn't, the static task addr will be the first loop task
+      // so set that task to be next after the init task
+      task->next = hpg->pru_stat.task.hdr.addr;
+    }
+    hpg->pru_stat.task.hdr.addr = task->addr;
+  } else {
+    HPG_DBG("Adding init task: addr=%04x, prev=%04x\n", task->addr, hpg->last_init_task->addr);
+    task->next = hpg->last_init_task->next;
+    hpg->last_init_task->next = task->addr;
+  }
+}
 
-    if (hpg->last_task == 0) {
-        // This is the first task
-        HPG_DBG("Adding first task: addr=%04x\n", task->addr);
+void pru_loop_task_add(hal_pru_generic_t *hpg, pru_task_t *task) {
+    if (hpg->last_loop_task == 0) {
+      // This is the first loop task
+      HPG_DBG("Adding first loop task: addr=%04x\n", task->addr);
+      if(hpg->last_init_task == 0) {
+        // No init task, so first task to run needs to be this task
+        HPG_DBG("No init task, setting pru_stat.task.hdr.addr to this task: addr=%04x\n", task->addr);
         hpg->pru_stat.task.hdr.addr = task->addr;
-        task->next = task->addr;
-        hpg->last_task  = task;
+      } else {
+        // There is an init task, so call this looping task after last init task
+        hpg->last_init_task->next = task->addr;
+      }
+
+      // first and only looping task right now, so it will be called repeatedly
+      task->next = task->addr;
+      hpg->last_loop_task  = task;
     } else {
-        // Add this task to the end of the task list
-        HPG_DBG("Adding task: addr=%04x prev=%04x\n", task->addr, hpg->last_task->addr);
+      // Add this task to the end of the task list
+      HPG_DBG("Adding task: addr=%04x prev=%04x\n", task->addr, hpg->last_loop_task->addr);
+      if(hpg->last_init_task == 0) {
+        // No init tasks, so link last looping task back to static start task
         task->next = hpg->pru_stat.task.hdr.addr;
-        hpg->last_task->next = task->addr;
-        hpg->last_task = task;
+      } else {
+        // There is at least one init task, so loop back to the task after the last init task
+        task->next = hpg->last_init_task->next;
+      }
+      hpg->last_loop_task->next = task->addr;
+      hpg->last_loop_task = task;
     }
 }
 
@@ -821,8 +851,10 @@ int hpg_wait_init(hal_pru_generic_t *hpg) {
     int r;
 
     hpg->wait.task.addr = pru_malloc(hpg, sizeof(hpg->wait.pru));
+    hpg->wait_init.task.addr = pru_malloc(hpg, sizeof(hpg->wait_init.pru));
 
-    pru_task_add(hpg, &(hpg->wait.task));
+    pru_loop_task_add(hpg, &(hpg->wait.task));
+    pru_init_task_add(hpg, &(hpg->wait_init.task));
 
     r = hal_pin_u32_newf(HAL_IN, &(hpg->hal.pin.pru_busy_pin), hpg->config.inst_id, "%s.pru_busy_pin", hpg->config.halname);
     if (r != 0) { return r; }
@@ -835,17 +867,23 @@ int hpg_wait_init(hal_pru_generic_t *hpg) {
 void hpg_wait_force_write(hal_pru_generic_t *hpg) {
     if(hpg->config.pruNumber % 2) {
       hpg->wait.pru.task.hdr.mode = eMODE_WAIT_ECAP;
+      hpg->wait_init.pru.task.hdr.mode = eMODE_INIT_ECAP;
     } else {
       hpg->wait.pru.task.hdr.mode = eMODE_WAIT;
+      hpg->wait_init.pru.task.hdr.mode = eMODE_INIT_IEP;
     }
     hpg->wait.pru.task.hdr.dataX = *(hpg->hal.pin.pru_busy_pin);
     hpg->wait.pru.task.hdr.dataY = 0x00;
     hpg->wait.pru.task.hdr.addr = hpg->wait.task.next;
+    hpg->wait_init.pru.task.hdr.addr = hpg->wait_init.task.next;
 
     hpg->pru_stat.ready = 1;
 
-    PRU_task_wait_t *pru = (PRU_task_wait_t *) ((u32) hpg->pru_data + (u32) hpg->wait.task.addr);
+    PRU_task_basic_t *pru = (PRU_task_basic_t *) ((u32) hpg->pru_data + (u32) hpg->wait.task.addr);
     *pru = hpg->wait.pru;
+
+    pru = (PRU_task_basic_t *) ((u32) hpg->pru_data + (u32) hpg->wait_init.task.addr);
+    *pru = hpg->wait_init.pru;
 
     PRU_statics_t *stat = (PRU_statics_t *) ((u32) hpg->pru_data + (u32) hpg->pru_stat_addr);
     *stat = hpg->pru_stat;
@@ -855,7 +893,7 @@ void hpg_wait_update(hal_pru_generic_t *hpg) {
     if (hpg->wait.pru.task.hdr.dataX != *(hpg->hal.pin.pru_busy_pin))
         hpg->wait.pru.task.hdr.dataX = *(hpg->hal.pin.pru_busy_pin);
 
-    PRU_task_wait_t *pru = (PRU_task_wait_t *) ((u32) hpg->pru_data + (u32) hpg->wait.task.addr);
+    PRU_task_basic_t *pru = (PRU_task_basic_t *) ((u32) hpg->pru_data + (u32) hpg->wait.task.addr);
     *pru = hpg->wait.pru;
 }
 

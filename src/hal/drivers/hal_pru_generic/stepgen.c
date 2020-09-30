@@ -609,7 +609,7 @@ rtapi_print_msg(RTAPI_MSG_DBG, "hpg_stepgen_init\n");
     for (i=0; i < hpg->config.num_stepgens; i++) {
         hpg->stepgen.instance[i].task.addr = pru_malloc(hpg, sizeof(hpg->stepgen.instance[i].pru));
         hpg->stepgen.instance[i].pru.task.hdr.mode = eMODE_STEP_DIR;
-        pru_task_add(hpg, &(hpg->stepgen.instance[i].task));
+        pru_loop_task_add(hpg, &(hpg->stepgen.instance[i].task));
 
         if ((r = export_stepgen(hpg,i)) != 0){
             rtapi_print_msg(RTAPI_MSG_ERR,

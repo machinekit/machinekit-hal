@@ -520,7 +520,7 @@ rtapi_print("malloc: hpg_encoder_channel_instance_t = %p\n",hpg->encoder.instanc
 
         hpg->encoder.instance[i].LUT = pru_malloc(hpg, sizeof(Counter_LUT));
 
-        pru_task_add(hpg, &(hpg->encoder.instance[i].task));
+        pru_loop_task_add(hpg, &(hpg->encoder.instance[i].task));
 
         if ((r = export_encoder(hpg,i)) != 0){
             HPG_ERR("ERROR: failed to export encoder %i: %i\n",i,r);

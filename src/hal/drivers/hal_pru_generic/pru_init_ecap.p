@@ -1,12 +1,12 @@
 //----------------------------------------------------------------------//
-// Description: pru_pwmread.p                                           //
-// PRU code implementing reading PWM frequency and duty cycle           //
+// Description: pru_init_ecap.p                                         //
+// PRU code that initializes the ECAP timer for use by pru_wait_ecap.p  //
 //                                                                      //
 // Author(s): John Allwine                                              //
 // License: GNU GPL Version 2.0 or (at your option) any later version.  //
 //                                                                      //
 // Major Changes:                                                       //
-// 2020-May    John Allwine                                             //
+// 2020-Sep    John Allwine                                             //
 //----------------------------------------------------------------------//
 // This file is part of MachineKit HAL                                  //
 //                                                                      //
@@ -40,56 +40,22 @@
 // information, go to www.machinekit.io.                                //
 //----------------------------------------------------------------------//
 
-MODE_PWM_READ:
-.enter PWM_READ_SCOPE
+MODE_INIT_ECAP:
+.enter INIT_ECAP_SCOPE
+    // Setup ECAP Timer
+    // Used for odd PRU numbers (see pru_wait_ecap.p)
+    LDI r0, 0
+    SBCO r0, CONST_ECAP, 0x28, 2 // clear ECCTL1 register
+    SBCO r0, CONST_ECAP, 0x2A, 2 // clear ECCTL2 register
+    SBCO r0, CONST_ECAP, 0x00, 4 // clear counter
+    SBCO r0, CONST_ECAP, 0x04, 4 // clear counter phase
 
-.assign pwm_read_state, GState.State_Reg0, *, State
-
-    LBBO State, GTask.addr, SIZE(task_header), SIZE(State)
-
-    // Increment the current time
-    // The current time represents the time the current hi or low values has been in its current state
-    ADD State.CurTime, State.CurTime, State.TimeIncr
-
-    // Read the pin
-    AND r0, r31, State.HiValue
-
-    // If there's no change than continue
-    QBEQ CHECK_MAX_TIME, r0, State.CurPinState
-
-    // Otherwise, check if we're moving from hi to low or low to hi
-    QBEQ LO_TO_HI, r0, State.HiValue
-
-// Hi to lo
-    MOV State.HiTime, State.CurTime
-    LDI State.CurTime, 0
-    LDI State.CurPinState, 0
-    JMP CHECK_MAX_TIME
-
-LO_TO_HI:
-    MOV State.LoTime, State.CurTime
-    LDI State.CurTime, 0
-    MOV State.CurPinState, State.HiValue
-
-CHECK_MAX_TIME:
-    QBLT PWM_READ_DONE, State.MaxTime, State.CurTime
-
-    // The pin has been in its current state for the max amount of time,
-    // so we can zero the other state
-    QBEQ ZERO_HI, State.CurPinState, 0
-// zero lo
-    LDI State.LoTime, 0
-    MOV State.HiTime, State.MaxTime
-    LDI State.CurTime, 0
-    JMP PWM_READ_DONE
-
-ZERO_HI:
-    MOV State.LoTime, State.MaxTime
-    LDI State.HiTime, 0
-    LDI State.CurTime, 0
-
-PWM_READ_DONE:
-    
-    SBBO State, GTask.addr, SIZE(task_header), SIZE(State)
+    SBCO r2, CONST_ECAP, 0x08, 4 // set ecap period
+    SBCO r2, CONST_ECAP, 0x10, 4 // set ecap period (shadow)
+    LDI  r0, 0x40
+    SBCO r0, CONST_ECAP, 0x2C, 2 // set trigger when count = period mode
+    LDI  r0, ((1 << 9) | (1 << 4)) 
+    SBCO r0, CONST_ECAP, 0x2A, 2 // turn on APWM mode (reset count after period), free counting mode
     JMP     NEXT_TASK
-.leave PWM_READ_SCOPE
+
+.leave INIT_ECAP_SCOPE

@@ -165,7 +165,7 @@ rtapi_print_msg(RTAPI_MSG_DBG, "hpg_pwm_init\n");
         hpg->pwmgen.instance[i].task.addr = pru_malloc(hpg, len);
         hpg->pwmgen.instance[i].pru.task.hdr.mode = eMODE_PWM;
 
-        pru_task_add(hpg, &(hpg->pwmgen.instance[i].task));
+        pru_loop_task_add(hpg, &(hpg->pwmgen.instance[i].task));
 
         if ((r = export_pwmgen(hpg,i)) != 0){
             HPG_ERR("ERROR: failed to export pwmgen %i: %i\n",i,r);

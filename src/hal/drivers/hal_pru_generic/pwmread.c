@@ -138,7 +138,7 @@ rtapi_print("hpg_pwmread_init\n");
     for(i = 0; i < hpg->pwmread.num_instances; i++) {
       hpg->pwmread.instance[i].task.addr = pru_malloc(hpg, sizeof(hpg->pwmread.instance[i].pru));
       hpg->pwmread.instance[i].pru.task.hdr.mode = eMODE_PWM_READ;
-      pru_task_add(hpg, &(hpg->pwmread.instance[i].task));
+      pru_loop_task_add(hpg, &(hpg->pwmread.instance[i].task));
       if((r = export_pwmread(hpg,i)) != 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: failed to export pwmread %i: %i\n", hpg->config.halname, i, r);
         return -1;

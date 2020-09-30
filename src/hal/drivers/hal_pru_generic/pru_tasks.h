@@ -83,7 +83,9 @@
         eMODE_PWM       = 7,
         eMODE_ENCODER   = 8,
         eMODE_PWM_READ  = 9,
-        eMODE_WAIT_ECAP = 10
+        eMODE_WAIT_ECAP = 10,
+        eMODE_INIT_ECAP = 11,
+        eMODE_INIT_IEP  = 12
     } pru_task_mode_t;
 #endif
 
@@ -133,14 +135,12 @@
         .u32    addr
         .u32    period
         .u32    ready
-        .u32    pru
     .ends
 #else
     typedef struct {
         PRU_task_header_t task;
         u32     period;
         u32     ready;
-        u32     pru;
     } PRU_statics_t;
 #endif
 
@@ -342,7 +342,7 @@
 #else
     typedef struct {
         PRU_task_header_t task;
-    } PRU_task_wait_t;
+    } PRU_task_basic_t;
 #endif
 
 //
