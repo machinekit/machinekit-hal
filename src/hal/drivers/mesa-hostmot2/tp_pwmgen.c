@@ -187,9 +187,12 @@ force_write:
 //
 // Read the fault bit for each instance
 //
-void hm2_tp_pwmgen_read(hostmot2_t *hm2) {
+void hm2_tp_pwmgen_queue_read(hostmot2_t *hm2) {
+    hm2->llio->queue_read(hm2->llio, hm2->tp_pwmgen.enable_addr, hm2->tp_pwmgen.enable_reg, (hm2->tp_pwmgen.num_instances * sizeof(u32)));
+}
+
+void hm2_tp_pwmgen_process_read(hostmot2_t *hm2) {
     int i;
-    hm2->llio->read(hm2->llio, hm2->tp_pwmgen.enable_addr, hm2->tp_pwmgen.enable_reg, (hm2->tp_pwmgen.num_instances * sizeof(u32)));
     for (i = 0 ; i < hm2->tp_pwmgen.num_instances ; i++) {
         *hm2->tp_pwmgen.instance[i].hal.pin.fault
             = (hm2->tp_pwmgen.enable_reg[i] & 2);
@@ -299,7 +302,7 @@ int hm2_tp_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
 
         // this hal parameter affects all the 3-Phase pwmgen instances
         r = hal_pin_u32_newf(
-	    HAL_IN,
+	    HAL_IO,
 	    &(hm2->tp_pwmgen.hal->pin.pwm_frequency),
 	    hm2->llio->comp_id,
 	    "%s.3pwmgen.frequency",
@@ -352,28 +355,28 @@ int hm2_tp_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
             }
 
             rtapi_snprintf(name, sizeof(name), "%s.3pwmgen.%02d.scale", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->tp_pwmgen.instance[i].hal.pin.scale), hm2->llio->comp_id);
+            r = hal_pin_float_new(name, HAL_IO, &(hm2->tp_pwmgen.instance[i].hal.pin.scale), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail2;
             }
 
 	    rtapi_snprintf(name, sizeof(name), "%s.3pwmgen.%02d.deadtime", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->tp_pwmgen.instance[i].hal.pin.deadzone), hm2->llio->comp_id);
+            r = hal_pin_float_new(name, HAL_IO, &(hm2->tp_pwmgen.instance[i].hal.pin.deadzone), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail2;
             }
 
 	    rtapi_snprintf(name, sizeof(name), "%s.3pwmgen.%02d.fault-invert", hm2->llio->name, i);
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->tp_pwmgen.instance[i].hal.pin.faultpolarity), hm2->llio->comp_id);
+            r = hal_pin_bit_new(name, HAL_IO, &(hm2->tp_pwmgen.instance[i].hal.pin.faultpolarity), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail2;
             }
 
 	    rtapi_snprintf(name, sizeof(name), "%s.3pwmgen.%02d.sample-time", hm2->llio->name, i);
-            r = hal_pin_float_new(name, HAL_IN, &(hm2->tp_pwmgen.instance[i].hal.pin.sampletime), hm2->llio->comp_id);
+            r = hal_pin_float_new(name, HAL_IO, &(hm2->tp_pwmgen.instance[i].hal.pin.sampletime), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail2;

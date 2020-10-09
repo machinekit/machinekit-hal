@@ -86,7 +86,7 @@ static int hm2_test_read(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int si
 }
 
 
-static int hm2_test_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
+static int hm2_test_write(hm2_lowlevel_io_t *this, u32 addr, const void *buffer, int size) {
     return 1;  // success
 }
 

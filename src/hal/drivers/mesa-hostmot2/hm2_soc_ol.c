@@ -183,10 +183,10 @@ static int hm2_soc_read(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int siz
     return 1;  // success
 }
 
-static int hm2_soc_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
+static int hm2_soc_write(hm2_lowlevel_io_t *this, u32 addr, const void *buffer, int size) {
     hm2_soc_t *brd = this->private;
     int i;
-    u32* src = (u32*) buffer;
+    const u32* src = (const u32*) buffer;
     u32* dst = (u32*) (brd->base + addr);
 
     // Per Peter Wallace, all hostmot2 access should be 32 bits and 32-bit aligned
@@ -215,7 +215,7 @@ static int hm2_soc_unmapped_read(hm2_lowlevel_io_t *this, u32 addr, void *buffer
     return hm2_soc_read(this, addr, buffer, size);
 }
 
-static int hm2_soc_unmapped_write(hm2_lowlevel_io_t *this, u32 addr, void *buffer, int size) {
+static int hm2_soc_unmapped_write(hm2_lowlevel_io_t *this, u32 addr, const void *buffer, int size) {
     hm2_soc_t *brd = this->private;
     int rc = hm2_soc_mmap(brd);
     if (rc)

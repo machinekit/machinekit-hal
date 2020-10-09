@@ -17,7 +17,7 @@
 //
 
 // A driver for the Hostmot2 HM2_DPLL module that allows pre-triggering of some
-// other modules. 
+// other modules.
 
 
 #include "config_module.h"
@@ -68,7 +68,7 @@ int hm2_dpll_parse_md(hostmot2_t *hm2, int md_index) {
     hm2->dpll.timer_12_addr = md->base_address + 4 * md->register_stride;
     hm2->dpll.timer_34_addr = md->base_address + 5 * md->register_stride;
     hm2->dpll.hm2_dpll_sync_addr = md->base_address + 6 * md->register_stride;
-    
+
     // export to HAL
     hm2->dpll.pins = hal_malloc(sizeof(hm2_dpll_pins_t));
 
@@ -102,7 +102,13 @@ int hm2_dpll_parse_md(hostmot2_t *hm2, int md_index) {
     *hm2->dpll.pins->time4_us = 100.0;
     *hm2->dpll.pins->prescale = 1;
     *hm2->dpll.pins->base_freq = -1; // An indication it needs init
-    *hm2->dpll.pins->time_const = 0xA000;
+    /* This value is an empirical compromise between insensitivity to
+     * single-cycle variations (larger values) and being resilient to changes to
+     * the Linux CLOCK_MONOTONIC timescale, which can instantly change by up to
+     * +-500ppm from its nominal value, usually by timekeeping software like ntp
+     * and ntpdate.
+     */
+    *hm2->dpll.pins->time_const = 2000;
     *hm2->dpll.pins->plimit = 0x400000;
 
     if (hm2->llio->irq_fd < 0) {
@@ -134,9 +140,9 @@ int hm2_dpll_parse_md(hostmot2_t *hm2, int md_index) {
 
 void hm2_dpll_process_tram_read(hostmot2_t *hm2, long period){
     hm2_dpll_pins_t *pins;
-    
+
     if (hm2->dpll.num_instances == 0) return;
-    
+
      pins = hm2->dpll.pins;
 
     if (hm2->llio->irq_fd < 0) {
@@ -150,14 +156,15 @@ void hm2_dpll_process_tram_read(hostmot2_t *hm2, long period){
     *pins->ddssize = *hm2->dpll.control_reg1_read & 0xFF;
 }
 
+static int init_counter = 0;
+
 void hm2_dpll_write(hostmot2_t *hm2, long period) {
     hm2_dpll_pins_t *pins;
-    double period_ms = period / 1000;
+    double period_us = period / 1000.;
     u32 buff;
-    static int init_counter = 0;
-    
+
     if (hm2->dpll.num_instances == 0) return;
-    
+
     if (init_counter < 100){
         init_counter++;
         buff = 0; // Force phase error to zero at startup
@@ -165,51 +172,57 @@ void hm2_dpll_write(hostmot2_t *hm2, long period) {
                 hm2->dpll.phase_err_addr,
                 &buff,
                 sizeof(u32));
-        hm2->dpll.control_reg0_written= buff;
+        hm2->dpll.control_reg0_written = buff;
     }
-    
+
     pins = hm2->dpll.pins;
-    
+
     if (*pins->base_freq < 0 ) {
-        *pins->base_freq = 1000.0/period_ms;
+        *pins->base_freq = 1000.0/period_us;
     }
 
     *pins->prescale = (0x40000000LL * hm2->dpll.clock_frequency)
                     / ((1LL << *pins->ddssize) * *pins->base_freq * 1000.0);
 
     if (*pins->prescale < 1) *pins->prescale = 1;
-    
-    buff = (u32)((*pins->base_freq * 1000.0 
-            * (1LL << *pins->ddssize) 
+
+    // base_rate
+    buff = (u32)((*pins->base_freq * 1000.0
+            * (1LL << *pins->ddssize)
             * *pins->prescale)
             / hm2->dpll.clock_frequency);
-
-    if (buff != hm2->dpll.base_rate_written){
+    if (buff != hm2->dpll.base_rate_written) {
         hm2->llio->write(hm2->llio,
                 hm2->dpll.base_rate_addr,
                 &buff,
                 sizeof(u32));
-        hm2->dpll.base_rate_written= buff;
+        hm2->dpll.base_rate_written = buff;
     }
-    buff = (u32)(*pins->prescale << 24 
+
+    // control_reg0
+    buff = (u32)(*pins->prescale << 24
                 | *pins->plimit);
-    if (buff != hm2->dpll.control_reg0_written){
+    if (buff != hm2->dpll.control_reg0_written) {
         hm2->llio->write(hm2->llio,
                 hm2->dpll.control_reg0_addr,
                 &buff,
                 sizeof(u32));
-        hm2->dpll.control_reg0_written= buff;
+        hm2->dpll.control_reg0_written = buff;
     }
+
+    // control_reg1
     buff = (u32)(*pins->time_const << 16);
-    if (buff != hm2->dpll.control_reg1_written){
+    if (buff != hm2->dpll.control_reg1_written) {
         hm2->llio->write(hm2->llio,
                 hm2->dpll.control_reg1_addr,
                 &buff,
                 sizeof(u32));
-        hm2->dpll.control_reg1_written= buff;
+        hm2->dpll.control_reg1_written = buff;
     }
-    buff = (u32)((-*hm2->dpll.pins->time2_us / period_ms) * 0x10000) << 16
-         | (u32)((-*hm2->dpll.pins->time1_us / period_ms) * 0x10000);
+
+    // timer_12
+    buff = (u32)((-*hm2->dpll.pins->time2_us / period_us) * 0x10000) << 16
+         | (u32)((-*hm2->dpll.pins->time1_us / period_us) * 0x10000);
     if (buff != hm2->dpll.timer_12_written){
         hm2->llio->write(hm2->llio,
                 hm2->dpll.timer_12_addr,
@@ -217,9 +230,11 @@ void hm2_dpll_write(hostmot2_t *hm2, long period) {
                 sizeof(u32));
         hm2->dpll.timer_12_written = buff;
     }
-    buff = (u32)((-*hm2->dpll.pins->time4_us / period_ms) * 0x10000) << 16
-         | (u32)((-*hm2->dpll.pins->time3_us / period_ms) * 0x10000);
-    if (buff != hm2->dpll.timer_34_written){
+
+    // timer_34
+    buff = (u32)((-*hm2->dpll.pins->time4_us / period_us) * 0x10000) << 16
+         | (u32)((-*hm2->dpll.pins->time3_us / period_us) * 0x10000);
+    if (buff != hm2->dpll.timer_34_written) {
         hm2->llio->write(hm2->llio,
                 hm2->dpll.timer_34_addr,
                 &buff,
@@ -231,6 +246,7 @@ void hm2_dpll_write(hostmot2_t *hm2, long period) {
 int hm2_dpll_force_write(hostmot2_t *hm2) {
     int i;
     if (hm2->dpll.num_instances == 0) return 0;
+
     for (i = 0; i < hm2->absenc.num_chans; i ++){
         hm2_sserial_remote_t *chan = &hm2->absenc.chans[i];
         switch (chan->myinst){
@@ -238,25 +254,39 @@ int hm2_dpll_force_write(hostmot2_t *hm2) {
             chan->params->timer_num = 1;
             break;
         case HM2_GTAG_BISS:
-            if (hm2->dpll.num_instances > 1){
+            if (hm2->dpll.num_instances > 1) {
                 chan->params->timer_num = 2;
             } else {
                 chan->params->timer_num = 1;
             }
             break;
         case HM2_GTAG_FABS:
-            if (hm2->dpll.num_instances > 2){
+            if (hm2->dpll.num_instances > 2) {
                 chan->params->timer_num = 3;
             } else {
                 chan->params->timer_num = 1;
             }
             break;
         }
-   /* Other triggerable component types should be added here */
+    /* Other triggerable component types should be added here */
     }
+
     return 0;
 }
 
+void hm2_dpll_reset(hostmot2_t *hm2) {
+    if (hm2->dpll.num_instances > 0) {
+        // Restore state to init time look so that next hm2_dpll_write()
+        // actually writes all of these vs. assuming they're cached over in the fpga which may have power cycled.
+        HM2_WARN("hm2_dpll_reset() reinitializing dpll state.");
+        init_counter = 0;
+        hm2->dpll.base_rate_written = 0;
+        hm2->dpll.control_reg0_written = 0;
+        hm2->dpll.control_reg1_written = 0;
+        hm2->dpll.timer_12_written = 0;
+        hm2->dpll.timer_34_written = 0;
+    }
+}
 
 void hm2_dpll_cleanup(hostmot2_t *hm2) {
     // Should all be handled by the HAL housekeeping
