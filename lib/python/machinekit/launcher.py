@@ -145,10 +145,12 @@ def load_bbio_file(filename):
 def install_comp(filename):
     install = True
     base, ext = os.path.splitext(os.path.basename(filename))
-    flavor = compat.default_flavor()
-    module_dir = compat.get_rtapi_config("RTLIB_DIR")
-    module_name = flavor.name + '/' + base + flavor.mod_ext
-    module_path = os.path.join(module_dir, module_name)
+    mk_module_dir = os.environ.get('MK_MODULE_DIR', None)
+    if mk_module_dir and os.path.exists(mk_module_dir):
+        module_dir = mk_module_dir
+    else:
+        module_dir = compat.get_rtapi_config("RTLIB_DIR")
+    module_path = os.path.join(module_dir, 'modules', f'{base}.so')
     if os.path.exists(module_path):
         comp_time = os.path.getmtime(filename)
         module_time = os.path.getmtime(module_path)
