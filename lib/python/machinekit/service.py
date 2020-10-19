@@ -47,7 +47,8 @@ class ZeroconfService(object):
 
         # insert fqdn in announcement
         fqdn = str(server.GetHostNameFqdn())
-        text = [t % {'fqdn': fqdn} for t in self.text]
+        text = avahi.string_array_to_txt_array(
+            [t % {'fqdn': fqdn} for t in self.text])
         name = self.name % {'fqdn': fqdn}
 
         iface = avahi.IF_UNSPEC
@@ -114,7 +115,8 @@ class Service(object):
 
         if name is None:
             pid = os.getpid()
-            self.name = '%s service on %s pid %i' % (self.type.title(), self.host, pid)
+            self.name = '%s service on %s pid %i' % (
+                self.type.title(), self.host, pid)
 
         me = uuid.uuid1()
         self.status_txtrec = [
