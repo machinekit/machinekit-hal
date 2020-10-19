@@ -1,15 +1,46 @@
-#include <sys/types.h>
+#include "config.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <unistd.h>
+#include "rtapi.h"
+#include "rtapi_compat.h"
 #include <fcntl.h>
 #include <sys/mman.h>
+#include <unistd.h>
 
 #define HW_REGS_SPAN ( 65536 )
-
-//#define MAX_ADDR 65533 (higher creates no output error)
 #define MAX_ADDR 1020
+
+#define MAXUIOIDS  100
+#define MAXNAMELEN 256
+
+// filename is printf-style
+int rtapi_fs_read(char *buf, const size_t maxlen, const char *name, ...)
+{
+    char fname[4096];
+    va_list args;
+
+    va_start(args, name);
+    size_t len = vsnprintf(fname, sizeof(fname), name, args);
+    va_end(args);
+
+    if (len < 1)
+    return -EINVAL; // name too short
+
+    int fd, rc;
+    if ((fd = open(fname, O_RDONLY)) >= 0) {
+    rc = read(fd, buf, maxlen);
+    close(fd);
+    if (rc < 0)
+        return -errno;
+    char *s = strchr(buf, '\n');
+    if (s) *s = '\0';
+    return strlen(buf);
+    } else {
+    return -errno;
+    }
+}
 
 static void show_usage(void)
 {
@@ -29,10 +60,27 @@ int main ( int argc, char *argv[] )
     void *h2p_lw_axi_mem_addr=NULL;
     int fd;
     u_int32_t index, inval;
+    char *uio_dev;
     
     // Open /dev/uio0
-    if ( ( fd = open ( "/dev/uio0", ( O_RDWR | O_SYNC ) ) ) == -1 ) {
-        printf ( "    ERROR: could not open \"/dev/uio0\"...\n" );
+    char buf[MAXNAMELEN];
+    int uio_id;
+    for (uio_id = 0; uio_id < MAXUIOIDS; uio_id++) {
+        if (rtapi_fs_read(buf, MAXNAMELEN, "/sys/class/uio/uio%d/name", uio_id) < 0)
+            continue;
+        if (strncmp("hm2-socfpga0", buf, strlen("hm2-socfpga0")) == 0)
+            break;
+    }
+    if (uio_id >= MAXUIOIDS) {
+        printf(" didn't find a valid hm2-socfpga0 uio device\n");
+        return -1;
+    }
+    snprintf(buf, sizeof(buf), "/dev/uio%d", uio_id);
+    uio_dev = strdup(buf);
+    printf("located hm2-socfpga0 on %s\n", uio_dev);
+
+    if ( ( fd = open ( uio_dev, ( O_RDWR | O_SYNC ) ) ) == -1 ) {
+        printf ( "    ERROR: could not open %s ...\n", uio_dev);
         return ( 1 );
     }
     
