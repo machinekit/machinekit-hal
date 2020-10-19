@@ -720,17 +720,17 @@ static int locate_uio_device(hm2_soc_t *brd, const char *name)
 {
     char buf[MAXNAMELEN];
     int uio_id;
-
     for (uio_id = 0; uio_id < MAXUIOIDS; uio_id++) {
-	if (rtapi_fs_read(buf, MAXNAMELEN, "/sys/class/uio/uio%d/name", uio_id) < 0)
-	    continue;
-	if (strncmp(name, buf, strlen(name)) == 0)
-	    break;
+        if (rtapi_fs_read(buf, MAXNAMELEN, "/sys/class/uio/uio%d/name", uio_id) < 0)
+            continue;
+        if (strncmp(name, buf, strlen(name)) == 0)
+            break;
     }
     if (uio_id >= MAXUIOIDS)
 	return -1;
 
     rtapi_snprintf(buf, sizeof(buf), "/dev/uio%d", uio_id);
     brd->uio_dev = strdup(buf);
+    LL_DBG("located %s on %s\n", brd->name, brd->uio_dev);
     return 0;
 }
