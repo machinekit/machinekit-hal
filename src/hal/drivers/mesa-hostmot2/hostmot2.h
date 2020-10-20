@@ -254,13 +254,10 @@ typedef struct {
             hal_bit_t *in;
             hal_bit_t *in_not;
             hal_bit_t *out;
+            hal_bit_t *is_output;
+            hal_bit_t *is_opendrain;
+            hal_bit_t *invert_output;
         } pin;
-
-        struct {
-            hal_bit_t is_output;
-            hal_bit_t is_opendrain;
-            hal_bit_t invert_output;
-        } param;
 
     } hal;
 } hm2_gpio_instance_t;
@@ -352,17 +349,15 @@ typedef struct {
             hal_bit_t *input_a;
             hal_bit_t *input_b;
             hal_bit_t *input_idx;
+            hal_float_t *scale;
+            hal_bit_t *index_invert;
+            hal_bit_t *index_mask;
+            hal_bit_t *index_mask_invert;
+            hal_bit_t *counter_mode;
+            hal_bit_t *index_mode;
+            hal_bit_t *filter;
+            hal_float_t *vel_timeout;
         } pin;
-        struct {
-            hal_float_t scale;
-            hal_bit_t index_invert;
-            hal_bit_t index_mask;
-            hal_bit_t index_mask_invert;
-            hal_bit_t counter_mode;
-            hal_bit_t index_mode;
-            hal_bit_t filter;
-            hal_float_t vel_timeout;
-        } param;
 
     } hal;
 
@@ -386,7 +381,7 @@ typedef struct {
 } hm2_encoder_instance_t;
 
 
-// these hal params affect all encoder instances
+// these hal pins affect all encoder instances
 typedef struct {
     struct {
         hal_u32_t *sample_frequency;
@@ -485,13 +480,10 @@ typedef struct {
             hal_bit_t *reset;
             hal_bit_t *index_enable;
             hal_bit_t *error;
+            hal_float_t *scale;
+            hal_float_t *vel_scale;
+            hal_u32_t *index_div;
         } pin;
-
-        struct {
-            hal_float_t scale;
-            hal_float_t vel_scale;
-            hal_u32_t index_div;
-        } param;
 
     } hal;
 
@@ -504,8 +496,8 @@ typedef struct {
 
 typedef struct {
     struct {
-        hal_float_t excitation_khz;
-    } param;
+        hal_float_t *excitation_khz;
+    } pin;
 } hm2_resolver_global_t;
 
 typedef struct {
@@ -555,12 +547,9 @@ typedef struct {
         struct {
             hal_float_t *value;
             hal_bit_t *enable;
+            hal_float_t *scale;
+            hal_s32_t *output_type;
         } pin;
-
-        struct {
-            hal_float_t scale;
-            hal_s32_t output_type;
-        } param;
 
     } hal;
 
@@ -574,12 +563,12 @@ typedef struct {
 } hm2_pwmgen_instance_t;
 
 
-// these hal params affect all pwmgen instances
+// these hal pins affect all pwmgen instances
 typedef struct {
     struct {
-        hal_u32_t pwm_frequency;
-        hal_u32_t pdm_frequency;
-    } param;
+        hal_u32_t *pwm_frequency;
+        hal_u32_t *pdm_frequency;
+    } pin;
 } hm2_pwmgen_module_global_t;
 
 
@@ -594,7 +583,7 @@ typedef struct {
     // module-global HAL objects...
     hm2_pwmgen_module_global_t *hal;
 
-    // these keep track of the most recent hal->param.p{d,w}m_frequency
+    // these keep track of the most recent hal->pin.p{d,w}m_frequency
     // that we've told the FPGA about, so we know if we need to update it
     u32 written_pwm_frequency;
     u32 written_pdm_frequency;
@@ -668,7 +657,7 @@ typedef struct {
     u32 clock_frequency;
     u8 version;
 
-    // these keep track of the most recent hal->param.p{d,w}m_frequency
+    // these keep track of the most recent hal->pin.p{d,w}m_frequency
     // that we've told the FPGA about, so we know if we need to update it
     u32 written_pwm_frequency;
 
@@ -784,7 +773,7 @@ typedef struct {
 } hm2_stepgen_instance_t;
 
 
-// these hal params affect all stepgen instances
+// these hal pins affect all stepgen instances
 typedef struct {
     struct {
         hal_s32_t *dpll_timer_num;
@@ -1141,7 +1130,7 @@ typedef struct {
 
 } hm2_capsense_instance_t;
 
-// these hal params affect all pwmgen instances
+// these hal pins affect all pwmgen instances
 typedef struct {
     struct {
         hal_u32_t *capsense_hysteresis;
@@ -1152,7 +1141,7 @@ typedef struct {
     int num_instances;
     hm2_capsense_instance_t *instance;
 
-    // these keep track of the most recent hal->param.p{d,w}m_frequency
+    // these keep track of the most recent hal->pin.p{d,w}m_frequency
     // that we've told the FPGA about, so we know if we need to update it
     u32 written_capsense_hysteresis_reg;
 
