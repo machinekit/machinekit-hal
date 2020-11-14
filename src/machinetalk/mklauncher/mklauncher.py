@@ -141,7 +141,7 @@ class Mklauncher(object):
 
         # prepare pings
         if self.ping_interval > 0:
-            self.ping_ratio = math.floor(self.ping_interval / self.poll_interval)
+            self.ping_ratio = math.floor(self.ping_interval // self.poll_interval)
         else:
             self.ping_ratio = -1
         self.pingCount = 0
@@ -384,7 +384,7 @@ class Mklauncher(object):
         self.tx_container.type = msg_type
         tx_buffer = self.tx_container.SerializeToString()
         self.tx_container.Clear()
-        self.launcher_socket.send_multipart(['launcher', tx_buffer], zmq.NOBLOCK)
+        self.launcher_socket.send_multipart([b'launcher', tx_buffer], zmq.NOBLOCK)
 
     def _send_command_message(self, identity, msg_type):
         self.tx.type = msg_type
@@ -412,14 +412,14 @@ class Mklauncher(object):
         try:
             rc = s.recv()
             subscription = rc[1:]
-            status = rc[0] == "\x01"
+            status = rc[0] == 1
 
-            if subscription == 'launcher':
+            if subscription == b'launcher':
                 self.launcher_subscribed = status
                 self.launcher_full_update = status
 
             logger.debug(
-                ("process launcher called " + subscription + ' ' + str(status))
+                ("process launcher called " + subscription.decode('utf-8') + ' ' + str(status))
             )
 
         except zmq.ZMQError as e:
