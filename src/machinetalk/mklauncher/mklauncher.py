@@ -347,7 +347,9 @@ class Mklauncher(object):
                     stdout_index = len(launcher.output)
                     while True:
                         try:
-                            line = process.stdout.read()
+                            line = process.stdout.readline()
+                            if not line:
+                                break
                             stdout_line = StdoutLine()
                             stdout_line.index = stdout_index
                             stdout_line.line = line
@@ -371,6 +373,7 @@ class Mklauncher(object):
                 self.tx_container.launcher.add().MergeFrom(tx_launcher)
                 tx_launcher.Clear()
                 has_update = True
+                logger.debug('ulsMSG: if modified: --> has_update = True')
 
         if self.launcher_full_update:
             self._add_pparams_to_message()
@@ -441,7 +444,7 @@ class Mklauncher(object):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 stdin=subprocess.PIPE,
-                preexec_fn=os.setsid,
+                start_new_session=True,
             )
         except OSError as e:
             return False, str(e)
