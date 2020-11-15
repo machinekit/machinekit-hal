@@ -78,6 +78,7 @@ Depends:
     python3-pil,
     python3-gst-1.0,
     uuid-runtime,
+    python3-setproctitle,
     @RUNTIME_DEPENDENCIES@,
 Description: Universal framework for machine control based on Hardware Abstraction Layer principle
     .
