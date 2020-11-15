@@ -35,6 +35,7 @@ from machinetalk.protobuf.config_pb2 import (
 import machinetalk.protobuf.types_pb2 as pb
 from machinetalk.protobuf.object_pb2 import ProtocolParameters
 
+from setproctitle import setproctitle
 
 logger = logging.getLogger('mklauncher')
 
@@ -604,6 +605,7 @@ def check_exit():
 
 
 def main():
+    setproctitle('mklauncher')
     parser = argparse.ArgumentParser(
         description='mklauncher is Machinetalk based session/configuration launcher for Machinekit'
     )
