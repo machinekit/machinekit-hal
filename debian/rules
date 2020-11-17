@@ -126,7 +126,6 @@ install: build
 	dh_testdir
 	dh_testroot
 	dh_prep
-
 	dh_installdirs
 # start the install
 	mkdir -p debian/tmp
@@ -138,6 +137,17 @@ install: build
 	    debian/tmp/usr/include/machinekit/machinetalk/nanopb \
 	    debian/tmp/usr/include/machinekit/machinetalk/protobuf
 
+	for F in $(shell ls ./include/machinetalk/nanopb); do \
+	    rm ./debian/tmp/usr/include/machinekit/$$F; \
+	    cp ./include/machinetalk/nanopb/$$F ./debian/tmp/usr/include/machinekit/machinetalk/nanopb; \
+	done
+	
+	for F in $(shell ls ./include/machinetalk/protobuf); do \
+	    rm ./debian/tmp/usr/include/machinekit/$$F; \
+	    cp ./include/machinetalk/protobuf/$$F ./debian/tmp/usr/include/machinekit/machinetalk/protobuf; \
+	done
+
+	
 	mkdir -p debian/tmp/etc/security/limits.d
 	cp src/rtapi/shmdrv/limits.d-machinekit.conf \
 	    debian/tmp/etc/security/limits.d/machinekit.conf
