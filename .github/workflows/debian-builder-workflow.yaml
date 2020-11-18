@@ -138,7 +138,7 @@ jobs:
                              " exist in registry $DOCKER_BASE_ADDRESS"  \
                              "/$IMAGE_PREFIX\n")
             echo "::warning::$WARNING"
-            echo "::set-env name=BuildDockerImage::true"
+            echo "BuildDockerImage=true" >> $GITHUB_ENV
             printf "Going to force rebuild of all Docker images!\n"
             exit 0
           fi
@@ -183,7 +183,7 @@ jobs:
                            "============================================\n" \
                            "$DOCKER_GIT_TABLE\n")
           echo "::warning::$WARNING"
-          echo "::set-env name=BuildDockerImage::true"
+          echo "BuildDockerImage=true" >> $GITHUB_ENV
           printf "Going to force rebuild of all Docker images!\n"
           exit 0
         fi
@@ -212,7 +212,7 @@ jobs:
                  "Git commit $GIT_COMMIT_SHA from which the current cached" \
                  " Docker images were built cannot be found in history.\n"  \
                  "Going to force rebuild of all Docker images!\n"
-          echo "::set-env name=BuildDockerImage::true"
+          echo "BuildDockerImage=true" >> $GITHUB_ENV
         fi
       env:
         GIT_COMMIT_SHA: ${{ steps.docker_metadata_normalizer.outputs.git_sha }}
@@ -233,7 +233,7 @@ jobs:
             printf "%b"                                               \
                    "Found file $line matching the regular expression" \
                    " for Debian builder files.\n"
-            echo "::set-env name=BuildDockerImage::true"
+            echo "BuildDockerImage=true" >> $GITHUB_ENV
             exit 0
           fi
         done <<< "$CHANGED_FILES"
@@ -379,7 +379,7 @@ jobs:
           in paths
         run: |
           DISTRIBUTION_LOWER=$(echo "$DISTRIBUTION" | awk '{print tolower($0)}')
-          echo "::set-env name=distribution_normalized::$DISTRIBUTION_LOWER"
+          echo "distribution_normalized=$DISTRIBUTION_LOWER" >> $GITHUB_ENV
         env:
           DISTRIBUTION: ${{ matrix.osDistribution}}
 
@@ -608,9 +608,6 @@ jobs:
         working-directory: ./build/machinekit-hal
 
       - name: Execute CMOCKA UNIT tests
-        run: printf "Not yet implemented\n"
-
-      - name: Execute Python nosetests
         run: printf "Not yet implemented\n"
 
   # This has a chance to cause problems when developing multiple branches 
