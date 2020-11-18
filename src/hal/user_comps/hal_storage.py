@@ -11,7 +11,7 @@ import sys
 import os
 import argparse
 
-import ConfigParser
+import configparser
 
 import hal
 
@@ -64,7 +64,7 @@ if not os.path.isfile(filename):
     sys.stderr.write('Error: File does not exist.\n')
     sys.exit(1)
 
-cfg = ConfigParser.ConfigParser()
+cfg = configparser.ConfigParser()
 cfg.read(filename)
 h = hal.component(args.name)
 for section in cfg.sections():

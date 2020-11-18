@@ -7,7 +7,7 @@ from machinekit.nosetests.realtime import setup_module,teardown_module
 
 setup_module()
 
-cfg = ConfigParser.ConfigParser()
+cfg = configparser.ConfigParser()
 cfg.read(os.getenv("MACHINEKIT_INI"))
 uuid = cfg.get("MACHINEKIT", "MKUUID")
 rt = rtapi.RTAPIcommand(uuid=uuid)
