@@ -610,9 +610,6 @@ jobs:
       - name: Execute CMOCKA UNIT tests
         run: printf "Not yet implemented\n"
 
-      - name: Execute Python nosetests
-        run: printf "Not yet implemented\n"
-
   # This has a chance to cause problems when developing multiple branches 
   # simultaneously all or some of which use different builder configuration,
   # one way how to solve it is to use different tags for different branches, 
