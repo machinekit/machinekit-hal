@@ -598,10 +598,11 @@ jobs:
 
       - name: Execute Runtests
         run: |
-          docker run --tty --rm -u "$(id -u):$(id -g)" \
+          docker run --tty --rm -u "$(id -u):$(id -g)"        \
             -v "$(pwd):/home/machinekit/build/machinekit-hal" \
-            -w "/home/machinekit/build/machinekit-hal" \
-            ${DOCKER_IMAGE} \
+            -w "/home/machinekit/build/machinekit-hal"        \
+            --cap-add=sys_nice                                \
+            ${DOCKER_IMAGE}                                   \
             debian/ripruntests.py
         env:
           DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ matrix.dockerImage.basename }}:latest'
