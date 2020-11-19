@@ -10,7 +10,7 @@ from dbus.mainloop.glib import DBusGMainLoop
 import avahi
 import gobject
 import threading
-import ConfigParser
+import configparser
 
 gobject.threads_init()
 dbus.mainloop.glib.threads_init()
@@ -118,7 +118,7 @@ def main():
         print >> sys.stderr, "no MACHINEKIT_INI environment variable set"
         sys.exit(1)
 
-    mki = ConfigParser.ConfigParser()
+    mki = configparser.ConfigParser()
     mki.read(mkini)
     uuid = mki.get("MACHINEKIT", "MKUUID")
     remote = mki.getint("MACHINEKIT", "REMOTE")

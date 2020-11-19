@@ -3,7 +3,7 @@ import os,time,sys
 import zmq
 import time
 import sys
-import ConfigParser
+import configparser
 import subprocess
 from machinekit import rtapi,hal
 
@@ -22,7 +22,7 @@ def multiframe_ring(name):
 subprocess.call("realtime restart", shell=True,stderr=subprocess.STDOUT)
 
 # connect to RTAPI
-cfg = ConfigParser.ConfigParser()
+cfg = configparser.ConfigParser()
 cfg.read(os.getenv("MACHINEKIT_INI"))
 uuid = cfg.get("MACHINEKIT", "MKUUID")
 rt = rtapi.RTAPIcommand(uuid=uuid)
