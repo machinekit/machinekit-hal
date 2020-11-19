@@ -123,32 +123,41 @@ matrix:
       arch: amd64
       env: ARCHITECTURE=arm64 VERSION=9 DISTRIBUTION=debian
     - os: linux
-      arch: arm64
+      arch: arm64-graviton2
       env: ARCHITECTURE=armhf VERSION=20.04 DISTRIBUTION=ubuntu
+      virt: lxd
     - os: linux
-      arch: arm64
+      arch: arm64-graviton2
       env: ARCHITECTURE=amd64 VERSION=20.04 DISTRIBUTION=ubuntu
+      virt: lxd
     - os: linux
-      arch: arm64
+      arch: arm64-graviton2
       env: ARCHITECTURE=armhf VERSION=10 DISTRIBUTION=debian
+      virt: lxd
     - os: linux
-      arch: arm64
+      arch: arm64-graviton2
       env: ARCHITECTURE=amd64 VERSION=10 DISTRIBUTION=debian
+      virt: lxd
     - os: linux
-      arch: arm64
+      arch: arm64-graviton2
       env: ARCHITECTURE=i386 VERSION=10 DISTRIBUTION=debian
+      virt: lxd
     - os: linux
-      arch: arm64
+      arch: arm64-graviton2
       env: ARCHITECTURE=armhf VERSION=18.04 DISTRIBUTION=ubuntu
+      virt: lxd
     - os: linux
-      arch: arm64
+      arch: arm64-graviton2
       env: ARCHITECTURE=amd64 VERSION=18.04 DISTRIBUTION=ubuntu
+      virt: lxd
     - os: linux
-      arch: arm64
+      arch: arm64-graviton2
       env: ARCHITECTURE=i386 VERSION=18.04 DISTRIBUTION=ubuntu
+      virt: lxd
     - os: linux
-      arch: arm64
+      arch: arm64-graviton2
       env: ARCHITECTURE=armhf VERSION=9 DISTRIBUTION=debian
+      virt: lxd
     # Tests
     # - Reduce total build time by starting longest jobs first
     #- ARCHITECTURE=amd64 VERSION=10   CMD=test
