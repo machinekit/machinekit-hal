@@ -80,13 +80,13 @@ CHECK_MAX_TIME:
 // zero lo
     LDI State.LoTime, 0
     MOV State.HiTime, State.MaxTime
-    LDI State.CurTime, 0
+    MOV State.CurTime, State.MaxTime
     JMP PWM_READ_DONE
 
 ZERO_HI:
     MOV State.LoTime, State.MaxTime
     LDI State.HiTime, 0
-    LDI State.CurTime, 0
+    MOV State.CurTime, State.MaxTime
 
 PWM_READ_DONE:
     
