@@ -65,7 +65,14 @@ void hpg_pwmread_read(hal_pru_generic_t *hpg) {
       PRU_task_pwmread_t *pru = (PRU_task_pwmread_t*)((u32)hpg->pru_data+(u32)hpg->pwmread.instance[i].task.addr);
       const u32 hiTime = pru->hiTime;
       const u32 loTime = pru->loTime;
-      const u32 period = hiTime+loTime;
+      const u32 maxTime = pru->maxTime;
+
+      u32 period = hiTime+loTime;
+
+      if(period > maxTime) {
+        period = maxTime;
+      }
+
       const float frequency = 1.0f/((float)period/1e9);
       const float duty_cycle = (float)(hiTime)/period;
 

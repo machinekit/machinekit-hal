@@ -128,7 +128,7 @@ static int num_encoders = 0;
 RTAPI_MP_INT(num_encoders, "Number of encoder channels (default: 0)");
 
 static int num_pwmreads = 0;
-RTAPI_MP_INT(num_pwmreads, "Number of PWM read channels (default: 0)");
+RTAPI_IP_INT(num_pwmreads, "Number of PWM read channels (default: 0)");
 
 static char *halname = "hal_pru_generic";
 RTAPI_MP_STRING(halname, "Prefix for hal names (default: hal_pru_generic)");
