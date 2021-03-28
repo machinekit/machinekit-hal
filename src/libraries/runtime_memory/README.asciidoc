@@ -1,0 +1,30 @@
+= Runtime memory
+:author: Jakub Fišer <jakub DOT fiser AT eryaf DOT com> 
+:description: Runtime memory sourcetree README 
+:sectanchors: 
+:url-repo: https://machinekit.io
+
+Shared memory driver implements HAL memory allocation and deallocation operations and affiliated functions.
+
+Symbols created by this package are part of **Runtime**.
+
+== Distribution
+
+*   **shmem_api:** Memory maps (`mmap`) shared memory intro process space
+-   Use either **shmem_driver_module** allocated memory or allocates a new block via standard Linux system calls
+
+*   **shmem_driver_module**: Allocate memory for Machinekit-HAL functionality in kernelspace
+-   Ability to allocate memory for multiple instances at once (as there cannot be multiple instances of single kernel module)
+-   Currently not __used__ and __build__
+
+WARNING: **shmem_driver_module** is meant to be a **Kernel module**. Linux kernel modules are special pieces of sofware with its own set of rules. One of them is that the module **needs to be build for each kernel separately**.
+
+== CMAKE targets
+
+Objects created in `CMAKE` Machinekit-HAL's namespace used for building.
+
+=== shmem_api (`SHARED` library)
+*   Standard shared library used for compile time linking into binaries
+*   Transitively exports **PUBLIC** interface header files through transitive dependencies
+
+**This is ungly and hopefully temporary solution. For long-term solution decision needs to be made on the Linux kernel module driver.**

@@ -66,11 +66,11 @@
 /* Usermode PCI builds */
 
 #define RTAPI_INC_CTYPE_H       <ctype.h>
-#define RTAPI_INC_DEVICE_H      "userpci/device.h"
-#define RTAPI_INC_FIRMWARE_H    "userpci/firmware.h"
-#define RTAPI_INC_GFP_H         "userpci/gfp.h"
-#define RTAPI_INC_LIST_H        "userpci/list.h"
-#define RTAPI_INC_SLAB_H        "userpci/slab.h"
-#define RTAPI_INC_STRING_H      "userpci/string.h"
+#define RTAPI_INC_DEVICE_H      "user_pci/device.h"
+#define RTAPI_INC_FIRMWARE_H    "user_pci/firmware.h"
+#define RTAPI_INC_GFP_H         "user_pci/gfp.h"
+#define RTAPI_INC_LIST_H        "user_pci/list.h"
+#define RTAPI_INC_SLAB_H        "user_pci/slab.h"
+#define RTAPI_INC_STRING_H      "user_pci/string.h"
 
 #endif /* CONFIG_MODULE_H */

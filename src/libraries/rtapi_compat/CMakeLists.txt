@@ -22,33 +22,18 @@
 #
 ######################################################################
 
-add_subdirectory(comp)
-add_subdirectory(decode_protobuf)
-add_subdirectory(encdec)
-add_subdirectory(fix_uuid)
-add_subdirectory(halcmd)
-add_subdirectory(halrun)
-add_subdirectory(haltalk)
-add_subdirectory(inivar)
-add_subdirectory(instcomp)
-add_subdirectory(linmove)
-add_subdirectory(messagebus)
-add_subdirectory(mksocmemio)
-add_subdirectory(msgd)
-add_subdirectory(mutexwatch)
-add_subdirectory(npbdecode)
-add_subdirectory(pci_read)
-add_subdirectory(pci_write)
-add_subdirectory(position)
-add_subdirectory(ppioctl)
-add_subdirectory(pru_debug)
-add_subdirectory(rawread)
-add_subdirectory(realtime)
-add_subdirectory(rtapi_app)
-add_subdirectory(rtprintf)
-add_subdirectory(script_helpers)
-add_subdirectory(sizes)
-add_subdirectory(test_rtapi_vsnprinf)
-add_subdirectory(unionread)
-add_subdirectory(varint)
-add_subdirectory(webtalk)
+# Temporary INTERFACE library to solve Machinekit-HAL issue with symbol placement
+
+# Transformed into INTERFACE library to manage dependencies
+
+add_library(rtapi_compat INTERFACE)
+
+set(SOURCE_FILES "src/rtapi_compat.c")
+
+target_sources(rtapi_compat INTERFACE ${SOURCE_FILES})
+
+target_include_directories(rtapi_compat INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:"${MACHINEKIT_HAL_INTERFACE_DIRECTORY}")
+
+set_target_properties(
+    rtapi_compat PROPERTIES PUBLIC_HEADER include/rtapi_compat.h)

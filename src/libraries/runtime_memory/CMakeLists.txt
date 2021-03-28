@@ -22,33 +22,24 @@
 #
 ######################################################################
 
-add_subdirectory(comp)
-add_subdirectory(decode_protobuf)
-add_subdirectory(encdec)
-add_subdirectory(fix_uuid)
-add_subdirectory(halcmd)
-add_subdirectory(halrun)
-add_subdirectory(haltalk)
-add_subdirectory(inivar)
-add_subdirectory(instcomp)
-add_subdirectory(linmove)
-add_subdirectory(messagebus)
-add_subdirectory(mksocmemio)
-add_subdirectory(msgd)
-add_subdirectory(mutexwatch)
-add_subdirectory(npbdecode)
-add_subdirectory(pci_read)
-add_subdirectory(pci_write)
-add_subdirectory(position)
-add_subdirectory(ppioctl)
-add_subdirectory(pru_debug)
-add_subdirectory(rawread)
-add_subdirectory(realtime)
-add_subdirectory(rtapi_app)
-add_subdirectory(rtprintf)
-add_subdirectory(script_helpers)
-add_subdirectory(sizes)
-add_subdirectory(test_rtapi_vsnprinf)
-add_subdirectory(unionread)
-add_subdirectory(varint)
-add_subdirectory(webtalk)
+add_library(runtime_memory_api SHARED)
+add_library(${MACHINEKIT_HAL_NAMESPACE}::runtime_memory_api ALIAS runtime_memory_api)
+
+set(HEADER_FILES include/shmdrv.h)
+set(SOURCE_FILES src/shmdrvapi.c)
+
+target_include_directories(runtime_memory_api PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:"${MACHINEKIT_HAL_INTERFACE_DIRECTORY}")
+
+target_sources(runtime_memory_api PRIVATE ${SOURCE_FILES})
+target_link_libraries(runtime_memory_api PRIVATE runtime_api)
+
+target_compile_definitions(runtime_memory_api PRIVATE "ULAPI")
+
+set_target_properties(
+    runtime_memory_api PROPERTIES PUBLIC_HEADER ${HEADER_FILES})
+
+set_target_properties(
+    runtime_memory_api
+    PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${MACHINEKIT_HAL_LIBRARY_DIRECTORY}
+    POSITION_INDEPENDENT_CODE TRUE)

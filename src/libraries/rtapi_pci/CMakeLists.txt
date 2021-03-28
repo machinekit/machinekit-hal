@@ -21,3 +21,13 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 ######################################################################
+
+add_library(rtapi_pci INTERFACE)
+
+target_sources(rtapi_pci INTERFACE src/rtapi_pci.c)
+
+target_include_directories(rtapi_pci INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:"${MACHINEKIT_HAL_INTERFACE_DIRECTORY}")
+
+set_target_properties(
+  rtapi_pci PROPERTIES PUBLIC_HEADER include/rtapi_pci.h)

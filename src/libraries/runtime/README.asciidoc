@@ -1,0 +1,37 @@
+= Runtime
+:author: Jakub Fišer <jakub DOT fiser AT eryaf DOT com>
+:description: Runtime sourcetree README 
+:sectanchors: 
+:url-repo: https://machinekit.io
+
+Runtime export the basic API for Machinekit-HAL function. It provides the lowest lewel set of symbols and has to be loaded first.
+
+== Distribution
+
+*   **rtapi_module:** Dynamically loaded (`dl_open`) module into managed namespace
+-   Supports real-time execution
+-   Compiled with `RTAPI` flag __DEFINE__
+*   **ulapi**: Shared library used to link into executables and other shared libraries
+-   Doesn't need to support real-time execution, can include code sleeping, yielding or otherwise breaking __real-time__
+-   Compiled with `ULAPI` flag __DEFINE__
+
+== CMAKE targets
+
+Objects created in `CMAKE` Machinekit-HAL's namespace used for building.
+
+=== runtime_api (`INTERFACE` library)
+*   Fully abstract `CMAKE` object with no output representation
+*   Used for propagation of **interface** headers to depending modules
+
+=== runtime_module (`rtapi_module.so`)
+*   **MODULE** dynamically loaded into linked namespace
+*   Many of the symbols will be resolved at runtime from modules loaded beforehand (as per `RTLD_GLOBAL`)
+*   Not intended for `target_link_libraries()` use
+
+=== runtime (`libulapi.so`)
+*   Standard shared library used for compile time linking into binaries
+*   Transitively exports **PUBLIC** interface header files through transitive dependencies
+
+== Notes
+
+* The `config.h` CMAKE generated header file is included here in Runtime and part of `runtime_api` just because at first glance it seemed simpler. However, that does not mean this is the best of places. It says it is part of HAL and not Runtime, however parts of Runtime depends on it. **This is ugly and should be solved better down the line.**

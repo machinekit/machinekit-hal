@@ -33,7 +33,9 @@ information, go to https://github.com/machinekit.
 
 *************************************************************************/
 
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE /* getline() */
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>

@@ -21,3 +21,21 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 ######################################################################
+
+add_library(syslog_async SHARED)
+add_library(${MACHINEKIT_HAL_NAMESPACE}::syslog_async ALIAS syslog_async)
+
+set(HEADER_FILES include/syslog_async.h)
+set(SOURCE_FILES src/syslog_async.c)
+
+target_include_directories(
+  syslog_async PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
+
+target_sources(syslog_async PRIVATE ${SOURCE_FILES})
+
+set_target_properties(
+  syslog_async
+    PROPERTIES 
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_INSTALL_LIBDIR}"
+        PUBLIC_HEADER ${HEADER_FILES})

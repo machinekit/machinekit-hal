@@ -21,3 +21,25 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 ######################################################################
+
+add_library(mkini SHARED)
+add_library(${MACHINEKIT_HAL_NAMESPACE}::mkini ALIAS mkini)
+
+set(SOURCE_FILES src/inifile.cc)
+
+target_sources(mkini PRIVATE ${SOURCE_FILES})
+
+# TODO: Needed just because of the config.h??
+target_link_libraries(mkini PRIVATE runtime_api)
+
+target_include_directories(
+    mkini PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:"${MACHINEKIT_HAL_INTERFACE_DIRECTORY}")
+
+set_target_properties(
+    mkini
+    PROPERTIES 
+        RUNTIME_OUTPUT_DIRECTORY "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
+        PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/mk-inifile.h"
+        PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/mk-inifile.hh"
+        POSITION_INDEPENDENT_CODE TRUE)

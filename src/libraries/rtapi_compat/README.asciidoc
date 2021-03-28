@@ -1,0 +1,18 @@
+= RTAPI compat
+:author: Jakub Fišer <jakub DOT fiser AT eryaf DOT com> 
+:description: RTAPI_compat sourcetree README 
+:sectanchors: 
+:url-repo: https://machinekit.io
+
+Temporary solution for sharing single sourcefile between multiple `CMAKE` targets. Should go away once executables can be linked against **runtime** (`libulapi.so`) without its symbols infusing the managed linker namespace (where **runtime_module** [`rtapi_module.so`] is loaded).
+
+== CMAKE targets
+
+Objects created in `CMAKE` Machinekit-HAL's namespace used for building.
+
+=== rtapi_compat (`INTERFACE` library)
+*   Fully abstract `CMAKE` object with no output representation
+*   Used for adding sourcefiles to multiple other targets (executables) with the same compile options
+*   Compile once, use multiple times
+
+**This is ungly and hopefully temporary solution. In perfect world it would not be needed. But we don't live in perfect world.**

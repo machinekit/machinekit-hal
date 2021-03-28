@@ -22,33 +22,28 @@
 #
 ######################################################################
 
-add_subdirectory(comp)
-add_subdirectory(decode_protobuf)
-add_subdirectory(encdec)
-add_subdirectory(fix_uuid)
-add_subdirectory(halcmd)
-add_subdirectory(halrun)
-add_subdirectory(haltalk)
-add_subdirectory(inivar)
-add_subdirectory(instcomp)
-add_subdirectory(linmove)
-add_subdirectory(messagebus)
-add_subdirectory(mksocmemio)
-add_subdirectory(msgd)
-add_subdirectory(mutexwatch)
-add_subdirectory(npbdecode)
-add_subdirectory(pci_read)
-add_subdirectory(pci_write)
-add_subdirectory(position)
-add_subdirectory(ppioctl)
-add_subdirectory(pru_debug)
-add_subdirectory(rawread)
-add_subdirectory(realtime)
-add_subdirectory(rtapi_app)
-add_subdirectory(rtprintf)
-add_subdirectory(script_helpers)
-add_subdirectory(sizes)
-add_subdirectory(test_rtapi_vsnprinf)
-add_subdirectory(unionread)
-add_subdirectory(varint)
-add_subdirectory(webtalk)
+add_library(hal_command SHARED)
+add_library(${MACHINEKIT_HAL_NAMESPACE}::hal_command ALIAS hal_command)
+
+set(SOURCE_FILES
+    src/halcmd_commands.c
+    src/halcmd.c
+    src/halcmd_rtapiapp.cc)
+
+target_include_directories(
+    hal_command PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:"${MACHINEKIT_HAL_INTERFACE_DIRECTORY}")
+
+target_sources(hal_command PRIVATE ${SOURCE_FILES})
+
+# TODO: Needed just because of the config.h??
+target_link_libraries(hal_command PRIVATE runtime_api hal_api)
+
+target_compile_definitions(hal_command PRIVATE "ULAPI")
+
+set_target_properties(
+    hal_command PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
+    PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/halcmd_commands.h"
+    PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/halcmd_rtapiapp.h"
+    PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/halcmd.h"
+    )

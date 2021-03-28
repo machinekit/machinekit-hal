@@ -21,3 +21,27 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 ######################################################################
+
+cmake_minimum_required(VERSION 3.19)
+
+project(
+  Machinekit-HAL
+  VERSION 0.4 #TODO: Get the right version from VERSION file and git
+  DESCRIPTION "Universal framework for machine control."
+  HOMEPAGE_URL "https://machinekit.io"
+  LANGUAGES C CXX ASM)
+
+if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
+  #include(cmake/packaging/packaging.cmake)
+  include(CTest)
+  enable_testing()
+endif()
+
+include(GNUInstallDirs)
+
+set(MACHINEKIT_HAL_NAMESPACE "Machinekit::HAL")
+set(MACHINEKIT_HAL_LIBRARY_DIRECTORY ${CMAKE_INSTALL_LIBDIR})
+set(MACHINEKIT_HAL_MODULE_DIRECTORY ${CMAKE_INSTALL_LIBDIR})
+set(MACHINEKIT_HAL_INTERFACE_DIRECTORY ${CMAKE_INSTALL_INCLUDEDIR})
+
+add_subdirectory(src)

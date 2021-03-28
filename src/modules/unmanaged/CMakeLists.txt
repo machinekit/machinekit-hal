@@ -21,3 +21,27 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 ######################################################################
+
+add_subdirectory(adxl345)
+add_subdirectory(constv2)
+add_subdirectory(gs2_vfd)
+add_subdirectory(hal-gpio_mcp23017)
+add_subdirectory(hal_gy68)
+add_subdirectory(hal_input)
+add_subdirectory(hal_pwm_pca9685)
+add_subdirectory(halscope)
+add_subdirectory(hal_storage)
+add_subdirectory(hal_temp)
+add_subdirectory(huanyang_vfd)
+add_subdirectory(mb2hal)
+add_subdirectory(meter)
+add_subdirectory(remote)
+add_subdirectory(ringbench)
+add_subdirectory(ringdemo)
+add_subdirectory(scounter)
+add_subdirectory(shuttleexpress)
+add_subdirectory(vfdb_vfd)
+add_subdirectory(videoserver)
+add_subdirectory(vismach)
+add_subdirectory(xhc_hb04)
+add_subdirectory(xhc_whb04b_6)

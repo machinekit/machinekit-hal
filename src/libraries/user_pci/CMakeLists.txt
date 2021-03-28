@@ -22,33 +22,10 @@
 #
 ######################################################################
 
-add_subdirectory(comp)
-add_subdirectory(decode_protobuf)
-add_subdirectory(encdec)
-add_subdirectory(fix_uuid)
-add_subdirectory(halcmd)
-add_subdirectory(halrun)
-add_subdirectory(haltalk)
-add_subdirectory(inivar)
-add_subdirectory(instcomp)
-add_subdirectory(linmove)
-add_subdirectory(messagebus)
-add_subdirectory(mksocmemio)
-add_subdirectory(msgd)
-add_subdirectory(mutexwatch)
-add_subdirectory(npbdecode)
-add_subdirectory(pci_read)
-add_subdirectory(pci_write)
-add_subdirectory(position)
-add_subdirectory(ppioctl)
-add_subdirectory(pru_debug)
-add_subdirectory(rawread)
-add_subdirectory(realtime)
-add_subdirectory(rtapi_app)
-add_subdirectory(rtprintf)
-add_subdirectory(script_helpers)
-add_subdirectory(sizes)
-add_subdirectory(test_rtapi_vsnprinf)
-add_subdirectory(unionread)
-add_subdirectory(varint)
-add_subdirectory(webtalk)
+add_library(user_pci INTERFACE)
+
+target_include_directories(rtapi_pci INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:"${MACHINEKIT_HAL_INTERFACE_DIRECTORY}")
+
+set_target_properties(
+  rtapi_pci PROPERTIES PUBLIC_HEADER include/user_pci/device.h)
