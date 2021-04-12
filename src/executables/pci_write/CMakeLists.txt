@@ -21,3 +21,17 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 ######################################################################
+
+option(BUILD_PCI_WRITE_EXECUTABLE "Built the PCI write executable." TRUE)
+
+if(BUILD_PCI_WRITE_EXECUTABLE)
+# if(PCI)
+add_executable(pci_write)
+
+set(SOURCE_FILES src/pci_write.c)
+
+target_sources(pci_write PRIVATE ${SOURCE_FILES})
+
+target_link_libraries(pci_write PRIVATE upci)
+#endif()
+endif()

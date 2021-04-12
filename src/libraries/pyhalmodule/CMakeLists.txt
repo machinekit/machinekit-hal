@@ -21,3 +21,12 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 ######################################################################
+
+#add_library(halmodule MODULE)
+#add_library(${MACHINEKIT_HAL_NAMESPACE}::halmodule ALIAS halmodule)
+#
+#set(SOURCE_FILES src/halmodule.cc)
+#
+#target_sources(halmodule PRIVATE ${SOURCE_FILES})
+#
+#find_package(Python COMPONENTS Interpreter Development)

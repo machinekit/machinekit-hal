@@ -35,8 +35,8 @@
 #include "hal_internal.h"
 
 #include <mk-inifile.hh>	// INIFILE
-#include <rcs_print.hh>
-#include <timer.hh>
+//#include <rcs_print.hh>
+//#include <timer.hh>
 
 // Can't rely on bool working otherwise
 #undef TRUE

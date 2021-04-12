@@ -17,7 +17,7 @@
    02111-1307 USA.
  */
 
-#include "./hal.h"
+#include "xhc_whb04b_6/hal.h"
 
 // system includes
 #include <iostream>
@@ -30,7 +30,7 @@
 // 3rd party includes
 
 // local library includes
-#include "./pendant.h"
+#include "xhc_whb04b_6/pendant.h"
 
 namespace XhcWhb04b6 {
 

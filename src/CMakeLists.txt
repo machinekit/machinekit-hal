@@ -24,6 +24,8 @@
 
 include(FindPkgConfig)
 
+set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+
 add_subdirectory(libraries)
 add_subdirectory(executables)
 add_subdirectory(modules)

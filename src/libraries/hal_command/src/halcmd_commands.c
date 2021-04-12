@@ -52,7 +52,7 @@
 #include "rtapi_hexdump.h"
 #include "rtapi_flavor.h"      // flavor_descriptor
 
-#include <../include/machinetalk/protobuf/types.npb.h>
+#include <machinetalk/protobuf/types.npb.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -2447,7 +2447,7 @@ static int print_objects(char **patterns)
 }
 
 #include "rtapi_global.h"
-#include "rtapi/shmdrv/shmdrv.h"
+#include "shmdrv.h"
 static int print_mutexes(char **patterns)
 {
     extern global_data_t *global_data;

@@ -22,6 +22,9 @@
 #
 ######################################################################
 
+option(BUILD_MKINI_LIBRARY "Built the MKINI library." TRUE)
+
+if(BUILD_MKINI_LIBRARY)
 add_library(mkini SHARED)
 add_library(${MACHINEKIT_HAL_NAMESPACE}::mkini ALIAS mkini)
 
@@ -43,3 +46,4 @@ set_target_properties(
         PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/mk-inifile.h"
         PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/mk-inifile.hh"
         POSITION_INDEPENDENT_CODE TRUE)
+endif()

@@ -46,7 +46,7 @@
 #include <hal_ring.h>
 #include <setup_signals.h>
 #include <mk-zeroconf.hh>
-#include <select_interface.h>
+//#include <select_interface.h>
 #include <mk-inifile.h>
 #include <inihelp.hh>
 

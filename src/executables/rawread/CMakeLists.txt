@@ -21,3 +21,19 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 ######################################################################
+
+option(BUILD_RAWREAD_EXECUTABLE "Build the rawread executable." FALSE)
+
+if(BUILD_RAWREAD_EXECUTABLE)
+add_executable(rawread)
+
+set(SOURCE_FILES src/rawread.c)
+
+target_sources(rawread PRIVATE ${SOURCE_FILES})
+
+target_link_libraries(rawread PRIVATE machinetalk protobuf-nanopb-static)
+
+target_compile_definitions(rawread PRIVATE "PB_FIELD_32BIT")
+
+target_compile_options(rawread PRIVATE "-O0")
+endif()

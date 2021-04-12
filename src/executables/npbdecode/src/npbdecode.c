@@ -29,9 +29,9 @@
 #include <errno.h>
 #include <assert.h>
 
-#include <machinetalk/include/pb-hal.h>
-#include <machinetalk/nanopb/pb_decode.h>
-#include <machinetalk/nanopb/pb_encode.h>
+#include <pb-hal.h>
+#include <pb_decode.h>
+#include <pb_encode.h>
 
 #include <machinetalk/protobuf/types.npb.h>
 #include <machinetalk/protobuf/object.npb.h>

@@ -1,6 +1,6 @@
 syntax = "proto2";
 // fundamental types
-import "machinetalk/protobuf/nanopb.proto";
+import "nanopb.proto";
 
 // see README.msgid
 // msgid base: 1400

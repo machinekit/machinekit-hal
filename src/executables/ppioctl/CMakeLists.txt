@@ -21,3 +21,13 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 ######################################################################
+
+option(BUILD_PPIOCTL_EXECUTABLE "Built the PPIOCtl executable." TRUE)
+
+if(BUILD_PPIOCTL_EXECUTABLE)
+add_executable(ppioctl)
+
+set(SOURCE_FILES src/ppioctl.c)
+
+target_sources(ppioctl PRIVATE ${SOURCE_FILES})
+endif()

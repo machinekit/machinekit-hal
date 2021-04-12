@@ -22,9 +22,12 @@
 #
 # ##############################################################################
 
-add_library(runtimemath SHARED)
+option(BUILD_RUNTIME_MATH_LIBRARY "Built the Runtime Math library." TRUE)
+
+if(BUILD_RUNTIME_MATH_LIBRARY)
+add_library(runtime_math SHARED)
 add_library(
-  ${MACHINEKIT_HAL_NAMESPACE}::runtime::runtimemath ALIAS runtimemath)
+  ${MACHINEKIT_HAL_NAMESPACE}::runtime::runtime_math ALIAS runtime_math)
 
 set(SOURCE_FILES
     src/e_acos.c
@@ -53,7 +56,7 @@ set(SOURCE_FILES
     src/e_sqrt.c
     src/k_cos.c
     src/k_rem_pio2.c
-    src/krtapi_math.c
+    #src/krtapi_math.c TODO: Decide what to do with it
     src/k_sin.c
     src/k_standard.c
     src/k_tan.c
@@ -71,10 +74,10 @@ set(SOURCE_FILES
     src/s_finite.c
     src/s_floor.c
     src/s_fminmax.c
-    src/s_frexp.c
+    #src/s_frexp.c TODO: Decide what to do with it
     src/s_ilogb.c
     src/s_ldexp.c
-    src/s_lib_version.c
+    #src/s_lib_version.c TODO: Decide what to do with it
     src/s_log1p.c
     src/s_logb.c
     src/s_matherr.c
@@ -112,12 +115,20 @@ set(SOURCE_FILES
     src/w_sinh.c
     src/w_sqrt.c)
 
-target_sources(runtimemath PRIVATE ${SOURCE_FILES})
+target_sources(runtime_math PRIVATE ${SOURCE_FILES})
 target_include_directories(
-  runtimemath PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+  runtime_math PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+
+target_link_libraries(runtime_math PRIVATE runtime_api)
+
+target_compile_definitions(runtime_math PRIVATE "_IEEE_LIBM" "_ISOC99_SOURCE" "_DEFAULT_SOURCE")
+#"O2"
+#"Werror"
 
 set_target_properties(
-  runtimemath
+  runtime_math
   PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_INSTALL_LIBDIR}"
              PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/rtapi_math.h"
-             PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/rtapi_math64.h")
+             PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/rtapi_math64.h"
+             POSITION_INDEPENDENT_CODE TRUE)
+endif()

@@ -21,3 +21,18 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 ######################################################################
+
+option(BUILD_HUANYANG_VFD_UNMANAGED_MODULE "Build the Huanyang VFD unmanaged module." TRUE)
+
+if(BUILD_HUANYANG_VFD_UNMANAGED_MODULE)
+    add_executable(huanyang_vfd)
+
+    set(SOURCE_FILES src/hy_comm.c
+    src/hy_vfd.c)
+
+    target_sources(huanyang_vfd PRIVATE ${SOURCE_FILES})
+
+    target_include_directories(huanyang_vfd PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/huanyang_vfd>)
+
+    target_link_libraries(huanyang_vfd PRIVATE hal ${CMAKE_LIBS_LD})
+endif()

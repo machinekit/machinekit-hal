@@ -5,7 +5,7 @@ syntax = "proto2";
 // msgid base: 700
 
 
-import "machinetalk/protobuf/nanopb.proto";
+import "nanopb.proto";
 import "machinetalk/protobuf/types.proto";
 
 package machinetalk;

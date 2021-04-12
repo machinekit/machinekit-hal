@@ -22,10 +22,14 @@
 #
 # ##############################################################################
 
+option(BUILD_HAL_LIBRARY "Built the HAL library." TRUE)
+
+if(BUILD_HAL_LIBRARY)
 add_library(hal_api INTERFACE)
 add_library(${MACHINEKIT_HAL_NAMESPACE}::hal_api ALIAS hal_api)
 add_library(hal SHARED)
 add_library(${MACHINEKIT_HAL_NAMESPACE}::hal ALIAS hal)
+# Technically not a library, but managed module
 add_library(hal_module MODULE)
 add_library(${MACHINEKIT_HAL_NAMESPACE}::hal_module ALIAS hal_module)
 
@@ -73,3 +77,4 @@ set_target_properties(
 set_target_properties(
     hal_module
     PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${MACHINEKIT_HAL_MODULE_DIRECTORY})
+endif()

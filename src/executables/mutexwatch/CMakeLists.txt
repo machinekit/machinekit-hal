@@ -21,3 +21,20 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 ######################################################################
+
+option(BUILD_MUTEXWATCH_EXECUTABLE "Built the Mutexwatch executable." TRUE)
+
+if(BUILD_MUTEXWATCH_EXECUTABLE)
+add_executable(mutexwatch)
+
+set(SOURCE_FILES src/mutexwatch.c)
+
+target_sources(mutexwatch PRIVATE ${SOURCE_FILES})
+
+# TODO: Use FindLibRT CMake module or not?
+find_library(RT "rt" REQUIRED)
+
+target_link_libraries(mutexwatch PRIVATE runtime hal runtime_memory_api ${RT})
+
+target_compile_definitions(mutexwatch PRIVATE "ULAPI")
+endif()

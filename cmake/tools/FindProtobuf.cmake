@@ -1,13 +1,6 @@
 # Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
 # file Copyright.txt or https://cmake.org/licensing for details.
 
-# This is local Machinekit-HAL's copy of upstream script
-# https://github.com/Kitware/CMake/blob/master/Modules/FindProtobuf.cmake
-# patched to allow special functionality like plugins not supported by the original
-# version.
-
-# Hopefully not needed for long.
-
 #[=======================================================================[.rst:
 FindProtobuf
 ------------
@@ -147,7 +140,7 @@ Example:
 
 function(protobuf_generate)
   set(_options APPEND_PATH DESCRIPTORS)
-  set(_singleargs LANGUAGE OUT_VAR EXPORT_MACRO PROTOC_OUT_DIR PROTOC_PLUGIN PROTOC_ARGUMENTS)
+  set(_singleargs LANGUAGE OUT_VAR EXPORT_MACRO PROTOC_OUT_DIR PROTOC_PLUGIN PROTOC_ARGUMENTS PROTOC_WORKDIR)
   if(COMMAND target_sources)
     list(APPEND _singleargs TARGET)
   endif()
@@ -214,7 +207,11 @@ function(protobuf_generate)
       endif()
     endforeach()
   else()
-    set(_protobuf_include_path -I ${CMAKE_CURRENT_SOURCE_DIR})
+    if(protobuf_generate_PROTOC_WORKDIR)
+      set(_protobuf_include_path -I ${protobuf_generate_PROTOC_WORKDIR})
+    else()
+      set(_protobuf_include_path -I ${CMAKE_CURRENT_SOURCE_DIR})
+    endif()
   endif()
 
   foreach(DIR ${protobuf_generate_IMPORT_DIRS})
@@ -230,7 +227,12 @@ function(protobuf_generate)
     get_filename_component(_abs_file ${_proto} ABSOLUTE)
     get_filename_component(_abs_dir ${_abs_file} DIRECTORY)
     get_filename_component(_basename ${_proto} NAME_WLE)
-    file(RELATIVE_PATH _rel_dir ${CMAKE_CURRENT_SOURCE_DIR} ${_abs_dir})
+    if(protobuf_generate_PROTOC_WORKDIR)
+      set(REAL_WORKDIR ${protobuf_generate_PROTOC_WORKDIR})
+    else()
+      set(REAL_WORKDIR ${CMAKE_CURRENT_SOURCE_DIR})
+    endif()
+    file(RELATIVE_PATH _rel_dir ${REAL_WORKDIR} ${_abs_dir})
 
     set(_possible_rel_dir)
     if (NOT protobuf_generate_APPEND_PATH)
@@ -249,16 +251,13 @@ function(protobuf_generate)
     endif()
     list(APPEND _generated_srcs_all ${_generated_srcs})
 
-    if(NOT protobuf_generated_PROTOC_PLUGIN)
-        set(protobuf_generated_PROTOC_PLUGIN "")
-    endif()
-
     add_custom_command(
       OUTPUT ${_generated_srcs}
       COMMAND  protobuf::protoc
-      ARGS --${protobuf_generate_LANGUAGE}_out ${_dll_export_decl}${protobuf_generate_PROTOC_OUT_DIR} ${_dll_desc_out} ${protobuf_generated_PROTOC_PLUGIN} ${protobuf_generated_PROTOC_ARGUMENTS} ${_protobuf_include_path} ${_abs_file}
+      ARGS ${protobuf_generate_PROTOC_PLUGIN} ${protobuf_generate_PROTOC_ARGUMENTS} --${protobuf_generate_LANGUAGE}_out ${_dll_export_decl}${protobuf_generate_PROTOC_OUT_DIR} ${_dll_desc_out} ${_protobuf_include_path} ${_abs_file}
       DEPENDS ${_abs_file} protobuf::protoc
       COMMENT "Running ${protobuf_generate_LANGUAGE} protocol buffer compiler on ${_proto}"
+      WORKING_DIRECTORY ${protobuf_generate_PROTOC_WORKDIR}
       VERBATIM )
   endforeach()
 

@@ -21,3 +21,19 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 ######################################################################
+
+option(BUILD_HALMETER_UNMANAGED_MODULE "Build the HALmeter unmanaged module." TRUE)
+
+if(BUILD_HALMETER_UNMANAGED_MODULE)
+    add_executable(halmeter)
+
+    set(SOURCE_FILES src/meter.c)
+
+    target_sources(halmeter PRIVATE ${SOURCE_FILES})
+
+    target_link_libraries(halmeter PRIVATE runtime hal miscgtk)
+
+    target_compile_definitions(halmeter PRIVATE
+    "HAL_PO_DIR=\"${CMAKE_CURRENT_BINARY_FIR}/share/locale\""
+    )
+endif()

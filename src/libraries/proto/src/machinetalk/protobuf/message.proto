@@ -8,7 +8,7 @@ syntax = "proto2";
 package machinetalk;
 
 
-import "machinetalk/protobuf/nanopb.proto";
+import "nanopb.proto";
 import "machinetalk/protobuf/types.proto";
 import "machinetalk/protobuf/object.proto";
 import "machinetalk/protobuf/log.proto";

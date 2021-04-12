@@ -17,7 +17,7 @@
    02111-1307 USA.
  */
 
-#include "pendant-types.h"
+#include "xhc_whb04b_6/pendant-types.h"
 
 // system includes
 #include <assert.h>

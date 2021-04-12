@@ -8,7 +8,7 @@ package machinetalk;
 // see README.msgid
 // msgid base: 360
 
-import "machinetalk/protobuf/nanopb.proto";
+import "nanopb.proto";
 
 
 message Sample {

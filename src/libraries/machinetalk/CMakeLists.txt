@@ -21,3 +21,51 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 ######################################################################
+
+option(BUILD_MACHINETALK_LIBRARY "Built the Machinetalk library." TRUE)
+
+if(BUILD_MACHINETALK_LIBRARY)
+add_library(machinetalk SHARED)
+add_library(${MACHINEKIT_HAL_NAMESPACE}::machinetalk ALIAS machinetalk)
+
+set(SOURCE_FILES src/czmq-watch.c
+    src/inihelp.cc
+    src/json2pb.cc
+    src/ll_zeroconf_register.cc
+    src/mk_backtrace.c
+    src/mk_service.cc
+    src/mk_zeroconf.cc
+    src/pbutil.cc
+    src/setup_signals.c
+    src/zeroconf_resolve.cc)
+
+target_sources(machinetalk PRIVATE ${SOURCE_FILES})
+
+pkg_check_modules(AVAHICLIENT "avahi-client" REQUIRED IMPORTED_TARGET)
+pkg_check_modules(LIBCZMQ "libczmq" REQUIRED IMPORTED_TARGET)
+pkg_check_modules(JANSSON "jansson" REQUIRED IMPORTED_TARGET)
+
+target_link_libraries(machinetalk 
+PUBLIC 
+machinetalk_proto_cc
+nanopb_interface
+PkgConfig::AVAHICLIENT
+PkgConfig::LIBCZMQ
+PkgConfig::JANSSON
+PRIVATE 
+runtime_api 
+hal_api 
+mkini 
+syslog_async
+)
+
+target_include_directories(
+    machinetalk PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY})
+
+set_target_properties(
+    machinetalk
+    PROPERTIES 
+        RUNTIME_OUTPUT_DIRECTORY "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
+        POSITION_INDEPENDENT_CODE TRUE)
+endif()

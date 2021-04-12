@@ -30,7 +30,7 @@
 #include "rtapi.h"
 #include "rtapi_common.h"
 #include "rtapi_global.h"
-#include "rtapi/shmdrv/shmdrv.h"
+#include "shmdrv.h"
 #include "hal.h"
 #include "hal_priv.h"
 

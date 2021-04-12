@@ -21,3 +21,26 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 ######################################################################
+
+option(BUILD_XHC_WBH04B_6_UNMANAGED_MODULE "Build the XHC WBH04B-6 unmanaged module." TRUE)
+
+if(BUILD_XHC_WBH04B_6_UNMANAGED_MODULE)
+    add_executable(xhc_whb04b_6)
+
+    set(SOURCE_FILES src/hal.cc
+        src/main.cc
+        src/pendant-types.cc
+        src/pendant.cc
+        src/usb.cc
+        src/xhc-whb04b6.cc)
+
+    target_sources(xhc_whb04b_6 PRIVATE ${SOURCE_FILES})
+
+    target_include_directories(xhc_whb04b_6 PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+
+    pkg_check_modules(LIBUSB "libusb-1.0" REQUIRED IMPORTED_TARGET)
+
+    target_link_libraries(xhc_whb04b_6 PRIVATE hal mkini machinetalk runtime_math PkgConfig::LIBUSB)
+
+    target_compile_definitions(xhc_whb04b_6 PRIVATE "PACKAGE_VERSION=00000000")
+endif()

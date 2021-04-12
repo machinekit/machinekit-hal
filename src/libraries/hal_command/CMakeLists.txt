@@ -22,6 +22,9 @@
 #
 ######################################################################
 
+option(BUILD_HAL_COMMAND_LIBRARY "Built the HAL command library." TRUE)
+
+if(BUILD_HAL_COMMAND_LIBRARY)
 add_library(hal_command SHARED)
 add_library(${MACHINEKIT_HAL_NAMESPACE}::hal_command ALIAS hal_command)
 
@@ -36,14 +39,19 @@ target_include_directories(
 
 target_sources(hal_command PRIVATE ${SOURCE_FILES})
 
-# TODO: Needed just because of the config.h??
-target_link_libraries(hal_command PRIVATE runtime_api hal_api)
+# TODO: How come there is no dependency on HAL? What is transitively depending it?
+target_link_libraries(hal_command PRIVATE runtime_api hal_api machinetalk_proto_c runtime_math
+runtime_memory_api mkini machinetalk)
 
-target_compile_definitions(hal_command PRIVATE "ULAPI")
+target_compile_definitions(hal_command PRIVATE "ULAPI" "MACHINEKIT_INI=\"/etc/machinekit/machinekit.ini\"" "RUNDIR=\"/tmp\"")
 
 set_target_properties(
-    hal_command PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
-    PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/halcmd_commands.h"
-    PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/halcmd_rtapiapp.h"
-    PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/halcmd.h"
+    hal_command 
+    PROPERTIES 
+        LIBRARY_OUTPUT_DIRECTORY "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
+        PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/halcmd_commands.h"
+        PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/halcmd_rtapiapp.h"
+        PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/halcmd.h"
+        POSITION_INDEPENDENT_CODE TRUE
     )
+endif()

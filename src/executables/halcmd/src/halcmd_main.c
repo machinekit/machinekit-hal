@@ -476,7 +476,6 @@ static int halcmd_fgets_notrunc(char *s, int size, FILE *stream)
     return 1;
 }
 
-#ifdef HAVE_READLINE
 #include "halcmd_completion.h"
 
 static int get_input(FILE *srcfile, char *buf, size_t bufsize) {
@@ -510,14 +509,6 @@ static int get_input(FILE *srcfile, char *buf, size_t bufsize) {
     }
     return halcmd_fgets_notrunc(buf, bufsize, srcfile);
 }
-#else
-static int get_input(FILE *srcfile, char *buf, size_t bufsize) {
-    if(prompt_mode) {
-	    fprintf(stdout, scriptmode ? "%%\n" : "halcmd: "); fflush(stdout);
-    }
-    return halcmd_fgets_notrunc(buf, bufsize, srcfile);
-}
-#endif
 
 void halcmd_output(const char *format, ...) {
     va_list ap;

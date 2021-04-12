@@ -17,7 +17,7 @@
    02111-1307 USA.
  */
 
-#include "pendant.h"
+#include "xhc_whb04b_6/pendant.h"
 
 // system includes
 #include <assert.h>
@@ -33,9 +33,9 @@
 // local library includes
 
 // local includes
-#include "./hal.h"
-#include "./xhc-whb04b6.h"
-#include "./usb.h"
+#include "xhc_whb04b_6/hal.h"
+#include "xhc_whb04b_6/xhc-whb04b6.h"
+#include "xhc_whb04b_6/usb.h"
 
 namespace XhcWhb04b6 {
 

@@ -21,3 +21,18 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 ######################################################################
+
+option(BUILD_VARINT_EXECUTABLE "Build the varint executable." FALSE)
+
+# What is the #include "../base/common.hh" ?
+if(BUILD_VARINT_EXECUTABLE)
+add_executable(varint)
+
+set(SOURCE_FILES src/varint.cc)
+
+target_sources(varint PRIVATE ${SOURCE_FILES})
+
+pkg_check_modules(PROTOBUF "protobuf" REQUIRED IMPORTED_TARGET)
+
+target_link_libraries(varint PRIVATE PkgConfig::PROTOBUF)
+endif()

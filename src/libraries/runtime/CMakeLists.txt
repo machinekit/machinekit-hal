@@ -22,12 +22,18 @@
 #
 ######################################################################
 
+option(BUILD_RUNTIME_LIBRARY "Built the Runtime libraries." TRUE)
+
+if(BUILD_RUNTIME_LIBRARY)
 add_library(runtime_api INTERFACE)
 add_library(${MACHINEKIT_HAL_NAMESPACE}::runtime_api ALIAS runtime_api)
 add_library(runtime SHARED)
 add_library(${MACHINEKIT_HAL_NAMESPACE}::runtime ALIAS runtime)
+# Technically not a library, but a managed module
 add_library(runtime_module MODULE)
 add_library(${MACHINEKIT_HAL_NAMESPACE}::runtime_module ALIAS runtime_module)
+
+find_package(Threads REQUIRED)
 
 set(SOURCE_FILES 
     src/rtapi.c
@@ -50,8 +56,8 @@ target_include_directories(runtime_api INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRE
     $<TARGET_PROPERTY:rtapi_compat,INTERFACE_INCLUDE_DIRECTORIES>)
 
 target_sources(runtime PRIVATE
-    $<TARGET_PROPERTY:rtapi_support,SOURCES>
-    $<TARGET_PROPERTY:rtapi_compat,SOURCES>
+    $<TARGET_PROPERTY:rtapi_support,INTERFACE_SOURCES>
+    $<TARGET_PROPERTY:rtapi_compat,INTERFACE_SOURCES>
     ${SOURCE_FILES}
     ${ULAPI_FLAVOR_SOURCE_FILE})
 
@@ -65,14 +71,18 @@ target_sources(runtime PRIVATE $<TARGET_PROPERTY:rtapi_pci,SOURCES>)
 target_link_libraries(runtime_api INTERFACE user_pci)
 # endif
 
-target_link_libraries(runtime PUBLIC runtime_api runtime_memory_api PRIVATE ${CMAKE_DL_LIBS})
-target_link_libraries(runtime_module PRIVATE runtime_api runtime_memory_api syslog_async mkini)
+pkg_check_modules(LIBCGROUP "libcgroup" REQUIRED IMPORTED_TARGET)
+pkg_check_modules(LIBUDEV "libudev" REQUIRED IMPORTED_TARGET)
+
+target_link_libraries(runtime PUBLIC runtime_api runtime_memory_api PRIVATE ${CMAKE_DL_LIBS} syslog_async mkini)
+target_link_libraries(runtime_module PRIVATE runtime_api runtime_memory_api syslog_async mkini Threads::Threads ${CMAKE_DL_LIBS})
 
 # Jesus Christ, the rtapi headers need hal headers: hal_types.h
 target_link_libraries(runtime PRIVATE hal_api)
+target_link_libraries(runtime_module PRIVATE hal_api PkgConfig::LIBCGROUP PkgConfig::LIBUDEV)
 
-target_compile_definitions(runtime PUBLIC "ULAPI" "GIT_VERSION=0000000")
-target_compile_definitions(runtime_module PRIVATE "RTAPI")
+target_compile_definitions(runtime PUBLIC "ULAPI" "GIT_VERSION=0000000" "HAL_SYSTEM_CONFIG_DIR=\"$<BUILD_INTERFACE:/temp/build>\"")
+target_compile_definitions(runtime_module PRIVATE "RTAPI" "GIT_VERSION=0000000")
 
 set_target_properties(
   runtime_api PROPERTIES PUBLIC_HEADER ${HEADER_FILES})
@@ -85,3 +95,4 @@ set_target_properties(
 set_target_properties(
     runtime_module
     PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${MACHINEKIT_HAL_MODULE_DIRECTORY})
+endif()

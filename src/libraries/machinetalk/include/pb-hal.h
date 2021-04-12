@@ -16,7 +16,7 @@
 #include <string.h>
 
 #define _NO_PB_SYSTEM_HEADER
-#include <machinetalk/nanopb/pb.h>
+#include <pb.h>
 
 // hal extensions to nanopb
 

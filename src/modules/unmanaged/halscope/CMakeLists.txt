@@ -21,3 +21,26 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 ######################################################################
+
+option(BUILD_HALSCOPE_UNMANAGED_MODULE "Build the HALscope unmanaged module." TRUE)
+
+if(BUILD_HALSCOPE_UNMANAGED_MODULE)
+    add_executable(halscope)
+
+    set(SOURCE_FILES src/scope.c
+        src/scope_disp.c
+        src/scope_files.c
+        src/scope_horiz.c
+        src/scope_trig.c
+        src/scope_vert.c)
+
+    target_sources(halscope PRIVATE ${SOURCE_FILES})
+
+    target_include_directories(halscope PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/halscope>)
+
+    target_link_libraries(halscope PRIVATE halscope_memory runtime hal miscgtk runtime_math)
+
+    target_compile_definitions(halscope PRIVATE
+        "HAL_PO_DIR=\"${CMAKE_CURRENT_BINARY_FIR}/share/locale\""
+        "HAL_BIN_DIR=\"${CMAKE_CURRENT_BINARY_FIR}/bin\"")
+endif()

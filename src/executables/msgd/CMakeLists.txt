@@ -21,3 +21,35 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 ######################################################################
+
+option(BUILD_MSGD_EXECUTABLE "Built the MSGd executable." TRUE)
+
+if(BUILD_MSGD_EXECUTABLE)
+    add_executable(msgd)
+
+    set(SOURCE_FILES src/rtapi_msgd.cc)
+
+    target_sources(msgd PRIVATE ${SOURCE_FILES})
+
+    pkg_check_modules(UUID "uuid" REQUIRED IMPORTED_TARGET)
+    pkg_check_modules(LIBZMQ "libzmq" REQUIRED IMPORTED_TARGET)
+
+    find_library(LIBATOMIC NAMES "atomic" "libatomic.so.1" REQUIRED)
+    find_library(LIBRT NAMES "rt" REQUIRED)
+
+    target_link_libraries(msgd PRIVATE
+    runtime
+    hal
+    runtime_memory_api
+    mkini
+    machinetalk
+    syslog_async
+    PkgConfig::UUID
+    PkgConfig::LIBZMQ
+    ${CMAKE_DL_LIBS}
+    ${LIBATOMIC}
+    ${LIBRT})
+
+    # TODO: Why is there multiple GIT_*_SHA fields which are named differently than in Runtime?
+    target_compile_definitions(msgd PRIVATE "GIT_BUILD_SHA=0000000" "GIT_CONFIG_SHA=0000000" "RUNDIR=\"/tmp/wedios\"")
+endif()

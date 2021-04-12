@@ -22,6 +22,9 @@
 #
 ######################################################################
 
+option(BUILD_RUNTIME_MEMORY_LIBRARY "Built the Runtime Memory library." TRUE)
+
+if(BUILD_RUNTIME_MEMORY_LIBRARY)
 add_library(runtime_memory_api SHARED)
 add_library(${MACHINEKIT_HAL_NAMESPACE}::runtime_memory_api ALIAS runtime_memory_api)
 
@@ -32,7 +35,10 @@ target_include_directories(runtime_memory_api PUBLIC $<BUILD_INTERFACE:${CMAKE_C
     $<INSTALL_INTERFACE:"${MACHINEKIT_HAL_INTERFACE_DIRECTORY}")
 
 target_sources(runtime_memory_api PRIVATE ${SOURCE_FILES})
-target_link_libraries(runtime_memory_api PRIVATE runtime_api)
+
+find_library(LIBRT "rt" REQUIRED)
+
+target_link_libraries(runtime_memory_api PRIVATE runtime_api ${LIBRT})
 
 target_compile_definitions(runtime_memory_api PRIVATE "ULAPI")
 
@@ -43,3 +49,4 @@ set_target_properties(
     runtime_memory_api
     PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${MACHINEKIT_HAL_LIBRARY_DIRECTORY}
     POSITION_INDEPENDENT_CODE TRUE)
+endif()

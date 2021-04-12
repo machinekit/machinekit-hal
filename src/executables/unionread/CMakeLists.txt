@@ -21,3 +21,21 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 ######################################################################
+
+option(BUILD_UNIONREAD_EXECUTABLE "Build the unionread executable." FALSE)
+
+if(BUILD_UNIONREAD_EXECUTABLE)
+add_executable(unionread)
+
+set(SOURCE_FILES src/unionread.c)
+
+target_sources(unionread PRIVATE ${SOURCE_FILES})
+
+target_include_directories(unionread PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+
+target_link_libraries(unionread PRIVATE protobuf-nanopb-static machinetalk)
+
+target_compile_definitions(unionread PRIVATE "PB_FIELD_32BIT")
+
+target_compile_options(unionread PRIVATE "-O3")
+endif()

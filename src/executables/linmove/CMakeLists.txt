@@ -21,3 +21,20 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 ######################################################################
+
+option(BUILD_LINMOVE_EXECUTABLE "Build the Linmove executable." TRUE)
+
+if(BUILD_LINMOVE_EXECUTABLE)
+add_executable(linmove)
+
+set(SOURCE_FILES src/linmove.cc)
+
+target_sources(linmove PRIVATE ${SOURCE_FILES})
+
+pkg_check_modules(JANSSON "jansson" REQUIRED IMPORTED_TARGET)
+pkg_check_modules(PROTOBUF "protobuf" REQUIRED IMPORTED_TARGET)
+
+target_compile_definitions(linmove PRIVATE "PB_FIELD_32BIT")
+
+target_link_libraries(linmove PRIVATE machinetalk machinetalk_proto_cc mkini PkgConfig::JANSSON PkgConfig::PROTOBUF)
+endif()

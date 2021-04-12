@@ -21,3 +21,23 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 ######################################################################
+
+option(BUILD_MB2HAL_UNMANAGED_MODULE "Build the MB2HAL unmanaged module." TRUE)
+
+if(BUILD_MB2HAL_UNMANAGED_MODULE)
+    find_package(Threads REQUIRED)
+    add_executable(mb2hal)
+
+    set(SOURCE_FILES src/mb2hal.c
+        src/mb2hal_hal.c
+        src/mb2hal_init.c
+        src/mb2hal_modbus.c)
+
+    target_sources(mb2hal PRIVATE ${SOURCE_FILES})
+
+    target_include_directories(mb2hal PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/mb2hal>)
+
+    pkg_check_modules(LIBMODBUS "libmodbus" REQUIRED IMPORTED_TARGET)
+
+    target_link_libraries(mb2hal PRIVATE hal mkini PkgConfig::LIBMODBUS Threads::Threads)
+endif()

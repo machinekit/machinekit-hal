@@ -25,12 +25,11 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#include <protobuf/pb-hal.h>
-#include <protobuf/nanopb/pb_decode.h>
-#include <protobuf/nanopb/pb_encode.h>
+#include <pb-hal.h>
+#include <pb_decode.h>
+#include <pb_encode.h>
 
-#include <protobuf/container.h>
-
+#include <machinetalk/container.h>
 
 bool print_container(pb_istream_t *stream)
 {

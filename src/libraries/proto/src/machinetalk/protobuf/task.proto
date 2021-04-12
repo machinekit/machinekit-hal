@@ -37,7 +37,7 @@ syntax = "proto2";
 // MT_EMC_TASK_PLAN_REPLY	= 10530;
 
 import "machinetalk/protobuf/types.proto";
-import "machinetalk/protobuf/nanopb.proto";
+import "nanopb.proto";
 
 // see README.msgid
 // msgid base: 1200

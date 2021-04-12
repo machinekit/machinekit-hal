@@ -33,7 +33,7 @@
 
 // local includes
 #include "config.h"
-#include "./xhc-whb04b6.h"
+#include "xhc_whb04b_6/xhc-whb04b6.h"
 
 // forward declarations
 

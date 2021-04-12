@@ -21,3 +21,24 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 ######################################################################
+
+option(BUILD_NANOPB_DEFINITIONS_LIBRARY "Built the NanoPB definitions library." TRUE)
+
+if(BUILD_NANOPB_DEFINITIONS_LIBRARY)
+add_library(nanopb_definitions SHARED)
+add_library(${MACHINEKIT_HAL_NAMESPACE}::nanopb_definitions ALIAS nanopb_definitions)
+
+set(SOURCE_FILES src/nanopb.c)
+
+target_sources(nanopb_definitions PRIVATE ${SOURCE_FILES})
+
+target_link_libraries(nanopb_definitions PRIVATE nanopb_interface runtime_api machinetalk)
+
+target_compile_definitions(nanopb_definitions PRIVATE "RTAPI")
+
+set_target_properties(
+    nanopb_definitions
+    PROPERTIES 
+        RUNTIME_OUTPUT_DIRECTORY "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
+        POSITION_INDEPENDENT_CODE TRUE)
+endif()

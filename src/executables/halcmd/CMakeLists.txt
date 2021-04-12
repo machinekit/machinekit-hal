@@ -21,3 +21,26 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 ######################################################################
+
+option(BUILD_HALCMD_EXECUTABLE "Build the HALcmd executable." TRUE)
+
+if(BUILD_HALCMD_EXECUTABLE)
+add_executable(halcmd)
+
+set(SOURCE_FILES src/halcmd_completion.c
+src/halcmd_main.c)
+
+find_package(Readline REQUIRED)
+
+target_sources(halcmd PRIVATE ${SOURCE_FILES})
+
+target_include_directories(halcmd PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+
+target_compile_definitions(halcmd PRIVATE "ULAPI" "MACHINEKIT_INI=\"/etc/machinekit/machinekit.ini\"")
+
+pkg_check_modules(AVAHICLIENT "avahi-client" REQUIRED IMPORTED_TARGET)
+pkg_check_modules(PROTOBUF "protobuf" REQUIRED IMPORTED_TARGET)
+
+# TODO: Needed just because of the config.h??
+target_link_libraries(halcmd PRIVATE runtime hal hal_command mkini PkgConfig::AVAHICLIENT PkgConfig::PROTOBUF READLINE::READLINE)
+endif()

@@ -21,3 +21,17 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 ######################################################################
+
+option(BUILD_MKSOCMEMIO_EXECUTABLE "Build the MKSoCMemIo executable." TRUE)
+
+if(BUILD_MKSOCMEMIO_EXECUTABLE)
+add_executable(mksocmemio)
+
+set(SOURCE_FILES src/mksocmemio.c)
+
+target_sources(mksocmemio PRIVATE ${SOURCE_FILES})
+
+target_link_libraries(mksocmemio PRIVATE runtime_api)
+
+target_compile_definitions(mksocmemio PRIVATE "ULAPI")
+endif()

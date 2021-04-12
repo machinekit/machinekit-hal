@@ -21,3 +21,22 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
 ######################################################################
+
+# This does not work and will be a toughter nut
+option(BUILD_MESSAGEBUS "Build the messagebus executable." FALSE)
+if(BUILD_MESSAGEBUS)
+add_executable(messagebus)
+
+set(SOURCE_FILES src/messagebus.cc src/rtproxy.cc)
+
+target_sources(messagebus PRIVATE ${SOURCE_FILES})
+
+target_include_directories(messagebus PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+
+pkg_check_modules(UUID "uuid" REQUIRED IMPORTED_TARGET)
+
+# Runtime_api just for config.h header?
+target_link_libraries(messagebus PRIVATE runtime_api machinetalk mkini hal machinekit_protoc machinekit_proto_cc syslog_async PkgConfig::UUID)
+
+target_compile_definitions(messagebus PRIVATE "")
+endif()

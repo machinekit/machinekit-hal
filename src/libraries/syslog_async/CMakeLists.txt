@@ -22,6 +22,9 @@
 #
 ######################################################################
 
+option(BUILD_SYSLOG_ASYNC_LIBRARY "Built the Syslog async library." TRUE)
+
+if(BUILD_SYSLOG_ASYNC_LIBRARY)
 add_library(syslog_async SHARED)
 add_library(${MACHINEKIT_HAL_NAMESPACE}::syslog_async ALIAS syslog_async)
 
@@ -38,4 +41,5 @@ set_target_properties(
   syslog_async
     PROPERTIES 
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_INSTALL_LIBDIR}"
-        PUBLIC_HEADER ${HEADER_FILES})
+        POSITION_INDEPENDENT_CODE TRUE)
+endif()

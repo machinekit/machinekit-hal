@@ -1,3 +1,6 @@
+OLD, DEPRECATED INFORMATION!
+Do not take seriously!
+
 Distributions
 =============
 

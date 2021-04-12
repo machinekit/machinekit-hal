@@ -5,7 +5,7 @@ package machinetalk;
 // msgid base: 600
 
 import "machinetalk/protobuf/emcclass.proto";
-import "machinetalk/protobuf/nanopb.proto";
+import "nanopb.proto";
 
 // an uncleaned first transliteration
 

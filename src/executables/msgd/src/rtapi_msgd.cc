@@ -67,7 +67,7 @@ using namespace std;
 #include <libwebsockets.h>  // version tags only
 
 #include <google/protobuf/text_format.h>
-#include <message.pb.h>
+#include <machinetalk/protobuf/message.pb.h>
 using namespace google::protobuf;
 
 // Default size of the HAL data segment
