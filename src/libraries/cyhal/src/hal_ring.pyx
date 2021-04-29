@@ -9,7 +9,7 @@
 from libc.errno cimport EAGAIN
 from libc.string cimport memcpy
 from libc.stdint cimport uint32_t
-from buffer cimport PyBuffer_FillInfo
+from cpython.buffer cimport PyBuffer_FillInfo
 from cpython.bytes cimport (
     PyBytes_AsString, PyBytes_Size, PyBytes_FromStringAndSize,
     )

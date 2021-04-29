@@ -1,6 +1,6 @@
 from libc.stdlib cimport malloc, free
 from libc.string cimport memset
-from buffer cimport PyBuffer_FillInfo
+from cpython.buffer cimport PyBuffer_FillInfo
 from cpython.bytes cimport PyBytes_AsString, PyBytes_Size, PyBytes_FromStringAndSize
 
 cdef class mview:
