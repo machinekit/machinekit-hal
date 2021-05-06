@@ -71,18 +71,27 @@ target_sources(runtime PRIVATE $<TARGET_PROPERTY:rtapi_pci,SOURCES>)
 target_link_libraries(runtime_api INTERFACE user_pci)
 # endif
 
+pkg_check_modules(CK "ck" REQUIRED IMPORTED_TARGET)
 pkg_check_modules(LIBCGROUP "libcgroup" REQUIRED IMPORTED_TARGET)
 pkg_check_modules(LIBUDEV "libudev" REQUIRED IMPORTED_TARGET)
 
-target_link_libraries(runtime PUBLIC runtime_api runtime_memory_api PRIVATE ${CMAKE_DL_LIBS} syslog_async mkini)
+target_link_libraries(runtime_api INTERFACE runtime_config)
+target_link_libraries(runtime PUBLIC runtime_api runtime_memory_api PRIVATE ${CMAKE_DL_LIBS} syslog_async mkini )
 target_link_libraries(runtime_module PRIVATE runtime_api runtime_memory_api syslog_async mkini Threads::Threads ${CMAKE_DL_LIBS})
 
 # Jesus Christ, the rtapi headers need hal headers: hal_types.h
 target_link_libraries(runtime PRIVATE hal_api)
-target_link_libraries(runtime_module PRIVATE hal_api PkgConfig::LIBCGROUP PkgConfig::LIBUDEV)
+target_link_libraries(runtime_module PRIVATE hal_api PkgConfig::LIBCGROUP PkgConfig::LIBUDEV PkgConfig::CK)
 
-target_compile_definitions(runtime PUBLIC "ULAPI" "GIT_VERSION=0000000" "HAL_SYSTEM_CONFIG_DIR=\"$<BUILD_INTERFACE:/temp/build>\"")
-target_compile_definitions(runtime_module PRIVATE "RTAPI" "GIT_VERSION=0000000")
+target_compile_definitions(runtime PUBLIC "ULAPI" "HAL_SYSTEM_CONFIG_DIR=\"$<BUILD_INTERFACE:/temp/build>\"")
+target_compile_definitions(runtime_module PRIVATE "RTAPI" "HAVE_CK")
+
+check_include_files("sys/io.h" SYS_IO_AVAILABLE)
+
+if(SYS_IO_AVAILABLE)
+    target_compile_definitions(runtime_api INTERFACE "SYS_IO_AVAILABLE")
+    # Add here rtapi_io.h to PUBLIC_HEADER to install
+endif()
 
 set_target_properties(
   runtime_api PROPERTIES PUBLIC_HEADER ${HEADER_FILES})

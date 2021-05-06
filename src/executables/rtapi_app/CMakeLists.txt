@@ -42,5 +42,4 @@ pkg_check_modules(UUID "uuid" REQUIRED IMPORTED_TARGET)
 # Adding Runtime_api only because originally makefile was not linking in the whole 'libhalulapi.so'
 target_link_libraries(rtapi_app PRIVATE mkini runtime_memory_api machinetalk runtime_api hal syslog_async PkgConfig::UUID ${CMAKE_DL_LIBS})
 
-target_compile_definitions(rtapi_app PRIVATE "RUNDIR=\"/tmp\"")
 endif()

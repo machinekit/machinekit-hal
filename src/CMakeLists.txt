@@ -23,9 +23,26 @@
 ######################################################################
 
 include(FindPkgConfig)
+include(CheckIncludeFiles)
 
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+
+option(BUILD_PYTHON_DISTRIBUTIONS "Build Python3 distribution packages" TRUE)
+
+if(BUILD_PYTHON_DISTRIBUTIONS)
+    include(PEP503PythonIndex)
+    # Create a simple PEP503 conforming local Python index
+    set(PYTHON_INDEX ${CMAKE_BINARY_DIR}/python_index)
+
+    string(REGEX REPLACE "[-~ .]" "_" PYTHON_PACKAGE_PREFIX_NORMALIZED ${CMAKE_PROJECT_NAME})
+    string(TOLOWER ${PYTHON_PACKAGE_PREFIX_NORMALIZED} PYTHON_PACKAGE_PREFIX)
+    string(REGEX REPLACE "_" "/" PYTHON_PACKAGE_PREFIX_PATH ${PYTHON_PACKAGE_PREFIX})
+endif()
 
 add_subdirectory(libraries)
 add_subdirectory(executables)
 add_subdirectory(modules)
+
+if(BUILD_PYTHON_DISTRIBUTIONS)
+    
+endif()

@@ -12,7 +12,7 @@
 //   (stanza pbmsgs-objs := ..)
 // add an PB_DESCRIPTOR(..) at the end of this file
 
-#include "config.h"		/* GIT_VERSION */
+#include "config.h"		/* GIT_BUILD_SHA */
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL API */
@@ -35,7 +35,7 @@ int rtapi_app_main(void)
     }
     hal_ready(comp_id);
     rtapi_print_msg(RTAPI_MSG_DBG,
-		    "%s git=" GIT_VERSION " nanopb=" VERSION "\n", name);
+		    "%s git=" GIT_BUILD_SHA " nanopb=" VERSION "\n", name);
     return 0;
 }
 

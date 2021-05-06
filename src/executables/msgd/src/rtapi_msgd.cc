@@ -896,7 +896,7 @@ int main(int argc, char **argv)
 #ifdef   __GNUC__
 		     "gcc", __VERSION__,
 #endif
-		     GIT_VERSION);
+		     GIT_BUILD_SHA);
     }
     int major, minor, patch;
     zmq_version (&major, &minor, &patch);

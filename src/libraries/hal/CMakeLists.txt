@@ -66,6 +66,13 @@ target_link_libraries(hal_module PRIVATE hal_api runtime_api)
 
 target_compile_definitions(hal_module PRIVATE "RTAPI")
 
+add_custom_command(TARGET hal_module PRE_LINK
+                   COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/smazat.sh "$<TARGET_OBJECTS:hal_module>" "hal_module.map"
+                   BYPRODUCT hal_module.map
+                   VERBATIM )
+
+target_link_options(hal_module PRIVATE "LINKER:--version-script=hal_module.map")
+
 set_target_properties(
   hal_api PROPERTIES PUBLIC_HEADER ${HEADER_FILES})
 

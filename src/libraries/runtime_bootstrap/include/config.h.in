@@ -1,0 +1,83 @@
+/********************************************************************
+* Description:  config.h.in
+*
+*               This file, 'config.h.in', implements a template for file
+*               'config.h', which should include all important configure
+*               time build and version constants used in Machinekit-HAL's
+*               subprojects.
+*
+* Copyright (C) 2004 -    Various authors
+*
+* This program is free software; you can redistribute it and/or
+* modify it under the terms of the GNU Lesser General Public
+* License as published by the Free Software Foundation; either
+* version 2.1 of the License, or (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+* Lesser General Public License for more details.
+*
+* You should have received a copy of the GNU Lesser General Public
+* License along with this library; if not, write to the Free Software
+* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+*
+*********************************************************************/
+
+#ifndef HAL_CONFIG_H
+#define HAL_CONFIG_H
+
+extern const char *const machinekit_hal_version;
+extern const char *const machinekit_hal_git_build_sha;
+
+#define VERSION machinekit_hal_version
+
+#define GIT_BUILD_SHA machinekit_hal_git_build_sha
+
+/* LINELEN is used throughout for buffer sizes, length of file name strings,
+   etc. Let's just have one instead of a multitude of defines all the same.
+   Must be constexpr! */
+#define LINELEN @LINELEN@
+
+// format of zeroMQ IPC socket pathnames
+// pass: RUNDIR, rtapi_instance, service name, uuid
+// service name is: log, rtapi, halrcomp etc
+#define ZMQIPC_FORMAT "@ZMQIPC_FORMAT@"
+
+/* build hardware drivers */
+#define BUILD_DRIVERS 1
+
+/* directory for IPC sockets and other transient files */
+#define RUNDIR "@RUNDIR@"
+
+/* build for BeagleBone platform */
+#cmakedefine TARGET_PLATFORM_BEAGLEBONE
+
+/* build for Chip platform */
+#cmakedefine TARGET_PLATFORM_CHIP
+
+/* build for H3 SoC platform */
+#cmakedefine TARGET_PLATFORM_H3
+
+/* build for PC platform */
+#cmakedefine TARGET_PLATFORM_PC
+
+/* build for Raspberry Pi platform */
+#cmakedefine TARGET_PLATFORM_RASPBERRY
+
+/* build for Socfpga platform */
+#cmakedefine TARGET_PLATFORM_SOCFPGA
+
+/* build for Zedboard platform */
+#cmakedefine TARGET_PLATFORM_ZEDBOARD
+
+/* use ppdev ioctl instead of inb/outb */
+#cmakedefine USE_PORTABLE_PARPORT_IO
+
+/* Enable GNU extensions on systems that have them.  */
+/* Really should not be here defined globally, but in each file specifically */
+#ifndef _GNU_SOURCE
+# define _GNU_SOURCE
+#endif
+
+#endif

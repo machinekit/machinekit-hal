@@ -1,0 +1,22 @@
+= Runtime
+:author: Jakub Fišer <jakub DOT fiser AT eryaf DOT com>
+:description: Runtime sourcetree README 
+:sectanchors: 
+:url-repo: https://machinekit.io
+
+Runtime-bootstrap experts exports the core functionality for build workflow of Machinekit-HAL. To use during the main build and also in out-of-tree build of additional functionality (related libraries, executables and HAL modules).
+
+== Distribution
+
+*   **runtime_config:** Statically linked into libraries and executables including the `config.h` header file
+
+== CMAKE targets
+
+Objects created in `CMAKE` Machinekit-HAL's namespace used for building.
+
+=== runtime_config (`STATIC` library)
+*   Isolates the `VERSION` and `MACHINEKIT_HAL_GIT_BUILD_SHA` into separate library statically linked to functional libraries, thus eliminatin constly build step on each commit
+
+== Notes
+
+* Possibility to further split this package into `runtime_config` et all.

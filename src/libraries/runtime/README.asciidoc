@@ -33,5 +33,3 @@ Objects created in `CMAKE` Machinekit-HAL's namespace used for building.
 *   Transitively exports **PUBLIC** interface header files through transitive dependencies
 
 == Notes
-
-* The `config.h` CMAKE generated header file is included here in Runtime and part of `runtime_api` just because at first glance it seemed simpler. However, that does not mean this is the best of places. It says it is part of HAL and not Runtime, however parts of Runtime depends on it. **This is ugly and should be solved better down the line.**

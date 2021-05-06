@@ -75,7 +75,7 @@ using namespace google::protobuf;
 #include "hal_priv.h"
 #include "shmdrv.h"
 
-#ifdef HAVE_SYS_IO_H
+#ifdef SYS_IO_AVAILABLE
 #include "rtapi_io.h"
 #endif
 
@@ -773,7 +773,7 @@ static int rtapi_request(zloop_t *loop, zsock_t *socket, void *arg)
 	char buffer[RTAPI_LINELEN];
 	snprintf(buffer, sizeof(buffer),
 		 "pid=%d flavor=%s gcc=%s git=%s",
-		 getpid(), (*flavor_name_ptr)(NULL),  __VERSION__, GIT_VERSION);
+		 getpid(), (*flavor_name_ptr)(NULL),  __VERSION__, GIT_BUILD_SHA);
 	pbreply.add_note(buffer);
 	pbreply.set_retcode(0);
 	break;
@@ -1249,7 +1249,7 @@ static int mainloop(size_t  argc, char **argv)
     // report success
     rtapi_print_msg(
         RTAPI_MSG_INFO, "rtapi_app:%d ready flavor=%s gcc=%s git=%s",
-        rtapi_instance_loc, (*flavor_name_ptr)(NULL), __VERSION__, GIT_VERSION);
+        rtapi_instance_loc, (*flavor_name_ptr)(NULL), __VERSION__, GIT_BUILD_SHA);
 
     // the RT stack is now set up and good for use
     global_data->rtapi_app_pid = getpid();
@@ -1396,7 +1396,7 @@ static int harden_rt()
 	}
     }
 
-#if defined(HAVE_SYS_IO_H)
+#if defined(SYS_IO_AVAILABLE)
     // FIXME put this in the module where it belongs!
 
     // this is a bit of a shotgun approach and should be made more selective

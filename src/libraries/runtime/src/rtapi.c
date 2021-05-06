@@ -171,7 +171,7 @@ int rtapi_module_init()
                     LOGTAG,
 		    rtapi_instance,
 		    flavor_name(NULL),
-		    GIT_VERSION);
+		    GIT_BUILD_SHA);
 
     // attach to global segment which rtapi_msgd owns and already
     // has set up:
