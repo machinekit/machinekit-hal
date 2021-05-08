@@ -19,36 +19,40 @@
 import os,sys
 import time
 import zmq
-from machinekit import hal
+import machinekit.hal.cyhal as hal
 
-debug = 1
-ip = "127.0.0.1"
-uri = "tcp://%s:5555" % (ip)
+def main():
+    debug = 1
+    ip = "127.0.0.1"
+    uri = f"tcp://{ip}:5555"
 
-ringlist = []
+    ringlist = []
 
-for name in hal.rings():
-    r = hal.Ring(name) # no size parameter: attach to existing ring
-    if debug: print("inspecting ring %s: reader=%d writer=%d " %  (name,r.reader,r.writer))
-    if r.reader == 0 and r.writer:
-        ringlist.append((name,r))
-        if debug: print("reading from ring",name)
+    for name in hal.rings():
+        r = hal.Ring(name) # no size parameter: attach to existing ring
+        if debug: print("inspecting ring %s: reader=%d writer=%d " %  (name,r.reader,r.writer))
+        if r.reader == 0 and r.writer:
+            ringlist.append((name,r))
+            if debug: print("reading from ring",name)
 
-if not len(ringlist):
-    print("no readable rings found")
-    sys.exit(1)
+    if not len(ringlist):
+        print("no readable rings found")
+        sys.exit(1)
 
-context = zmq.Context()
-s = context.socket(zmq.PUB)
-s.bind(uri)
+    context = zmq.Context()
+    s = context.socket(zmq.PUB)
+    s.bind(uri)
 
-# poll rings and publish messages under topic <ringname>
-while True:
-    for name,ring in ringlist:
-        record = ring.read()
-        if record:
-            if debug: print("publish topic '%s': '%s'" % (name,record.tobytes()))
-            s.send_multipart([name, record.tobytes()])
-            ring.shift()
-        else:
-            time.sleep(0.1)
+    # poll rings and publish messages under topic <ringname>
+    while True:
+        for name,ring in ringlist:
+            record = ring.read()
+            if record:
+                if debug: print("publish topic '%s': '%s'" % (name,record.tobytes()))
+                s.send_multipart([name, record.tobytes()])
+                ring.shift()
+            else:
+                time.sleep(0.1)
+
+if __name__ == "__main__":
+    main()
