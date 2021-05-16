@@ -1,4 +1,5 @@
-#####################################################################
+# ~~~
+# ####################################################################
 # Description:  CMakeLists.txt
 #
 #               This file, 'CMakeLists.txt', implements build system
@@ -20,20 +21,21 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-######################################################################
+# #####################################################################
+# ~~~
 
 option(BUILD_RAWREAD_EXECUTABLE "Build the rawread executable." FALSE)
 
 if(BUILD_RAWREAD_EXECUTABLE)
-add_executable(rawread)
+  add_executable(rawread)
 
-set(SOURCE_FILES src/rawread.c)
+  set(SOURCE_FILES src/rawread.c)
 
-target_sources(rawread PRIVATE ${SOURCE_FILES})
+  target_sources(rawread PRIVATE ${SOURCE_FILES})
 
-target_link_libraries(rawread PRIVATE machinetalk protobuf-nanopb-static)
+  target_link_libraries(rawread PRIVATE machinetalk protobuf-nanopb-static)
 
-target_compile_definitions(rawread PRIVATE "PB_FIELD_32BIT")
+  target_compile_definitions(rawread PRIVATE "PB_FIELD_32BIT")
 
-target_compile_options(rawread PRIVATE "-O0")
+  target_compile_options(rawread PRIVATE "-O0")
 endif()

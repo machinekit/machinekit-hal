@@ -1,4 +1,5 @@
-#####################################################################
+# ~~~
+# ####################################################################
 # Description:  CMakeLists.txt
 #
 #               This file, 'CMakeLists.txt', implements build system
@@ -20,19 +21,21 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-######################################################################
+# #####################################################################
+# ~~~
 
 option(BUILD_INIVAR_EXECUTABLE "Build the INIvar executable." TRUE)
 
 if(BUILD_INIVAR_EXECUTABLE)
-add_executable(inivar)
+  add_executable(inivar)
 
-set(SOURCE_FILES src/inivar.cc)
+  set(SOURCE_FILES src/inivar.cc)
 
-target_sources(inivar PRIVATE ${SOURCE_FILES})
+  target_sources(inivar PRIVATE ${SOURCE_FILES})
 
-target_link_libraries(inivar PRIVATE mkini runtime_api)
+  target_link_libraries(inivar PRIVATE mkini runtime_api)
 
-set_target_properties(inivar PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY}")
+  set_target_properties(
+    inivar PROPERTIES RUNTIME_OUTPUT_DIRECTORY
+                      "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY}")
 endif()

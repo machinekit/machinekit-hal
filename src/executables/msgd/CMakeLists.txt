@@ -1,4 +1,5 @@
-#####################################################################
+# ~~~
+# ####################################################################
 # Description:  CMakeLists.txt
 #
 #               This file, 'CMakeLists.txt', implements build system
@@ -20,38 +21,42 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-######################################################################
+# #####################################################################
+# ~~~
 
 option(BUILD_MSGD_EXECUTABLE "Built the MSGd executable." TRUE)
 
 if(BUILD_MSGD_EXECUTABLE)
-    add_executable(msgd)
+  add_executable(msgd)
 
-    set(SOURCE_FILES src/rtapi_msgd.cc)
+  set(SOURCE_FILES src/rtapi_msgd.cc)
 
-    target_sources(msgd PRIVATE ${SOURCE_FILES})
+  target_sources(msgd PRIVATE ${SOURCE_FILES})
 
-    pkg_check_modules(UUID "uuid" REQUIRED IMPORTED_TARGET)
-    pkg_check_modules(LIBZMQ "libzmq" REQUIRED IMPORTED_TARGET)
+  pkg_check_modules(UUID "uuid" REQUIRED IMPORTED_TARGET)
+  pkg_check_modules(LIBZMQ "libzmq" REQUIRED IMPORTED_TARGET)
 
-    find_library(LIBATOMIC NAMES "atomic" "libatomic.so.1" REQUIRED)
-    find_library(LIBRT NAMES "rt" REQUIRED)
+  find_library(LIBATOMIC NAMES "atomic" "libatomic.so.1" REQUIRED)
+  find_library(LIBRT NAMES "rt" REQUIRED)
 
-    target_link_libraries(msgd PRIVATE
-    runtime
-    hal
-    runtime_memory_api
-    mkini
-    machinetalk
-    syslog_async
-    PkgConfig::UUID
-    PkgConfig::LIBZMQ
-    ${CMAKE_DL_LIBS}
-    ${LIBATOMIC}
-    ${LIBRT})
+  target_link_libraries(
+    msgd
+    PRIVATE runtime
+            hal
+            runtime_memory_api
+            mkini
+            machinetalk
+            syslog_async
+            PkgConfig::UUID
+            PkgConfig::LIBZMQ
+            ${CMAKE_DL_LIBS}
+            ${LIBATOMIC}
+            ${LIBRT})
 
-    set_target_properties(msgd PROPERTIES
-        OUTPUT_NAME "rtapi_msgd"
-        PREFIX ""
-        RUNTIME_OUTPUT_DIRECTORY "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY}")
+  set_target_properties(
+    msgd
+    PROPERTIES OUTPUT_NAME "rtapi_msgd"
+               PREFIX ""
+               RUNTIME_OUTPUT_DIRECTORY
+               "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY}")
 endif()

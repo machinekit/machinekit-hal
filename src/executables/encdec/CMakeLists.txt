@@ -1,4 +1,5 @@
-#####################################################################
+# ~~~
+# ####################################################################
 # Description:  CMakeLists.txt
 #
 #               This file, 'CMakeLists.txt', implements build system
@@ -20,18 +21,20 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-######################################################################
+# #####################################################################
+# ~~~
 
 option(BUILD_ENCDEC_EXECUTABLE "Build the Encdec executable." TRUE)
 
 if(BUILD_ENCDEC_EXECUTABLE)
-add_executable(encdec)
+  add_executable(encdec)
 
-set(SOURCE_FILES src/encdec.cc)
+  set(SOURCE_FILES src/encdec.cc)
 
-target_sources(encdec PRIVATE ${SOURCE_FILES})
+  target_sources(encdec PRIVATE ${SOURCE_FILES})
 
-pkg_check_modules(PROTOBUF "protobuf" REQUIRED IMPORTED_TARGET)
+  pkg_check_modules(PROTOBUF "protobuf" REQUIRED IMPORTED_TARGET)
 
-target_link_libraries(encdec PRIVATE protobuf machinetalk machinetalk_proto_cc)
+  target_link_libraries(encdec PRIVATE protobuf machinetalk
+                                       machinetalk_proto_cc)
 endif()

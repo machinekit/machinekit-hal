@@ -1,4 +1,5 @@
-#####################################################################
+# ~~~
+# ####################################################################
 # Description:  CMakeLists.txt
 #
 #               This file, 'CMakeLists.txt', implements build system
@@ -20,15 +21,18 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-######################################################################
+# #####################################################################
+# ~~~
 
 option(BUILD_HALSCOPE_MEMORY_LIBRARY "Define the HALscope memory library." TRUE)
 
 if(BUILD_HALSCOPE_MEMORY_LIBRARY)
-    add_library(halscope_memory INTERFACE)
-    add_library(${MACHINEKIT_HAL_NAMESPACE}::halscope_memory ALIAS halscope_memory)
+  add_library(halscope_memory INTERFACE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::halscope_memory ALIAS
+              halscope_memory)
 
-    target_include_directories(
-        halscope_memory INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-        $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY})
+  target_include_directories(
+    halscope_memory
+    INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+              $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY})
 endif()

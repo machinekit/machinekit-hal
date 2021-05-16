@@ -1,4 +1,5 @@
-#####################################################################
+# ~~~
+# ####################################################################
 # Description:  CMakeLists.txt
 #
 #               This file, 'CMakeLists.txt', implements build system
@@ -20,17 +21,19 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-######################################################################
+# #####################################################################
+# ~~~
 
-option(BUILD_RINGBENCH_UNMANAGED_MODULE "Build the Ringbench unmanaged module." TRUE)
+option(BUILD_RINGBENCH_UNMANAGED_MODULE "Build the Ringbench unmanaged module."
+       TRUE)
 
 if(BUILD_RINGBENCH_UNMANAGED_MODULE)
-find_package(Threads REQUIRED)
-    add_executable(ringbench)
+  find_package(Threads REQUIRED)
+  add_executable(ringbench)
 
-    set(SOURCE_FILES src/ringbench.c)
+  set(SOURCE_FILES src/ringbench.c)
 
-    target_sources(ringbench PRIVATE ${SOURCE_FILES})
+  target_sources(ringbench PRIVATE ${SOURCE_FILES})
 
-    target_link_libraries(ringbench PRIVATE hal Threads::Threads)
+  target_link_libraries(ringbench PRIVATE hal Threads::Threads)
 endif()

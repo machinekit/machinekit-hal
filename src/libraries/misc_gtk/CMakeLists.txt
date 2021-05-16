@@ -1,4 +1,5 @@
-#####################################################################
+# ~~~
+# ####################################################################
 # Description:  CMakeLists.txt
 #
 #               This file, 'CMakeLists.txt', implements build system
@@ -20,28 +21,28 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-######################################################################
+# #####################################################################
+# ~~~
 
 option(BUILD_MISC_GTK_LIBRARY "Built the Misc GTK library." TRUE)
 
 if(BUILD_MISC_GTK_LIBRARY)
-add_library(miscgtk SHARED)
-add_library(${MACHINEKIT_HAL_NAMESPACE}::miscgtk ALIAS miscgtk)
+  add_library(miscgtk SHARED)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::miscgtk ALIAS miscgtk)
 
-set(SOURCE_FILES src/miscgtk.c)
+  set(SOURCE_FILES src/miscgtk.c)
 
-target_sources(miscgtk PRIVATE ${SOURCE_FILES})
-target_include_directories(
+  target_sources(miscgtk PRIVATE ${SOURCE_FILES})
+  target_include_directories(
     miscgtk PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
-pkg_check_modules(LIBGTK "gtk+-2.0" REQUIRED IMPORTED_TARGET)
+  pkg_check_modules(LIBGTK "gtk+-2.0" REQUIRED IMPORTED_TARGET)
 
-target_link_libraries(miscgtk PUBLIC PkgConfig::LIBGTK)
+  target_link_libraries(miscgtk PUBLIC PkgConfig::LIBGTK)
 
-set_target_properties(
+  set_target_properties(
     miscgtk
-    PROPERTIES
-        SOVERSION 0 
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_INSTALL_LIBDIR}"
-        PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/miscgtk.h")
+    PROPERTIES SOVERSION 0
+               RUNTIME_OUTPUT_DIRECTORY "${CMAKE_INSTALL_LIBDIR}"
+               PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/miscgtk.h")
 endif()

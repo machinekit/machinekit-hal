@@ -1,4 +1,5 @@
-#####################################################################
+# ~~~
+# ####################################################################
 # Description:  CMakeLists.txt
 #
 #               This file, 'CMakeLists.txt', implements build system
@@ -20,16 +21,18 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-######################################################################
+# #####################################################################
+# ~~~
 
-option(BUILD_SHUTTLEXPRESS_UNMANAGED_MODULE "Build the Shuttlexpress unmanaged module." TRUE)
+option(BUILD_SHUTTLEXPRESS_UNMANAGED_MODULE
+       "Build the Shuttlexpress unmanaged module." TRUE)
 
 if(BUILD_SHUTTLEXPRESS_UNMANAGED_MODULE)
-    add_executable(shuttlexpress)
+  add_executable(shuttlexpress)
 
-    set(SOURCE_FILES src/shuttlexpress.c)
+  set(SOURCE_FILES src/shuttlexpress.c)
 
-    target_sources(shuttlexpress PRIVATE ${SOURCE_FILES})
+  target_sources(shuttlexpress PRIVATE ${SOURCE_FILES})
 
-    target_link_libraries(shuttlexpress runtime hal)
+  target_link_libraries(shuttlexpress runtime hal)
 endif()

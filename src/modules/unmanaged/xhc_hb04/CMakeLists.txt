@@ -1,4 +1,5 @@
-#####################################################################
+# ~~~
+# ####################################################################
 # Description:  CMakeLists.txt
 #
 #               This file, 'CMakeLists.txt', implements build system
@@ -20,22 +21,26 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-######################################################################
+# #####################################################################
+# ~~~
 
-option(BUILD_XHC_HB04_UNMANAGED_MODULE "Build the XHC HB04 unmanaged module." TRUE)
+option(BUILD_XHC_HB04_UNMANAGED_MODULE "Build the XHC HB04 unmanaged module."
+       TRUE)
 
 if(BUILD_XHC_HB04_UNMANAGED_MODULE)
-    add_executable(xhc_hb04)
+  add_executable(xhc_hb04)
 
-    set(SOURCE_FILES src/xhc_hb04.cc)
+  set(SOURCE_FILES src/xhc_hb04.cc)
 
-    target_sources(xhc_hb04 PRIVATE ${SOURCE_FILES})
+  target_sources(xhc_hb04 PRIVATE ${SOURCE_FILES})
 
-    target_include_directories(xhc_hb04 PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+  target_include_directories(
+    xhc_hb04 PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
-    pkg_check_modules(LIBUSB "libusb-1.0" REQUIRED IMPORTED_TARGET)
+  pkg_check_modules(LIBUSB "libusb-1.0" REQUIRED IMPORTED_TARGET)
 
-    target_link_libraries(xhc_hb04 PRIVATE hal mkini runtime_math PkgConfig::LIBUSB)
+  target_link_libraries(xhc_hb04 PRIVATE hal mkini runtime_math
+                                         PkgConfig::LIBUSB)
 
-    target_compile_definitions(xhc_hb04 PRIVATE "PACKAGE_VERSION=00000000")
+  target_compile_definitions(xhc_hb04 PRIVATE "PACKAGE_VERSION=00000000")
 endif()

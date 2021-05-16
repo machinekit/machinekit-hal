@@ -1,4 +1,5 @@
-#####################################################################
+# ~~~
+# ####################################################################
 # Description:  CMakeLists.txt
 #
 #               This file, 'CMakeLists.txt', implements build system
@@ -20,18 +21,20 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-######################################################################
+# #####################################################################
+# ~~~
 
-option(BUILD_GS2_VDF_UNMANAGED_MODULE "Build the gs2-VDF unmanaged module." TRUE)
+option(BUILD_GS2_VDF_UNMANAGED_MODULE "Build the gs2-VDF unmanaged module."
+       TRUE)
 
 if(BUILD_GS2_VDF_UNMANAGED_MODULE)
-    add_executable(gs2_vdf)
+  add_executable(gs2_vdf)
 
-    set(SOURCE_FILES src/gs2_vfd.c)
+  set(SOURCE_FILES src/gs2_vfd.c)
 
-    target_sources(gs2_vdf PRIVATE ${SOURCE_FILES})
+  target_sources(gs2_vdf PRIVATE ${SOURCE_FILES})
 
-    pkg_check_modules(LIBMODBUS "libmodbus" REQUIRED IMPORTED_TARGET)
+  pkg_check_modules(LIBMODBUS "libmodbus" REQUIRED IMPORTED_TARGET)
 
-    target_link_libraries(gs2_vdf PRIVATE runtime hal PkgConfig::LIBMODBUS)
+  target_link_libraries(gs2_vdf PRIVATE runtime hal PkgConfig::LIBMODBUS)
 endif()

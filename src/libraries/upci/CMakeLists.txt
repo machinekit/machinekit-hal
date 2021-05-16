@@ -1,4 +1,5 @@
-#####################################################################
+# ~~~
+# ####################################################################
 # Description:  CMakeLists.txt
 #
 #               This file, 'CMakeLists.txt', implements build system
@@ -20,16 +21,18 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-######################################################################
+# #####################################################################
+# ~~~
 
 option(BUILD_UPCI_LIBRARY "Built the UPCI library." TRUE)
 
 if(BUILD_UPCI_LIBRARY)
-add_library(upci STATIC)
+  add_library(upci STATIC)
 
-set(SOURCE_FILES src/upci.c src/bitfile.c)
+  set(SOURCE_FILES src/upci.c src/bitfile.c)
 
-target_sources(upci PRIVATE ${SOURCE_FILES})
+  target_sources(upci PRIVATE ${SOURCE_FILES})
 
-target_include_directories(upci PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+  target_include_directories(
+    upci PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 endif()

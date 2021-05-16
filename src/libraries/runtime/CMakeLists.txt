@@ -1,4 +1,5 @@
-#####################################################################
+# ~~~
+# ####################################################################
 # Description:  CMakeLists.txt
 #
 #               This file, 'CMakeLists.txt', implements build system
@@ -20,93 +21,101 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-######################################################################
+# #####################################################################
+# ~~~
 
 option(BUILD_RUNTIME_LIBRARY "Built the Runtime libraries." TRUE)
 
 if(BUILD_RUNTIME_LIBRARY)
-add_library(runtime_api INTERFACE)
-add_library(${MACHINEKIT_HAL_NAMESPACE}::runtime_api ALIAS runtime_api)
-add_library(runtime SHARED)
-add_library(${MACHINEKIT_HAL_NAMESPACE}::runtime ALIAS runtime)
-# Technically not a library, but a managed module
-add_library(runtime_module MODULE)
-add_library(${MACHINEKIT_HAL_NAMESPACE}::runtime_module ALIAS runtime_module)
+  add_library(runtime_api INTERFACE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::runtime_api ALIAS runtime_api)
+  add_library(runtime SHARED)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::runtime ALIAS runtime)
+  # Technically not a library, but a managed module
+  add_library(runtime_module MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::runtime_module ALIAS runtime_module)
 
-find_package(Threads REQUIRED)
+  find_package(Threads REQUIRED)
 
-set(SOURCE_FILES 
-    src/rtapi.c
-    src/rtapi_exception.c
-    src/rtapi_flavor.c
-    src/rtapi_flavor_hook_wrappers.c
-    src/rtapi_heap.c
-    src/rtapi_hexdump.c
-    src/rtapi_shmem.c
-    src/rtapi_task.c
-    src/rtapi_time.c)
+  set(SOURCE_FILES
+      src/rtapi.c
+      src/rtapi_exception.c
+      src/rtapi_flavor.c
+      src/rtapi_flavor_hook_wrappers.c
+      src/rtapi_heap.c
+      src/rtapi_hexdump.c
+      src/rtapi_shmem.c
+      src/rtapi_task.c
+      src/rtapi_time.c)
 
-set(ULAPI_FLAVOR_SOURCE_FILE src/ulapi.c)
-set(RT_PREEMPT_FLAVOR_SOURCE_FILE src/rt-preempt.c)
+  set(ULAPI_FLAVOR_SOURCE_FILE src/ulapi.c)
+  set(RT_PREEMPT_FLAVOR_SOURCE_FILE src/rt-preempt.c)
 
-set(HEADER_FILES include/multiframe.h)
+  set(HEADER_FILES include/multiframe.h)
 
-target_include_directories(runtime_api INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:"${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
-    $<TARGET_PROPERTY:rtapi_compat,INTERFACE_INCLUDE_DIRECTORIES>)
+  target_include_directories(
+    runtime_api
+    INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+              $<INSTALL_INTERFACE:"${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
+              $<TARGET_PROPERTY:rtapi_compat,INTERFACE_INCLUDE_DIRECTORIES>)
 
-target_sources(runtime PRIVATE
-    $<TARGET_PROPERTY:rtapi_support,INTERFACE_SOURCES>
-    $<TARGET_PROPERTY:rtapi_compat,INTERFACE_SOURCES>
-    ${SOURCE_FILES}
-    ${ULAPI_FLAVOR_SOURCE_FILE})
+  target_sources(
+    runtime
+    PRIVATE $<TARGET_PROPERTY:rtapi_support,INTERFACE_SOURCES>
+            $<TARGET_PROPERTY:rtapi_compat,INTERFACE_SOURCES> ${SOURCE_FILES}
+            ${ULAPI_FLAVOR_SOURCE_FILE})
 
-target_sources(runtime_module PRIVATE
-    ${SOURCE_FILES}
-    ${RT_PREEMPT_FLAVOR_SOURCE_FILE})
+  target_sources(runtime_module PRIVATE ${SOURCE_FILES}
+                                        ${RT_PREEMPT_FLAVOR_SOURCE_FILE})
 
-# TODO if PCI
-target_include_directories(runtime_api INTERFACE $<TARGET_PROPERTY:rtapi_pci,INTERFACE_INCLUDE_DIRECTORIES>)
-target_sources(runtime PRIVATE $<TARGET_PROPERTY:rtapi_pci,SOURCES>)
-target_link_libraries(runtime_api INTERFACE user_pci)
-# endif
+  # TODO if PCI
+  target_include_directories(
+    runtime_api
+    INTERFACE $<TARGET_PROPERTY:rtapi_pci,INTERFACE_INCLUDE_DIRECTORIES>)
+  target_sources(runtime PRIVATE $<TARGET_PROPERTY:rtapi_pci,SOURCES>)
+  target_link_libraries(runtime_api INTERFACE user_pci)
+  # endif
 
-pkg_check_modules(CK "ck" REQUIRED IMPORTED_TARGET)
-pkg_check_modules(LIBCGROUP "libcgroup" REQUIRED IMPORTED_TARGET)
-pkg_check_modules(LIBUDEV "libudev" REQUIRED IMPORTED_TARGET)
+  pkg_check_modules(CK "ck" REQUIRED IMPORTED_TARGET)
+  pkg_check_modules(LIBCGROUP "libcgroup" REQUIRED IMPORTED_TARGET)
+  pkg_check_modules(LIBUDEV "libudev" REQUIRED IMPORTED_TARGET)
 
-target_link_libraries(runtime_api INTERFACE runtime_config)
-target_link_libraries(runtime PUBLIC runtime_api runtime_memory_api PRIVATE ${CMAKE_DL_LIBS} syslog_async mkini )
-target_link_libraries(runtime_module PRIVATE runtime_api runtime_memory_api syslog_async mkini Threads::Threads ${CMAKE_DL_LIBS})
+  target_link_libraries(runtime_api INTERFACE runtime_config)
+  target_link_libraries(
+    runtime
+    PUBLIC runtime_api runtime_memory_api
+    PRIVATE ${CMAKE_DL_LIBS} syslog_async mkini)
+  target_link_libraries(
+    runtime_module PRIVATE runtime_api runtime_memory_api syslog_async mkini
+                           Threads::Threads ${CMAKE_DL_LIBS})
 
-# Jesus Christ, the rtapi headers need hal headers: hal_types.h
-target_link_libraries(runtime PRIVATE hal_api)
-target_link_libraries(runtime_module PRIVATE hal_api PkgConfig::LIBCGROUP PkgConfig::LIBUDEV PkgConfig::CK)
+  # Jesus Christ, the rtapi headers need hal headers: hal_types.h
+  target_link_libraries(runtime PRIVATE hal_api)
+  target_link_libraries(runtime_module PRIVATE hal_api PkgConfig::LIBCGROUP
+                                               PkgConfig::LIBUDEV PkgConfig::CK)
 
-target_compile_definitions(runtime PUBLIC "ULAPI")
-target_compile_definitions(runtime_module PRIVATE "RTAPI" "HAVE_CK")
+  target_compile_definitions(runtime PUBLIC "ULAPI")
+  target_compile_definitions(runtime_module PRIVATE "RTAPI" "HAVE_CK")
 
-check_include_files("sys/io.h" SYS_IO_AVAILABLE)
+  check_include_files("sys/io.h" SYS_IO_AVAILABLE)
 
-if(SYS_IO_AVAILABLE)
+  if(SYS_IO_AVAILABLE)
     target_compile_definitions(runtime_api INTERFACE "SYS_IO_AVAILABLE")
     # Add here rtapi_io.h to PUBLIC_HEADER to install
-endif()
+  endif()
 
-set_target_properties(
-  runtime_api PROPERTIES PUBLIC_HEADER ${HEADER_FILES})
+  set_target_properties(runtime_api PROPERTIES PUBLIC_HEADER ${HEADER_FILES})
 
-set_target_properties(
+  set_target_properties(
     runtime
-    PROPERTIES
-        OUTPUT_NAME "rtapi"
-        SOVERSION 0
-        POSITION_INDEPENDENT_CODE TRUE)
+    PROPERTIES OUTPUT_NAME "rtapi"
+               SOVERSION 0
+               POSITION_INDEPENDENT_CODE TRUE)
 
-set_target_properties(
+  set_target_properties(
     runtime_module
-    PROPERTIES
-        OUTPUT_NAME "rtapi"
-        PREFIX "mod"
-        LIBRARY_OUTPUT_DIRECTORY ${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY})
+    PROPERTIES OUTPUT_NAME "rtapi"
+               PREFIX "mod"
+               LIBRARY_OUTPUT_DIRECTORY
+               ${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY})
 endif()

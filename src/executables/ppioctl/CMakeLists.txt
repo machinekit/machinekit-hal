@@ -1,4 +1,5 @@
-#####################################################################
+# ~~~
+# ####################################################################
 # Description:  CMakeLists.txt
 #
 #               This file, 'CMakeLists.txt', implements build system
@@ -20,14 +21,15 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-######################################################################
+# #####################################################################
+# ~~~
 
 option(BUILD_PPIOCTL_EXECUTABLE "Built the PPIOCtl executable." TRUE)
 
 if(BUILD_PPIOCTL_EXECUTABLE)
-add_executable(ppioctl)
+  add_executable(ppioctl)
 
-set(SOURCE_FILES src/ppioctl.c)
+  set(SOURCE_FILES src/ppioctl.c)
 
-target_sources(ppioctl PRIVATE ${SOURCE_FILES})
+  target_sources(ppioctl PRIVATE ${SOURCE_FILES})
 endif()

@@ -1,4 +1,5 @@
-#####################################################################
+# ~~~
+# ####################################################################
 # Description:  CMakeLists.txt
 #
 #               This file, 'CMakeLists.txt', implements build system
@@ -20,21 +21,24 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-######################################################################
+# #####################################################################
+# ~~~
 
 # if(PCI)
 option(BUILD_PCI_READ_EXECUTABLE "Built the PCI read executable." TRUE)
 
 if(BUILD_PCI_READ_EXECUTABLE)
-add_executable(pci_read)
+  add_executable(pci_read)
 
-set(SOURCE_FILES src/pci_read.c)
+  set(SOURCE_FILES src/pci_read.c)
 
-target_sources(pci_read PRIVATE ${SOURCE_FILES})
+  target_sources(pci_read PRIVATE ${SOURCE_FILES})
 
-target_link_libraries(pci_read PRIVATE upci)
+  target_link_libraries(pci_read PRIVATE upci)
 
-set_target_properties(pci_read PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY}")
-#endif()
+  set_target_properties(
+    pci_read
+    PROPERTIES RUNTIME_OUTPUT_DIRECTORY
+               "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY}")
+  # endif()
 endif()

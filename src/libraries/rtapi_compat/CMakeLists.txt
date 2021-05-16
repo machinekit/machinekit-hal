@@ -1,4 +1,5 @@
-#####################################################################
+# ~~~
+# ####################################################################
 # Description:  CMakeLists.txt
 #
 #               This file, 'CMakeLists.txt', implements build system
@@ -20,9 +21,11 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-######################################################################
+# #####################################################################
+# ~~~
 
-# Temporary INTERFACE library to solve Machinekit-HAL issue with symbol placement
+# Temporary INTERFACE library to solve Machinekit-HAL issue with symbol
+# placement
 
 # Transformed into INTERFACE library to manage dependencies
 
@@ -32,8 +35,10 @@ set(SOURCE_FILES "src/rtapi_compat.c")
 
 target_sources(rtapi_compat INTERFACE ${SOURCE_FILES})
 
-target_include_directories(rtapi_compat INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:"${MACHINEKIT_HAL_INTERFACE_DIRECTORY}")
+target_include_directories(
+  rtapi_compat
+  INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+            $<INSTALL_INTERFACE:"${MACHINEKIT_HAL_INTERFACE_DIRECTORY}")
 
-set_target_properties(
-    rtapi_compat PROPERTIES PUBLIC_HEADER include/rtapi_compat.h)
+set_target_properties(rtapi_compat PROPERTIES PUBLIC_HEADER
+                                              include/rtapi_compat.h)

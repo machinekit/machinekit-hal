@@ -1,4 +1,5 @@
-#####################################################################
+# ~~~
+# ####################################################################
 # Description:  CMakeLists.txt
 #
 #               This file, 'CMakeLists.txt', implements build system
@@ -20,18 +21,19 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-######################################################################
+# #####################################################################
+# ~~~
 
 option(BUILD_POSITION_EXECUTABLE "Built the Position executable." TRUE)
 
 if(BUILD_POSITION_EXECUTABLE)
-add_executable(position)
+  add_executable(position)
 
-set(SOURCE_FILES src/position.cc)
+  set(SOURCE_FILES src/position.cc)
 
-target_sources(position PRIVATE ${SOURCE_FILES})
+  target_sources(position PRIVATE ${SOURCE_FILES})
 
-target_link_libraries(position PRIVATE machinetalk mkini)
+  target_link_libraries(position PRIVATE machinetalk mkini)
 
-target_compile_definitions(position PRIVATE "PB_FIELD_32BIT")
+  target_compile_definitions(position PRIVATE "PB_FIELD_32BIT")
 endif()

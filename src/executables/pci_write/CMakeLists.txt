@@ -1,4 +1,5 @@
-#####################################################################
+# ~~~
+# ####################################################################
 # Description:  CMakeLists.txt
 #
 #               This file, 'CMakeLists.txt', implements build system
@@ -20,21 +21,24 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-######################################################################
+# #####################################################################
+# ~~~
 
 option(BUILD_PCI_WRITE_EXECUTABLE "Built the PCI write executable." TRUE)
 
 if(BUILD_PCI_WRITE_EXECUTABLE)
-# if(PCI)
-add_executable(pci_write)
+  # if(PCI)
+  add_executable(pci_write)
 
-set(SOURCE_FILES src/pci_write.c)
+  set(SOURCE_FILES src/pci_write.c)
 
-target_sources(pci_write PRIVATE ${SOURCE_FILES})
+  target_sources(pci_write PRIVATE ${SOURCE_FILES})
 
-target_link_libraries(pci_write PRIVATE upci)
+  target_link_libraries(pci_write PRIVATE upci)
 
-set_target_properties(pci_write PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY}")
-#endif()
+  set_target_properties(
+    pci_write
+    PROPERTIES RUNTIME_OUTPUT_DIRECTORY
+               "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY}")
+  # endif()
 endif()

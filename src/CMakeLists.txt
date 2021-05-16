@@ -1,4 +1,5 @@
-#####################################################################
+# ~~~
+# ####################################################################
 # Description:  CMakeLists.txt
 #
 #               This file, 'CMakeLists.txt', implements build system
@@ -20,7 +21,8 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-######################################################################
+# #####################################################################
+# ~~~
 
 include(FindPkgConfig)
 include(CheckIncludeFiles)
@@ -30,32 +32,40 @@ set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 option(BUILD_PYTHON_DISTRIBUTIONS "Build Python3 distribution packages" TRUE)
 
 if(BUILD_PYTHON_DISTRIBUTIONS)
-    include(PEP503PythonIndex)
-    # Create a simple PEP503 conforming local Python index
-    if(NOT MACHINEKIT_HAL_PYTHON_INDEX)
-        set(MACHINEKIT_HAL_PYTHON_INDEX "${CMAKE_BINARY_DIR}/$<CONFIG>/python_index")
-    endif()
+  include(PEP503PythonIndex)
+  # Create a simple PEP503 conforming local Python index
+  if(NOT MACHINEKIT_HAL_PYTHON_INDEX)
+    set(MACHINEKIT_HAL_PYTHON_INDEX
+        "${CMAKE_BINARY_DIR}/$<CONFIG>/python_index")
+  endif()
 endif()
 
 # Define the outer rules for output directories for build artifacts
 if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>/${MACHINEKIT_HAL_EXECUTABLE_DIRECTORY}")
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY
+      "${CMAKE_BINARY_DIR}/$<CONFIG>/${MACHINEKIT_HAL_EXECUTABLE_DIRECTORY}")
 endif()
 if(NOT CMAKE_ARCHIVE_OUTPUT_DIRECTORY)
-    set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>/${MACHINEKIT_HAL_LIBRARY_DIRECTORY}")
+  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY
+      "${CMAKE_BINARY_DIR}/$<CONFIG>/${MACHINEKIT_HAL_LIBRARY_DIRECTORY}")
 endif()
 if(NOT CMAKE_LIBRARY_OUTPUT_DIRECTORY)
-    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>/${MACHINEKIT_HAL_LIBRARY_DIRECTORY}")
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY
+      "${CMAKE_BINARY_DIR}/$<CONFIG>/${MACHINEKIT_HAL_LIBRARY_DIRECTORY}")
 endif()
 # Extensions to standard CMake-defined OUTPUT directories for Machinekit-HAL
 if(NOT MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY)
-    set(MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>/${MACHINEKIT_HAL_MODULE_DIRECTORY}")
+  set(MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY
+      "${CMAKE_BINARY_DIR}/$<CONFIG>/${MACHINEKIT_HAL_MODULE_DIRECTORY}")
 endif()
 if(NOT MACHINEKIT_HAL_CONFIG_OUTPUT_DIRECTORY)
-    set(MACHINEKIT_HAL_CONFIG_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>/${MACHINEKIT_HAL_SYSTEM_CONFIG_DIRECTORY}")
+  set(MACHINEKIT_HAL_CONFIG_OUTPUT_DIRECTORY
+      "${CMAKE_BINARY_DIR}/$<CONFIG>/${MACHINEKIT_HAL_SYSTEM_CONFIG_DIRECTORY}")
 endif()
 if(NOT MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY)
-    set(MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>/${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_DIRECTORY}")
+  set(MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY
+      "${CMAKE_BINARY_DIR}/$<CONFIG>/${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_DIRECTORY}"
+  )
 endif()
 
 add_subdirectory(libraries)
@@ -63,5 +73,5 @@ add_subdirectory(executables)
 add_subdirectory(modules)
 
 if(BUILD_PYTHON_DISTRIBUTIONS)
-    
+
 endif()

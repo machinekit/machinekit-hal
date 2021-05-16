@@ -1,4 +1,5 @@
-#####################################################################
+# ~~~
+# ####################################################################
 # Description:  CMakeLists.txt
 #
 #               This file, 'CMakeLists.txt', implements build system
@@ -20,16 +21,17 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-######################################################################
+# #####################################################################
+# ~~~
 
 option(BUILD_SIZES_EXECUTABLE "Built the Sizes executable." TRUE)
 
 if(BUILD_SIZES_EXECUTABLE)
-    add_executable(sizes)
+  add_executable(sizes)
 
-    set(SOURCE_FILES src/sizes.c)
+  set(SOURCE_FILES src/sizes.c)
 
-    target_sources(sizes PRIVATE ${SOURCE_FILES})
+  target_sources(sizes PRIVATE ${SOURCE_FILES})
 
-    target_link_libraries(sizes PRIVATE machinetalk_proto_c)
+  target_link_libraries(sizes PRIVATE machinetalk_proto_c)
 endif()

@@ -1,4 +1,5 @@
-#####################################################################
+# ~~~
+# ####################################################################
 # Description:  CMakeLists.txt
 #
 #               This file, 'CMakeLists.txt', implements build system
@@ -20,30 +21,30 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-######################################################################
+# #####################################################################
+# ~~~
 
 option(BUILD_MKINI_LIBRARY "Built the MKINI library." TRUE)
 
 if(BUILD_MKINI_LIBRARY)
-add_library(mkini SHARED)
-add_library(${MACHINEKIT_HAL_NAMESPACE}::mkini ALIAS mkini)
+  add_library(mkini SHARED)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::mkini ALIAS mkini)
 
-set(SOURCE_FILES src/inifile.cc)
+  set(SOURCE_FILES src/inifile.cc)
 
-target_sources(mkini PRIVATE ${SOURCE_FILES})
+  target_sources(mkini PRIVATE ${SOURCE_FILES})
 
-# TODO: Needed just because of the config.h??
-target_link_libraries(mkini PRIVATE runtime_api)
+  # TODO: Needed just because of the config.h??
+  target_link_libraries(mkini PRIVATE runtime_api)
 
-target_include_directories(
+  target_include_directories(
     mkini PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:"${MACHINEKIT_HAL_INTERFACE_DIRECTORY}")
+                 $<INSTALL_INTERFACE:"${MACHINEKIT_HAL_INTERFACE_DIRECTORY}")
 
-set_target_properties(
+  set_target_properties(
     mkini
-    PROPERTIES 
-        SOVERSION 0
-        PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/mk-inifile.h"
-        PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/mk-inifile.hh"
-        POSITION_INDEPENDENT_CODE TRUE)
+    PROPERTIES SOVERSION 0
+               PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/mk-inifile.h"
+               PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/mk-inifile.hh"
+               POSITION_INDEPENDENT_CODE TRUE)
 endif()

@@ -1,4 +1,5 @@
-#####################################################################
+# ~~~
+# ####################################################################
 # Description:  CMakeLists.txt
 #
 #               This file, 'CMakeLists.txt', implements build system
@@ -20,38 +21,46 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-######################################################################
+# #####################################################################
+# ~~~
 
 option(BUILD_HAL_COMMAND_LIBRARY "Built the HAL command library." TRUE)
 
 if(BUILD_HAL_COMMAND_LIBRARY)
-add_library(hal_command SHARED)
-add_library(${MACHINEKIT_HAL_NAMESPACE}::hal_command ALIAS hal_command)
+  add_library(hal_command SHARED)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::hal_command ALIAS hal_command)
 
-set(SOURCE_FILES
-    src/halcmd_commands.c
-    src/halcmd.c
-    src/halcmd_rtapiapp.cc)
+  set(SOURCE_FILES src/halcmd_commands.c src/halcmd.c src/halcmd_rtapiapp.cc)
 
-target_include_directories(
-    hal_command PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:"${MACHINEKIT_HAL_INTERFACE_DIRECTORY}")
+  target_include_directories(
+    hal_command
+    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+           $<INSTALL_INTERFACE:"${MACHINEKIT_HAL_INTERFACE_DIRECTORY}")
 
-target_sources(hal_command PRIVATE ${SOURCE_FILES})
+  target_sources(hal_command PRIVATE ${SOURCE_FILES})
 
-# TODO: How come there is no dependency on HAL? What is transitively depending it?
-target_link_libraries(hal_command PRIVATE runtime_config runtime_api hal_api machinetalk_proto_c runtime_math
-runtime_memory_api mkini machinetalk)
+  # TODO: How come there is no dependency on HAL? What is transitively depending
+  # it?
+  target_link_libraries(
+    hal_command
+    PRIVATE runtime_config
+            runtime_api
+            hal_api
+            machinetalk_proto_c
+            runtime_math
+            runtime_memory_api
+            mkini
+            machinetalk)
 
-target_compile_definitions(hal_command PRIVATE "ULAPI")
+  target_compile_definitions(hal_command PRIVATE "ULAPI")
 
-set_target_properties(
-    hal_command 
-    PROPERTIES
-        SOVERSION 0
-        PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/halcmd_commands.h"
-        PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/halcmd_rtapiapp.h"
-        PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/halcmd.h"
-        POSITION_INDEPENDENT_CODE TRUE
-    )
+  set_target_properties(
+    hal_command
+    PROPERTIES SOVERSION 0
+               PUBLIC_HEADER
+               "${CMAKE_CURRENT_SOURCE_DIR}/include/halcmd_commands.h"
+               PUBLIC_HEADER
+               "${CMAKE_CURRENT_SOURCE_DIR}/include/halcmd_rtapiapp.h"
+               PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/halcmd.h"
+               POSITION_INDEPENDENT_CODE TRUE)
 endif()

@@ -1,4 +1,5 @@
-#####################################################################
+# ~~~
+# ####################################################################
 # Description:  CMakeLists.txt
 #
 #               This file, 'CMakeLists.txt', implements build system
@@ -20,28 +21,44 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-######################################################################
+# #####################################################################
+# ~~~
 
 option(BUILD_RTAPI_APP_EXECUTABLE "Built the RTAPI app executable." TRUE)
 
 if(BUILD_RTAPI_APP_EXECUTABLE)
-add_executable(rtapi_app)
+  add_executable(rtapi_app)
 
-set(SOURCE_FILES src/rtapi_app.cc)
+  set(SOURCE_FILES src/rtapi_app.cc)
 
-target_sources(rtapi_app PRIVATE ${SOURCE_FILES}
-    $<TARGET_PROPERTY:rtapi_support,INTERFACE_SOURCES>
-    $<TARGET_PROPERTY:rtapi_compat,INTERFACE_SOURCES>)
+  target_sources(
+    rtapi_app
+    PRIVATE ${SOURCE_FILES} $<TARGET_PROPERTY:rtapi_support,INTERFACE_SOURCES>
+            $<TARGET_PROPERTY:rtapi_compat,INTERFACE_SOURCES>)
 
-target_include_directories(rtapi_app PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-$<TARGET_PROPERTY:rtapi_compat,INTERFACE_INCLUDE_DIRECTORIES>)
+  target_include_directories(
+    rtapi_app
+    PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+            $<TARGET_PROPERTY:rtapi_compat,INTERFACE_INCLUDE_DIRECTORIES>)
 
-pkg_check_modules(UUID "uuid" REQUIRED IMPORTED_TARGET)
+  pkg_check_modules(UUID "uuid" REQUIRED IMPORTED_TARGET)
 
-# Linking against Runtime just because of the config.h file?
-# Adding Runtime_api only because originally makefile was not linking in the whole 'libhalulapi.so'
-target_link_libraries(rtapi_app PRIVATE mkini runtime_memory_api machinetalk runtime_api hal syslog_async PkgConfig::UUID ${CMAKE_DL_LIBS})
+  # Linking against Runtime just because of the config.h file? Adding
+  # Runtime_api only because originally makefile was not linking in the whole
+  # 'libhalulapi.so'
+  target_link_libraries(
+    rtapi_app
+    PRIVATE mkini
+            runtime_memory_api
+            machinetalk
+            runtime_api
+            hal
+            syslog_async
+            PkgConfig::UUID
+            ${CMAKE_DL_LIBS})
 
-set_target_properties(rtapi_app PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY}")
+  set_target_properties(
+    rtapi_app
+    PROPERTIES RUNTIME_OUTPUT_DIRECTORY
+               "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY}")
 endif()

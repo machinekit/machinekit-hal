@@ -1,4 +1,5 @@
-#####################################################################
+# ~~~
+# ####################################################################
 # Description:  CMakeLists.txt
 #
 #               This file, 'CMakeLists.txt', implements build system
@@ -20,14 +21,16 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-######################################################################
+# #####################################################################
+# ~~~
 
-option(BUILD_DECODE_PROTOBUF_EXECUTABLE "Build the Decode Protobuf executable." TRUE)
+option(BUILD_DECODE_PROTOBUF_EXECUTABLE "Build the Decode Protobuf executable."
+       TRUE)
 
 if(BUILD_DECODE_PROTOBUF_EXECUTABLE)
-add_executable(decode_protobuf)
+  add_executable(decode_protobuf)
 
-set(SOURCE_FILES src/pb.c)
+  set(SOURCE_FILES src/pb.c)
 
-target_sources(decode_protobuf PRIVATE ${SOURCE_FILES})
+  target_sources(decode_protobuf PRIVATE ${SOURCE_FILES})
 endif()

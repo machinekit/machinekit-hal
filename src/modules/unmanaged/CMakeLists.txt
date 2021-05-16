@@ -1,4 +1,5 @@
-#####################################################################
+# ~~~
+# ####################################################################
 # Description:  CMakeLists.txt
 #
 #               This file, 'CMakeLists.txt', implements build system
@@ -20,10 +21,12 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-######################################################################
+# #####################################################################
+# ~~~
 
 if(BUILD_PYTHON_DISTRIBUTIONS)
-    set(MACHINEKIT_HAL_PACKAGE_PREFIX_PATH "${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/module")
+  set(MACHINEKIT_HAL_PACKAGE_PREFIX_PATH
+      "${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/module")
 endif()
 
 add_subdirectory(adxl345)

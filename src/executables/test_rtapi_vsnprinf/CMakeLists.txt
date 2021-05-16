@@ -1,4 +1,5 @@
-#####################################################################
+# ~~~
+# ####################################################################
 # Description:  CMakeLists.txt
 #
 #               This file, 'CMakeLists.txt', implements build system
@@ -20,18 +21,22 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-######################################################################
+# #####################################################################
+# ~~~
 
-option(BUILD_TEST_RTAPI_VSNPRINTF_EXECUTABLE "Built the Test RTAPI vsnprintf executable." TRUE)
+option(BUILD_TEST_RTAPI_VSNPRINTF_EXECUTABLE
+       "Built the Test RTAPI vsnprintf executable." TRUE)
 
 if(BUILD_TEST_RTAPI_VSNPRINTF_EXECUTABLE)
-add_executable(test_rtapi_vsnprintf)
+  add_executable(test_rtapi_vsnprintf)
 
-set(SOURCE_FILES src/test_rtapi_vsnprintf.c)
+  set(SOURCE_FILES src/test_rtapi_vsnprintf.c)
 
-target_sources(test_rtapi_vsnprintf PRIVATE ${SOURCE_FILES})
+  target_sources(test_rtapi_vsnprintf PRIVATE ${SOURCE_FILES})
 
-target_include_directories(test_rtapi_vsnprintf PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+  target_include_directories(
+    test_rtapi_vsnprintf
+    PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
-target_link_libraries(test_rtapi_vsnprintf PRIVATE runtime runtime_math)
+  target_link_libraries(test_rtapi_vsnprintf PRIVATE runtime runtime_math)
 endif()

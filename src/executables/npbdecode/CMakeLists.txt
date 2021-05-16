@@ -1,4 +1,5 @@
-#####################################################################
+# ~~~
+# ####################################################################
 # Description:  CMakeLists.txt
 #
 #               This file, 'CMakeLists.txt', implements build system
@@ -20,18 +21,19 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-######################################################################
+# #####################################################################
+# ~~~
 
 option(BUILD_NPBDECODE_EXECUTABLE "Built the NPBdecode executable." TRUE)
 
 if(BUILD_NPBDECODE_EXECUTABLE)
-add_executable(npbdecode)
+  add_executable(npbdecode)
 
-set(SOURCE_FILES src/npbdecode.c)
+  set(SOURCE_FILES src/npbdecode.c)
 
-target_sources(npbdecode PRIVATE ${SOURCE_FILES})
+  target_sources(npbdecode PRIVATE ${SOURCE_FILES})
 
-target_link_libraries(npbdecode PRIVATE machinetalk machinetalk_proto_c)
+  target_link_libraries(npbdecode PRIVATE machinetalk machinetalk_proto_c)
 
-target_compile_definitions(npbdecode PRIVATE "PB_FIELD_32BIT")
+  target_compile_definitions(npbdecode PRIVATE "PB_FIELD_32BIT")
 endif()

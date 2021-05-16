@@ -1,4 +1,5 @@
-#####################################################################
+# ~~~
+# ####################################################################
 # Description:  CMakeLists.txt
 #
 #               This file, 'CMakeLists.txt', implements build system
@@ -20,25 +21,31 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-######################################################################
+# #####################################################################
+# ~~~
 
-option(BUILD_CONSTV2_UNMANAGED_MODULE "Build the const/v2 unmanaged module." TRUE)
+option(BUILD_CONSTV2_UNMANAGED_MODULE "Build the const/v2 unmanaged module."
+       TRUE)
 
 if(BUILD_CONSTV2_UNMANAGED_MODULE)
-    add_executable(const)
-    add_executable(constv2)
+  add_executable(const)
+  add_executable(constv2)
 
-    set(CONST_SOURCE_FILES src/const.cc)
-    set(CONSTV2_SOURCE_FILES src/constv2.cc)
+  set(CONST_SOURCE_FILES src/const.cc)
+  set(CONSTV2_SOURCE_FILES src/constv2.cc)
 
-    target_sources(const PRIVATE ${CONST_SOURCE_FILES})
-    target_sources(constv2 PRIVATE ${CONSTV2_SOURCE_FILES})
+  target_sources(const PRIVATE ${CONST_SOURCE_FILES})
+  target_sources(constv2 PRIVATE ${CONSTV2_SOURCE_FILES})
 
-    target_include_directories(const PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/constv2>)
-    target_include_directories(constv2 PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/constv2>)
+  target_include_directories(
+    const
+    PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/constv2>)
+  target_include_directories(
+    constv2
+    PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/constv2>)
 
-    find_library(LIBMATH NAMES "m" REQUIRED)
+  find_library(LIBMATH NAMES "m" REQUIRED)
 
-    target_link_libraries(const PRIVATE runtime hal mkini ${LIBMATH})
-    target_link_libraries(constv2 PRIVATE runtime hal mkini ${LIBMATH})
+  target_link_libraries(const PRIVATE runtime hal mkini ${LIBMATH})
+  target_link_libraries(constv2 PRIVATE runtime hal mkini ${LIBMATH})
 endif()

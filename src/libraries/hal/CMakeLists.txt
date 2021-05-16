@@ -25,68 +25,78 @@
 option(BUILD_HAL_LIBRARY "Built the HAL library." TRUE)
 
 if(BUILD_HAL_LIBRARY)
-add_library(hal_api INTERFACE)
-add_library(${MACHINEKIT_HAL_NAMESPACE}::hal_api ALIAS hal_api)
-add_library(hal SHARED)
-add_library(${MACHINEKIT_HAL_NAMESPACE}::hal ALIAS hal)
-# Technically not a library, but managed module
-add_library(hal_module MODULE)
-add_library(${MACHINEKIT_HAL_NAMESPACE}::hal_module ALIAS hal_module)
+  add_library(hal_api INTERFACE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::hal_api ALIAS hal_api)
+  add_library(hal SHARED)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::hal ALIAS hal)
+  # Technically not a library, but managed module
+  add_library(hal_module MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::hal_module ALIAS hal_module)
 
-set(SOURCE_FILES
-    src/hal_lib.c
-    src/hal_group.c
-    src/hal_ring.c
-    src/hal_rcomp.c
-    src/hal_vtable.c
-    src/hal_funct.c
-    src/hal_thread.c
-    src/hal_param.c
-    src/hal_signal.c
-    src/hal_pin.c
-    src/hal_comp.c
-    src/hal_memory.c
-    src/hal_misc.c
-    src/hal_instance.c
-    src/hal_object.c
-    src/hal_object_selectors.c
-    src/hal_accessor.c
-    src/hal_iring.c)
+  set(SOURCE_FILES
+      src/hal_lib.c
+      src/hal_group.c
+      src/hal_ring.c
+      src/hal_rcomp.c
+      src/hal_vtable.c
+      src/hal_funct.c
+      src/hal_thread.c
+      src/hal_param.c
+      src/hal_signal.c
+      src/hal_pin.c
+      src/hal_comp.c
+      src/hal_memory.c
+      src/hal_misc.c
+      src/hal_instance.c
+      src/hal_object.c
+      src/hal_object_selectors.c
+      src/hal_accessor.c
+      src/hal_iring.c)
 
-set (HEADER_FILES include/hal.h)
+  set(HEADER_FILES include/hal.h)
 
-target_include_directories(hal_api INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:"${MACHINEKIT_HAL_INTERFACE_DIRECTORY}")
+  target_include_directories(
+    hal_api
+    INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+              $<INSTALL_INTERFACE:"${MACHINEKIT_HAL_INTERFACE_DIRECTORY}")
 
-target_sources(hal PRIVATE ${SOURCE_FILES})
-target_sources(hal_module PRIVATE ${SOURCE_FILES})
+  target_sources(hal PRIVATE ${SOURCE_FILES})
+  target_sources(hal_module PRIVATE ${SOURCE_FILES})
 
-target_link_libraries(hal PUBLIC hal_api runtime_api runtime PRIVATE mkini)
-target_link_libraries(hal_module PRIVATE hal_api runtime_api)
-
-target_compile_definitions(hal_module PRIVATE "RTAPI")
-
-add_custom_command(TARGET hal_module PRE_LINK
-                    COMMAND ${CMAKE_COMMAND} "-E" "make_directory" "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/linker"
-                   COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/smazat.sh "$<TARGET_OBJECTS:hal_module>" "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/linker/hal_module.map"
-                   BYPRODUCT ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/hal_module.map
-                   VERBATIM )
-
-target_link_options(hal_module PRIVATE "LINKER:--version-script=${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/linker/hal_module.map")
-
-set_target_properties(
-  hal_api PROPERTIES PUBLIC_HEADER ${HEADER_FILES})
-
-set_target_properties(
+  target_link_libraries(
     hal
-    PROPERTIES
-        SOVERSION 0
-        POSITION_INDEPENDENT_CODE TRUE)
+    PUBLIC hal_api runtime_api runtime
+    PRIVATE mkini)
+  target_link_libraries(hal_module PRIVATE hal_api runtime_api)
 
-set_target_properties(
+  target_compile_definitions(hal_module PRIVATE "RTAPI")
+
+  add_custom_command(
+    TARGET hal_module
+    PRE_LINK
+    COMMAND ${CMAKE_COMMAND} "-E" "make_directory"
+            "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/linker"
+    COMMAND
+      ${CMAKE_CURRENT_SOURCE_DIR}/smazat.sh "$<TARGET_OBJECTS:hal_module>"
+      "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/linker/hal_module.map" BYPRODUCT
+      ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/hal_module.map
+    VERBATIM)
+
+  target_link_options(
     hal_module
-    PROPERTIES
-        OUTPUT_NAME "hal"
-        PREFIX "mod"
-        LIBRARY_OUTPUT_DIRECTORY ${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY})
+    PRIVATE
+    "LINKER:--version-script=${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/linker/hal_module.map"
+  )
+
+  set_target_properties(hal_api PROPERTIES PUBLIC_HEADER ${HEADER_FILES})
+
+  set_target_properties(hal PROPERTIES SOVERSION 0 POSITION_INDEPENDENT_CODE
+                                                   TRUE)
+
+  set_target_properties(
+    hal_module
+    PROPERTIES OUTPUT_NAME "hal"
+               PREFIX "mod"
+               LIBRARY_OUTPUT_DIRECTORY
+               ${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY})
 endif()

@@ -1,4 +1,5 @@
-#####################################################################
+# ~~~
+# ####################################################################
 # Description:  CMakeLists.txt
 #
 #               This file, 'CMakeLists.txt', implements build system
@@ -20,42 +21,50 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-######################################################################
+# #####################################################################
+# ~~~
 
 cmake_minimum_required(VERSION 3.20)
 
 project(
   Machinekit-HAL
-  VERSION 0.4 #TODO: Get the right version from VERSION file and git
+  VERSION 0.4 # TODO: Get the right version from VERSION file and git
   DESCRIPTION "Universal framework for machine control."
   HOMEPAGE_URL "https://machinekit.io"
   LANGUAGES C CXX ASM)
 
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
-  #include(cmake/packaging/packaging.cmake)
+  # include(cmake/packaging/packaging.cmake)
   include(CTest)
   enable_testing()
 endif()
 
-string(REGEX REPLACE "[-~ .]" "_" MACHINEKIT_HAL_PACKAGE_PREFIX_NORMALIZED ${CMAKE_PROJECT_NAME})
-string(TOLOWER ${MACHINEKIT_HAL_PACKAGE_PREFIX_NORMALIZED} MACHINEKIT_HAL_PACKAGE_PREFIX)
-string(REGEX REPLACE "_" "/" MACHINEKIT_HAL_PACKAGE_PREFIX_PATH ${MACHINEKIT_HAL_PACKAGE_PREFIX})
+string(REGEX REPLACE "[-~ .]" "_" MACHINEKIT_HAL_PACKAGE_PREFIX_NORMALIZED
+                     ${CMAKE_PROJECT_NAME})
+string(TOLOWER ${MACHINEKIT_HAL_PACKAGE_PREFIX_NORMALIZED}
+               MACHINEKIT_HAL_PACKAGE_PREFIX)
+string(REGEX REPLACE "_" "/" MACHINEKIT_HAL_PACKAGE_PREFIX_PATH
+                     ${MACHINEKIT_HAL_PACKAGE_PREFIX})
 
 include(GNUInstallDirs)
 
 set(MACHINEKIT_HAL_NAMESPACE "Machinekit::HAL")
 set(MACHINEKIT_HAL_EXECUTABLE_DIRECTORY "${CMAKE_INSTALL_BINDIR}")
 set(MACHINEKIT_HAL_LIBRARY_DIRECTORY "${CMAKE_INSTALL_LIBDIR}")
-set(MACHINEKIT_HAL_MODULE_DIRECTORY "${CMAKE_INSTALL_LIBDIR}/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/modules")
-set(MACHINEKIT_HAL_INTERNAL_EXECUTABLE_DIRECTORY "${CMAKE_INSTALL_LIBEXECDIR}/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}")
+set(MACHINEKIT_HAL_MODULE_DIRECTORY
+    "${CMAKE_INSTALL_LIBDIR}/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/modules")
+set(MACHINEKIT_HAL_INTERNAL_EXECUTABLE_DIRECTORY
+    "${CMAKE_INSTALL_LIBEXECDIR}/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}")
 set(MACHINEKIT_HAL_INTERFACE_DIRECTORY "${CMAKE_INSTALL_INCLUDEDIR}")
-set(MACHINEKIT_HAL_SYSTEM_CONFIG_DIRECTORY "${CMAKE_INSTALL_SYSCONFDIR}/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}")
+set(MACHINEKIT_HAL_SYSTEM_CONFIG_DIRECTORY
+    "${CMAKE_INSTALL_SYSCONFDIR}/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}")
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/tools)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CC_STANDARD 17)
 
-set(MACHINEKIT_HAL_GIT_BUILD_SHA "aaabbbccc") # TODO: Set based on actual Git SHA
+set(MACHINEKIT_HAL_GIT_BUILD_SHA "aaabbbccc") # TODO: Set based on actual Git
+                                              # SHA
 
 add_subdirectory(src)
