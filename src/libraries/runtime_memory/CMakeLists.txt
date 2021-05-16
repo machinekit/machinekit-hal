@@ -47,6 +47,7 @@ set_target_properties(
 
 set_target_properties(
     runtime_memory_api
-    PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${MACHINEKIT_HAL_LIBRARY_DIRECTORY}
-    POSITION_INDEPENDENT_CODE TRUE)
+    PROPERTIES
+        SOVERSION 0
+        POSITION_INDEPENDENT_CODE TRUE)
 endif()

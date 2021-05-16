@@ -83,7 +83,7 @@ target_link_libraries(runtime_module PRIVATE runtime_api runtime_memory_api sysl
 target_link_libraries(runtime PRIVATE hal_api)
 target_link_libraries(runtime_module PRIVATE hal_api PkgConfig::LIBCGROUP PkgConfig::LIBUDEV PkgConfig::CK)
 
-target_compile_definitions(runtime PUBLIC "ULAPI" "HAL_SYSTEM_CONFIG_DIR=\"$<BUILD_INTERFACE:/temp/build>\"")
+target_compile_definitions(runtime PUBLIC "ULAPI")
 target_compile_definitions(runtime_module PRIVATE "RTAPI" "HAVE_CK")
 
 check_include_files("sys/io.h" SYS_IO_AVAILABLE)
@@ -98,10 +98,15 @@ set_target_properties(
 
 set_target_properties(
     runtime
-    PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${MACHINEKIT_HAL_LIBRARY_DIRECTORY}
-    POSITION_INDEPENDENT_CODE TRUE)
+    PROPERTIES
+        OUTPUT_NAME "rtapi"
+        SOVERSION 0
+        POSITION_INDEPENDENT_CODE TRUE)
 
 set_target_properties(
     runtime_module
-    PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${MACHINEKIT_HAL_MODULE_DIRECTORY})
+    PROPERTIES
+        OUTPUT_NAME "rtapi"
+        PREFIX "mod"
+        LIBRARY_OUTPUT_DIRECTORY ${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY})
 endif()

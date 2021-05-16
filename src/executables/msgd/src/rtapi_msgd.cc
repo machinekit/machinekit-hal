@@ -929,10 +929,7 @@ int main(int argc, char **argv)
 		 ""
 #endif
 		 );
-    syslog_async(LOG_INFO,"configured: sha=%s", GIT_CONFIG_SHA);
     syslog_async(LOG_INFO,"built:      %s %s sha=%s",  __DATE__, __TIME__, GIT_BUILD_SHA);
-    if (strcmp(GIT_CONFIG_SHA,GIT_BUILD_SHA))
-	syslog_async(LOG_WARNING, "WARNING: git SHA's for configure and build do not match!");
 
 
    if ((global_data->rtapi_msgd_pid != 0) &&

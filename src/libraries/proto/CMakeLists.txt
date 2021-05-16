@@ -93,13 +93,13 @@ protobuf_generate(
 
 set_target_properties(
    machinetalk_proto_c
-      PROPERTIES 
-         RUNTIME_OUTPUT_DIRECTORY "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
+      PROPERTIES
+         SOVERSION 0
          POSITION_INDEPENDENT_CODE TRUE)
 
 set_target_properties(
    machinetalk_proto_cc
-      PROPERTIES 
-         RUNTIME_OUTPUT_DIRECTORY "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
+      PROPERTIES
+         SOVERSION 0
          POSITION_INDEPENDENT_CODE TRUE)
 endif()

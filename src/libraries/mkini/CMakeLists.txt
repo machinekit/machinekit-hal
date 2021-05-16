@@ -42,7 +42,7 @@ target_include_directories(
 set_target_properties(
     mkini
     PROPERTIES 
-        RUNTIME_OUTPUT_DIRECTORY "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
+        SOVERSION 0
         PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/mk-inifile.h"
         PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/mk-inifile.hh"
         POSITION_INDEPENDENT_CODE TRUE)

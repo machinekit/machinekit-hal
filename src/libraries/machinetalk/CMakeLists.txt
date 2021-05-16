@@ -65,7 +65,7 @@ target_include_directories(
 
 set_target_properties(
     machinetalk
-    PROPERTIES 
-        RUNTIME_OUTPUT_DIRECTORY "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
+    PROPERTIES
+        SOVERSION 0
         POSITION_INDEPENDENT_CODE TRUE)
 endif()

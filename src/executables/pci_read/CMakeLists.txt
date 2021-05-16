@@ -33,5 +33,8 @@ set(SOURCE_FILES src/pci_read.c)
 target_sources(pci_read PRIVATE ${SOURCE_FILES})
 
 target_link_libraries(pci_read PRIVATE upci)
+
+set_target_properties(pci_read PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY}")
 #endif()
 endif()

@@ -22,5 +22,7 @@
 #
 ######################################################################
 
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
 add_subdirectory(drivers)
 add_subdirectory(components)

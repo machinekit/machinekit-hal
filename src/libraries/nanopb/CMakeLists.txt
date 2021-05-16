@@ -73,5 +73,5 @@ target_include_directories(nanopb_interface INTERFACE ${nanopb_SOURCE_DIR}) # TO
 
 set_target_properties(
     nanopb_proto_cc
-    PROPERTIES 
+    PROPERTIES
         POSITION_INDEPENDENT_CODE TRUE)

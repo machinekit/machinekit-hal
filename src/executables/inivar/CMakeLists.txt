@@ -32,4 +32,7 @@ set(SOURCE_FILES src/inivar.cc)
 target_sources(inivar PRIVATE ${SOURCE_FILES})
 
 target_link_libraries(inivar PRIVATE mkini runtime_api)
+
+set_target_properties(inivar PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY}")
 endif()

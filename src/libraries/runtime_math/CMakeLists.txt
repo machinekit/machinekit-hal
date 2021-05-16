@@ -127,8 +127,9 @@ target_compile_definitions(runtime_math PRIVATE "_IEEE_LIBM" "_ISOC99_SOURCE" "_
 
 set_target_properties(
   runtime_math
-  PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_INSTALL_LIBDIR}"
-             PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/rtapi_math.h"
-             PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/rtapi_math64.h"
-             POSITION_INDEPENDENT_CODE TRUE)
+  PROPERTIES
+    SOVERSION 0
+    PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/rtapi_math.h"
+    PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/rtapi_math64.h"
+    POSITION_INDEPENDENT_CODE TRUE)
 endif()

@@ -1,5 +1,5 @@
 /**********************************************************************
- * Demo of writing a SMP_SAFE userspace component in std C++
+ * Demo of writing a SMP_SAFE managed module in std C++
  * 
  * Based on the constant.icomp component
  * 

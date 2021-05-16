@@ -38,7 +38,7 @@ target_compile_definitions(nanopb_definitions PRIVATE "RTAPI")
 
 set_target_properties(
     nanopb_definitions
-    PROPERTIES 
-        RUNTIME_OUTPUT_DIRECTORY "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
+    PROPERTIES
+        SOVERSION 0 
         POSITION_INDEPENDENT_CODE TRUE)
 endif()

@@ -39,7 +39,8 @@ target_sources(syslog_async PRIVATE ${SOURCE_FILES})
 
 set_target_properties(
   syslog_async
-    PROPERTIES 
+    PROPERTIES
+      SOVERSION 0
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_INSTALL_LIBDIR}"
         POSITION_INDEPENDENT_CODE TRUE)
 endif()

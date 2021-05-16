@@ -40,15 +40,15 @@ target_include_directories(
 target_sources(hal_command PRIVATE ${SOURCE_FILES})
 
 # TODO: How come there is no dependency on HAL? What is transitively depending it?
-target_link_libraries(hal_command PRIVATE runtime_api hal_api machinetalk_proto_c runtime_math
+target_link_libraries(hal_command PRIVATE runtime_config runtime_api hal_api machinetalk_proto_c runtime_math
 runtime_memory_api mkini machinetalk)
 
-target_compile_definitions(hal_command PRIVATE "ULAPI" "MACHINEKIT_INI=\"/etc/machinekit/machinekit.ini\"" "RUNDIR=\"/tmp\"")
+target_compile_definitions(hal_command PRIVATE "ULAPI")
 
 set_target_properties(
     hal_command 
-    PROPERTIES 
-        LIBRARY_OUTPUT_DIRECTORY "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
+    PROPERTIES
+        SOVERSION 0
         PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/halcmd_commands.h"
         PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/halcmd_rtapiapp.h"
         PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/halcmd.h"

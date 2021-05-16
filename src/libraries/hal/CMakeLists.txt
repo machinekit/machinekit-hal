@@ -67,21 +67,26 @@ target_link_libraries(hal_module PRIVATE hal_api runtime_api)
 target_compile_definitions(hal_module PRIVATE "RTAPI")
 
 add_custom_command(TARGET hal_module PRE_LINK
-                   COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/smazat.sh "$<TARGET_OBJECTS:hal_module>" "hal_module.map"
-                   BYPRODUCT hal_module.map
+                    COMMAND ${CMAKE_COMMAND} "-E" "make_directory" "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/linker"
+                   COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/smazat.sh "$<TARGET_OBJECTS:hal_module>" "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/linker/hal_module.map"
+                   BYPRODUCT ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/hal_module.map
                    VERBATIM )
 
-target_link_options(hal_module PRIVATE "LINKER:--version-script=hal_module.map")
+target_link_options(hal_module PRIVATE "LINKER:--version-script=${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/linker/hal_module.map")
 
 set_target_properties(
   hal_api PROPERTIES PUBLIC_HEADER ${HEADER_FILES})
 
 set_target_properties(
     hal
-    PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${MACHINEKIT_HAL_LIBRARY_DIRECTORY}
-    POSITION_INDEPENDENT_CODE TRUE)
+    PROPERTIES
+        SOVERSION 0
+        POSITION_INDEPENDENT_CODE TRUE)
 
 set_target_properties(
     hal_module
-    PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${MACHINEKIT_HAL_MODULE_DIRECTORY})
+    PROPERTIES
+        OUTPUT_NAME "hal"
+        PREFIX "mod"
+        LIBRARY_OUTPUT_DIRECTORY ${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY})
 endif()

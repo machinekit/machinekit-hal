@@ -50,6 +50,8 @@ if(BUILD_MSGD_EXECUTABLE)
     ${LIBATOMIC}
     ${LIBRT})
 
-    # TODO: Why is there multiple GIT_*_SHA fields which are named differently than in Runtime?
-    target_compile_definitions(msgd PRIVATE "GIT_BUILD_SHA=0000000" "GIT_CONFIG_SHA=0000000" "RUNDIR=\"/tmp/wedios\"")
+    set_target_properties(msgd PROPERTIES
+        OUTPUT_NAME "rtapi_msgd"
+        PREFIX ""
+        RUNTIME_OUTPUT_DIRECTORY "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY}")
 endif()

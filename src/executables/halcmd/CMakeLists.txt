@@ -36,7 +36,7 @@ target_sources(halcmd PRIVATE ${SOURCE_FILES})
 
 target_include_directories(halcmd PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
-target_compile_definitions(halcmd PRIVATE "ULAPI" "MACHINEKIT_INI=\"/etc/machinekit/machinekit.ini\"")
+target_compile_definitions(halcmd PRIVATE "ULAPI")
 
 pkg_check_modules(AVAHICLIENT "avahi-client" REQUIRED IMPORTED_TARGET)
 pkg_check_modules(PROTOBUF "protobuf" REQUIRED IMPORTED_TARGET)

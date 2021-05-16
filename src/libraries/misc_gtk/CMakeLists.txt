@@ -40,7 +40,8 @@ target_link_libraries(miscgtk PUBLIC PkgConfig::LIBGTK)
 
 set_target_properties(
     miscgtk
-    PROPERTIES 
+    PROPERTIES
+        SOVERSION 0 
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_INSTALL_LIBDIR}"
         PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/miscgtk.h")
 endif()

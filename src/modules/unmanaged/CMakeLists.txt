@@ -23,7 +23,7 @@
 ######################################################################
 
 if(BUILD_PYTHON_DISTRIBUTIONS)
-    set(PYTHON_PACKAGE_PREFIX_PATH "${PYTHON_PACKAGE_PREFIX_PATH}/module")
+    set(MACHINEKIT_HAL_PACKAGE_PREFIX_PATH "${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/module")
 endif()
 
 add_subdirectory(adxl345)

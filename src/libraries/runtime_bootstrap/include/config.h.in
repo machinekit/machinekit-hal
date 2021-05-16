@@ -24,15 +24,21 @@
 *
 *********************************************************************/
 
-#ifndef HAL_CONFIG_H
-#define HAL_CONFIG_H
+#ifndef RUNTIME_CONFIG_H
+#define RUNTIME_CONFIG_H
 
 extern const char *const machinekit_hal_version;
 extern const char *const machinekit_hal_git_build_sha;
+extern const char *const machinekit_hal_config_directory;
+extern const char *const machinekit_hal_ini_file;
 
 #define VERSION machinekit_hal_version
 
 #define GIT_BUILD_SHA machinekit_hal_git_build_sha
+
+#define HAL_SYSTEM_CONFIG_DIR machinekit_hal_config_directory
+
+#define MACHINEKIT_INI machinekit_hal_ini_file
 
 /* LINELEN is used throughout for buffer sizes, length of file name strings,
    etc. Let's just have one instead of a multitude of defines all the same.
