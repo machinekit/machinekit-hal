@@ -18,7 +18,7 @@ Build-Depends:
     libudev-dev,
     libglib2.0-dev,
     libgtk2.0-dev,
-    libreadline-gplv2-dev,
+    libreadline-dev,
     libusb-1.0-0-dev,
     python3:native,
     libpython3-dev,
