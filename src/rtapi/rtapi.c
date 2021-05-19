@@ -47,7 +47,7 @@ int rtapi_instance;                             // instance id, visible througho
 global_data_t *global_data = NULL;              // visible to all RTAPI modules
 struct rtapi_heap *global_heap = NULL;
 
-ringbuffer_t rtapi_message_buffer;   // error ring access strcuture
+extern ringbuffer_t rtapi_message_buffer;   // error ring access strcuture
 
 #ifdef ULAPI
 // use 'ULAPI_DEBUG=<level> <hal binary/Python>' to trace ulapi loading
@@ -315,7 +315,7 @@ rtapi_exception_handler_t rtapi_set_exception(rtapi_exception_handler_t h)
 #endif
 
 // defined and initialized in rtapi_main.c (userthreads)
-extern ringbuffer_t rtapi_message_buffer;   // error ring access strcuture
+//extern ringbuffer_t rtapi_message_buffer;   // error ring access strcuture
 
 int  rtapi_next_handle(void)
 {
