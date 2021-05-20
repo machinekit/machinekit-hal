@@ -73,7 +73,8 @@ build-stamp: debian/control
 	    ./configure --prefix=/usr \
 	    --build=$(DEB_BUILD_GNU_TYPE) \
 	    --host=$(DEB_HOST_GNU_TYPE) \
-	    --sysconfdir=/etc
+	    --sysconfdir=/etc \
+		LIBS="-L/usr/lib/$(DEB_HOST_GNU_TYPE)"
 	cd src && $(MAKE) $(COMPILE_ENV) $(MAKEFLAGS) V=$(DH_VERBOSE)
 	touch build-stamp
 
