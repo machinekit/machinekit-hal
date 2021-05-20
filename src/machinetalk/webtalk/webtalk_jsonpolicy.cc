@@ -53,7 +53,7 @@ json_policy(wtself_t *self,
 		    switch (wss->socket_type) {
 
 		    case ZMQ_DEALER: // pass on
-			z_pbframe = zframe_new(NULL, c.ByteSize());
+			z_pbframe = zframe_new(NULL, c.ByteSizeLong());
 			assert(z_pbframe != NULL);
 			if (c.SerializeWithCachedSizesToArray(zframe_data(z_pbframe))) {
 			    assert(zframe_send(&z_pbframe, wss->socket, 0) == 0);

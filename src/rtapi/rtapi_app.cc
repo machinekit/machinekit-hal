@@ -924,7 +924,7 @@ static int rtapi_request(zloop_t *loop, zsock_t *socket, void *arg)
 
     // TODO: extract + attach error message
 
-    size_t reply_size = pbreply.ByteSize();
+    size_t reply_size = pbreply.ByteSizeLong();
     zframe_t *reply = zframe_new (NULL, reply_size);
     if(reply == NULL){
 	rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_request(): NULL zframe_t 'reply' passed");

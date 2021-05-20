@@ -61,7 +61,7 @@ demo_policy(wtself_t *self,
 		    lwsl_err("%s from_ws: json2pb exception: %s on '%.*s'\n",
 			     __func__, ex.what(),wss->length, wss->buffer);
 		}
-		zframe_t *z_pbframe = zframe_new(NULL, c.ByteSize());
+		zframe_t *z_pbframe = zframe_new(NULL, c.ByteSizeLong());
 		assert(z_pbframe != NULL);
 		if (c.SerializeWithCachedSizesToArray(zframe_data(z_pbframe))) {
 		    assert(zframe_send(&z_pbframe, wss->socket, 0) == 0);

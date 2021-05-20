@@ -613,7 +613,7 @@ message_poll_cb(zloop_t *loop, int  timer_id, void *args)
 	    logmsg->set_tag(msg->tag);
 	    logmsg->set_text(msg->buf, strlen(msg->buf));
 
-	    z_pbframe = zframe_new(NULL, container.ByteSize());
+	    z_pbframe = zframe_new(NULL, container.ByteSizeLong());
 	    assert(z_pbframe != NULL);
 
 	    if (container.SerializeWithCachedSizesToArray(zframe_data(z_pbframe))) {

@@ -249,7 +249,7 @@ static int frame_tows(struct pbzws_session *self)
 {
     zframe_t *f;
 
-    size_t pbsize =  self->pzf->ByteSize();
+    size_t pbsize =  self->pzf->ByteSizeLong();
     buf_resize(self,  b64wrapped(self) ? B64SIZE(pbsize) + pbsize : pbsize);
 
     unsigned char *end = self->pzf->SerializeWithCachedSizesToArray(self->buf);

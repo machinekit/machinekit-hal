@@ -191,7 +191,7 @@ static int handle_xpub_in(zloop_t *loop, zsock_t *socket, void *arg)
 		    c.set_type(pb::MT_MESSAGEBUS_NO_DESTINATION);
 		    c.set_name(to);
 		    c.add_note(errmsg);
-		    zframe_t *errorframe = zframe_new(NULL, c.ByteSize());
+		    zframe_t *errorframe = zframe_new(NULL, c.ByteSizeLong());
 		    c.SerializeWithCachedSizesToArray(zframe_data(errorframe));
 		    retval = zframe_send(&errorframe, self->response, 0);
 		    assert(retval == 0);

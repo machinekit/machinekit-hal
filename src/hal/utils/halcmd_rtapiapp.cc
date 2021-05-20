@@ -24,7 +24,7 @@ int proto_debug;
 
 int rtapi_rpc(void *socket, machinetalk::Container &tx, machinetalk::Container &rx)
 {
-    zframe_t *request = zframe_new (NULL, tx.ByteSize());
+    zframe_t *request = zframe_new (NULL, tx.ByteSizeLong());
     assert(request);
     assert(tx.SerializeWithCachedSizesToArray(zframe_data (request)));
     if (proto_debug) {

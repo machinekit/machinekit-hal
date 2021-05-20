@@ -44,10 +44,10 @@ send_pbcontainer(zmsg_t *dest, machinetalk::Container &c, void *socket)
     zframe_t *f;
     size_t nsize = zmsg_size(dest);
 
-    f = zframe_new(NULL, c.ByteSize());
+    f = zframe_new(NULL, c.ByteSizeLong());
     if (f == NULL) {
 	syslog_async(LOG_ERR,"%s: FATAL - failed to zframe_new(%d)",
-			__func__, c.ByteSize());
+			__func__, c.ByteSizeLong());
 	return -ENOMEM;
     }
     if (print_container) {
