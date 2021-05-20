@@ -31,7 +31,7 @@ arg.pin.type = HAL_S32
 arg.pin.name = "foo.1.bar"
 arg.pin.hals32 = 4711
 
-print("payload:", container.ByteSizeLong())
+print("payload:", container.ByteSize())
 print("text format:", str(container))
 
 buffer = container.SerializeToString()

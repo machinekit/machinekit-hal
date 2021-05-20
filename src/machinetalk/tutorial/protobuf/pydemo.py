@@ -48,7 +48,7 @@ if sys.argv[1] == "text":
     print(str(d))
 
 buffer = d.SerializeToString()
-size =  d.ByteSizeLong()
+size =  d.ByteSize()
 
 if sys.argv[1] == "binary":
     os.write(1,str(buffer))

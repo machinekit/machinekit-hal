@@ -53,7 +53,13 @@ json_policy(wtself_t *self,
 		    switch (wss->socket_type) {
 
 		    case ZMQ_DEALER: // pass on
+/* Needed for supporting older versions of Google Protobuf available
+ * in Debian Stretch and Ubuntu Bionic */
+#if GOOGLE_PROTOBUF_VERSION >= 3006001
 			z_pbframe = zframe_new(NULL, c.ByteSizeLong());
+#else
+			z_pbframe = zframe_new(NULL, c.ByteSize());
+#endif
 			assert(z_pbframe != NULL);
 			if (c.SerializeWithCachedSizesToArray(zframe_data(z_pbframe))) {
 			    assert(zframe_send(&z_pbframe, wss->socket, 0) == 0);
