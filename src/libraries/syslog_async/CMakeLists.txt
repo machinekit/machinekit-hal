@@ -43,6 +43,15 @@ if(BUILD_SYSLOG_ASYNC_LIBRARY)
   set_target_properties(
     syslog_async
     PROPERTIES SOVERSION 0
+               VERSION ${CMAKE_PROJECT_VERSION}
                RUNTIME_OUTPUT_DIRECTORY "${CMAKE_INSTALL_LIBDIR}"
                POSITION_INDEPENDENT_CODE TRUE)
+  install(
+    TARGETS syslog_async
+    EXPORT machinekit_hal
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
+            COMPONENT MachinekitHAL_Library_Base
+            NAMELINK_COMPONENT MachinekitHAL_Library_Development
+    PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
+                  COMPONENT MachinekitHAL_Library_Development)
 endif()

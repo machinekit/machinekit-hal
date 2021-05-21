@@ -57,10 +57,21 @@ if(BUILD_HAL_COMMAND_LIBRARY)
   set_target_properties(
     hal_command
     PROPERTIES SOVERSION 0
+               VERSION ${CMAKE_PROJECT_VERSION}
                PUBLIC_HEADER
                "${CMAKE_CURRENT_SOURCE_DIR}/include/halcmd_commands.h"
                PUBLIC_HEADER
                "${CMAKE_CURRENT_SOURCE_DIR}/include/halcmd_rtapiapp.h"
                PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/halcmd.h"
                POSITION_INDEPENDENT_CODE TRUE)
+
+  install(
+    TARGETS hal_command
+    EXPORT machinekit_hal
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
+            COMPONENT MachinekitHAL_Library_Base
+            NAMELINK_COMPONENT MachinekitHAL_Library_Development
+    PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
+                  COMPONENT MachinekitHAL_Library_Development)
+
 endif()

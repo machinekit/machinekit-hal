@@ -41,6 +41,16 @@ if(BUILD_NANOPB_DEFINITIONS_LIBRARY)
 
   target_compile_definitions(nanopb_definitions PRIVATE "RTAPI")
 
-  set_target_properties(nanopb_definitions
-                        PROPERTIES SOVERSION 0 POSITION_INDEPENDENT_CODE TRUE)
+  set_target_properties(
+    nanopb_definitions
+    PROPERTIES SOVERSION 0
+               VERSION ${CMAKE_PROJECT_VERSION}
+               POSITION_INDEPENDENT_CODE TRUE)
+
+  install(
+    TARGETS nanopb_definitions
+    EXPORT machinekit_hal
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
+            COMPONENT MachinekitHAL_Library_Base
+            NAMELINK_COMPONENT MachinekitHAL_Library_Development)
 endif()

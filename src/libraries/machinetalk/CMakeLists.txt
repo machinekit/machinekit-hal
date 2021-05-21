@@ -57,8 +57,21 @@ if(BUILD_MACHINETALK_LIBRARY)
   target_include_directories(
     machinetalk
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-           $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY})
+           $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
-  set_target_properties(machinetalk PROPERTIES SOVERSION 0
-                                               POSITION_INDEPENDENT_CODE TRUE)
+  set_target_properties(
+    machinetalk
+    PROPERTIES SOVERSION 0
+               VERSION ${CMAKE_PROJECT_VERSION}
+               POSITION_INDEPENDENT_CODE TRUE)
+
+  install(
+    TARGETS machinetalk
+    EXPORT machinekit_hal
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
+            COMPONENT MachinekitHAL_Library_Base
+            NAMELINK_COMPONENT MachinekitHAL_Library_Development
+    PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
+                  COMPONENT MachinekitHAL_Library_Development)
+
 endif()

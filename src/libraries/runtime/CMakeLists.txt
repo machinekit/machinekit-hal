@@ -56,7 +56,7 @@ if(BUILD_RUNTIME_LIBRARY)
   target_include_directories(
     runtime_api
     INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-              $<INSTALL_INTERFACE:"${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
+              $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>
               $<TARGET_PROPERTY:rtapi_compat,INTERFACE_INCLUDE_DIRECTORIES>)
 
   target_sources(
@@ -90,7 +90,7 @@ if(BUILD_RUNTIME_LIBRARY)
                            Threads::Threads ${CMAKE_DL_LIBS})
 
   # Jesus Christ, the rtapi headers need hal headers: hal_types.h
-  target_link_libraries(runtime PRIVATE hal_api)
+  target_link_libraries(runtime PUBLIC hal_api)
   target_link_libraries(runtime_module PRIVATE hal_api PkgConfig::LIBCGROUP
                                                PkgConfig::LIBUDEV PkgConfig::CK)
 
@@ -104,12 +104,30 @@ if(BUILD_RUNTIME_LIBRARY)
     # Add here rtapi_io.h to PUBLIC_HEADER to install
   endif()
 
+  add_custom_command(
+    TARGET runtime_module
+    PRE_LINK
+    COMMAND ${CMAKE_COMMAND} "-E" "make_directory"
+            "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/linker"
+    #[[COMMAND
+      ${CMAKE_CURRENT_SOURCE_DIR}/smazat.sh "$<TARGET_OBJECTS:runtime_module>"
+      "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/linker/runtime_module.map" BYPRODUCT
+      ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/runtime_module.map]]
+    VERBATIM)
+
+  #[[target_link_options(
+    runtime_module
+    PRIVATE
+    "LINKER:--version-script=${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/linker/runtime_module.map"
+  )]]
+
   set_target_properties(runtime_api PROPERTIES PUBLIC_HEADER ${HEADER_FILES})
 
   set_target_properties(
     runtime
     PROPERTIES OUTPUT_NAME "rtapi"
                SOVERSION 0
+               VERSION ${CMAKE_PROJECT_VERSION}
                POSITION_INDEPENDENT_CODE TRUE)
 
   set_target_properties(
@@ -118,4 +136,18 @@ if(BUILD_RUNTIME_LIBRARY)
                PREFIX "mod"
                LIBRARY_OUTPUT_DIRECTORY
                ${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY})
+  install(
+    TARGETS
+    runtime runtime_api EXPORT machinekit_hal
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
+            COMPONENT MachinekitHAL_Library_Base
+            NAMELINK_COMPONENT MachinekitHAL_Library_Development
+    PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
+                  COMPONENT MachinekitHAL_Library_Development)
+
+  install(
+    TARGETS runtime_module
+    EXPORT machinekit_hal_managed_module
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_Module_Base)
 endif()

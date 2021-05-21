@@ -27,3 +27,9 @@
 add_library(hal_parport INTERFACE)
 
 target_include_directories(hal_parport INTERFACE include)
+
+install(
+  TARGETS hal_parport
+  EXPORT machinekit_hal
+  PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
+                COMPONENT MachinekitHAL_Library_Development)

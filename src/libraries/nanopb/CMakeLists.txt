@@ -47,6 +47,8 @@ FetchContent_Declare(
   "${CMAKE_CURRENT_BINARY_DIR}/nanopb" CMAKE_ARGS
   -DCMAKE_INSTALL_PREFIX:PATH=<INSTALL_DIR>)
 
+# Set the DEFAULT COMPONENT name for third party Nanopb project
+set(CMAKE_INSTALL_DEFAULT_COMPONENT_NAME "Nanopb")
 FetchContent_MakeAvailable(nanopb)
 
 # Makes a linkage (dependency) on the base file, which means the build command

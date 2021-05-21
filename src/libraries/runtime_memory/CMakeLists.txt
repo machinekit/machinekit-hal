@@ -35,7 +35,7 @@ if(BUILD_RUNTIME_MEMORY_LIBRARY)
   target_include_directories(
     runtime_memory_api
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-           $<INSTALL_INTERFACE:"${MACHINEKIT_HAL_INTERFACE_DIRECTORY}")
+           $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
   target_sources(runtime_memory_api PRIVATE ${SOURCE_FILES})
 
@@ -48,6 +48,17 @@ if(BUILD_RUNTIME_MEMORY_LIBRARY)
   set_target_properties(runtime_memory_api PROPERTIES PUBLIC_HEADER
                                                       ${HEADER_FILES})
 
-  set_target_properties(runtime_memory_api
-                        PROPERTIES SOVERSION 0 POSITION_INDEPENDENT_CODE TRUE)
+  set_target_properties(
+    runtime_memory_api
+    PROPERTIES SOVERSION 0
+               VERSION ${CMAKE_PROJECT_VERSION}
+               POSITION_INDEPENDENT_CODE TRUE)
+  install(
+    TARGETS runtime_memory_api
+    EXPORT machinekit_hal
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
+            COMPONENT MachinekitHAL_Library_Base
+            NAMELINK_COMPONENT MachinekitHAL_Library_Development
+    PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
+                  COMPONENT MachinekitHAL_Library_Development)
 endif()

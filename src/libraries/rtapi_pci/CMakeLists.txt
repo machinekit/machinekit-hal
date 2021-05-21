@@ -31,6 +31,12 @@ target_sources(rtapi_pci INTERFACE src/rtapi_pci.c)
 target_include_directories(
   rtapi_pci
   INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-            $<INSTALL_INTERFACE:"${MACHINEKIT_HAL_INTERFACE_DIRECTORY}")
+            $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
 set_target_properties(rtapi_pci PROPERTIES PUBLIC_HEADER include/rtapi_pci.h)
+
+install(
+  TARGETS rtapi_pci
+  EXPORT machinekit_hal
+  PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
+                COMPONENT MachinekitHAL_Library_Development)

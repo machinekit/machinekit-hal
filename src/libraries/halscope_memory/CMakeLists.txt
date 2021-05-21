@@ -35,4 +35,10 @@ if(BUILD_HALSCOPE_MEMORY_LIBRARY)
     halscope_memory
     INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
               $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY})
+  install(
+    TARGETS halscope_memory
+    EXPORT machinekit_hal
+    PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
+                  COMPONENT MachinekitHAL_Library_Development)
+
 endif()

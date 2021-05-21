@@ -6,19 +6,40 @@
 
 # Basic variables
 export LANG=C
-prefix=@prefix@
-exec_prefix=@exec_prefix@
-RTAPI_INI=@HAL_SYSTEM_CONFIG_DIR@/rtapi.ini
-INIVAR=@HAL_LIBEXEC_DIR@/inivar
-PIDOF=@PIDOF@
-PS=@PS@
-AWK=@AWK@
-rtapi_msgd=@HAL_LIBEXEC_DIR@/rtapi_msgd
-rtapi_app=@HAL_LIBEXEC_DIR@/rtapi_app
+
+RTAPI_INI="@MACHINEKIT_HAL_SYSTEM_CONFIG_OUTPUT_DIRECTORY@/rtapi.ini" # TODO: Change to target property
+
+INIVAR="$<GENEX_EVAL:$<TARGET_PROPERTY:inivar,RUNTIME_OUTPUT_DIRECTORY>>/inivar"
+rtapi_msgd="$<GENEX_EVAL:$<TARGET_PROPERTY:msgd,RUNTIME_OUTPUT_DIRECTORY>>/$<TARGET_PROPERTY:msgd,OUTPUT_NAME>"
+rtapi_app="$<GENEX_EVAL:$<TARGET_PROPERTY:rtapi_app,RUNTIME_OUTPUT_DIRECTORY>>/rtapi_app"
+
+# Required executables which has to be available on PATH
+PIDOF="$(which pidof)"
+if (($? != 0)); then
+  echo "Pidof executable not found on PATH! Exiting!"
+  exit 1
+fi
+PS="$(which ps)"
+if (($? != 0)); then
+  echo "PS executable not found on PATH! Exiting!"
+  exit 1
+fi
+AWK="$(which awk)"
+if (($? != 0)); then
+  echo "AWK executable not found on PATH! Exiting!"
+  exit 1
+fi
+HALCMD="$(which halcmd)"
+if (($? != 0)); then
+  echo "HALcmd executable not found on PATH! Exiting!"
+  exit 1
+fi
+
+RUNTIME_VERSION="@CMAKE_PROJECT_VERSION@"
 
 # if not overridden by user, point MACHINEKIT_INI to installed default:
 if [ -z "$MACHINEKIT_INI" ]; then
-    MACHINEKIT_INI=@HAL_SYSTEM_CONFIG_DIR@/machinekit.ini
+    MACHINEKIT_INI="$<GENEX_EVAL:@MACHINEKIT_HAL_SYSTEM_CONFIG_OUTPUT_DIRECTORY@>/machinekit.ini"
 fi
 export MACHINEKIT_INI
 
@@ -30,12 +51,6 @@ fi
 if ! test -x "$INIVAR"; then
     echo "Config file tool unusable:  $INIVAR" >&2
     exit 1
-fi
-
-# Catch this common error early on for RIP builds
-if test "$($INIVAR -var RUN_IN_PLACE -ini $RTAPI_INI)" = yes \
-        -a ! -u ${rtapi_app}; then
-    echo "Warning - ${rtapi_app} not setuid; run 'sudo make setuid'" >&2
 fi
 
 # Helper function to get variables from config
@@ -166,7 +181,7 @@ Load(){
     fi
     # wait until rtapi_app responds, meaning setup is complete
     # this avoids startup races
-    halcmd ping
+    ${HALCMD} ping
 }
 
 Unload(){
@@ -175,9 +190,9 @@ Unload(){
 
     if CheckRunningProcs rtapi:$MK_INSTANCE; then
 	if [ $DEBUG -gt 0 ] ; then
-	    halcmd shutdown
+	    ${HALCMD} shutdown
 	else
-	    halcmd shutdown            >/dev/null 2>&1
+	    ${HALCMD} shutdown            >/dev/null 2>&1
         fi
     fi
 

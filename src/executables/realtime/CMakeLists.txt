@@ -23,3 +23,33 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_REALTIME_EXECUTABLE "Build the Realtime executable." TRUE)
+
+if(BUILD_REALTIME_EXECUTABLE)
+  configure_file(src/realtime.in src/realtime.configure @ONLY
+                 NEWLINE_STYLE UNIX)
+
+  file(
+    GENERATE
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/src/$<CONFIG>/realtime
+    INPUT ${CMAKE_CURRENT_BINARY_DIR}/src/realtime.configure
+    FILE_PERMISSIONS
+    OWNER_READ
+    OWNER_EXECUTE
+    GROUP_READ
+    GROUP_EXECUTE
+    WORLD_READ
+    WORLD_EXECUTE
+    NEWLINE_STYLE
+    UNIX)
+
+  add_custom_target(
+    realtime ALL
+    COMMENT "Creating the Realtime executable"
+    COMMAND
+      ${CMAKE_COMMAND} "-E" "copy_if_different"
+      "${CMAKE_CURRENT_BINARY_DIR}/src/$<CONFIG>/realtime"
+      "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/src/$<CONFIG>/realtime")
+endif()

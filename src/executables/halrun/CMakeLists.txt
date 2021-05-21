@@ -23,3 +23,29 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_HALRUN_EXECUTABLE "Build the HALrun executable." TRUE)
+
+if(BUILD_HALRUN_EXECUTABLE)
+  configure_file(
+    src/halrun.in
+    src/halrun
+    FILE_PERMISSIONS
+    OWNER_READ
+    OWNER_EXECUTE
+    GROUP_READ
+    GROUP_EXECUTE
+    WORLD_READ
+    WORLD_EXECUTE
+    @ONLY
+    NEWLINE_STYLE UNIX)
+
+  add_custom_target(
+    halrun ALL
+    COMMENT "Creating the HALrun executable"
+    COMMAND
+      ${CMAKE_COMMAND} "-E" "copy_if_different"
+      "${CMAKE_CURRENT_BINARY_DIR}/src/halrun"
+      "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/src/halrun")
+endif()

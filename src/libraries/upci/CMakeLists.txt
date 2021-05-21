@@ -35,4 +35,12 @@ if(BUILD_UPCI_LIBRARY)
 
   target_include_directories(
     upci PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+
+  install(
+    TARGETS upci
+    EXPORT machinekit_hal
+    ARCHIVE DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
+            COMPONENT MachinekitHAL_Library_Development
+    PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
+                  COMPONENT MachinekitHAL_Library_Development)
 endif()

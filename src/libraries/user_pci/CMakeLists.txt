@@ -29,7 +29,13 @@ add_library(user_pci INTERFACE)
 target_include_directories(
   rtapi_pci
   INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-            $<INSTALL_INTERFACE:"${MACHINEKIT_HAL_INTERFACE_DIRECTORY}")
+            $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
 set_target_properties(rtapi_pci PROPERTIES PUBLIC_HEADER
                                            include/user_pci/device.h)
+
+install(
+  TARGETS user_pci
+  EXPORT machinekit_hal
+  PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
+                COMPONENT MachinekitHAL_Library_Development)

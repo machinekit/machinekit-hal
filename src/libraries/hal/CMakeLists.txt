@@ -90,8 +90,11 @@ if(BUILD_HAL_LIBRARY)
 
   set_target_properties(hal_api PROPERTIES PUBLIC_HEADER ${HEADER_FILES})
 
-  set_target_properties(hal PROPERTIES SOVERSION 0 POSITION_INDEPENDENT_CODE
-                                                   TRUE)
+  set_target_properties(
+    hal
+    PROPERTIES SOVERSION 0
+               VERSION ${CMAKE_PROJECT_VERSION}
+               POSITION_INDEPENDENT_CODE TRUE)
 
   set_target_properties(
     hal_module
@@ -99,4 +102,19 @@ if(BUILD_HAL_LIBRARY)
                PREFIX "mod"
                LIBRARY_OUTPUT_DIRECTORY
                ${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY})
+
+  install(
+    TARGETS hal hal_api
+    EXPORT machinekit_hal
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
+            COMPONENT MachinekitHAL_Library_Base
+            NAMELINK_COMPONENT MachinekitHAL_Library_Development
+    PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
+                  COMPONENT MachinekitHAL_Library_Development)
+
+  install(
+    TARGETS hal_module
+    EXPORT machinekit_hal_managed_module
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_Module_Base)
 endif()

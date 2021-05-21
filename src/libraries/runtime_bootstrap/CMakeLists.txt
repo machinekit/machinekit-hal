@@ -37,18 +37,28 @@ set(SOURCE_FILE src/runtime_config.c.in)
 set(LINELEN "255")
 set(ZMQIPC_FORMAT "ipc://%s/%d.%s.%s")
 set(RUNDIR "/tmp")
-set(MACHINEKIT_HAL_CONFIG_DIRECTORY "${MACHINEKIT_HAL_CONFIG_OUTPUT_DIRECTORY}")
+set(MACHINEKIT_HAL_CONFIG_DIRECTORY "${MACHINEKIT_HAL_SYSTEM_CONFIG_OUTPUT_DIRECTORY}")
 set(MACHINEKIT_HAL_INI_FILE
-    "${MACHINEKIT_HAL_CONFIG_OUTPUT_DIRECTORY}/machinekit.ini")
+    "${MACHINEKIT_HAL_SYSTEM_CONFIG_OUTPUT_DIRECTORY}/machinekit.ini")
 
 configure_file(
   ${RUNTIME_CONFIG}
   ${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/include/runtime/config.h
   NO_SOURCE_PERMISSIONS @ONLY NEWLINE_STYLE UNIX)
+
 configure_file(
   ${SOURCE_FILE}
-  ${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/src/runtime_config.c
-  NO_SOURCE_PERMISSIONS @ONLY NEWLINE_STYLE UNIX)
+  ${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/runtime_config.c.configure
+  NO_SOURCE_PERMISSIONS
+  @ONLY
+  NEWLINE_STYLE UNIX)
+
+file(
+  GENERATE
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/src/$<CONFIG>/runtime_config.c
+  INPUT
+    ${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/runtime_config.c.configure
+  NO_SOURCE_PERMISSIONS NEWLINE_STYLE UNIX)
 
 set(MACHINEKIT_HAL_CONFIG_DIRECTORY
     "${CMAKE_INSTALL_FULL_SYSCONFDIR}/machinekit/hal")
@@ -59,6 +69,7 @@ configure_file(
   ${RUNTIME_CONFIG}
   ${CMAKE_CURRENT_BINARY_DIR}/install/runtime_config/include/runtime/config.h
   NO_SOURCE_PERMISSIONS @ONLY NEWLINE_STYLE UNIX)
+
 configure_file(
   ${SOURCE_FILE}
   ${CMAKE_CURRENT_BINARY_DIR}/install/runtime_config/src/runtime_config.c
@@ -68,7 +79,7 @@ target_sources(
   runtime_config
   PUBLIC
     ${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/include/runtime/config.h
-  PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/src/runtime_config.c)
+  PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/src/$<CONFIG>/runtime_config.c)
 
 target_include_directories(
   runtime_config
@@ -85,6 +96,21 @@ target_include_directories(
   runtime_config-install
   PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/install/runtime_config/include/runtime)
 
-set_target_properties(runtime_config PROPERTIES SOVERSION 0)
+set_target_properties(runtime_config
+                      PROPERTIES SOVERSION 0 VERSION ${CMAKE_PROJECT_VERSION})
 
-set_target_properties(runtime_config-install PROPERTIES SOVERSION 0)
+set_target_properties(
+  runtime_config-install
+  PROPERTIES SOVERSION 0
+             VERSION ${CMAKE_PROJECT_VERSION}
+             OUTPUT_NAME "runtime_config"
+             LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/install")
+
+install(
+  TARGETS runtime_config-install
+  EXPORT machinekit_hal
+  LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
+          COMPONENT MachinekitHAL_Library_Base
+          NAMELINK_COMPONENT MachinekitHAL_Library_Development
+  PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
+                COMPONENT MachinekitHAL_Library_Development)

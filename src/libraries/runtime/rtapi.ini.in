@@ -1,0 +1,50 @@
+#################################################
+# Copyright (C) 2012, 2013  John Morris <john AT zultron DOT com>
+#           (C) 2021 -      Jakub Fišer <jakub DOT fiser AT eryad DOT com>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+#################################################
+
+# ${SYSTEM_CONFIG_DIR}/rtapi.ini
+#
+# Machinekit Runtime system configuration
+#
+# Most values here will never need to be changed.  Power users may
+# want to change DEBUG.
+
+[global]
+# Default DEBUG level, 0-5 for NONE, ERR, WARN, INFO, DBG, ALL
+DEBUG=1
+
+# fixme make param
+HAL_SIZE=524288
+
+# Executables
+rtapi_msgd=${LIBEXEC_DIR}/rtapi_msgd
+rtapi_app=${LIBEXEC_DIR}/rtapi_app
+
+# directory paths
+HAL_HOME=${HAL_HOME}
+RTLIB_DIR=${RTLIB_DIR}
+MODULES_DIR=${MODULES_DIR}
+LIBEXEC_DIR=${LIBEXEC_DIR}
+BIN_DIR=${BIN_DIR}
+
+# build parameters
+USE_PORTABLE_PARPORT_IO=@USE_PORTABLE_PARPORT_IO@
+TARGET_PLATFORM=@TARGET_PLATFORM@
+GIT_BUILD_SHA=@GIT_BUILD_SHA@
+RUN_IN_PLACE=@RUN_IN_PLACE@
+PIDOF=@PIDOF@
