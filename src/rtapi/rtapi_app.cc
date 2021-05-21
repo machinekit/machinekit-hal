@@ -106,7 +106,7 @@ typedef int (*halg_foreach_t)(bool use_hal_mutex,
 			      hal_object_callback_t callback);
 typedef int (*hal_exit_usercomps_t)(char *);
 
-static std::map<string, Module> modules;
+static std::map<std::string, std::shared_ptr<Module>> modules;
 static std::map<string, pbstringarray_t> iparms; // default instance params
 
 static std::vector<string> loading_order;
@@ -167,9 +167,9 @@ static int init_actions(int instance);
 static void exit_actions(int instance);
 static int harden_rt(void);
 static void stderr_rtapi_msg_handler(msg_level_t level, const char *fmt, va_list ap);
-static int record_instparms(Module &mi);
+static int record_instparms(std::shared_ptr<Module> mi);
 
-static void configure_flavor(machinetalk::Container &pbreply)
+static void configure_flavor(machinetalk::Container &pbreply, std::shared_ptr<Module> mi)
 {
 
     // Retrieve the flavor_*_ptr() addresses so rtapi flavor functions can be
@@ -178,13 +178,11 @@ static void configure_flavor(machinetalk::Container &pbreply)
 
     // Load pointers
 #    define GET_FLAVOR_FUNC(name) do {                          \
-        name ## _ptr = mi.sym<name ## _t *>(#name);             \
-        if (name ## _ptr == NULL && mi.errmsg)                  \
-            note_printf(pbreply, "BUG: %s:", mi.errmsg);        \
+        name ## _ptr = mi->sym<name ## _t *>(#name);             \
+        if (name ## _ptr == NULL && mi->errmsg)                  \
+            note_printf(pbreply, "BUG: %s:", mi->errmsg);        \
         assert(name ## _ptr != NULL);                           \
     } while (0)
-
-    Module &mi = modules[RTAPIMOD];
 
     GET_FLAVOR_FUNC(flavor_name);
     GET_FLAVOR_FUNC(flavor_names);
@@ -275,7 +273,7 @@ void remove_quotes(string &s)
     s.erase(remove_copy(s.begin(), s.end(), s.begin(), '"'), s.end());
 }
 
-static int do_module_args(Module &mi,
+static int do_module_args(std::shared_ptr<Module> mi,
 			  pbstringarray_t args,
 			  const string &symprefix,
 			  machinetalk::Container &pbreply)
@@ -291,17 +289,17 @@ static int do_module_args(Module &mi,
         }
         string param_name(s, 0, idx);
         string param_value(s, idx+1);
-        void *item = mi.sym<void*>(symprefix + "address_" + param_name);
+        void *item = mi->sym<void*>(symprefix + "address_" + param_name);
         if (!item) {
 	    note_printf(pbreply,
 			"Unknown parameter `%s'",
 			s.c_str());
             return -1;
         }
-        char **item_type = mi.sym<char**>(symprefix + "type_" + param_name);
+        char **item_type = mi->sym<char**>(symprefix + "type_" + param_name);
         if (!item_type || !*item_type) {
-	    if (mi.errmsg)
-		note_printf(pbreply, "BUG: %s:", mi.errmsg);
+	    if (mi->errmsg)
+		note_printf(pbreply, "BUG: %s:", mi->errmsg);
 	    note_printf(pbreply,
 			"Unknown parameter `%s' (type information missing)",
 			s.c_str());
@@ -440,13 +438,13 @@ static int do_newinst_cmd(int instance,
                     comp.c_str());
         return -1;
     }
-    Module &mi = modules[comp];
+    std::shared_ptr<Module> mi = modules[comp];
 
-    string s = pbconcat(iparms[mi.name]);
+    string s = pbconcat(iparms[mi->name]);
 
     // set the default instance parameters which were recorded during
     // initial load with record_instanceparams()
-    retval = do_module_args(mi, iparms[mi.name], RTAPI_IP_SYMPREFIX, pbreply);
+    retval = do_module_args(mi, iparms[mi->name], RTAPI_IP_SYMPREFIX, pbreply);
     if (retval < 0) {
         note_printf(pbreply,
                     "passing default instance args for '%s' failed: '%s'",
@@ -542,57 +540,59 @@ static int do_load_cmd(int instance,
 		       pbstringarray_t args,
 		       machinetalk::Container &pbreply)
 {
-    Module mi;
+    std::shared_ptr<Module> mi = std::make_shared<Module>();
 
-    if (mi.load(path) != 0) {
-        note_printf(pbreply, "%s: %s", __FUNCTION__, mi.errmsg);
+    if (mi->load(path) != 0) {
+        note_printf(pbreply, "%s: %s", __FUNCTION__, mi->errmsg);
         return -1;
     }
 
-    if (modules.count(mi.name) != 0) {
-        note_printf(pbreply, "%s: already loaded\n", mi.name.c_str());
+    if (modules.count(mi->name) != 0) {
+        note_printf(pbreply, "%s: already loaded\n", mi->name.c_str());
 	return -1;
     }
 
     // Success
     rtapi_print_msg(RTAPI_MSG_DBG, "Loaded module %s from path %s\n",
-                    mi.name.c_str(), mi.path().c_str());
+                    mi->name.c_str(), mi->path().c_str());
     // first load of a module. Record default instanceparams
     // so they can be replayed before newinst
     record_instparms(mi);
 
     int (*rtapi_app_main_dlsym)(void) =
-        mi.sym<int(*)(void)>("rtapi_app_main");
+        mi->sym<int(*)(void)>("rtapi_app_main");
     if (!rtapi_app_main_dlsym) {
         note_printf(pbreply, "%s: dlsym: %s\n",
-                    mi.name.c_str(), mi.errmsg);
+                    mi->name.c_str(), mi->errmsg);
         return -1;
     }
     int result;
 
     result = do_module_args(mi, args, RTAPI_MP_SYMPREFIX, pbreply);
     if (result < 0) {
-        mi.close();
+        mi->close();
         return -1;
     }
 
     // Configure flavor, needed even before `rtapi_app_main_dlsym()` runs
     // next.  This runs at every module load, but only does anything after
     // RTAPIMOD, the first module loaded.
-    configure_flavor(pbreply);
+    if(mi->name == RTAPIMOD){
+        configure_flavor(pbreply, mi);
+    }
 
     // need to call rtapi_app_main with as root
     // RT thread creation and hardening requires this
     if ((result = rtapi_app_main_dlsym()) < 0) {
         note_printf(pbreply, "rtapi_app_main(%s): %d %s\n",
-                    mi.name.c_str(), result, strerror(-result));
+                    mi->name.c_str(), result, strerror(-result));
         return result;
     }
-    modules[mi.name] = mi;
-    loading_order.push_back(mi.name);
+    modules[mi->name] = mi;
+    loading_order.push_back(mi->name);
 
     rtapi_print_msg(RTAPI_MSG_DBG, "%s: loaded from %s\n",
-                    mi.name.c_str(), mi.path().c_str());
+                    mi->name.c_str(), mi->path().c_str());
     return 0;
 }
 
@@ -606,11 +606,11 @@ static int do_load_cmd(int instance,
 		    name.c_str());
 	return -1;
     } else {
-	Module &mi = modules[name];
-        int (*stop)(void) = mi.sym<int(*)(void)>("rtapi_app_exit");
+	auto mi = modules[name];
+        int (*stop)(void) = mi->sym<int(*)(void)>("rtapi_app_exit");
         if (stop)
             stop();
-        mi.close();
+        mi->close();
         modules.erase(modules.find(name));
         remove_module(name);
     }
@@ -620,18 +620,18 @@ static int do_load_cmd(int instance,
 
 static int exit_usercomps(char *name)
 {
-    Module &hallib = modules[HALMOD];
+    auto hallib = modules[HALMOD];
 
     hal_exit_usercomps_t huc =
-        hallib.sym<hal_exit_usercomps_t>("hal_exit_usercomps");
+        hallib->sym<hal_exit_usercomps_t>("hal_exit_usercomps");
     return huc(NULL);
 }
 
 static int stop_threads(void)
 {
     typedef int (*f_t)(void);
-    Module &hallib = modules[HALMOD];
-    f_t hst = hallib.sym<f_t>("hal_stop_threads");
+    auto hallib = modules[HALMOD];
+    f_t hst = hallib->sym<f_t>("hal_stop_threads");
     return hst();
 }
 
@@ -665,16 +665,16 @@ static int init_actions(int instance)
 
     // resolve the "hal_call_usrfunct" for later
     // callfunc, newinst & delinst need it
-    Module &hallib = modules[HALMOD];
-    call_usrfunct = hallib.sym<hal_call_usrfunct_t>("hal_call_usrfunct");
+    auto hallib = modules[HALMOD];
+    call_usrfunct = hallib->sym<hal_call_usrfunct_t>("hal_call_usrfunct");
 
     if (call_usrfunct == NULL) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "cant resolve 'hal_call_usrfunct' in "
                         "hal_lib - version problem?");
-        if (hallib.errmsg)
+        if (hallib->errmsg)
             rtapi_print_msg(
-                RTAPI_MSG_ERR, "dlsym(hal_call_usrfunct): '%s'", hallib.errmsg);
+                RTAPI_MSG_ERR, "dlsym(hal_call_usrfunct): '%s'", hallib->errmsg);
         return -1;
     }
     return 0;
@@ -739,7 +739,7 @@ static int rtapi_request(zloop_t *loop, zsock_t *socket, void *arg)
     char *origin = zmsg_popstr (r);
     zframe_t *request_frame  = zmsg_pop (r);
     static bool force_exit = false;
-    Module mi;
+    std::shared_ptr<Module> mi;
     int retval;
     int (*create_thread)(const hal_threadargs_t*);
     int (*delete_thread)(const char *);
@@ -865,7 +865,7 @@ static int rtapi_request(zloop_t *loop, zsock_t *socket, void *arg)
         }
         mi = modules[HALMOD];
         create_thread =
-            mi.sym<int(*)(const hal_threadargs_t*)>("hal_create_xthread");
+            mi->sym<int(*)(const hal_threadargs_t*)>("hal_create_xthread");
         if (create_thread == NULL) {
             pbreply.add_note("symbol 'hal_create_thread' not found in hal_lib");
             pbreply.set_retcode(-1);
@@ -897,7 +897,7 @@ static int rtapi_request(zloop_t *loop, zsock_t *socket, void *arg)
             break;
         }
         mi = modules[HALMOD];
-        delete_thread = mi.sym<int(*)(const char *)>("hal_thread_delete");
+        delete_thread = mi->sym<int(*)(const char *)>("hal_thread_delete");
         if (delete_thread == NULL) {
             pbreply.add_note("symbol 'hal_thread_delete' not found in hal_lib");
             pbreply.set_retcode(-1);
@@ -1609,7 +1609,7 @@ static void remove_module(std::string name)
 //
 // in do_newinst_cmd(), apply those defaults before the actual parameters
 // are applied.
-static int record_instparms(Module &mi)
+static int record_instparms(std::shared_ptr<Module> mi)
 {
     void *section = NULL;
     int csize = -1;
@@ -1617,9 +1617,9 @@ static int record_instparms(Module &mi)
     vector<string> tokens;
     string pn;
 
-    csize = mi.elf_section(".rtapi_export" , &section);
+    csize = mi->elf_section(".rtapi_export" , &section);
     if (csize < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "Can't open %s\n", mi.path().c_str());
+	rtapi_print_msg(RTAPI_MSG_ERR, "Can't open %s\n", mi->path().c_str());
 	return -1;
     }
 
@@ -1636,14 +1636,14 @@ static int record_instparms(Module &mi)
     string pat(RTAPI_IP_SYMPREFIX "address_");
     vector<string> instparms;
     pbstringarray_t iparm;
-    iparms[mi.name] = iparm;
+    iparms[mi->name] = iparm;
 
     for (i = 0; i < symbols.size(); i++) {
 	string ip(symbols[i]);
 	if (ip.rfind(pat) == 0) {
             ip.replace(0, pat.length(), "");
-	    char **type = mi.sym<char**>(RTAPI_IP_SYMPREFIX "type_" + ip);
-	    void *addr = mi.sym<void*>(RTAPI_IP_SYMPREFIX "address_" + ip);
+	    char **type = mi->sym<char**>(RTAPI_IP_SYMPREFIX "type_" + ip);
+	    void *addr = mi->sym<void*>(RTAPI_IP_SYMPREFIX "address_" + ip);
 	    // char **desc =
             //     mi.sym<char**>(RTAPI_IP_SYMPREFIX "description_" + ip);
 	    int i;
@@ -1677,7 +1677,7 @@ static int record_instparms(Module &mi)
 		default:
 		    rtapi_print_msg(RTAPI_MSG_ERR,
 				    "%s: unhandled instance param type '%c'",
-				    mi.name.c_str(), **type);
+				    mi->name.c_str(), **type);
 		}
 	    } else {
 		// TBD: arrays
@@ -1689,7 +1689,7 @@ static int record_instparms(Module &mi)
 
     }
     rtapi_print_msg(RTAPI_MSG_DBG,
-		    "%s default iparms: '%s'", mi.name.c_str(),
+		    "%s default iparms: '%s'", mi->name.c_str(),
 		    pbconcat(iparm).c_str());
     free(section);
     return 0;
