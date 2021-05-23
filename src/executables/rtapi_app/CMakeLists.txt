@@ -52,13 +52,30 @@ if(BUILD_RTAPI_APP_EXECUTABLE)
             runtime_memory_api
             machinetalk
             runtime_api
-            hal
+            hal_api
             syslog_async
             PkgConfig::UUID
             ${CMAKE_DL_LIBS})
 
+  target_compile_definitions(rtapi_app PRIVATE "ULAPI")
+
+  # The relative difference should be the same for both for build BINARY tree
+  # and for installed tree, which is why we can use here the BINARY tree
+  # absolute paths
+  file(RELATIVE_PATH RELATIVE_ORIGIN_MANAGED_MODULES
+       ${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY} 
+       ${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY})
+  file(RELATIVE_PATH RELATIVE_ORIGIN_LIBRARIES
+       ${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY} 
+       ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+
+  list(APPEND RTAPI_APP_RPATH "$ORIGIN" "$ORIGIN/${RELATIVE_ORIGIN_MANAGED_MODULES}"
+                      "$ORIGIN/${RELATIVE_ORIGIN_LIBRARIES}")
+
   set_target_properties(
     rtapi_app
     PROPERTIES RUNTIME_OUTPUT_DIRECTORY
-               "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY}")
+               "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY}"
+               INSTALL_RPATH "${RTAPI_APP_RPATH}"
+               BUILD_WITH_INSTALL_RPATH TRUE)
 endif()

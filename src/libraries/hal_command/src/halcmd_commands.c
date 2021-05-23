@@ -73,8 +73,6 @@
 
 #define BUFFERLEN 80
 
-const char *logpath = "/var/log/hal.log";
-
 static int unloadrt_comp(const char *mod_name);
 static void print_comp_info(char **patterns);
 static void print_pin_exists(int type, char **patterns);
@@ -1232,7 +1230,7 @@ int loadrt(const int use_halmutex, char *mod_path, char *args[])
 
     retval = rtapi_loadrt(rtapi_instance, mod_path, (const char **)args);
     if ( retval != 0 ) {
-	halcmd_error("insmod failed, returned %d:\n%s\n",
+	halcmd_error("Managed module load failed, returned %d:\n%s\n",
 		     retval, rtapi_rpcerror());
 	return -1;
     }

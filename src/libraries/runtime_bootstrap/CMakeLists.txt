@@ -37,9 +37,12 @@ set(SOURCE_FILE src/runtime_config.c.in)
 set(LINELEN "255")
 set(ZMQIPC_FORMAT "ipc://%s/%d.%s.%s")
 set(RUNDIR "/tmp")
-set(MACHINEKIT_HAL_CONFIG_DIRECTORY "${MACHINEKIT_HAL_SYSTEM_CONFIG_OUTPUT_DIRECTORY}")
+set(MACHINEKIT_HAL_CONFIG_DIRECTORY
+    "${MACHINEKIT_HAL_SYSTEM_CONFIG_OUTPUT_DIRECTORY}")
 set(MACHINEKIT_HAL_INI_FILE
     "${MACHINEKIT_HAL_SYSTEM_CONFIG_OUTPUT_DIRECTORY}/machinekit.ini")
+set(MACHINEKIT_HAL_LOG_FILE
+    "/var/log/hal.log") #"${MACHINEKIT_HAL_LOCAL_STATE_OUTPUT_DIRECTORY}/log/hal.log")
 
 configure_file(
   ${RUNTIME_CONFIG}
@@ -49,21 +52,23 @@ configure_file(
 configure_file(
   ${SOURCE_FILE}
   ${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/runtime_config.c.configure
-  NO_SOURCE_PERMISSIONS
-  @ONLY
-  NEWLINE_STYLE UNIX)
+  NO_SOURCE_PERMISSIONS @ONLY NEWLINE_STYLE UNIX)
 
 file(
   GENERATE
-  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/src/$<CONFIG>/runtime_config.c
+  OUTPUT
+    ${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/src/$<CONFIG>/runtime_config.c
   INPUT
     ${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/runtime_config.c.configure
   NO_SOURCE_PERMISSIONS NEWLINE_STYLE UNIX)
 
+# TODO: Use the right variables to assemble the paths!
 set(MACHINEKIT_HAL_CONFIG_DIRECTORY
     "${CMAKE_INSTALL_FULL_SYSCONFDIR}/machinekit/hal")
 set(MACHINEKIT_HAL_INI_FILE
     "${CMAKE_INSTALL_FULL_SYSCONFDIR}/machinekit/hal/machinekit.ini")
+set(MACHINEKIT_HAL_LOG_FILE
+"/var/log/hal.log") #"${CMAKE_INSTALL_FULL_LOCALSTATEDIT}/log/hal.log")
 
 configure_file(
   ${RUNTIME_CONFIG}
@@ -79,7 +84,9 @@ target_sources(
   runtime_config
   PUBLIC
     ${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/include/runtime/config.h
-  PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/src/$<CONFIG>/runtime_config.c)
+  PRIVATE
+    ${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/src/$<CONFIG>/runtime_config.c
+)
 
 target_include_directories(
   runtime_config

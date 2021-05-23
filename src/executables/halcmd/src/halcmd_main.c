@@ -68,7 +68,6 @@ static int propose_completion(char *all, char *fragment, int start);
 
 static const char *inifile;
 static FILE *inifp;
-extern char *logpath;
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/

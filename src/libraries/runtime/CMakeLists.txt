@@ -65,8 +65,10 @@ if(BUILD_RUNTIME_LIBRARY)
             $<TARGET_PROPERTY:rtapi_compat,INTERFACE_SOURCES> ${SOURCE_FILES}
             ${ULAPI_FLAVOR_SOURCE_FILE})
 
-  target_sources(runtime_module PRIVATE ${SOURCE_FILES}
-                                        ${RT_PREEMPT_FLAVOR_SOURCE_FILE})
+  target_sources(
+    runtime_module
+    PRIVATE ${SOURCE_FILES} $<TARGET_PROPERTY:rtapi_support,INTERFACE_SOURCES>
+            ${RT_PREEMPT_FLAVOR_SOURCE_FILE})
 
   # TODO if PCI
   target_include_directories(
@@ -132,7 +134,7 @@ if(BUILD_RUNTIME_LIBRARY)
 
   set_target_properties(
     runtime_module
-    PROPERTIES OUTPUT_NAME "rtapi"
+    PROPERTIES OUTPUT_NAME "runtime"
                PREFIX "mod"
                LIBRARY_OUTPUT_DIRECTORY
                ${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY})

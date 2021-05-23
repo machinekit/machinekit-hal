@@ -168,7 +168,7 @@ int halcmd_startup_uuid(int quiet, char *uri, const char *svc_uuid)
             fprintf(stderr, "halcmd: cant connect to rtapi_app: %d (uri=%s uuid=%s): %s\n\n",
 		    retval, uri ? uri:"", svc_uuid, rtapi_rpcerror());
 
-	    char *logfile = "/var/log/hal.log";
+	    const char *const logfile = HAL_LOG_FILE;
 
 	    if (pid_of("rtapi:%d", rtapi_instance) < 0)
 		fprintf(stderr, "halcmd: the rtapi:%d RT demon is not running - please investigate %s\n",
