@@ -70,8 +70,6 @@ if(BUILD_PROTO_LIBRARY)
     machinetalk_proto_c
     PUBLIC $<BUILD_INTERFACE:${PROTO_GENERATED_BASE_DIR}/src>)
 
-  message("${PROTO_GENERATED_BASE_DIR}\n${CMAKE_CURRENT_BINARY_DIR}")
-
   pkg_check_modules(PROTOBUF "protobuf" REQUIRED IMPORTED_TARGET)
 
   target_link_libraries(

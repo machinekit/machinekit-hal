@@ -111,17 +111,17 @@ if(BUILD_RUNTIME_LIBRARY)
     PRE_LINK
     COMMAND ${CMAKE_COMMAND} "-E" "make_directory"
             "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/linker"
-    #[[COMMAND
+    COMMAND
       ${CMAKE_CURRENT_SOURCE_DIR}/smazat.sh "$<TARGET_OBJECTS:runtime_module>"
-      "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/linker/runtime_module.map" BYPRODUCT
-      ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/runtime_module.map]]
+      "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/linker/runtime_module.map"
+      BYPRODUCT ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/runtime_module.map
     VERBATIM)
 
-  #[[target_link_options(
+  target_link_options(
     runtime_module
     PRIVATE
     "LINKER:--version-script=${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/linker/runtime_module.map"
-  )]]
+  )
 
   set_target_properties(runtime_api PROPERTIES PUBLIC_HEADER ${HEADER_FILES})
 
@@ -138,6 +138,54 @@ if(BUILD_RUNTIME_LIBRARY)
                PREFIX "mod"
                LIBRARY_OUTPUT_DIRECTORY
                ${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY})
+
+  string(TIMESTAMP RIGHT_NOW)
+  string(
+    UUID
+    MACHINEKIT_HAL_RUNTIME_GUUID
+    NAMESPACE
+    "a42c8c6b-4025-4f83-ba28-dad21114744a"
+    NAME
+    "${RIGHT_NOW}"
+    TYPE
+    SHA1)
+
+  configure_file(
+    src/machinekit.ini.in ${CMAKE_CURRENT_BINARY_DIR}/machinekit.ini.configure
+    @ONLY NEWLINE_STYLE UNIX FILE_PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
+
+  file(
+    GENERATE
+    OUTPUT ${MACHINEKIT_HAL_SYSTEM_CONFIG_OUTPUT_DIRECTORY}/machinekit.ini
+    INPUT ${CMAKE_CURRENT_BINARY_DIR}/machinekit.ini.configure
+    NEWLINE_STYLE UNIX FILE_PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
+
+  # TODO: Fix the variable structure / check what is needed and what can be
+  # safely removed
+  set(RTAPI_INI_RTAPI_MSGD_EXECUTABLE
+      "$<GENEX_EVAL:$<TARGET_PROPERTY:msgd,RUNTIME_OUTPUT_DIRECTORY>>/$<TARGET_PROPERTY:msgd,OUTPUT_NAME>"
+  )
+  set(RTAPI_INI_RTAPI_APP_EXECUTABLE
+      "$<GENEX_EVAL:$<TARGET_PROPERTY:rtapi_app,RUNTIME_OUTPUT_DIRECTORY>>/rtapi_app"
+  )
+  set(RTAPI_INI_HAL_HOME "${CMAKE_BINARY_DIR}/$<CONFIG>")
+  set(RTAPI_INI_RTAPI_RTLIB_DIR
+      "${CMAKE_BINARY_DIR}/$<CONFIG>/${CMAKE_INSTALL_LIBDIR}/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}"
+  )
+  set(RTAPI_INI_RTAPI_LIBEXEC_DIR
+      "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY}")
+  set(RTAPI_INI_RTAPI_BIN_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+
+  configure_file(
+    src/rtapi.ini.in ${CMAKE_CURRENT_BINARY_DIR}/rtapi.ini.configure @ONLY
+    NEWLINE_STYLE UNIX FILE_PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
+
+  file(
+    GENERATE
+    OUTPUT ${MACHINEKIT_HAL_SYSTEM_CONFIG_OUTPUT_DIRECTORY}/rtapi.ini
+    INPUT ${CMAKE_CURRENT_BINARY_DIR}/rtapi.ini.configure
+    NEWLINE_STYLE UNIX FILE_PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
+
   install(
     TARGETS
     runtime runtime_api EXPORT machinekit_hal

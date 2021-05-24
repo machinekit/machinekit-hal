@@ -19,7 +19,7 @@
 #
 # Should you wish to retain the same MKUUID after repo cleans and rebuilds
 # keep a backup copy of the file and substitute it as required.
-MKUUID=a42c8c6b-4025-4f83-ba28-dad21114744a
+MKUUID=@MACHINEKIT_HAL_RUNTIME_GUUID@
 
 # -------------- enabling remote operation -----------------
 
