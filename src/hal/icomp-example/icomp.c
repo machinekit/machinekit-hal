@@ -1,3 +1,4 @@
+#include <linux/limits.h>
 #include <unistd.h>
 #include <getopt.h>
 
@@ -119,8 +120,11 @@ static int instantiate(const int argc, char* const *argv)
     // example - parse newinst arguments getopt-style:
     // straight from: http://www.informit.com/articles/article.aspx?p=175771&seqNum=3
 
-    int do_all, do_help, do_verbose;    /* flag variables */
-    char *myfile;
+    /* flag variables */
+    int do_all = 0;
+    int do_help = 0;
+    int do_verbose = 0;
+    char myfile[PATH_MAX];
     struct option longopts[] = {
 	{ "all",     no_argument,       & do_all,     1   },
 	{ "file",    required_argument, NULL,         'f' },
@@ -134,7 +138,7 @@ static int instantiate(const int argc, char* const *argv)
         // char * const argv[]
 	switch (c) {
 	case 'f':
-	    myfile = optarg;
+        snprintf(myfile, sizeof(myfile), "%s", optarg);
 	    break;
 	case 0:     // getopt_long() set a variable, just keep going
 	    break;

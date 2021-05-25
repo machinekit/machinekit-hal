@@ -17,22 +17,26 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include <limits.h> // PATH_MAX
-#include <string>
 #include "rtapi_compat.h" // get_elf_section()
+#include <limits.h>       // PATH_MAX
+#include <string>
 
 // dlinfo()
 #ifndef _GNU_SOURCE
-#   define _GNU_SOURCE
+#define _GNU_SOURCE
 #endif
-#include <link.h>
 #include <dlfcn.h>
+#include <link.h>
 
-class Module {
-public:
+class Module
+{
+  public:
     string name;
     void *handle;
     char *errmsg;
+
+    Module() = default;
+    ~Module();
 
     int load(string module);
     string path();
@@ -54,10 +58,10 @@ int Module::load(string module)
     // module name
     if (module.find_last_of("/") != string::npos) {
         name = module.substr(module.find_last_of("/") + 1);
-        is_rpath = false;  // `module` contains `/` chars
+        is_rpath = false; // `module` contains `/` chars
     } else {
         name = module;
-        is_rpath = true;  // `module` contains no `/` chars
+        is_rpath = true; // `module` contains no `/` chars
     }
     dlpath = module + ".so";
     handle = NULL;
@@ -65,10 +69,10 @@ int Module::load(string module)
     // First look in `$MK_MODULE_DIR` if `module` contains no `/` chars
     if (getenv("MK_MODULE_DIR") != NULL && is_rpath) {
         // If $MK_MODULE_DIR/module.so exists, load it (or fail)
-        strncpy(module_path, getenv("MK_MODULE_DIR"), PATH_MAX-1);
-        strncat(module_path, ("/" + dlpath).c_str(), PATH_MAX-1);
+        strncpy(module_path, getenv("MK_MODULE_DIR"), PATH_MAX - 1);
+        strncat(module_path, ("/" + dlpath).c_str(), PATH_MAX - 1);
         if (stat(module_path, &st) == 0) {
-            handle = dlopen(module_path, RTLD_GLOBAL|RTLD_NOW);
+            handle = dlopen(module_path, RTLD_GLOBAL | RTLD_NOW);
             if (!handle) {
                 errmsg = dlerror();
                 return -1;
@@ -76,12 +80,10 @@ int Module::load(string module)
         }
     }
     // Otherwise load it with dlopen()'s logic (or fail)
-    if (!handle)
-        handle = dlopen(dlpath.c_str(), RTLD_GLOBAL |RTLD_NOW);
+    if (!handle) handle = dlopen(dlpath.c_str(), RTLD_GLOBAL | RTLD_NOW);
     if (!handle) {
         errmsg = dlerror();
-        rtapi_print_msg(
-            RTAPI_MSG_ERR, "load(%s): %s", module.c_str(), errmsg);
+        rtapi_print_msg(RTAPI_MSG_ERR, "load(%s): %s", module.c_str(), errmsg);
         return -1;
     }
 
@@ -92,12 +94,17 @@ int Module::load(string module)
 
 string Module::path()
 {
+    if (!handle) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "Trying to get path of non-loaded module %s\n", name.c_str());
+        return "";
+    }
     char path[PATH_MAX];
     if (dlinfo(handle, RTLD_DI_ORIGIN, path) != 0) {
         rtapi_print_msg(RTAPI_MSG_ERR, "dlinfo(%s):  %s", path, dlerror());
         return NULL;
     }
-    strncat(path, ("/" + name + ".so").c_str(), PATH_MAX-1);
+    strncat(path, ("/" + name + ".so").c_str(), PATH_MAX - 1);
 
     return string(path);
 }
@@ -110,10 +117,14 @@ void Module::clear_err()
 
 template <class T> T Module::sym(const char *sym_name)
 {
+    if (!handle) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "Trying to sym symbol on non-loaded module %s\n", name.c_str());
+        return nullptr;
+    }
     clear_err();
     T res = (T)(dlsym(handle, sym_name));
-    if (!res)
-        errmsg = dlerror();
+    if (!res) errmsg = dlerror();
     return res;
 }
 
@@ -124,8 +135,15 @@ template <class T> T Module::sym(const string &sym_name)
 
 int Module::close()
 {
-    return dlclose(handle);
+    if (handle) {
+        return dlclose(handle);
+    }
+    rtapi_print_msg(RTAPI_MSG_ERR, "Trying to unload not loaded module %s\n",
+                    name.c_str());
+    return -1;
 }
+
+Module::~Module() { close(); }
 
 int Module::elf_section(const char *section_name, void **dest)
 {
