@@ -9,10 +9,6 @@
 <img alt="Github Actions build status" src="https://img.shields.io/github/workflow/status/machinekit/machinekit-hal/Test application and publish packages (Debian linux)/master?style=for-the-badge&logo=github" />
 </a>
 
-<a href="https://travis-ci.com/github/machinekit/machinekit-hal/builds" target="_blank">
-<img alt="Travis-CI build status" src="https://img.shields.io/travis/com/machinekit/machinekit-hal?style=for-the-badge&logo=travis" />
-</a>
-
 <a href="https://cloud.drone.io/machinekit/machinekit-hal" target="_blank">
 <img alt="Drone Cloud build status" src="https://img.shields.io/drone/build/machinekit/machinekit-hal/master?style=for-the-badge&logo=drone" />
 </a>
@@ -56,7 +52,7 @@
 
 **Machinekit-HAL** is a powerful software for _real-time_ control of machinery based on _**H**ardware **A**bstraction **L**ayer_ principle. With tools and libraries making development of new _components_ and _drivers_ easy. Integrators can choose to control **industrial robotic arm**, **single purpose machine** or **CNC mill** or **lathe** with additional software package.
 
-Supporting _RT PREEMPT_ and _Xenomai 2_ real-time Linux kernel patches. **APT** packages available for Debian 9 _Stretch_, Debian 10 _Buster_, Ubuntu 18.04 _Bionic_ LTS and Ubuntu 20.04 _Focal_ LTS.
+Supporting _RT PREEMPT_ and _Xenomai 2_ real-time Linux kernel patches. **APT** packages available for Debian 9 _Stretch_, Debian 10 _Buster_, Ubuntu 18.04 _Bionic_ LTS, Ubuntu 20.04 _Focal_ LTS and Ubuntu 21.04 Hirsute.
 
 <div align="center"><img alt="Machinekit demo" src="https://raw.githubusercontent.com/cerna/machinekit-hal/various-bugfixes/media/machinekit_hal_ethercat_demo.gif" width="650px" /></div>
 
