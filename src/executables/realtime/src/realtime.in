@@ -7,11 +7,11 @@
 # Basic variables
 export LANG=C
 
-RTAPI_INI="@MACHINEKIT_HAL_SYSTEM_CONFIG_OUTPUT_DIRECTORY@/rtapi.ini" # TODO: Change to target property
+RTAPI_INI="@REALTIME_RTAPI_INI@"
 
-INIVAR="$<GENEX_EVAL:$<TARGET_PROPERTY:inivar,RUNTIME_OUTPUT_DIRECTORY>>/inivar"
-rtapi_msgd="$<GENEX_EVAL:$<TARGET_PROPERTY:msgd,RUNTIME_OUTPUT_DIRECTORY>>/$<TARGET_PROPERTY:msgd,OUTPUT_NAME>"
-rtapi_app="$<GENEX_EVAL:$<TARGET_PROPERTY:rtapi_app,RUNTIME_OUTPUT_DIRECTORY>>/rtapi_app"
+INIVAR="@REALTIME_INIVAR@"
+rtapi_msgd="@REALTIME_RTAPI_MSGD@"
+rtapi_app="@REALTIME_RTAPI_APP@"
 
 # Required executables which has to be available on PATH
 PIDOF="$(which pidof)"
@@ -39,7 +39,7 @@ RUNTIME_VERSION="@CMAKE_PROJECT_VERSION@"
 
 # if not overridden by user, point MACHINEKIT_INI to installed default:
 if [ -z "$MACHINEKIT_INI" ]; then
-    MACHINEKIT_INI="$<GENEX_EVAL:@MACHINEKIT_HAL_SYSTEM_CONFIG_OUTPUT_DIRECTORY@>/machinekit.ini"
+    MACHINEKIT_INI="@REALTIME_MACHINEKIT_INI@"
 fi
 export MACHINEKIT_INI
 
