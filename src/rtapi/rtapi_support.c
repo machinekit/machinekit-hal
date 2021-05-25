@@ -58,11 +58,7 @@ static int rt_msg_level = RTAPI_MSG_INFO;    // RTAPI (u+k)
 static int ulapi_msg_level = RTAPI_MSG_INFO; // ULAPI
 #endif
 
-#ifdef ULAPI
 ringbuffer_t rtapi_message_buffer;   // rtapi_message ring access strcuture
-# else
-extern ringbuffer_t rtapi_message_buffer;
-#endif
 
 static char logtag[TAGSIZE];
 static const char *origins[] = { "kernel", "rt", "user", "*invalid*" };

@@ -923,8 +923,13 @@ static int rtapi_request(zloop_t *loop, zsock_t *socket, void *arg)
     }
 
     // TODO: extract + attach error message
-
+/* Needed for supporting older versions of Google Protobuf available
+ * in Debian Stretch and Ubuntu Bionic */
+#if GOOGLE_PROTOBUF_VERSION >= 3006001
+    size_t reply_size = pbreply.ByteSizeLong();
+#else
     size_t reply_size = pbreply.ByteSize();
+#endif
     zframe_t *reply = zframe_new (NULL, reply_size);
     if(reply == NULL){
 	rtapi_print_msg(RTAPI_MSG_ERR, "rtapi_request(): NULL zframe_t 'reply' passed");

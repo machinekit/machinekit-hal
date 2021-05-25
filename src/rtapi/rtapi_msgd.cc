@@ -613,7 +613,13 @@ message_poll_cb(zloop_t *loop, int  timer_id, void *args)
 	    logmsg->set_tag(msg->tag);
 	    logmsg->set_text(msg->buf, strlen(msg->buf));
 
+/* Needed for supporting older versions of Google Protobuf available
+ * in Debian Stretch and Ubuntu Bionic */
+#if GOOGLE_PROTOBUF_VERSION >= 3006001
+	    z_pbframe = zframe_new(NULL, container.ByteSizeLong());
+#else
 	    z_pbframe = zframe_new(NULL, container.ByteSize());
+#endif
 	    assert(z_pbframe != NULL);
 
 	    if (container.SerializeWithCachedSizesToArray(zframe_data(z_pbframe))) {

@@ -44,10 +44,21 @@ send_pbcontainer(zmsg_t *dest, machinetalk::Container &c, void *socket)
     zframe_t *f;
     size_t nsize = zmsg_size(dest);
 
+/* Needed for supporting older versions of Google Protobuf available
+ * in Debian Stretch and Ubuntu Bionic */
+#if GOOGLE_PROTOBUF_VERSION >= 3006001
+    f = zframe_new(NULL, c.ByteSizeLong());
+#else
     f = zframe_new(NULL, c.ByteSize());
+#endif
     if (f == NULL) {
+#if GOOGLE_PROTOBUF_VERSION >= 3006001
+    syslog_async(LOG_ERR,"%s: FATAL - failed to zframe_new(%d)",
+			__func__, c.ByteSizeLong());
+#else
 	syslog_async(LOG_ERR,"%s: FATAL - failed to zframe_new(%d)",
 			__func__, c.ByteSize());
+#endif
 	return -ENOMEM;
     }
     if (print_container) {

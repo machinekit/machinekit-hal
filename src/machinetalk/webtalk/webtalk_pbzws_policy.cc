@@ -248,8 +248,13 @@ static int error_tows(struct pbzws_session *self, const char *fmt, ...)
 static int frame_tows(struct pbzws_session *self)
 {
     zframe_t *f;
-
+/* Needed for supporting older versions of Google Protobuf available
+ * in Debian Stretch and Ubuntu Bionic */
+#if GOOGLE_PROTOBUF_VERSION >= 3006001
+    size_t pbsize =  self->pzf->ByteSizeLong();
+#else
     size_t pbsize =  self->pzf->ByteSize();
+#endif
     buf_resize(self,  b64wrapped(self) ? B64SIZE(pbsize) + pbsize : pbsize);
 
     unsigned char *end = self->pzf->SerializeWithCachedSizesToArray(self->buf);

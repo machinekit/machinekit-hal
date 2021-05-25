@@ -29,6 +29,12 @@
       "distributionCodename": "Focal",
       "baseImage": "ubuntu:focal",
       "releaseNumber": 20.04
+    },
+    {
+      "distributionID": "Ubuntu",
+      "distributionCodename": "Hirsute",
+      "baseImage": "ubuntu:hirsute",
+      "releaseNumber": 21.04
     }
   ],
   "allowedCombinations": [
@@ -61,6 +67,10 @@
       "architecture": "amd64"
     },
     {
+      "osVersionNumber": 21.04,
+      "architecture": "amd64"
+    },
+    {
       "osVersionNumber": 9,
       "architecture": "armhf"
     },
@@ -77,6 +87,10 @@
       "architecture": "armhf"
     },
     {
+      "osVersionNumber": 21.04,
+      "architecture": "armhf"
+    },
+    {
       "osVersionNumber": 9,
       "architecture": "arm64"
     },
@@ -90,6 +104,10 @@
     },
     {
       "osVersionNumber": 20.04,
+      "architecture": "arm64"
+    },
+    {
+      "osVersionNumber": 21.04,
       "architecture": "arm64"
     }
   ],

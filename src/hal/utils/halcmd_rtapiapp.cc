@@ -24,7 +24,13 @@ int proto_debug;
 
 int rtapi_rpc(void *socket, machinetalk::Container &tx, machinetalk::Container &rx)
 {
-    zframe_t *request = zframe_new (NULL, tx.ByteSize());
+/* Needed for supporting older versions of Google Protobuf available
+ * in Debian Stretch and Ubuntu Bionic */
+#if GOOGLE_PROTOBUF_VERSION >= 3006001
+    zframe_t *request = zframe_new (NULL, tx.ByteSizeLong());
+#else
+	zframe_t *request = zframe_new (NULL, tx.ByteSize());
+#endif
     assert(request);
     assert(tx.SerializeWithCachedSizesToArray(zframe_data (request)));
     if (proto_debug) {

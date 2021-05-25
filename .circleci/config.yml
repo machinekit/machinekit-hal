@@ -1,0 +1,8 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: debian:buster
+    steps:
+      - checkout
+      - run: echo "Machinekit-Hal Circle CI stub"
