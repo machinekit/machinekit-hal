@@ -26,6 +26,7 @@
 
 # Special bootstrapping step
 add_subdirectory(runtime_bootstrap)
+add_subdirectory(symbol_visibility)
 
 add_subdirectory(ads7828)
 add_subdirectory(config_service)

@@ -76,5 +76,13 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O0")
 
 set(MACHINEKIT_HAL_GIT_BUILD_SHA "aaabbbccc") # TODO: Set based on actual Git
                                               # SHA
-
+define_property(
+  GLOBAL
+  PROPERTY MACHINEKIT_HAL_MODULE_PATH
+  BRIEF_DOCS "Machinekit-HAL specific CMake module PATH"
+  FULL_DOCS
+    [[
+  Special global property specific to Machinekit-HAL's build tree holding the set of PATHs
+  to defined CMake Modules in the source-tree.
+  ]])
 add_subdirectory(src)

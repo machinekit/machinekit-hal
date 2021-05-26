@@ -27,6 +27,8 @@
 option(BUILD_RUNTIME_LIBRARY "Built the Runtime libraries." TRUE)
 
 if(BUILD_RUNTIME_LIBRARY)
+  include(MachinekitHALSymbolVisibility)
+
   add_library(runtime_api INTERFACE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::runtime_api ALIAS runtime_api)
   add_library(runtime SHARED)
@@ -57,7 +59,7 @@ if(BUILD_RUNTIME_LIBRARY)
     runtime_api
     INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
               $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>
-              $<TARGET_PROPERTY:rtapi_compat,INTERFACE_INCLUDE_DIRECTORIES>)
+              $<BUILD_INTERFACE:$<TARGET_PROPERTY:rtapi_compat,INTERFACE_INCLUDE_DIRECTORIES>>)
 
   target_sources(
     runtime
@@ -106,22 +108,7 @@ if(BUILD_RUNTIME_LIBRARY)
     # Add here rtapi_io.h to PUBLIC_HEADER to install
   endif()
 
-  add_custom_command(
-    TARGET runtime_module
-    PRE_LINK
-    COMMAND ${CMAKE_COMMAND} "-E" "make_directory"
-            "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/linker"
-    COMMAND
-      ${CMAKE_CURRENT_SOURCE_DIR}/smazat.sh "$<TARGET_OBJECTS:runtime_module>"
-      "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/linker/runtime_module.map"
-      BYPRODUCT ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/runtime_module.map
-    VERBATIM)
-
-  target_link_options(
-    runtime_module
-    PRIVATE
-    "LINKER:--version-script=${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/linker/runtime_module.map"
-  )
+  export_rtapi_symbols(TARGET runtime_module)
 
   set_target_properties(runtime_api PROPERTIES PUBLIC_HEADER ${HEADER_FILES})
 

@@ -1,0 +1,22 @@
+= Symbol Visibility
+:author: Jakub Fišer <jakub DOT fiser AT eryaf DOT com>
+:description: Symbol Visibility sourcetree README 
+:sectanchors: 
+:url-repo: https://machinekit.io
+
+Symbol Visibility provides a Machinekit-HAL specific CMake module used to limit symbol visibility
+in managed modules screated as a `add_library(<name> MODULE)`.
+
+== Distribution
+
+*   **MachinekitHALSymbolVisibility:** CMake module
+-   Sets all but those symbols in _ELF_ file declared with `RTAPI_EXPORT(<name>)` as **local**
+
+== CMAKE targets
+
+Objects created in `CMAKE` Machinekit-HAL's namespace used for building.
+
+=== export_rtapi_symbols (CMake function)
+*   Takes single argument `TARGET`
+
+== Notes

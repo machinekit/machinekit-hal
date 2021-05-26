@@ -25,6 +25,8 @@
 option(BUILD_HAL_LIBRARY "Built the HAL library." TRUE)
 
 if(BUILD_HAL_LIBRARY)
+  include(MachinekitHALSymbolVisibility)
+
   add_library(hal_api INTERFACE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::hal_api ALIAS hal_api)
   add_library(hal SHARED)
@@ -71,22 +73,7 @@ if(BUILD_HAL_LIBRARY)
 
   target_compile_definitions(hal_module PRIVATE "RTAPI")
 
-  add_custom_command(
-    TARGET hal_module
-    PRE_LINK
-    COMMAND ${CMAKE_COMMAND} "-E" "make_directory"
-            "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/linker"
-    COMMAND
-      ${CMAKE_CURRENT_SOURCE_DIR}/smazat.sh "$<TARGET_OBJECTS:hal_module>"
-      "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/linker/hal_module.map" BYPRODUCT
-      ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/hal_module.map
-    VERBATIM)
-
-  target_link_options(
-    hal_module
-    PRIVATE
-    "LINKER:--version-script=${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/linker/hal_module.map"
-  )
+  export_rtapi_symbols(TARGET hal_module)
 
   set_target_properties(hal_api PROPERTIES PUBLIC_HEADER ${HEADER_FILES})
 

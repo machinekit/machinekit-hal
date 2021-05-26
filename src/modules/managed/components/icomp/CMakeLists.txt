@@ -24,9 +24,32 @@
 # #####################################################################
 # ~~~
 
-get_property(_module_path GLOBAL PROPERTY MACHINEKIT_HAL_MODULE_PATH)
-list(APPEND CMAKE_MODULE_PATH "${_module_path}")
-unset(_module_path)
+option(BUILD_ICOMP_MANAGED_MODULE "Built the IComp HAL managed module." TRUE)
 
-add_subdirectory(unmanaged)
-add_subdirectory(managed)
+if(BUILD_ICOMP_MANAGED_MODULE)
+  include(MachinekitHALSymbolVisibility)
+
+  add_library(icomp MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::icomp ALIAS icomp)
+
+  set(SOURCE_FILES src/icomp.c)
+
+  target_sources(icomp PRIVATE ${SOURCE_FILES})
+
+  target_link_libraries(icomp PRIVATE hal_api runtime_api)
+
+  export_rtapi_symbols(TARGET icomp)
+
+  target_compile_definitions(icomp PRIVATE "RTAPI")
+
+  set_target_properties(
+    icomp
+    PROPERTIES PREFIX "" LIBRARY_OUTPUT_DIRECTORY
+                         "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(
+    TARGETS icomp
+    EXPORT machinekit_hal_managed_module_icomp
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_Module_Icomp)
+endif()

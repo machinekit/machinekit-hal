@@ -23,3 +23,15 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_SYMBOL_VISIBILITY_CMAKE_MODULE
+       "Built the Symbol Visibility CMake Module." TRUE)
+
+if(BUILD_SYMBOL_VISIBILITY_CMAKE_MODULE)
+
+  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src")
+  set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" PARENT_SCOPE)
+  set_property(GLOBAL APPEND PROPERTY MACHINEKIT_HAL_MODULE_PATH
+                                      "${CMAKE_CURRENT_SOURCE_DIR}/src")
+
+endif()
