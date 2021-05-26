@@ -23,3 +23,33 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_SIGGEN_MANAGED_MODULE "Built the Siggen HAL managed module." TRUE)
+
+if(BUILD_SIGGEN_MANAGED_MODULE)
+  include(MachinekitHALSymbolVisibility)
+
+  add_library(siggen MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::siggen ALIAS siggen)
+
+  set(SOURCE_FILES src/siggen.c)
+
+  target_sources(siggen PRIVATE ${SOURCE_FILES})
+
+  target_link_libraries(siggen PRIVATE hal_api runtime_api runtime_math)
+
+  export_rtapi_symbols(TARGET siggen)
+
+  target_compile_definitions(siggen PRIVATE "RTAPI")
+
+  set_target_properties(
+    siggen
+    PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(
+    TARGETS siggen
+    EXPORT machinekit_hal_managed_module_siggen
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_Siggen)
+endif()

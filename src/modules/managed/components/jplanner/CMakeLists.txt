@@ -23,3 +23,34 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_JPLAN_MANAGED_MODULE "Built the JPlan HAL managed module." TRUE)
+
+if(BUILD_JPLAN_MANAGED_MODULE)
+  include(MachinekitHALSymbolVisibility)
+
+  add_library(jplan MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::jplan ALIAS jplan)
+
+  set(SOURCE_FILES src/jplan.c)
+
+  target_sources(jplan PRIVATE ${SOURCE_FILES})
+
+  target_link_libraries(jplan PRIVATE hal_api runtime_api runtime_math
+                                      machinetalk_proto_c)
+
+  export_rtapi_symbols(TARGET jplan)
+
+  target_compile_definitions(jplan PRIVATE "RTAPI")
+
+  set_target_properties(
+    jplan
+    PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(
+    TARGETS jplan
+    EXPORT machinekit_hal_managed_module_jplan
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_Module_JPlan)
+endif()

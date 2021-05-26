@@ -23,3 +23,34 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_COUNTER_MANAGED_MODULE "Built the Counter HAL managed module."
+       TRUE)
+
+if(BUILD_COUNTER_MANAGED_MODULE)
+  include(MachinekitHALSymbolVisibility)
+
+  add_library(counter MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::counter ALIAS counter)
+
+  set(SOURCE_FILES src/counter.c)
+
+  target_sources(counter PRIVATE ${SOURCE_FILES})
+
+  target_link_libraries(counter PRIVATE hal_api runtime_api)
+
+  export_rtapi_symbols(TARGET counter)
+
+  target_compile_definitions(counter PRIVATE "RTAPI")
+
+  set_target_properties(
+    counter
+    PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(
+    TARGETS counter
+    EXPORT machinekit_hal_managed_module_counter
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_Module_Counter)
+endif()

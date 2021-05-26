@@ -148,9 +148,9 @@ int main(int argc, gchar * argv[])
     }
 
     if (!halpr_find_funct_by_name("scope.sample")) {
-	char buf[1000];
-	sprintf(buf, HAL_BIN_DIR "/halcmd loadrt scope_rt num_samples=%d",
-		num_samples);
+	char buf[PATH_MAX];
+	sprintf(buf, "%s/halcmd loadrt scope_rt num_samples=%d",
+		MACHINEKIT_HAL_BIN_DIRECTORY, num_samples);
 	if(system(buf) != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR, "loadrt scope_rt failed\n");
 	    hal_exit(comp_id);

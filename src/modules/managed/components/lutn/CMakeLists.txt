@@ -23,3 +23,36 @@
 #
 # #####################################################################
 # ~~~
+
+# Full of errors, will need deeper thought
+#[[
+option(BUILD_LUTN_MANAGED_MODULE "Built the LUTN HAL managed module." TRUE)
+
+if(BUILD_LUTN_MANAGED_MODULE)
+  include(MachinekitHALSymbolVisibility)
+
+  add_library(lutn MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::lutn ALIAS lutn)
+
+  set(SOURCE_FILES src/lutn.c)
+
+  target_sources(lutn PRIVATE ${SOURCE_FILES})
+
+  target_link_libraries(lutn PRIVATE hal_api runtime_api)
+
+  export_rtapi_symbols(TARGET lutn)
+
+  target_compile_definitions(lutn PRIVATE "RTAPI")
+
+  set_target_properties(
+    lutn
+    PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(
+    TARGETS lutn
+    EXPORT machinekit_hal_managed_module_lutn
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_Module_LUTN)
+endif()
+]]

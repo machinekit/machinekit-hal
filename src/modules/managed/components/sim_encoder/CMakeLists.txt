@@ -23,3 +23,33 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_SIM_ENCODER_MANAGED_MODULE "Built the SIM Encoder HAL managed module." TRUE)
+
+if(BUILD_SIM_ENCODER_MANAGED_MODULE)
+  include(MachinekitHALSymbolVisibility)
+
+  add_library(sim_encoder MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::sim_encoder ALIAS sim_encoder)
+
+  set(SOURCE_FILES src/sim_encoder.c)
+
+  target_sources(sim_encoder PRIVATE ${SOURCE_FILES})
+
+  target_link_libraries(sim_encoder PRIVATE hal_api runtime_api)
+
+  export_rtapi_symbols(TARGET sim_encoder)
+
+  target_compile_definitions(sim_encoder PRIVATE "RTAPI")
+
+  set_target_properties(
+    sim_encoder
+    PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(
+    TARGETS sim_encoder
+    EXPORT machinekit_hal_managed_module_sim_encoder
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_Sim_Encoder)
+endif()

@@ -23,3 +23,34 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_ENCODER_MANAGED_MODULE "Built the Encoder HAL managed module."
+       TRUE)
+
+if(BUILD_ENCODER_MANAGED_MODULE)
+  include(MachinekitHALSymbolVisibility)
+
+  add_library(encoder MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::encoder ALIAS encoder)
+
+  set(SOURCE_FILES src/encoder.c)
+
+  target_sources(encoder PRIVATE ${SOURCE_FILES})
+
+  target_link_libraries(encoder PRIVATE hal_api runtime_api)
+
+  export_rtapi_symbols(TARGET encoder)
+
+  target_compile_definitions(encoder PRIVATE "RTAPI")
+
+  set_target_properties(
+    encoder
+    PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(
+    TARGETS encoder
+    EXPORT machinekit_hal_managed_module_encoder
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_Module_Encoder)
+endif()

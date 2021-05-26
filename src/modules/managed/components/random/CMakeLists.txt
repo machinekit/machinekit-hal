@@ -23,3 +23,36 @@
 #
 # #####################################################################
 # ~~~
+
+# TODO: Full of errors, will need deeper thought
+#[[
+option(BUILD_RANDOM_MANAGED_MODULE "Built the Random HAL managed module." TRUE)
+
+if(BUILD_PWMGENV2_MANAGED_MODULE)
+  include(MachinekitHALSymbolVisibility)
+
+  add_library(random MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::random ALIAS random)
+
+  set(SOURCE_FILES src/random.c)
+
+  target_sources(random PRIVATE ${SOURCE_FILES})
+
+  target_link_libraries(random PRIVATE hal_api runtime_api)
+
+  export_rtapi_symbols(TARGET random)
+
+  target_compile_definitions(random PRIVATE "RTAPI")
+
+  set_target_properties(
+    random
+    PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(
+    TARGETS random
+    EXPORT machinekit_hal_managed_module_random
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_Random)
+endif()
+]]

@@ -23,3 +23,33 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_LCD_MANAGED_MODULE "Built the LCD HAL managed module." TRUE)
+
+if(BUILD_LCD_MANAGED_MODULE)
+  include(MachinekitHALSymbolVisibility)
+
+  add_library(lcd MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::lcd ALIAS lcd)
+
+  set(SOURCE_FILES src/lcd.c)
+
+  target_sources(lcd PRIVATE ${SOURCE_FILES})
+
+  target_link_libraries(lcd PRIVATE hal_api runtime_api runtime_math)
+
+  export_rtapi_symbols(TARGET lcd)
+
+  target_compile_definitions(lcd PRIVATE "RTAPI")
+
+  set_target_properties(
+    lcd
+    PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(
+    TARGETS lcd
+    EXPORT machinekit_hal_managed_module_lcd
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_Module_LCD)
+endif()

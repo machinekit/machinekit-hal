@@ -8,10 +8,10 @@
 // the nanopb library and compiled message definitions are brought in once by
 // 'halcmd loadrt pbmsgs' (message descriptors for parsing and generating pb msgs)
 // the nanopb library functions per se are now linked into hal_lib.so
-#include <machinetalk/include/pb-hal.h>
-#include <machinetalk/nanopb/pb_decode.h>
-#include <machinetalk/nanopb/pb_encode.h>
-#include <machinetalk/include/container.h>
+#include <pb-hal.h>
+#include <pb_decode.h>
+#include <pb_encode.h>
+#include <container.h>
 
 typedef struct {
     hal_u32_t *underrun;	// number of thread invocations with no new command available
@@ -221,7 +221,7 @@ static int update_pbring(void *arg, const hal_funct_args_t *fa)
 
 
 // constructor - init all HAL pins, params, funct etc here
-static int instantiate(const int argc, const char**argv)
+static int instantiate(const int argc, char*const*argv)
 {
     const char *name = argv[1];
     struct inst_data *inst;

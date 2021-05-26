@@ -23,3 +23,33 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_PEPPER_MANAGED_MODULE "Built the Pepper HAL managed module." TRUE)
+
+if(BUILD_PEPPER_MANAGED_MODULE)
+  include(MachinekitHALSymbolVisibility)
+
+  add_library(pepper MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::pepper ALIAS pepper)
+
+  set(SOURCE_FILES src/pepper.c)
+
+  target_sources(pepper PRIVATE ${SOURCE_FILES})
+
+  target_link_libraries(pepper PRIVATE hal_api runtime_api runtime_math)
+
+  export_rtapi_symbols(TARGET pepper)
+
+  target_compile_definitions(pepper PRIVATE "RTAPI")
+
+  set_target_properties(
+    pepper
+    PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(
+    TARGETS pepper
+    EXPORT machinekit_hal_managed_module_pepper
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_Module_Pepper)
+endif()

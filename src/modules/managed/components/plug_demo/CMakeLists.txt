@@ -23,3 +23,33 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_PLUG_MANAGED_MODULE "Built the Plug HAL managed module." TRUE)
+
+if(BUILD_PLUG_MANAGED_MODULE)
+  include(MachinekitHALSymbolVisibility)
+
+  add_library(plug MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::plug ALIAS plug)
+
+  set(SOURCE_FILES src/plug.c)
+
+  target_sources(plug PRIVATE ${SOURCE_FILES})
+
+  target_link_libraries(plug PRIVATE hal_api runtime_api)
+
+  export_rtapi_symbols(TARGET plug)
+
+  target_compile_definitions(plug PRIVATE "RTAPI")
+
+  set_target_properties(
+    plug
+    PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(
+    TARGETS plug
+    EXPORT machinekit_hal_managed_module_plug
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_Module_Plug)
+endif()

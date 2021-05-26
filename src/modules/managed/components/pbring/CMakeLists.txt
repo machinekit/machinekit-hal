@@ -23,3 +23,37 @@
 #
 # #####################################################################
 # ~~~
+
+# TODO: Full of errors, will need more thoughts
+#[[
+option(BUILD_PBRING_MANAGED_MODULE "Built the PBRing HAL managed module." TRUE)
+
+if(BUILD_PBRING_MANAGED_MODULE)
+  include(MachinekitHALSymbolVisibility)
+
+  add_library(pbring MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::pbring ALIAS pbring)
+
+  set(SOURCE_FILES src/pbring.c)
+
+  target_sources(pbring PRIVATE ${SOURCE_FILES})
+
+  target_link_libraries(pbring PRIVATE hal_api runtime_api machinetalk
+                                       machinetalk_proto_c)
+
+  export_rtapi_symbols(TARGET pbring)
+
+  target_compile_definitions(pbring PRIVATE "RTAPI")
+
+  set_target_properties(
+    pbring
+    PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(
+    TARGETS pbring
+    EXPORT machinekit_hal_managed_module_pbring
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_Module_PBRing)
+endif()
+]]

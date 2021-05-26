@@ -23,3 +23,33 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_MUX_GENERIC_MANAGED_MODULE "Built the Mux Generic HAL managed module." TRUE)
+
+if(BUILD_MUX_GENERIC_MANAGED_MODULE)
+  include(MachinekitHALSymbolVisibility)
+
+  add_library(mux_generic MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::mux_generic ALIAS mux_generic)
+
+  set(SOURCE_FILES src/mux_generic.c)
+
+  target_sources(mux_generic PRIVATE ${SOURCE_FILES})
+
+  target_link_libraries(mux_generic PRIVATE hal_api runtime_api)
+
+  export_rtapi_symbols(TARGET mux_generic)
+
+  target_compile_definitions(mux_generic PRIVATE "RTAPI")
+
+  set_target_properties(
+    mux_generic
+    PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(
+    TARGETS mux_generic
+    EXPORT machinekit_hal_managed_module_mux_generic
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_Module_Mux_Generic)
+endif()

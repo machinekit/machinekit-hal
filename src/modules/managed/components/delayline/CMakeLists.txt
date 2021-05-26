@@ -23,3 +23,34 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_DELAYLINE_MANAGED_MODULE "Built the Delayline HAL managed module."
+       TRUE)
+
+if(BUILD_DELAYLINE_MANAGED_MODULE)
+  include(MachinekitHALSymbolVisibility)
+
+  add_library(delayline MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::delayline ALIAS delayline)
+
+  set(SOURCE_FILES src/delayline.c)
+
+  target_sources(delayline PRIVATE ${SOURCE_FILES})
+
+  target_link_libraries(delayline PRIVATE hal_api runtime_api)
+
+  export_rtapi_symbols(TARGET delayline)
+
+  target_compile_definitions(delayline PRIVATE "RTAPI")
+
+  set_target_properties(
+    delayline
+    PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(
+    TARGETS delayline
+    EXPORT machinekit_hal_managed_module_delayline
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_Module_Delayline)
+endif()

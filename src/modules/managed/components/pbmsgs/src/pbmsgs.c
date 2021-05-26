@@ -91,24 +91,24 @@ PB_DESCRIPTOR(Sample);
 // this likely supersedes the above exports, as it
 // contains a superset of pb_<message>_fields
 msginfo_t msginfo[] = {
-    CANON_MESSAGES	   \
-    CONFIG_MESSAGES	   \
-    EMCCLASS_MESSAGES	   \
-    LOG_MESSAGES	   \
-    MESSAGE_MESSAGES	   \
-    MOTCMDS_MESSAGES	   \
-    OBJECT_MESSAGES	   \
-    PREVIEW_MESSAGES	   \
-    RTAPICOMMAND_MESSAGES  \
-    STATUS_MESSAGES	   \
-    TASK_MESSAGES	   \
-    TEST_MESSAGES	   \
-    TYPES_MESSAGES	   \
-    VALUE_MESSAGES	   \
-    JPLAN_MESSAGES         \
-    ROS_MESSAGES           \
-    SAMPLE_MESSAGES        \
-    PB_MSGINFO_DELIMITER
+    CANON_MESSAGES	   ,
+    CONFIG_MESSAGES	   ,
+    EMCCLASS_MESSAGES	   ,
+    LOG_MESSAGES	   ,
+    MESSAGE_MESSAGES	   ,
+    MOTCMDS_MESSAGES	   ,
+    OBJECT_MESSAGES	   ,
+    PREVIEW_MESSAGES	   ,
+    RTAPICOMMAND_MESSAGES  ,
+    STATUS_MESSAGES	   ,
+    TASK_MESSAGES	   ,
+    TEST_MESSAGES	   ,
+    TYPES_MESSAGES	   ,
+    VALUE_MESSAGES	   ,
+    JPLAN_MESSAGES         ,
+    ROS_MESSAGES           ,
+    SAMPLE_MESSAGES        ,
+    PB_MSGINFO_DELIMITER,
 };
 
 EXPORT_SYMBOL(msginfo);

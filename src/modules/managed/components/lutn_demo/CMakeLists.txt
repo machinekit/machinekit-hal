@@ -23,3 +23,33 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_LUTN_DEMO_MANAGED_MODULE "Built the LUTN DEMO HAL managed module." TRUE)
+
+if(BUILD_LUTN_MANAGED_MODULE)
+  include(MachinekitHALSymbolVisibility)
+
+  add_library(lutn_demo MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::lutn_demo ALIAS lutn_demo)
+
+  set(SOURCE_FILES src/lutn_demo.c)
+
+  target_sources(lutn_demo PRIVATE ${SOURCE_FILES})
+
+  target_link_libraries(lutn_demo PRIVATE hal_api runtime_api)
+
+  export_rtapi_symbols(TARGET lutn_demo)
+
+  target_compile_definitions(lutn_demo PRIVATE "RTAPI")
+
+  set_target_properties(
+    lutn_demo
+    PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(
+    TARGETS lutn_demo
+    EXPORT machinekit_hal_managed_module_lutn_demo
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_Module_LUTN_Demo)
+endif()

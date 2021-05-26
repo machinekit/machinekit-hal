@@ -23,3 +23,37 @@
 #
 # #####################################################################
 # ~~~
+
+# Full of errors, will need deeper thought
+#[[
+option(BUILD_IRING_MANAGED_MODULE
+       "Built the IRing HAL managed module." TRUE)
+
+if(BUILD_IRING_MANAGED_MODULE)
+  include(MachinekitHALSymbolVisibility)
+
+  add_library(iring MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::iring ALIAS iring)
+
+  set(SOURCE_FILES src/iring.c)
+
+  target_sources(iring PRIVATE ${SOURCE_FILES})
+
+  target_link_libraries(iring PRIVATE hal_api runtime_api)
+
+  export_rtapi_symbols(TARGET iring)
+
+  target_compile_definitions(iring PRIVATE "RTAPI")
+
+  set_target_properties(
+    iring
+    PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(
+    TARGETS iring
+    EXPORT machinekit_hal_managed_module_iring
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_Module_IRing)
+endif()
+]]

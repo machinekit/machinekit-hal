@@ -456,7 +456,9 @@ static void dialog_realtime_not_loaded(void)
 
     if(first_time) {
         first_time = 0;
-        if(system(HAL_BIN_DIR "/halcmd loadrt scope_rt") == 0) {
+        char buf[PATH_MAX];
+	    sprintf(buf, "%s/halcmd loadrt scope_rt", MACHINEKIT_HAL_BIN_DIRECTORY);
+        if(system(buf) == 0) {
 	    sleep(1);
 	    return;
 	}

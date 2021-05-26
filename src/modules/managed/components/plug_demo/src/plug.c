@@ -40,7 +40,7 @@ static int export_halobjs(struct inst_data *ip, int owner_id, const char *name)
 	    .type = PLUG_READER,
 	    .flags = RINGTYPE_STREAM,
 	    .ring_name = rring,
-	    .owner_name = name
+	    .owner_name = (char *)name
 	};
 	ip->rplug = halg_plug_new(1, &rargs);
 	if (ip->rplug == NULL)
@@ -52,7 +52,7 @@ static int export_halobjs(struct inst_data *ip, int owner_id, const char *name)
 	    .type = PLUG_WRITER,
 	    .flags = RINGTYPE_ANY,
 	    .ring_name = wring,
-	    .owner_name = name
+	    .owner_name = (char *)name
 	};
 	ip->wplug = halg_plug_new(1, &wargs);
 	if (ip->wplug == NULL)
@@ -73,7 +73,7 @@ static int export_halobjs(struct inst_data *ip, int owner_id, const char *name)
 }
 
 // constructor - init all HAL pins, params, funct etc here
-static int instantiate(const int argc, const char**argv)
+static int instantiate(const int argc, char*const*argv)
 {
     // argv[0]: component name
     const char *name = argv[1]; // instance name

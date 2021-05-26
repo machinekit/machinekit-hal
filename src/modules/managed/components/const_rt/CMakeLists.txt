@@ -23,3 +23,37 @@
 #
 # #####################################################################
 # ~~~
+
+# Full of errors, will need deeper thought
+#[[option(BUILD_CONST_RT_MANAGED_MODULE "Built the Const-RT HAL managed module."
+       FALSE)
+
+if(BUILD_CONST_RT_MANAGED_MODULE)
+  include(MachinekitHALSymbolVisibility)
+
+  add_library(const_rt MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::const-rt ALIAS const_rt)
+
+  set(SOURCE_FILES src/const-rt.cc)
+
+  target_sources(const_rt PRIVATE ${SOURCE_FILES})
+
+  target_link_libraries(const_rt PRIVATE hal_api runtime_api)
+
+  export_rtapi_symbols(TARGET const_rt)
+
+  target_compile_definitions(const_rt PRIVATE "RTAPI")
+
+  set_target_properties(
+    const_rt
+    PROPERTIES OUTPUT_NAME "const-rt"
+               PREFIX "mod"
+               LIBRARY_OUTPUT_DIRECTORY
+               "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(
+    TARGETS const_rt
+    EXPORT machinekit_hal_managed_module_const_rt
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_Module_Const_RT)
+endif()]]

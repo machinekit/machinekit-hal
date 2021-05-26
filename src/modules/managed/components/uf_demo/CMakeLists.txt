@@ -23,3 +23,33 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_UFDEMO_MANAGED_MODULE "Built the Ufdemo HAL managed module." TRUE)
+
+if(BUILD_UFDEMO_MANAGED_MODULE)
+  include(MachinekitHALSymbolVisibility)
+
+  add_library(ufdemo MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::ufdemo ALIAS ufdemo)
+
+  set(SOURCE_FILES src/ufdemo.c)
+
+  target_sources(ufdemo PRIVATE ${SOURCE_FILES})
+
+  target_link_libraries(ufdemo PRIVATE hal_api runtime_api)
+
+  export_rtapi_symbols(TARGET ufdemo)
+
+  target_compile_definitions(ufdemo PRIVATE "RTAPI")
+
+  set_target_properties(
+    ufdemo
+    PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(
+    TARGETS ufdemo
+    EXPORT machinekit_hal_managed_module_ufdemo
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_Ufdemo)
+endif()

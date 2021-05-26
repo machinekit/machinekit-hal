@@ -23,3 +23,36 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_SCOPE_RT_MANAGED_MODULE "Built the Scope RT HAL managed module." TRUE)
+
+if(BUILD_SCOPE_RT_MANAGED_MODULE)
+  include(MachinekitHALSymbolVisibility)
+
+  add_library(scope_rt MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::scope_rt ALIAS scope_rt)
+
+  set(SOURCE_FILES src/scope_rt.c)
+  set(PUBLIC_HEADER_FILES include/scope_rt.h)
+
+  target_sources(scope_rt PRIVATE ${SOURCE_FILES} ${PUBLIC_HEADER_FILES})
+
+  target_include_directories(scope_rt PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+
+  target_link_libraries(scope_rt PRIVATE hal_api runtime_api runtime_math halscope_memory)
+
+  export_rtapi_symbols(TARGET scope_rt)
+
+  target_compile_definitions(scope_rt PRIVATE "RTAPI")
+
+  set_target_properties(
+    scope_rt
+    PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(
+    TARGETS scope_rt
+    EXPORT machinekit_hal_managed_module_scope_rt
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_Scope_RT)
+endif()

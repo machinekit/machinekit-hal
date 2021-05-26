@@ -23,3 +23,36 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_INTERPOLATE_MANAGED_MODULE
+       "Built the Interpolate HAL managed module." TRUE)
+
+if(BUILD_INTERPOLATE_MANAGED_MODULE)
+  include(MachinekitHALSymbolVisibility)
+
+  add_library(interpolate MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::interpolate ALIAS interpolate)
+
+  set(SOURCE_FILES src/interpolate.c)
+
+  target_sources(interpolate PRIVATE ${SOURCE_FILES})
+
+  target_link_libraries(
+    interpolate PRIVATE hal_api runtime_api runtime_math machinetalk_proto_c
+                        nanopb_interface)
+
+  export_rtapi_symbols(TARGET interpolate)
+
+  target_compile_definitions(interpolate PRIVATE "RTAPI")
+
+  set_target_properties(
+    interpolate
+    PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(
+    TARGETS interpolate
+    EXPORT machinekit_hal_managed_module_interpolate
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_Module_Interpolate)
+endif()

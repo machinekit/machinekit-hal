@@ -23,3 +23,33 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_THREADS_MANAGED_MODULE "Built the Threads HAL managed module." TRUE)
+
+if(BUILD_THREADS_MANAGED_MODULE)
+  include(MachinekitHALSymbolVisibility)
+
+  add_library(threads MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::threads ALIAS threads)
+
+  set(SOURCE_FILES src/threads.c)
+
+  target_sources(threads PRIVATE ${SOURCE_FILES})
+
+  target_link_libraries(threads PRIVATE hal_api runtime_api)
+
+  export_rtapi_symbols(TARGET threads)
+
+  target_compile_definitions(threads PRIVATE "RTAPI")
+
+  set_target_properties(
+    threads
+    PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(
+    TARGETS threads
+    EXPORT machinekit_hal_managed_module_threads
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_Threads)
+endif()

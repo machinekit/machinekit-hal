@@ -85,8 +85,8 @@ using namespace google::protobuf;
 #include "rtapi_app_module.hh"
 
 #define BACKGROUND_TIMER 1000
-#define HALMOD "modhal"
-#define RTAPIMOD "modruntime"
+#define HALMOD "hal"
+#define RTAPIMOD "runtime"
 
 using namespace std;
 

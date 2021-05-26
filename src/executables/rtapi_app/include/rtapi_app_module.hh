@@ -63,7 +63,7 @@ int Module::load(string module)
         name = module;
         is_rpath = true; // `module` contains no `/` chars
     }
-    dlpath = module + ".so";
+    dlpath = "mod" + module + ".so";
     handle = NULL;
 
     // First look in `$MK_MODULE_DIR` if `module` contains no `/` chars
@@ -99,14 +99,20 @@ string Module::path()
                         "Trying to get path of non-loaded module %s\n", name.c_str());
         return "";
     }
-    char path[PATH_MAX];
-    if (dlinfo(handle, RTLD_DI_ORIGIN, path) != 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "dlinfo(%s):  %s", path, dlerror());
+    
+    struct link_map *map;
+    dlinfo(handle, RTLD_DI_LINKMAP, &map);
+    if(!map){
+        rtapi_print_msg(RTAPI_MSG_ERR, "dlinfo(%s, %s):  %s", name.c_str(), "RTLD_DI_LINKMAP", dlerror());
         return NULL;
     }
-    strncat(path, ("/" + name + ".so").c_str(), PATH_MAX - 1);
 
-    return string(path);
+    // Should not happen, however passing nullptr to constructor of std::string is undefined
+    if(map->l_name == nullptr){
+        rtapi_print_msg(RTAPI_MSG_ERR, "link_map->l_name for %s is nullptr!", name);
+        return NULL;
+    }
+    return std::string(map->l_name);
 }
 
 void Module::clear_err()

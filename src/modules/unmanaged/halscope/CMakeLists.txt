@@ -43,6 +43,5 @@ if(BUILD_HALSCOPE_UNMANAGED_MODULE)
                                          runtime_math)
 
   target_compile_definitions(
-    halscope PRIVATE "HAL_PO_DIR=\"${CMAKE_CURRENT_BINARY_FIR}/share/locale\""
-                     "HAL_BIN_DIR=\"${CMAKE_CURRENT_BINARY_FIR}/bin\"")
+    halscope PRIVATE "HAL_PO_DIR=\"${CMAKE_CURRENT_BINARY_FIR}/share/locale\"")
 endif()

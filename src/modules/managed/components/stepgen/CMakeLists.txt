@@ -23,3 +23,33 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_STEPGEN_MANAGED_MODULE "Built the Stepgen HAL managed module." TRUE)
+
+if(BUILD_STEPGEN_MANAGED_MODULE)
+  include(MachinekitHALSymbolVisibility)
+
+  add_library(stepgen MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::stepgen ALIAS stepgen)
+
+  set(SOURCE_FILES src/stepgen.c)
+
+  target_sources(stepgen PRIVATE ${SOURCE_FILES})
+
+  target_link_libraries(stepgen PRIVATE hal_api runtime_api runtime_math)
+
+  export_rtapi_symbols(TARGET stepgen)
+
+  target_compile_definitions(stepgen PRIVATE "RTAPI")
+
+  set_target_properties(
+    stepgen
+    PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(
+    TARGETS stepgen
+    EXPORT machinekit_hal_managed_module_stepgen
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_Stepgen)
+endif()

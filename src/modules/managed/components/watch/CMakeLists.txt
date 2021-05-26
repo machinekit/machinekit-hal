@@ -23,3 +23,33 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_WATCH_MANAGED_MODULE "Built the Watch HAL managed module." TRUE)
+
+if(BUILD_STEPGEN_MANAGED_MODULE)
+  include(MachinekitHALSymbolVisibility)
+
+  add_library(watch MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::watch ALIAS watch)
+
+  set(SOURCE_FILES src/watch.c)
+
+  target_sources(watch PRIVATE ${SOURCE_FILES})
+
+  target_link_libraries(watch PRIVATE hal_api runtime_api)
+
+  export_rtapi_symbols(TARGET watch)
+
+  target_compile_definitions(watch PRIVATE "RTAPI")
+
+  set_target_properties(
+    watch
+    PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(
+    TARGETS watch
+    EXPORT machinekit_hal_managed_module_watch
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_Watch)
+endif()

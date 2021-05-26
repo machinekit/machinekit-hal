@@ -23,3 +23,33 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_PWMGEN_MANAGED_MODULE "Built the PWMGen HAL managed module." TRUE)
+
+if(BUILD_PWMGEN_MANAGED_MODULE)
+  include(MachinekitHALSymbolVisibility)
+
+  add_library(pwmgen MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::pwmgen ALIAS pwmgen)
+
+  set(SOURCE_FILES src/pwmgen.c)
+
+  target_sources(pwmgen PRIVATE ${SOURCE_FILES})
+
+  target_link_libraries(pwmgen PRIVATE hal_api runtime_api)
+
+  export_rtapi_symbols(TARGET pwmgen)
+
+  target_compile_definitions(pwmgen PRIVATE "RTAPI")
+
+  set_target_properties(
+    pwmgen
+    PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(
+    TARGETS pwmgen
+    EXPORT machinekit_hal_managed_module_pwmgen
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_PWMGen)
+endif()

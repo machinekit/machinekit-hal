@@ -23,3 +23,34 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_ENCODER_RATIO_MANAGED_MODULE
+       "Built the Encoder ratio HAL managed module." TRUE)
+
+if(BUILD_ENCODER_RATIO_MANAGED_MODULE)
+  include(MachinekitHALSymbolVisibility)
+
+  add_library(encoder_ratio MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::encoder_ratio ALIAS encoder_ratio)
+
+  set(SOURCE_FILES src/encoder_ratio.c)
+
+  target_sources(encoder_ratio PRIVATE ${SOURCE_FILES})
+
+  target_link_libraries(encoder_ratio PRIVATE hal_api runtime_api)
+
+  export_rtapi_symbols(TARGET encoder_ratio)
+
+  target_compile_definitions(encoder_ratio PRIVATE "RTAPI")
+
+  set_target_properties(
+    encoder_ratio
+    PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(
+    TARGETS encoder_ratio
+    EXPORT machinekit_hal_managed_module_encoder_ratio
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_Module_Encoder_Ratio)
+endif()

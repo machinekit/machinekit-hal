@@ -23,3 +23,33 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_MATRIX_KB_MANAGED_MODULE "Built the Matrix KB HAL managed module." TRUE)
+
+if(BUILD_MATRIX_KB_MANAGED_MODULE)
+  include(MachinekitHALSymbolVisibility)
+
+  add_library(matrix_kb MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::matrix_kb ALIAS matrix_kb)
+
+  set(SOURCE_FILES src/matrix_kb.c)
+
+  target_sources(matrix_kb PRIVATE ${SOURCE_FILES})
+
+  target_link_libraries(matrix_kb PRIVATE hal_api runtime_api)
+
+  export_rtapi_symbols(TARGET matrix_kb)
+
+  target_compile_definitions(matrix_kb PRIVATE "RTAPI")
+
+  set_target_properties(
+    matrix_kb
+    PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(
+    TARGETS matrix_kb
+    EXPORT machinekit_hal_managed_module_matrix_kb
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_Module_Matrix_KB)
+endif()

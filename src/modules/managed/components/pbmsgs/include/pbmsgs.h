@@ -1,9 +1,9 @@
 #ifndef _PBMSGS_H
 #define _PBMSGS_H
 
-#include <machinetalk/include/pb-hal.h>
-#include <machinetalk/nanopb/pb_decode.h>
-#include <machinetalk/nanopb/pb_encode.h>
+#include <pb-hal.h>
+#include <pb_decode.h>
+#include <pb_encode.h>
 
 // the message type descriptor
 typedef struct {

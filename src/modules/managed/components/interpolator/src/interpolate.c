@@ -5,8 +5,8 @@
 #include "hal_priv.h"
 #include "hal_ring.h"
 
-#include <machinetalk/build/machinetalk/protobuf/ros.npb.h>
-#include <machinetalk/nanopb/pb_decode.h>
+#include <machinetalk/protobuf/ros.npb.h>
+#include <pb_decode.h>
 
 MODULE_AUTHOR("Michael Haberler");
 MODULE_DESCRIPTION("generic interpolator");
