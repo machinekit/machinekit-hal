@@ -23,3 +23,15 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_FLIPFLOP_MANAGED_MODULE "Built the FlipFlop HAL managed module."
+       TRUE)
+
+if(BUILD_FLIPFLOP_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(flipflop SOURCE src/flipflop.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(flipflop instcomp_executable)
+endif()

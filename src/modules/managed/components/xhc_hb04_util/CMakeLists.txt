@@ -23,3 +23,21 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_XHC_HB04_UTIL_MANAGED_MODULE
+       "Built the XHC HB04 Util HAL managed module." TRUE)
+
+if(BUILD_XHC_HB04_UTIL_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    xhc_hb04_util
+    SOURCE
+    src/xhc_hb04_util.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    LINK_LIBRARIES
+    runtime_math)
+
+  add_dependencies(xhc_hb04_util instcomp_executable)
+endif()

@@ -23,3 +23,20 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_TIME_MANAGED_MODULE "Built the Time HAL managed module." TRUE)
+
+if(BUILD_TIME_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    time
+    SOURCE
+    src/time.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    LINK_LIBRARIES
+    runtime_math)
+
+  add_dependencies(time instcomp_executable)
+endif()

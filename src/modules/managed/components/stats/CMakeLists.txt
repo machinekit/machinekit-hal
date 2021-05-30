@@ -23,3 +23,14 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_STATS_MANAGED_MODULE "Built the Stats HAL managed module." TRUE)
+
+if(BUILD_STATS_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(stats SOURCE src/stats.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(stats instcomp_executable)
+endif()

@@ -23,3 +23,15 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_FAILSTOP_MANAGED_MODULE "Built the Failstop HAL managed module."
+       TRUE)
+
+if(BUILD_FAILSTOP_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(failstop SOURCE src/failstop.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(failstop instcomp_executable)
+endif()

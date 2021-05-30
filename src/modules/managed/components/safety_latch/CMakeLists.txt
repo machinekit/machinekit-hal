@@ -23,3 +23,16 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_SAFETY_LATCH_MANAGED_MODULE
+       "Built the Safety Latch HAL managed module." TRUE)
+
+if(BUILD_SAFETY_LATCH_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    safety_latch SOURCE src/safety_latch.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(safety_latch instcomp_executable)
+endif()

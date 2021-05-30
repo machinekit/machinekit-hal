@@ -23,3 +23,15 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_ILOWPASS_MANAGED_MODULE "Built the ILowPass HAL managed module."
+       TRUE)
+
+if(BUILD_ILOWPASS_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(ilowpass SOURCE src/ilowpass.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(ilowpass instcomp_executable)
+endif()

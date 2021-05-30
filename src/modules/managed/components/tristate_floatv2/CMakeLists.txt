@@ -23,3 +23,16 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_TRISTATE_FLOATV2_MANAGED_MODULE
+       "Built the Tristate Float V2 HAL managed module." TRUE)
+
+if(BUILD_TRISTATE_FLOATV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    tristate_floatv2 SOURCE src/tristate_floatv2.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(tristate_floatv2 instcomp_executable)
+endif()

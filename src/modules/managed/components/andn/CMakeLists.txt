@@ -23,3 +23,15 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_ANDN_MANAGED_MODULE "Built the ANDN HAL managed module." TRUE)
+
+if(BUILD_ANDH_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    andn SOURCE src/andn.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(andn instcomp_executable)
+endif()

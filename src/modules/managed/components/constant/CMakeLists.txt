@@ -23,3 +23,15 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_CONSTANT_MANAGED_MODULE "Built the Constant HAL managed module."
+       TRUE)
+
+if(BUILD_CONSTANT_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(constant SOURCE src/constant.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(constant instcomp_executable)
+endif()

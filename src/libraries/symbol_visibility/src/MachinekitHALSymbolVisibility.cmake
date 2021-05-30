@@ -67,7 +67,7 @@ function(export_rtapi_symbols)
                         "${multiValues}" ${ARGN})
 
   set(linkerFileDirectory
-      "${CMAKE_CURRENT_BINARY_DIR}/linker/$<CONFIG>/${${prefix}_TARGET}")
+      "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/linker/${${prefix}_TARGET}")
   set(linkerFileMap "${linkerFileDirectory}/rtapi_export_symbols.map")
   set(linkerFileScript "${linkerFileDirectory}/rtapi_stripper.sh")
 

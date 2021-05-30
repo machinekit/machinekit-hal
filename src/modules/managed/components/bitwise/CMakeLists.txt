@@ -23,3 +23,15 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_BITWISE_MANAGED_MODULE "Built the Bitwise HAL managed module."
+       TRUE)
+
+if(BUILD_BITWISE_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(bitwise SOURCE src/bitwise.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(bitwise instcomp_executable)
+endif()

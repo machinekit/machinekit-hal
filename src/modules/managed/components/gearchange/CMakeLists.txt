@@ -23,3 +23,16 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_GEARCHANGE_MANAGED_MODULE
+       "Built the Gearchange HAL managed module." TRUE)
+
+if(BUILD_GEARCHANGE_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    gearchange SOURCE src/gearchange.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(gearchange instcomp_executable)
+endif()

@@ -23,3 +23,14 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_COMP_MANAGED_MODULE "Built the Comp HAL managed module." TRUE)
+
+if(BUILD_COMP_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(comp SOURCE src/comp.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(comp instcomp_executable)
+endif()

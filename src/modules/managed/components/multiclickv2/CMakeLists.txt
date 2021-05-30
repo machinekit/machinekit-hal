@@ -23,3 +23,16 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_MULTICLICKV2_MANAGED_MODULE
+       "Built the Multiclick V2 HAL managed module." TRUE)
+
+if(BUILD_MULTICLICKV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    multiclickv2 SOURCE src/multiclickv2.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(multiclickv2 instcomp_executable)
+endif()

@@ -23,3 +23,16 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_ESTOP_LATCHV2_MANAGED_MODULE
+       "Built the Estop Latch V2 HAL managed module." TRUE)
+
+if(BUILD_ESTOP_LATCHV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    estop_latchv2 SOURCE src/estop_latchv2.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(estop_latchv2 instcomp_executable)
+endif()

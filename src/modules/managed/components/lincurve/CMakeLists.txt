@@ -23,3 +23,15 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_LINCURVE_MANAGED_MODULE "Built the Lincurve HAL managed module."
+       TRUE)
+
+if(BUILD_LINCURVE_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(lincurve SOURCE src/lincurve.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(lincurve instcomp_executable)
+endif()

@@ -23,3 +23,15 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_STEPTEST_MANAGED_MODULE "Built the Steptest HAL managed module."
+       TRUE)
+
+if(BUILD_STEPTEST_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(steptest SOURCE src/steptest.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(steptest instcomp_executable)
+endif()

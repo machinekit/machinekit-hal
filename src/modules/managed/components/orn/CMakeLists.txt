@@ -23,3 +23,14 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_ORN_MANAGED_MODULE "Built the ORN HAL managed module." TRUE)
+
+if(BUILD_ORN_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(orn SOURCE src/orn.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(orn instcomp_executable)
+endif()

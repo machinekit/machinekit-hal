@@ -23,3 +23,14 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_SUM2_MANAGED_MODULE "Built the Sum2 HAL managed module." TRUE)
+
+if(BUILD_SUM2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(sum2 SOURCE src/sum2.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(sum2 instcomp_executable)
+endif()

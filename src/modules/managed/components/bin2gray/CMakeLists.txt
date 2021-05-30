@@ -23,3 +23,15 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_BIN2GRAY_MANAGED_MODULE "Built the Bin2Gray HAL managed module."
+       TRUE)
+
+if(BUILD_BIN2GRAY_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(bin2gray SOURCE src/bin2gray.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(bin2gray instcomp_executable)
+endif()

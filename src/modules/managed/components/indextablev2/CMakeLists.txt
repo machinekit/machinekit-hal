@@ -23,3 +23,16 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_INDEXTABLEV2_MANAGED_MODULE
+       "Built the IndexTable V2 HAL managed module." TRUE)
+
+if(BUILD_INDEXTABLEV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    indextablev2 SOURCE src/indextablev2.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(indextablev2 instcomp_executable)
+endif()

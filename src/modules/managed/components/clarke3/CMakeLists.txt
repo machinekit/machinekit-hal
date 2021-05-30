@@ -23,3 +23,15 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_CLARKE3_MANAGED_MODULE "Built the Clarke3 HAL managed module."
+       TRUE)
+
+if(BUILD_CLARKE3_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(clarke3 SOURCE src/clarke3.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(clarke3 instcomp_executable)
+endif()

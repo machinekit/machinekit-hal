@@ -23,3 +23,16 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_FEEDCOMPV2_MANAGED_MODULE
+       "Built the Feedcomp V2 HAL managed module." TRUE)
+
+if(BUILD_FEEDCOMPV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    feedcompv2 SOURCE src/feedcompv2.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(feedcompv2 instcomp_executable)
+endif()

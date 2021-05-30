@@ -23,3 +23,20 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_INVERT_MANAGED_MODULE "Built the Invert HAL managed module." TRUE)
+
+if(BUILD_INVERT_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    invert
+    SOURCE
+    src/invert.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    LINK_LIBRARIES
+    runtime_math)
+
+  add_dependencies(invert instcomp_executable)
+endif()

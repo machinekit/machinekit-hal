@@ -23,3 +23,15 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_MESSAGE_MANAGED_MODULE "Built the Message HAL managed module."
+       TRUE)
+
+if(BUILD_MESSAGE_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(message SOURCE src/message.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(message instcomp_executable)
+endif()

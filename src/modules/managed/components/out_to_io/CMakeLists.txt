@@ -23,3 +23,16 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_OUT_TO_IO_MANAGED_MODULE "Built the Out to IO HAL managed module."
+       TRUE)
+
+if(BUILD_OUT_TO_IO_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    out_to_io SOURCE src/out_to_io.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(out_to_io instcomp_executable)
+endif()

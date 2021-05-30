@@ -23,3 +23,15 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_MUXN_U32_MANAGED_MODULE "Built the MuxN U32 HAL managed module."
+       TRUE)
+
+if(BUILD_MUXN_U32_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(muxn_u32 SOURCE src/muxn_u32.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(muxn_u32 instcomp_executable)
+endif()

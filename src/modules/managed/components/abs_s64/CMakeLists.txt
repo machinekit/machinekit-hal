@@ -23,3 +23,16 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_ABS_S64_MANAGED_MODULE "Built the ABS S64 HAL managed module."
+       TRUE)
+
+if(BUILD_ABS_S64_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    abs_s64 SOURCE src/abs_s64.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(abs_s64 instcomp_executable)
+endif()

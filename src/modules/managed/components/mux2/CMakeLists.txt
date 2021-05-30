@@ -23,3 +23,14 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_MUX2_MANAGED_MODULE "Built the Mux2 HAL managed module." TRUE)
+
+if(BUILD_MUX2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(mux2 SOURCE src/mux2.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(mux2 instcomp_executable)
+endif()

@@ -23,3 +23,20 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_HYPOT_MANAGED_MODULE "Built the Hypot HAL managed module." TRUE)
+
+if(BUILD_HYPOT_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    hypot
+    SOURCE
+    src/hypot.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    LINK_LIBRARIES
+    runtime_math)
+
+  add_dependencies(hypot instcomp_executable)
+endif()

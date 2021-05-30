@@ -23,3 +23,15 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_AND2_MANAGED_MODULE "Built the AND2 HAL managed module." TRUE)
+
+if(BUILD_AND2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    and2 SOURCE src/and2.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(and2 instcomp_executable)
+endif()

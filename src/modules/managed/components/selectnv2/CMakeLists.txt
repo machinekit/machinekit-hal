@@ -23,3 +23,16 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_SELECTNV2_MANAGED_MODULE
+       "Built the SelectN V2 HAL managed module." TRUE)
+
+if(BUILD_SELECTNV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    selectnv2 SOURCE src/selectnv2.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(selectnv2 instcomp_executable)
+endif()

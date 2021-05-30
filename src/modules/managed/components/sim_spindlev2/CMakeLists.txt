@@ -23,3 +23,21 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_SIM_SPINDLEV2_MANAGED_MODULE
+       "Built the Sim Spindle V2 HAL managed module." TRUE)
+
+if(BUILD_SIM_SPINDLEV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    sim_spindlev2
+    SOURCE
+    src/sim_spindlev2.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    LINK_LIBRARIES
+    runtime_math)
+
+  add_dependencies(sim_spindlev2 instcomp_executable)
+endif()

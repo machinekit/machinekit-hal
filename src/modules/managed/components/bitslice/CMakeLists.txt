@@ -23,3 +23,15 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_BITSLICE_MANAGED_MODULE "Built the BitSlice HAL managed module."
+       TRUE)
+
+if(BUILD_BITSLICE_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(bitslice SOURCE src/bitslice.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(bitslice instcomp_executable)
+endif()

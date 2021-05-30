@@ -23,3 +23,21 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_JOYHANDLEV2_MANAGED_MODULE
+       "Built the JoyHandle V2 HAL managed module." TRUE)
+
+if(BUILD_JOYHANDLEV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    joyhandlev2
+    SOURCE
+    src/joyhandlev2.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    LINK_LIBRARIES
+    runtime_math)
+
+  add_dependencies(joyhandlev2 instcomp_executable)
+endif()

@@ -23,3 +23,14 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_EDGE_MANAGED_MODULE "Built the Edge HAL managed module." TRUE)
+
+if(BUILD_EDGE_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(edge SOURCE src/edge.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(edge instcomp_executable)
+endif()

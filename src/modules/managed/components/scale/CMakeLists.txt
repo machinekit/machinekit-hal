@@ -23,3 +23,14 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_SCALE_MANAGED_MODULE "Built the Scale HAL managed module." TRUE)
+
+if(BUILD_SCALE_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(scale SOURCE src/scale.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(scale instcomp_executable)
+endif()

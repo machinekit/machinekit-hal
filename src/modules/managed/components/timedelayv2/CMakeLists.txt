@@ -23,3 +23,16 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_TIMEDELAYV2_MANAGED_MODULE
+       "Built the Timedelay V2 HAL managed module." TRUE)
+
+if(BUILD_TIMEDELAYV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    timedelayv2 SOURCE src/timedelayv2.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(timedelayv2 instcomp_executable)
+endif()

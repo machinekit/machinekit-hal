@@ -23,3 +23,16 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_LATENCYBINSV2_MANAGED_MODULE
+       "Built the Latency Bins V2 HAL managed module." TRUE)
+
+if(BUILD_LATENCYBINSV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    latencybinsv2 SOURCE src/latencybinsv2.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(latencybinsv2 instcomp_executable)
+endif()

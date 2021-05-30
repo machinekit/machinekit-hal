@@ -23,3 +23,14 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_PIDV2_MANAGED_MODULE "Built the PID V2 HAL managed module." TRUE)
+
+if(BUILD_PIDV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(pidv2 SOURCE src/pidv2.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(pidv2 instcomp_executable)
+endif()

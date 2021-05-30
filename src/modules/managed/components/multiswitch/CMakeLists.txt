@@ -23,3 +23,16 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_MULTISWITCH_MANAGED_MODULE
+       "Built the Multiswitch HAL managed module." TRUE)
+
+if(BUILD_MULTISWITCH_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    multiswitch SOURCE src/multiswitch.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(multiswitch instcomp_executable)
+endif()

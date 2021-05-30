@@ -23,3 +23,15 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_OFFSETV2_MANAGED_MODULE "Built the Offet V2 HAL managed module."
+       TRUE)
+
+if(BUILD_OFFSETV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(offsetv2 SOURCE src/offsetv2.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(offsetv2 instcomp_executable)
+endif()

@@ -24,13 +24,14 @@
 # #####################################################################
 # ~~~
 
-option(BUILD_MAJ3_MANAGED_MODULE "Built the Maj3 HAL managed module." TRUE)
+option(BUILD_AND2V2_MANAGED_MODULE "Built the AND2 V2 HAL managed module." TRUE)
 
-if(BUILD_MAJ3_MANAGED_MODULE)
+if(BUILD_AND2V2_MANAGED_MODULE)
   include(MachinekitHALInstcomp)
 
-  add_instantiatable_module(maj3 SOURCE src/maj3.icomp OUTPUT_DIRECTORY
-                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+  add_instantiatable_module(
+    and2v2 SOURCE src/and2v2.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
 
-  add_dependencies(maj3 instcomp_executable)
+  add_dependencies(and2v2 instcomp_executable)
 endif()

@@ -23,3 +23,15 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_ONESHOT_MANAGED_MODULE "Built the Oneshot HAL managed module."
+       TRUE)
+
+if(BUILD_ONESHOT_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(oneshot SOURCE src/oneshot.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(oneshot instcomp_executable)
+endif()

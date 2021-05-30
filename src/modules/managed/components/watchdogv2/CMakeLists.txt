@@ -23,3 +23,16 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_WATCHDOGV2_MANAGED_MODULE
+       "Built the Watchdog V2 HAL managed module." TRUE)
+
+if(BUILD_WATCHDOGV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    watchdogv2 SOURCE src/watchdogv2.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(watchdogv2 instcomp_executable)
+endif()

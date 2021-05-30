@@ -23,3 +23,15 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_SELECTN_MANAGED_MODULE "Built the SelectN HAL managed module."
+       TRUE)
+
+if(BUILD_SELECTN_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(selectn SOURCE src/selectn.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(selectn instcomp_executable)
+endif()

@@ -23,3 +23,16 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_TOGGLE2NIST_MANAGED_MODULE
+       "Built the Toggle2Nist HAL managed module." TRUE)
+
+if(BUILD_TOGGLE2NIST_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    toggle2nist SOURCE src/toggle2nist.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(toggle2nist instcomp_executable)
+endif()

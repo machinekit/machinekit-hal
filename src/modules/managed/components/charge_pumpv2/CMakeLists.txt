@@ -23,3 +23,16 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_CHARGE_PUMPV2_MANAGED_MODULE
+       "Built the Charge Pump V2 HAL managed module." TRUE)
+
+if(BUILD_CHARGE_PUMPV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    charge_pumpv2 SOURCE src/charge_pumpv2.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(charge_pumpv2 instcomp_executable)
+endif()

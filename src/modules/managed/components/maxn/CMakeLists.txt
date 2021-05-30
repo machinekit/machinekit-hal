@@ -23,3 +23,20 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_MAXN_MANAGED_MODULE "Built the MaxN HAL managed module." TRUE)
+
+if(BUILD_MAXN_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    maxn
+    SOURCE
+    src/maxn.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    LINK_LIBRARIES
+    runtime_math)
+
+  add_dependencies(maxn instcomp_executable)
+endif()

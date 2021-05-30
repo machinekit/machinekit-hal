@@ -23,3 +23,15 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_WCOMPNV2_MANAGED_MODULE "Built the WCompN V2 HAL managed module."
+       TRUE)
+
+if(BUILD_WCOMPNV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(wcompnv2 SOURCE src/wcompnv2.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(wcompnv2 instcomp_executable)
+endif()

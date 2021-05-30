@@ -23,3 +23,16 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_SIM_AXIS_HARDWARE_MANAGED_MODULE
+       "Built the Sim AXIS hardware HAL managed module." TRUE)
+
+if(BUILD_SIM_AXIS_HARDWARE_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    sim_axis_hardware SOURCE src/sim_axis_hardware.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(sim_axis_hardware instcomp_executable)
+endif()

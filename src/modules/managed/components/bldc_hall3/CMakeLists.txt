@@ -23,3 +23,16 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_BLDC_HALL3_MANAGED_MODULE
+       "Built the BLDC HALL3 HAL managed module." TRUE)
+
+if(BUILD_BLDC_HALL3_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    bldc_hall3 SOURCE src/bldc_hall3.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(bldc_hall3 instcomp_executable)
+endif()

@@ -23,3 +23,14 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_MUXNV2_MANAGED_MODULE "Built the MuxN V2 HAL managed module." TRUE)
+
+if(BUILD_MUXNV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(muxnv2 SOURCE src/muxnv2.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(muxnv2 instcomp_executable)
+endif()

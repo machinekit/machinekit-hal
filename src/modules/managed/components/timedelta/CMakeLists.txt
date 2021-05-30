@@ -23,3 +23,16 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_TIMEDELTA_MANAGED_MODULE "Built the Timedelta HAL managed module."
+       TRUE)
+
+if(BUILD_TIMEDELTA_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    timedelta SOURCE src/timedelta.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(timedelta instcomp_executable)
+endif()

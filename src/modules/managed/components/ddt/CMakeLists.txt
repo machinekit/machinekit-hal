@@ -23,3 +23,14 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_DDT_MANAGED_MODULE "Built the Ddt HAL managed module." TRUE)
+
+if(BUILD_DDT_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(ddt SOURCE src/ddt.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(ddt instcomp_executable)
+endif()

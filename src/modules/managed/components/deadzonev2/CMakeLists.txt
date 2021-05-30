@@ -23,3 +23,16 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_DEADZONEV2_MANAGED_MODULE
+       "Built the Deadzone V2 HAL managed module." TRUE)
+
+if(BUILD_DEADZONEV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    deadzonev2 SOURCE src/deadzonev2.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(deadzonev2 instcomp_executable)
+endif()

@@ -23,3 +23,16 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_SAMPLE_HOLDV2_MANAGED_MODULE
+       "Built the Sample Hold V2 HAL managed module." TRUE)
+
+if(BUILD_SAMPLE_HOLDV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    sample_holdv2 SOURCE src/sample_holdv2.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(sample_holdv2 instcomp_executable)
+endif()

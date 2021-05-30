@@ -44,7 +44,7 @@ documentation = "https://machinekit.io"
 repository = "https://github.com/machinekit/machinekit-hal"
 
 [project.scripts]
-comp = "machinekit.hal.instcomp:cli"
+instcomp = "machinekit.hal.instcomp:cli"
 
 [tool]
 [tool.pdm]

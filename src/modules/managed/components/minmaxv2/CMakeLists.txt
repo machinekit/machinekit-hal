@@ -23,3 +23,15 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_MINMAXV2_MANAGED_MODULE "Built the MinMax V2 HAL managed module."
+       TRUE)
+
+if(BUILD_MINMAXV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(minmaxv2 SOURCE src/minmaxv2.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(minmaxv2 instcomp_executable)
+endif()

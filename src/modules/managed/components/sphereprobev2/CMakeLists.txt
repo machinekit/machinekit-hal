@@ -23,3 +23,16 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_SPHEREPROBEV2_MANAGED_MODULE
+       "Built the Sphereprobe V2 HAL managed module." TRUE)
+
+if(BUILD_SPHEREPROBEV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    sphereprobev2 SOURCE src/sphereprobev2.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(sphereprobev2 instcomp_executable)
+endif()

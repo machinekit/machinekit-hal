@@ -23,3 +23,21 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_LED_DIMV2_MANAGED_MODULE
+       "Built the Led Dim V2 HAL managed module." TRUE)
+
+if(BUILD_LED_DIMV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    led_dimv2
+    SOURCE
+    src/led_dimv2.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    LINK_LIBRARIES
+    runtime_math)
+
+  add_dependencies(led_dimv2 instcomp_executable)
+endif()

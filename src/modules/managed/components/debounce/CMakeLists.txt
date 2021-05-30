@@ -23,3 +23,15 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_DEBOUNCE_MANAGED_MODULE "Built the Debounce HAL managed module."
+       TRUE)
+
+if(BUILD_DEBOUNCE_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(debounce SOURCE src/debounce.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(debounce instcomp_executable)
+endif()

@@ -23,3 +23,14 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_RESETV2_MANAGED_MODULE "Built the Reset V2 HAL managed module." TRUE)
+
+if(BUILD_RESETV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(resetv2 SOURCE src/resetv2.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(resetv2 instcomp_executable)
+endif()

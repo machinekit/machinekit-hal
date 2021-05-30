@@ -1,9 +1,10 @@
 # ~~~
 # ####################################################################
-# Description:  CMakeLists.txt
+# Description:  MachinekitHALInstcompInterna.cmake.in
 #
-#               This file, 'CMakeLists.txt', implements build system
-#               rules for Machinekit-HAL project
+#               This file, 'MachinekitHALInstcompInternal.cmake.in',
+#               implements internal (BINARY tree) accessor to the
+#               CMake module MachinekitHALInstcomp
 #
 # Copyright (C) 2021    Jakub Fišer  <jakub DOT fiser AT eryaf DOT com>
 #
@@ -23,3 +24,6 @@
 #
 # #####################################################################
 # ~~~
+
+set(MACHINEKIT_HAL_INSTCOMP "@MACHINEKIT_HAL_INSTCOMP_INTERNAL@")
+include("@MACHINEKIT_HAL_INSTCOMP_CMAKE_MODULE@")

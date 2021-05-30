@@ -23,3 +23,16 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_TRISTATE_BITV2_MANAGED_MODULE
+       "Built the Tristate Bit V2 HAL managed module." TRUE)
+
+if(BUILD_TRISTATE_BITV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    tristate_bitv2 SOURCE src/tristate_bitv2.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(tristate_bitv2 instcomp_executable)
+endif()

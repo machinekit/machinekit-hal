@@ -23,3 +23,16 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_THREADTESTV2_MANAGED_MODULE
+       "Built the Threadtest V2 HAL managed module." TRUE)
+
+if(BUILD_THREADTESTV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    threadtestv2 SOURCE src/threadtestv2.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(threadtestv2 instcomp_executable)
+endif()

@@ -23,3 +23,16 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_SIM_PARPORTV2_MANAGED_MODULE
+       "Built the Sim Parport V2 HAL managed module." TRUE)
+
+if(BUILD_SIM_PARPORTV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    sim_parportv2 SOURCE src/sim_parportv2.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(sim_parportv2 instcomp_executable)
+endif()

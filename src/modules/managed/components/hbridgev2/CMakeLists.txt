@@ -23,3 +23,16 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_HBRIDGEV2_MANAGED_MODULE
+       "Built the HBridge V2 HAL managed module." TRUE)
+
+if(BUILD_HBRIDGEV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    hbridgev2 SOURCE src/hbridgev2.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(hbridgev2 instcomp_executable)
+endif()

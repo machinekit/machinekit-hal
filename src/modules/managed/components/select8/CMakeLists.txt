@@ -23,3 +23,14 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_SELECT8_MANAGED_MODULE "Built the Select8 HAL managed module." TRUE)
+
+if(BUILD_SELECT8_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(select8 SOURCE src/select8.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(select8 instcomp_executable)
+endif()

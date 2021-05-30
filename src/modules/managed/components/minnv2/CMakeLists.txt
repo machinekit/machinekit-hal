@@ -23,3 +23,20 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_MINNV2_MANAGED_MODULE "Built the MinN V2 HAL managed module." TRUE)
+
+if(BUILD_MINNV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    minnv2
+    SOURCE
+    src/minnv2.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    LINK_LIBRARIES
+    runtime_math)
+
+  add_dependencies(minnv2 instcomp_executable)
+endif()

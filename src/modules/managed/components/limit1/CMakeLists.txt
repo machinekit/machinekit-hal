@@ -23,3 +23,14 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_LIMIT1_MANAGED_MODULE "Built the Limit1 HAL managed module." TRUE)
+
+if(BUILD_LIMIT1_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(limit1 SOURCE src/limit1.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(limit1 instcomp_executable)
+endif()

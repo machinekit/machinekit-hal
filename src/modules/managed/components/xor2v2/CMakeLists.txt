@@ -23,3 +23,14 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_XOR2V2_MANAGED_MODULE "Built the XOR2 V2 HAL managed module." TRUE)
+
+if(BUILD_XOR2V2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(xor2v2 SOURCE src/xor2v2.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(xor2v2 instcomp_executable)
+endif()

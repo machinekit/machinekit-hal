@@ -23,3 +23,15 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_LOWPASS_MANAGED_MODULE "Built the LowPass HAL managed module."
+       TRUE)
+
+if(BUILD_LOWPASS_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(lowpass SOURCE src/lowpass.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(lowpass instcomp_executable)
+endif()

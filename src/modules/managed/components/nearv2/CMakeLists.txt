@@ -23,3 +23,20 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_NEARV2_MANAGED_MODULE "Built the Near V2 HAL managed module." TRUE)
+
+if(BUILD_NEARV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    nearv2
+    SOURCE
+    src/nearv2.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    LINK_LIBRARIES
+    runtime_math)
+
+  add_dependencies(nearv2 instcomp_executable)
+endif()

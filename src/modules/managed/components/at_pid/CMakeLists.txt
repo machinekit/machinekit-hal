@@ -23,3 +23,20 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_AT_PID_MANAGED_MODULE "Built the At PID HAL managed module." TRUE)
+
+if(BUILD_AT_PID_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    at_pid
+    SOURCE
+    src/at_pid.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    LINK_LIBRARIES
+    runtime_math)
+
+  add_dependencies(at_pid instcomp_executable)
+endif()

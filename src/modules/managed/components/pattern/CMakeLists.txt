@@ -23,3 +23,15 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_PATTERN_MANAGED_MODULE "Built the Pattern HAL managed module."
+       TRUE)
+
+if(BUILD_PATTERN_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(pattern SOURCE src/pattern.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(pattern instcomp_executable)
+endif()

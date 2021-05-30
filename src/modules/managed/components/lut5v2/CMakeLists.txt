@@ -23,3 +23,14 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_LUT5V2_MANAGED_MODULE "Built the LUT5 v2 HAL managed module." TRUE)
+
+if(BUILD_LUT5V2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(lut5v2 SOURCE src/lut5v2.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(lut5v2 instcomp_executable)
+endif()

@@ -25,6 +25,7 @@
 # ~~~
 
 if(BUILD_PYTHON_DISTRIBUTIONS)
+  find_package(Python COMPONENTS Interpreter)
   option(BUILD_INSTCOMP_EXECUTABLE
          "Built the Instcomp executable Python distribution." TRUE)
 
@@ -77,5 +78,39 @@ if(BUILD_PYTHON_DISTRIBUTIONS)
       COMMAND ${PYPROJECT_BUILD} -s -w -o ${OUTPUT_INDEX}
               ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}
       COMMENT "Building Python package ${DISTRIBUTION_NAME} via external tool")
+
+    set(MACHINEKIT_HAL_INSTCOMP_CMAKE_MODULE
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/MachinekitHALInstcomp.cmake")
+    set(MACHINEKIT_HAL_INSTCOMP_INTERNAL
+        "${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/src/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/${PACKAGE_NAME}/instcomp.py"
+    )
+
+    add_custom_target(
+      instcomp_executable ALL
+      COMMAND Python::Interpreter "-m" "venv"
+              "${CMAKE_CURRENT_BINARY_DIR}/venv_instcomp"
+      COMMAND
+        ${CMAKE_COMMAND} "-E" "env"
+        "${CMAKE_CURRENT_BINARY_DIR}/venv_instcomp/bin/pip" "install"
+        "${OUTPUT_INDEX}/*.whl"
+      COMMENT "Creating virtual environment for the 'instcomp' tool")
+
+    add_dependencies(instcomp_executable instcomp_distribution)
+
+    set(MACHINEKIT_HAL_INSTCOMP_CMAKE_MODULE
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/MachinekitHALInstcomp.cmake")
+    set(MACHINEKIT_HAL_INSTCOMP_INTERNAL
+        "${CMAKE_CURRENT_BINARY_DIR}/venv_instcomp/bin/instcomp"
+    )
+
+    configure_file(
+      src/MachinekitHALInstcompInternal.cmake.in
+      cmake_module/MachinekitHALInstcomp.cmake @ONLY
+      NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
+
+    set_property(
+      GLOBAL APPEND PROPERTY MACHINEKIT_HAL_MODULE_PATH
+                             "${CMAKE_CURRENT_BINARY_DIR}/cmake_module")
+
   endif()
 endif()

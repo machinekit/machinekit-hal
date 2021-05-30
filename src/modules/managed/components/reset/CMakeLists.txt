@@ -23,3 +23,14 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_RESET_MANAGED_MODULE "Built the Reset HAL managed module." TRUE)
+
+if(BUILD_RESET_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(reset SOURCE src/reset.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(reset instcomp_executable)
+endif()

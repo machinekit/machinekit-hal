@@ -23,3 +23,14 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_MULT2_MANAGED_MODULE "Built the Mult2 HAL managed module." TRUE)
+
+if(BUILD_MULT2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(mult2 SOURCE src/mult2.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(mult2 instcomp_executable)
+endif()

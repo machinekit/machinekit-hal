@@ -23,3 +23,15 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_LGANTRY_MANAGED_MODULE "Built the L Gantry HAL managed module."
+       TRUE)
+
+if(BUILD_LGANTRY_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(lgantry SOURCE src/lgantry.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(lgantry instcomp_executable)
+endif()

@@ -23,3 +23,21 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_CLARKEINVV2_MANAGED_MODULE
+       "Built the ClarkeInv V2 HAL managed module." TRUE)
+
+if(BUILD_CLARKEINVV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    clarkeinvv2
+    SOURCE
+    src/clarkeinvv2.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    LINK_LIBRARIES
+    runtime_math)
+
+  add_dependencies(clarkeinvv2 instcomp_executable)
+endif()

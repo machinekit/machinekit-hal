@@ -23,3 +23,21 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_SIM_SPINDLE_MANAGED_MODULE
+       "Built the Sim Spindle HAL managed module." TRUE)
+
+if(BUILD_SIM_SPINDLE_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    sim_spindle
+    SOURCE
+    src/sim_spindle.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    LINK_LIBRARIES
+    runtime_math)
+
+  add_dependencies(sim_spindle instcomp_executable)
+endif()

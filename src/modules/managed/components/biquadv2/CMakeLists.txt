@@ -23,3 +23,21 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_BIQUADV2_MANAGED_MODULE "Built the Biquad V2 HAL managed module."
+       TRUE)
+
+if(BUILD_BIQUAD_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    biquadv2
+    SOURCE
+    src/biquadv2.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    LINK_LIBRARIES
+    runtime_math)
+
+  add_dependencies(biquadv2 instcomp_executable)
+endif()

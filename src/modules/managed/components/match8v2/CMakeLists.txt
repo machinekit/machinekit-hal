@@ -23,3 +23,15 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_MATCH8V2_MANAGED_MODULE "Built the Match8 V2 HAL managed module."
+       TRUE)
+
+if(BUILD_MATCH8V2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(match8v2 SOURCE src/match8v2.icomp OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(match8v2 instcomp_executable)
+endif()

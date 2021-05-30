@@ -23,3 +23,16 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_WEIGHTED_SUMV2_MANAGED_MODULE
+       "Built the Weighted Sum V2 HAL managed module." TRUE)
+
+if(BUILD_WEIGHTED_SUMV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    weighted_sumv2 SOURCE src/weighted_sumv2.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(weighted_sumv2 instcomp_executable)
+endif()

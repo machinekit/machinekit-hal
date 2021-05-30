@@ -23,3 +23,16 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_KNOB2FLOAT_MANAGED_MODULE
+       "Built the Knob2Float HAL managed module." TRUE)
+
+if(BUILD_KNOB2FLOAT_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    knob2float SOURCE src/knob2float.icomp OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  add_dependencies(knob2float instcomp_executable)
+endif()

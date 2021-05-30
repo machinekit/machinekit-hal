@@ -23,3 +23,21 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_HYPOTV2_MANAGED_MODULE "Built the Hypot V2 HAL managed module."
+       TRUE)
+
+if(BUILD_HYPOTV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    hypotv2
+    SOURCE
+    src/hypotv2.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    LINK_LIBRARIES
+    runtime_math)
+
+  add_dependencies(hypotv2 instcomp_executable)
+endif()

@@ -23,3 +23,10 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_THREADTEST_MANAGED_MODULE
+       "Built the Threadtest HAL managed module." TRUE)
+
+if(BUILD_THREADTEST_MANAGED_MODULE)
+
+endif()

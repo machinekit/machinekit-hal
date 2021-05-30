@@ -23,3 +23,21 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_INVERTV2_MANAGED_MODULE "Built the Invert V2 HAL managed module."
+       TRUE)
+
+if(BUILD_INVERTV2_MANAGED_MODULE)
+  include(MachinekitHALInstcomp)
+
+  add_instantiatable_module(
+    invertv2
+    SOURCE
+    src/invertv2.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    LINK_LIBRARIES
+    runtime_math)
+
+  add_dependencies(invertv2 instcomp_executable)
+endif()
