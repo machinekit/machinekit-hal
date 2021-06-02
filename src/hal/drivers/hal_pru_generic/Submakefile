@@ -6,6 +6,8 @@ PRUBINDIR := ../rtlib/prubin
 SUPPORT_DIR := hal/support
 PRU_SRC_DIR := hal/drivers/hal_pru_generic
 PRU_MAINS   := pru_generic pru_decamux pru_generic_bbai pru_generic_bbai_direct_io_only pru_generic_direct_io_only
+GEN_EMPTY_RESOURCE_TABLE := objects/generate_empty_resource_table
+EMPTY_RESOURCE_TABLE := objects/empty_resource_table
 
 # Assembly of PRU code
 # the list of assembly source files
@@ -25,7 +27,6 @@ PASM_BINFLAGS := -b -L -d
 
 $(PRUBINDIR)/%.bin $(PRUBINDIR)/%.dbg: $(PASM)
 
-
 PRU_DEPS := $(patsubst %,objects/%,$(patsubst %,$(PRU_SRC_DIR)/%.d,$(PRU_MAINS)))
 PRU_OBJS := $(patsubst %,objects/%,$(patsubst %,$(PRU_SRC_DIR)/%.bin,$(PRU_MAINS)))
 PRU_DBGS := $(patsubst %,objects/%,$(patsubst %,$(PRU_SRC_DIR)/%.dbg,$(PRU_MAINS)))
@@ -35,7 +36,14 @@ $(PRU_DEPS): objects/%.d : %.p
 	$(ECHO) generate PRU dependency $@ from $<
 	$(Q)cpp -x c -MM -MG -MT objects/$(patsubst %.p,%.bin,$<) -o $@ $<
 
-objects/%.bin objects/%.dbg : %.p objects/%.d $(PASM)
+$(GEN_EMPTY_RESOURCE_TABLE): $(PRU_SRC_DIR)/generate_empty_resource_table.c
+	$(Q)$(CC) $(PRU_SRC_DIR)/generate_empty_resource_table.c -o $(GEN_EMPTY_RESOURCE_TABLE)
+
+$(EMPTY_RESOURCE_TABLE): $(GEN_EMPTY_RESOURCE_TABLE)
+	$(GEN_EMPTY_RESOURCE_TABLE) $(EMPTY_RESOURCE_TABLE)
+
+
+objects/%.bin objects/%.dbg : %.p objects/%.d $(PASM) $(EMPTY_RESOURCE_TABLE)
 	$(Q)mkdir -p $(PRUBINDIR)
 	$(ECHO) Assembling PRU code $@
 	$(Q)$(PASM) $(PASM_BINFLAGS) $< $(basename $@)
@@ -44,7 +52,7 @@ $(PRU_BIN): $(PRUBINDIR)/%.bin : objects/$(PRU_SRC_DIR)/%.bin
 	cp -f $^ $@
 	$(Q)mkdir -p $(RTLIBDIR)
 	ln -sf ../prubin/$(notdir $@) $(RTLIBDIR)/$(notdir $@)
-	$(OBJCOPY) -I binary -O elf32-little --rename-section .data=.text --add-section .resource_table=hal/drivers/hal_pru_generic/rsct.bin $@ $@.tmp
+	$(OBJCOPY) -I binary -O elf32-little --rename-section .data=.text --add-section .resource_table=$(EMPTY_RESOURCE_TABLE) $@ $@.tmp
 	$(OBJCOPY) -I elf32-little --set-section-flags .text=code,alloc,load $@.tmp
 	$(LD) -n --accept-unknown-input-arch $@.tmp -T hal/drivers/hal_pru_generic/linker.txt -o $@.elf
 
