@@ -37,10 +37,10 @@ $(PRU_DEPS): objects/%.d : %.p
 	$(Q)cpp -x c -MM -MG -MT objects/$(patsubst %.p,%.bin,$<) -o $@ $<
 
 $(GEN_EMPTY_RESOURCE_TABLE): $(PRU_SRC_DIR)/generate_empty_resource_table.c
-	$(Q)$(CC) $(PRU_SRC_DIR)/generate_empty_resource_table.c -o $(GEN_EMPTY_RESOURCE_TABLE)
+	$(Q)$(CC_FOR_BUILD) $(PRU_SRC_DIR)/generate_empty_resource_table.c -o $(GEN_EMPTY_RESOURCE_TABLE)
 
 $(EMPTY_RESOURCE_TABLE): $(GEN_EMPTY_RESOURCE_TABLE)
-	$(GEN_EMPTY_RESOURCE_TABLE) $(EMPTY_RESOURCE_TABLE)
+	$(Q)$(GEN_EMPTY_RESOURCE_TABLE) $(EMPTY_RESOURCE_TABLE)
 
 
 objects/%.bin objects/%.dbg : %.p objects/%.d $(PASM) $(EMPTY_RESOURCE_TABLE)
