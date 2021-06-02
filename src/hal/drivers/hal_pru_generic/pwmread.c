@@ -134,7 +134,6 @@ int hpg_pwmread_init(hal_pru_generic_t *hpg){
     if (hpg->config.num_pwmreads <= 0)
         return 0;
 
-rtapi_print("hpg_pwmread_init\n");
     hpg->pwmread.num_instances = hpg->config.num_pwmreads;
     hpg->pwmread.instance = (hpg_pwmread_instance_t *)hal_malloc(sizeof(hpg_pwmread_instance_t)*hpg->pwmread.num_instances);
     if(hpg->pwmread.instance == 0) {
