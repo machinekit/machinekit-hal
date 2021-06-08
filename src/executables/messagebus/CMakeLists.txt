@@ -50,5 +50,5 @@ if(BUILD_MESSAGEBUS)
             syslog_async
             PkgConfig::UUID)
 
-  target_compile_definitions(messagebus PRIVATE "")
+  target_compile_definitions(messagebus PRIVATE "PB_FIELD_32BIT")
 endif()

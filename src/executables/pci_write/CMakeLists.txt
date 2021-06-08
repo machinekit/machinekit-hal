@@ -24,21 +24,25 @@
 # #####################################################################
 # ~~~
 
-option(BUILD_PCI_WRITE_EXECUTABLE "Built the PCI write executable." TRUE)
+if(NOT DEFINED SYS_IO_AVAILABLE)
+  check_include_files("sys/io.h" SYS_IO_AVAILABLE)
+endif()
 
-if(BUILD_PCI_WRITE_EXECUTABLE)
-  # if(PCI)
-  add_executable(pci_write)
+if(SYS_IO_AVAILABLE)
+  option(BUILD_PCI_WRITE_EXECUTABLE "Built the PCI write executable." TRUE)
 
-  set(SOURCE_FILES src/pci_write.c)
+  if(BUILD_PCI_WRITE_EXECUTABLE)
+    add_executable(pci_write)
 
-  target_sources(pci_write PRIVATE ${SOURCE_FILES})
+    set(SOURCE_FILES src/pci_write.c)
 
-  target_link_libraries(pci_write PRIVATE upci)
+    target_sources(pci_write PRIVATE ${SOURCE_FILES})
 
-  set_target_properties(
-    pci_write
-    PROPERTIES RUNTIME_OUTPUT_DIRECTORY
-               "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY}")
-  # endif()
+    target_link_libraries(pci_write PRIVATE upci)
+
+    set_target_properties(
+      pci_write
+      PROPERTIES RUNTIME_OUTPUT_DIRECTORY
+                 "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY}")
+  endif()
 endif()

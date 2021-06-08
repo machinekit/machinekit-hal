@@ -23,3 +23,42 @@
 #
 # #####################################################################
 # ~~~
+
+if(NOT DEFINED SYS_IO_AVAILABLE)
+  if(NOT DEFINED check_include_files)
+    include(CheckIncludeFiles)
+  endif()
+
+  check_include_files("sys/io.h" SYS_IO_AVAILABLE)
+endif()
+
+if(SYS_IO_AVAILABLE)
+  option(BUILD_PCI_8255_MANAGED_DRIVER_MODULE
+         "Built the PCI 8255 HAL managed driver module." TRUE)
+
+  if(BUILD_PCI_8255_MANAGED_DRIVER_MODULE)
+    include(MachinekitHALSymbolVisibility)
+
+    add_library(pci_8255 MODULE)
+
+    set(SOURCE_FILES src/pci_8255.c)
+
+    target_sources(pci_8255 PRIVATE ${SOURCE_FILES})
+
+    target_link_libraries(pci_8255 PRIVATE hal_api runtime_api)
+
+    export_rtapi_symbols(TARGET pci_8255)
+
+    target_compile_definitions(pci_8255 PRIVATE "RTAPI")
+
+    set_target_properties(
+      pci_8255
+      PROPERTIES PREFIX "mod"
+                 LIBRARY_OUTPUT_DIRECTORY
+                 "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+    install(TARGETS pci_8255
+            LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+                    COMPONENT MachinekitHAL_Managed_Driver_Module_PCI_8255)
+  endif()
+endif()

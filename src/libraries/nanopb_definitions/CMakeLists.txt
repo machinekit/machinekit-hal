@@ -39,7 +39,7 @@ if(BUILD_NANOPB_DEFINITIONS_LIBRARY)
   target_link_libraries(nanopb_definitions PRIVATE nanopb_interface runtime_api
                                                    machinetalk)
 
-  target_compile_definitions(nanopb_definitions PRIVATE "RTAPI")
+  target_compile_definitions(nanopb_definitions PRIVATE "RTAPI" "PB_FIELD_32BIT")
 
   set_target_properties(
     nanopb_definitions

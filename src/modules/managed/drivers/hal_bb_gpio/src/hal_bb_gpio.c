@@ -11,7 +11,6 @@
 
 #include "rtapi.h"		
 #include "rtapi_app.h"	
-#include "config.h"             // TARGET_PLATFORM_BEAGLEBONE
 
 #include "hal.h"	
 
@@ -23,10 +22,6 @@
 #include <unistd.h>
 
 #include "beaglebone_gpio.h"
-
-#if !defined(TARGET_PLATFORM_BEAGLEBONE)
-#error "This driver is for the BeagleBone platform only"
-#endif
 
 #define MODNAME "hal_bb_gpio"
 

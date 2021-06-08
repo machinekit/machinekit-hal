@@ -118,6 +118,9 @@ if(BUILD_PROTO_LIBRARY)
     PROTOS
     ${SOURCE_PROTO_FILES})
 
+  target_compile_definitions(machinetalk_proto_c PRIVATE "PB_FIELD_32BIT")
+  target_compile_definitions(machinetalk_proto_cc PRIVATE "PB_FIELD_32BIT")
+
   set_target_properties(
     machinetalk_proto_c
     PROPERTIES SOVERSION 0

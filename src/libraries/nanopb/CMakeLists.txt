@@ -25,7 +25,7 @@
 # ~~~
 
 set(NANOPB_UPSTREAM_REPOSITORY
-    "https://github.com/nanopb/nanopb.git"
+    "https://github.com/cerna/nanopb.git"
     CACHE STRING "Git address of upstream Nanopb repository.")
 set(NANOPB_CHECKOUT_REF
     "master"

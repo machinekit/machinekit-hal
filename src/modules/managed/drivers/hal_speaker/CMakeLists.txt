@@ -23,3 +23,42 @@
 #
 # #####################################################################
 # ~~~
+
+if(NOT DEFINED SYS_IO_AVAILABLE)
+  if(NOT DEFINED check_include_files)
+    include(CheckIncludeFiles)
+  endif()
+
+  check_include_files("sys/io.h" SYS_IO_AVAILABLE)
+endif()
+
+if(SYS_IO_AVAILABLE)
+  option(BUILD_HAL_SPEAKER_MANAGED_DRIVER_MODULE
+         "Built the Speaker HAL managed driver module." TRUE)
+
+  if(BUILD_HAL_SPEAKER_MANAGED_DRIVER_MODULE)
+    include(MachinekitHALSymbolVisibility)
+
+    add_library(hal_speaker MODULE)
+
+    set(SOURCE_FILES src/hal_speaker.c)
+
+    target_sources(hal_speaker PRIVATE ${SOURCE_FILES})
+
+    target_link_libraries(hal_speaker PRIVATE hal_api runtime_api)
+
+    export_rtapi_symbols(TARGET hal_speaker)
+
+    target_compile_definitions(hal_speaker PRIVATE "RTAPI")
+
+    set_target_properties(
+      hal_speaker
+      PROPERTIES PREFIX "mod"
+                 LIBRARY_OUTPUT_DIRECTORY
+                 "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+    install(TARGETS hal_speaker
+            LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+                    COMPONENT MachinekitHAL_Managed_Driver_Module_HAL_Speaker)
+  endif()
+endif()

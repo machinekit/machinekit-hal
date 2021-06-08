@@ -39,6 +39,4 @@ if(BUILD_UNIONREAD_EXECUTABLE)
   target_link_libraries(unionread PRIVATE protobuf-nanopb-static machinetalk)
 
   target_compile_definitions(unionread PRIVATE "PB_FIELD_32BIT")
-
-  target_compile_options(unionread PRIVATE "-O3")
 endif()

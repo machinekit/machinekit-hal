@@ -37,4 +37,6 @@ if(BUILD_ENCDEC_EXECUTABLE)
 
   target_link_libraries(encdec PRIVATE protobuf machinetalk
                                        machinetalk_proto_cc)
+
+  target_compile_definitions(encdec PRIVATE "PB_FIELD_32BIT")
 endif()

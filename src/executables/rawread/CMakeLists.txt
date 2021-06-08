@@ -36,6 +36,4 @@ if(BUILD_RAWREAD_EXECUTABLE)
   target_link_libraries(rawread PRIVATE machinetalk protobuf-nanopb-static)
 
   target_compile_definitions(rawread PRIVATE "PB_FIELD_32BIT")
-
-  target_compile_options(rawread PRIVATE "-O0")
 endif()

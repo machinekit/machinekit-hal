@@ -23,3 +23,36 @@
 #
 # #####################################################################
 # ~~~
+
+# Full of errors, will need deeper thought
+#[[
+option(BUILD_HAL_GM_MANAGED_DRIVER_MODULE
+       "Built the GM HAL managed driver module." TRUE)
+
+if(BUILD_HAL_GM_MANAGED_DRIVER_MODULE)
+  include(MachinekitHALSymbolVisibility)
+
+  add_library(hal_gm MODULE)
+
+  set(SOURCE_FILES src/hal_gm.c)
+
+  set(PRIVATE_HEADER_FILES src/gm.h)
+
+  target_sources(hal_gm PRIVATE ${SOURCE_FILES} ${PRIVATE_HEADER_FILES})
+
+  target_link_libraries(hal_gm PRIVATE hal_api runtime_api runtime_math)
+
+  export_rtapi_symbols(TARGET hal_gm)
+
+  target_compile_definitions(hal_gm PRIVATE "RTAPI")
+
+  set_target_properties(
+    hal_gm
+    PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(TARGETS hal_gm
+          LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+                  COMPONENT MachinekitHAL_Managed_Driver_Module_HAL_GM)
+endif()
+]]

@@ -31,13 +31,13 @@ set(RTAPI_STRIPPER_SCRIPT
     [=[
 #!/bin/env bash
 
-readarray -td\\\; a <<<"$<TARGET_OBJECTS:@PERTINENT_TARGET@>"
+readarray -td\\\\; a <<<"$<TARGET_OBJECTS:@PERTINENT_TARGET@>"
 
 GLOBAL_SYMBOLS=""
 
 for i in ${a[@]}
 do
-    SYMS="$(objcopy -j .rtapi_export -O binary ${i} /dev/stdout | tr -s '\0' | xargs -r0 printf '%s\\;\n' | grep .)"
+    SYMS="$(@OBJ_COPY@ -j .rtapi_export -O binary ${i} /dev/stdout | tr -s '\0' | xargs -r0 printf '%s\\\;\n' | grep .)"
     GLOBAL_SYMBOLS+="$SYMS"
 done
 
@@ -52,8 +52,8 @@ fi
 
 MAP=$(printf "%b\n" \
     "{ $GLOBAL_MAP" \
-    "local : * \\;" \
-    "}\\;")
+    "local : * \\\;" \
+    "}\\\;")
 
 echo "$MAP" >@OUTPUT_FILE@
 ]=])
@@ -74,6 +74,8 @@ function(export_rtapi_symbols)
   string(REPLACE "@PERTINENT_TARGET@" "${${prefix}_TARGET}"
                  target_stripper_script ${RTAPI_STRIPPER_SCRIPT})
   string(REPLACE "@OUTPUT_FILE@" "${linkerFileMap}" target_stripper_script
+                 ${target_stripper_script})
+  string(REPLACE "@OBJ_COPY@" "${CMAKE_OBJCOPY}" target_stripper_script
                  ${target_stripper_script})
 
   file(REMOVE_RECURSE "${linkerFileDirectory}")

@@ -17,15 +17,6 @@
 #ifndef RTAPI_APP_H
 #define RTAPI_APP_H
 
-/*
-  for Linux kernel modules, exactly one file needs to
-  include <linux/module.h>. We put this in this header.
-  If we ever support non-Linux platforms, this file will
-  get full of ifdefs.
-*/
-
-#include "user_pci/module.h"
-
 /*  Turn the first instance of rtapi_app_* into a function declaration, then
     export the symbol, then re-create the function definition.  This way the
     symbol is only exported if the function exists in the code, and we don't

@@ -24,12 +24,14 @@
 # #####################################################################
 # ~~~
 
-option(BUILD_PPIOCTL_EXECUTABLE "Built the PPIOCtl executable." TRUE)
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "^x86.*")
+  option(BUILD_PPIOCTL_EXECUTABLE "Built the PPIOCtl executable." TRUE)
 
-if(BUILD_PPIOCTL_EXECUTABLE)
-  add_executable(ppioctl)
+  if(BUILD_PPIOCTL_EXECUTABLE)
+    add_executable(ppioctl)
 
-  set(SOURCE_FILES src/ppioctl.c)
+    set(SOURCE_FILES src/ppioctl.c)
 
-  target_sources(ppioctl PRIVATE ${SOURCE_FILES})
+    target_sources(ppioctl PRIVATE ${SOURCE_FILES})
+  endif()
 endif()

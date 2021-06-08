@@ -23,3 +23,5 @@
 #
 # #####################################################################
 # ~~~
+
+# target_compile_definitions(rtprintf PRIVATE "PB_FIELD_32BIT")

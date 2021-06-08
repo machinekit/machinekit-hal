@@ -24,21 +24,25 @@
 # #####################################################################
 # ~~~
 
-# if(PCI)
-option(BUILD_PCI_READ_EXECUTABLE "Built the PCI read executable." TRUE)
+if(NOT DEFINED SYS_IO_AVAILABLE)
+  check_include_files("sys/io.h" SYS_IO_AVAILABLE)
+endif()
 
-if(BUILD_PCI_READ_EXECUTABLE)
-  add_executable(pci_read)
+if(SYS_IO_AVAILABLE)
+  option(BUILD_PCI_READ_EXECUTABLE "Built the PCI read executable." TRUE)
 
-  set(SOURCE_FILES src/pci_read.c)
+  if(BUILD_PCI_READ_EXECUTABLE)
+    add_executable(pci_read)
 
-  target_sources(pci_read PRIVATE ${SOURCE_FILES})
+    set(SOURCE_FILES src/pci_read.c)
 
-  target_link_libraries(pci_read PRIVATE upci)
+    target_sources(pci_read PRIVATE ${SOURCE_FILES})
 
-  set_target_properties(
-    pci_read
-    PROPERTIES RUNTIME_OUTPUT_DIRECTORY
-               "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY}")
-  # endif()
+    target_link_libraries(pci_read PRIVATE upci)
+
+    set_target_properties(
+      pci_read
+      PROPERTIES RUNTIME_OUTPUT_DIRECTORY
+                 "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY}")
+  endif()
 endif()

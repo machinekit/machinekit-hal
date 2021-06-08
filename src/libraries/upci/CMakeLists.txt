@@ -24,23 +24,29 @@
 # #####################################################################
 # ~~~
 
-option(BUILD_UPCI_LIBRARY "Built the UPCI library." TRUE)
+if(NOT DEFINED SYS_IO_AVAILABLE)
+  check_include_files("sys/io.h" SYS_IO_AVAILABLE)
+endif()
 
-if(BUILD_UPCI_LIBRARY)
-  add_library(upci STATIC)
+if(SYS_IO_AVAILABLE)
+  option(BUILD_UPCI_LIBRARY "Built the UPCI library." TRUE)
 
-  set(SOURCE_FILES src/upci.c src/bitfile.c)
+  if(BUILD_UPCI_LIBRARY)
+    add_library(upci STATIC)
 
-  target_sources(upci PRIVATE ${SOURCE_FILES})
+    set(SOURCE_FILES src/upci.c src/bitfile.c)
 
-  target_include_directories(
-    upci PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+    target_sources(upci PRIVATE ${SOURCE_FILES})
 
-  install(
-    TARGETS upci
-    EXPORT machinekit_hal
-    ARCHIVE DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
-            COMPONENT MachinekitHAL_Library_Development
-    PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
-                  COMPONENT MachinekitHAL_Library_Development)
+    target_include_directories(
+      upci PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+
+    install(
+      TARGETS upci
+      EXPORT machinekit_hal
+      ARCHIVE DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
+              COMPONENT MachinekitHAL_Library_Development
+      PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
+                    COMPONENT MachinekitHAL_Library_Development)
+  endif()
 endif()

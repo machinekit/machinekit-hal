@@ -59,6 +59,8 @@ if(BUILD_MACHINETALK_LIBRARY)
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
            $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
+  target_compile_definitions(machinetalk PRIVATE "PB_FIELD_32BIT")
+
   set_target_properties(
     machinetalk
     PROPERTIES SOVERSION 0

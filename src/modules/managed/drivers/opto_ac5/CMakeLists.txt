@@ -23,3 +23,36 @@
 #
 # #####################################################################
 # ~~~
+
+# Full of errors, will need deeper thought
+#[[
+option(BUILD_OPTO_AC5_MANAGED_DRIVER_MODULE
+       "Built the Opto AC5 HAL managed driver module." TRUE)
+
+if(BUILD_OPTO_AC5_MANAGED_DRIVER_MODULE)
+  include(MachinekitHALSymbolVisibility)
+
+  add_library(opto_ac5 MODULE)
+
+  set(SOURCE_FILES src/opto_ac5.c)
+
+  set(PRIVATE_HEADER_FILES src/opto_ac5.h)
+
+  target_sources(opto_ac5 PRIVATE ${SOURCE_FILES} ${PRIVATE_HEADER_FILES})
+
+  target_link_libraries(opto_ac5 PRIVATE hal_api runtime_api)
+
+  export_rtapi_symbols(TARGET opto_ac5)
+
+  target_compile_definitions(opto_ac5 PRIVATE "RTAPI")
+
+  set_target_properties(
+    opto_ac5
+    PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(TARGETS opto_ac5
+          LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+                  COMPONENT MachinekitHAL_Managed_Driver_Module_Opto_AC5)
+endif()
+]]

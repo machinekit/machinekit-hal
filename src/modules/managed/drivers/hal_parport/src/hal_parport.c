@@ -203,13 +203,14 @@ int rtapi_app_main(void)
     int n, retval;
 
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0) &&0//FIXME
+/*#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0) &&0//FIXME
     // this calculation fits in a 32-bit unsigned
     // as long as CPUs are under about 6GHz
     ns2tsc_factor = (cpu_khz << 6) / 15625ul;
-#else
+    cpu_khz is available in the kernel, it's harder to get it in userspace
+#else*/
     ns2tsc_factor = 1ll<<12;
-#endif
+//#endif
 
     /* test for config string */
     if (cfg == 0) {

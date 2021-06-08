@@ -24,19 +24,30 @@
 # #####################################################################
 # ~~~
 
-add_library(rtapi_pci INTERFACE)
+if(NOT DEFINED SYS_IO_AVAILABLE)
+  check_include_files("sys/io.h" SYS_IO_AVAILABLE)
+endif()
 
-target_sources(rtapi_pci INTERFACE src/rtapi_pci.c)
+if(SYS_IO_AVAILABLE)
+  option(BUILD_RTAPI_PCI_LIBRARY "Built the RTAPI PCI libraries." TRUE)
 
-target_include_directories(
-  rtapi_pci
-  INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-            $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
+  if(BUILD_RTAPI_PCI_LIBRARY)
+    add_library(rtapi_pci INTERFACE)
 
-set_target_properties(rtapi_pci PROPERTIES PUBLIC_HEADER include/rtapi_pci.h)
+    target_sources(rtapi_pci INTERFACE src/rtapi_pci.c)
 
-install(
-  TARGETS rtapi_pci
-  EXPORT machinekit_hal
-  PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
-                COMPONENT MachinekitHAL_Library_Development)
+    target_include_directories(
+      rtapi_pci
+      INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
+
+    set_target_properties(rtapi_pci PROPERTIES PUBLIC_HEADER
+                                               include/rtapi_pci.h)
+
+    install(
+      TARGETS rtapi_pci
+      EXPORT machinekit_hal
+      PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
+                    COMPONENT MachinekitHAL_Library_Development)
+  endif()
+endif()

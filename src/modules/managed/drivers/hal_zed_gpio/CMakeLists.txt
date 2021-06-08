@@ -23,3 +23,34 @@
 #
 # #####################################################################
 # ~~~
+
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "armhf")
+  option(BUILD_HAL_ZED_GPIO_MANAGED_DRIVER_MODULE
+         "Built the Zed GPIO HAL managed driver module." TRUE)
+
+  if(BUILD_HAL_ZED_GPIO_MANAGED_DRIVER_MODULE)
+    include(MachinekitHALSymbolVisibility)
+
+    add_library(hal_zed_gpio MODULE)
+
+    set(SOURCE_FILES src/hal_zed_gpio.c)
+
+    target_sources(hal_zed_gpio PRIVATE ${SOURCE_FILES})
+
+    target_link_libraries(hal_zed_gpio PRIVATE hal_api runtime_api)
+
+    export_rtapi_symbols(TARGET hal_zed_gpio)
+
+    target_compile_definitions(hal_zed_gpio PRIVATE "RTAPI")
+
+    set_target_properties(
+      hal_zed_gpio
+      PROPERTIES PREFIX "mod"
+                 LIBRARY_OUTPUT_DIRECTORY
+                 "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+    install(TARGETS hal_zed_gpio
+            LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+                    COMPONENT MachinekitHAL_Managed_Driver_Module_HAL_Zed_GPIO)
+  endif()
+endif()

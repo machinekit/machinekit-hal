@@ -49,7 +49,6 @@
 #include "rtapi_app.h"
 #include "rtapi_string.h"
 #include "hal.h"
-#include "config.h"             // TARGET_PLATFORM_BEAGLEBONE
 
 #include <fcntl.h>
 #include <sys/mman.h>
@@ -58,12 +57,6 @@
 #include <stdbool.h>
 
 #include "hal_arm335xQEP.h"
-
-
-/* this probably should be an ARM335x define */
-#if !defined(TARGET_PLATFORM_BEAGLEBONE)
-#error "This driver is for the beaglebone platform only"
-#endif
 
 /* Module information */
 #define MODNAME "hal_arm335xQEP"

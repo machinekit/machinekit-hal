@@ -23,3 +23,44 @@
 #
 # #####################################################################
 # ~~~
+
+if(NOT DEFINED SYS_IO_AVAILABLE)
+  if(NOT DEFINED check_include_files)
+    include(CheckIncludeFiles)
+  endif()
+
+  check_include_files("sys/io.h" SYS_IO_AVAILABLE)
+endif()
+
+if(SYS_IO_AVAILABLE)
+  option(BUILD_HAL_VTI_MANAGED_DRIVER_MODULE
+         "Built the VTI HAL managed driver module." TRUE)
+
+  if(BUILD_HAL_VTI_MANAGED_DRIVER_MODULE)
+    include(MachinekitHALSymbolVisibility)
+
+    add_library(hal_vti MODULE)
+
+    set(SOURCE_FILES src/hal_vti.c)
+
+    set(PRIVATE_HEADER_FILES src/hal_vti.h)
+
+    target_sources(hal_vti PRIVATE ${SOURCE_FILES} ${PRIVATE_HEADER_FILES})
+
+    target_link_libraries(hal_vti PRIVATE hal_api runtime_api)
+
+    export_rtapi_symbols(TARGET hal_vti)
+
+    target_compile_definitions(hal_vti PRIVATE "RTAPI")
+
+    set_target_properties(
+      hal_vti
+      PROPERTIES PREFIX "mod"
+                 LIBRARY_OUTPUT_DIRECTORY
+                 "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+    install(TARGETS hal_vti
+            LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+                    COMPONENT MachinekitHAL_Managed_Driver_Module_HAL_VTI)
+  endif()
+endif()

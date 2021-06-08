@@ -28,7 +28,8 @@ set(CMAKE_SYSTEM_NAME "Linux")
 set(CMAKE_SYSTEM_PROCESSOR "armhf")
 set(CMAKE_LIBRARY_ARCHITECTURE "arm-linux-gnueabihf")
 
-set(ENV{PKG_CONFIG_LIBDIR} "/usr/lib/arm-linux-gnueabihf/pkgconfig")
+set(ENV{PKG_CONFIG_LIBDIR}
+    "/usr/lib/arm-linux-gnueabihf/pkgconfig:/usr/share/pkgconfig")
 set(CMAKE_C_COMPILER "arm-linux-gnueabihf-gcc")
 set(CMAKE_CXX_COMPILER "arm-linux-gnueabihf-g++")
 

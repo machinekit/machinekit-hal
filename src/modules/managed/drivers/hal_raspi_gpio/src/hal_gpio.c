@@ -18,7 +18,6 @@ s********************************************************************/
 
 
 #include "rtapi.h"		/* RTAPI realtime OS API */
-#include "config.h"             /* TARGET_PLATFORM_* */
 #include "rtapi_bitops.h"
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
                                 /* this also includes config.h */
@@ -30,10 +29,6 @@ s********************************************************************/
 #define BCM2708_GPIO_BASE   (BCM2708_PERI_BASE + 0x200000)
 #define BCM2709_PERI_BASE   0x3F000000
 #define BCM2709_GPIO_BASE   (BCM2709_PERI_BASE + 0x200000)
-
-#if !defined(TARGET_PLATFORM_RASPBERRY)
-#error "This driver is for the Raspberry and Raspberry2 platforms only"
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>

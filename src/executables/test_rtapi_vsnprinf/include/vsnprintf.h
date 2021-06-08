@@ -239,7 +239,7 @@ static char *fnumber(char *buf, char *end, double num)
     if(mantissa != 0 && mantissa < 1) { mantissa *= 16; exp -= 4; }
 
     /* first digit */
-    i = (int)floor(mantissa);
+    i = (int)rtapi_floor(mantissa);
     buf = ch(buf, end, large_digits[i]);
     mantissa = 16 * (mantissa - i);
 
@@ -247,7 +247,7 @@ static char *fnumber(char *buf, char *end, double num)
     if(mantissa) { buf = ch(buf, end, '.'); }
     while(mantissa) {
         /* remaning digits, if any */
-        i = (int)floor(mantissa);
+        i = (int)rtapi_floor(mantissa);
         buf = ch(buf, end, large_digits[i]);
         mantissa = 16 * (mantissa - i);
     }

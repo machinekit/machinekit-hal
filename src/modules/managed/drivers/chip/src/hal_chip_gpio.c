@@ -13,7 +13,6 @@
 #include "rtapi_app.h"
 
 #include "hal.h"
-#include "config.h"             // TARGET_PLATFORM_CHIP
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -22,11 +21,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "chip/libsoc_mmap_gpio.h"
-
-#if !defined(TARGET_PLATFORM_CHIP)
-#error "This driver is for the BeagleBone platform only"
-#endif
+#include "libsoc_mmap_gpio.h"
 
 #define MODNAME "hal_chip_gpio"
 

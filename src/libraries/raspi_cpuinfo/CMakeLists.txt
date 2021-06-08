@@ -21,24 +21,24 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-# ####################################################################
+# #####################################################################
 # ~~~
 
-set(CMAKE_SYSTEM_NAME "Linux")
-set(CMAKE_SYSTEM_PROCESSOR "i686")
-set(CMAKE_LIBRARY_ARCHITECTURE "i386-linux-gnu")
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "armhf")
+  option(BUILD_RASPI_CPUINFO_LIBRARY
+         "Built the Raspberry Pi SPI HAL managed driver module." TRUE)
 
-set(ENV{PKG_CONFIG_LIBDIR} "/usr/lib/i386-linux-gnu/pkgconfig")
-set(CMAKE_C_COMPILER "gcc")
-set(CMAKE_CXX_COMPILER "g++")
+  if(BUILD_RASPI_CPUINFO_LIBRARY)
+    add_library(raspi_cpuinfo STATIC)
 
-set(CMAKE_C_FLAGS_INIT "-m32")
-set(CMAKE_CXX_FLAGS_INIT "-m32")
-set(CMAKE_EXE_LINKER_FLAGS_INIT "-m32")
-set(CMAKE_SHARED_LINKER_FLAGS_INIT "-m32")
-set(CMAKE_MODULE_LINKER_FLAGS_INIT "-m32")
+    set(SOURCE_FILES src/cpuinfo.c)
 
-set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
-set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
-set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
-set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
+    set(PUBLIC_HEADER_FILES include/cpuinfo.h)
+
+    target_sources(raspi_cpuinfo PRIVATE ${SOURCE_FILES} ${PUBLIC_HEADER_FILES})
+
+    target_include_directories(
+      raspi_cpuinfo
+      PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+  endif()
+endif()

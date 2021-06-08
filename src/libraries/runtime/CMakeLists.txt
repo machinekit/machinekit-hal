@@ -29,6 +29,10 @@ option(BUILD_RUNTIME_LIBRARY "Built the Runtime libraries." TRUE)
 if(BUILD_RUNTIME_LIBRARY)
   include(MachinekitHALSymbolVisibility)
 
+  if(NOT DEFINED SYS_IO_AVAILABLE)
+    check_include_files("sys/io.h" SYS_IO_AVAILABLE)
+  endif()
+
   add_library(runtime_api INTERFACE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::runtime_api ALIAS runtime_api)
   add_library(runtime SHARED)
@@ -57,9 +61,11 @@ if(BUILD_RUNTIME_LIBRARY)
 
   target_include_directories(
     runtime_api
-    INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-              $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>
-              $<BUILD_INTERFACE:$<TARGET_PROPERTY:rtapi_compat,INTERFACE_INCLUDE_DIRECTORIES>>)
+    INTERFACE
+      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+      $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>
+      $<BUILD_INTERFACE:$<TARGET_PROPERTY:rtapi_compat,INTERFACE_INCLUDE_DIRECTORIES>>
+  )
 
   target_sources(
     runtime
@@ -72,13 +78,13 @@ if(BUILD_RUNTIME_LIBRARY)
     PRIVATE ${SOURCE_FILES} $<TARGET_PROPERTY:rtapi_support,INTERFACE_SOURCES>
             ${RT_PREEMPT_FLAVOR_SOURCE_FILE})
 
-  # TODO if PCI
-  target_include_directories(
-    runtime_api
-    INTERFACE $<TARGET_PROPERTY:rtapi_pci,INTERFACE_INCLUDE_DIRECTORIES>)
-  target_sources(runtime PRIVATE $<TARGET_PROPERTY:rtapi_pci,SOURCES>)
-  target_link_libraries(runtime_api INTERFACE user_pci)
-  # endif
+  if(SYS_IO_AVAILABLE)
+    target_include_directories(
+      runtime_api
+      INTERFACE $<TARGET_PROPERTY:rtapi_pci,INTERFACE_INCLUDE_DIRECTORIES>)
+    target_sources(runtime PRIVATE $<TARGET_PROPERTY:rtapi_pci,SOURCES>)
+    target_link_libraries(runtime_api INTERFACE user_pci)
+  endif()
 
   pkg_check_modules(CK "ck" REQUIRED IMPORTED_TARGET)
   pkg_check_modules(LIBCGROUP "libcgroup" REQUIRED IMPORTED_TARGET)

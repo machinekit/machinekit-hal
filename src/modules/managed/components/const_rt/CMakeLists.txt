@@ -25,7 +25,8 @@
 # ~~~
 
 # Full of errors, will need deeper thought
-#[[option(BUILD_CONST_RT_MANAGED_MODULE "Built the Const-RT HAL managed module."
+#[[
+option(BUILD_CONST_RT_MANAGED_MODULE "Built the Const-RT HAL managed module."
        FALSE)
 
 if(BUILD_CONST_RT_MANAGED_MODULE)

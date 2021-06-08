@@ -24,12 +24,24 @@
 # #####################################################################
 # ~~~
 
-add_library(hal_parport INTERFACE)
+if(NOT DEFINED SYS_IO_AVAILABLE)
+  if(NOT DEFINED check_include_files)
+    include(CheckIncludeFiles)
+  endif()
 
-target_include_directories(hal_parport INTERFACE include)
+  check_include_files("sys/io.h" SYS_IO_AVAILABLE)
+endif()
 
-install(
-  TARGETS hal_parport
-  EXPORT machinekit_hal
-  PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
-                COMPONENT MachinekitHAL_Library_Development)
+if(SYS_IO_AVAILABLE)
+  # Target clashes with the managed driver module 'hal_parport' TODO: Think a
+  # better/more descriptive name
+  add_library(rtapi_parport INTERFACE)
+
+  target_include_directories(rtapi_parport INTERFACE include)
+
+  install(
+    TARGETS rtapi_parport
+    EXPORT machinekit_hal
+    PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
+                  COMPONENT MachinekitHAL_Library_Development)
+endif()

@@ -10,19 +10,9 @@
 #include "rtapi_app.h"      /* RTAPI realtime module decls */
                             /* this also includes config.h */
 #include "hal.h"            /* HAL public API decls */
-#include "config.h"         // TARGET_PLATFORM_H3
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <unistd.h>
-
-
-
-#if !defined(TARGET_PLATFORM_H3)
-#error "This driver is for the H3 SoC platform only"
-#endif
-
-
-
 
 MODULE_AUTHOR("Mikhail Vydrenko");
 MODULE_DESCRIPTION("Driver for the Orange Pi (H3 SoC) GPIO pins");
@@ -223,13 +213,14 @@ int32_t rtapi_app_main(void)
     char        name[HAL_NAME_LEN + 1];
 
 
-#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0) &&0//FIXME
+/*#if LINUX_VERSION_CODE > KERNEL_VERSION(2,6,0) &&0//FIXME
     // this calculation fits in a 32-bit unsigned
     // as long as CPUs are under about 6GHz
     ns2tsc_factor = (cpu_khz << 6) / 15625ul;
-#else
+    How the hell can obviously userspace code (from the start) get hold of cpu_khz?
+#else*/
     ns2tsc_factor = 1ll<<12;
-#endif
+//#endif
 
 
     comp_id = hal_init(comp_name);

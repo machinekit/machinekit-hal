@@ -31,7 +31,7 @@ project(
   VERSION 0.4 # TODO: Get the right version from VERSION file and git
   DESCRIPTION "Universal framework for machine control."
   HOMEPAGE_URL "https://machinekit.io"
-  LANGUAGES C CXX ASM)
+  LANGUAGES C CXX)
 
 if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
   # include(cmake/packaging/packaging.cmake)

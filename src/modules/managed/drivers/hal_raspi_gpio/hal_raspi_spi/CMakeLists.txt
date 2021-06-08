@@ -24,43 +24,37 @@
 # #####################################################################
 # ~~~
 
-if(NOT DEFINED SYS_IO_AVAILABLE)
-  if(NOT DEFINED check_include_files)
-    include(CheckIncludeFiles)
-  endif()
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "armhf")
+  option(BUILD_HAL_RASPI_SPI_MANAGED_DRIVER_MODULE
+         "Built the Raspberry Pi SPI HAL managed driver module." TRUE)
 
-  check_include_files("sys/io.h" SYS_IO_AVAILABLE)
-endif()
-
-if(SYS_IO_AVAILABLE)
-  option(BUILD_HAL_MOTENC_MANAGED_DRIVER_MODULE
-         "Built the MotEnc HAL managed driver module." TRUE)
-
-  if(BUILD_HAL_MOTENC_MANAGED_DRIVER_MODULE)
+  if(BUILD_HAL_RASPI_SPI_MANAGED_DRIVER_MODULE)
     include(MachinekitHALSymbolVisibility)
 
-    add_library(hal_motenc MODULE)
+    add_library(hal_raspi_spi MODULE)
 
-    set(SOURCE_FILES src/hal_motenc.c)
+    set(SOURCE_FILES src/cpuinfo.c src/hal_spi.c)
 
-    set(PRIVATE_HEADER_FILES src/motenc.h)
+    set(PRIVATE_HEADER_FILES src/cpuinfo.h src/hal_spi.h)
 
-    target_sources(hal_motenc PRIVATE ${SOURCE_FILES} ${PRIVATE_HEADER_FILES})
+    target_sources(hal_raspi_spi PRIVATE ${SOURCE_FILES}
+                                         ${PRIVATE_HEADER_FILES})
 
-    target_link_libraries(hal_motenc PRIVATE hal_api runtime_api rtapi_pci)
+    target_link_libraries(hal_raspi_spi PRIVATE hal_api runtime_api
+                                                runtime_math raspi_cpuinfo)
 
-    export_rtapi_symbols(TARGET hal_motenc)
+    export_rtapi_symbols(TARGET hal_raspi_spi)
 
-    target_compile_definitions(hal_motenc PRIVATE "RTAPI")
+    target_compile_definitions(hal_raspi_spi PRIVATE "RTAPI")
 
     set_target_properties(
-      hal_motenc
+      hal_raspi_spi
       PROPERTIES PREFIX "mod"
                  LIBRARY_OUTPUT_DIRECTORY
                  "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
 
-    install(TARGETS hal_motenc
+    install(TARGETS hal_raspi_spi
             LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
-                    COMPONENT MachinekitHAL_Managed_Driver_Module_HAL_MotEnc)
+                    COMPONENT MachinekitHAL_Managed_Driver_Module_HAL_RASPI_SPI)
   endif()
 endif()

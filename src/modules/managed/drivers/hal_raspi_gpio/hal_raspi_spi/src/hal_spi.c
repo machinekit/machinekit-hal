@@ -21,7 +21,6 @@
 #include "rtapi.h"
 #include "rtapi_app.h"
 #include "hal.h"
-#include "config.h"             // TARGET_PLATFORM_RASPBERRY
 
 #include "rtapi_math.h"
 #include <fcntl.h>
@@ -30,11 +29,7 @@
 
 #include "hal_spi.h"
 
-#include "cpuinfo.c"
-
-#if !defined(TARGET_PLATFORM_RASPBERRY)
-#error "This driver is for the Raspberry Pi platform only"
-#endif
+#include "cpuinfo.h"
 
 #define MODNAME "hal_spi"
 #define PREFIX "spi"

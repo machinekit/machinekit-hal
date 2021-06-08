@@ -23,3 +23,42 @@
 #
 # #####################################################################
 # ~~~
+
+if(NOT DEFINED SYS_IO_AVAILABLE)
+  if(NOT DEFINED check_include_files)
+    include(CheckIncludeFiles)
+  endif()
+
+  check_include_files("sys/io.h" SYS_IO_AVAILABLE)
+endif()
+
+if(SYS_IO_AVAILABLE)
+  option(BUILD_HAL_P260C_MANAGED_DRIVER_MODULE
+         "Built the P260C HAL managed driver module." TRUE)
+
+  if(BUILD_HAL_P260C_MANAGED_DRIVER_MODULE)
+    include(MachinekitHALSymbolVisibility)
+
+    add_library(hal_p260c MODULE)
+
+    set(SOURCE_FILES src/hal_p260c.c)
+
+    target_sources(hal_p260c PRIVATE ${SOURCE_FILES})
+
+    target_link_libraries(hal_p260c PRIVATE hal_api runtime_api)
+
+    export_rtapi_symbols(TARGET hal_p260c)
+
+    target_compile_definitions(hal_p260c PRIVATE "RTAPI")
+
+    set_target_properties(
+      hal_p260c
+      PROPERTIES PREFIX "mod"
+                 LIBRARY_OUTPUT_DIRECTORY
+                 "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+    install(TARGETS hal_p260c
+            LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+                    COMPONENT MachinekitHAL_Managed_Driver_Module_HAL_P260C)
+  endif()
+endif()

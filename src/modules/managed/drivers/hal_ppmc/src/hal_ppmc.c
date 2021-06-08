@@ -66,7 +66,7 @@
     information, go to https://github.com/machinekit.
 */
 
-#include <linux/slab.h>		/* kmalloc() */
+//#include <linux/slab.h>		/* kmalloc() */
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"		/* HAL public API decls */

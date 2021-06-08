@@ -23,3 +23,34 @@
 #
 # #####################################################################
 # ~~~
+
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "armhf")
+  option(BUILD_HAL_H3_GPIO_MANAGED_DRIVER_MODULE
+         "Built the H3 GPIO HAL managed driver module." TRUE)
+
+  if(BUILD_HAL_H3_GPIO_MANAGED_DRIVER_MODULE)
+    include(MachinekitHALSymbolVisibility)
+
+    add_library(hal_h3_gpio MODULE)
+
+    set(SOURCE_FILES src/hal_h3_gpio.c)
+
+    target_sources(hal_h3_gpio PRIVATE ${SOURCE_FILES})
+
+    target_link_libraries(hal_h3_gpio PRIVATE hal_api runtime_api)
+
+    export_rtapi_symbols(TARGET hal_h3_gpio)
+
+    target_compile_definitions(hal_h3_gpio PRIVATE "RTAPI")
+
+    set_target_properties(
+      hal_h3_gpio
+      PROPERTIES PREFIX "mod"
+                 LIBRARY_OUTPUT_DIRECTORY
+                 "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+    install(TARGETS hal_h3_gpio
+            LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+                    COMPONENT MachinekitHAL_Managed_Driver_Module_HAL_H3_GPIO)
+  endif()
+endif()
