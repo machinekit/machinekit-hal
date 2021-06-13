@@ -172,6 +172,39 @@ search_for_xenomai() {
     return 0
 }
 
+search_for_readline(){
+    local library="$(apt-cache search libeditreadline-dev)"
+    local retval="$?" 
+    if ((retval != 0 ))
+    then
+        log_error "Command 'apt-cache search libeditreadline-dev' returned error code $retval!"
+        return -1
+    fi
+
+    if [[ "$library" =~ ^libeditreadline-dev.* ]]
+    then
+        BUILDTIME_DEPENDENCIES+=", libeditreadline-dev"
+        return 0
+    fi
+
+    local library="$(apt-cache search libreadline-gplv2-dev)"
+    local retval="$?" 
+    if ((retval != 0 ))
+    then
+        log_error "Command 'apt-cache search libreadline-gplv2-dev' returned error code $retval!"
+        return -1
+    fi
+
+    if [[ "$library" =~ ^libreadline-gplv2-dev.* ]]
+    then
+        BUILDTIME_DEPENDENCIES+=", libreadline-gplv2-dev"
+        return 0
+    fi
+
+    log_error "No readline-like development library found!"
+    return -1
+}
+
 test_dir(){
     local version_file="$1/VERSION"
     local readme_file="$1/README.md"
@@ -275,6 +308,12 @@ _main(){
     fi
 
     search_for_xenomai
+    retval=$?
+    if (( retval != 0 ))
+    then
+        failure
+    fi
+    search_for_readline
     retval=$?
     if (( retval != 0 ))
     then
