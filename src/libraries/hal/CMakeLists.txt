@@ -55,6 +55,8 @@ if(BUILD_HAL_LIBRARY)
       src/hal_accessor.c
       src/hal_iring.c)
 
+  set(HALPB_SOURCE_FILES src/halpb.cc)
+
   set(HEADER_FILES include/hal.h)
 
   target_include_directories(
@@ -62,13 +64,13 @@ if(BUILD_HAL_LIBRARY)
     INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
               $<INSTALL_INTERFACE:"${MACHINEKIT_HAL_INTERFACE_DIRECTORY}")
 
-  target_sources(hal PRIVATE ${SOURCE_FILES})
+  target_sources(hal PRIVATE ${SOURCE_FILES} ${HALPB_SOURCE_FILES})
   target_sources(hal_module PRIVATE ${SOURCE_FILES})
 
   target_link_libraries(
     hal
     PUBLIC hal_api runtime_api runtime
-    PRIVATE mkini)
+    PRIVATE mkini machinetalk_proto_cc)
   target_link_libraries(hal_module PRIVATE hal_api runtime_api)
 
   target_compile_definitions(hal_module PRIVATE "RTAPI")

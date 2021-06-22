@@ -24,39 +24,32 @@
 # #####################################################################
 # ~~~
 
-option(BUILD_MSGD_EXECUTABLE "Built the MSGd executable." TRUE)
+option(BUILD_STREAMER_MANAGED_MODULE "Built the Streamer HAL managed module." TRUE)
 
-if(BUILD_MSGD_EXECUTABLE)
-  add_executable(msgd)
+if(BUILD_STREAMER_MANAGED_MODULE)
+  include(MachinekitHALSymbolVisibility)
 
-  set(SOURCE_FILES src/rtapi_msgd.cc)
+  add_library(streamer MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::streamer ALIAS streamer)
 
-  target_sources(msgd PRIVATE ${SOURCE_FILES})
+  set(SOURCE_FILES src/streamer.c)
 
-  pkg_check_modules(UUID "uuid" REQUIRED IMPORTED_TARGET)
-  pkg_check_modules(LIBZMQ "libzmq" REQUIRED IMPORTED_TARGET)
+  target_sources(streamer PRIVATE ${SOURCE_FILES})
 
-  find_library(LIBATOMIC NAMES "atomic" "libatomic" "libatomic.so" "libatomic.so.1" REQUIRED)
-  find_library(LIBRT NAMES "rt" "librt" "librt.so" REQUIRED)
+  target_link_libraries(streamer PRIVATE hal_api runtime_api samstr_memdefs)
 
-  target_link_libraries(
-    msgd
-    PRIVATE runtime
-            hal
-            runtime_memory_api
-            mkini
-            machinetalk
-            syslog_async
-            PkgConfig::UUID
-            PkgConfig::LIBZMQ
-            ${CMAKE_DL_LIBS}
-            ${LIBATOMIC}
-            ${LIBRT})
+  export_rtapi_symbols(TARGET streamer)
+
+  target_compile_definitions(streamer PRIVATE "RTAPI")
 
   set_target_properties(
-    msgd
-    PROPERTIES OUTPUT_NAME "rtapi_msgd"
-               PREFIX ""
-               RUNTIME_OUTPUT_DIRECTORY
-               "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY}")
+    streamer
+    PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(
+    TARGETS streamer
+    EXPORT machinekit_hal_managed_module_streamer
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_Streamer)
 endif()

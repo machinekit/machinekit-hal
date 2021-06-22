@@ -24,39 +24,32 @@
 # #####################################################################
 # ~~~
 
-option(BUILD_MSGD_EXECUTABLE "Built the MSGd executable." TRUE)
+option(BUILD_SAMPLER_MANAGED_MODULE "Built the Sampler HAL managed module." TRUE)
 
-if(BUILD_MSGD_EXECUTABLE)
-  add_executable(msgd)
+if(BUILD_SAMPLER_MANAGED_MODULE)
+  include(MachinekitHALSymbolVisibility)
 
-  set(SOURCE_FILES src/rtapi_msgd.cc)
+  add_library(sampler MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::sampler ALIAS sampler)
 
-  target_sources(msgd PRIVATE ${SOURCE_FILES})
+  set(SOURCE_FILES src/sampler.c)
 
-  pkg_check_modules(UUID "uuid" REQUIRED IMPORTED_TARGET)
-  pkg_check_modules(LIBZMQ "libzmq" REQUIRED IMPORTED_TARGET)
+  target_sources(sampler PRIVATE ${SOURCE_FILES})
 
-  find_library(LIBATOMIC NAMES "atomic" "libatomic" "libatomic.so" "libatomic.so.1" REQUIRED)
-  find_library(LIBRT NAMES "rt" "librt" "librt.so" REQUIRED)
+  target_link_libraries(sampler PRIVATE hal_api runtime_api samstr_memdefs)
 
-  target_link_libraries(
-    msgd
-    PRIVATE runtime
-            hal
-            runtime_memory_api
-            mkini
-            machinetalk
-            syslog_async
-            PkgConfig::UUID
-            PkgConfig::LIBZMQ
-            ${CMAKE_DL_LIBS}
-            ${LIBATOMIC}
-            ${LIBRT})
+  export_rtapi_symbols(TARGET sampler)
+
+  target_compile_definitions(sampler PRIVATE "RTAPI")
 
   set_target_properties(
-    msgd
-    PROPERTIES OUTPUT_NAME "rtapi_msgd"
-               PREFIX ""
-               RUNTIME_OUTPUT_DIRECTORY
-               "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY}")
+    sampler
+    PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
+                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+
+  install(
+    TARGETS sampler
+    EXPORT machinekit_hal_managed_module_sampler
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Managed_Sampler)
 endif()

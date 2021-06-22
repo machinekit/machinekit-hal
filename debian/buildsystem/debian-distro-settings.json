@@ -1,0 +1,93 @@
+{
+  "osVersions": [
+    {
+      "distributionID": "Debian",
+      "distributionCodename": "Buster",
+      "baseImage": "debian:buster",
+      "releaseNumber": 10
+    },
+    {
+      "distributionID": "Debian",
+      "distributionCodename": "Bullseye",
+      "baseImage": "debian:bullseye",
+      "releaseNumber": 11
+    },
+    {
+      "distributionID": "Ubuntu",
+      "distributionCodename": "Bionic",
+      "baseImage": "ubuntu:bionic",
+      "releaseNumber": 18.04
+    },
+    {
+      "distributionID": "Ubuntu",
+      "distributionCodename": "Focal",
+      "baseImage": "ubuntu:focal",
+      "releaseNumber": 20.04
+    },
+    {
+      "distributionID": "Ubuntu",
+      "distributionCodename": "Hirsute",
+      "baseImage": "ubuntu:hirsute",
+      "releaseNumber": 21.04
+    }
+  ],
+  "allowedCombinations": [
+    {
+      "osVersionNumber": 18.04,
+      "architecture": "i386"
+    },
+    {
+      "osVersionNumber": 10,
+      "architecture": "i386"
+    },
+    {
+      "osVersionNumber": 18.04,
+      "architecture": "amd64"
+    },
+    {
+      "osVersionNumber": 10,
+      "architecture": "amd64"
+    },
+    {
+      "osVersionNumber": 20.04,
+      "architecture": "amd64"
+    },
+    {
+      "osVersionNumber": 21.04,
+      "architecture": "amd64"
+    },
+    {
+      "osVersionNumber": 18.04,
+      "architecture": "armhf"
+    },
+    {
+      "osVersionNumber": 10,
+      "architecture": "armhf"
+    },
+    {
+      "osVersionNumber": 20.04,
+      "architecture": "armhf"
+    },
+    {
+      "osVersionNumber": 21.04,
+      "architecture": "armhf"
+    },
+    {
+      "osVersionNumber": 18.04,
+      "architecture": "arm64"
+    },
+    {
+      "osVersionNumber": 10,
+      "architecture": "arm64"
+    },
+    {
+      "osVersionNumber": 20.04,
+      "architecture": "arm64"
+    },
+    {
+      "osVersionNumber": 21.04,
+      "architecture": "arm64"
+    }
+  ],
+  "imageNameRoot": "machinekit-hal-@DISTRIBUTION@-builder-v.@TAG@"
+}

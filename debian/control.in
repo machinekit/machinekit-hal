@@ -49,6 +49,8 @@ Build-Depends:
     yapps2:native,
     python3-yapps:native,
     python3-pyftpdlib:native,
+    python3-pip:native,
+    python3-venv:native,
     libck-dev @BUILDTIME_DEPENDENCIES@
 Standards-Version: 2.1.0
 

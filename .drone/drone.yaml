@@ -326,1176 +326,1473 @@
 #  temp: {}
 #
 #---
-kind: pipeline
-name: Test RIP version on Ubuntu 20.04 amd64
-
-platform:
-  arch: amd64
-
-clone:
-  disable: true
-
-steps:
-- name: Prepare Docker Drone volume
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - chown 1000:1000 /build
-
-- name: Clone Machinekit-HAL repository
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - apt-get update
-  - apt-get install -y git
-  - addgroup --gid 1000 git
-  - |
-    adduser --uid 1000 --ingroup git --home /home/git \
-      --disabled-password --gecos "" git;
-  - |
-    su git -c "
-      git init /build/machinekit-hal;
-      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
-      git -C /build/machinekit-hal config --local gc.auto 0;
-      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules \
-          origin +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/* \
-          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-        git -C /build/machinekit-hal checkout --progress --force \
-          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules origin \
-          +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/*;
-        git -C /build/machinekit-hal checkout --progress --force \
-          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
-      else
-        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
-        exit 1;
-      fi
-      git -C /build/machinekit-hal log -1;"
-
-- name: Build RIP and run tests
-  image: ubuntu:focal
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - uname -a
-  - uname -m
-  - >
-    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
-    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
-  - apt-get update
-  - apt-get -y upgrade
-  - apt-get -y install sudo curl build-essential fakeroot devscripts python equivs
-  - |
-    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
-  - |
-    curl -1sLf                                                                      \
-      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
-      | bash
-  - addgroup --gid 1000 machinekit
-  - |
-    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
-      --disabled-password --gecos "" machinekit;
-  - |
-    su machinekit -c "whoami; \
-      cd /build/machinekit-hal; \
-      debian/bootstrap; \
-      mk-build-deps -irs sudo -t                                              \
-        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
-      debian/ripruntests.py;"
-
-volumes:
-- name: repository
-  user: 1000
-  group: 1000
-  temp: {}
-  
----
-kind: pipeline
-name: Test RIP version on ubuntu 20.04 arm64
-
-platform:
-  arch: arm64
-
-clone:
-  disable: true
-
-steps:
-- name: Prepare Docker Drone volume
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - chown 1000:1000 /build
-
-- name: Clone Machinekit-HAL repository
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - apt-get update
-  - apt-get install -y git
-  - addgroup --gid 1000 git
-  - |
-    adduser --uid 1000 --ingroup git --home /home/git \
-      --disabled-password --gecos "" git;
-  - |
-    su git -c "
-      git init /build/machinekit-hal;
-      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
-      git -C /build/machinekit-hal config --local gc.auto 0;
-      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules \
-          origin +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/* \
-          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-        git -C /build/machinekit-hal checkout --progress --force \
-          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules origin \
-          +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/*;
-        git -C /build/machinekit-hal checkout --progress --force \
-          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
-      else
-        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
-        exit 1;
-      fi
-      git -C /build/machinekit-hal log -1;"
-
-- name: Build RIP and run tests
-  image: ubuntu:focal
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - uname -a
-  - uname -m
-  - >
-    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
-    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
-  - apt-get update
-  - apt-get -y upgrade
-  - apt-get -y install sudo curl build-essential fakeroot devscripts python equivs
-  - |
-    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
-  - |
-    curl -1sLf                                                                      \
-      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
-      | bash
-  - addgroup --gid 1000 machinekit
-  - |
-    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
-      --disabled-password --gecos "" machinekit;
-  - |
-    su machinekit -c "whoami; \
-      cd /build/machinekit-hal; \
-      debian/bootstrap; \
-      mk-build-deps -irs sudo -t                                              \
-        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
-      debian/ripruntests.py;"
-
-volumes:
-- name: repository
-  user: 1000
-  group: 1000
-  temp: {}
-
----
-kind: pipeline
-name: Test RIP version on Ubuntu 20.04 armhf
-
-platform:
-  arch: arm
-
-clone:
-  disable: true
-
-steps:
-- name: Prepare Docker Drone volume
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - chown 1000:1000 /build
-
-- name: Clone Machinekit-HAL repository
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - apt-get update
-  - apt-get install -y git
-  - addgroup --gid 1000 git
-  - |
-    adduser --uid 1000 --ingroup git --home /home/git \
-      --disabled-password --gecos "" git;
-  - |
-    su git -c "
-      git init /build/machinekit-hal;
-      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
-      git -C /build/machinekit-hal config --local gc.auto 0;
-      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules \
-          origin +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/* \
-          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-        git -C /build/machinekit-hal checkout --progress --force \
-          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules origin \
-          +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/*;
-        git -C /build/machinekit-hal checkout --progress --force \
-          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
-      else
-        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
-        exit 1;
-      fi
-      git -C /build/machinekit-hal log -1;"
-
-- name: Build RIP and run tests
-  image: arm32v7/ubuntu:focal
-  failure: ignore
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - uname -a
-  - uname -m
-  - >
-    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
-    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
-  - apt-get update
-  - apt-get -y upgrade
-  - apt-get -y install sudo curl build-essential fakeroot devscripts python equivs
-  - |
-    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
-  - |
-    curl -1sLf                                                                      \
-      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
-      | bash
-  - addgroup --gid 1000 machinekit
-  - |
-    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
-      --disabled-password --gecos "" machinekit;
-  - |
-    su machinekit -c "whoami; \
-      cd /build/machinekit-hal; \
-      debian/bootstrap; \
-      mk-build-deps -irs sudo -t                                              \
-        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
-      debian/ripruntests.py;"
-
-volumes:
-- name: repository
-  user: 1000
-  group: 1000
-  temp: {}
-
----
-kind: pipeline
-name: Test RIP version on Debian 10 amd64
-
-platform:
-  arch: amd64
-
-clone:
-  disable: true
-
-steps:
-- name: Prepare Docker Drone volume
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - chown 1000:1000 /build
-
-- name: Clone Machinekit-HAL repository
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - apt-get update
-  - apt-get install -y git
-  - addgroup --gid 1000 git
-  - |
-    adduser --uid 1000 --ingroup git --home /home/git \
-      --disabled-password --gecos "" git;
-  - |
-    su git -c "
-      git init /build/machinekit-hal;
-      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
-      git -C /build/machinekit-hal config --local gc.auto 0;
-      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules \
-          origin +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/* \
-          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-        git -C /build/machinekit-hal checkout --progress --force \
-          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules origin \
-          +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/*;
-        git -C /build/machinekit-hal checkout --progress --force \
-          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
-      else
-        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
-        exit 1;
-      fi
-      git -C /build/machinekit-hal log -1;"
-
-- name: Build RIP and run tests
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - uname -a
-  - uname -m
-  - >
-    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
-    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
-  - apt-get update
-  - apt-get -y upgrade
-  - apt-get -y install sudo curl build-essential fakeroot devscripts python
-  - |
-    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
-  - |
-    curl -1sLf                                                                      \
-      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
-      | bash
-  - addgroup --gid 1000 machinekit
-  - |
-    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
-      --disabled-password --gecos "" machinekit;
-  - |
-    su machinekit -c "whoami; \
-      cd /build/machinekit-hal; \
-      debian/bootstrap; \
-      mk-build-deps -irs sudo -t                                              \
-        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
-      debian/ripruntests.py;"
-
-volumes:
-- name: repository
-  user: 1000
-  group: 1000
-  temp: {}
-  
----
-kind: pipeline
-name: Test RIP version on Debian 10 arm64
-
-platform:
-  arch: arm64
-
-clone:
-  disable: true
-
-steps:
-- name: Prepare Docker Drone volume
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - chown 1000:1000 /build
-
-- name: Clone Machinekit-HAL repository
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - apt-get update
-  - apt-get install -y git
-  - addgroup --gid 1000 git
-  - |
-    adduser --uid 1000 --ingroup git --home /home/git \
-      --disabled-password --gecos "" git;
-  - |
-    su git -c "
-      git init /build/machinekit-hal;
-      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
-      git -C /build/machinekit-hal config --local gc.auto 0;
-      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules \
-          origin +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/* \
-          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-        git -C /build/machinekit-hal checkout --progress --force \
-          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules origin \
-          +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/*;
-        git -C /build/machinekit-hal checkout --progress --force \
-          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
-      else
-        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
-        exit 1;
-      fi
-      git -C /build/machinekit-hal log -1;"
-
-- name: Build RIP and run tests
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - uname -a
-  - uname -m
-  - >
-    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
-    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
-  - apt-get update
-  - apt-get -y upgrade
-  - apt-get -y install sudo curl build-essential fakeroot devscripts python
-  - |
-    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
-  - |
-    curl -1sLf                                                                      \
-      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
-      | bash
-  - addgroup --gid 1000 machinekit
-  - |
-    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
-      --disabled-password --gecos "" machinekit;
-  - |
-    su machinekit -c "whoami; \
-      cd /build/machinekit-hal; \
-      debian/bootstrap; \
-      mk-build-deps -irs sudo -t                                              \
-        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
-      debian/ripruntests.py;"
-
-volumes:
-- name: repository
-  user: 1000
-  group: 1000
-  temp: {}
-
----
-kind: pipeline
-name: Test RIP version on Debian 10 armhf
-
-platform:
-  arch: arm
-
-clone:
-  disable: true
-
-steps:
-- name: Prepare Docker Drone volume
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - chown 1000:1000 /build
-
-- name: Clone Machinekit-HAL repository
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - apt-get update
-  - apt-get install -y git
-  - addgroup --gid 1000 git
-  - |
-    adduser --uid 1000 --ingroup git --home /home/git \
-      --disabled-password --gecos "" git;
-  - |
-    su git -c "
-      git init /build/machinekit-hal;
-      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
-      git -C /build/machinekit-hal config --local gc.auto 0;
-      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules \
-          origin +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/* \
-          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-        git -C /build/machinekit-hal checkout --progress --force \
-          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules origin \
-          +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/*;
-        git -C /build/machinekit-hal checkout --progress --force \
-          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
-      else
-        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
-        exit 1;
-      fi
-      git -C /build/machinekit-hal log -1;"
-
-- name: Build RIP and run tests
-  image: arm32v7/debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - uname -a
-  - uname -m
-  - >
-    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
-    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
-  - apt-get update
-  - apt-get -y upgrade
-  - apt-get -y install sudo curl build-essential fakeroot devscripts python
-  - |
-    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
-  - |
-    curl -1sLf                                                                      \
-      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
-      | bash
-  - addgroup --gid 1000 machinekit
-  - |
-    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
-      --disabled-password --gecos "" machinekit;
-  - |
-    su machinekit -c "whoami; \
-      cd /build/machinekit-hal; \
-      debian/bootstrap; \
-      mk-build-deps -irs sudo -t                                              \
-        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
-      debian/ripruntests.py;"
-
-volumes:
-- name: repository
-  user: 1000
-  group: 1000
-  temp: {}
-
----
-kind: pipeline
-name: Test RIP version on Ubuntu 18.04 amd64
-
-platform:
-  arch: amd64
-
-clone:
-  disable: true
-
-steps:
-- name: Prepare Docker Drone volume
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - chown 1000:1000 /build
-
-- name: Clone Machinekit-HAL repository
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - apt-get update
-  - apt-get install -y git
-  - addgroup --gid 1000 git
-  - |
-    adduser --uid 1000 --ingroup git --home /home/git \
-      --disabled-password --gecos "" git;
-  - |
-    su git -c "
-      git init /build/machinekit-hal;
-      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
-      git -C /build/machinekit-hal config --local gc.auto 0;
-      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules \
-          origin +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/* \
-          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-        git -C /build/machinekit-hal checkout --progress --force \
-          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules origin \
-          +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/*;
-        git -C /build/machinekit-hal checkout --progress --force \
-          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
-      else
-        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
-        exit 1;
-      fi
-      git -C /build/machinekit-hal log -1;"
-
-- name: Build RIP and run tests
-  image: ubuntu:bionic
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - uname -a
-  - uname -m
-  - >
-    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
-    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
-  - apt-get update
-  - apt-get -y upgrade
-  - apt-get -y install sudo curl build-essential fakeroot devscripts python equivs
-  - |
-    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
-  - |
-    curl -1sLf                                                                      \
-      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
-      | bash
-  - addgroup --gid 1000 machinekit
-  - |
-    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
-      --disabled-password --gecos "" machinekit;
-  - |
-    su machinekit -c "whoami; \
-      cd /build/machinekit-hal; \
-      debian/bootstrap; \
-      mk-build-deps -irs sudo -t                                              \
-        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
-      debian/ripruntests.py;"
-
-volumes:
-- name: repository
-  user: 1000
-  group: 1000
-  temp: {}
-
----
-kind: pipeline
-name: Test RIP version on Ubuntu 18.04 arm64
-
-platform:
-  arch: arm64
-
-clone:
-  disable: true
-
-steps:
-- name: Prepare Docker Drone volume
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - chown 1000:1000 /build
-
-- name: Clone Machinekit-HAL repository
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - apt-get update
-  - apt-get install -y git
-  - addgroup --gid 1000 git
-  - |
-    adduser --uid 1000 --ingroup git --home /home/git \
-      --disabled-password --gecos "" git;
-  - |
-    su git -c "
-      git init /build/machinekit-hal;
-      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
-      git -C /build/machinekit-hal config --local gc.auto 0;
-      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules \
-          origin +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/* \
-          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-        git -C /build/machinekit-hal checkout --progress --force \
-          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules origin \
-          +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/*;
-        git -C /build/machinekit-hal checkout --progress --force \
-          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
-      else
-        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
-        exit 1;
-      fi
-      git -C /build/machinekit-hal log -1;"
-
-- name: Build RIP and run tests
-  image: ubuntu:bionic
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - uname -a
-  - uname -m
-  - >
-    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
-    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
-  - apt-get update
-  - apt-get -y upgrade
-  - apt-get -y install sudo curl build-essential fakeroot devscripts python equivs
-  - |
-    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
-  - |
-    curl -1sLf                                                                      \
-      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
-      | bash
-  - addgroup --gid 1000 machinekit
-  - |
-    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
-      --disabled-password --gecos "" machinekit;
-  - |
-    su machinekit -c "whoami; \
-      cd /build/machinekit-hal; \
-      debian/bootstrap; \
-      mk-build-deps -irs sudo -t                                              \
-        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
-      debian/ripruntests.py;"
-
-volumes:
-- name: repository
-  user: 1000
-  group: 1000
-  temp: {}
-
----
-kind: pipeline
-name: Test RIP version on Ubuntu 18.04 armhf
-
-platform:
-  arch: arm
-
-clone:
-  disable: true
-
-steps:
-- name: Prepare Docker Drone volume
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - chown 1000:1000 /build
-
-- name: Clone Machinekit-HAL repository
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - apt-get update
-  - apt-get install -y git
-  - addgroup --gid 1000 git
-  - |
-    adduser --uid 1000 --ingroup git --home /home/git \
-      --disabled-password --gecos "" git;
-  - |
-    su git -c "
-      git init /build/machinekit-hal;
-      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
-      git -C /build/machinekit-hal config --local gc.auto 0;
-      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules \
-          origin +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/* \
-          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-        git -C /build/machinekit-hal checkout --progress --force \
-          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules origin \
-          +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/*;
-        git -C /build/machinekit-hal checkout --progress --force \
-          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
-      else
-        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
-        exit 1;
-      fi
-      git -C /build/machinekit-hal log -1;"
-
-- name: Build RIP and run tests
-  image: arm32v7/ubuntu:bionic
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - uname -a
-  - uname -m
-  - >
-    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
-    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
-  - apt-get update
-  - apt-get -y upgrade
-  - apt-get -y install sudo curl build-essential fakeroot devscripts python equivs
-  - |
-    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
-  - |
-    curl -1sLf                                                                      \
-      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
-      | bash
-  - addgroup --gid 1000 machinekit
-  - |
-    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
-      --disabled-password --gecos "" machinekit;
-  - |
-    su machinekit -c "whoami; \
-      cd /build/machinekit-hal; \
-      debian/bootstrap; \
-      mk-build-deps -irs sudo -t                                              \
-        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
-      debian/ripruntests.py;"
-
-volumes:
-- name: repository
-  user: 1000
-  group: 1000
-  temp: {}
-
----
-kind: pipeline
-name: Test RIP version on Debian 9 amd64
-
-platform:
-  arch: amd64
-
-clone:
-  disable: true
-
-steps:
-- name: Prepare Docker Drone volume
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - chown 1000:1000 /build
-
-- name: Clone Machinekit-HAL repository
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - apt-get update
-  - apt-get install -y git
-  - addgroup --gid 1000 git
-  - |
-    adduser --uid 1000 --ingroup git --home /home/git \
-      --disabled-password --gecos "" git;
-  - |
-    su git -c "
-      git init /build/machinekit-hal;
-      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
-      git -C /build/machinekit-hal config --local gc.auto 0;
-      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules \
-          origin +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/* \
-          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-        git -C /build/machinekit-hal checkout --progress --force \
-          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules origin \
-          +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/*;
-        git -C /build/machinekit-hal checkout --progress --force \
-          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
-      else
-        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
-        exit 1;
-      fi
-      git -C /build/machinekit-hal log -1;"
-
-- name: Build RIP and run tests
-  image: debian:stretch
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - uname -a
-  - uname -m
-  - >
-    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
-    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
-  - apt-get update
-  - apt-get -y upgrade
-  - apt-get -y install sudo curl build-essential fakeroot devscripts python
-  - |
-    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
-  - |
-    curl -1sLf                                                                      \
-      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
-      | bash
-  - addgroup --gid 1000 machinekit
-  - |
-    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
-      --disabled-password --gecos "" machinekit;
-  - |
-    su machinekit -c "whoami; \
-      cd /build/machinekit-hal; \
-      debian/bootstrap; \
-      mk-build-deps -irs sudo -t                                              \
-        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
-      debian/ripruntests.py;"
-
-volumes:
-- name: repository
-  user: 1000
-  group: 1000
-  temp: {}
-
----
-kind: pipeline
-name: Test RIP version on Debian 9 arm64
-
-platform:
-  arch: arm64
-
-clone:
-  disable: true
-
-steps:
-- name: Prepare Docker Drone volume
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - chown 1000:1000 /build
-
-- name: Clone Machinekit-HAL repository
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - apt-get update
-  - apt-get install -y git
-  - addgroup --gid 1000 git
-  - |
-    adduser --uid 1000 --ingroup git --home /home/git \
-      --disabled-password --gecos "" git;
-  - |
-    su git -c "
-      git init /build/machinekit-hal;
-      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
-      git -C /build/machinekit-hal config --local gc.auto 0;
-      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules \
-          origin +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/* \
-          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-        git -C /build/machinekit-hal checkout --progress --force \
-          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules origin \
-          +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/*;
-        git -C /build/machinekit-hal checkout --progress --force \
-          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
-      else
-        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
-        exit 1;
-      fi
-      git -C /build/machinekit-hal log -1;"
-
-- name: Build RIP and run tests
-  image: debian:stretch
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - uname -a
-  - uname -m
-  - >
-    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
-    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
-  - apt-get update
-  - apt-get -y upgrade
-  - apt-get -y install sudo curl build-essential fakeroot devscripts python
-  - |
-    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
-  - |
-    curl -1sLf                                                                      \
-      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
-      | bash
-  - addgroup --gid 1000 machinekit
-  - |
-    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
-      --disabled-password --gecos "" machinekit;
-  - |
-    su machinekit -c "whoami; \
-      cd /build/machinekit-hal; \
-      debian/bootstrap; \
-      mk-build-deps -irs sudo -t                                              \
-        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
-      debian/ripruntests.py;"
-
-volumes:
-- name: repository
-  user: 1000
-  group: 1000
-  temp: {}
-
----
-kind: pipeline
-name: Test RIP version on Debian 9 armhf
-
-platform:
-  arch: arm
-
-clone:
-  disable: true
-
-steps:
-- name: Prepare Docker Drone volume
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - chown 1000:1000 /build
-
-- name: Clone Machinekit-HAL repository
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - apt-get update
-  - apt-get install -y git
-  - addgroup --gid 1000 git
-  - |
-    adduser --uid 1000 --ingroup git --home /home/git \
-      --disabled-password --gecos "" git;
-  - |
-    su git -c "
-      git init /build/machinekit-hal;
-      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
-      git -C /build/machinekit-hal config --local gc.auto 0;
-      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules \
-          origin +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/* \
-          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-        git -C /build/machinekit-hal checkout --progress --force \
-          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules origin \
-          +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/*;
-        git -C /build/machinekit-hal checkout --progress --force \
-          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
-      else
-        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
-        exit 1;
-      fi
-      git -C /build/machinekit-hal log -1;"
-
-- name: Build RIP and run tests
-  image: arm32v7/debian:stretch
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - uname -a
-  - uname -m
-  - >
-    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
-    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
-  - apt-get update
-  - apt-get -y upgrade
-  - apt-get -y install sudo curl build-essential fakeroot devscripts python
-  - |
-    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
-  - |
-    curl -1sLf                                                                      \
-      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
-      | bash
-  - addgroup --gid 1000 machinekit
-  - |
-    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
-      --disabled-password --gecos "" machinekit;
-  - |
-    su machinekit -c "whoami; \
-      cd /build/machinekit-hal; \
-      debian/bootstrap; \
-      mk-build-deps -irs sudo -t                                              \
-        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
-      debian/ripruntests.py;"
-
-volumes:
-- name: repository
-  user: 1000
-  group: 1000
-  temp: {}
-
-# Issue with Docker runtime -> uncomment when the newer one with this bug resolved
-# is deployed to Drone Cloud
-
+#=============================================================================================
+# Valid, but need rework for CMake based build
+#=============================================================================================
+#kind: pipeline
+#name: Test RIP version on Ubuntu 20.04 amd64
+#
+#platform:
+#  arch: amd64
+#
+#clone:
+#  disable: true
+#
+#steps:
+#- name: Prepare Docker Drone volume
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - chown 1000:1000 /build
+#
+#- name: Clone Machinekit-HAL repository
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - apt-get update
+#  - apt-get install -y git
+#  - addgroup --gid 1000 git
+#  - |
+#    adduser --uid 1000 --ingroup git --home /home/git \
+#      --disabled-password --gecos "" git;
+#  - |
+#    su git -c "
+#      git init /build/machinekit-hal;
+#      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
+#      git -C /build/machinekit-hal config --local gc.auto 0;
+#      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules \
+#          origin +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/* \
+#          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules origin \
+#          +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/*;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
+#      else
+#        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
+#        exit 1;
+#      fi
+#      git -C /build/machinekit-hal log -1;"
+#
+#- name: Build RIP and run tests
+#  image: ubuntu:focal
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - uname -a
+#  - uname -m
+#  - >
+#    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
+#    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
+#  - apt-get update
+#  - apt-get -y upgrade
+#  - apt-get -y install sudo curl build-essential fakeroot devscripts python equivs
+#  - |
+#    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
+#  - |
+#    curl -1sLf                                                                      \
+#      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
+#      | bash
+#  - addgroup --gid 1000 machinekit
+#  - |
+#    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
+#      --disabled-password --gecos "" machinekit;
+#  - |
+#    su machinekit -c "whoami; \
+#      cd /build/machinekit-hal; \
+#      debian/bootstrap; \
+#      mk-build-deps -irs sudo -t                                              \
+#        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
+#      debian/ripruntests.py;"
+#
+#volumes:
+#- name: repository
+#  user: 1000
+#  group: 1000
+#  temp: {}
+#  
 #---
 #kind: pipeline
-#name: Build packages for Ubuntu 21.04 amd64
+#name: Test RIP version on ubuntu 20.04 arm64
+#
+#platform:
+#  arch: arm64
+#
+#clone:
+#  disable: true
+#
+#steps:
+#- name: Prepare Docker Drone volume
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - chown 1000:1000 /build
+#
+#- name: Clone Machinekit-HAL repository
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - apt-get update
+#  - apt-get install -y git
+#  - addgroup --gid 1000 git
+#  - |
+#    adduser --uid 1000 --ingroup git --home /home/git \
+#      --disabled-password --gecos "" git;
+#  - |
+#    su git -c "
+#      git init /build/machinekit-hal;
+#      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
+#      git -C /build/machinekit-hal config --local gc.auto 0;
+#      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules \
+#          origin +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/* \
+#          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules origin \
+#          +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/*;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
+#      else
+#        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
+#        exit 1;
+#      fi
+#      git -C /build/machinekit-hal log -1;"
+#
+#- name: Build RIP and run tests
+#  image: ubuntu:focal
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - uname -a
+#  - uname -m
+#  - >
+#    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
+#    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
+#  - apt-get update
+#  - apt-get -y upgrade
+#  - apt-get -y install sudo curl build-essential fakeroot devscripts python equivs
+#  - |
+#    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
+#  - |
+#    curl -1sLf                                                                      \
+#      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
+#      | bash
+#  - addgroup --gid 1000 machinekit
+#  - |
+#    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
+#      --disabled-password --gecos "" machinekit;
+#  - |
+#    su machinekit -c "whoami; \
+#      cd /build/machinekit-hal; \
+#      debian/bootstrap; \
+#      mk-build-deps -irs sudo -t                                              \
+#        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
+#      debian/ripruntests.py;"
+#
+#volumes:
+#- name: repository
+#  user: 1000
+#  group: 1000
+#  temp: {}
+#
+#---
+#kind: pipeline
+#name: Test RIP version on Ubuntu 20.04 armhf
+#
+#platform:
+#  arch: arm
+#
+#clone:
+#  disable: true
+#
+#steps:
+#- name: Prepare Docker Drone volume
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - chown 1000:1000 /build
+#
+#- name: Clone Machinekit-HAL repository
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - apt-get update
+#  - apt-get install -y git
+#  - addgroup --gid 1000 git
+#  - |
+#    adduser --uid 1000 --ingroup git --home /home/git \
+#      --disabled-password --gecos "" git;
+#  - |
+#    su git -c "
+#      git init /build/machinekit-hal;
+#      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
+#      git -C /build/machinekit-hal config --local gc.auto 0;
+#      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules \
+#          origin +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/* \
+#          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules origin \
+#          +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/*;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
+#      else
+#        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
+#        exit 1;
+#      fi
+#      git -C /build/machinekit-hal log -1;"
+#
+#- name: Build RIP and run tests
+#  image: arm32v7/ubuntu:focal
+#  failure: ignore
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - uname -a
+#  - uname -m
+#  - >
+#    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
+#    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
+#  - apt-get update
+#  - apt-get -y upgrade
+#  - apt-get -y install sudo curl build-essential fakeroot devscripts python equivs
+#  - |
+#    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
+#  - |
+#    curl -1sLf                                                                      \
+#      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
+#      | bash
+#  - addgroup --gid 1000 machinekit
+#  - |
+#    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
+#      --disabled-password --gecos "" machinekit;
+#  - |
+#    su machinekit -c "whoami; \
+#      cd /build/machinekit-hal; \
+#      debian/bootstrap; \
+#      mk-build-deps -irs sudo -t                                              \
+#        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
+#      debian/ripruntests.py;"
+#
+#volumes:
+#- name: repository
+#  user: 1000
+#  group: 1000
+#  temp: {}
+#
+#---
+#kind: pipeline
+#name: Test RIP version on Debian 10 amd64
+#
+#platform:
+#  arch: amd64
+#
+#clone:
+#  disable: true
+#
+#steps:
+#- name: Prepare Docker Drone volume
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - chown 1000:1000 /build
+#
+#- name: Clone Machinekit-HAL repository
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - apt-get update
+#  - apt-get install -y git
+#  - addgroup --gid 1000 git
+#  - |
+#    adduser --uid 1000 --ingroup git --home /home/git \
+#      --disabled-password --gecos "" git;
+#  - |
+#    su git -c "
+#      git init /build/machinekit-hal;
+#      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
+#      git -C /build/machinekit-hal config --local gc.auto 0;
+#      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules \
+#          origin +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/* \
+#          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules origin \
+#          +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/*;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
+#      else
+#        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
+#        exit 1;
+#      fi
+#      git -C /build/machinekit-hal log -1;"
+#
+#- name: Build RIP and run tests
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - uname -a
+#  - uname -m
+#  - >
+#    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
+#    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
+#  - apt-get update
+#  - apt-get -y upgrade
+#  - apt-get -y install sudo curl build-essential fakeroot devscripts python
+#  - |
+#    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
+#  - |
+#    curl -1sLf                                                                      \
+#      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
+#      | bash
+#  - addgroup --gid 1000 machinekit
+#  - |
+#    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
+#      --disabled-password --gecos "" machinekit;
+#  - |
+#    su machinekit -c "whoami; \
+#      cd /build/machinekit-hal; \
+#      debian/bootstrap; \
+#      mk-build-deps -irs sudo -t                                              \
+#        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
+#      debian/ripruntests.py;"
+#
+#volumes:
+#- name: repository
+#  user: 1000
+#  group: 1000
+#  temp: {}
+#  
+#---
+#kind: pipeline
+#name: Test RIP version on Debian 10 arm64
+#
+#platform:
+#  arch: arm64
+#
+#clone:
+#  disable: true
+#
+#steps:
+#- name: Prepare Docker Drone volume
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - chown 1000:1000 /build
+#
+#- name: Clone Machinekit-HAL repository
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - apt-get update
+#  - apt-get install -y git
+#  - addgroup --gid 1000 git
+#  - |
+#    adduser --uid 1000 --ingroup git --home /home/git \
+#      --disabled-password --gecos "" git;
+#  - |
+#    su git -c "
+#      git init /build/machinekit-hal;
+#      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
+#      git -C /build/machinekit-hal config --local gc.auto 0;
+#      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules \
+#          origin +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/* \
+#          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules origin \
+#          +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/*;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
+#      else
+#        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
+#        exit 1;
+#      fi
+#      git -C /build/machinekit-hal log -1;"
+#
+#- name: Build RIP and run tests
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - uname -a
+#  - uname -m
+#  - >
+#    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
+#    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
+#  - apt-get update
+#  - apt-get -y upgrade
+#  - apt-get -y install sudo curl build-essential fakeroot devscripts python
+#  - |
+#    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
+#  - |
+#    curl -1sLf                                                                      \
+#      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
+#      | bash
+#  - addgroup --gid 1000 machinekit
+#  - |
+#    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
+#      --disabled-password --gecos "" machinekit;
+#  - |
+#    su machinekit -c "whoami; \
+#      cd /build/machinekit-hal; \
+#      debian/bootstrap; \
+#      mk-build-deps -irs sudo -t                                              \
+#        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
+#      debian/ripruntests.py;"
+#
+#volumes:
+#- name: repository
+#  user: 1000
+#  group: 1000
+#  temp: {}
+#
+#---
+#kind: pipeline
+#name: Test RIP version on Debian 10 armhf
+#
+#platform:
+#  arch: arm
+#
+#clone:
+#  disable: true
+#
+#steps:
+#- name: Prepare Docker Drone volume
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - chown 1000:1000 /build
+#
+#- name: Clone Machinekit-HAL repository
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - apt-get update
+#  - apt-get install -y git
+#  - addgroup --gid 1000 git
+#  - |
+#    adduser --uid 1000 --ingroup git --home /home/git \
+#      --disabled-password --gecos "" git;
+#  - |
+#    su git -c "
+#      git init /build/machinekit-hal;
+#      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
+#      git -C /build/machinekit-hal config --local gc.auto 0;
+#      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules \
+#          origin +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/* \
+#          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules origin \
+#          +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/*;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
+#      else
+#        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
+#        exit 1;
+#      fi
+#      git -C /build/machinekit-hal log -1;"
+#
+#- name: Build RIP and run tests
+#  image: arm32v7/debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - uname -a
+#  - uname -m
+#  - >
+#    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
+#    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
+#  - apt-get update
+#  - apt-get -y upgrade
+#  - apt-get -y install sudo curl build-essential fakeroot devscripts python
+#  - |
+#    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
+#  - |
+#    curl -1sLf                                                                      \
+#      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
+#      | bash
+#  - addgroup --gid 1000 machinekit
+#  - |
+#    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
+#      --disabled-password --gecos "" machinekit;
+#  - |
+#    su machinekit -c "whoami; \
+#      cd /build/machinekit-hal; \
+#      debian/bootstrap; \
+#      mk-build-deps -irs sudo -t                                              \
+#        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
+#      debian/ripruntests.py;"
+#
+#volumes:
+#- name: repository
+#  user: 1000
+#  group: 1000
+#  temp: {}
+#
+#---
+#kind: pipeline
+#name: Test RIP version on Ubuntu 18.04 amd64
+#
+#platform:
+#  arch: amd64
+#
+#clone:
+#  disable: true
+#
+#steps:
+#- name: Prepare Docker Drone volume
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - chown 1000:1000 /build
+#
+#- name: Clone Machinekit-HAL repository
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - apt-get update
+#  - apt-get install -y git
+#  - addgroup --gid 1000 git
+#  - |
+#    adduser --uid 1000 --ingroup git --home /home/git \
+#      --disabled-password --gecos "" git;
+#  - |
+#    su git -c "
+#      git init /build/machinekit-hal;
+#      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
+#      git -C /build/machinekit-hal config --local gc.auto 0;
+#      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules \
+#          origin +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/* \
+#          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules origin \
+#          +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/*;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
+#      else
+#        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
+#        exit 1;
+#      fi
+#      git -C /build/machinekit-hal log -1;"
+#
+#- name: Build RIP and run tests
+#  image: ubuntu:bionic
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - uname -a
+#  - uname -m
+#  - >
+#    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
+#    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
+#  - apt-get update
+#  - apt-get -y upgrade
+#  - apt-get -y install sudo curl build-essential fakeroot devscripts python equivs
+#  - |
+#    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
+#  - |
+#    curl -1sLf                                                                      \
+#      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
+#      | bash
+#  - addgroup --gid 1000 machinekit
+#  - |
+#    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
+#      --disabled-password --gecos "" machinekit;
+#  - |
+#    su machinekit -c "whoami; \
+#      cd /build/machinekit-hal; \
+#      debian/bootstrap; \
+#      mk-build-deps -irs sudo -t                                              \
+#        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
+#      debian/ripruntests.py;"
+#
+#volumes:
+#- name: repository
+#  user: 1000
+#  group: 1000
+#  temp: {}
+#
+#---
+#kind: pipeline
+#name: Test RIP version on Ubuntu 18.04 arm64
+#
+#platform:
+#  arch: arm64
+#
+#clone:
+#  disable: true
+#
+#steps:
+#- name: Prepare Docker Drone volume
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - chown 1000:1000 /build
+#
+#- name: Clone Machinekit-HAL repository
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - apt-get update
+#  - apt-get install -y git
+#  - addgroup --gid 1000 git
+#  - |
+#    adduser --uid 1000 --ingroup git --home /home/git \
+#      --disabled-password --gecos "" git;
+#  - |
+#    su git -c "
+#      git init /build/machinekit-hal;
+#      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
+#      git -C /build/machinekit-hal config --local gc.auto 0;
+#      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules \
+#          origin +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/* \
+#          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules origin \
+#          +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/*;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
+#      else
+#        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
+#        exit 1;
+#      fi
+#      git -C /build/machinekit-hal log -1;"
+#
+#- name: Build RIP and run tests
+#  image: ubuntu:bionic
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - uname -a
+#  - uname -m
+#  - >
+#    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
+#    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
+#  - apt-get update
+#  - apt-get -y upgrade
+#  - apt-get -y install sudo curl build-essential fakeroot devscripts python equivs
+#  - |
+#    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
+#  - |
+#    curl -1sLf                                                                      \
+#      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
+#      | bash
+#  - addgroup --gid 1000 machinekit
+#  - |
+#    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
+#      --disabled-password --gecos "" machinekit;
+#  - |
+#    su machinekit -c "whoami; \
+#      cd /build/machinekit-hal; \
+#      debian/bootstrap; \
+#      mk-build-deps -irs sudo -t                                              \
+#        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
+#      debian/ripruntests.py;"
+#
+#volumes:
+#- name: repository
+#  user: 1000
+#  group: 1000
+#  temp: {}
+#
+#---
+#kind: pipeline
+#name: Test RIP version on Ubuntu 18.04 armhf
+#
+#platform:
+#  arch: arm
+#
+#clone:
+#  disable: true
+#
+#steps:
+#- name: Prepare Docker Drone volume
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - chown 1000:1000 /build
+#
+#- name: Clone Machinekit-HAL repository
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - apt-get update
+#  - apt-get install -y git
+#  - addgroup --gid 1000 git
+#  - |
+#    adduser --uid 1000 --ingroup git --home /home/git \
+#      --disabled-password --gecos "" git;
+#  - |
+#    su git -c "
+#      git init /build/machinekit-hal;
+#      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
+#      git -C /build/machinekit-hal config --local gc.auto 0;
+#      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules \
+#          origin +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/* \
+#          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules origin \
+#          +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/*;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
+#      else
+#        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
+#        exit 1;
+#      fi
+#      git -C /build/machinekit-hal log -1;"
+#
+#- name: Build RIP and run tests
+#  image: arm32v7/ubuntu:bionic
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - uname -a
+#  - uname -m
+#  - >
+#    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
+#    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
+#  - apt-get update
+#  - apt-get -y upgrade
+#  - apt-get -y install sudo curl build-essential fakeroot devscripts python equivs
+#  - |
+#    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
+#  - |
+#    curl -1sLf                                                                      \
+#      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
+#      | bash
+#  - addgroup --gid 1000 machinekit
+#  - |
+#    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
+#      --disabled-password --gecos "" machinekit;
+#  - |
+#    su machinekit -c "whoami; \
+#      cd /build/machinekit-hal; \
+#      debian/bootstrap; \
+#      mk-build-deps -irs sudo -t                                              \
+#        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
+#      debian/ripruntests.py;"
+#
+#volumes:
+#- name: repository
+#  user: 1000
+#  group: 1000
+#  temp: {}
+#
+#---
+#kind: pipeline
+#name: Test RIP version on Debian 9 amd64
+#
+#platform:
+#  arch: amd64
+#
+#clone:
+#  disable: true
+#
+#steps:
+#- name: Prepare Docker Drone volume
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - chown 1000:1000 /build
+#
+#- name: Clone Machinekit-HAL repository
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - apt-get update
+#  - apt-get install -y git
+#  - addgroup --gid 1000 git
+#  - |
+#    adduser --uid 1000 --ingroup git --home /home/git \
+#      --disabled-password --gecos "" git;
+#  - |
+#    su git -c "
+#      git init /build/machinekit-hal;
+#      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
+#      git -C /build/machinekit-hal config --local gc.auto 0;
+#      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules \
+#          origin +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/* \
+#          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules origin \
+#          +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/*;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
+#      else
+#        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
+#        exit 1;
+#      fi
+#      git -C /build/machinekit-hal log -1;"
+#
+#- name: Build RIP and run tests
+#  image: debian:stretch
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - uname -a
+#  - uname -m
+#  - >
+#    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
+#    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
+#  - apt-get update
+#  - apt-get -y upgrade
+#  - apt-get -y install sudo curl build-essential fakeroot devscripts python
+#  - |
+#    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
+#  - |
+#    curl -1sLf                                                                      \
+#      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
+#      | bash
+#  - addgroup --gid 1000 machinekit
+#  - |
+#    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
+#      --disabled-password --gecos "" machinekit;
+#  - |
+#    su machinekit -c "whoami; \
+#      cd /build/machinekit-hal; \
+#      debian/bootstrap; \
+#      mk-build-deps -irs sudo -t                                              \
+#        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
+#      debian/ripruntests.py;"
+#
+#volumes:
+#- name: repository
+#  user: 1000
+#  group: 1000
+#  temp: {}
+#
+#---
+#kind: pipeline
+#name: Test RIP version on Debian 9 arm64
+#
+#platform:
+#  arch: arm64
+#
+#clone:
+#  disable: true
+#
+#steps:
+#- name: Prepare Docker Drone volume
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - chown 1000:1000 /build
+#
+#- name: Clone Machinekit-HAL repository
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - apt-get update
+#  - apt-get install -y git
+#  - addgroup --gid 1000 git
+#  - |
+#    adduser --uid 1000 --ingroup git --home /home/git \
+#      --disabled-password --gecos "" git;
+#  - |
+#    su git -c "
+#      git init /build/machinekit-hal;
+#      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
+#      git -C /build/machinekit-hal config --local gc.auto 0;
+#      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules \
+#          origin +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/* \
+#          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules origin \
+#          +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/*;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
+#      else
+#        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
+#        exit 1;
+#      fi
+#      git -C /build/machinekit-hal log -1;"
+#
+#- name: Build RIP and run tests
+#  image: debian:stretch
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - uname -a
+#  - uname -m
+#  - >
+#    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
+#    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
+#  - apt-get update
+#  - apt-get -y upgrade
+#  - apt-get -y install sudo curl build-essential fakeroot devscripts python
+#  - |
+#    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
+#  - |
+#    curl -1sLf                                                                      \
+#      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
+#      | bash
+#  - addgroup --gid 1000 machinekit
+#  - |
+#    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
+#      --disabled-password --gecos "" machinekit;
+#  - |
+#    su machinekit -c "whoami; \
+#      cd /build/machinekit-hal; \
+#      debian/bootstrap; \
+#      mk-build-deps -irs sudo -t                                              \
+#        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
+#      debian/ripruntests.py;"
+#
+#volumes:
+#- name: repository
+#  user: 1000
+#  group: 1000
+#  temp: {}
+#
+#---
+#kind: pipeline
+#name: Test RIP version on Debian 9 armhf
+#
+#platform:
+#  arch: arm
+#
+#clone:
+#  disable: true
+#
+#steps:
+#- name: Prepare Docker Drone volume
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - chown 1000:1000 /build
+#
+#- name: Clone Machinekit-HAL repository
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - apt-get update
+#  - apt-get install -y git
+#  - addgroup --gid 1000 git
+#  - |
+#    adduser --uid 1000 --ingroup git --home /home/git \
+#      --disabled-password --gecos "" git;
+#  - |
+#    su git -c "
+#      git init /build/machinekit-hal;
+#      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
+#      git -C /build/machinekit-hal config --local gc.auto 0;
+#      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules \
+#          origin +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/* \
+#          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules origin \
+#          +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/*;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
+#      else
+#        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
+#        exit 1;
+#      fi
+#      git -C /build/machinekit-hal log -1;"
+#
+#- name: Build RIP and run tests
+#  image: arm32v7/debian:stretch
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - uname -a
+#  - uname -m
+#  - >
+#    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
+#    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
+#  - apt-get update
+#  - apt-get -y upgrade
+#  - apt-get -y install sudo curl build-essential fakeroot devscripts python
+#  - |
+#    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
+#  - |
+#    curl -1sLf                                                                      \
+#      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
+#      | bash
+#  - addgroup --gid 1000 machinekit
+#  - |
+#    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
+#      --disabled-password --gecos "" machinekit;
+#  - |
+#    su machinekit -c "whoami; \
+#      cd /build/machinekit-hal; \
+#      debian/bootstrap; \
+#      mk-build-deps -irs sudo -t                                              \
+#        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
+#      debian/ripruntests.py;"
+#
+#volumes:
+#- name: repository
+#  user: 1000
+#  group: 1000
+#  temp: {}
+#
+## Issue with Docker runtime -> uncomment when the newer one with this bug resolved
+## is deployed to Drone Cloud
+#
+##---
+##kind: pipeline
+##name: Build packages for Ubuntu 21.04 amd64
+##
+##platform:
+##  arch: amd64
+##
+##clone:
+##  disable: true
+##
+##steps:
+##- name: Prepare Docker Drone volume
+##  image: debian:buster
+##  volumes:
+##  - name: repository
+##    path: /build
+##  commands:
+##  - chown 1000:1000 /build
+##
+##- name: Clone Machinekit-HAL repository
+##  image: debian:buster
+##  volumes:
+##  - name: repository
+##    path: /build
+##  commands:
+##  - apt-get update
+##  - apt-get install -y git
+##  - addgroup --gid 1000 git
+##  - |
+##    adduser --uid 1000 --ingroup git --home /home/git \
+##      --disabled-password --gecos "" git;
+##  - |
+##    su git -c "
+##      git init /build/machinekit-hal;
+##      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
+##      git -C /build/machinekit-hal config --local gc.auto 0;
+##      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
+##      then
+##        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+##          --progress --no-recurse-submodules \
+##          origin +refs/heads/*:refs/remotes/origin/* \
+##          +refs/tags/*:refs/tags/* \
+##          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+##        git -C /build/machinekit-hal checkout --progress --force \
+##          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+##      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
+##      then
+##        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+##          --progress --no-recurse-submodules origin \
+##          +refs/heads/*:refs/remotes/origin/* \
+##          +refs/tags/*:refs/tags/*;
+##        git -C /build/machinekit-hal checkout --progress --force \
+##          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
+##      else
+##        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
+##        exit 1;
+##      fi
+##      git -C /build/machinekit-hal log -1;"
+##
+##- name: Build Debian packages
+##  image: ubuntu:hirsute
+##  volumes:
+##  - name: repository
+##    path: /build
+##  commands:
+##  - uname -a
+##  - uname -m
+##  - >
+##    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
+##    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
+##  - apt-get update
+##  - apt-get -y upgrade
+##  - apt-get -y install sudo curl build-essential fakeroot devscripts python equivs
+##  - |
+##    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
+##  - |
+##    curl -1sLf                                                                      \
+##      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
+##      | bash
+##  - addgroup --gid 1000 machinekit
+##  - |
+##    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
+##      --disabled-password --gecos "" machinekit;
+##  - |
+##    su machinekit -c "whoami; \
+##      cd /build/machinekit-hal; \
+##      debian/bootstrap; \
+##      mk-build-deps -irs sudo -t                                              \
+##        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
+##      debian/configure.py -c; \
+##      debian/buildpackages.py;"
+##
+##volumes:
+##- name: repository
+##  user: 1000
+##  group: 1000
+##  temp: {}
+##  
+##---
+##kind: pipeline
+##name: Build packages for Ubuntu 21.04 arm64
+##
+##platform:
+##  arch: arm64
+##
+##clone:
+##  disable: true
+##
+##steps:
+##- name: Prepare Docker Drone volume
+##  image: debian:buster
+##  volumes:
+##  - name: repository
+##    path: /build
+##  commands:
+##  - chown 1000:1000 /build
+##
+##- name: Clone Machinekit-HAL repository
+##  image: debian:buster
+##  volumes:
+##  - name: repository
+##    path: /build
+##  commands:
+##  - apt-get update
+##  - apt-get install -y git
+##  - addgroup --gid 1000 git
+##  - |
+##    adduser --uid 1000 --ingroup git --home /home/git \
+##      --disabled-password --gecos "" git;
+##  - |
+##    su git -c "
+##      git init /build/machinekit-hal;
+##      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
+##      git -C /build/machinekit-hal config --local gc.auto 0;
+##      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
+##      then
+##        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+##          --progress --no-recurse-submodules \
+##          origin +refs/heads/*:refs/remotes/origin/* \
+##          +refs/tags/*:refs/tags/* \
+##          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+##        git -C /build/machinekit-hal checkout --progress --force \
+##          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+##      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
+##      then
+##        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+##          --progress --no-recurse-submodules origin \
+##          +refs/heads/*:refs/remotes/origin/* \
+##          +refs/tags/*:refs/tags/*;
+##        git -C /build/machinekit-hal checkout --progress --force \
+##          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
+##      else
+##        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
+##        exit 1;
+##      fi
+##      git -C /build/machinekit-hal log -1;"
+##
+##- name: Build Debian packages
+##  image: ubuntu:hirsute
+##  volumes:
+##  - name: repository
+##    path: /build
+##  commands:
+##  - uname -a
+##  - uname -m
+##  - >
+##    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
+##    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
+##  - apt-get update
+##  - apt-get -y upgrade
+##  - apt-get -y install sudo curl build-essential fakeroot devscripts python equivs
+##  - |
+##    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
+##  - |
+##    curl -1sLf                                                                      \
+##      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
+##      | bash
+##  - addgroup --gid 1000 machinekit
+##  - |
+##    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
+##      --disabled-password --gecos "" machinekit;
+##  - |
+##    su machinekit -c "whoami; \
+##      cd /build/machinekit-hal; \
+##      debian/bootstrap; \
+##      mk-build-deps -irs sudo -t                                              \
+##        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
+##      debian/configure.py -c; \
+##      debian/buildpackages.py;"
+##
+##volumes:
+##- name: repository
+##  user: 1000
+##  group: 1000
+##  temp: {}
+##
+##---
+##kind: pipeline
+##name: Build packages for Ubuntu 21.04 armhf
+##
+##platform:
+##  arch: arm
+##
+##clone:
+##  disable: true
+##
+##steps:
+##- name: Prepare Docker Drone volume
+##  image: debian:buster
+##  volumes:
+##  - name: repository
+##    path: /build
+##  commands:
+##  - chown 1000:1000 /build
+##
+##- name: Clone Machinekit-HAL repository
+##  image: debian:buster
+##  volumes:
+##  - name: repository
+##    path: /build
+##  commands:
+##  - apt-get update
+##  - apt-get install -y git
+##  - addgroup --gid 1000 git
+##  - |
+##    adduser --uid 1000 --ingroup git --home /home/git \
+##      --disabled-password --gecos "" git;
+##  - |
+##    su git -c "
+##      git init /build/machinekit-hal;
+##      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
+##      git -C /build/machinekit-hal config --local gc.auto 0;
+##      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
+##      then
+##        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+##          --progress --no-recurse-submodules \
+##          origin +refs/heads/*:refs/remotes/origin/* \
+##          +refs/tags/*:refs/tags/* \
+##          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+##        git -C /build/machinekit-hal checkout --progress --force \
+##          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+##      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
+##      then
+##        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+##          --progress --no-recurse-submodules origin \
+##          +refs/heads/*:refs/remotes/origin/* \
+##          +refs/tags/*:refs/tags/*;
+##        git -C /build/machinekit-hal checkout --progress --force \
+##          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
+##      else
+##        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
+##        exit 1;
+##      fi
+##      git -C /build/machinekit-hal log -1;"
+##
+##- name: Build Debian packages
+##  image: arm32v7/ubuntu:hirsute
+##  failure: ignore
+##  volumes:
+##  - name: repository
+##    path: /build
+##  commands:
+##  - uname -a
+##  - uname -m
+##  - >
+##    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
+##    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
+##  - apt-get update
+##  - apt-get -y upgrade
+##  - apt-get -y install sudo curl build-essential fakeroot devscripts python equivs
+##  - |
+##    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
+##  - |
+##    curl -1sLf                                                                      \
+##      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
+##      | bash
+##  - addgroup --gid 1000 machinekit
+##  - |
+##    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
+##      --disabled-password --gecos "" machinekit;
+##  - |
+##    su machinekit -c "whoami; \
+##      cd /build/machinekit-hal; \
+##      debian/bootstrap; \
+##      mk-build-deps -irs sudo -t                                              \
+##        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
+##      debian/configure.py -c; \
+##      debian/buildpackages.py;"
+##
+##volumes:
+##- name: repository
+##  user: 1000
+##  group: 1000
+##  temp: {}
+#---
+#kind: pipeline
+#name: Build packages for Ubuntu 20.04 amd64
 #
 #platform:
 #  arch: amd64
@@ -1553,7 +1850,7 @@ volumes:
 #      git -C /build/machinekit-hal log -1;"
 #
 #- name: Build Debian packages
-#  image: ubuntu:hirsute
+#  image: ubuntu:focal
 #  volumes:
 #  - name: repository
 #    path: /build
@@ -1593,7 +1890,7 @@ volumes:
 #  
 #---
 #kind: pipeline
-#name: Build packages for Ubuntu 21.04 arm64
+#name: Build packages for Ubuntu 20.04 arm64
 #
 #platform:
 #  arch: arm64
@@ -1651,7 +1948,7 @@ volumes:
 #      git -C /build/machinekit-hal log -1;"
 #
 #- name: Build Debian packages
-#  image: ubuntu:hirsute
+#  image: ubuntu:focal
 #  volumes:
 #  - name: repository
 #    path: /build
@@ -1691,7 +1988,7 @@ volumes:
 #
 #---
 #kind: pipeline
-#name: Build packages for Ubuntu 21.04 armhf
+#name: Build packages for Ubuntu 20.04 armhf
 #
 #platform:
 #  arch: arm
@@ -1749,7 +2046,7 @@ volumes:
 #      git -C /build/machinekit-hal log -1;"
 #
 #- name: Build Debian packages
-#  image: arm32v7/ubuntu:hirsute
+#  image: arm32v7/ubuntu:focal
 #  failure: ignore
 #  volumes:
 #  - name: repository
@@ -1787,1179 +2084,885 @@ volumes:
 #  user: 1000
 #  group: 1000
 #  temp: {}
----
-kind: pipeline
-name: Build packages for Ubuntu 20.04 amd64
-
-platform:
-  arch: amd64
-
-clone:
-  disable: true
-
-steps:
-- name: Prepare Docker Drone volume
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - chown 1000:1000 /build
-
-- name: Clone Machinekit-HAL repository
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - apt-get update
-  - apt-get install -y git
-  - addgroup --gid 1000 git
-  - |
-    adduser --uid 1000 --ingroup git --home /home/git \
-      --disabled-password --gecos "" git;
-  - |
-    su git -c "
-      git init /build/machinekit-hal;
-      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
-      git -C /build/machinekit-hal config --local gc.auto 0;
-      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules \
-          origin +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/* \
-          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-        git -C /build/machinekit-hal checkout --progress --force \
-          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules origin \
-          +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/*;
-        git -C /build/machinekit-hal checkout --progress --force \
-          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
-      else
-        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
-        exit 1;
-      fi
-      git -C /build/machinekit-hal log -1;"
-
-- name: Build Debian packages
-  image: ubuntu:focal
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - uname -a
-  - uname -m
-  - >
-    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
-    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
-  - apt-get update
-  - apt-get -y upgrade
-  - apt-get -y install sudo curl build-essential fakeroot devscripts python equivs
-  - |
-    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
-  - |
-    curl -1sLf                                                                      \
-      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
-      | bash
-  - addgroup --gid 1000 machinekit
-  - |
-    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
-      --disabled-password --gecos "" machinekit;
-  - |
-    su machinekit -c "whoami; \
-      cd /build/machinekit-hal; \
-      debian/bootstrap; \
-      mk-build-deps -irs sudo -t                                              \
-        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
-      debian/configure.py -c; \
-      debian/buildpackages.py;"
-
-volumes:
-- name: repository
-  user: 1000
-  group: 1000
-  temp: {}
-  
----
-kind: pipeline
-name: Build packages for Ubuntu 20.04 arm64
-
-platform:
-  arch: arm64
-
-clone:
-  disable: true
-
-steps:
-- name: Prepare Docker Drone volume
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - chown 1000:1000 /build
-
-- name: Clone Machinekit-HAL repository
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - apt-get update
-  - apt-get install -y git
-  - addgroup --gid 1000 git
-  - |
-    adduser --uid 1000 --ingroup git --home /home/git \
-      --disabled-password --gecos "" git;
-  - |
-    su git -c "
-      git init /build/machinekit-hal;
-      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
-      git -C /build/machinekit-hal config --local gc.auto 0;
-      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules \
-          origin +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/* \
-          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-        git -C /build/machinekit-hal checkout --progress --force \
-          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules origin \
-          +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/*;
-        git -C /build/machinekit-hal checkout --progress --force \
-          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
-      else
-        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
-        exit 1;
-      fi
-      git -C /build/machinekit-hal log -1;"
-
-- name: Build Debian packages
-  image: ubuntu:focal
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - uname -a
-  - uname -m
-  - >
-    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
-    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
-  - apt-get update
-  - apt-get -y upgrade
-  - apt-get -y install sudo curl build-essential fakeroot devscripts python equivs
-  - |
-    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
-  - |
-    curl -1sLf                                                                      \
-      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
-      | bash
-  - addgroup --gid 1000 machinekit
-  - |
-    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
-      --disabled-password --gecos "" machinekit;
-  - |
-    su machinekit -c "whoami; \
-      cd /build/machinekit-hal; \
-      debian/bootstrap; \
-      mk-build-deps -irs sudo -t                                              \
-        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
-      debian/configure.py -c; \
-      debian/buildpackages.py;"
-
-volumes:
-- name: repository
-  user: 1000
-  group: 1000
-  temp: {}
-
----
-kind: pipeline
-name: Build packages for Ubuntu 20.04 armhf
-
-platform:
-  arch: arm
-
-clone:
-  disable: true
-
-steps:
-- name: Prepare Docker Drone volume
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - chown 1000:1000 /build
-
-- name: Clone Machinekit-HAL repository
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - apt-get update
-  - apt-get install -y git
-  - addgroup --gid 1000 git
-  - |
-    adduser --uid 1000 --ingroup git --home /home/git \
-      --disabled-password --gecos "" git;
-  - |
-    su git -c "
-      git init /build/machinekit-hal;
-      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
-      git -C /build/machinekit-hal config --local gc.auto 0;
-      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules \
-          origin +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/* \
-          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-        git -C /build/machinekit-hal checkout --progress --force \
-          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules origin \
-          +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/*;
-        git -C /build/machinekit-hal checkout --progress --force \
-          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
-      else
-        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
-        exit 1;
-      fi
-      git -C /build/machinekit-hal log -1;"
-
-- name: Build Debian packages
-  image: arm32v7/ubuntu:focal
-  failure: ignore
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - uname -a
-  - uname -m
-  - >
-    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
-    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
-  - apt-get update
-  - apt-get -y upgrade
-  - apt-get -y install sudo curl build-essential fakeroot devscripts python equivs
-  - |
-    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
-  - |
-    curl -1sLf                                                                      \
-      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
-      | bash
-  - addgroup --gid 1000 machinekit
-  - |
-    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
-      --disabled-password --gecos "" machinekit;
-  - |
-    su machinekit -c "whoami; \
-      cd /build/machinekit-hal; \
-      debian/bootstrap; \
-      mk-build-deps -irs sudo -t                                              \
-        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
-      debian/configure.py -c; \
-      debian/buildpackages.py;"
-
-volumes:
-- name: repository
-  user: 1000
-  group: 1000
-  temp: {}
-
----
-kind: pipeline
-name: Build packages for Debian 10 amd64
-
-platform:
-  arch: amd64
-
-clone:
-  disable: true
-
-steps:
-- name: Prepare Docker Drone volume
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - chown 1000:1000 /build
-
-- name: Clone Machinekit-HAL repository
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - apt-get update
-  - apt-get install -y git
-  - addgroup --gid 1000 git
-  - |
-    adduser --uid 1000 --ingroup git --home /home/git \
-      --disabled-password --gecos "" git;
-  - |
-    su git -c "
-      git init /build/machinekit-hal;
-      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
-      git -C /build/machinekit-hal config --local gc.auto 0;
-      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules \
-          origin +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/* \
-          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-        git -C /build/machinekit-hal checkout --progress --force \
-          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules origin \
-          +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/*;
-        git -C /build/machinekit-hal checkout --progress --force \
-          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
-      else
-        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
-        exit 1;
-      fi
-      git -C /build/machinekit-hal log -1;"
-
-- name: Build Debian packages
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - uname -a
-  - uname -m
-  - >
-    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
-    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
-  - apt-get update
-  - apt-get -y upgrade
-  - apt-get -y install sudo curl build-essential fakeroot devscripts python
-  - |
-    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
-  - |
-    curl -1sLf                                                                      \
-      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
-      | bash
-  - addgroup --gid 1000 machinekit
-  - |
-    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
-      --disabled-password --gecos "" machinekit;
-  - |
-    su machinekit -c "whoami; \
-      cd /build/machinekit-hal; \
-      debian/bootstrap; \
-      mk-build-deps -irs sudo -t                                              \
-        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
-      debian/configure.py -c; \
-      debian/buildpackages.py;"
-
-volumes:
-- name: repository
-  user: 1000
-  group: 1000
-  temp: {}
-  
----
-kind: pipeline
-name: Build packages for Debian 10 arm64
-
-platform:
-  arch: arm64
-
-clone:
-  disable: true
-
-steps:
-- name: Prepare Docker Drone volume
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - chown 1000:1000 /build
-
-- name: Clone Machinekit-HAL repository
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - apt-get update
-  - apt-get install -y git
-  - addgroup --gid 1000 git
-  - |
-    adduser --uid 1000 --ingroup git --home /home/git \
-      --disabled-password --gecos "" git;
-  - |
-    su git -c "
-      git init /build/machinekit-hal;
-      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
-      git -C /build/machinekit-hal config --local gc.auto 0;
-      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules \
-          origin +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/* \
-          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-        git -C /build/machinekit-hal checkout --progress --force \
-          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules origin \
-          +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/*;
-        git -C /build/machinekit-hal checkout --progress --force \
-          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
-      else
-        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
-        exit 1;
-      fi
-      git -C /build/machinekit-hal log -1;"
-
-- name: Build Debian packages
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - uname -a
-  - uname -m
-  - >
-    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
-    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
-  - apt-get update
-  - apt-get -y upgrade
-  - apt-get -y install sudo curl build-essential fakeroot devscripts python
-  - |
-    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
-  - |
-    curl -1sLf                                                                      \
-      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
-      | bash
-  - addgroup --gid 1000 machinekit
-  - |
-    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
-      --disabled-password --gecos "" machinekit;
-  - |
-    su machinekit -c "whoami; \
-      cd /build/machinekit-hal; \
-      debian/bootstrap; \
-      mk-build-deps -irs sudo -t                                              \
-        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
-      debian/configure.py -c; \
-      debian/buildpackages.py;"
-
-volumes:
-- name: repository
-  user: 1000
-  group: 1000
-  temp: {}
-
----
-kind: pipeline
-name: Build packages for Debian 10 armhf
-
-platform:
-  arch: arm
-
-clone:
-  disable: true
-
-steps:
-- name: Prepare Docker Drone volume
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - chown 1000:1000 /build
-
-- name: Clone Machinekit-HAL repository
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - apt-get update
-  - apt-get install -y git
-  - addgroup --gid 1000 git
-  - |
-    adduser --uid 1000 --ingroup git --home /home/git \
-      --disabled-password --gecos "" git;
-  - |
-    su git -c "
-      git init /build/machinekit-hal;
-      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
-      git -C /build/machinekit-hal config --local gc.auto 0;
-      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules \
-          origin +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/* \
-          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-        git -C /build/machinekit-hal checkout --progress --force \
-          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules origin \
-          +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/*;
-        git -C /build/machinekit-hal checkout --progress --force \
-          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
-      else
-        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
-        exit 1;
-      fi
-      git -C /build/machinekit-hal log -1;"
-
-- name: Build Debian packages
-  image: arm32v7/debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - uname -a
-  - uname -m
-  - >
-    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
-    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
-  - apt-get update
-  - apt-get -y upgrade
-  - apt-get -y install sudo curl build-essential fakeroot devscripts python
-  - |
-    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
-  - |
-    curl -1sLf                                                                      \
-      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
-      | bash
-  - addgroup --gid 1000 machinekit
-  - |
-    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
-      --disabled-password --gecos "" machinekit;
-  - |
-    su machinekit -c "whoami; \
-      cd /build/machinekit-hal; \
-      debian/bootstrap; \
-      mk-build-deps -irs sudo -t                                              \
-        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
-      debian/configure.py -c; \
-      debian/buildpackages.py;"
-
-volumes:
-- name: repository
-  user: 1000
-  group: 1000
-  temp: {}
-
----
-kind: pipeline
-name: Build packages for Ubuntu 18.04 amd64
-
-platform:
-  arch: amd64
-
-clone:
-  disable: true
-
-steps:
-- name: Prepare Docker Drone volume
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - chown 1000:1000 /build
-
-- name: Clone Machinekit-HAL repository
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - apt-get update
-  - apt-get install -y git
-  - addgroup --gid 1000 git
-  - |
-    adduser --uid 1000 --ingroup git --home /home/git \
-      --disabled-password --gecos "" git;
-  - |
-    su git -c "
-      git init /build/machinekit-hal;
-      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
-      git -C /build/machinekit-hal config --local gc.auto 0;
-      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules \
-          origin +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/* \
-          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-        git -C /build/machinekit-hal checkout --progress --force \
-          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules origin \
-          +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/*;
-        git -C /build/machinekit-hal checkout --progress --force \
-          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
-      else
-        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
-        exit 1;
-      fi
-      git -C /build/machinekit-hal log -1;"
-
-- name: Build Debian packages
-  image: ubuntu:bionic
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - uname -a
-  - uname -m
-  - >
-    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
-    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
-  - apt-get update
-  - apt-get -y upgrade
-  - apt-get -y install sudo curl build-essential fakeroot devscripts python equivs
-  - |
-    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
-  - |
-    curl -1sLf                                                                      \
-      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
-      | bash
-  - addgroup --gid 1000 machinekit
-  - |
-    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
-      --disabled-password --gecos "" machinekit;
-  - |
-    su machinekit -c "whoami; \
-      cd /build/machinekit-hal; \
-      debian/bootstrap; \
-      mk-build-deps -irs sudo -t                                              \
-        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
-      debian/configure.py -c; \
-      debian/buildpackages.py;"
-
-volumes:
-- name: repository
-  user: 1000
-  group: 1000
-  temp: {}
-
----
-kind: pipeline
-name: Build packages for Ubuntu 18.04 arm64
-
-platform:
-  arch: arm64
-
-clone:
-  disable: true
-
-steps:
-- name: Prepare Docker Drone volume
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - chown 1000:1000 /build
-
-- name: Clone Machinekit-HAL repository
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - apt-get update
-  - apt-get install -y git
-  - addgroup --gid 1000 git
-  - |
-    adduser --uid 1000 --ingroup git --home /home/git \
-      --disabled-password --gecos "" git;
-  - |
-    su git -c "
-      git init /build/machinekit-hal;
-      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
-      git -C /build/machinekit-hal config --local gc.auto 0;
-      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules \
-          origin +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/* \
-          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-        git -C /build/machinekit-hal checkout --progress --force \
-          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules origin \
-          +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/*;
-        git -C /build/machinekit-hal checkout --progress --force \
-          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
-      else
-        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
-        exit 1;
-      fi
-      git -C /build/machinekit-hal log -1;"
-
-- name: Build Debian packages
-  image: ubuntu:bionic
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - uname -a
-  - uname -m
-  - >
-    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
-    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
-  - apt-get update
-  - apt-get -y upgrade
-  - apt-get -y install sudo curl build-essential fakeroot devscripts python equivs
-  - |
-    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
-  - |
-    curl -1sLf                                                                      \
-      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
-      | bash
-  - addgroup --gid 1000 machinekit
-  - |
-    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
-      --disabled-password --gecos "" machinekit;
-  - |
-    su machinekit -c "whoami; \
-      cd /build/machinekit-hal; \
-      debian/bootstrap; \
-      mk-build-deps -irs sudo -t                                              \
-        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
-      debian/configure.py -c; \
-      debian/buildpackages.py;"
-
-volumes:
-- name: repository
-  user: 1000
-  group: 1000
-  temp: {}
-
----
-kind: pipeline
-name: Build packages for Ubuntu 18.04 armhf
-
-platform:
-  arch: arm
-
-clone:
-  disable: true
-
-steps:
-- name: Prepare Docker Drone volume
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - chown 1000:1000 /build
-
-- name: Clone Machinekit-HAL repository
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - apt-get update
-  - apt-get install -y git
-  - addgroup --gid 1000 git
-  - |
-    adduser --uid 1000 --ingroup git --home /home/git \
-      --disabled-password --gecos "" git;
-  - |
-    su git -c "
-      git init /build/machinekit-hal;
-      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
-      git -C /build/machinekit-hal config --local gc.auto 0;
-      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules \
-          origin +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/* \
-          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-        git -C /build/machinekit-hal checkout --progress --force \
-          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules origin \
-          +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/*;
-        git -C /build/machinekit-hal checkout --progress --force \
-          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
-      else
-        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
-        exit 1;
-      fi
-      git -C /build/machinekit-hal log -1;"
-
-- name: Build Debian packages
-  image: arm32v7/ubuntu:bionic
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - uname -a
-  - uname -m
-  - >
-    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
-    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
-  - apt-get update
-  - apt-get -y upgrade
-  - apt-get -y install sudo curl build-essential fakeroot devscripts python equivs
-  - |
-    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
-  - |
-    curl -1sLf                                                                      \
-      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
-      | bash
-  - addgroup --gid 1000 machinekit
-  - |
-    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
-      --disabled-password --gecos "" machinekit;
-  - |
-    su machinekit -c "whoami; \
-      cd /build/machinekit-hal; \
-      debian/bootstrap; \
-      mk-build-deps -irs sudo -t                                              \
-        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
-      debian/configure.py -c; \
-      debian/buildpackages.py;"
-
-volumes:
-- name: repository
-  user: 1000
-  group: 1000
-  temp: {}
-
----
-kind: pipeline
-name: Build packages for Debian 9 amd64
-
-platform:
-  arch: amd64
-
-clone:
-  disable: true
-
-steps:
-- name: Prepare Docker Drone volume
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - chown 1000:1000 /build
-
-- name: Clone Machinekit-HAL repository
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - apt-get update
-  - apt-get install -y git
-  - addgroup --gid 1000 git
-  - |
-    adduser --uid 1000 --ingroup git --home /home/git \
-      --disabled-password --gecos "" git;
-  - |
-    su git -c "
-      git init /build/machinekit-hal;
-      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
-      git -C /build/machinekit-hal config --local gc.auto 0;
-      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules \
-          origin +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/* \
-          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-        git -C /build/machinekit-hal checkout --progress --force \
-          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules origin \
-          +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/*;
-        git -C /build/machinekit-hal checkout --progress --force \
-          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
-      else
-        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
-        exit 1;
-      fi
-      git -C /build/machinekit-hal log -1;"
-
-- name: Build Debian packages
-  image: debian:stretch
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - uname -a
-  - uname -m
-  - >
-    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
-    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
-  - apt-get update
-  - apt-get -y upgrade
-  - apt-get -y install sudo curl build-essential fakeroot devscripts python
-  - |
-    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
-  - |
-    curl -1sLf                                                                      \
-      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
-      | bash
-  - addgroup --gid 1000 machinekit
-  - |
-    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
-      --disabled-password --gecos "" machinekit;
-  - |
-    su machinekit -c "whoami; \
-      cd /build/machinekit-hal; \
-      debian/bootstrap; \
-      mk-build-deps -irs sudo -t                                              \
-        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
-      debian/configure.py -c; \
-      debian/buildpackages.py;"
-
-volumes:
-- name: repository
-  user: 1000
-  group: 1000
-  temp: {}
-
----
-kind: pipeline
-name: Build packages for Debian 9 arm64
-
-platform:
-  arch: arm64
-
-clone:
-  disable: true
-
-steps:
-- name: Prepare Docker Drone volume
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - chown 1000:1000 /build
-
-- name: Clone Machinekit-HAL repository
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - apt-get update
-  - apt-get install -y git
-  - addgroup --gid 1000 git
-  - |
-    adduser --uid 1000 --ingroup git --home /home/git \
-      --disabled-password --gecos "" git;
-  - |
-    su git -c "
-      git init /build/machinekit-hal;
-      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
-      git -C /build/machinekit-hal config --local gc.auto 0;
-      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules \
-          origin +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/* \
-          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-        git -C /build/machinekit-hal checkout --progress --force \
-          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules origin \
-          +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/*;
-        git -C /build/machinekit-hal checkout --progress --force \
-          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
-      else
-        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
-        exit 1;
-      fi
-      git -C /build/machinekit-hal log -1;"
-
-- name: Build Debian packages
-  image: debian:stretch
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - uname -a
-  - uname -m
-  - >
-    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
-    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
-  - apt-get update
-  - apt-get -y upgrade
-  - apt-get -y install sudo curl build-essential fakeroot devscripts python
-  - |
-    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
-  - |
-    curl -1sLf                                                                      \
-      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
-      | bash
-  - addgroup --gid 1000 machinekit
-  - |
-    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
-      --disabled-password --gecos "" machinekit;
-  - |
-    su machinekit -c "whoami; \
-      cd /build/machinekit-hal; \
-      debian/bootstrap; \
-      mk-build-deps -irs sudo -t                                              \
-        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
-      debian/configure.py -c; \
-      debian/buildpackages.py;"
-
-volumes:
-- name: repository
-  user: 1000
-  group: 1000
-  temp: {}
-
----
-kind: pipeline
-name: Build packages for Debian 9 armhf
-
-platform:
-  arch: arm
-
-clone:
-  disable: true
-
-steps:
-- name: Prepare Docker Drone volume
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - chown 1000:1000 /build
-
-- name: Clone Machinekit-HAL repository
-  image: debian:buster
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - apt-get update
-  - apt-get install -y git
-  - addgroup --gid 1000 git
-  - |
-    adduser --uid 1000 --ingroup git --home /home/git \
-      --disabled-password --gecos "" git;
-  - |
-    su git -c "
-      git init /build/machinekit-hal;
-      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
-      git -C /build/machinekit-hal config --local gc.auto 0;
-      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules \
-          origin +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/* \
-          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-        git -C /build/machinekit-hal checkout --progress --force \
-          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
-      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
-      then
-        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
-          --progress --no-recurse-submodules origin \
-          +refs/heads/*:refs/remotes/origin/* \
-          +refs/tags/*:refs/tags/*;
-        git -C /build/machinekit-hal checkout --progress --force \
-          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
-      else
-        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
-        exit 1;
-      fi
-      git -C /build/machinekit-hal log -1;"
-
-- name: Build Debian packages
-  image: arm32v7/debian:stretch
-  volumes:
-  - name: repository
-    path: /build
-  commands:
-  - uname -a
-  - uname -m
-  - >
-    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
-    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
-  - apt-get update
-  - apt-get -y upgrade
-  - apt-get -y install sudo curl build-essential fakeroot devscripts python
-  - |
-    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
-  - |
-    curl -1sLf                                                                      \
-      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
-      | bash
-  - addgroup --gid 1000 machinekit
-  - |
-    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
-      --disabled-password --gecos "" machinekit;
-  - |
-    su machinekit -c "whoami; \
-      cd /build/machinekit-hal; \
-      debian/bootstrap; \
-      mk-build-deps -irs sudo -t                                              \
-        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
-      debian/configure.py -c; \
-      debian/buildpackages.py;"
-
-volumes:
-- name: repository
-  user: 1000
-  group: 1000
-  temp: {}
+#
+#---
+#kind: pipeline
+#name: Build packages for Debian 10 amd64
+#
+#platform:
+#  arch: amd64
+#
+#clone:
+#  disable: true
+#
+#steps:
+#- name: Prepare Docker Drone volume
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - chown 1000:1000 /build
+#
+#- name: Clone Machinekit-HAL repository
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - apt-get update
+#  - apt-get install -y git
+#  - addgroup --gid 1000 git
+#  - |
+#    adduser --uid 1000 --ingroup git --home /home/git \
+#      --disabled-password --gecos "" git;
+#  - |
+#    su git -c "
+#      git init /build/machinekit-hal;
+#      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
+#      git -C /build/machinekit-hal config --local gc.auto 0;
+#      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules \
+#          origin +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/* \
+#          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules origin \
+#          +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/*;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
+#      else
+#        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
+#        exit 1;
+#      fi
+#      git -C /build/machinekit-hal log -1;"
+#
+#- name: Build Debian packages
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - uname -a
+#  - uname -m
+#  - >
+#    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
+#    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
+#  - apt-get update
+#  - apt-get -y upgrade
+#  - apt-get -y install sudo curl build-essential fakeroot devscripts python
+#  - |
+#    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
+#  - |
+#    curl -1sLf                                                                      \
+#      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
+#      | bash
+#  - addgroup --gid 1000 machinekit
+#  - |
+#    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
+#      --disabled-password --gecos "" machinekit;
+#  - |
+#    su machinekit -c "whoami; \
+#      cd /build/machinekit-hal; \
+#      debian/bootstrap; \
+#      mk-build-deps -irs sudo -t                                              \
+#        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
+#      debian/configure.py -c; \
+#      debian/buildpackages.py;"
+#
+#volumes:
+#- name: repository
+#  user: 1000
+#  group: 1000
+#  temp: {}
+#  
+#---
+#kind: pipeline
+#name: Build packages for Debian 10 arm64
+#
+#platform:
+#  arch: arm64
+#
+#clone:
+#  disable: true
+#
+#steps:
+#- name: Prepare Docker Drone volume
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - chown 1000:1000 /build
+#
+#- name: Clone Machinekit-HAL repository
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - apt-get update
+#  - apt-get install -y git
+#  - addgroup --gid 1000 git
+#  - |
+#    adduser --uid 1000 --ingroup git --home /home/git \
+#      --disabled-password --gecos "" git;
+#  - |
+#    su git -c "
+#      git init /build/machinekit-hal;
+#      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
+#      git -C /build/machinekit-hal config --local gc.auto 0;
+#      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules \
+#          origin +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/* \
+#          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules origin \
+#          +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/*;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
+#      else
+#        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
+#        exit 1;
+#      fi
+#      git -C /build/machinekit-hal log -1;"
+#
+#- name: Build Debian packages
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - uname -a
+#  - uname -m
+#  - >
+#    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
+#    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
+#  - apt-get update
+#  - apt-get -y upgrade
+#  - apt-get -y install sudo curl build-essential fakeroot devscripts python
+#  - |
+#    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
+#  - |
+#    curl -1sLf                                                                      \
+#      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
+#      | bash
+#  - addgroup --gid 1000 machinekit
+#  - |
+#    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
+#      --disabled-password --gecos "" machinekit;
+#  - |
+#    su machinekit -c "whoami; \
+#      cd /build/machinekit-hal; \
+#      debian/bootstrap; \
+#      mk-build-deps -irs sudo -t                                              \
+#        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
+#      debian/configure.py -c; \
+#      debian/buildpackages.py;"
+#
+#volumes:
+#- name: repository
+#  user: 1000
+#  group: 1000
+#  temp: {}
+#
+#---
+#kind: pipeline
+#name: Build packages for Debian 10 armhf
+#
+#platform:
+#  arch: arm
+#
+#clone:
+#  disable: true
+#
+#steps:
+#- name: Prepare Docker Drone volume
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - chown 1000:1000 /build
+#
+#- name: Clone Machinekit-HAL repository
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - apt-get update
+#  - apt-get install -y git
+#  - addgroup --gid 1000 git
+#  - |
+#    adduser --uid 1000 --ingroup git --home /home/git \
+#      --disabled-password --gecos "" git;
+#  - |
+#    su git -c "
+#      git init /build/machinekit-hal;
+#      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
+#      git -C /build/machinekit-hal config --local gc.auto 0;
+#      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules \
+#          origin +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/* \
+#          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules origin \
+#          +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/*;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
+#      else
+#        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
+#        exit 1;
+#      fi
+#      git -C /build/machinekit-hal log -1;"
+#
+#- name: Build Debian packages
+#  image: arm32v7/debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - uname -a
+#  - uname -m
+#  - >
+#    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
+#    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
+#  - apt-get update
+#  - apt-get -y upgrade
+#  - apt-get -y install sudo curl build-essential fakeroot devscripts python
+#  - |
+#    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
+#  - |
+#    curl -1sLf                                                                      \
+#      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
+#      | bash
+#  - addgroup --gid 1000 machinekit
+#  - |
+#    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
+#      --disabled-password --gecos "" machinekit;
+#  - |
+#    su machinekit -c "whoami; \
+#      cd /build/machinekit-hal; \
+#      debian/bootstrap; \
+#      mk-build-deps -irs sudo -t                                              \
+#        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
+#      debian/configure.py -c; \
+#      debian/buildpackages.py;"
+#
+#volumes:
+#- name: repository
+#  user: 1000
+#  group: 1000
+#  temp: {}
+#
+#---
+#kind: pipeline
+#name: Build packages for Ubuntu 18.04 amd64
+#
+#platform:
+#  arch: amd64
+#
+#clone:
+#  disable: true
+#
+#steps:
+#- name: Prepare Docker Drone volume
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - chown 1000:1000 /build
+#
+#- name: Clone Machinekit-HAL repository
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - apt-get update
+#  - apt-get install -y git
+#  - addgroup --gid 1000 git
+#  - |
+#    adduser --uid 1000 --ingroup git --home /home/git \
+#      --disabled-password --gecos "" git;
+#  - |
+#    su git -c "
+#      git init /build/machinekit-hal;
+#      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
+#      git -C /build/machinekit-hal config --local gc.auto 0;
+#      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules \
+#          origin +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/* \
+#          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules origin \
+#          +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/*;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
+#      else
+#        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
+#        exit 1;
+#      fi
+#      git -C /build/machinekit-hal log -1;"
+#
+#- name: Build Debian packages
+#  image: ubuntu:bionic
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - uname -a
+#  - uname -m
+#  - >
+#    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
+#    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
+#  - apt-get update
+#  - apt-get -y upgrade
+#  - apt-get -y install sudo curl build-essential fakeroot devscripts python equivs
+#  - |
+#    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
+#  - |
+#    curl -1sLf                                                                      \
+#      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
+#      | bash
+#  - addgroup --gid 1000 machinekit
+#  - |
+#    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
+#      --disabled-password --gecos "" machinekit;
+#  - |
+#    su machinekit -c "whoami; \
+#      cd /build/machinekit-hal; \
+#      debian/bootstrap; \
+#      mk-build-deps -irs sudo -t                                              \
+#        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
+#      debian/configure.py -c; \
+#      debian/buildpackages.py;"
+#
+#volumes:
+#- name: repository
+#  user: 1000
+#  group: 1000
+#  temp: {}
+#
+#---
+#kind: pipeline
+#name: Build packages for Ubuntu 18.04 arm64
+#
+#platform:
+#  arch: arm64
+#
+#clone:
+#  disable: true
+#
+#steps:
+#- name: Prepare Docker Drone volume
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - chown 1000:1000 /build
+#
+#- name: Clone Machinekit-HAL repository
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - apt-get update
+#  - apt-get install -y git
+#  - addgroup --gid 1000 git
+#  - |
+#    adduser --uid 1000 --ingroup git --home /home/git \
+#      --disabled-password --gecos "" git;
+#  - |
+#    su git -c "
+#      git init /build/machinekit-hal;
+#      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
+#      git -C /build/machinekit-hal config --local gc.auto 0;
+#      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules \
+#          origin +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/* \
+#          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules origin \
+#          +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/*;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
+#      else
+#        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
+#        exit 1;
+#      fi
+#      git -C /build/machinekit-hal log -1;"
+#
+#- name: Build Debian packages
+#  image: ubuntu:bionic
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - uname -a
+#  - uname -m
+#  - >
+#    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
+#    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
+#  - apt-get update
+#  - apt-get -y upgrade
+#  - apt-get -y install sudo curl build-essential fakeroot devscripts python equivs
+#  - |
+#    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
+#  - |
+#    curl -1sLf                                                                      \
+#      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
+#      | bash
+#  - addgroup --gid 1000 machinekit
+#  - |
+#    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
+#      --disabled-password --gecos "" machinekit;
+#  - |
+#    su machinekit -c "whoami; \
+#      cd /build/machinekit-hal; \
+#      debian/bootstrap; \
+#      mk-build-deps -irs sudo -t                                              \
+#        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
+#      debian/configure.py -c; \
+#      debian/buildpackages.py;"
+#
+#volumes:
+#- name: repository
+#  user: 1000
+#  group: 1000
+#  temp: {}
+#
+#---
+#kind: pipeline
+#name: Build packages for Ubuntu 18.04 armhf
+#
+#platform:
+#  arch: arm
+#
+#clone:
+#  disable: true
+#
+#steps:
+#- name: Prepare Docker Drone volume
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - chown 1000:1000 /build
+#
+#- name: Clone Machinekit-HAL repository
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - apt-get update
+#  - apt-get install -y git
+#  - addgroup --gid 1000 git
+#  - |
+#    adduser --uid 1000 --ingroup git --home /home/git \
+#      --disabled-password --gecos "" git;
+#  - |
+#    su git -c "
+#      git init /build/machinekit-hal;
+#      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
+#      git -C /build/machinekit-hal config --local gc.auto 0;
+#      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules \
+#          origin +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/* \
+#          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules origin \
+#          +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/*;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
+#      else
+#        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
+#        exit 1;
+#      fi
+#      git -C /build/machinekit-hal log -1;"
+#
+#- name: Build Debian packages
+#  image: arm32v7/ubuntu:bionic
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - uname -a
+#  - uname -m
+#  - >
+#    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
+#    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
+#  - apt-get update
+#  - apt-get -y upgrade
+#  - apt-get -y install sudo curl build-essential fakeroot devscripts python equivs
+#  - |
+#    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
+#  - |
+#    curl -1sLf                                                                      \
+#      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
+#      | bash
+#  - addgroup --gid 1000 machinekit
+#  - |
+#    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
+#      --disabled-password --gecos "" machinekit;
+#  - |
+#    su machinekit -c "whoami; \
+#      cd /build/machinekit-hal; \
+#      debian/bootstrap; \
+#      mk-build-deps -irs sudo -t                                              \
+#        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
+#      debian/configure.py -c; \
+#      debian/buildpackages.py;"
+#
+#volumes:
+#- name: repository
+#  user: 1000
+#  group: 1000
+#  temp: {}
+#
+#---
+#kind: pipeline
+#name: Build packages for Debian 9 amd64
+#
+#platform:
+#  arch: amd64
+#
+#clone:
+#  disable: true
+#
+#steps:
+#- name: Prepare Docker Drone volume
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - chown 1000:1000 /build
+#
+#- name: Clone Machinekit-HAL repository
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - apt-get update
+#  - apt-get install -y git
+#  - addgroup --gid 1000 git
+#  - |
+#    adduser --uid 1000 --ingroup git --home /home/git \
+#      --disabled-password --gecos "" git;
+#  - |
+#    su git -c "
+#      git init /build/machinekit-hal;
+#      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
+#      git -C /build/machinekit-hal config --local gc.auto 0;
+#      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules \
+#          origin +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/* \
+#          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules origin \
+#          +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/*;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
+#      else
+#        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
+#        exit 1;
+#      fi
+#      git -C /build/machinekit-hal log -1;"
+#
+#- name: Build Debian packages
+#  image: debian:stretch
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - uname -a
+#  - uname -m
+#  - >
+#    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
+#    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
+#  - apt-get update
+#  - apt-get -y upgrade
+#  - apt-get -y install sudo curl build-essential fakeroot devscripts python
+#  - |
+#    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
+#  - |
+#    curl -1sLf                                                                      \
+#      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
+#      | bash
+#  - addgroup --gid 1000 machinekit
+#  - |
+#    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
+#      --disabled-password --gecos "" machinekit;
+#  - |
+#    su machinekit -c "whoami; \
+#      cd /build/machinekit-hal; \
+#      debian/bootstrap; \
+#      mk-build-deps -irs sudo -t                                              \
+#        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
+#      debian/configure.py -c; \
+#      debian/buildpackages.py;"
+#
+#volumes:
+#- name: repository
+#  user: 1000
+#  group: 1000
+#  temp: {}
+#
+#---
+#kind: pipeline
+#name: Build packages for Debian 9 arm64
+#
+#platform:
+#  arch: arm64
+#
+#clone:
+#  disable: true
+#
+#steps:
+#- name: Prepare Docker Drone volume
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - chown 1000:1000 /build
+#
+#- name: Clone Machinekit-HAL repository
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - apt-get update
+#  - apt-get install -y git
+#  - addgroup --gid 1000 git
+#  - |
+#    adduser --uid 1000 --ingroup git --home /home/git \
+#      --disabled-password --gecos "" git;
+#  - |
+#    su git -c "
+#      git init /build/machinekit-hal;
+#      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
+#      git -C /build/machinekit-hal config --local gc.auto 0;
+#      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules \
+#          origin +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/* \
+#          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules origin \
+#          +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/*;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
+#      else
+#        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
+#        exit 1;
+#      fi
+#      git -C /build/machinekit-hal log -1;"
+#
+#- name: Build Debian packages
+#  image: debian:stretch
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - uname -a
+#  - uname -m
+#  - >
+#    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
+#    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
+#  - apt-get update
+#  - apt-get -y upgrade
+#  - apt-get -y install sudo curl build-essential fakeroot devscripts python
+#  - |
+#    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
+#  - |
+#    curl -1sLf                                                                      \
+#      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
+#      | bash
+#  - addgroup --gid 1000 machinekit
+#  - |
+#    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
+#      --disabled-password --gecos "" machinekit;
+#  - |
+#    su machinekit -c "whoami; \
+#      cd /build/machinekit-hal; \
+#      debian/bootstrap; \
+#      mk-build-deps -irs sudo -t                                              \
+#        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
+#      debian/configure.py -c; \
+#      debian/buildpackages.py;"
+#
+#volumes:
+#- name: repository
+#  user: 1000
+#  group: 1000
+#  temp: {}
+#
+#---
+#kind: pipeline
+#name: Build packages for Debian 9 armhf
+#
+#platform:
+#  arch: arm
+#
+#clone:
+#  disable: true
+#
+#steps:
+#- name: Prepare Docker Drone volume
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - chown 1000:1000 /build
+#
+#- name: Clone Machinekit-HAL repository
+#  image: debian:buster
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - apt-get update
+#  - apt-get install -y git
+#  - addgroup --gid 1000 git
+#  - |
+#    adduser --uid 1000 --ingroup git --home /home/git \
+#      --disabled-password --gecos "" git;
+#  - |
+#    su git -c "
+#      git init /build/machinekit-hal;
+#      git -C /build/machinekit-hal remote add origin ${DRONE_GIT_HTTP_URL};
+#      git -C /build/machinekit-hal config --local gc.auto 0;
+#      if [[ \"$DRONE_BUILD_EVENT\" == \"pull_request\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules \
+#          origin +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/* \
+#          +${DRONE_COMMIT_SHA}:refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          refs/remotes/pull/${DRONE_PULL_REQUEST}/merge;
+#      elif [[ \"$DRONE_BUILD_EVENT\" == \"push\" ]]
+#      then
+#        git -C /build/machinekit-hal -c protocol.version=2 fetch --prune \
+#          --progress --no-recurse-submodules origin \
+#          +refs/heads/*:refs/remotes/origin/* \
+#          +refs/tags/*:refs/tags/*;
+#        git -C /build/machinekit-hal checkout --progress --force \
+#          -B ${DRONE_COMMIT_BRANCH} refs/remotes/origin/${DRONE_COMMIT_BRANCH};
+#      else
+#        printf \"ERROR: Unsupported event %s.\n\" \"$DRONE_BUILD_EVENT\";
+#        exit 1;
+#      fi
+#      git -C /build/machinekit-hal log -1;"
+#
+#- name: Build Debian packages
+#  image: arm32v7/debian:stretch
+#  volumes:
+#  - name: repository
+#    path: /build
+#  commands:
+#  - uname -a
+#  - uname -m
+#  - >
+#    export DEBIAN_FRONTEND=noninteractive ENV DEBCONF_NONINTERACTIVE_SEEN=true
+#    ENV LC_ALL=C.UTF-8 ENV LANGUAGE=C.UTF-8 ENV LANG=C.UTF-8
+#  - apt-get update
+#  - apt-get -y upgrade
+#  - apt-get -y install sudo curl build-essential fakeroot devscripts python
+#  - |
+#    echo "ALL ALL = (ALL) NOPASSWD: ALL" >> /etc/sudoers
+#  - |
+#    curl -1sLf                                                                      \
+#      'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \
+#      | bash
+#  - addgroup --gid 1000 machinekit
+#  - |
+#    adduser --uid 1000 --ingroup machinekit --home /home/machinekit \
+#      --disabled-password --gecos "" machinekit;
+#  - |
+#    su machinekit -c "whoami; \
+#      cd /build/machinekit-hal; \
+#      debian/bootstrap; \
+#      mk-build-deps -irs sudo -t                                              \
+#        'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y'; \
+#      debian/configure.py -c; \
+#      debian/buildpackages.py;"
+#
+#volumes:
+#- name: repository
+#  user: 1000
+#  group: 1000
+#  temp: {}

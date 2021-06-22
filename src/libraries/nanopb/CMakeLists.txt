@@ -32,7 +32,7 @@ set(NANOPB_CHECKOUT_REF
     CACHE STRING "Ref of upstream Nanopb repository to check out.")
 
 include(FetchContent)
-include("${PROJECT_SOURCE_DIR}/cmake/tools/FindProtobuf.cmake")
+include("${PROJECT_SOURCE_DIR}/support/cmake/tools/FindProtobuf.cmake")
 
 # Both FETCHCONTENT_QUIET and GIT_PROGRESS need to be set to show progress
 # status during configuring state
@@ -56,7 +56,7 @@ FetchContent_MakeAvailable(nanopb)
 configure_file(${nanopb_SOURCE_DIR}/generator/proto/nanopb.proto
                ${CMAKE_CURRENT_BINARY_DIR}/nanopb.proto COPYONLY)
 
-set(SOURCE_NANOPB_PROTO_FILE ${CMAKE_CURRENT_BINARY_DIR}/nanopb.proto)
+               set(SOURCE_NANOPB_PROTO_FILE ${CMAKE_CURRENT_BINARY_DIR}/nanopb.proto)
 
 # As upstream CMake implementation does not implement usable CMake targets
 # usable to just target_link_libraries() against, create internal ones
@@ -76,7 +76,8 @@ protobuf_generate(
   TARGET
   nanopb_proto_cc
   PROTOS
-  ${SOURCE_NANOPB_PROTO_FILE})
+  ${SOURCE_NANOPB_PROTO_FILE}
+  APPEND_PATH)
 
 target_include_directories(nanopb_interface INTERFACE ${nanopb_SOURCE_DIR}
 )# TODO: Add both install and build INTERFACEs

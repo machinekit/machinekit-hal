@@ -22,43 +22,25 @@
 #
 # ##############################################################################
 
-option(BUILD_RUNTIME_MEMORY_LIBRARY "Built the Runtime Memory library." TRUE)
+option(BUILD_SAMSTR_MEMDEFS_LIBRARY "Built the SamStr MemDefs library." TRUE)
 
-if(BUILD_RUNTIME_MEMORY_LIBRARY)
-  add_library(runtime_memory_api SHARED)
-  add_library(${MACHINEKIT_HAL_NAMESPACE}::runtime_memory_api ALIAS
-              runtime_memory_api)
-
-  set(HEADER_FILES include/shmdrv.h)
-  set(SOURCE_FILES src/shmdrvapi.c)
+if(BUILD_SAMSTR_MEMDEFS_LIBRARY)
+  add_library(samstr_memdefs INTERFACE)
 
   target_include_directories(
-    runtime_memory_api
-    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-           $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
-
-  target_sources(runtime_memory_api PRIVATE ${SOURCE_FILES})
-
-  find_library(LIBRT NAMES "rt" "librt" "librt.so" "librt.so.1" REQUIRED)
-
-  target_link_libraries(runtime_memory_api PRIVATE runtime_api ${LIBRT})
-
-  target_compile_definitions(runtime_memory_api PRIVATE "ULAPI")
-
-  set_target_properties(runtime_memory_api PROPERTIES PUBLIC_HEADER
-                                                      ${HEADER_FILES})
+    samstr_memdefs
+    INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+              $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
   set_target_properties(
-    runtime_memory_api
-    PROPERTIES SOVERSION 0
-               VERSION ${CMAKE_PROJECT_VERSION}
-               POSITION_INDEPENDENT_CODE TRUE)
+    samstr_memdefs PROPERTIES PUBLIC_HEADER
+                              include/samstr_memdefs/samstr_memdefs.h)
+
+  target_link_libraries(samstr_memdefs INTERFACE runtime_api)
+
   install(
-    TARGETS runtime_memory_api
+    TARGETS samstr_memdefs
     EXPORT machinekit_hal
-    LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
-            COMPONENT MachinekitHAL_Library_Base
-            NAMELINK_COMPONENT MachinekitHAL_Library_Development
     PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
                   COMPONENT MachinekitHAL_Library_Development)
 endif()

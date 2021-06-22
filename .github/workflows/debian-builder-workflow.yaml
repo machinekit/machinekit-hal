@@ -5,7 +5,7 @@
 #               the builder/tester CI/CD workflow for Debian based
 #               systems.
 #
-# Copyright (C) 2020       Jakub Fišer <jakub DOT fiser AT eryaf DOT com>
+# Copyright (C) 2020 -     Jakub Fišer <jakub DOT fiser AT eryaf DOT com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -102,7 +102,7 @@ jobs:
                "===========================================================\n"
         echo "$ALLOWED_COMBINATIONS" | jq '.'
       env:
-        BASE_JSON_FILE: './machinekit-hal/scripts/debian-distro-settings.json'
+        BASE_JSON_FILE: './machinekit-hal/debian/buildsystem/debian-distro-settings.json'
 
     - name: Download data from Github Packages Docker registry
       id: docker_data_downloader
@@ -242,7 +242,7 @@ jobs:
                " not going to force rebuild.\n"
       env:
         BEFORE_COMMIT_SHA: ${{ steps.docker_metadata_normalizer.outputs.git_sha }}
-        DOCKER_REGEX: '^(scripts/(((containers/){0,1}buildsystem/debian/.{1,})|buildcontainerimage.py|debian-distro-settings.json))|debian/.{1,}$'
+        DOCKER_REGEX: '^debian/.{1,}$'
       working-directory: ./machinekit-hal
     
     - name: Prepare matrixes for creation of following jobs
@@ -344,172 +344,172 @@ jobs:
         echo "::set-output name=timestamp::$TIMESTAMP"
         printf "Timestamp for this workflow run is $TIMESTAMP\n"
 
-  buildMachinekitHALDebianPackages:
-    name: >
-      Package ${{ matrix.osDistribution }} ${{ matrix.osVersionCodename }},
-      ${{ matrix.architecture }}
-    runs-on: ubuntu-latest
-    needs: prepareState
-    strategy:
-      matrix: ${{ fromJson(needs.prepareState.outputs.MainMatrix) }}
-      fail-fast: false
-    
-    steps:
-        # Building packages needs deep clone for the ability to create a version
-        # number by counting all commits 
-      - name: Clone Machinekit-HAL repository
-        uses: actions/checkout@v2
-        with:
-          ref: '${{ github.event.ref }}'
-          fetch-depth: '0'
-          path: 'build/machinekit-hal'
-      
-      - name: Prepare specific Python version for Machinekit-HAL build scripts
-        if: needs.prepareState.outputs.BuildDockerImages == 'true'
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.8'
-
-      - name: Install Python SH tool to runner VM environment
-        if: needs.prepareState.outputs.BuildDockerImages == 'true'
-        run: pip install sh
-
-      - name: >
-          Prepare distribution name '${{ matrix.osDistribution}}' for use
-          in paths
-        run: |
-          DISTRIBUTION_LOWER=$(echo "$DISTRIBUTION" | awk '{print tolower($0)}')
-          echo "distribution_normalized=$DISTRIBUTION_LOWER" >> $GITHUB_ENV
-        env:
-          DISTRIBUTION: ${{ matrix.osDistribution}}
-
-      - name: Prepare the Docker image
-        run: |
-          if [ "${{ needs.prepareState.outputs.BuildDockerImages }}" == "true" ]
-          then
-            scripts/buildcontainerimage.py -d ${IMAGE_NAME_PREFIX} \
-                                           ${DISTRIBUTION}         \
-                                           ${VERSION}              \
-                                           ${ARCHITECTURE}
-            exit 0
-          fi
-          printf "${{ env.GITHUB_TOKEN}}" | docker login docker.pkg.github.com \
-            -u $GITHUB_OWNER --password-stdin
-          docker pull ${IMAGE_NAME_PREFIX}/${IMAGE_NAME_BASE}:${DOCKER_TAG}
-          IMAGE_INFO=$(docker image inspect \
-            ${IMAGE_NAME_PREFIX}/${IMAGE_NAME_BASE}:${DOCKER_TAG})
-          IMAGE_ID=$(jq -r '.[].Id' <<< "$IMAGE_INFO")
-          printf "%b"                                                          \
-                 "Git SHA of downloaded Docker image: $IMAGE_ID\n"             \
-                 "Git SHA of cached Docker image passed from preparatory job:" \
-                 " $ {{ matrix.dockerImage.imageDigest }}"
-          if [[ "$IMAGE_ID" != "${{ matrix.dockerImage.imageDigest }}" ]]
-          then
-          ERROR=$(printf "%b"                                                 \
-                         "Git SHA label of downloaded docker image IMAGE_ID") \
-                         " does not match the expected"                       \
-                         "${{ matrix.dockerImage.imageDigest }}.\n"           \
-                         "Please try rerunning this workflow!\n"
-            echo "::error::$ERROR"
-            exit 1
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          IMAGE_NAME_PREFIX: 'docker.pkg.github.com/${{ github.repository }}'
-          IMAGE_NAME_BASE: '${{ matrix.dockerImage.basename }}'
-          GITHUB_OWNER: ${{ github.actor }}
-          DISTRIBUTION: ${{ matrix.osDistribution}}
-          VERSION: ${{ matrix.osVersionCodename}}
-          ARCHITECTURE: ${{ matrix.architecture}}
-          DOCKER_TAG: 'latest'
-        working-directory: ./build/machinekit-hal
-
-      - name: >
-          Bootstrap Machinekit-HAL repository for ${{ matrix.osDistribution }}
-          package build for ${{ matrix.osVersionCodename}},
-          ${{ matrix.architecture }}
-        run: |
-          docker run --tty --rm -u "$(id -u):$(id -g)" \
-            -v "$(pwd):/home/machinekit/build" \
-            -w "/home/machinekit/build/machinekit-hal" \
-            ${DOCKER_IMAGE} \
-            debian/bootstrap
-        env:
-          DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ matrix.dockerImage.basename }}:latest'
-        working-directory: ./build
-
-      - name: >
-          Configure Machinekit-HAL repository for ${{ matrix.osDistribution }}
-          package build for ${{ matrix.osVersionCodename}},
-          ${{ matrix.architecture }}
-        run: |
-          docker run --tty --rm -u "$(id -u):$(id -g)" \
-            -v "$(pwd):/home/machinekit/build" \
-            -w "/home/machinekit/build/machinekit-hal" \
-            ${DOCKER_IMAGE} \
-            debian/configure.py -c
-        env:
-          DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ matrix.dockerImage.basename }}:latest'
-        working-directory: ./build
-
-      - name: >
-          Build Machinekit-HAL ${{ matrix.osDistribution }} package for
-          ${{ matrix.osVersionCodename}}, ${{ matrix.architecture }}
-        run: |
-          docker run --tty --rm -u "$(id -u):$(id -g)" \
-            -v "$(pwd):/home/machinekit/build" \
-            -w "/home/machinekit/build/machinekit-hal" \
-            ${DOCKER_IMAGE} \
-            debian/buildpackages.py
-        env:
-          DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ matrix.dockerImage.basename }}:latest'
-        working-directory: ./build
-
-      - name: Sign the package with Machinekit Builder Signer Key
-        if: >
-          github.event_name == 'push' && 
-          needs.prepareState.outputs.HasSigningKey == 'true'
-        run: |
-          mkdir ${ROOT_DIR}/secrets_mountpoint
-          sudo mount -t tmpfs -o size=50m tmpfs ${ROOT_DIR}/secrets_mountpoint
-          echo "$SIGNING_KEY" > ${ROOT_DIR}/secrets_mountpoint/key.gpg
-          echo "
-          #!/bin/bash -e
-          gpg --homedir /secrets_mountpoint/.gnupg -v --batch --import \
-            '/secrets_mountpoint/key.gpg'
-          find /machinekit-hal -maxdepth 1 -name *.deb -print0 | \
-            xargs -0 -n1 -t -I '{}' dpkg-sig --gpg-options \
-            '--homedir /secrets_mountpoint/.gnupg' --sign builder '{}'
-          " > ${ROOT_DIR}/secrets_mountpoint/doSignPackages.sh
-          docker run --rm --tty \
-            -v "${ROOT_DIR}/secrets_mountpoint:/secrets_mountpoint" \
-            -v "$(pwd):/machinekit-hal" -u "$(id -u):$(id -g)" \
-            ${DOCKER_IMAGE} \
-            /bin/bash /secrets_mountpoint/doSignPackages.sh
-          sudo umount ${ROOT_DIR}/secrets_mountpoint
-        env:
-          ROOT_DIR: ${{ github.workspace }}
-          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
-          DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ matrix.dockerImage.basename }}:latest'
-        working-directory: ./build
-
-      - name: Prepare build artifact for upload
-        run: |
-          mkdir machinekit-hal-${{ env.distribution_normalized }}
-          find ./build -depth -not \( \
-          -path "." -or -path "./build" -or -path "./build/machinekit-hal" -or \
-          -path "./build/machinekit-hal/*" \) -print0 | \
-          xargs -0 -t -I '{}' cp -v '{}' \
-            ./machinekit-hal-${{ env.distribution_normalized }}
-
-      - name: >
-          Upload built package for ${{ matrix.osDistribution }}
-          ${{ matrix.osVersionCodename}}, ${{ matrix.architecture }}
-          as an artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: machinekit-hal-${{ env.distribution_normalized }}-${{ matrix.architecture }}-${{ matrix.osVersionNumber }}-${{ github.sha }}-${{ needs.prepareState.outputs.Timestamp }}
-          path: machinekit-hal-${{ env.distribution_normalized }}
+#  buildMachinekitHALDebianPackages:
+#    name: >
+#      Package ${{ matrix.osDistribution }} ${{ matrix.osVersionCodename }},
+#      ${{ matrix.architecture }}
+#    runs-on: ubuntu-latest
+#    needs: prepareState
+#    strategy:
+#      matrix: ${{ fromJson(needs.prepareState.outputs.MainMatrix) }}
+#      fail-fast: false
+#    
+#    steps:
+#        # Building packages needs deep clone for the ability to create a version
+#        # number by counting all commits 
+#      - name: Clone Machinekit-HAL repository
+#        uses: actions/checkout@v2
+#        with:
+#          ref: '${{ github.event.ref }}'
+#          fetch-depth: '0'
+#          path: 'build/machinekit-hal'
+#      
+#      - name: Prepare specific Python version for Machinekit-HAL build scripts
+#        if: needs.prepareState.outputs.BuildDockerImages == 'true'
+#        uses: actions/setup-python@v2
+#        with:
+#          python-version: '3.8'
+#
+#      - name: Install Python SH tool to runner VM environment
+#        if: needs.prepareState.outputs.BuildDockerImages == 'true'
+#        run: pip install sh
+#
+#      - name: >
+#          Prepare distribution name '${{ matrix.osDistribution}}' for use
+#          in paths
+#        run: |
+#          DISTRIBUTION_LOWER=$(echo "$DISTRIBUTION" | awk '{print tolower($0)}')
+#          echo "distribution_normalized=$DISTRIBUTION_LOWER" >> $GITHUB_ENV
+#        env:
+#          DISTRIBUTION: ${{ matrix.osDistribution}}
+#
+#      - name: Prepare the Docker image
+#        run: |
+#          if [ "${{ needs.prepareState.outputs.BuildDockerImages }}" == "true" ]
+#          then
+#            scripts/buildcontainerimage.py -d ${IMAGE_NAME_PREFIX} \
+#                                           ${DISTRIBUTION}         \
+#                                           ${VERSION}              \
+#                                           ${ARCHITECTURE}
+#            exit 0
+#          fi
+#          printf "${{ env.GITHUB_TOKEN}}" | docker login docker.pkg.github.com \
+#            -u $GITHUB_OWNER --password-stdin
+#          docker pull ${IMAGE_NAME_PREFIX}/${IMAGE_NAME_BASE}:${DOCKER_TAG}
+#          IMAGE_INFO=$(docker image inspect \
+#            ${IMAGE_NAME_PREFIX}/${IMAGE_NAME_BASE}:${DOCKER_TAG})
+#          IMAGE_ID=$(jq -r '.[].Id' <<< "$IMAGE_INFO")
+#          printf "%b"                                                          \
+#                 "Git SHA of downloaded Docker image: $IMAGE_ID\n"             \
+#                 "Git SHA of cached Docker image passed from preparatory job:" \
+#                 " $ {{ matrix.dockerImage.imageDigest }}"
+#          if [[ "$IMAGE_ID" != "${{ matrix.dockerImage.imageDigest }}" ]]
+#          then
+#          ERROR=$(printf "%b"                                                 \
+#                         "Git SHA label of downloaded docker image IMAGE_ID") \
+#                         " does not match the expected"                       \
+#                         "${{ matrix.dockerImage.imageDigest }}.\n"           \
+#                         "Please try rerunning this workflow!\n"
+#            echo "::error::$ERROR"
+#            exit 1
+#          fi
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          IMAGE_NAME_PREFIX: 'docker.pkg.github.com/${{ github.repository }}'
+#          IMAGE_NAME_BASE: '${{ matrix.dockerImage.basename }}'
+#          GITHUB_OWNER: ${{ github.actor }}
+#          DISTRIBUTION: ${{ matrix.osDistribution}}
+#          VERSION: ${{ matrix.osVersionCodename}}
+#          ARCHITECTURE: ${{ matrix.architecture}}
+#          DOCKER_TAG: 'latest'
+#        working-directory: ./build/machinekit-hal
+#
+#      - name: >
+#          Bootstrap Machinekit-HAL repository for ${{ matrix.osDistribution }}
+#          package build for ${{ matrix.osVersionCodename}},
+#          ${{ matrix.architecture }}
+#        run: |
+#          docker run --tty --rm -u "$(id -u):$(id -g)" \
+#            -v "$(pwd):/home/machinekit/build" \
+#            -w "/home/machinekit/build/machinekit-hal" \
+#            ${DOCKER_IMAGE} \
+#            debian/bootstrap
+#        env:
+#          DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ matrix.dockerImage.basename }}:latest'
+#        working-directory: ./build
+#
+#      - name: >
+#          Configure Machinekit-HAL repository for ${{ matrix.osDistribution }}
+#          package build for ${{ matrix.osVersionCodename}},
+#          ${{ matrix.architecture }}
+#        run: |
+#          docker run --tty --rm -u "$(id -u):$(id -g)" \
+#            -v "$(pwd):/home/machinekit/build" \
+#            -w "/home/machinekit/build/machinekit-hal" \
+#            ${DOCKER_IMAGE} \
+#            debian/configure.py -c
+#        env:
+#          DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ matrix.dockerImage.basename }}:latest'
+#        working-directory: ./build
+#
+#      - name: >
+#          Build Machinekit-HAL ${{ matrix.osDistribution }} package for
+#          ${{ matrix.osVersionCodename}}, ${{ matrix.architecture }}
+#        run: |
+#          docker run --tty --rm -u "$(id -u):$(id -g)" \
+#            -v "$(pwd):/home/machinekit/build" \
+#            -w "/home/machinekit/build/machinekit-hal" \
+#            ${DOCKER_IMAGE} \
+#            debian/buildpackages.py
+#        env:
+#          DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ matrix.dockerImage.basename }}:latest'
+#        working-directory: ./build
+#
+#      - name: Sign the package with Machinekit Builder Signer Key
+#        if: >
+#          github.event_name == 'push' && 
+#          needs.prepareState.outputs.HasSigningKey == 'true'
+#        run: |
+#          mkdir ${ROOT_DIR}/secrets_mountpoint
+#          sudo mount -t tmpfs -o size=50m tmpfs ${ROOT_DIR}/secrets_mountpoint
+#          echo "$SIGNING_KEY" > ${ROOT_DIR}/secrets_mountpoint/key.gpg
+#          echo "
+#          #!/bin/bash -e
+#          gpg --homedir /secrets_mountpoint/.gnupg -v --batch --import \
+#            '/secrets_mountpoint/key.gpg'
+#          find /machinekit-hal -maxdepth 1 -name *.deb -print0 | \
+#            xargs -0 -n1 -t -I '{}' dpkg-sig --gpg-options \
+#            '--homedir /secrets_mountpoint/.gnupg' --sign builder '{}'
+#          " > ${ROOT_DIR}/secrets_mountpoint/doSignPackages.sh
+#          docker run --rm --tty \
+#            -v "${ROOT_DIR}/secrets_mountpoint:/secrets_mountpoint" \
+#            -v "$(pwd):/machinekit-hal" -u "$(id -u):$(id -g)" \
+#            ${DOCKER_IMAGE} \
+#            /bin/bash /secrets_mountpoint/doSignPackages.sh
+#          sudo umount ${ROOT_DIR}/secrets_mountpoint
+#        env:
+#          ROOT_DIR: ${{ github.workspace }}
+#          SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
+#          DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ matrix.dockerImage.basename }}:latest'
+#        working-directory: ./build
+#
+#      - name: Prepare build artifact for upload
+#        run: |
+#          mkdir machinekit-hal-${{ env.distribution_normalized }}
+#          find ./build -depth -not \( \
+#          -path "." -or -path "./build" -or -path "./build/machinekit-hal" -or \
+#          -path "./build/machinekit-hal/*" \) -print0 | \
+#          xargs -0 -t -I '{}' cp -v '{}' \
+#            ./machinekit-hal-${{ env.distribution_normalized }}
+#
+#      - name: >
+#          Upload built package for ${{ matrix.osDistribution }}
+#          ${{ matrix.osVersionCodename}}, ${{ matrix.architecture }}
+#          as an artifact
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: machinekit-hal-${{ env.distribution_normalized }}-${{ matrix.architecture }}-${{ matrix.osVersionNumber }}-${{ github.sha }}-${{ needs.prepareState.outputs.Timestamp }}
+#          path: machinekit-hal-${{ env.distribution_normalized }}
 
   testMachinekitHALBuild:
     name: >
@@ -549,7 +549,7 @@ jobs:
         if: needs.prepareState.outputs.BuildDockerImages == 'true'
         uses: actions/setup-python@v2
         with:
-          python-version: '3.8'
+          python-version: '3.9'
 
       - name: Install Python SH tool to runner VM environment
         if: needs.prepareState.outputs.BuildDockerImages == 'true'
@@ -559,9 +559,9 @@ jobs:
         run: |
           if [ "${{ needs.prepareState.outputs.BuildDockerImages }}" == "true" ]
           then
-            scripts/buildcontainerimage.py -d ${IMAGE_NAME_PREFIX} \
-                                           ${DISTRIBUTION}         \
-                                           ${VERSION}              \
+            debian/buildcontainerimage.py -d ${IMAGE_NAME_PREFIX} \
+                                           ${DISTRIBUTION}        \
+                                           ${VERSION}             \
                                            ${ARCHITECTURE}
             exit 0
           fi
@@ -598,18 +598,15 @@ jobs:
 
       - name: Execute Runtests
         run: |
-          docker run --tty --rm -u "$(id -u):$(id -g)"        \
-            -v "$(pwd):/home/machinekit/build/machinekit-hal" \
-            -w "/home/machinekit/build/machinekit-hal"        \
-            --cap-add=sys_nice                                \
-            ${DOCKER_IMAGE}                                   \
-            debian/ripruntests.py
+          docker run --tty --rm -u "$(id -u):$(id -g)"                               \
+            -v "$(pwd):/home/machinekit/build/machinekit-hal"                        \
+            -w "/home/machinekit/build/machinekit-hal"                               \
+            --cap-add=sys_nice                                                       \
+            ${DOCKER_IMAGE}                                                          \
+            debian/runtests.py -p . -b ./build -g N -c Debug Release RelWithDebInfo
         env:
           DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ matrix.dockerImage.basename }}:latest'
         working-directory: ./build/machinekit-hal
-
-      - name: Execute CMOCKA UNIT tests
-        run: printf "Not yet implemented\n"
 
   # This has a chance to cause problems when developing multiple branches 
   # simultaneously all or some of which use different builder configuration,
@@ -626,7 +623,8 @@ jobs:
     if: >
       needs.prepareState.outputs.BuildDockerImages == 'true' &&
       github.event_name == 'push'
-    needs: [buildMachinekitHALDebianPackages, testMachinekitHALBuild, prepareState]
+    #needs: [buildMachinekitHALDebianPackages, testMachinekitHALBuild, prepareState]
+    needs: [testMachinekitHALBuild, prepareState]
     strategy:
       matrix: ${{ fromJson(needs.prepareState.outputs.MainMatrix) }}
       fail-fast: true
@@ -641,7 +639,7 @@ jobs:
       - name: Prepare specific Python version for Machinekit-HAL build scripts
         uses: actions/setup-python@v2
         with:
-          python-version: '3.8'
+          python-version: '3.9'
 
       - name: Install Python SH tool to runner VM environment
         run: pip install sh
@@ -650,9 +648,9 @@ jobs:
           Build the docker image for ${{ matrix.osDistribution }}
           ${{ matrix.osVersionCodename}}, ${{ matrix.architecture }} Builder
         run: |
-          scripts/buildcontainerimage.py -d ${IMAGE_NAME_PREFIX} \
-                                           ${DISTRIBUTION}         \
-                                           ${VERSION}              \
+          debian/buildcontainerimage.py -d ${IMAGE_NAME_PREFIX} \
+                                           ${DISTRIBUTION}      \
+                                           ${VERSION}           \
                                            ${ARCHITECTURE}
         env:
           IMAGE_NAME_PREFIX: 'docker.pkg.github.com/${{ github.repository }}'
@@ -723,79 +721,78 @@ jobs:
           DOCKER_REGISTRY_USER: ${{ secrets.DOCKER_REGISTRY_USER }}
           DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
 
-  uploadMachinekitHALDebianPackagesToCloudsmith:
-    name: Upload packages to Cloudsmith hosting service
-    runs-on: ubuntu-latest
-    if: >
-      needs.prepareState.outputs.HasCloudsmithToken == 'true' &&
-      github.event_name == 'push'
-    needs: [buildMachinekitHALDebianPackages, testMachinekitHALBuild, prepareState]
-    
-    steps:
-      - name: Download all built artifacts from GitHub storage
-        uses: actions/download-artifact@v2
-        with:
-          path: ./artifacts
-      
-      - name: >
-          Show artifacts downloaded from GitHub storage in directory structure
-        run: ls -R
-        working-directory: ./artifacts
-      
-      - name: Prepare specific Python version for Cloudsmith CLI
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.8'
-
-      - name: Install Cloudsmith CLI tool to runner VM environment
-        run: |
-          pip install --upgrade cloudsmith-cli
-          cloudsmith --help
-          cloudsmith whoami
-        env:
-          CLOUDSMITH_API_KEY: '${{ secrets.CLOUDSMITH_TOKEN }}' 
-
-      - name: Upload the Debian packages to Cloudsmith hosting service
-        run: |
-          test_array=()
-          CLOUDSMITH_REPLY=$(cloudsmith list repos --output-format json)
-          FOUND_NAMESPACE=$(echo "$CLOUDSMITH_REPLY" | \
-            jq -e -r --arg INPUTREGEX "$REPOSITORY_REGEX" '.data[] | 
-            select(.slug|test($INPUTREGEX)) | .namespace')
-          FOUND_REPOSITORY=$(echo "$CLOUDSMITH_REPLY" | \
-            jq -e -r --arg INPUTREGEX "$REPOSITORY_REGEX" '.data[] | 
-            select(.slug|test($INPUTREGEX)) | .slug')
-          if [ "$FOUND_REPOSITORY" == "" -o "$FOUND_REPOSITORY" == "null" \
-            -o "$FOUND_NAMESPACE" == "" -o "$FOUND_NAMESPACE" == "null" ]
-          then
-            printf "No repository matching regular expression %s found\n" \
-              "$REPOSITORY_REGEX"
-            exit 1
-          fi
-          printf "Found repository %s/%s in Cloudsmith account\n" \
-            "$FOUND_NAMESPACE" \
-            "$FOUND_REPOSITORY"
-          while IFS=  read -r -d $'\0'; do
-            test_array+=("$REPLY")
-          done < <(find . -type f -regextype egrep \
-            -iregex "${PACKAGES_REGEX}" -print0)
-          for package in "${test_array[@]}"
-          do
-            [[ "$package" =~ $PACKAGES_REGEX ]]
-            OSCODENAME=$(echo "$MATRIX_JSON" | \
-              jq -r --arg OSVERSIONNUMBER "${BASH_REMATCH[3]}" \
-              --arg ARCHITECTURE "${BASH_REMATCH[2]}" \
-              '.include[] | select((.osVersionNumber|tostring==$OSVERSIONNUMBER)
-              and (.architecture==$ARCHITECTURE)) |
-              .osVersionCodename|ascii_downcase')
-            cloudsmith push deb \
-              ${FOUND_NAMESPACE}/${FOUND_REPOSITORY}/${BASH_REMATCH[1]}/${OSCODENAME} \
-              ${package} \
-              --republish
-          done
-        env:
-          MATRIX_JSON: '${{ needs.prepareState.outputs.MainMatrix }}'
-          PACKAGES_REGEX: '^.*/machinekit-hal-([a-z]{1,})-([a-z0-9]{1,})-([0-9\.]{1,})-${{ github.sha }}-${{ needs.prepareState.outputs.Timestamp }}/.{1,}\.d?deb$'
-          REPOSITORY_REGEX: '^${{ github.event.repository.name }}$'
-          CLOUDSMITH_API_KEY: '${{ secrets.CLOUDSMITH_TOKEN }}'
-
+#  uploadMachinekitHALDebianPackagesToCloudsmith:
+#    name: Upload packages to Cloudsmith hosting service
+#    runs-on: ubuntu-latest
+#    if: >
+#      needs.prepareState.outputs.HasCloudsmithToken == 'true' &&
+#      github.event_name == 'push'
+#    needs: [buildMachinekitHALDebianPackages, testMachinekitHALBuild, prepareState]
+#    
+#    steps:
+#      - name: Download all built artifacts from GitHub storage
+#        uses: actions/download-artifact@v2
+#        with:
+#          path: ./artifacts
+#      
+#      - name: >
+#          Show artifacts downloaded from GitHub storage in directory structure
+#        run: ls -R
+#        working-directory: ./artifacts
+#      
+#      - name: Prepare specific Python version for Cloudsmith CLI
+#        uses: actions/setup-python@v2
+#        with:
+#          python-version: '3.8'
+#
+#      - name: Install Cloudsmith CLI tool to runner VM environment
+#        run: |
+#          pip install --upgrade cloudsmith-cli
+#          cloudsmith --help
+#          cloudsmith whoami
+#        env:
+#          CLOUDSMITH_API_KEY: '${{ secrets.CLOUDSMITH_TOKEN }}' 
+#
+#      - name: Upload the Debian packages to Cloudsmith hosting service
+#        run: |
+#          test_array=()
+#          CLOUDSMITH_REPLY=$(cloudsmith list repos --output-format json)
+#          FOUND_NAMESPACE=$(echo "$CLOUDSMITH_REPLY" | \
+#            jq -e -r --arg INPUTREGEX "$REPOSITORY_REGEX" '.data[] | 
+#            select(.slug|test($INPUTREGEX)) | .namespace')
+#          FOUND_REPOSITORY=$(echo "$CLOUDSMITH_REPLY" | \
+#            jq -e -r --arg INPUTREGEX "$REPOSITORY_REGEX" '.data[] | 
+#            select(.slug|test($INPUTREGEX)) | .slug')
+#          if [ "$FOUND_REPOSITORY" == "" -o "$FOUND_REPOSITORY" == "null" \
+#            -o "$FOUND_NAMESPACE" == "" -o "$FOUND_NAMESPACE" == "null" ]
+#          then
+#            printf "No repository matching regular expression %s found\n" \
+#              "$REPOSITORY_REGEX"
+#            exit 1
+#          fi
+#          printf "Found repository %s/%s in Cloudsmith account\n" \
+#            "$FOUND_NAMESPACE" \
+#            "$FOUND_REPOSITORY"
+#          while IFS=  read -r -d $'\0'; do
+#            test_array+=("$REPLY")
+#          done < <(find . -type f -regextype egrep \
+#            -iregex "${PACKAGES_REGEX}" -print0)
+#          for package in "${test_array[@]}"
+#          do
+#            [[ "$package" =~ $PACKAGES_REGEX ]]
+#            OSCODENAME=$(echo "$MATRIX_JSON" | \
+#              jq -r --arg OSVERSIONNUMBER "${BASH_REMATCH[3]}" \
+#              --arg ARCHITECTURE "${BASH_REMATCH[2]}" \
+#              '.include[] | select((.osVersionNumber|tostring==$OSVERSIONNUMBER)
+#              and (.architecture==$ARCHITECTURE)) |
+#              .osVersionCodename|ascii_downcase')
+#            cloudsmith push deb \
+#              ${FOUND_NAMESPACE}/${FOUND_REPOSITORY}/${BASH_REMATCH[1]}/${OSCODENAME} \
+#              ${package} \
+#              --republish
+#          done
+#        env:
+#          MATRIX_JSON: '${{ needs.prepareState.outputs.MainMatrix }}'
+#          PACKAGES_REGEX: '^.*/machinekit-hal-([a-z]{1,})-([a-z0-9]{1,})-([0-9\.]{1,})-${{ github.sha }}-${{ needs.prepareState.outputs.Timestamp }}/.{1,}\.d?deb$'
+#          REPOSITORY_REGEX: '^${{ github.event.repository.name }}$'
+#          CLOUDSMITH_API_KEY: '${{ secrets.CLOUDSMITH_TOKEN }}'

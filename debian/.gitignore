@@ -14,5 +14,6 @@
 /*.debhelper
 /shlibs.local
 /files
+/__pycache__
 
 !/changelog.in

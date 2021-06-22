@@ -24,39 +24,17 @@
 # #####################################################################
 # ~~~
 
-option(BUILD_MSGD_EXECUTABLE "Built the MSGd executable." TRUE)
+option(BUILD_SAMPLER_USR_UNMANAGED_MODULE
+       "Build the Sampler Usr unmanaged module." TRUE)
 
-if(BUILD_MSGD_EXECUTABLE)
-  add_executable(msgd)
+if(BUILD_SAMPLER_USR_UNMANAGED_MODULE)
+  add_executable(sampler_usr)
 
-  set(SOURCE_FILES src/rtapi_msgd.cc)
+  set(SOURCE_FILES src/sampler_usr.c)
 
-  target_sources(msgd PRIVATE ${SOURCE_FILES})
+  target_sources(sampler_usr PRIVATE ${SOURCE_FILES})
 
-  pkg_check_modules(UUID "uuid" REQUIRED IMPORTED_TARGET)
-  pkg_check_modules(LIBZMQ "libzmq" REQUIRED IMPORTED_TARGET)
+  target_link_libraries(sampler_usr PRIVATE hal samstr_memdefs)
 
-  find_library(LIBATOMIC NAMES "atomic" "libatomic" "libatomic.so" "libatomic.so.1" REQUIRED)
-  find_library(LIBRT NAMES "rt" "librt" "librt.so" REQUIRED)
-
-  target_link_libraries(
-    msgd
-    PRIVATE runtime
-            hal
-            runtime_memory_api
-            mkini
-            machinetalk
-            syslog_async
-            PkgConfig::UUID
-            PkgConfig::LIBZMQ
-            ${CMAKE_DL_LIBS}
-            ${LIBATOMIC}
-            ${LIBRT})
-
-  set_target_properties(
-    msgd
-    PROPERTIES OUTPUT_NAME "rtapi_msgd"
-               PREFIX ""
-               RUNTIME_OUTPUT_DIRECTORY
-               "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY}")
+  set_target_properties(sampler_usr PROPERTIES OUTPUT_NAME "halsampler")
 endif()

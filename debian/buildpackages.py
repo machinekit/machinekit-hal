@@ -45,7 +45,7 @@ import sys
 import importlib.util
 spec = importlib.util.spec_from_file_location(
     "machinekit_hal_script_helpers",
-    "{0}/scripts/machinekit_hal_script_helpers.py".format(
+    "{0}/support/python/machinekit_hal_script_helpers.py".format(
         os.path.realpath(
             "{0}/..".format(os.path.dirname(os.path.abspath(__file__)))
         )))

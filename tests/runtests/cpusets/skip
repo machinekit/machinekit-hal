@@ -1,0 +1,33 @@
+#!/bin/bash
+#                                                       -*-shell-script-*-
+
+CPUSET_ROOT=/sys/fs/cgroup/cpuset
+CPUSET_CPUS=1
+
+# Skip the test if any of the below commands fail
+set -e
+
+# Assert the cgtools are available
+which cgcreate >&/dev/null
+
+# Assert we're not running Xenomai threads
+test ! -e /sys/module/xeno_nucleus
+
+# Attempt to set up a cgroup with cpuset controller
+#
+# - Mount the cgroup cpuset controller if needed
+#   - Probably inadequate; see `partrt`, `create_dir_stubborn()`
+test -d $CPUSET_ROOT || \
+    mount -t cgroup -o cpuset none $CPUSET_ROOT
+#
+# - Create a "/rt" cgroup under the cpuset controller
+sudo cgcreate -g cpuset:/rt
+#
+# - Assign CPU to "/rt" cgroup & other tweaks
+sudo cgset -r cpuset.mems=0 /rt
+sudo cgset -r cpuset.cpus=${CPUSET_CPUS} /rt
+sudo cgset -r cpuset.cpu_exclusive=1 /rt
+sudo cgset -r cpuset.sched_load_balance=0 /rt
+#
+# - Check that assignment worked
+cgget -n -r cpuset.cpus /rt | grep -q "cpuset.cpus: ${CPUSET_CPUS}"

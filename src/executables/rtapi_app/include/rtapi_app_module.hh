@@ -80,7 +80,9 @@ int Module::load(string module)
         }
     }
     // Otherwise load it with dlopen()'s logic (or fail)
-    if (!handle) handle = dlopen(dlpath.c_str(), RTLD_GLOBAL | RTLD_NOW);
+    if (!handle) {
+        handle = dlopen(dlpath.c_str(), RTLD_GLOBAL | RTLD_NOW);
+    }
     if (!handle) {
         errmsg = dlerror();
         rtapi_print_msg(RTAPI_MSG_ERR, "load(%s): %s", module.c_str(), errmsg);
@@ -96,20 +98,24 @@ string Module::path()
 {
     if (!handle) {
         rtapi_print_msg(RTAPI_MSG_ERR,
-                        "Trying to get path of non-loaded module %s\n", name.c_str());
+                        "Trying to get path of non-loaded module %s\n",
+                        name.c_str());
         return "";
     }
-    
+
     struct link_map *map;
     dlinfo(handle, RTLD_DI_LINKMAP, &map);
-    if(!map){
-        rtapi_print_msg(RTAPI_MSG_ERR, "dlinfo(%s, %s):  %s", name.c_str(), "RTLD_DI_LINKMAP", dlerror());
+    if (!map) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "dlinfo(%s, %s):  %s", name.c_str(),
+                        "RTLD_DI_LINKMAP", dlerror());
         return NULL;
     }
 
-    // Should not happen, however passing nullptr to constructor of std::string is undefined
-    if(map->l_name == nullptr){
-        rtapi_print_msg(RTAPI_MSG_ERR, "link_map->l_name for %s is nullptr!", name);
+    // Should not happen, however passing nullptr to constructor of std::string
+    // is undefined
+    if (map->l_name == nullptr) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "link_map->l_name for %s is nullptr!",
+                        name.c_str());
         return NULL;
     }
     return std::string(map->l_name);
@@ -125,7 +131,8 @@ template <class T> T Module::sym(const char *sym_name)
 {
     if (!handle) {
         rtapi_print_msg(RTAPI_MSG_ERR,
-                        "Trying to sym symbol on non-loaded module %s\n", name.c_str());
+                        "Trying to sym symbol on non-loaded module %s\n",
+                        name.c_str());
         return nullptr;
     }
     clear_err();

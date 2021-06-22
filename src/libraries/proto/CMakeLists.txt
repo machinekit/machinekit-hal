@@ -26,7 +26,7 @@
 option(BUILD_PROTO_LIBRARY "Built the Proto library." TRUE)
 
 if(BUILD_PROTO_LIBRARY)
-  include("${PROJECT_SOURCE_DIR}/cmake/tools/FindProtobuf.cmake")
+  include("${PROJECT_SOURCE_DIR}/support/cmake/tools/FindProtobuf.cmake")
 
   add_library(machinetalk_proto_c SHARED)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::machinetalk_proto_c ALIAS

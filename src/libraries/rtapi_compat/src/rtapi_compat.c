@@ -321,7 +321,9 @@ int rtapi_get_tags(const char *mod_name)
             strerror_r(errno, errmsg, 200));
         return -1;
     }
-    strcat(modpath,"/modules/");
+    // TODO: This is a terrible way how to do this, rework it to use the set of loaded modules
+    //       and dlinfo querying! (Like the rtapi_app_module.hh is doing.)
+    strcat(modpath,"/mod");
     strcat(modpath,mod_name);
     strcat(modpath, ".so");
 
