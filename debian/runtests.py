@@ -155,6 +155,11 @@ class Build():
             sh.bash("-c", bash_command_string,
                     _out=sys.stdout.buffer, _err=sys.stderr.buffer)
 
+    def run_ctests(self) -> None:
+        for config in self.configs:
+            sh.ctest("-C", config, _cwd=self.build_directory,
+                     _out=sys.stdout.buffer, _err=sys.stderr.buffer)
+
     # def run_python_tests(self: object) -> None:
     #    bash_command_string = ". {0}; ./nosetests/runpytest.sh".format(
     #        self.rip_environment_path)
@@ -227,6 +232,7 @@ class Build():
 
 def main(args):
     """ Main entry point of the app """
+    exception = False
     try:
         build_script = Build(
             args.source_path,
@@ -247,16 +253,34 @@ def main(args):
             build_script.configure()
         if not args.no_build:
             build_script.build()
-        if not (args.no_runtests):  # or args.no_python_tests):
+        # or args.no_python_tests):
+        if not (args.no_runtests or args.no_ctests):
             build_script.disable_zeroconf()
         if not args.no_runtests:
-            build_script.run_runtests(args.test_path)
+            try:
+                build_script.run_runtests(args.test_path)
+            except Exception as e:
+                exception = True
+                print(e)
+                print("Run of Machinekit-HAL's Runtests FAILED!")
+        if not args.no_ctests:
+            try:
+                build_script.run_ctests()
+            except Exception as e:
+                exception = True
+                print(e)
+                print("Run of Machinekit-HAL's CTests FAILED!")
         # if not args.no_python_tests:
         #    build_script.run_python_tests()
-        print("Machinekit-HAL regression tests ran successfully!")
     except ValueError as e:
         print(e)
+        exception = True
+
+    if exception:
+        print("Machinekit-HAL test suite FAILED!")
         sys.exit(1)
+    
+    print("Machinekit-HAL test suite ran successfully!")
 
 
 class SelectGeneratorAction(argparse.Action):
@@ -346,6 +370,10 @@ if __name__ == "__main__":
     parser.add_argument("--no-runtests",
                         action="store_true",
                         help="Do not run 'runtests'")
+
+    parser.add_argument("--no-ctests",
+                        action="store_true",
+                        help="Do not run CMake CTest tests")
 
     # parser.add_argument("--no-python-tests",
     #                    action="store_true",

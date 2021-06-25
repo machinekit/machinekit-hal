@@ -38,6 +38,7 @@ Build-Depends:
     uuid-dev,
     uuid-runtime,
     libavahi-client-dev,
+    libcmocka-dev,
     libprotobuf-dev (>= 2.4.1),
     protobuf-compiler (>= 2.4.1),
     python3-protobuf:native,

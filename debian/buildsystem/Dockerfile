@@ -105,6 +105,7 @@ RUN apt-get update &&       \
         devscripts          \
         equivs              \
         ninja-build         \
+        python3-venv        \
         jq &&               \
     apt-get clean;
 
@@ -115,6 +116,15 @@ RUN curl -1vLf                                                                  
         '.assets | .[] | select(.name? | match($FILE)) | .browser_download_url')                                    \
         --output /tmp/cmake.sh &&                                                                                   \
     bash /tmp/cmake.sh --skip-license --prefix=/usr/local
+
+# Python 3.9 has --upgrade-deps, but lower versions needs manual action
+RUN python3 -m venv /home/${USER}/pybuild        \
+            --system-site-packages            && \
+        /home/${USER}/pybuild/bin/pip install    \
+            --upgrade pip build setuptools
+
+RUN ln -s /home/${USER}/pybuild/bin/activate \
+        /opt/environment/pyactivate
 
 ######################################################################
 
@@ -151,8 +161,3 @@ RUN cd /tmp &&                                                                \
                   -ir -t                                                      \
         "apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends -y" \
                   ./debian/control
-
-# This is a clutch
-RUN pip3 install --upgrade \
-        pip                \
-        build;

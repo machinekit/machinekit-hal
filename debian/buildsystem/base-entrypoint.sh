@@ -76,7 +76,7 @@ fi
 
 # Prepare environment for process
 ENVIRONMENT_DIRECTORY="/opt/environment"
-mapfile -d '' -t ARRAY_ENV < <(find ${ENVIRONMENT_DIRECTORY} -type f -print0 \
+mapfile -d '' -t ARRAY_ENV < <(find ${ENVIRONMENT_DIRECTORY} \( -type f -o -type l \) -print0 \
     | xargs -0 -n1 -I '{}' realpath -e -z '{}')
 
 for FILE in "${ARRAY_ENV[@]}"

@@ -85,3 +85,4 @@ target_include_directories(nanopb_interface INTERFACE ${nanopb_SOURCE_DIR}
 # TODO: Add install public headers step?
 
 set_target_properties(nanopb_proto_cc PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+set_target_properties(protobuf-nanopb-static PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
