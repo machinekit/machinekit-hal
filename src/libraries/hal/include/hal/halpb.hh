@@ -19,11 +19,11 @@
 // various functions and inlines dealing both with protobuf and HAL objects
 
 #include <rtapi.h>
-#include <hal.h>
-#include <hal_priv.h>
-#include <hal_group.h>
-#include <hal_rcomp.h>
-#include <hal_ring.h>
+#include <hal/hal.h>
+#include <hal/hal_priv.h>
+#include <hal/hal_group.h>
+#include <hal/hal_rcomp.h>
+#include <hal/hal_ring.h>
 #include "machinetalk/protobuf/message.pb.h"
 
 // in halpb.cc:

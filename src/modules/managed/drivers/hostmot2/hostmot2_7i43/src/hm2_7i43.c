@@ -17,14 +17,14 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#include "config_module.h"
+#include "hal/config_module.h"
 
 #include "rtapi.h"
 #include "rtapi_app.h"
 #include "rtapi_math.h"
 #include "rtapi_string.h"
 
-#include "hal.h"
+#include "hal/hal.h"
 
 #include "hal/drivers/mesa-hostmot2/bitfile.h"
 #include "hal/drivers/mesa-hostmot2/hostmot2-lowlevel.h"

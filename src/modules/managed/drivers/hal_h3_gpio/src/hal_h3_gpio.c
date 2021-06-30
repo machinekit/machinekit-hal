@@ -9,7 +9,7 @@
 #include "rtapi.h"          /* RTAPI realtime OS API */
 #include "rtapi_app.h"      /* RTAPI realtime module decls */
                             /* this also includes config.h */
-#include "hal.h"            /* HAL public API decls */
+#include "hal/hal.h"            /* HAL public API decls */
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <unistd.h>

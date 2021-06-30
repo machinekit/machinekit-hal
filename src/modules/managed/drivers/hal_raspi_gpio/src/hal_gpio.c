@@ -21,7 +21,7 @@ s********************************************************************/
 #include "rtapi_bitops.h"
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
                                 /* this also includes config.h */
-#include "hal.h"		/* HAL public API decls */
+#include "hal/hal.h"		/* HAL public API decls */
 #include "bcm2835.h"
 #include "cpuinfo.h"
 

@@ -1,9 +1,9 @@
 // demo actor component to show sending/receiving protobuf-encoded messages over HAL rings
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "hal.h"		/* HAL public API decls */
-#include "hal_ring.h"
-#include "hal_priv.h"
+#include "hal/hal.h"		/* HAL public API decls */
+#include "hal/hal_ring.h"
+#include "hal/hal_priv.h"
 
 // the nanopb library and compiled message definitions are brought in once by
 // 'halcmd loadrt pbmsgs' (message descriptors for parsing and generating pb msgs)

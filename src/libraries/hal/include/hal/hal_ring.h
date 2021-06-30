@@ -3,7 +3,7 @@
 
 #include <rtapi.h>
 #include <ring.h>
-#include "hal_internal.h"
+#include "hal/hal_internal.h"
 #include <multiframe.h>
 #include <multiframe_flag.h>
 

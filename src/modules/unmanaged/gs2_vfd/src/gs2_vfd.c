@@ -35,7 +35,7 @@
 #include <errno.h>
 #include <getopt.h>
 #include "rtapi.h"
-#include "hal.h"
+#include "hal/hal.h"
 #include <modbus.h>
 
 /* Read Registers:

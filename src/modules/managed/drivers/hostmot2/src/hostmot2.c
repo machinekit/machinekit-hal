@@ -17,7 +17,7 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#include "config_module.h"
+#include "hal/config_module.h"
 #include RTAPI_INC_SLAB_H
 #include RTAPI_INC_CTYPE_H
 #include RTAPI_INC_STRING_H
@@ -27,8 +27,8 @@
 #include "rtapi_string.h"
 #include "rtapi_math.h"
 
-#include "hal.h"
-#include "hal_priv.h"
+#include "hal/hal.h"
+#include "hal/hal_priv.h"
 
 #include "hostmot2.h"
 #include "bitfile.h"

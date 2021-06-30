@@ -2,7 +2,7 @@
 #define HAL_GROUP_H
 
 #include <rtapi.h>
-#include <hal_priv.h>
+#include <hal/hal_priv.h>
 
 RTAPI_BEGIN_DECLS
 

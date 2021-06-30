@@ -48,7 +48,7 @@
 #ifndef _LINUX_STRING_H_
 #define _LINUX_STRING_H_
 
-#include "config_module.h"
+#include "hal/config_module.h"
 #include RTAPI_INC_GFP_H
 #include <string.h>     // strdup
 #include <stdlib.h>     // malloc

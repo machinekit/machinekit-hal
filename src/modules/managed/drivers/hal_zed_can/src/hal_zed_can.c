@@ -79,7 +79,7 @@
 #include "rtapi.h"         // rtapi_print_msg()
 #include "rtapi_bitops.h"  // RTAPI_BIT(n)
 #include "rtapi_app.h"     //
-#include "hal.h"
+#include "hal/hal.h"
 
 #include <stdio.h>
 #include <stdbool.h>

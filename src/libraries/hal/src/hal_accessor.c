@@ -1,8 +1,8 @@
 #include "config.h"
-#include "hal.h"
-#include "hal_priv.h"
-#include "hal_accessor.h"
-#include "hal_internal.h"
+#include "hal/hal.h"
+#include "hal/hal_priv.h"
+#include "hal/hal_accessor.h"
+#include "hal/hal_internal.h"
 
 // allocators for accessor-style pins
 // passing NULL for data_ptr_addr in halg_pin_newfv makes them v2 pins

@@ -42,11 +42,11 @@
 #include "config.h"
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_compat.h"
-#include "hal.h"		/* HAL public API decls */
-#include "hal_priv.h"	/* private HAL decls */
-#include "hal_ring.h"	        /* ringbuffer declarations */
-#include "hal_group.h"	        /* group/member declarations */
-#include "hal_rcomp.h"	        /* remote component declarations */
+#include "hal/hal.h"		/* HAL public API decls */
+#include "hal/hal_priv.h"	/* private HAL decls */
+#include "hal/hal_ring.h"	        /* ringbuffer declarations */
+#include "hal/hal_group.h"	        /* group/member declarations */
+#include "hal/hal_rcomp.h"	        /* remote component declarations */
 #include "halcmd_commands.h"
 #include "halcmd_rtapiapp.h"
 #include "rtapi_hexdump.h"

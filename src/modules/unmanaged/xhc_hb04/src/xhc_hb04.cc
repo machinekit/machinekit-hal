@@ -32,7 +32,7 @@
 #include <unistd.h>
 #include <stdarg.h>
 
-#include <hal.h>
+#include <hal/hal.h>
 #include <mk-inifile.hh>
 
 #include "config.h"

@@ -38,17 +38,17 @@
 #endif
 
 #include <rtapi.h>
-#include <hal.h>
-#include <hal_priv.h>
-#include <hal_group.h>
-#include <hal_rcomp.h>
+#include <hal/hal.h>
+#include <hal/hal_priv.h>
+#include <hal/hal_group.h>
+#include <hal/hal_rcomp.h>
 #include <mk-inifile.h>
 #include <syslog_async.h>
 
 #include "mk-service.hh"
 #include "mk-zeroconf.hh"
 
-#include <machinetalk/build/machinetalk/protobuf/message.pb.h>
+#include <machinetalk/protobuf/message.pb.h>
 namespace gpb = google::protobuf;
 
 // announced protocol versions

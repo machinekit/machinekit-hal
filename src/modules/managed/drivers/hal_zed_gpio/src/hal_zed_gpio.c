@@ -175,7 +175,7 @@ INT_TYPE is set to level sensitive.
 #include "rtapi.h"
 #include "rtapi_bitops.h"
 #include "rtapi_app.h"
-#include "hal.h"
+#include "hal/hal.h"
 
 MODULE_AUTHOR("Claudio Lorini");
 MODULE_DESCRIPTION("Driver for Zedboard GPIOs");

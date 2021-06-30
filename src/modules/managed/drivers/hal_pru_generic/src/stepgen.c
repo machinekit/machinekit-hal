@@ -51,13 +51,13 @@
 //----------------------------------------------------------------------//
 
 // Use config_module.h instead of config.h so we can use RTAPI_INC_LIST_H
-#include "config_module.h"
+#include "hal/config_module.h"
 
 // #include RTAPI_INC_LIST_H
 // #include "rtapi.h"          /* RTAPI realtime OS API */
 // #include "rtapi_app.h"      /* RTAPI realtime module decls */
 // #include "rtapi_math.h"
-// #include "hal.h"            /* HAL public API decls */
+// #include "hal/hal.h"            /* HAL public API decls */
 // #include <pthread.h>
 //
 // #include <stdio.h>
@@ -70,7 +70,7 @@
 #include "rtapi_string.h"
 #include "rtapi_math.h"
 
-#include "hal.h"
+#include "hal/hal.h"
 #include "config.h"             // TARGET_PLATFORM_BEAGLEBONE
 
 #include "hal/drivers/hal_pru_generic/hal_pru_generic.h"

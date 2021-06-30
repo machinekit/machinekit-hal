@@ -31,8 +31,8 @@
 #include "rtapi_common.h"
 #include "rtapi_global.h"
 #include "shmdrv.h"
-#include "hal.h"
-#include "hal_priv.h"
+#include "hal/hal.h"
+#include "hal/hal_priv.h"
 
 hal_data_t *hal_data;
 

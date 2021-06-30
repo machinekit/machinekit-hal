@@ -2,9 +2,9 @@
 #define HAL_ITER_H
 
 #include <rtapi.h>
-#include <hal.h>
-#include <hal_ring.h>
-#include <hal_priv.h>
+#include <hal/hal.h>
+#include <hal/hal_ring.h>
+#include <hal/hal_priv.h>
 
 RTAPI_BEGIN_DECLS
 

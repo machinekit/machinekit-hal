@@ -18,14 +18,14 @@
 //
 //    The code in this file is based on UFLBP.PAS by Peter C. Wallace.  
 
-#include "config_module.h"
+#include "hal/config_module.h"
 #include RTAPI_INC_SLAB_H
 #include RTAPI_INC_CTYPE_H
 #include RTAPI_INC_STRING_H
 
 #include "rtapi.h"
 #include "rtapi_app.h"
-#include "hal.h"
+#include "hal/hal.h"
 #include "hostmot2.h"
 #include "sserial.h"
 

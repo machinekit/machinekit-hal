@@ -11,8 +11,8 @@ option rtapi_app no;
 license "GPLv2 or later";
 ;;
 
-#include "hal_priv.h"
-#include "hal_ring.h"
+#include "hal/hal_priv.h"
+#include "hal/hal_ring.h"
 #define PB_FIELD_32BIT
 #include "../protobuf/demo.npb.h"
 #include "../protobuf/demo.npb.c"

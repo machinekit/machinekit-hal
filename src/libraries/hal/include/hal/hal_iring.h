@@ -3,9 +3,9 @@
 
 #include <rtapi.h>
 #include <ring.h>
-#include "hal.h"
-#include "hal_priv.h"
-#include "hal_internal.h"
+#include "hal/hal.h"
+#include "hal/hal_priv.h"
+#include "hal/hal_internal.h"
 
 
 

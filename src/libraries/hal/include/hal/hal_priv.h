@@ -94,7 +94,7 @@
 
 #include <rtapi.h>
 #include <rtapi_global.h>
-#include "hal_logging.h"
+#include "hal/hal_logging.h"
 
 #ifdef ULAPI
 #include <rtapi_compat.h>
@@ -169,8 +169,8 @@ typedef union {
 
 #define HO_NULL ((hal_object_ptr)NULL)
 
-#include "hal_list.h"    // needs SHMPTR/SHMOFF
-#include "hal_object.h"  // needs hal_list_t
+#include "hal/hal_list.h"    // needs SHMPTR/SHMOFF
+#include "hal/hal_object.h"  // needs hal_list_t
 
 /***********************************************************************
 *            PRIVATE HAL DATA STRUCTURES AND DECLARATIONS              *
@@ -654,7 +654,7 @@ typedef struct hal_vtable {
 
 // only after all descriptors are defined
 // (hal_accessor.h wont work with only the incomplete typedefs from hal.h)
-#include "hal_accessor.h"
+#include "hal/hal_accessor.h"
 
 
 /* IMPORTANT:  If any of the structures in this file are changed, the

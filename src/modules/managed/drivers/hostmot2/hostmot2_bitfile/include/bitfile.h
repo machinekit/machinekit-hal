@@ -27,7 +27,7 @@
 #define __BITFILE_H
 
 
-#include "config_module.h"
+#include "hal/config_module.h"
 #include RTAPI_INC_FIRMWARE_H
 
 

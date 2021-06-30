@@ -1,7 +1,7 @@
 #ifndef  HAL_ACCESSOR_MACROS_H
 #define  HAL_ACCESSOR_MACROS_H
 
-#include <hal_accessor.h>
+#include <hal/hal_accessor.h>
 
 /***************************************************
 A set of shorthand macros for use in components

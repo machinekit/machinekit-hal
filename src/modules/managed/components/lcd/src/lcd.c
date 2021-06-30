@@ -22,7 +22,7 @@
 #include "rtapi.h"
 #include "rtapi_app.h"
 #include "rtapi_string.h"
-#include "hal.h"
+#include "hal/hal.h"
 #include "rtapi_math.h"
 #include <linux/types.h>
 

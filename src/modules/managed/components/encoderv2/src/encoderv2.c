@@ -63,9 +63,9 @@
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "rtapi_atomics.h"
 #include "rtapi_string.h"
-#include "hal.h"		/* HAL public API decls */
-#include "hal_priv.h"           // SHMPTR,SHMOFF
-#include "hal_list.h"
+#include "hal/hal.h"		/* HAL public API decls */
+#include "hal/hal_priv.h"           // SHMPTR,SHMOFF
+#include "hal/hal_list.h"
 
 #define VERBOSE_SETUP  // pin creation
 

@@ -39,7 +39,7 @@
  */
 
 #include "config.h"
-#include "hal.h"
+#include "hal/hal.h"
 #include "rtapi.h"
 #include "rtapi_app.h"
 

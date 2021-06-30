@@ -12,7 +12,7 @@ option rtapi_app no;
 license "GPLv2 or later";
 ;;
 
-#include "hal.h"
+#include "hal/hal.h"
 #include "rtapi_heap.h"
 
 static char *name = "testalloc";

@@ -24,7 +24,7 @@
 #include RTAPI_INC_FIRMWARE_H
 
 #include "rtapi.h"
-#include "hal.h"
+#include "hal/hal.h"
 
 #include "bitfile.h"
 

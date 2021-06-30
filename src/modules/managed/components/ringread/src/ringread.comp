@@ -27,8 +27,8 @@ license "GPLv2 or later";
 
 #define MAXSIZE 1024
 
-#include "hal_priv.h"
-#include "hal_ring.h"	        /* ringbuffer declarations */
+#include "hal/hal_priv.h"
+#include "hal/hal_ring.h"	        /* ringbuffer declarations */
 
 static char *ring = "ring_0";
 RTAPI_MP_STRING(ring,  "name of ring to attach");

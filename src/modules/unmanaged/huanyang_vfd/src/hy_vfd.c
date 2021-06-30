@@ -34,7 +34,7 @@
 #include <getopt.h>
 #include <math.h>
 #include "rtapi.h"
-#include "hal.h"
+#include "hal/hal.h"
 #include "hy_comm.h"
 
 

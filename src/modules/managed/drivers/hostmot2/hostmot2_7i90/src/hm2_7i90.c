@@ -25,7 +25,7 @@
 #include "rtapi_math.h"
 #include "rtapi_string.h"
 
-#include "hal.h"
+#include "hal/hal.h"
 
 #include "hal/drivers/mesa-hostmot2/bitfile.h"
 #include "hal/drivers/mesa-hostmot2/hostmot2-lowlevel.h"

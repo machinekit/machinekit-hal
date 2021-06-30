@@ -15,7 +15,7 @@
 #include "config.h"		/* GIT_BUILD_SHA */
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "hal.h"		/* HAL API */
+#include "hal/hal.h"		/* HAL API */
 #include "pbmsgs.h"
 
 MODULE_AUTHOR("Michael Haberler");

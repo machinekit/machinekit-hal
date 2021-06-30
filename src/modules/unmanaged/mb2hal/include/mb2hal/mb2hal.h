@@ -11,7 +11,7 @@
 #endif
 #include "rtapi_string.h"
 #include "rtapi_errno.h"
-#include "hal.h"
+#include "hal/hal.h"
 #include "mk-inifile.h"
 
 #include <modbus.h>

@@ -29,7 +29,7 @@
 #include "rtapi_string.h"
 #include "rtapi_pci.h"
 
-#include "hal.h"
+#include "hal/hal.h"
 
 #include "bitfile.h"
 #include "hostmot2-lowlevel.h"

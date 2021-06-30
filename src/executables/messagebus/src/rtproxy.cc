@@ -12,9 +12,9 @@
 
 #include <rtapi.h>
 #include <rtapi_hexdump.h>
-#include <hal.h>
-#include <hal_priv.h>
-#include <hal_ring.h>
+#include <hal/hal.h>
+#include <hal/hal_priv.h>
+#include <hal/hal_ring.h>
 
 #include <machinetalk/include/pb-hal.h>
 #include <machinetalk/nanopb/pb_decode.h>

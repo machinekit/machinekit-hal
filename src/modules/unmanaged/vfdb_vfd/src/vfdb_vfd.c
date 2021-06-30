@@ -62,7 +62,7 @@
 #include <sys/ioctl.h>
 
 #include "rtapi.h"
-#include "hal.h"
+#include "hal/hal.h"
 #include <modbus/modbus.h>
 #include <modbus/modbus-tcp.h>
 #include "mk-inifile.h"

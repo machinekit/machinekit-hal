@@ -17,8 +17,8 @@
  */
 
 #include "haltalk.hh"
-#include "halpb.hh"
-#include "hal_object.h"
+#include "hal/halpb.hh"
+#include "hal/hal_object.h"
 #include "pbutil.hh"
 #include "rtapi_hexdump.h"
 #include <sys/time.h>

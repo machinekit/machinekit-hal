@@ -28,13 +28,11 @@ if(BUILD_HALCMD_EXECUTABLE)
   add_executable(halcmd)
 
   set(SOURCE_FILES src/halcmd_completion.c src/halcmd_main.c)
+  set(PRIVATE_HEADER_FILES src/halcmd_completion.h)
 
   find_package(Readline REQUIRED)
 
-  target_sources(halcmd PRIVATE ${SOURCE_FILES})
-
-  target_include_directories(
-    halcmd PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+  target_sources(halcmd PRIVATE ${SOURCE_FILES} ${PRIVATE_HEADER_FILES})
 
   target_compile_definitions(halcmd PRIVATE "ULAPI")
 

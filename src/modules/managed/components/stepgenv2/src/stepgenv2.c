@@ -302,10 +302,10 @@
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "triple-buffer.h"
-#include "hal.h"		/* HAL public API decls */
-#include "hal_priv.h"           // SHMPTR,SHMOFF
-#include "hal_list.h"
-#include "hal_logging.h"
+#include "hal/hal.h"		/* HAL public API decls */
+#include "hal/hal_priv.h"           // SHMPTR,SHMOFF
+#include "hal/hal_list.h"
+#include "hal/hal_logging.h"
 
 #include <float.h>
 #include "rtapi_math.h"

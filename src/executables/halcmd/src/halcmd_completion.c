@@ -42,10 +42,10 @@
 #include "linux/limits.h"
 #include "stdlib.h"
 #include "rtapi.h"      /* RTAPI realtime OS API */
-#include "hal.h"        /* HAL public API decls */
-#include "hal_priv.h"   /* private HAL decls */
-#include "hal_ring.h"           /* ringbuffer declarations */
-#include "hal_group.h"          /* halgroups declarations */
+#include "hal/hal.h"        /* HAL public API decls */
+#include "hal/hal_priv.h"   /* private HAL decls */
+#include "hal/hal_ring.h"           /* ringbuffer declarations */
+#include "hal/hal_group.h"          /* halgroups declarations */
 
 static int argno;
 

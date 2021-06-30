@@ -101,7 +101,7 @@
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "rtapi_io.h"
 
-#include "hal.h"		/* HAL public API decls */
+#include "hal/hal.h"		/* HAL public API decls */
 
 # include <string.h>
 

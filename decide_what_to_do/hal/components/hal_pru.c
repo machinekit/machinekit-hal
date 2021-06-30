@@ -11,7 +11,7 @@
 #include "rtapi.h"		/* RTAPI realtime OS API */
 #include "rtapi_compat.h"       /* RTAPI support functions */
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "hal.h"		/* HAL public API decls */
+#include "hal/hal.h"		/* HAL public API decls */
 #include <pthread.h>
 #include <sys/types.h>
 #include <sys/stat.h>

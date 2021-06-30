@@ -35,7 +35,7 @@ if(BUILD_VFDB_VFD_UNMANAGED_MODULE)
   target_sources(vfdb_vfd PRIVATE ${SOURCE_FILES})
 
   pkg_check_modules(LIBMODBUS "libmodbus" REQUIRED IMPORTED_TARGET)
-  find_library(LIBMATH NAMES "m" REQUIRED)
+  find_library(MATH NAMES "m" REQUIRED)
 
   target_link_libraries(
     vfdb_vfd
@@ -44,5 +44,5 @@ if(BUILD_VFDB_VFD_UNMANAGED_MODULE)
     mkini
     runtime_math
     PkgConfig::LIBMODBUS
-    ${LIBMATH})
+    ${MATH})
 endif()

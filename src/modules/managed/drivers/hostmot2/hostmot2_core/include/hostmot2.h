@@ -27,10 +27,10 @@
 
 #include <linux/version.h>
 
-#include "config_module.h"
+#include "hal/config_module.h"
 #include RTAPI_INC_LIST_H
 #include "rtapi.h"
-#include "hal.h"
+#include "hal/hal.h"
 #include "sserial.h"
 
 #include "hostmot2-lowlevel.h"

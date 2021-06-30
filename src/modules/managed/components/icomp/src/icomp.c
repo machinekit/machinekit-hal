@@ -4,8 +4,8 @@
 
 #include "rtapi.h"
 #include "rtapi_app.h"
-#include "hal.h"
-#include "hal_priv.h"
+#include "hal/hal.h"
+#include "hal/hal_priv.h"
 
 MODULE_AUTHOR("Michael Haberler");
 MODULE_DESCRIPTION("test component for HAL instantiation API");

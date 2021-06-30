@@ -23,7 +23,7 @@
 #include "haltalk.hh"
 #include <arpa/inet.h>
 #include <sys/socket.h>
-// #include "halpb.hh"
+// #include "hal/halpb.hh"
 // #include "pbutil.hh"
 // #include "rtapi_hexdump.h"
 

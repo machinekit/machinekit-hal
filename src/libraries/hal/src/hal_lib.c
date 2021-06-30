@@ -59,10 +59,10 @@
 
 #include "config.h"
 #include "rtapi.h"		/* RTAPI realtime OS API */
-#include "hal.h"		/* HAL public API decls */
-#include "hal_priv.h"		/* HAL private decls */
-#include "hal_internal.h"
-#include "hal_iring.h"
+#include "hal/hal.h"		/* HAL public API decls */
+#include "hal/hal_priv.h"		/* HAL private decls */
+#include "hal/hal_internal.h"
+#include "hal/hal_iring.h"
 
 #include "rtapi_string.h"
 #include "rtapi_flavor.h"       // flavor_descriptor

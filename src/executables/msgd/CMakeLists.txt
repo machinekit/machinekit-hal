@@ -36,8 +36,8 @@ if(BUILD_MSGD_EXECUTABLE)
   pkg_check_modules(UUID "uuid" REQUIRED IMPORTED_TARGET)
   pkg_check_modules(LIBZMQ "libzmq" REQUIRED IMPORTED_TARGET)
 
-  find_library(LIBATOMIC NAMES "atomic" "libatomic" "libatomic.so" "libatomic.so.1" REQUIRED)
-  find_library(LIBRT NAMES "rt" "librt" "librt.so" REQUIRED)
+  find_library(ATOMIC NAMES "atomic" "libatomic" "libatomic.so" "libatomic.so.1" REQUIRED)
+  find_library(RT NAMES "rt" "librt" "librt.so" REQUIRED)
 
   target_link_libraries(
     msgd
@@ -50,8 +50,8 @@ if(BUILD_MSGD_EXECUTABLE)
             PkgConfig::UUID
             PkgConfig::LIBZMQ
             ${CMAKE_DL_LIBS}
-            ${LIBATOMIC}
-            ${LIBRT})
+            ${ATOMIC}
+            ${RT})
 
   set_target_properties(
     msgd

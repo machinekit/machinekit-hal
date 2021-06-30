@@ -41,9 +41,9 @@
 
 //#include "config.h"
 #include <rtapi.h>
-#include <hal.h>
-#include <hal_priv.h>
-#include <hal_ring.h>
+#include <hal/hal.h>
+#include <hal/hal_priv.h>
+#include <hal/hal_ring.h>
 #include <setup_signals.h>
 #include <mk-zeroconf.hh>
 //#include <select_interface.h>

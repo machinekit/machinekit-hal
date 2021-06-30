@@ -17,7 +17,7 @@
  */
 
 #include "haltalk.hh"
-#include "halpb.hh"
+#include "hal/halpb.hh"
 #include "pbutil.hh"
 
 static int group_report_cb(int phase, hal_compiled_group_t *cgroup,

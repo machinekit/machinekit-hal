@@ -1,5 +1,5 @@
 #include "config.h"
-#include "hal_iring.h"
+#include "hal/hal_iring.h"
 
 iring_t *hal_iring_alloc(const size_t size)
 {

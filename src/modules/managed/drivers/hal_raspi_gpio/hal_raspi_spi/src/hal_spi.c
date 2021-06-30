@@ -20,7 +20,7 @@
 
 #include "rtapi.h"
 #include "rtapi_app.h"
-#include "hal.h"
+#include "hal/hal.h"
 
 #include "rtapi_math.h"
 #include <fcntl.h>

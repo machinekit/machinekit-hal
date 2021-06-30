@@ -1,9 +1,9 @@
 #include "rtapi.h"
 #include "rtapi_app.h"
 #include "rtapi_math.h"
-#include "hal.h"
-#include "hal_priv.h"
-#include "hal_ring.h"
+#include "hal/hal.h"
+#include "hal/hal_priv.h"
+#include "hal/hal_ring.h"
 
 #include <machinetalk/protobuf/ros.npb.h>
 #include <pb_decode.h>

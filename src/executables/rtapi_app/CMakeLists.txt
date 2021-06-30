@@ -30,10 +30,12 @@ if(BUILD_RTAPI_APP_EXECUTABLE)
   add_executable(rtapi_app)
 
   set(SOURCE_FILES src/rtapi_app.cc)
+  set(PRIVATE_HEADER_FILES src/rtapi_app_module.hh)
 
   target_sources(
     rtapi_app
-    PRIVATE ${SOURCE_FILES} $<TARGET_PROPERTY:rtapi_support,INTERFACE_SOURCES>
+    PRIVATE ${SOURCE_FILES} ${PRIVATE_HEADER_FILES}
+            $<TARGET_PROPERTY:rtapi_support,INTERFACE_SOURCES>
             $<TARGET_PROPERTY:rtapi_compat,INTERFACE_SOURCES>)
 
   target_include_directories(

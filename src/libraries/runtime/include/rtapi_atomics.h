@@ -24,7 +24,7 @@
 #define _RTAPI_ATOMICS_H
 
 #include "rtapi_int.h"
-#include "hal_types.h"
+#include "hal/hal_types.h"
 
 
 #ifdef HAVE_CK

@@ -5,12 +5,12 @@
 
 #include "config.h"
 #include "rtapi.h"
-#include "hal.h"
-#include "hal_priv.h"
-#include "hal_ring.h"
-#include "hal_object.h"
-#include "hal_list.h"
-#include "hal_internal.h"
+#include "hal/hal.h"
+#include "hal/hal_priv.h"
+#include "hal/hal_ring.h"
+#include "hal/hal_object.h"
+#include "hal/hal_list.h"
+#include "hal/hal_internal.h"
 
 int yield_match(hal_object_ptr o, foreach_args_t *args)
 {

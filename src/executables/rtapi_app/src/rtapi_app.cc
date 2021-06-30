@@ -66,8 +66,8 @@
 
 using namespace google::protobuf;
 
-#include "hal.h"
-#include "hal_priv.h"
+#include "hal/hal.h"
+#include "hal/hal_priv.h"
 #include "rtapi.h"
 #include "rtapi_export.h"
 #include "rtapi_flavor.h" // flavor_*

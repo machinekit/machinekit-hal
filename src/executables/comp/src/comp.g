@@ -260,7 +260,7 @@ def prologue(f):
 #endif
 #include "rtapi_string.h"
 #include "rtapi_errno.h"
-#include "hal.h"
+#include "hal/hal.h"
 
 static int comp_id;
 """)

@@ -33,8 +33,10 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "^x86.*")
     add_executable(test_rtapi_vsnprintf)
 
     set(SOURCE_FILES src/test_rtapi_vsnprintf.c)
+    set(PRIVATE_HEADER_FILES src/vsnprintf.h)
 
-    target_sources(test_rtapi_vsnprintf PRIVATE ${SOURCE_FILES})
+    target_sources(test_rtapi_vsnprintf PRIVATE ${SOURCE_FILES}
+                                                ${PRIVATE_HEADER_FILES})
 
     target_include_directories(
       test_rtapi_vsnprintf

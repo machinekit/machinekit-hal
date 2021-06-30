@@ -39,9 +39,9 @@ if(BUILD_RUNTIME_MEMORY_LIBRARY)
 
   target_sources(runtime_memory_api PRIVATE ${SOURCE_FILES})
 
-  find_library(LIBRT NAMES "rt" "librt" "librt.so" "librt.so.1" REQUIRED)
+  find_library(RT NAMES "rt" "librt" "librt.so" "librt.so.1" REQUIRED)
 
-  target_link_libraries(runtime_memory_api PRIVATE runtime_api ${LIBRT})
+  target_link_libraries(runtime_memory_api PRIVATE runtime_api ${RT})
 
   target_compile_definitions(runtime_memory_api PRIVATE "ULAPI")
 

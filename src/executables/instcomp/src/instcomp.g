@@ -339,10 +339,10 @@ def prologue(f):
 #endif
 #include "rtapi_string.h"
 #include "rtapi_errno.h"
-#include "hal.h"
-#include "hal_priv.h"
-#include "hal_accessor.h"
-#include "hal_internal.h"
+#include "hal/hal.h"
+#include "hal/hal_priv.h"
+#include "hal/hal_accessor.h"
+#include "hal/hal_internal.h"
 \nstatic int comp_id;
 \n""")
     for value in userdef_includes:
@@ -1044,7 +1044,7 @@ def prologue(f):
         f.write("#define local_argv(i) (ip->local_argv[i])\n")
 
         if (pin_ptrs):
-            f.write("#include <hal_accessor_macros.h>\n")
+            f.write("#include <hal/hal_accessor_macros.h>\n")
     f.write("\n")
     f.write("\n")
 

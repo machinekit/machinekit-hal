@@ -130,7 +130,7 @@ RTAPI_BEGIN_DECLS
 #error HAL needs RTAPI/ULAPI, check makefile and flags
 #endif
 
-#include <hal_types.h>
+#include <hal/hal_types.h>
 #include <rtapi_errno.h>
 
 #define HAL_NAME_LEN     41	// legacy length limit

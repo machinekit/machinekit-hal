@@ -18,7 +18,7 @@
 //
 
 // Firmware ID decoder for the Mesa FPGA firwmare (socfpga)
-#include "config_module.h"
+#include "hal/config_module.h"
 #include RTAPI_INC_SLAB_H
 
 #include "rtapi.h"

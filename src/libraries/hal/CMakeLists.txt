@@ -36,28 +36,48 @@ if(BUILD_HAL_LIBRARY)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::hal_module ALIAS hal_module)
 
   set(SOURCE_FILES
-      src/hal_lib.c
-      src/hal_group.c
-      src/hal_ring.c
-      src/hal_rcomp.c
-      src/hal_vtable.c
-      src/hal_funct.c
-      src/hal_thread.c
-      src/hal_param.c
-      src/hal_signal.c
-      src/hal_pin.c
-      src/hal_comp.c
-      src/hal_memory.c
-      src/hal_misc.c
-      src/hal_instance.c
-      src/hal_object.c
-      src/hal_object_selectors.c
-      src/hal_accessor.c
-      src/hal_iring.c)
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/hal_lib.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/hal_group.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/hal_ring.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/hal_rcomp.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/hal_vtable.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/hal_funct.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/hal_thread.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/hal_param.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/hal_signal.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/hal_pin.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/hal_comp.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/hal_memory.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/hal_misc.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/hal_instance.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/hal_object.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/hal_object_selectors.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/hal_accessor.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/hal_iring.c)
 
   set(HALPB_SOURCE_FILES src/halpb.cc)
 
-  set(HEADER_FILES include/hal.h)
+  set(PUBLIC_HEADER_FILES
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/config_module.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_accessor.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_accessor_macros.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_group.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_internal.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_iring.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_iter.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_list.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_logging.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_object.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_object_selectors.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/halpb.hh
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_priv.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_rcomp.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_ring.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_types.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/vtable.h)
+  # TODO: Filter out header files from HAL which can safely be private
+  # set(PRIVATE_HEADER_FILES "")
 
   target_include_directories(
     hal_api
@@ -77,7 +97,7 @@ if(BUILD_HAL_LIBRARY)
 
   export_rtapi_symbols(TARGET hal_module)
 
-  set_target_properties(hal_api PROPERTIES PUBLIC_HEADER ${HEADER_FILES})
+  #set_target_properties(hal_api PROPERTIES PUBLIC_HEADER ${PUBLIC_HEADER_FILES})
 
   set_target_properties(
     hal
@@ -98,7 +118,7 @@ if(BUILD_HAL_LIBRARY)
     LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
             COMPONENT MachinekitHAL_Library_Base
             NAMELINK_COMPONENT MachinekitHAL_Library_Development
-    PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
+    PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/hal"
                   COMPONENT MachinekitHAL_Library_Development)
 
   install(

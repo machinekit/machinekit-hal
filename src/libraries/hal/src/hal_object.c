@@ -3,11 +3,11 @@
 #include "config.h"
 #include "rtapi.h"
 #include "rtapi_atomics.h"
-#include "hal.h"
-#include "hal_priv.h"
-#include "hal_object.h"
-#include "hal_list.h"
-#include "hal_internal.h"
+#include "hal/hal.h"
+#include "hal/hal_priv.h"
+#include "hal/hal_object.h"
+#include "hal/hal_list.h"
+#include "hal/hal_internal.h"
 #include "rtapi_heap_private.h" // rtapi_malloc_hdr_t
 
 #define MAX_OBJECT_NAME_LEN 127

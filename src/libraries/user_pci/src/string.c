@@ -45,7 +45,7 @@
  *  information, go to https://github.com/machinekit.
  *******************************************************************/
 
-#include "config_module.h"
+#include "hal/config_module.h"
 #include RTAPI_INC_STRING_H
 #include <wordexp.h>    // wordexp (substitute for argv_split)
 

@@ -31,7 +31,7 @@
 // 3rd party includes
 
 // local library includes
-#include <hal.h>
+#include <hal/hal.h>
 #include <sys/types.h>
 
 // forward declarations

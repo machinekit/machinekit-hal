@@ -59,10 +59,10 @@
 #define UINT32_MAX (4294967295U)
 //#include <stdint.h>
 
-#include "config_module.h"
+#include "hal/config_module.h"
 #include RTAPI_INC_LIST_H
 #include "rtapi.h"
-#include "hal.h"
+#include "hal/hal.h"
 
 #include "hal/drivers/hal_pru_generic/pru_tasks.h"
 

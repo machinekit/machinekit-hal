@@ -44,8 +44,8 @@ if(BUILD_CONSTV2_UNMANAGED_MODULE)
     constv2
     PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/constv2>)
 
-  find_library(LIBMATH NAMES "m" REQUIRED)
+  find_library(MATH NAMES "m" REQUIRED)
 
-  target_link_libraries(const PRIVATE runtime hal mkini ${LIBMATH})
-  target_link_libraries(constv2 PRIVATE runtime hal mkini ${LIBMATH})
+  target_link_libraries(const PRIVATE runtime hal mkini ${MATH})
+  target_link_libraries(constv2 PRIVATE runtime hal mkini ${MATH})
 endif()

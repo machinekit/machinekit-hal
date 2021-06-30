@@ -41,7 +41,7 @@
 #define HALCMD_H
 
 #include <stdio.h>
-#include "hal.h"
+#include "hal/hal.h"
 #include "rtapi_compat.h"
 
 extern int halcmd_startup(int quiet);

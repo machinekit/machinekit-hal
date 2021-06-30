@@ -2,8 +2,8 @@
 #define HAL_OBJECT_H
 
 #include "rtapi_int.h"
-#include "hal_priv.h"
-#include "hal_list.h"
+#include "hal/hal_object.h"
+#include "hal/hal_list.h"
 
 
 // type tags of HAL objects. See also protobuf/proto/types.proto/enum ObjectType
@@ -304,6 +304,6 @@ int halg_yield(bool use_hal_mutex,
 	       foreach_args_t *args,
 	       hal_object_callback_t callback);
 
-#include "hal_object_selectors.h"
+#include "hal/hal_object_selectors.h"
 
 #endif // HAL_OBJECT_H

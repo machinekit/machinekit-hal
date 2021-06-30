@@ -1,4 +1,4 @@
-#include "halpb.hh"
+#include "hal/halpb.hh"
 
 int halpr_describe_pin(hal_pin_t *pin, machinetalk::Pin *pbpin)
 {
