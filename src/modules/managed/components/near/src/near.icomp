@@ -11,7 +11,7 @@ if their absolute difference is no greater than \\fBdifference\\fR (i.e.,
 function _;
 license "GPL";
 ;;
-#include "rtapi_math.h"
+#include "runtime/rtapi_math.h"
 FUNCTION(_)
 {
 	hal_float_t in1 = in1_, in2 = in2_;

@@ -10,9 +10,9 @@
 #include <net/if.h>
 
 
-#include "config.h"
-#include "ll-zeroconf.hh"
-#include "syslog_async.h"
+#include "runtime/config.h"
+#include "machinetalk/ll-zeroconf.hh"
+#include "syslog_async/syslog_async.h"
 
 int main(AVAHI_GCC_UNUSED int argc, char*argv[])
 {

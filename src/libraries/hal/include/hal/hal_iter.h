@@ -1,7 +1,7 @@
 #ifndef HAL_ITER_H
 #define HAL_ITER_H
 
-#include <rtapi.h>
+#include <runtime/rtapi.h>
 #include <hal/hal.h>
 #include <hal/hal_ring.h>
 #include <hal/hal_priv.h>

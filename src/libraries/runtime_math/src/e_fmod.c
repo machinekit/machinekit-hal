@@ -20,7 +20,7 @@ static char rcsid[] = "$NetBSD: e_fmod.c,v 1.8 1995/05/10 20:45:07 jtc Exp $";
  * Method: shift and subtract
  */
 
-#include "rtapi_math.h"
+#include "runtime/rtapi_math.h"
 #include "mathP.h"
 
 #ifdef __STDC__

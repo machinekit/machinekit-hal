@@ -46,7 +46,7 @@ All values can be adjusted for each instance separately.
 function _;
 license "GPL";
 ;;
-#include <rtapi_math.h>
+#include <runtime/rtapi_math.h>
 
 FUNCTION(_)
 {

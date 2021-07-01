@@ -76,9 +76,9 @@
  \version 00
 */
 
-#include "rtapi.h"         // rtapi_print_msg()
-#include "rtapi_bitops.h"  // RTAPI_BIT(n)
-#include "rtapi_app.h"     //
+#include "runtime/rtapi.h"         // rtapi_print_msg()
+#include "runtime/rtapi_bitops.h"  // RTAPI_BIT(n)
+#include "runtime/rtapi_app.h"     //
 #include "hal/hal.h"
 
 #include <stdio.h>

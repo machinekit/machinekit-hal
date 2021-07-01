@@ -1,6 +1,6 @@
 
-#include "rtapi.h"
-#include "rtapi_app.h"
+#include "runtime/rtapi.h"
+#include "runtime/rtapi_app.h"
 #include "hal/hal.h"
 #include "hal/hal_priv.h"
 

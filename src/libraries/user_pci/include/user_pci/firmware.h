@@ -48,7 +48,7 @@
 #ifndef _LINUX_FIRMWARE_H
 #define _LINUX_FIRMWARE_H
 
-#include "rtapi.h"              // u8 type
+#include "runtime/rtapi.h"              // u8 type
 #include <sys/types.h>          // size_t
 
 struct firmware {

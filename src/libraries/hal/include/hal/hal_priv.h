@@ -92,12 +92,12 @@
     up a little.
 */
 
-#include <rtapi.h>
-#include <rtapi_global.h>
+#include <runtime/rtapi.h>
+#include <runtime/rtapi_global.h>
 #include "hal/hal_logging.h"
 
 #ifdef ULAPI
-#include <rtapi_compat.h>
+#include <runtime/rtapi_compat.h>
 #endif
 
 #include <stdbool.h>
@@ -678,7 +678,7 @@ typedef struct hal_vtable {
    the structs will be fully protected, with a clean shutdown and
    meaningfull error messages in case of a mismatch.
 */
-#include "rtapi_shmkeys.h"
+#include "runtime/rtapi_shmkeys.h"
 #define HAL_VER   13	/* version code */
 
 

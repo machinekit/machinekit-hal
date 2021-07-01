@@ -1,4 +1,4 @@
-#include "rtapi_flavor.h"
+#include "runtime/rtapi_flavor.h"
 #include <setjmp.h>
 #include <cmocka.h>
 #include <stdio.h>

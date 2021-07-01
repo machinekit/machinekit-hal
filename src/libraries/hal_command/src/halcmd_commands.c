@@ -39,18 +39,18 @@
  * information, go to https://github.com/machinekit.
  */
 
-#include "config.h"
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_compat.h"
+#include "runtime/config.h"
+#include "runtime/rtapi.h"		/* RTAPI realtime OS API */
+#include "runtime/rtapi_compat.h"
 #include "hal/hal.h"		/* HAL public API decls */
 #include "hal/hal_priv.h"	/* private HAL decls */
 #include "hal/hal_ring.h"	        /* ringbuffer declarations */
 #include "hal/hal_group.h"	        /* group/member declarations */
 #include "hal/hal_rcomp.h"	        /* remote component declarations */
-#include "halcmd_commands.h"
-#include "halcmd_rtapiapp.h"
-#include "rtapi_hexdump.h"
-#include "rtapi_flavor.h"      // flavor_descriptor
+#include "hal_command/halcmd_commands.h"
+#include "hal_command/halcmd_rtapiapp.h"
+#include "runtime/rtapi_hexdump.h"
+#include "runtime/rtapi_flavor.h"      // flavor_descriptor
 
 #include <machinetalk/protobuf/types.npb.h>
 
@@ -67,7 +67,7 @@
 #include <time.h>
 #include <fnmatch.h>
 #include <limits.h>			/* PATH_MAX */
-#include "rtapi_math.h"
+#include "runtime/rtapi_math.h"
 #include <math.h> /* floorl */
 #include <czmq.h>
 
@@ -2444,8 +2444,8 @@ static int print_objects(char **patterns)
     return 0;
 }
 
-#include "rtapi_global.h"
-#include "shmdrv.h"
+#include "runtime/rtapi_global.h"
+#include "runtime/shmdrv.h"
 static int print_mutexes(char **patterns)
 {
     extern global_data_t *global_data;

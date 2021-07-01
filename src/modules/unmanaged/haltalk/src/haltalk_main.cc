@@ -30,11 +30,11 @@
 //
 //   6. [notyet] optional may bridge to a remote HAL instance through a remote component.
 
-#include "config.h"
+#include "runtime/config.h"
 #include "haltalk.hh"
-#include <setup_signals.h>
-#include <mk-service.hh>
-#include <mk-backtrace.h>
+#include <machinetalk/setup_signals.h>
+#include <machinetalk/mk-service.hh>
+#include <machinetalk/mk-backtrace.h>
 
 int print_container; // see pbutil.cc
 

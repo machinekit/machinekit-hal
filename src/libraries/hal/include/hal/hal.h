@@ -123,7 +123,7 @@
 
 */
 
-#include <rtapi.h>
+#include <runtime/rtapi.h>
 RTAPI_BEGIN_DECLS
 
 #if ( !defined RTAPI ) && ( !defined ULAPI )
@@ -131,7 +131,7 @@ RTAPI_BEGIN_DECLS
 #endif
 
 #include <hal/hal_types.h>
-#include <rtapi_errno.h>
+#include <runtime/rtapi_errno.h>
 
 #define HAL_NAME_LEN     41	// legacy length limit
 #define HAL_MAX_NAME_LEN 127	// actual limit at HAL layer (new-style halg_* methods)
@@ -519,7 +519,7 @@ typedef enum {
 #ifdef LCNC_COMPAT
 /* Use these for x86 machines, and anything else that can write to
    individual bytes in a machine word. */
-#include <rtapi_stdint.h>
+#include <runtime/rtapi_stdint.h>
 typedef double real_t __attribute__((aligned(8)));
 #define hal_float_t volatile real_t
 #endif

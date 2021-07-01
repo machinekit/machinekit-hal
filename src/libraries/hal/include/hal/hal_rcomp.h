@@ -1,7 +1,7 @@
 #ifndef _HAL_RCOMP_H
 #define _HAL_RCOMP_H
 
-#include <rtapi.h>
+#include <runtime/rtapi.h>
 
 RTAPI_BEGIN_DECLS
 

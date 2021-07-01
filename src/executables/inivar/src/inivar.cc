@@ -26,8 +26,8 @@
 #include <string.h>		/* strcmp(), strcpy() */
 #include <limits.h>
 
-#include "config.h"
-#include "mk-inifile.hh"
+#include "runtime/config.h"
+#include "mkini/mk-inifile.hh"
 
 // Compiler warnings
 // Copying a string of unknown length into a fixed size buffer

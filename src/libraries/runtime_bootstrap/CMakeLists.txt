@@ -31,8 +31,8 @@ add_library(runtime_config-install SHARED)
 add_library(${MACHINEKIT_HAL_NAMESPACE}::runtime_config-install ALIAS
             runtime_config-install)
 
-set(RUNTIME_CONFIG include/config.h.in)
-set(SOURCE_FILE src/runtime_config.c.in)
+set(RUNTIME_CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/config.h.in)
+set(SOURCE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/src/runtime_config.c.in)
 
 set(LINELEN "255")
 set(ZMQIPC_FORMAT "ipc://%s/%d.%s.%s")
@@ -41,8 +41,8 @@ set(MACHINEKIT_HAL_CONFIG_DIRECTORY
     "${MACHINEKIT_HAL_SYSTEM_CONFIG_OUTPUT_DIRECTORY}")
 set(MACHINEKIT_HAL_INI_FILE
     "${MACHINEKIT_HAL_SYSTEM_CONFIG_OUTPUT_DIRECTORY}/machinekit.ini")
-set(MACHINEKIT_HAL_LOG_FILE "/var/log/hal.log"
-)# "${MACHINEKIT_HAL_LOCAL_STATE_OUTPUT_DIRECTORY}/log/hal.log")
+set(MACHINEKIT_HAL_LOG_FILE
+    "${MACHINEKIT_HAL_LOCAL_STATE_OUTPUT_DIRECTORY}/log/hal.log")
 set(MACHINEKIT_HAL_BIN_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 
 configure_file(
@@ -68,9 +68,9 @@ set(MACHINEKIT_HAL_CONFIG_DIRECTORY
     "${CMAKE_INSTALL_FULL_SYSCONFDIR}/machinekit/hal")
 set(MACHINEKIT_HAL_INI_FILE
     "${CMAKE_INSTALL_FULL_SYSCONFDIR}/machinekit/hal/machinekit.ini")
-set(MACHINEKIT_HAL_LOG_FILE "/var/log/hal.log"
-)# "${CMAKE_INSTALL_FULL_LOCALSTATEDIT}/log/hal.log")
-set(MACHINEKIT_HAL_BIN_DIRECTORY "${MACHINEKIT_HAL_EXECUTABLE_FULL_INSTALL_DIRECTORY}")
+set(MACHINEKIT_HAL_LOG_FILE "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/log/hal.log")
+set(MACHINEKIT_HAL_BIN_DIRECTORY
+    "${MACHINEKIT_HAL_EXECUTABLE_FULL_INSTALL_DIRECTORY}")
 
 configure_file(
   ${RUNTIME_CONFIG}
@@ -92,7 +92,7 @@ target_sources(
 
 target_include_directories(
   runtime_config
-  PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/include/runtime)
+  PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/include)
 
 target_sources(
   runtime_config-install
@@ -103,7 +103,7 @@ target_sources(
 
 target_include_directories(
   runtime_config-install
-  PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/install/runtime_config/include/runtime)
+  PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/install/runtime_config/include)
 
 set_target_properties(runtime_config
                       PROPERTIES SOVERSION 0 VERSION ${CMAKE_PROJECT_VERSION})

@@ -25,14 +25,14 @@
 //  verify that the hostmot2 driver functions as it ought.
 //
 
-#include "config.h"
+#include "runtime/config.h"
 
-#include <rtapi.h>
+#include <runtime/rtapi.h>
 #include <rtapi/rtapi_pci.h>
 
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "rtapi_string.h"
+#include "runtime/rtapi.h"
+#include "runtime/rtapi_app.h"
+#include "runtime/rtapi_string.h"
 
 #include "hal/hal.h"
 

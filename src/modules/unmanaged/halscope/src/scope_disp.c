@@ -31,7 +31,7 @@
     information, go to https://github.com/machinekit.
 */
 
-#include "rtapi_math.h"
+#include "runtime/rtapi_math.h"
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -39,12 +39,12 @@
 #include <ctype.h>
 #include <string.h>
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
+#include "runtime/rtapi.h"		/* RTAPI realtime OS API */
 #include "hal/hal.h"		/* HAL public API decls */
 #include "hal/hal_priv.h"	/* private HAL decls */
 
 #include <gtk/gtk.h>
-#include "miscgtk.h"		/* generic GTK stuff */
+#include "misc_gtk/miscgtk.h"		/* generic GTK stuff */
 #include "scope_usr.h"		/* scope related declarations */
 
 #define BUFLEN 80		/* length for sprintf buffers */

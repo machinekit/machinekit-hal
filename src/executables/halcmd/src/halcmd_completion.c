@@ -38,10 +38,10 @@
  */
 
 #include "halcmd_completion.h"
-#include "config.h"
+#include "runtime/config.h"
 #include "linux/limits.h"
 #include "stdlib.h"
-#include "rtapi.h"      /* RTAPI realtime OS API */
+#include "runtime/rtapi.h"      /* RTAPI realtime OS API */
 #include "hal/hal.h"        /* HAL public API decls */
 #include "hal/hal_priv.h"   /* private HAL decls */
 #include "hal/hal_ring.h"           /* ringbuffer declarations */

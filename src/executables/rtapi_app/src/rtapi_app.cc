@@ -35,7 +35,7 @@
  * http://stackoverflow.com/questions/12141420/losing-capabilities-after-setuid
  */
 
-#include "config.h"
+#include "runtime/config.h"
 #include <algorithm>
 #include <assert.h>
 #include <errno.h>
@@ -44,7 +44,7 @@
 #include <linux/capability.h>
 #include <malloc.h>
 #include <map>
-#include <mk-inifile.h>
+#include <mkini/mk-inifile.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -53,7 +53,7 @@
 #include <sys/resource.h>
 #include <sys/signalfd.h>
 #include <sys/types.h>
-#include <syslog_async.h>
+#include <syslog_async/syslog_async.h>
 #include <unistd.h>
 #include <uuid/uuid.h>
 #include <vector>
@@ -62,25 +62,25 @@
 #include <google/protobuf/text_format.h>
 
 #include <machinetalk/protobuf/message.pb.h>
-#include <pbutil.hh> // note_printf(machinetalk::Container &c, const char *fmt, ...)
+#include <machinetalk/pbutil.hh> // note_printf(machinetalk::Container &c, const char *fmt, ...)
 
 using namespace google::protobuf;
 
 #include "hal/hal.h"
 #include "hal/hal_priv.h"
-#include "rtapi.h"
-#include "rtapi_export.h"
-#include "rtapi_flavor.h" // flavor_*
-#include "rtapi_global.h"
-#include "shmdrv.h"
+#include "runtime/rtapi.h"
+#include "runtime/rtapi_export.h"
+#include "runtime/rtapi_flavor.h" // flavor_*
+#include "runtime/rtapi_global.h"
+#include "runtime/shmdrv.h"
 
 #ifdef SYS_IO_AVAILABLE
-#include "rtapi_io.h"
+#include "runtime/rtapi_io.h"
 #endif
 
-#include "mk-backtrace.h"
-#include "mk-zeroconf.hh"
-#include "setup_signals.h"
+#include "machinetalk/mk-backtrace.h"
+#include "machinetalk/mk-zeroconf.hh"
+#include "machinetalk/setup_signals.h"
 
 #include "rtapi_app_module.hh"
 

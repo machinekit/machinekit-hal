@@ -18,7 +18,7 @@ static char rcsid[] = "$NetBSD: w_cosh.c,v 1.6 1995/05/10 20:48:47 jtc Exp $";
  * wrapper cosh(x)
  */
 
-#include "rtapi_math.h"
+#include "runtime/rtapi_math.h"
 #include "mathP.h"
 
 #ifdef __STDC__

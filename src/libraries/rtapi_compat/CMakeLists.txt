@@ -31,9 +31,11 @@
 
 add_library(rtapi_compat INTERFACE)
 
-set(SOURCE_FILES "src/rtapi_compat.c")
+set(SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/rtapi_compat.c")
+set(PUBLIC_HEADER_FILES
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_compat.h")
 
-target_sources(rtapi_compat INTERFACE ${SOURCE_FILES})
+target_sources(rtapi_compat INTERFACE ${SOURCE_FILES} ${PUBLIC_HEADER_FILES})
 
 target_include_directories(
   rtapi_compat
@@ -41,7 +43,7 @@ target_include_directories(
             $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
 set_target_properties(rtapi_compat PROPERTIES PUBLIC_HEADER
-                                              include/rtapi_compat.h)
+                                              "${PUBLIC_HEADER_FILES}")
 install(
   TARGETS rtapi_compat
   EXPORT machinekit_hal

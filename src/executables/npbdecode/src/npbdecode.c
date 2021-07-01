@@ -29,7 +29,7 @@
 #include <errno.h>
 #include <assert.h>
 
-#include <pb-hal.h>
+#include <machinetalk/pb-hal.h>
 #include <pb_decode.h>
 #include <pb_encode.h>
 

@@ -30,7 +30,14 @@ if(BUILD_HAL_COMMAND_LIBRARY)
   add_library(hal_command SHARED)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::hal_command ALIAS hal_command)
 
-  set(SOURCE_FILES src/halcmd_commands.c src/halcmd.c src/halcmd_rtapiapp.cc)
+  set(SOURCE_FILES
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/halcmd_commands.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/halcmd.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/halcmd_rtapiapp.cc)
+  set(PUBLIC_HEADER_FILES
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal_command/halcmd_commands.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal_command/halcmd.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal_command/halcmd_rtapiapp.h)
 
   target_include_directories(
     hal_command
@@ -58,11 +65,7 @@ if(BUILD_HAL_COMMAND_LIBRARY)
     hal_command
     PROPERTIES SOVERSION 0
                VERSION ${CMAKE_PROJECT_VERSION}
-               PUBLIC_HEADER
-               "${CMAKE_CURRENT_SOURCE_DIR}/include/halcmd_commands.h"
-               PUBLIC_HEADER
-               "${CMAKE_CURRENT_SOURCE_DIR}/include/halcmd_rtapiapp.h"
-               PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/halcmd.h"
+               PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
                POSITION_INDEPENDENT_CODE TRUE)
 
   install(

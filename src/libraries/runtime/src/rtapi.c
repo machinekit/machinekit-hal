@@ -16,13 +16,13 @@
 
 #include <stdlib.h>             // strtol
 
-#include "rtapi_flavor.h"
-#include "config.h"
-#include "rtapi.h"
-#include "rtapi_common.h"
-#include "rtapi_compat.h"
-#include "shmdrv.h"  /* common shm driver API */
-#include "ring.h"
+#include "runtime/rtapi_flavor.h"
+#include "runtime/config.h"
+#include "runtime/rtapi.h"
+#include "runtime/rtapi_common.h"
+#include "runtime/rtapi_compat.h"
+#include "runtime/shmdrv.h"  /* common shm driver API */
+#include "runtime/ring.h"
 
 /* these pointers are initialized at startup to point
    to resource data in the master data structure above

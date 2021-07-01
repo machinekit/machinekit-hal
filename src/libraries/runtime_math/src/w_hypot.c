@@ -18,7 +18,7 @@ static char rcsid[] = "$NetBSD: w_hypot.c,v 1.6 1995/05/10 20:49:07 jtc Exp $";
  * wrapper hypot(x,y)
  */
 
-#include "rtapi_math.h"
+#include "runtime/rtapi_math.h"
 #include "mathP.h"
 
 

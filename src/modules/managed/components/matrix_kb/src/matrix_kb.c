@@ -16,8 +16,8 @@
 //
 
 /* A component to convert 7i73 bytecodes to bit pins */
-#include "rtapi.h"
-#include "rtapi_app.h"
+#include "runtime/rtapi.h"
+#include "runtime/rtapi_app.h"
 #include "hal/hal.h"
 
 #define MAX_CHAN 8

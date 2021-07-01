@@ -22,7 +22,7 @@ SOFTWARE.
 
 #include <stdio.h>
 #include <string.h>
-#include "cpuinfo.h"
+#include "raspi_cpuinfo/cpuinfo.h"
 
 char *get_cpuinfo_revision(char *revision)
 {

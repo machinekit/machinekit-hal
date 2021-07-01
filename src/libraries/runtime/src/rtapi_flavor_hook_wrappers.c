@@ -3,7 +3,7 @@
 //
 // They must be in a separate file from functions calling them for mock calls to
 // work.
-#include "rtapi_flavor.h"
+#include "runtime/rtapi_flavor.h"
 
 #define SET_FLAVOR_DESCRIPTOR_DEFAULT() \
     do { if (f == NULL) f = flavor_descriptor; } while (0)

@@ -26,7 +26,7 @@
 #include <assert.h>
 #include <inttypes.h>
 
-#include <pb-hal.h>
+#include <machinetalk/pb-hal.h>
 #include <pb_decode.h>
 #include <pb_encode.h>
 

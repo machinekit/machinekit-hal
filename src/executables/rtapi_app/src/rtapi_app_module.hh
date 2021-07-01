@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "rtapi_compat.h" // get_elf_section()
+#include "runtime/rtapi_compat.h" // get_elf_section()
 #include <limits.h>       // PATH_MAX
 #include <string>
 

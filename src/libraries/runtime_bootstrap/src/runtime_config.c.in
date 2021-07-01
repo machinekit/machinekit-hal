@@ -28,7 +28,7 @@
 *
 *********************************************************************/
 
-#include "config.h"
+#include "runtime/config.h"
 
 const char *const machinekit_hal_version = "@CMAKE_PROJECT_VERSION@";
 const char *const machinekit_hal_git_build_sha = "@MACHINEKIT_HAL_GIT_BUILD_SHA@";

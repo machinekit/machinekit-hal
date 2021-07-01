@@ -152,9 +152,9 @@
         information, go to https://github.com/machinekit.
 */
 
-#include "config.h"
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "runtime/config.h"
+#include "runtime/rtapi.h"		/* RTAPI realtime OS API */
+#include "runtime/rtapi_app.h"		/* RTAPI realtime module decls */
 #include <linux/pci.h>
 #include "hal/hal.h"		/* HAL public API decls */
 #include "hal_vti.h"		/* VTI related defines */
@@ -208,7 +208,7 @@ typedef struct {
 } vti_struct;
 
 static vti_struct *vti_driver;
-#include "rtapi_pci.h"
+#include "runtime/rtapi_pci.h"
 static struct rtapi_pcidev *dev = NULL;
 volatile struct encoder *encoder = NULL;
 volatile struct timer *timer = NULL;

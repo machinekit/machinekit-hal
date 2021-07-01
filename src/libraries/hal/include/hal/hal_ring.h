@@ -1,11 +1,11 @@
 #ifndef HAL_RING_H
 #define HAL_RING_H
 
-#include <rtapi.h>
-#include <ring.h>
+#include <runtime/rtapi.h>
+#include <runtime/ring.h>
 #include "hal/hal_internal.h"
-#include <multiframe.h>
-#include <multiframe_flag.h>
+#include <runtime/multiframe.h>
+#include <runtime/multiframe_flag.h>
 
 
 RTAPI_BEGIN_DECLS

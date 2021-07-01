@@ -37,16 +37,16 @@
 #error This is intended as a userspace component only.
 #endif
 
-#include <rtapi.h>
+#include <runtime/rtapi.h>
 #include <hal/hal.h>
 #include <hal/hal_priv.h>
 #include <hal/hal_group.h>
 #include <hal/hal_rcomp.h>
-#include <mk-inifile.h>
-#include <syslog_async.h>
+#include <mkini/mk-inifile.h>
+#include <syslog_async/syslog_async.h>
 
-#include "mk-service.hh"
-#include "mk-zeroconf.hh"
+#include "machinetalk/mk-service.hh"
+#include "machinetalk/mk-zeroconf.hh"
 
 #include <machinetalk/protobuf/message.pb.h>
 namespace gpb = google::protobuf;

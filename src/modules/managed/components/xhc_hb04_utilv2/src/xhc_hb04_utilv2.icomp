@@ -43,7 +43,7 @@ variable hal_bit_t old_start_or_pause = false;
 function _;
 license "GPL";
 ;;
-#include "rtapi_math.h"
+#include "runtime/rtapi_math.h"
 
 FUNCTION(_)
 {

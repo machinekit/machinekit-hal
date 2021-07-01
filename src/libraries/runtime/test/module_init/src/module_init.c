@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "rtapi.h"
+#include "runtime/rtapi.h"
 #include <errno.h>
 
 int main()

@@ -1,14 +1,14 @@
 //  non-inlined  hal_object_t accessors
 //  inlined accessors are in hal_object.h
-#include "config.h"
-#include "rtapi.h"
-#include "rtapi_atomics.h"
+#include "runtime/config.h"
+#include "runtime/rtapi.h"
+#include "runtime/rtapi_atomics.h"
 #include "hal/hal.h"
 #include "hal/hal_priv.h"
 #include "hal/hal_object.h"
 #include "hal/hal_list.h"
 #include "hal/hal_internal.h"
-#include "rtapi_heap_private.h" // rtapi_malloc_hdr_t
+#include "runtime/rtapi_heap_private.h" // rtapi_malloc_hdr_t
 
 #define MAX_OBJECT_NAME_LEN 127
 

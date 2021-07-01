@@ -29,9 +29,9 @@
 #include "hal/config_module.h"
 #include RTAPI_INC_SLAB_H
 
-#include "rtapi.h"
-#include "rtapi_string.h"
-#include "rtapi_math.h"
+#include "runtime/rtapi.h"
+#include "runtime/rtapi_string.h"
+#include "runtime/rtapi_math.h"
 
 #include "hal/hal.h"
 

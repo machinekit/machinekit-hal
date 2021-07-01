@@ -33,7 +33,7 @@
 #include <stdio.h>
 #include <ctype.h>
 
-#include "syslog_async.h"
+#include "syslog_async/syslog_async.h"
 
 /* From RFC 3164 */
 #define MAX_MESSAGE 1024

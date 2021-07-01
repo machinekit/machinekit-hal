@@ -10,7 +10,7 @@
 #include <machinetalk/protobuf/emcclass.pb.h>
 #include <machinetalk/protobuf/message.pb.h>
 
-#include <json2pb.hh>
+#include <machinetalk/json2pb.hh>
 
 using namespace std;
 using namespace google::protobuf;

@@ -172,9 +172,9 @@ INT_TYPE is set to level sensitive.
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/mman.h>
-#include "rtapi.h"
-#include "rtapi_bitops.h"
-#include "rtapi_app.h"
+#include "runtime/rtapi.h"
+#include "runtime/rtapi_bitops.h"
+#include "runtime/rtapi_app.h"
 #include "hal/hal.h"
 
 MODULE_AUTHOR("Claudio Lorini");

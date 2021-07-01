@@ -45,9 +45,9 @@
 
 /* Use config_module.h instead of config.h so we can use RTAPI_INC_LIST_H */
 #include "hal/config_module.h"
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "rtapi_string.h"
+#include "runtime/rtapi.h"
+#include "runtime/rtapi_app.h"
+#include "runtime/rtapi_string.h"
 #include "hal/hal.h"
 
 #include <fcntl.h>

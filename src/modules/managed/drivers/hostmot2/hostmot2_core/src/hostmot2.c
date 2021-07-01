@@ -22,10 +22,10 @@
 #include RTAPI_INC_CTYPE_H
 #include RTAPI_INC_STRING_H
 
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "rtapi_string.h"
-#include "rtapi_math.h"
+#include "runtime/rtapi.h"
+#include "runtime/rtapi_app.h"
+#include "runtime/rtapi_string.h"
+#include "runtime/rtapi_math.h"
 
 #include "hal/hal.h"
 #include "hal/hal_priv.h"

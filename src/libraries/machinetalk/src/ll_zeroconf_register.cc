@@ -26,11 +26,11 @@
 #include <string.h>
 
 
-#include "config.h"
-#include "ll-zeroconf.hh"
-#include "syslog_async.h"
+#include "runtime/config.h"
+#include "machinetalk/ll-zeroconf.hh"
+#include "syslog_async/syslog_async.h"
 #include "czmq.h"
-#include "czmq-watch.h"
+#include "machinetalk/czmq-watch.h"
 
 static void publish_reply(AvahiEntryGroup *g,
                           AvahiEntryGroupState state,

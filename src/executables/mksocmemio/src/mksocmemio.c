@@ -1,10 +1,10 @@
-#include "config.h"
+#include "runtime/config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "rtapi.h"
-#include "rtapi_compat.h"
+#include "runtime/rtapi.h"
+#include "runtime/rtapi_compat.h"
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <unistd.h>

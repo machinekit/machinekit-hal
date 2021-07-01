@@ -19,8 +19,8 @@
 #include "haltalk.hh"
 #include "hal/halpb.hh"
 #include "hal/hal_object.h"
-#include "pbutil.hh"
-#include "rtapi_hexdump.h"
+#include "machinetalk/pbutil.hh"
+#include "runtime/rtapi_hexdump.h"
 #include <sys/time.h>
 
 #include <google/protobuf/text_format.h>

@@ -14,7 +14,7 @@
 #include <machinetalk/protobuf/message.pb.h>
 #include <machinetalk/protobuf/object.pb.h>
 
-#include <json2pb.hh>
+#include <machinetalk/json2pb.hh>
 
 using namespace machinetalk;
 using namespace std;

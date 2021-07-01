@@ -29,7 +29,7 @@
 // 3rd party includes
 
 // local library includes
-#include <rtapi_math.h>
+#include <runtime/rtapi_math.h>
 
 // local includes
 #include "xhc_whb04b_6/hal.h"

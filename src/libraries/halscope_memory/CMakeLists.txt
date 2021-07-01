@@ -31,10 +31,17 @@ if(BUILD_HALSCOPE_MEMORY_LIBRARY)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::halscope_memory ALIAS
               halscope_memory)
 
+  set(PUBLIC_HEADER_FILES
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/halscope_memory/scope_shm.h)
+
   target_include_directories(
     halscope_memory
     INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
               $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY})
+
+  set_target_properties(halscope_memory PROPERTIES PUBLIC_HEADER
+                                                   "${PUBLIC_HEADER_FILES}")
+
   install(
     TARGETS halscope_memory
     EXPORT machinekit_hal

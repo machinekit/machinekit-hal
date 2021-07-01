@@ -1,6 +1,6 @@
 
-#include "config.h"
-#include "rtapi.h"		/* RTAPI realtime OS API */
+#include "runtime/config.h"
+#include "runtime/rtapi.h"		/* RTAPI realtime OS API */
 #include "hal/hal.h"		/* HAL public API decls */
 #include "hal/hal_priv.h"		/* HAL private decls */
 #include "hal/hal_rcomp.h"		/* HAL remote component decls */
@@ -16,7 +16,7 @@
 #include <time.h>               /* remote comp bind/unbind/update timestamps */
 #include <limits.h>             /* PATH_MAX */
 #include <stdlib.h>		/* exit() */
-#include "shmdrv.h"
+#include "runtime/shmdrv.h"
 
 int halg_bind(const int use_hal_mutex, const char *comp_name)
 {

@@ -28,13 +28,13 @@
 #define _GNU_SOURCE
 #endif
 
-#include "rtapi_flavor.h"
+#include "runtime/rtapi_flavor.h"
 #include "rt-preempt.h"
-#include "rtapi.h"
-#include "rtapi_common.h"
+#include "runtime/rtapi.h"
+#include "runtime/rtapi_common.h"
 #include <libcgroup.h>
 
-#include "config.h"
+#include "runtime/config.h"
 #include <sched.h>		// sched_get_priority_*()
 #include <pthread.h>		/* pthread_* */
 

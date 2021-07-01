@@ -37,14 +37,14 @@
  *  information, go to https://github.com/machinekit.
  */
 
-#include "config.h"
-#include "rtapi.h"
+#include "runtime/config.h"
+#include "runtime/rtapi.h"
 #include "hal/hal.h"
 #include "hal/hal_priv.h"
-#include "halcmd.h"
-#include "halcmd_commands.h"
+#include "hal_command/halcmd.h"
+#include "hal_command/halcmd_commands.h"
 #include "halcmd_completion.h"
-#include "halcmd_rtapiapp.h"
+#include "hal_command/halcmd_rtapiapp.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -59,7 +59,7 @@
 #include <time.h>
 #include <fnmatch.h>
 #include <search.h>
-#include <mk-inifile.h>
+#include <mkini/mk-inifile.h>
 
 static int get_input(FILE *srcfile, char *buf, size_t bufsize);
 static void print_help_general(int showR);

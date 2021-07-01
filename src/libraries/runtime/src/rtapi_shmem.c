@@ -22,10 +22,10 @@
 *     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ********************************************************************/
 
-#include "config.h"		// build configuration
-#include "rtapi.h"		// these functions
-#include "rtapi_common.h"
-#include "shmdrv.h"
+#include "runtime/config.h"		// build configuration
+#include "runtime/rtapi.h"		// these functions
+#include "runtime/rtapi_common.h"
+#include "runtime/shmdrv.h"
 
 #include <fcntl.h>
 #include <sys/stat.h>

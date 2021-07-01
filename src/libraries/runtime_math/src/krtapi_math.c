@@ -23,7 +23,7 @@
 #include <linux/module.h>
 #include <linux/init.h>
 
-#include "rtapi_math.h"
+#include "runtime/rtapi_math.h"
 #include "mathP.h"
 
 _LIB_VERSION_TYPE _LIB_VERSION = _IEEE_;

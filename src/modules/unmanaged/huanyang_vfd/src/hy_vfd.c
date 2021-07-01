@@ -33,7 +33,7 @@
 #include <errno.h>
 #include <getopt.h>
 #include <math.h>
-#include "rtapi.h"
+#include "runtime/rtapi.h"
 #include "hal/hal.h"
 #include "hy_comm.h"
 

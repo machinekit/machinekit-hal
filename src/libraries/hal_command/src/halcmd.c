@@ -42,9 +42,9 @@
     information, go to https://github.com/machinekit.
 */
 
-#include "config.h"
+#include "runtime/config.h"
 
-#include "mk-inifile.h"		/* iniFind() */
+#include "mkini/mk-inifile.h"		/* iniFind() */
 FILE *halcmd_inifile = NULL;
 
 #include <stdio.h>
@@ -61,11 +61,11 @@ FILE *halcmd_inifile = NULL;
 #include <fnmatch.h>
 #include <search.h>
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
+#include "runtime/rtapi.h"		/* RTAPI realtime OS API */
 #include "hal/hal.h"		/* HAL public API decls */
 #include "hal/hal_priv.h"	/* private HAL decls */
-#include "halcmd_commands.h"
-#include "halcmd_rtapiapp.h"
+#include "hal_command/halcmd_commands.h"
+#include "hal_command/halcmd_rtapiapp.h"
 
 
 

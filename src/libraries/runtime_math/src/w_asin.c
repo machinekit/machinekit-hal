@@ -19,7 +19,7 @@ static char rcsid[] = "$NetBSD: w_asin.c,v 1.6 1995/05/10 20:48:35 jtc Exp $";
  */
 
 
-#include "rtapi_math.h"
+#include "runtime/rtapi_math.h"
 #include "mathP.h"
 
 

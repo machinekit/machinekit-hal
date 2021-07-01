@@ -24,7 +24,7 @@
 #include <machinetalk/protobuf/types.npb.h>
 #include <machinetalk/protobuf/value.npb.h>
 #include <machinetalk/protobuf/rtapi_message.npb.h>
-#include "rtapi.h"
+#include "runtime/rtapi.h"
 
 #define MIN(a,b) ((a)<(b)?(a):(b))
 

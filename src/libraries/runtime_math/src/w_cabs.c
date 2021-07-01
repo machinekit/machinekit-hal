@@ -5,7 +5,7 @@
  * Placed into the Public Domain, 1994.
  */
 
-#include "rtapi_math.h"
+#include "runtime/rtapi_math.h"
 
 struct complex {
 	double x;

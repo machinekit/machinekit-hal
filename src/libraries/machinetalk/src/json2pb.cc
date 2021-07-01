@@ -11,12 +11,12 @@
 #include <google/protobuf/message.h>
 #include <google/protobuf/descriptor.h>
 
-#include <json2pb.hh>
+#include <machinetalk/json2pb.hh>
 
 #include <stdexcept>
 
 namespace {
-#include "bin2ascii.hh"
+#include "machinetalk/bin2ascii.hh"
 }
 
 using google::protobuf::Message;

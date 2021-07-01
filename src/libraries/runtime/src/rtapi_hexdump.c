@@ -10,9 +10,9 @@
  * more details.
  */
 
-#include "config.h"
-#include "rtapi.h"
-#include "rtapi_hexdump.h"
+#include "runtime/config.h"
+#include "runtime/rtapi.h"
+#include "runtime/rtapi_hexdump.h"
 
 #define scnprintf snprintf // should carry over scnprintf, vscnprintf too
 

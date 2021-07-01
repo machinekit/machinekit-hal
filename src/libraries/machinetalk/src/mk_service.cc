@@ -1,15 +1,15 @@
 
 
-#include "config.h"
+#include "runtime/config.h"
 
 #ifndef SYSLOG_FACILITY
 #define SYSLOG_FACILITY LOG_LOCAL1  // where all rtapi/ulapi logging goes
 #endif
 
-#include <mk-service.hh>
-#include <mk-zeroconf.hh>
-#include <mk-inifile.h>
-#include <syslog_async.h>
+#include <machinetalk/mk-service.hh>
+#include <machinetalk/mk-zeroconf.hh>
+#include <mkini/mk-inifile.h>
+#include <syslog_async/syslog_async.h>
 
 
 #include <vector>

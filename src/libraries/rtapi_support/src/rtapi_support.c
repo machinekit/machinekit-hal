@@ -27,11 +27,11 @@
 ********************************************************************/
 
 
-#include "config.h"
-#include "rtapi.h"
-#include "shmdrv.h"
-#include "ring.h"
-#include "syslog_async.h"
+#include "runtime/config.h"
+#include "runtime/rtapi.h"
+#include "runtime/shmdrv.h"
+#include "runtime/ring.h"
+#include "syslog_async/syslog_async.h"
 #ifndef SYSLOG_FACILITY
 #define SYSLOG_FACILITY LOG_LOCAL1  // where all rtapi/ulapi logging goes
 #endif

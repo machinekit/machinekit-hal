@@ -1,7 +1,7 @@
 #ifndef HAL_GROUP_H
 #define HAL_GROUP_H
 
-#include <rtapi.h>
+#include <runtime/rtapi.h>
 #include <hal/hal_priv.h>
 
 RTAPI_BEGIN_DECLS

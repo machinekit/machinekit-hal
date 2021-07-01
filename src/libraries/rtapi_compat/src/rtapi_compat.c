@@ -21,10 +21,10 @@
 // a user process; neither RTAPI nor ULAPI and universally
 // available to user processes
 
-#include "config.h"
-#include "rtapi.h"
-#include "rtapi_compat.h"
-#include "mk-inifile.h"         /* iniFind() */
+#include "runtime/config.h"
+#include "runtime/rtapi.h"
+#include "runtime/rtapi_compat.h"
+#include "mkini/mk-inifile.h"         /* iniFind() */
 
 #include <stdio.h>
 #include <unistd.h>

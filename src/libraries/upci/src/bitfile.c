@@ -42,7 +42,7 @@ any responsibility for such compliance.
 #include <errno.h>
 #include <unistd.h>
 #include <linux/types.h>
-#include "bitfile.h"
+#include "upci/bitfile.h"
 
 #define XILINX_CHUNKS "abcde"
 

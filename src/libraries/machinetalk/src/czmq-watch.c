@@ -8,7 +8,7 @@
 #include <avahi-common/malloc.h>
 #include <avahi-common/timeval.h>
 
-#include "czmq-watch.h"
+#include "machinetalk/czmq-watch.h"
 
 #ifdef CZMQ_WATCH_DEBUG
 #define DPRINTF(...) fprintf(stderr,  ## __VA_ARGS__)

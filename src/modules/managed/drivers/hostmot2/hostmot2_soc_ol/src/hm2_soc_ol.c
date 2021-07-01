@@ -84,18 +84,18 @@ see configs/hm2-soc-stepper/irqtest.hal for a usage example
  */
 //---------------------------------------------------------------------------//
 
-#include "config.h"
+#include "runtime/config.h"
 
 // this should be an general socfpga #define
 /* #if !defined(TARGET_PLATFORM_SOCFPGA) */
 /* #error "This driver is for the socfpga platform only" */
 /* #endif */
 
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "rtapi_string.h"
-#include "rtapi_hexdump.h"
-#include "rtapi_compat.h"
+#include "runtime/rtapi.h"
+#include "runtime/rtapi_app.h"
+#include "runtime/rtapi_string.h"
+#include "runtime/rtapi_hexdump.h"
+#include "runtime/rtapi_compat.h"
 #include "hal/hal.h"
 #include "hal/hal_priv.h"
 #include "hal/lib/config_module.h"

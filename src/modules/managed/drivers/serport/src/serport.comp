@@ -46,8 +46,8 @@ function write nofp;
 license "GPL";
 ;;
 
-#include <rtapi_io.h>
-#include <rtapi_errno.h>
+#include <runtime/rtapi_io.h>
+#include <runtime/rtapi_errno.h>
 
 #define MAX 8
 int io[MAX] = {0,};

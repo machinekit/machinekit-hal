@@ -1,7 +1,7 @@
 #ifndef HAL_LOGGING_H
 #define HAL_LOGGING_H
 
-#include <rtapi.h>
+#include <runtime/rtapi.h>
 #include <string.h>
 RTAPI_BEGIN_DECLS
 

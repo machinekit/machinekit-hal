@@ -32,7 +32,7 @@
 // local library includes
 
 // local includes
-#include "config.h"
+#include "runtime/config.h"
 #include "xhc_whb04b_6/xhc-whb04b6.h"
 
 // forward declarations

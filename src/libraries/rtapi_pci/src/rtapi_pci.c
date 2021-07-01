@@ -28,7 +28,7 @@
 #define _GNU_SOURCE
 #endif
 
-#include "config.h"
+#include "runtime/config.h"
 
 #include <libudev.h>
 #include <stdio.h>		/* vprintf() */
@@ -42,9 +42,9 @@
 #include <sys/mman.h>
 #include <time.h>
 
-#include "rtapi.h"
-#include "rtapi_pci.h"
-#include "rtapi_common.h"
+#include "runtime/rtapi.h"
+#include "runtime/rtapi_pci.h"
+#include "runtime/rtapi_common.h"
 
 /***********************************************************************
 *                        PCI DEVICE SUPPORT                            *

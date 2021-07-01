@@ -1,4 +1,4 @@
-#include "rtapi_flavor.h"
+#include "runtime/rtapi_flavor.h"
 
 int ulapi_module_init_hook(void) {
     if (global_data->magic != GLOBAL_READY) {

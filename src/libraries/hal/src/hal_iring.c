@@ -1,4 +1,4 @@
-#include "config.h"
+#include "runtime/config.h"
 #include "hal/hal_iring.h"
 
 iring_t *hal_iring_alloc(const size_t size)

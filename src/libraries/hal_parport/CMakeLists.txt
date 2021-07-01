@@ -37,7 +37,13 @@ if(SYS_IO_AVAILABLE)
   # better/more descriptive name
   add_library(rtapi_parport INTERFACE)
 
+  set(PUBLIC_HEADER_FILES
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal_parport/hal_harport.h)
+
   target_include_directories(rtapi_parport INTERFACE include)
+
+  set_target_properties(rtapi_parport PROPERTIES PUBLIC_HEADER
+                                                 "${PUBLIC_HEADER_FILES}")
 
   install(
     TARGETS rtapi_parport

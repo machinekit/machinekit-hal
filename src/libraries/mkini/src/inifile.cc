@@ -22,8 +22,8 @@
 #include <string>		/* std::string */
 #include <stdexcept>		/* invalid_argument() */
 
-#include "config.h"
-#include "mk-inifile.hh"
+#include "runtime/config.h"
+#include "mkini/mk-inifile.hh"
 
 /// Return TRUE if the line has a line-ending problem
 static bool check_line_endings(const char *s) {

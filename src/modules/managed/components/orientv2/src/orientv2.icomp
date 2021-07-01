@@ -61,7 +61,7 @@ net orient-command orient.command orient-pid.command
 
 license "GPL";
 ;;
-#include <rtapi_math.h>
+#include <runtime/rtapi_math.h>
 
 FUNCTION(_)
 {

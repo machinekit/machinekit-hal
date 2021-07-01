@@ -59,6 +59,7 @@ target_link_libraries(
                                           syslog_async runtime_memory_api mkini)
 target_link_libraries(test_runtime_module_init PRIVATE runtime_api runtime hal)
 
+target_compile_definitions(test_runtime_bitops PRIVATE "ULAPI")
 # target_compile_definitions(test_runtime_rtapi_flavor_RTAPI PRIVATE "RTAPI")
 target_compile_definitions(test_runtime_rtapi_flavor_ULAPI PRIVATE "ULAPI")
 target_compile_definitions(test_runtime_module_init PRIVATE "ULAPI")

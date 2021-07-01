@@ -37,8 +37,8 @@ values (or floating point).
 #include <stdarg.h>
 #include <stddef.h>
 #include <ctype.h>
-#include "rtapi_math.h"
-#include <rtapi_string.h>
+#include "runtime/rtapi_math.h"
+#include <runtime/rtapi_string.h>
 
 /* we use this so that we can do without the string library */
 static int strn_len(const char *s, int count)

@@ -21,10 +21,10 @@
 *     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 ********************************************************************/
 
-#include "config.h"		// build configuration
-#include "rtapi.h"		// these functions
-#include "rtapi_common.h"	// these functions
-#include "rtapi_flavor.h"       // flavor_*
+#include "runtime/config.h"		// build configuration
+#include "runtime/rtapi.h"		// these functions
+#include "runtime/rtapi_common.h"	// these functions
+#include "runtime/rtapi_flavor.h"       // flavor_*
 
 #include <time.h>		// clock_getres(), clock_gettime()
 

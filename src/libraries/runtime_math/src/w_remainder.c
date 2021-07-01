@@ -18,7 +18,7 @@ static char rcsid[] = "$NetBSD: w_remainder.c,v 1.6 1995/05/10 20:49:44 jtc Exp 
  * wrapper remainder(x,p)
  */
 
-#include "rtapi_math.h"
+#include "runtime/rtapi_math.h"
 #include "mathP.h"
 
 #ifdef __STDC__

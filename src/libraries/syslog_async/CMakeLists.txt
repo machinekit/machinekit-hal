@@ -30,21 +30,26 @@ if(BUILD_SYSLOG_ASYNC_LIBRARY)
   add_library(syslog_async SHARED)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::syslog_async ALIAS syslog_async)
 
-  set(HEADER_FILES include/syslog_async.h)
-  set(SOURCE_FILES src/syslog_async.c)
+  set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/syslog_async.c)
+  set(PUBLIC_HEADER_FILES
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/syslog_async/syslog_async.h)
 
   target_include_directories(
     syslog_async
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
            $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
-  target_sources(syslog_async PRIVATE ${SOURCE_FILES})
+  target_sources(
+    syslog_async
+    PUBLIC ${PUBLIC_HEADER_FILES}
+    PRIVATE ${SOURCE_FILES})
 
   set_target_properties(
     syslog_async
     PROPERTIES SOVERSION 0
                VERSION ${CMAKE_PROJECT_VERSION}
                RUNTIME_OUTPUT_DIRECTORY "${CMAKE_INSTALL_LIBDIR}"
+               PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
                POSITION_INDEPENDENT_CODE TRUE)
   install(
     TARGETS syslog_async

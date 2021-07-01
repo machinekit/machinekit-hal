@@ -29,15 +29,15 @@ if(BUILD_RUNTIME_MEMORY_LIBRARY)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::runtime_memory_api ALIAS
               runtime_memory_api)
 
-  set(HEADER_FILES include/shmdrv.h)
-  set(SOURCE_FILES src/shmdrvapi.c)
+  set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/shmdrvapi.c)
+  set(PUBLIC_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/shmdrv.h)
 
   target_include_directories(
     runtime_memory_api
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
            $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
-  target_sources(runtime_memory_api PRIVATE ${SOURCE_FILES})
+  target_sources(runtime_memory_api PUBLIC ${PUBLIC_HEADER_FILES} PRIVATE ${SOURCE_FILES})
 
   find_library(RT NAMES "rt" "librt" "librt.so" "librt.so.1" REQUIRED)
 
@@ -45,13 +45,11 @@ if(BUILD_RUNTIME_MEMORY_LIBRARY)
 
   target_compile_definitions(runtime_memory_api PRIVATE "ULAPI")
 
-  set_target_properties(runtime_memory_api PROPERTIES PUBLIC_HEADER
-                                                      ${HEADER_FILES})
-
   set_target_properties(
     runtime_memory_api
     PROPERTIES SOVERSION 0
                VERSION ${CMAKE_PROJECT_VERSION}
+               PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
                POSITION_INDEPENDENT_CODE TRUE)
   install(
     TARGETS runtime_memory_api

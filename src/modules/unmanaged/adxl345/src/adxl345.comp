@@ -33,7 +33,7 @@ pin out float yaw   "rotation about Z axis, -180..180 deg";
 
 license "GPL";
 ;;
-#include <rtapi_math.h>
+#include <runtime/rtapi_math.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>

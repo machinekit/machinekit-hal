@@ -1,12 +1,12 @@
-#include "config.h"
-#include "halcmd_rtapiapp.h"
+#include "runtime/config.h"
+#include "hal_command/halcmd_rtapiapp.h"
 
 #include <czmq.h>
 #include <string.h>
-#include "ll-zeroconf.hh"
-#include "mk-zeroconf.hh"
-#include "mk-zeroconf-types.h"
-#include "pbutil.hh"
+#include "machinetalk/ll-zeroconf.hh"
+#include "machinetalk/mk-zeroconf.hh"
+#include "machinetalk/mk-zeroconf-types.h"
+#include "machinetalk/pbutil.hh"
 #include <avahi-common/malloc.h>
 
 

@@ -18,18 +18,18 @@
  *    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
-#include "rtapi.h"
-#include "rtapi_app.h"
+#include "runtime/rtapi.h"
+#include "runtime/rtapi_app.h"
 #include "hal/hal.h"
 
-#include "rtapi_math.h"
+#include "runtime/rtapi_math.h"
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <unistd.h>
 
 #include "hal_spi.h"
 
-#include "cpuinfo.h"
+#include "raspi_cpuinfo/cpuinfo.h"
 
 #define MODNAME "hal_spi"
 #define PREFIX "spi"

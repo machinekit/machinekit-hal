@@ -66,15 +66,15 @@ enum wt_log_levels {
 #define lwsl_zws(...)    _lws_log(LLL_ZWS, __VA_ARGS__)
 
 
-#include <mk-inifile.h>
-#include <syslog_async.h>
-#include "mk-service.hh"
-#include "mk-zeroconf.hh"
+#include <mkini/mk-inifile.h>
+#include <syslog_async/syslog_async.h>
+#include "machinetalk/mk-service.hh"
+#include "machinetalk/mk-zeroconf.hh"
 
 #include <machinetalk/protobuf/message.pb.h>
 namespace gpb = google::protobuf;
 
-#include <json2pb.hh>
+#include <machinetalk/json2pb.hh>
 #include <jansson.h>
 #include <uriparser/Uri.h>
 

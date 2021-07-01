@@ -54,18 +54,18 @@
 #include <signal.h>
 #include <errno.h>
 #include <getopt.h>
-#include "rtapi_math.h"
+#include "runtime/rtapi_math.h"
 #include <signal.h>
 #include <stdarg.h>
 #include <linux/serial.h>
 #include <termios.h>
 #include <sys/ioctl.h>
 
-#include "rtapi.h"
+#include "runtime/rtapi.h"
 #include "hal/hal.h"
 #include <modbus/modbus.h>
 #include <modbus/modbus-tcp.h>
-#include "mk-inifile.h"
+#include "mkini/mk-inifile.h"
 
 
 // command registers for DELTA VFD-B Inverter

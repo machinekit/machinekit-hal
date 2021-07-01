@@ -1,8 +1,8 @@
 #ifndef INTERNAL_RING_H
 #define INTERNAL_RING_H
 
-#include <rtapi.h>
-#include <ring.h>
+#include <runtime/rtapi.h>
+#include <runtime/ring.h>
 #include "hal/hal.h"
 #include "hal/hal_priv.h"
 #include "hal/hal_internal.h"

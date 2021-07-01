@@ -10,7 +10,7 @@ function _;
 license "GPL";
 ;;
 
-#include "rtapi.h"
+#include "runtime/rtapi.h"
 #include <time.h>
 #include <stdio.h>
 #include <stdbool.h>

@@ -40,7 +40,7 @@
 /***********************************************************************
 *                         TYPEDEFS AND DEFINES                         *
 ************************************************************************/
-#include "rtapi_shmkeys.h"
+#include "runtime/rtapi_shmkeys.h"
 
 #define SCOPE_NUM_SAMPLES_DEFAULT 16000
 

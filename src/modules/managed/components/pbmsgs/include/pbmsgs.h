@@ -1,7 +1,7 @@
 #ifndef _PBMSGS_H
 #define _PBMSGS_H
 
-#include <pb-hal.h>
+#include <machinetalk/pb-hal.h>
 #include <pb_decode.h>
 #include <pb_encode.h>
 

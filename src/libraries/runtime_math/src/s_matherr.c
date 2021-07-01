@@ -14,7 +14,7 @@
 static char rcsid[] = "$NetBSD: s_matherr.c,v 1.6 1995/05/10 20:47:53 jtc Exp $";
 #endif
 
-#include "rtapi_math.h"
+#include "runtime/rtapi_math.h"
 #include "mathP.h"
 
 #ifdef __STDC__

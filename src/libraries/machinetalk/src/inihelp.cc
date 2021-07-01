@@ -1,4 +1,4 @@
-#include "inihelp.hh"
+#include "machinetalk/inihelp.hh"
 
 // if *value == NULL, find in fp/key/section and strdup the result
 int str_inidefault(char **value, FILE *fp, const char *key, const char *section)

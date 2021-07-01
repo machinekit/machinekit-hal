@@ -21,9 +21,9 @@
 #include "hal/config_module.h"
 #include RTAPI_INC_SLAB_H
 
-#include "rtapi.h"
-#include "rtapi_string.h"
-#include "rtapi_hexdump.h"
+#include "runtime/rtapi.h"
+#include "runtime/rtapi_string.h"
+#include "runtime/rtapi_hexdump.h"
 
 #include "hal/drivers/mesa-hostmot2/hostmot2.h"
 #include <machinetalk/nanopb/pb_decode.h>

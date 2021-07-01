@@ -47,7 +47,7 @@
         information, go to https://github.com/machinekit.
 **/
 
-#include "rtapi.h"
+#include "runtime/rtapi.h"
 
 /*
 	Vigilant Technologies' board decls

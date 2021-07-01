@@ -10,8 +10,8 @@
 #error This is intended as a userspace component only.
 #endif
 
-#include <rtapi.h>
-#include <rtapi_hexdump.h>
+#include <runtime/rtapi.h>
+#include <runtime/rtapi_hexdump.h>
 #include <hal/hal.h>
 #include <hal/hal_priv.h>
 #include <hal/hal_ring.h>
@@ -23,7 +23,7 @@
 
 #include "messagebus.hh"
 #include "rtproxy.hh"
-#include "multiframe_flag.h"
+#include "runtime/multiframe_flag.h"
 
 // inproc variant for comms with RT proxy threads
 // defined in messagbus.cc

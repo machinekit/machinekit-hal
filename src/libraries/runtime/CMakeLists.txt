@@ -44,20 +44,54 @@ if(BUILD_RUNTIME_LIBRARY)
   find_package(Threads REQUIRED)
 
   set(SOURCE_FILES
-      src/rtapi.c
-      src/rtapi_exception.c
-      src/rtapi_flavor.c
-      src/rtapi_flavor_hook_wrappers.c
-      src/rtapi_heap.c
-      src/rtapi_hexdump.c
-      src/rtapi_shmem.c
-      src/rtapi_task.c
-      src/rtapi_time.c)
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/rtapi.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/rtapi_exception.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/rtapi_flavor.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/rtapi_flavor_hook_wrappers.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/rtapi_heap.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/rtapi_hexdump.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/rtapi_shmem.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/rtapi_task.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/rtapi_time.c)
 
-  set(ULAPI_FLAVOR_SOURCE_FILE src/ulapi.c)
-  set(RT_PREEMPT_FLAVOR_SOURCE_FILE src/rt-preempt.c)
+  set(ULAPI_FLAVOR_SOURCE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/src/ulapi.c)
+  set(RT_PREEMPT_FLAVOR_SOURCE_FILE
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/rt-preempt.c)
 
-  set(HEADER_FILES include/multiframe.h)
+  set(PUBLIC_HEADER_FILES
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/multiframe_flag.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/multiframe.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/ring.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_app.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_atomics.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_bitops.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_bool.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_common.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_errno.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_exception.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_export.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_flavor.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_global.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_heap.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_heap_private.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_hexdump.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_int.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_limits.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_mbarrier.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_mutex.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_shmkeys.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_stdint.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_string.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/triple-buffer.h)
+
+  set(RTAPI_IO_PUBLIC_HEADER
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_io.h)
+
+  set(PRIVATE_HEADER_FILES
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/ulapi.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/rt-preempt.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/xenomai2.h)
 
   target_include_directories(
     runtime_api
@@ -67,16 +101,18 @@ if(BUILD_RUNTIME_LIBRARY)
       $<BUILD_INTERFACE:$<TARGET_PROPERTY:rtapi_compat,INTERFACE_INCLUDE_DIRECTORIES>>
   )
 
+  target_sources(runtime_api INTERFACE ${PUBLIC_HEADER_FILES})
+
   target_sources(
     runtime
     PRIVATE $<TARGET_PROPERTY:rtapi_support,INTERFACE_SOURCES>
             $<TARGET_PROPERTY:rtapi_compat,INTERFACE_SOURCES> ${SOURCE_FILES}
-            ${ULAPI_FLAVOR_SOURCE_FILE})
+            ${ULAPI_FLAVOR_SOURCE_FILE} ${PRIVATE_HEADER_FILES})
 
   target_sources(
     runtime_module
     PRIVATE ${SOURCE_FILES} $<TARGET_PROPERTY:rtapi_support,INTERFACE_SOURCES>
-            ${RT_PREEMPT_FLAVOR_SOURCE_FILE})
+            ${RT_PREEMPT_FLAVOR_SOURCE_FILE} ${PRIVATE_HEADER_FILES})
 
   if(SYS_IO_AVAILABLE)
     target_include_directories(
@@ -111,18 +147,22 @@ if(BUILD_RUNTIME_LIBRARY)
 
   if(SYS_IO_AVAILABLE)
     target_compile_definitions(runtime_api INTERFACE "SYS_IO_AVAILABLE")
+    list(APPEND PUBLIC_HEADER_FILES ${RTAPI_IO_PUBLIC_HEADER})
+    target_sources(runtime_api INTERFACE ${RTAPI_IO_PUBLIC_HEADER})
     # Add here rtapi_io.h to PUBLIC_HEADER to install
   endif()
 
   export_rtapi_symbols(TARGET runtime_module)
 
-  set_target_properties(runtime_api PROPERTIES PUBLIC_HEADER ${HEADER_FILES})
+  set_target_properties(runtime_api PROPERTIES PUBLIC_HEADER
+                                               "${PUBLIC_HEADER_FILES}")
 
   set_target_properties(
     runtime
     PROPERTIES OUTPUT_NAME "rtapi"
                SOVERSION 0
                VERSION ${CMAKE_PROJECT_VERSION}
+               PRIVATE_HEADER "${PRIVATE_HEADER_FILES}"
                POSITION_INDEPENDENT_CODE TRUE)
 
   set_target_properties(
@@ -131,6 +171,9 @@ if(BUILD_RUNTIME_LIBRARY)
                PREFIX "mod"
                LIBRARY_OUTPUT_DIRECTORY
                ${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY})
+
+  set_target_properties(runtime_api PROPERTIES PUBLIC_HEADERS
+                                               "${PUBLIC_HEADER_FILES}")
 
   string(TIMESTAMP RIGHT_NOW)
   string(

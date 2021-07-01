@@ -18,7 +18,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
-#include <rtapi_bitops.h>
+#include <runtime/rtapi_bitops.h>
 
 // the symbol RTAPI_USE_ATOMIC is #defined only in the
 // new version of rtapi_bitops.h and either 0 or 1, but defined

@@ -1,7 +1,7 @@
 #ifndef HAL_INTERNAL_H
 #define HAL_INTERNAL_H
 
-#include <rtapi.h>
+#include <runtime/rtapi.h>
 #include <hal/hal_priv.h>
 
 // definitions for library-interal use only

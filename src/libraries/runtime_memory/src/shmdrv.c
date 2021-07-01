@@ -63,7 +63,7 @@
 #include <linux/string.h>
 #include <linux/semaphore.h>
 
-#include "shmdrv.h"
+#include "runtime/shmdrv.h"
 
 static int debug = 0;
 module_param(debug, int, S_IRUGO | S_IWUSR);

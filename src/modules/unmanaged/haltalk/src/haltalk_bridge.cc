@@ -24,8 +24,8 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 // #include "hal/halpb.hh"
-// #include "pbutil.hh"
-// #include "rtapi_hexdump.h"
+// #include "machinetalk/pbutil.hh"
+// #include "runtime/rtapi_hexdump.h"
 
 // #include <google/protobuf/text_format.h>
 

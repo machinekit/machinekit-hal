@@ -1,4 +1,4 @@
-#include "setup_signals.h"
+#include "machinetalk/setup_signals.h"
 #include <stdio.h>
 #include <assert.h>
 #include <stdarg.h>

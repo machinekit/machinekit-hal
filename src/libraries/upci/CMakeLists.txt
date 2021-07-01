@@ -34,12 +34,24 @@ if(SYS_IO_AVAILABLE)
   if(BUILD_UPCI_LIBRARY)
     add_library(upci STATIC)
 
-    set(SOURCE_FILES src/upci.c src/bitfile.c)
+    set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/upci.c
+                     ${CMAKE_CURRENT_SOURCE_DIR}/src/bitfile.c)
+    set(PUBLIC_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/upci/bitfile.h
+                            ${CMAKE_CURRENT_SOURCE_DIR}/include/upci/upci.h)
 
-    target_sources(upci PRIVATE ${SOURCE_FILES})
+    target_sources(
+      upci
+      PUBLIC ${PUBLIC_HEADER_FILES}
+      PRIVATE ${SOURCE_FILES})
 
     target_include_directories(
       upci PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+
+    set_target_properties(
+      upci
+      PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_INSTALL_LIBDIR}"
+                 PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
+                 POSITION_INDEPENDENT_CODE TRUE)
 
     install(
       TARGETS upci

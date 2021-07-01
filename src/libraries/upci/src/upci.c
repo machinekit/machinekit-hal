@@ -47,7 +47,7 @@ information, go to https://github.com/machinekit.
 #include <sys/io.h>
 #include <sys/mman.h>
 #include <linux/types.h>
-#include "upci.h"
+#include "upci/upci.h"
 
 /************************************************************************/
 

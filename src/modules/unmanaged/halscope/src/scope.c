@@ -35,7 +35,7 @@ static char *license = \
 \n\
 ";
 
-#include "config.h"
+#include "runtime/config.h"
 #include <locale.h>
 #include <libintl.h>
 #define _(x) gettext(x)
@@ -49,13 +49,13 @@ static char *license = \
 #include <string.h>
 #include <unistd.h>	/* getopt() */
 
-#include "config.h"
-#include "rtapi.h"		/* RTAPI realtime OS API */
+#include "runtime/config.h"
+#include "runtime/rtapi.h"		/* RTAPI realtime OS API */
 #include "hal/hal.h"		/* HAL public API decls */
 #include "hal/hal_priv.h"	/* HAL private API decls */
 
 #include <gtk/gtk.h>
-#include "miscgtk.h"		/* generic GTK stuff */
+#include "misc_gtk/miscgtk.h"		/* generic GTK stuff */
 #include "scope_usr.h"		/* scope related declarations */
 
 /***********************************************************************

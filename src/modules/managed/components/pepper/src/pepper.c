@@ -79,12 +79,12 @@
 */
 
 #include <float.h>
-#include "rtapi_math.h"
-#include <rtapi_string.h>
+#include "runtime/rtapi_math.h"
+#include <runtime/rtapi_string.h>
 #include <stdint.h>
 
-#include "rtapi.h"              /* RTAPI realtime OS API */
-#include "rtapi_app.h"          /* RTAPI realtime module decls */
+#include "runtime/rtapi.h"              /* RTAPI realtime OS API */
+#include "runtime/rtapi_app.h"          /* RTAPI realtime module decls */
 #include "hal/hal.h"                /* HAL public API decls */
 
 /* module information */

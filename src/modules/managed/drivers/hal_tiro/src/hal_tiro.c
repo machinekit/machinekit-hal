@@ -57,10 +57,10 @@
     information, go to https://github.com/machinekit.
 */
 
-#include "config.h"
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "rtapi_io.h"
+#include "runtime/config.h"
+#include "runtime/rtapi.h"		/* RTAPI realtime OS API */
+#include "runtime/rtapi_app.h"		/* RTAPI realtime module decls */
+#include "runtime/rtapi_io.h"
 #include "hal/hal.h"		/* HAL public API decls */
 
 /* module information */

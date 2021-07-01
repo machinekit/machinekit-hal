@@ -91,7 +91,7 @@ function _;
 
 ;;
 
-#include "rtapi_math.h"
+#include "runtime/rtapi_math.h"
 
 FUNCTION(_) {
     if(enable){

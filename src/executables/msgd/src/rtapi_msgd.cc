@@ -28,9 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  ********************************************************************/
 
-#include "config.h"
-#include "rtapi.h"
-#include "rtapi_compat.h"
+#include "runtime/config.h"
+#include "runtime/rtapi.h"
+#include "runtime/rtapi_compat.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -44,26 +44,26 @@
 #include <getopt.h>
 #include <errno.h>
 #include <assert.h>
-#include <syslog_async.h>
+#include <syslog_async/syslog_async.h>
 #include <uuid/uuid.h>
 #include <string>
 #include <vector>
 #include <poll.h>
 #include <assert.h>
-#include <mk-inifile.h>
+#include <mkini/mk-inifile.h>
 #include <sys/prctl.h>
 #include <sys/resource.h>
 
 using namespace std;
 
-#include <rtapi.h>
-#include <shmdrv.h>
-#include <ring.h>
-#include <setup_signals.h>
-#include <mk-backtrace.h>
+#include <runtime/rtapi.h>
+#include <runtime/shmdrv.h>
+#include <runtime/ring.h>
+#include <machinetalk/setup_signals.h>
+#include <machinetalk/mk-backtrace.h>
 
 #include <czmq.h>
-#include <mk-service.hh>
+#include <machinetalk/mk-service.hh>
 #include <libwebsockets.h>  // version tags only
 
 #include <google/protobuf/text_format.h>

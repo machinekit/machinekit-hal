@@ -20,7 +20,7 @@ static char rcsid[] = "$NetBSD: s_significand.c,v 1.6 1995/05/10 20:48:11 jtc Ex
  * for exercising the fraction-part(F) IEEE 754-1985 test vector.
  */
 
-#include "rtapi_math.h"
+#include "runtime/rtapi_math.h"
 #include "mathP.h"
 
 #ifdef __STDC__

@@ -25,12 +25,12 @@
 #include <string.h>
 #include <time.h>
 
-#include "config.h"
+#include "runtime/config.h"
 
-#include "rtapi.h"
-#include "rtapi_common.h"
-#include "rtapi_global.h"
-#include "shmdrv.h"
+#include "runtime/rtapi.h"
+#include "runtime/rtapi_common.h"
+#include "runtime/rtapi_global.h"
+#include "runtime/shmdrv.h"
 #include "hal/hal.h"
 #include "hal/hal_priv.h"
 

@@ -87,13 +87,13 @@
     information, go to https://github.com/machinekit.
 */
 
-#include "config.h"
+#include "runtime/config.h"
 #include <ctype.h>	/* isspace() */
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "runtime/rtapi.h"		/* RTAPI realtime OS API */
+#include "runtime/rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal/hal.h"		/* HAL public API decls */
 
-#include "rtapi_io.h"
+#include "runtime/rtapi_io.h"
 
 /* module information */
 MODULE_AUTHOR("John Kasunich");

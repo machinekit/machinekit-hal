@@ -1,6 +1,6 @@
 // demo actor component to show sending/receiving protobuf-encoded messages over HAL rings
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "runtime/rtapi.h"		/* RTAPI realtime OS API */
+#include "runtime/rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal/hal.h"		/* HAL public API decls */
 #include "hal/hal_ring.h"
 #include "hal/hal_priv.h"
@@ -8,10 +8,10 @@
 // the nanopb library and compiled message definitions are brought in once by
 // 'halcmd loadrt pbmsgs' (message descriptors for parsing and generating pb msgs)
 // the nanopb library functions per se are now linked into hal_lib.so
-#include <pb-hal.h>
+#include <machinetalk/pb-hal.h>
 #include <pb_decode.h>
 #include <pb_encode.h>
-#include <container.h>
+#include <machinetalk/container.h>
 
 typedef struct {
     hal_u32_t *underrun;	// number of thread invocations with no new command available

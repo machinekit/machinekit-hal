@@ -34,7 +34,11 @@ if(SYS_IO_AVAILABLE)
   if(BUILD_RTAPI_PCI_LIBRARY)
     add_library(rtapi_pci INTERFACE)
 
-    target_sources(rtapi_pci INTERFACE src/rtapi_pci.c)
+    set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/rtapi_pci.c)
+    set(PUBLIC_HEADER_FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_pci.h)
+
+    target_sources(rtapi_pci INTERFACE ${SOURCE_FILES} ${PUBLIC_HEADER_FILES})
 
     target_include_directories(
       rtapi_pci
@@ -42,7 +46,7 @@ if(SYS_IO_AVAILABLE)
                 $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
     set_target_properties(rtapi_pci PROPERTIES PUBLIC_HEADER
-                                               include/rtapi_pci.h)
+                                               "${PUBLIC_HEADER_FILES}")
 
     install(
       TARGETS rtapi_pci

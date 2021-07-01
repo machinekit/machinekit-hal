@@ -4,7 +4,7 @@
 #include "ulapi.h"
 #endif
 #ifdef RTAPI
-#include "rtapi_flavor.h"
+#include "runtime/rtapi_flavor.h"
 #include "rt-preempt.h"
 #endif
 #ifdef HAVE_XENOMAI2_THREADS

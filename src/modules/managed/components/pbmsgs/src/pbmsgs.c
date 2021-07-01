@@ -12,9 +12,9 @@
 //   (stanza pbmsgs-objs := ..)
 // add an PB_DESCRIPTOR(..) at the end of this file
 
-#include "config.h"		/* GIT_BUILD_SHA */
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "runtime/config.h"		/* GIT_BUILD_SHA */
+#include "runtime/rtapi.h"		/* RTAPI realtime OS API */
+#include "runtime/rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal/hal.h"		/* HAL API */
 #include "pbmsgs.h"
 

@@ -54,9 +54,9 @@
 #include "hal/config_module.h"
 
 // #include RTAPI_INC_LIST_H
-// #include "rtapi.h"          /* RTAPI realtime OS API */
-// #include "rtapi_app.h"      /* RTAPI realtime module decls */
-// #include "rtapi_math.h"
+// #include "runtime/rtapi.h"          /* RTAPI realtime OS API */
+// #include "runtime/rtapi_app.h"      /* RTAPI realtime module decls */
+// #include "runtime/rtapi_math.h"
 // #include "hal/hal.h"            /* HAL public API decls */
 // #include <pthread.h>
 //
@@ -65,13 +65,13 @@
 // #include <unistd.h>
 // #include <sys/types.h>
 
-#include "rtapi.h"
-#include "rtapi_app.h"
-#include "rtapi_string.h"
-#include "rtapi_math.h"
+#include "runtime/rtapi.h"
+#include "runtime/rtapi_app.h"
+#include "runtime/rtapi_string.h"
+#include "runtime/rtapi_math.h"
 
 #include "hal/hal.h"
-#include "config.h"             // TARGET_PLATFORM_BEAGLEBONE
+#include "runtime/config.h"             // TARGET_PLATFORM_BEAGLEBONE
 
 #include "hal/drivers/hal_pru_generic/hal_pru_generic.h"
 

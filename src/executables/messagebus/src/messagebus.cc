@@ -30,7 +30,7 @@
 #include <syslog.h>
 #include <uuid/uuid.h>
 #include <czmq.h>
-#include <syslog_async.h>
+#include <syslog_async/syslog_async.h>
 
 #include <string>
 #include <unordered_set>
@@ -39,16 +39,16 @@
 #error This is intended as a userspace component only.
 #endif
 
-//#include "config.h"
-#include <rtapi.h>
+//#include "runtime/config.h"
+#include <runtime/rtapi.h>
 #include <hal/hal.h>
 #include <hal/hal_priv.h>
 #include <hal/hal_ring.h>
-#include <setup_signals.h>
-#include <mk-zeroconf.hh>
+#include <machinetalk/setup_signals.h>
+#include <machinetalk/mk-zeroconf.hh>
 //#include <select_interface.h>
-#include <mk-inifile.h>
-#include <inihelp.hh>
+#include <mkini/mk-inifile.h>
+#include <machinetalk/inihelp.hh>
 
 #include <machinetalk/protobuf/message.pb.h>
 using namespace google::protobuf;

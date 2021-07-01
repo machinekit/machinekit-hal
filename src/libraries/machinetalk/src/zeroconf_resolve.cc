@@ -13,9 +13,9 @@
 #include <net/if.h>
 
 
-#include "config.h"
-#include "ll-zeroconf.hh"
-#include "syslog_async.h"
+#include "runtime/config.h"
+#include "machinetalk/ll-zeroconf.hh"
+#include "syslog_async/syslog_async.h"
 
 #define DEFAUL_TIMEOUT 3000 // msec to resolution
 

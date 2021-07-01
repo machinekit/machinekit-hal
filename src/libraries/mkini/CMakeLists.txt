@@ -30,9 +30,12 @@ if(BUILD_MKINI_LIBRARY)
   add_library(mkini SHARED)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::mkini ALIAS mkini)
 
-  set(SOURCE_FILES src/inifile.cc)
+  set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/inifile.cc)
+  set(PUBLIC_HEADER_FILES
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/mkini/mk-inifile.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/mkini/mk-inifile.hh)
 
-  target_sources(mkini PRIVATE ${SOURCE_FILES})
+  target_sources(mkini PRIVATE ${SOURCE_FILES} ${PUBLIC_HEADER_FILES})
 
   # TODO: Needed just because of the config.h??
   target_link_libraries(mkini PRIVATE runtime_api)
@@ -45,8 +48,7 @@ if(BUILD_MKINI_LIBRARY)
     mkini
     PROPERTIES SOVERSION 0
                VERSION ${CMAKE_PROJECT_VERSION}
-               PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/mk-inifile.h"
-               PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/mk-inifile.hh"
+               PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
                POSITION_INDEPENDENT_CODE TRUE)
   install(
     TARGETS mkini

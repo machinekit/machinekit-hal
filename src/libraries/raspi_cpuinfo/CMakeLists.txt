@@ -31,14 +31,28 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "armhf")
   if(BUILD_RASPI_CPUINFO_LIBRARY)
     add_library(raspi_cpuinfo STATIC)
 
-    set(SOURCE_FILES src/cpuinfo.c)
+    set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/cpuinfo.c)
 
-    set(PUBLIC_HEADER_FILES include/cpuinfo.h)
+    set(PUBLIC_HEADER_FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/raspi_cpuinfo/cpuinfo.h)
 
     target_sources(raspi_cpuinfo PRIVATE ${SOURCE_FILES} ${PUBLIC_HEADER_FILES})
 
     target_include_directories(
       raspi_cpuinfo
-      PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+      PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+             $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
+
+    set_target_properties(
+      raspi_cpuinfo PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
+                               POSITION_INDEPENDENT_CODE TRUE)
+    install(
+      TARGETS raspi_cpuinfo
+      EXPORT machinekit_hal
+      LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
+              COMPONENT MachinekitHAL_Library_Base
+              NAMELINK_COMPONENT MachinekitHAL_Library_Development
+      PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
+                    COMPONENT MachinekitHAL_Library_Development)
   endif()
 endif()

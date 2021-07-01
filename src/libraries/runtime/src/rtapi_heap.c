@@ -16,14 +16,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  ********************************************************************/
 
-#include "config.h"
-#include "rtapi.h"
-#include "rtapi_int.h"
-#include "rtapi_heap.h"
-#include "rtapi_heap_private.h"
-#include "rtapi_export.h"
-#include "rtapi_bitops.h"
-#include "rtapi_string.h"
+#include "runtime/config.h"
+#include "runtime/rtapi.h"
+#include "runtime/rtapi_int.h"
+#include "runtime/rtapi_heap.h"
+#include "runtime/rtapi_heap_private.h"
+#include "runtime/rtapi_export.h"
+#include "runtime/rtapi_bitops.h"
+#include "runtime/rtapi_string.h"
 #ifdef ULAPI
 #include <stdio.h>
 #include <sys/types.h>

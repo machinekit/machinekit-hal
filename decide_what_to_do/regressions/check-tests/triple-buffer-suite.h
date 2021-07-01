@@ -4,7 +4,7 @@
 
 // see if this works for us:
 // http://remis-thoughts.blogspot.co.at/2012/01/triple-buffering-as-concurrency_30.html
-#include <triple-buffer.h>
+#include <runtime/triple-buffer.h>
 
 TB_FLAG_FAST(tb);
 int tb_buf[3];

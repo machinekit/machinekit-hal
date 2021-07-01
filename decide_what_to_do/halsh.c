@@ -18,8 +18,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <tcl.h>
-#include "halcmd.h"
-#include "mk-inifile.h"
+#include "hal_command/halcmd.h"
+#include "mkini/mk-inifile.h"
 
 #define BUFFERLEN 80
 

@@ -94,9 +94,9 @@
     information, go to https://github.com/machinekit.
 */
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "rtapi_atomics.h"
+#include "runtime/rtapi.h"		/* RTAPI realtime OS API */
+#include "runtime/rtapi_app.h"		/* RTAPI realtime module decls */
+#include "runtime/rtapi_atomics.h"
 #include "hal/hal.h"		/* HAL public API decls */
 #include "hal/hal_priv.h"           // SHMPTR,SHMOFF
 #include "hal/hal_list.h"

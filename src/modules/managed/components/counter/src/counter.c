@@ -42,9 +42,9 @@
  *  Based heavily on the "encoder" hal module by John Kasunich
  */
 
-#include "rtapi.h"              /* RTAPI realtime OS API */
-#include "rtapi_app.h"          /* RTAPI realtime module decls */
-#include "rtapi_errno.h"        /* EINVAL etc */
+#include "runtime/rtapi.h"              /* RTAPI realtime OS API */
+#include "runtime/rtapi_app.h"          /* RTAPI realtime module decls */
+#include "runtime/rtapi_errno.h"        /* EINVAL etc */
 #include "hal/hal.h"                /* HAL public API decls */
 
 /* module information */

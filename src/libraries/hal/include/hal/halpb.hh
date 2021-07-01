@@ -18,7 +18,7 @@
 
 // various functions and inlines dealing both with protobuf and HAL objects
 
-#include <rtapi.h>
+#include <runtime/rtapi.h>
 #include <hal/hal.h>
 #include <hal/hal_priv.h>
 #include <hal/hal_group.h>

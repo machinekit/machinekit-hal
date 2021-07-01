@@ -29,7 +29,7 @@
 
 #include "hal/config_module.h"
 #include RTAPI_INC_LIST_H
-#include "rtapi.h"
+#include "runtime/rtapi.h"
 #include "hal/hal.h"
 #include "sserial.h"
 

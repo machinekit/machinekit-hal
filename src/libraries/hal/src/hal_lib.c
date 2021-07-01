@@ -57,17 +57,17 @@
 
 */
 
-#include "config.h"
-#include "rtapi.h"		/* RTAPI realtime OS API */
+#include "runtime/config.h"
+#include "runtime/rtapi.h"		/* RTAPI realtime OS API */
 #include "hal/hal.h"		/* HAL public API decls */
 #include "hal/hal_priv.h"		/* HAL private decls */
 #include "hal/hal_internal.h"
 #include "hal/hal_iring.h"
 
-#include "rtapi_string.h"
-#include "rtapi_flavor.h"       // flavor_descriptor
+#include "runtime/rtapi_string.h"
+#include "runtime/rtapi_flavor.h"       // flavor_descriptor
 #ifdef RTAPI
-#include "rtapi_app.h"
+#include "runtime/rtapi_app.h"
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Hardware Abstraction Layer for EMC");
@@ -87,7 +87,7 @@ MODULE_LICENSE("GPL");
 #include <time.h>               /* remote comp bind/unbind/update timestamps */
 #include <limits.h>             /* PATH_MAX */
 #include <stdlib.h>		/* exit() */
-#include "shmdrv.h"
+#include "runtime/shmdrv.h"
 #endif
 
 

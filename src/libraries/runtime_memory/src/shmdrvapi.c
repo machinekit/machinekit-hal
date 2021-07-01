@@ -30,9 +30,9 @@
 #include <string.h>
 #include <sys/mman.h>
 
-#include "config.h"		// build configuration
-#include "rtapi.h"
-#include "shmdrv.h"
+#include "runtime/config.h"		// build configuration
+#include "runtime/rtapi.h"
+#include "runtime/shmdrv.h"
 
 static const char *driver_name = "/dev/" DEVICE_NAME;
 

@@ -21,10 +21,10 @@
 *                           RT exception handling                      *
 ************************************************************************/
 
-#include "config.h"
-#include "rtapi.h"
-#include "rtapi_exception.h"
-#include "rtapi_flavor.h"
+#include "runtime/config.h"
+#include "runtime/rtapi.h"
+#include "runtime/rtapi_exception.h"
+#include "runtime/rtapi_flavor.h"
 
 #ifdef RTAPI
 

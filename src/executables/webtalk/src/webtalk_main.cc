@@ -17,8 +17,8 @@
  */
 
 #include "webtalk.hh"
-#include <setup_signals.h>
-#include <inihelp.hh>
+#include <machinetalk/setup_signals.h>
+#include <machinetalk/inihelp.hh>
 
 // configuration defaults
 static wtconf_t conf;

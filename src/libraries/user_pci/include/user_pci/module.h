@@ -45,7 +45,7 @@
 #include RTAPI_INC_LIST_H
 
 /* The bulk of the usermode driver support functions */
-#include "rtapi_pci.h"
+#include "runtime/rtapi_pci.h"
 
 /*  Piecemeal bits and pieces to add features that would have otherwise been
     included by some of the files above

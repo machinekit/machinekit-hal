@@ -46,7 +46,7 @@
 #include <string.h>
 
 #include <gtk/gtk.h>
-#include "miscgtk.h"		/* decls for this code */
+#include "misc_gtk/miscgtk.h"		/* decls for this code */
 
 /***********************************************************************
 *                  GLOBAL VARIABLES DECLARATIONS                       *

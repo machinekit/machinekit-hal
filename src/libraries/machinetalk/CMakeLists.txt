@@ -31,18 +31,33 @@ if(BUILD_MACHINETALK_LIBRARY)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::machinetalk ALIAS machinetalk)
 
   set(SOURCE_FILES
-      src/czmq-watch.c
-      src/inihelp.cc
-      src/json2pb.cc
-      src/ll_zeroconf_register.cc
-      src/mk_backtrace.c
-      src/mk_service.cc
-      src/mk_zeroconf.cc
-      src/pbutil.cc
-      src/setup_signals.c
-      src/zeroconf_resolve.cc)
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/czmq-watch.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/inihelp.cc
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/json2pb.cc
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/ll_zeroconf_register.cc
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/mk_backtrace.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/mk_service.cc
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/mk_zeroconf.cc
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/pbutil.cc
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/setup_signals.c
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/zeroconf_resolve.cc)
 
-  target_sources(machinetalk PRIVATE ${SOURCE_FILES})
+  set(PUBLIC_HEADER_FILES
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/machinetalk/bin2ascii.hh
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/machinetalk/container.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/machinetalk/czmq-watch.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/machinetalk/inihelp.hh
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/machinetalk/json2pb.hh
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/machinetalk/ll-zeroconf.hh
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/machinetalk/mk-backtrace.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/machinetalk/mk-service.hh
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/machinetalk/mk-zeroconf.hh
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/machinetalk/mk-zeroconf-types.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/machinetalk/pb-hal.h
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/machinetalk/pbutil.hh
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/machinetalk/setup_signals.h)
+
+  target_sources(machinetalk PRIVATE ${SOURCE_FILES} ${PUBLIC_HEADER_FILES})
 
   pkg_check_modules(AVAHICLIENT "avahi-client" REQUIRED IMPORTED_TARGET)
   pkg_check_modules(LIBCZMQ "libczmq" REQUIRED IMPORTED_TARGET)
@@ -65,6 +80,7 @@ if(BUILD_MACHINETALK_LIBRARY)
     machinetalk
     PROPERTIES SOVERSION 0
                VERSION ${CMAKE_PROJECT_VERSION}
+               PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
                POSITION_INDEPENDENT_CODE TRUE)
 
   install(

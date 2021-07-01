@@ -21,10 +21,10 @@
 #include RTAPI_INC_SLAB_H
 #include RTAPI_INC_STRING_H
 
-#include "rtapi.h"
-#include "rtapi_string.h"
-#include "rtapi_math.h"
-#include "rtapi_math64.h"
+#include "runtime/rtapi.h"
+#include "runtime/rtapi_string.h"
+#include "runtime/rtapi_math.h"
+#include "runtime/rtapi_math64.h"
 
 #include "hal/hal.h"
 

@@ -1,16 +1,16 @@
 // based on supply.c
 
 
-#include "config.h"
+#include "runtime/config.h"
 
 // this probably should be an ARM335x #define
 #if !defined(TARGET_PLATFORM_BEAGLEBONE)
 #error "This driver is for the beaglebone platform only"
 #endif
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_compat.h"       /* RTAPI support functions */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "runtime/rtapi.h"		/* RTAPI realtime OS API */
+#include "runtime/rtapi_compat.h"       /* RTAPI support functions */
+#include "runtime/rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal/hal.h"		/* HAL public API decls */
 #include <pthread.h>
 #include <sys/types.h>

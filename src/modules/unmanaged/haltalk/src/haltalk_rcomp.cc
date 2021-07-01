@@ -18,7 +18,7 @@
 
 #include "haltalk.hh"
 #include "hal/halpb.hh"
-#include "pbutil.hh"
+#include "machinetalk/pbutil.hh"
 
 static int
 comp_report_cb(const int phase,

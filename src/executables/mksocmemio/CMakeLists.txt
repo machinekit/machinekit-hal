@@ -33,7 +33,7 @@ if(BUILD_MKSOCMEMIO_EXECUTABLE)
 
   target_sources(mksocmemio PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(mksocmemio PRIVATE runtime_api)
+  target_link_libraries(mksocmemio PRIVATE runtime_api hal_api)
 
   target_compile_definitions(mksocmemio PRIVATE "ULAPI")
 endif()

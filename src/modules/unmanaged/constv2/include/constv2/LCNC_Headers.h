@@ -24,17 +24,17 @@
 #include <fnmatch.h>
 
 // /usr/include/hal
-#include <rtapi.h>
+#include <runtime/rtapi.h>
 #ifdef RTAPI
-#include "rtapi_app.h"
+#include "runtime/rtapi_app.h"
 #endif
-#include "rtapi_string.h"
+#include "runtime/rtapi_string.h"
 #include <hal/hal.h>		
 #include <hal/hal_priv.h>	// need to get this from source and add it
 #include <hal/hal_accessor.h>
 #include "hal/hal_internal.h"
 
-#include <mk-inifile.hh>	// INIFILE
+#include <mkini/mk-inifile.hh>	// INIFILE
 //#include <rcs_print.hh>
 //#include <timer.hh>
 

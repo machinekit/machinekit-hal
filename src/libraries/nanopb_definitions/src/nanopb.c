@@ -6,9 +6,9 @@
 // actual message definitions derived from .proto files are in a
 // separate module
 
-#include "rtapi_export.h"
+#include "runtime/rtapi_export.h"
 
-#include <pb-hal.h>
+#include <machinetalk/pb-hal.h>
 #include <pb_decode.h>
 #include <pb_encode.h>
 

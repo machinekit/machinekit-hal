@@ -31,21 +31,23 @@ if(BUILD_MISC_GTK_LIBRARY)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::miscgtk ALIAS miscgtk)
 
   set(SOURCE_FILES src/miscgtk.c)
+  set(PUBLIC_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/misc_gtk/miscgtk.h)
 
-  target_sources(miscgtk PRIVATE ${SOURCE_FILES})
+  target_sources(miscgtk PRIVATE ${SOURCE_FILES} ${PUBLIC_HEADER_FILES})
+
   target_include_directories(
     miscgtk PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
-  pkg_check_modules(LIBGTK "gtk+-2.0" REQUIRED IMPORTED_TARGET)
+  pkg_check_modules(GTK "gtk+-2.0" REQUIRED IMPORTED_TARGET)
 
-  target_link_libraries(miscgtk PUBLIC PkgConfig::LIBGTK)
+  target_link_libraries(miscgtk PUBLIC PkgConfig::GTK)
 
   set_target_properties(
     miscgtk
     PROPERTIES SOVERSION 0
                VERSION ${CMAKE_PROJECT_VERSION}
                RUNTIME_OUTPUT_DIRECTORY "${CMAKE_INSTALL_LIBDIR}"
-               PUBLIC_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/include/miscgtk.h")
+               PUBLIC_HEADER "${PUBLIC_HEADER_FILES}")
 
   install(
     TARGETS miscgtk

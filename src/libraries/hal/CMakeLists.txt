@@ -55,7 +55,7 @@ if(BUILD_HAL_LIBRARY)
       ${CMAKE_CURRENT_SOURCE_DIR}/src/hal_accessor.c
       ${CMAKE_CURRENT_SOURCE_DIR}/src/hal_iring.c)
 
-  set(HALPB_SOURCE_FILES src/halpb.cc)
+  set(HALPB_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/halpb.cc)
 
   set(PUBLIC_HEADER_FILES
       ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/config_module.h
@@ -97,7 +97,7 @@ if(BUILD_HAL_LIBRARY)
 
   export_rtapi_symbols(TARGET hal_module)
 
-  #set_target_properties(hal_api PROPERTIES PUBLIC_HEADER ${PUBLIC_HEADER_FILES})
+  set_target_properties(hal_api PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADER_FILES}")
 
   set_target_properties(
     hal

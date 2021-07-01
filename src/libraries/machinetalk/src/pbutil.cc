@@ -16,8 +16,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "pbutil.hh"
-#include "syslog_async.h"
+#include "machinetalk/pbutil.hh"
+#include "syslog_async/syslog_async.h"
 #include <czmq.h>
 #include <google/protobuf/text_format.h>
 

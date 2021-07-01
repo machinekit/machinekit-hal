@@ -17,13 +17,13 @@
 s********************************************************************/
 
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_bitops.h"
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "runtime/rtapi.h"		/* RTAPI realtime OS API */
+#include "runtime/rtapi_bitops.h"
+#include "runtime/rtapi_app.h"		/* RTAPI realtime module decls */
                                 /* this also includes config.h */
 #include "hal/hal.h"		/* HAL public API decls */
 #include "bcm2835.h"
-#include "cpuinfo.h"
+#include "raspi_cpuinfo/cpuinfo.h"
 
 #define BCM2708_PERI_BASE   0x20000000
 #define BCM2708_GPIO_BASE   (BCM2708_PERI_BASE + 0x200000)
