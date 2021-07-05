@@ -129,6 +129,7 @@ if(BUILD_RUNTIME_MATH_LIBRARY)
     runtime_math
     PUBLIC ${PUBLIC_HEADER_FILES}
     PRIVATE ${SOURCE_FILES} ${PRIVATE_HEADER_FILES})
+
   target_include_directories(
     runtime_math PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
@@ -141,17 +142,35 @@ if(BUILD_RUNTIME_MATH_LIBRARY)
   set_target_properties(
     runtime_math
     PROPERTIES SOVERSION 0
+               PREFIX "libmkh"
                VERSION ${CMAKE_PROJECT_VERSION}
                PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
                PRIVATE_HEADER "${PRIVATE_HEADER_FILES}"
                POSITION_INDEPENDENT_CODE TRUE)
   install(
     TARGETS runtime_math
-    EXPORT machinekit_hal
+    EXPORT machinekit_hal_runtime_math
     LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
-            COMPONENT MachinekitHAL_Library_Base
-            NAMELINK_COMPONENT MachinekitHAL_Library_Development
-    PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
-                  COMPONENT MachinekitHAL_Library_Development)
+            COMPONENT MachinekitHAL_Library_Runtime_Math_Libraries
+            NAMELINK_COMPONENT MachinekitHAL_Library_Runtime_Math_Namelinks
+    PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime"
+                  COMPONENT MachinekitHAL_Library_Runtime_Math_Headers)
 
+  cpack_add_component(MachinekitHAL_Library_Runtime_Math_Libraries
+                      GROUP MachinekitHAL_Library_Runtime_Math)
+  cpack_add_component(
+    MachinekitHAL_Library_Runtime_Math_Namelinks
+    GROUP MachinekitHAL_Library_Runtime_Math_Development
+    DEPENDS MachinekitHAL_Library_Runtime_Math_Libraries)
+  cpack_add_component(
+    MachinekitHAL_Library_Runtime_Math_Headers
+    GROUP MachinekitHAL_Library_Runtime_Math_Development
+    DEPENDS MachinekitHAL_Library_Runtime_Math_Libraries)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(MachinekitHAL_Library_Runtime_Math
+                            PARENT_GROUP MachinekitHAL_Package_Base_Libraries)
+  cpack_add_component_group(
+    MachinekitHAL_Library_Runtime_Math_Development
+    PARENT_GROUP MachinekitHAL_Package_Base_Libraries_Development)
 endif()

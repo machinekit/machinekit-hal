@@ -97,11 +97,14 @@ if(BUILD_HAL_LIBRARY)
 
   export_rtapi_symbols(TARGET hal_module)
 
-  set_target_properties(hal_api PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADER_FILES}")
+  set_target_properties(hal_api PROPERTIES PUBLIC_HEADER
+                                           "${PUBLIC_HEADER_FILES}")
 
   set_target_properties(
     hal
     PROPERTIES SOVERSION 0
+               OUTPUT_NAME "hal"
+               PREFIX "libmkh"
                VERSION ${CMAKE_PROJECT_VERSION}
                POSITION_INDEPENDENT_CODE TRUE)
 
@@ -114,16 +117,39 @@ if(BUILD_HAL_LIBRARY)
 
   install(
     TARGETS hal hal_api
-    EXPORT machinekit_hal
+    EXPORT machinekit_hal_hal
     LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
-            COMPONENT MachinekitHAL_Library_Base
-            NAMELINK_COMPONENT MachinekitHAL_Library_Development
+            COMPONENT MachinekitHAL_Library_HAL_Libraries
+            NAMELINK_COMPONENT MachinekitHAL_Library_HAL_Namelinks
     PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/hal"
-                  COMPONENT MachinekitHAL_Library_Development)
+                  COMPONENT MachinekitHAL_Library_HAL_Headers)
 
-  install(
-    TARGETS hal_module
-    EXPORT machinekit_hal_managed_module
-    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
-            COMPONENT MachinekitHAL_Managed_Module_Base)
+  install(TARGETS hal_module
+          LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+                  COMPONENT MachinekitHAL_Library_HAL_Managed_Components)
+
+  cpack_add_component(
+    MachinekitHAL_Library_HAL_Libraries
+    GROUP MachinekitHAL_Library_HAL
+    DEPENDS MachinekitHAL_Library_Proto_Libraries)
+  cpack_add_component(
+    MachinekitHAL_Library_HAL_Namelinks
+    GROUP MachinekitHAL_Library_HAL_Development
+    DEPENDS MachinekitHAL_Library_HAL_Libraries)
+  cpack_add_component(
+    MachinekitHAL_Library_HAL_Headers
+    GROUP MachinekitHAL_Library_HAL_Development
+    DEPENDS MachinekitHAL_Library_HAL_Libraries)
+  cpack_add_component(MachinekitHAL_Library_HAL_Managed_Components
+                      GROUP MachinekitHAL_Library_HAL_Managed_HAL_Modules)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(MachinekitHAL_Library_HAL
+                            PARENT_GROUP MachinekitHAL_Package_Base_Libraries)
+  cpack_add_component_group(
+    MachinekitHAL_Library_HAL_Development
+    PARENT_GROUP MachinekitHAL_Package_Base_Libraries_Development)
+  cpack_add_component_group(
+    MachinekitHAL_Library_HAL_Managed_HAL_Modules
+    PARENT_GROUP MachinekitHAL_Package_Base_Managed_Modules_Components)
 endif()

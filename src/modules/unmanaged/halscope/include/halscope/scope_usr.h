@@ -37,7 +37,7 @@
 */
 
 /* import the shared declarations */
-#include "scope_shm.h"
+#include "halscope_memory/scope_shm.h"
 
 /***********************************************************************
 *                         TYPEDEFS AND DEFINES                         *

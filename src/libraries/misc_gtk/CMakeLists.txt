@@ -31,7 +31,8 @@ if(BUILD_MISC_GTK_LIBRARY)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::miscgtk ALIAS miscgtk)
 
   set(SOURCE_FILES src/miscgtk.c)
-  set(PUBLIC_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/misc_gtk/miscgtk.h)
+  set(PUBLIC_HEADER_FILES
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/misc_gtk/miscgtk.h)
 
   target_sources(miscgtk PRIVATE ${SOURCE_FILES} ${PUBLIC_HEADER_FILES})
 
@@ -45,17 +46,35 @@ if(BUILD_MISC_GTK_LIBRARY)
   set_target_properties(
     miscgtk
     PROPERTIES SOVERSION 0
+               PREFIX "libmkh"
                VERSION ${CMAKE_PROJECT_VERSION}
                RUNTIME_OUTPUT_DIRECTORY "${CMAKE_INSTALL_LIBDIR}"
                PUBLIC_HEADER "${PUBLIC_HEADER_FILES}")
 
   install(
     TARGETS miscgtk
-    EXPORT machinekit_hal
+    EXPORT machinekit_hal_misc_gtk
     LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
-            COMPONENT MachinekitHAL_Library_Base
-            NAMELINK_COMPONENT MachinekitHAL_Library_Development
-    PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
-                  COMPONENT MachinekitHAL_Library_Development)
+            COMPONENT MachinekitHAL_Library_Misc_GTK_Libraries
+            NAMELINK_COMPONENT MachinekitHAL_Library_Misc_GTK_Namelinks
+    PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/misc_gtk"
+                  COMPONENT MachinekitHAL_Library_Misc_GTK_Headers)
 
+  cpack_add_component(MachinekitHAL_Library_Misc_GTK_Libraries
+                      GROUP MachinekitHAL_Library_Misc_GTK)
+  cpack_add_component(
+    MachinekitHAL_Library_Misc_GTK_Namelinks
+    GROUP MachinekitHAL_Library_Misc_GTK_Development
+    DEPENDS MachinekitHAL_Library_Misc_GTK_Libraries)
+  cpack_add_component(
+    MachinekitHAL_Library_Misc_GTK_Headers
+    GROUP MachinekitHAL_Library_Misc_GTK_Development
+    DEPENDS MachinekitHAL_Library_Misc_GTK_Libraries)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(MachinekitHAL_Library_Misc_GTK
+                            PARENT_GROUP MachinekitHAL_Package_Base_Libraries)
+  cpack_add_component_group(
+    MachinekitHAL_Library_Misc_GTK_Development
+    PARENT_GROUP MachinekitHAL_Package_Base_Libraries_Development)
 endif()

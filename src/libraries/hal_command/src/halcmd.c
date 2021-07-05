@@ -993,3 +993,43 @@ int halcmd_get_linenumber(void) { return linenumber; }
 
 /* vim:sts=4:sw=4:et
  */
+
+void halcmd_output(const char *format, ...) {
+    va_list ap;
+    va_start(ap, format);
+    vfprintf(stdout, format, ap);
+    va_end(ap);
+}
+
+void halcmd_warning(const char *format, ...) {
+    va_list ap;
+    fprintf(stderr, "%s:%d: Warning: ", halcmd_get_filename(), halcmd_get_linenumber());
+    va_start(ap, format);
+    vfprintf(stderr, format, ap);
+    va_end(ap);
+}
+
+void halcmd_error(const char *format, ...) {
+    va_list ap;
+    fprintf(stderr, "%s:%d: ", halcmd_get_filename(), halcmd_get_linenumber());
+    va_start(ap, format);
+    vfprintf(stderr, format, ap);
+    va_end(ap);
+}
+
+void halcmd_info(const char *format, ...) {
+    va_list ap;
+    if(rtapi_get_msg_level() < RTAPI_MSG_INFO) return;
+    fprintf(stderr, "%s:%d: ", halcmd_get_filename(), halcmd_get_linenumber());
+    va_start(ap, format);
+    vfprintf(stderr, format, ap);
+    va_end(ap);
+}
+
+void halcmd_echo(const char *format, ...) {
+    va_list ap;
+    fprintf(stderr, "(%d)<echo>: ", halcmd_get_linenumber());
+    va_start(ap, format);
+    vfprintf(stderr, format, ap);
+    va_end(ap);
+}

@@ -46,6 +46,14 @@ set_target_properties(rtapi_compat PROPERTIES PUBLIC_HEADER
                                               "${PUBLIC_HEADER_FILES}")
 install(
   TARGETS rtapi_compat
-  EXPORT machinekit_hal
-  PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
-                COMPONENT MachinekitHAL_Library_Development)
+  EXPORT machinekit_hal_rtapi_compat
+  PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime"
+                COMPONENT MachinekitHAL_Library_RTAPI_Compat_Headers)
+
+cpack_add_component(MachinekitHAL_Library_RTAPI_Compat_Headers
+                    GROUP MachinekitHAL_Library_RTAPI_Compat_Development)
+
+# Specification of artifacts placement in package tree
+cpack_add_component_group(
+  MachinekitHAL_Library_RTAPI_Compat_Development
+  PARENT_GROUP MachinekitHAL_Package_Base_Libraries_Development)

@@ -48,11 +48,24 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "armhf")
                                POSITION_INDEPENDENT_CODE TRUE)
     install(
       TARGETS raspi_cpuinfo
-      EXPORT machinekit_hal
+      EXPORT machinekit_hal_raspi_cpuinfo
       LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
-              COMPONENT MachinekitHAL_Library_Base
-              NAMELINK_COMPONENT MachinekitHAL_Library_Development
-      PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
-                    COMPONENT MachinekitHAL_Library_Development)
+              COMPONENT MachinekitHAL_Library_RasPi_CPUInfo_Libraries
+              NAMELINK_COMPONENT MachinekitHAL_Library_RasPi_CPUInfo_Namelinks
+      PUBLIC_HEADER
+        DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/raspi_cpuinfo"
+        COMPONENT MachinekitHAL_Library_RasPi_CPUInfo_Headers)
+
+    cpack_add_component(MachinekitHAL_Library_RasPi_CPUInfo_Libraries
+                        GROUP MachinekitHAL_Library_RasPi_CPUInfo_Development)
+    cpack_add_component(MachinekitHAL_Library_RasPi_CPUInfo_Namelinks
+                        GROUP MachinekitHAL_Library_RasPi_CPUInfo_Development)
+    cpack_add_component(MachinekitHAL_Library_RasPi_CPUInfo_Headers
+                        GROUP MachinekitHAL_Library_RasPi_CPUInfo_Development)
+
+    # Specification of artifacts placement in package tree
+    cpack_add_component_group(
+      MachinekitHAL_Library_RasPi_CPUInfo_Development
+      PARENT_GROUP MachinekitHAL_Package_Base_Libraries_Development)
   endif()
 endif()

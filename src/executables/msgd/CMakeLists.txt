@@ -34,7 +34,8 @@ if(BUILD_MSGD_EXECUTABLE)
   target_sources(msgd PRIVATE ${SOURCE_FILES})
 
   pkg_check_modules(UUID "uuid" REQUIRED IMPORTED_TARGET)
-  pkg_check_modules(LIBZMQ "libzmq" REQUIRED IMPORTED_TARGET)
+  pkg_check_modules(CZMQ "libczmq" REQUIRED IMPORTED_TARGET)
+  pkg_check_modules(ZMQ "libzmq" REQUIRED IMPORTED_TARGET)
 
   find_library(ATOMIC NAMES "atomic" "libatomic" "libatomic.so" "libatomic.so.1" REQUIRED)
   find_library(RT NAMES "rt" "librt" "librt.so" REQUIRED)
@@ -48,7 +49,8 @@ if(BUILD_MSGD_EXECUTABLE)
             machinetalk
             syslog_async
             PkgConfig::UUID
-            PkgConfig::LIBZMQ
+            PkgConfig::CZMQ
+            PkgConfig::ZMQ
             ${CMAKE_DL_LIBS}
             ${ATOMIC}
             ${RT})

@@ -47,16 +47,36 @@ if(BUILD_SYSLOG_ASYNC_LIBRARY)
   set_target_properties(
     syslog_async
     PROPERTIES SOVERSION 0
+               PREFIX "libmkh"
                VERSION ${CMAKE_PROJECT_VERSION}
                RUNTIME_OUTPUT_DIRECTORY "${CMAKE_INSTALL_LIBDIR}"
                PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
                POSITION_INDEPENDENT_CODE TRUE)
   install(
     TARGETS syslog_async
-    EXPORT machinekit_hal
+    EXPORT machinekit_hal_syslog_async
     LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
-            COMPONENT MachinekitHAL_Library_Base
-            NAMELINK_COMPONENT MachinekitHAL_Library_Development
-    PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
-                  COMPONENT MachinekitHAL_Library_Development)
+            COMPONENT MachinekitHAL_Library_SysLog_Async_Libraries
+            NAMELINK_COMPONENT MachinekitHAL_Library_SysLog_Async_Namelinks
+    PUBLIC_HEADER
+      DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/syslog_async"
+      COMPONENT MachinekitHAL_Library_SysLog_Async_Headers)
+
+  cpack_add_component(MachinekitHAL_Library_SysLog_Async_Libraries
+                      GROUP MachinekitHAL_Library_SysLog_Async)
+  cpack_add_component(
+    MachinekitHAL_Library_SysLog_Async_Namelinks
+    GROUP MachinekitHAL_Library_SysLog_Async_Development
+    DEPENDS MachinekitHAL_Library_SysLog_Async_Libraries)
+  cpack_add_component(
+    MachinekitHAL_Library_SysLog_Async_Headers
+    GROUP MachinekitHAL_Library_SysLog_Async_Development
+    DEPENDS MachinekitHAL_Library_SysLog_Async_Libraries)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(MachinekitHAL_Library_SysLog_Async
+                            PARENT_GROUP MachinekitHAL_Package_Base_Libraries)
+  cpack_add_component_group(
+    MachinekitHAL_Library_SysLog_Async_Development
+    PARENT_GROUP MachinekitHAL_Package_Base_Libraries_Development)
 endif()

@@ -1,5 +1,0 @@
-This Debian packaging must first be configured before building.
-
-By default, all threads are disabled; package builders MUST enable
-thread package builds by adding flags to the debin/configure command
-line.  See `debian/configure -h` for details.

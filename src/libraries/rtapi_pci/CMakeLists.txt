@@ -50,8 +50,16 @@ if(SYS_IO_AVAILABLE)
 
     install(
       TARGETS rtapi_pci
-      EXPORT machinekit_hal
-      PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
-                    COMPONENT MachinekitHAL_Library_Development)
+      EXPORT machinekit_hal_rtapi_pci
+      PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime"
+                    COMPONENT MachinekitHAL_Library_RTAPI_PCI_Headers)
+
+    cpack_add_component(MachinekitHAL_Library_RTAPI_PCI_Headers
+                        GROUP MachinekitHAL_Library_RTAPI_PCI_Development)
+
+    # Specification of artifacts placement in package tree
+    cpack_add_component_group(
+      MachinekitHAL_Library_RTAPI_PCI_Development
+      PARENT_GROUP MachinekitHAL_Package_Base_Libraries_Development)
   endif()
 endif()

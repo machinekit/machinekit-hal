@@ -29,6 +29,11 @@
 
 # Transformed into INTERFACE library to manage dependencies
 
-add_library(rtapi_support INTERFACE)
+option(BUILD_RTAPI_SUPPORT_LIBRARY "Built the Runtime RTAPI Support libraries."
+       TRUE)
 
-target_sources(rtapi_support INTERFACE src/rtapi_support.c)
+if(BUILD_RTAPI_SUPPORT_LIBRARY)
+  add_library(rtapi_support INTERFACE)
+
+  target_sources(rtapi_support INTERFACE src/rtapi_support.c)
+endif()

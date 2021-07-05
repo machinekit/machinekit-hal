@@ -8,7 +8,7 @@
 #               building .deb and .ddeb native packages for Debian flavoured
 #               distributions.
 #
-# Copyright (C) 2020    Jakub Fišer  <jakub DOT fiser AT eryaf DOT com>
+# Copyright (C) 2020 -   Jakub Fišer  <jakub DOT fiser AT eryaf DOT com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public

@@ -105,14 +105,19 @@ target_include_directories(
   runtime_config-install
   PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/install/runtime_config/include)
 
-set_target_properties(runtime_config
-                      PROPERTIES SOVERSION 0 VERSION ${CMAKE_PROJECT_VERSION})
+set_target_properties(
+  runtime_config
+  PROPERTIES SOVERSION 0
+             PREFIX "libmkh"
+             VERSION ${CMAKE_PROJECT_VERSION})
 
 set_target_properties(
   runtime_config-install
   PROPERTIES SOVERSION 0
+             PREFIX "libmkh"
              VERSION ${CMAKE_PROJECT_VERSION}
-             OUTPUT_NAME "runtime_config"
+             OUTPUT_NAME "runtime_config" # Needs to have the same name as
+                                          # target 'runtime_config'
              LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/install")
 
 configure_file(
@@ -127,9 +132,27 @@ file(
 
 install(
   TARGETS runtime_config-install
-  EXPORT machinekit_hal
+  EXPORT machinekit_hal_runtime_config
   LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
-          COMPONENT MachinekitHAL_Library_Base
-          NAMELINK_COMPONENT MachinekitHAL_Library_Development
+          COMPONENT MachinekitHAL_Library_Runtime_Config_Libraries
+          NAMELINK_COMPONENT MachinekitHAL_Library_Runtime_Config_Namelinks
   PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
-                COMPONENT MachinekitHAL_Library_Development)
+                COMPONENT MachinekitHAL_Library_Runtime_Config_Headers)
+
+cpack_add_component(MachinekitHAL_Library_Runtime_Config_Libraries
+                    GROUP MachinekitHAL_Library_Runtime_Config)
+cpack_add_component(
+  MachinekitHAL_Library_Runtime_Namelinks
+  GROUP MachinekitHAL_Library_Runtime_Config_Development
+  DEPENDS MachinekitHAL_Library_Runtime_Config_Libraries)
+cpack_add_component(
+  MachinekitHAL_Library_Runtime_Headers
+  GROUP MachinekitHAL_Library_Runtime_Config_Development
+  DEPENDS MachinekitHAL_Library_Runtime_Config_Libraries)
+
+# Specification of artifacts placement in package tree
+cpack_add_component_group(MachinekitHAL_Library_Runtime_Config
+                          PARENT_GROUP MachinekitHAL_Package_Base_Libraries)
+cpack_add_component_group(
+  MachinekitHAL_Library_Runtime_Config_Development
+  PARENT_GROUP MachinekitHAL_Package_Base_Libraries_Development)

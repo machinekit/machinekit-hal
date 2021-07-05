@@ -173,7 +173,7 @@ def main(args):
             args.target[0] if args.target is not None else None,
             args.designation,
             args.target[1] if args.target is not None else None,
-            args.network if args.target is not None else None)
+            args.network if args.network is not None else None)
         print("Container image build ran successfully to completion!")
     except ValueError as e:
         print(e)

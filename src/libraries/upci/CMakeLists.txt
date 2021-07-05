@@ -55,10 +55,22 @@ if(SYS_IO_AVAILABLE)
 
     install(
       TARGETS upci
-      EXPORT machinekit_hal
+      EXPORT machinekit_hal_upci
       ARCHIVE DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
-              COMPONENT MachinekitHAL_Library_Development
-      PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
-                    COMPONENT MachinekitHAL_Library_Development)
+              COMPONENT MachinekitHAL_Library_UPCI_Archives
+      PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/upci"
+                    COMPONENT MachinekitHAL_Library_UPCI_Headers)
+
+    cpack_add_component(MachinekitHAL_Library_UPCI_Archives
+                        GROUP MachinekitHAL_Library_UPCI_Development)
+    cpack_add_component(
+      MachinekitHAL_Library_UPCI_Headers
+      GROUP MachinekitHAL_Library_UPCI_Development
+      DEPENDS MachinekitHAL_Library_UPCI_Archives)
+
+    # Specification of artifacts placement in package tree
+    cpack_add_component_group(
+      MachinekitHAL_Library_UPCI_Development
+      PARENT_GROUP MachinekitHAL_Package_Base_Libraries_Development)
   endif()
 endif()

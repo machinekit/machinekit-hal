@@ -43,6 +43,7 @@ if(BUILD_RTAPI_APP_EXECUTABLE)
     PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
             $<TARGET_PROPERTY:rtapi_compat,INTERFACE_INCLUDE_DIRECTORIES>)
 
+  pkg_check_modules(CZMQ "libczmq" REQUIRED IMPORTED_TARGET)
   pkg_check_modules(UUID "uuid" REQUIRED IMPORTED_TARGET)
 
   # Linking against Runtime just because of the config.h file? Adding
@@ -57,6 +58,7 @@ if(BUILD_RTAPI_APP_EXECUTABLE)
             hal_api
             syslog_async
             PkgConfig::UUID
+            PkgConfig::CZMQ
             ${CMAKE_DL_LIBS})
 
   target_compile_definitions(rtapi_app PRIVATE "ULAPI")

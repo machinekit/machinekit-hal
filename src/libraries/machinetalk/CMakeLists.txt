@@ -60,14 +60,22 @@ if(BUILD_MACHINETALK_LIBRARY)
   target_sources(machinetalk PRIVATE ${SOURCE_FILES} ${PUBLIC_HEADER_FILES})
 
   pkg_check_modules(AVAHICLIENT "avahi-client" REQUIRED IMPORTED_TARGET)
-  pkg_check_modules(LIBCZMQ "libczmq" REQUIRED IMPORTED_TARGET)
+  pkg_check_modules(CZMQ "libczmq" REQUIRED IMPORTED_TARGET)
   pkg_check_modules(JANSSON "jansson" REQUIRED IMPORTED_TARGET)
+  pkg_check_modules(UUID "uuid" REQUIRED IMPORTED_TARGET)
 
   target_link_libraries(
     machinetalk
-    PUBLIC machinetalk_proto_cc nanopb_interface PkgConfig::AVAHICLIENT
-           PkgConfig::LIBCZMQ PkgConfig::JANSSON
-    PRIVATE runtime_api hal_api mkini syslog_async)
+    PUBLIC machinetalk_proto_cc
+    PRIVATE runtime_api
+            hal_api
+            mkini
+            syslog_async
+            nanopb_interface
+            PkgConfig::AVAHICLIENT
+            PkgConfig::CZMQ
+            PkgConfig::JANSSON
+            PkgConfig::UUID)
 
   target_include_directories(
     machinetalk
@@ -79,17 +87,40 @@ if(BUILD_MACHINETALK_LIBRARY)
   set_target_properties(
     machinetalk
     PROPERTIES SOVERSION 0
+               PREFIX "libmkh"
                VERSION ${CMAKE_PROJECT_VERSION}
                PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
                POSITION_INDEPENDENT_CODE TRUE)
 
   install(
     TARGETS machinetalk
-    EXPORT machinekit_hal
+    EXPORT machinekit_hal_machinetalk
     LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
-            COMPONENT MachinekitHAL_Library_Base
-            NAMELINK_COMPONENT MachinekitHAL_Library_Development
-    PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
-                  COMPONENT MachinekitHAL_Library_Development)
+            COMPONENT MachinekitHAL_Library_Machinetalk_Libraries
+            NAMELINK_COMPONENT MachinekitHAL_Library_Machinetalk_Namelinks
+    PUBLIC_HEADER
+      DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/machinetalk"
+      COMPONENT MachinekitHAL_Library_Machinetalk_Headers)
 
+  cpack_add_component(
+    MachinekitHAL_Library_Machinetalk_Libraries
+    GROUP MachinekitHAL_Library_Machinetalk
+    DEPENDS MachinekitHAL_Library_Proto_Libraries
+            MachinekitHAL_Library_MKini_Libraries
+            MachinekitHAL_Library_MKini_Libraries)
+  cpack_add_component(
+    MachinekitHAL_Library_Machinetalk_Namelinks
+    GROUP MachinekitHAL_Library_Machinetalk_Development
+    DEPENDS MachinekitHAL_Library_Machinetalk_Libraries)
+  cpack_add_component(
+    MachinekitHAL_Library_Machinetalk_Headers
+    GROUP MachinekitHAL_Library_Machinetalk_Development
+    DEPENDS MachinekitHAL_Library_Machinetalk_Libraries)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(MachinekitHAL_Library_Machinetalk
+                            PARENT_GROUP MachinekitHAL_Package_Base_Libraries)
+  cpack_add_component_group(
+    MachinekitHAL_Library_Machinetalk_Development
+    PARENT_GROUP MachinekitHAL_Package_Base_Libraries_Development)
 endif()

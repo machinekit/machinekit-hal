@@ -50,6 +50,8 @@ string(REGEX REPLACE "_" "/" MACHINEKIT_HAL_PACKAGE_PREFIX_PATH
                      ${MACHINEKIT_HAL_PACKAGE_PREFIX})
 
 include(GNUInstallDirs)
+include(CPackComponent)
+include(CPack)
 
 set(MACHINEKIT_HAL_NAMESPACE "Machinekit::HAL")
 set(MACHINEKIT_HAL_EXECUTABLE_DIRECTORY "${CMAKE_INSTALL_BINDIR}")
@@ -90,3 +92,8 @@ define_property(
   to defined CMake Modules in the source-tree.
   ]])
 add_subdirectory(src)
+
+# Main package CPack groups
+cpack_add_component_group(MachinekitHAL_Package_Base_Libraries)
+cpack_add_component_group(MachinekitHAL_Package_Base_Libraries_Development)
+cpack_add_component_group(MachinekitHAL_Package_Base_Managed_Modules_Components)

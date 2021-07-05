@@ -24,18 +24,35 @@
 # #####################################################################
 # ~~~
 
-add_library(user_pci INTERFACE)
+if(NOT DEFINED SYS_IO_AVAILABLE)
+  check_include_files("sys/io.h" SYS_IO_AVAILABLE)
+endif()
 
-target_include_directories(
-  user_pci
-  INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-            $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
+if(SYS_IO_AVAILABLE)
+  option(BUILD_USER_PCI_LIBRARY "Built the User PCI library." TRUE)
+  if(BUILD_USER_PCI_LIBRARY)
+    add_library(user_pci INTERFACE)
 
-set_target_properties(user_pci PROPERTIES PUBLIC_HEADER
-                                           include/user_pci/device.h)
+    target_include_directories(
+      user_pci
+      INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+                $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
-install(
-  TARGETS user_pci
-  EXPORT machinekit_hal
-  PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
-                COMPONENT MachinekitHAL_Library_Development)
+    set_target_properties(user_pci PROPERTIES PUBLIC_HEADER
+                                              include/user_pci/device.h)
+
+    install(
+      TARGETS user_pci
+      EXPORT machinekit_hal_user_pci
+      PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/user_pci"
+                    COMPONENT MachinekitHAL_Library_User_PCI_Headers)
+
+    cpack_add_component(MachinekitHAL_Library_User_PCI_Headers
+                        GROUP MachinekitHAL_Library_User_PCI_Development)
+
+    # Specification of artifacts placement in package tree
+    cpack_add_component_group(
+      MachinekitHAL_Library_User_PCI_Development
+      PARENT_GROUP MachinekitHAL_Package_Base_Libraries_Development)
+  endif()
+endif()

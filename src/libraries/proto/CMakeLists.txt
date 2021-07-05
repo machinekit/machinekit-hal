@@ -124,20 +124,42 @@ if(BUILD_PROTO_LIBRARY)
   set_target_properties(
     machinetalk_proto_c
     PROPERTIES SOVERSION 0
+               PREFIX "libmkh"
                VERSION ${CMAKE_PROJECT_VERSION}
                POSITION_INDEPENDENT_CODE TRUE)
 
   set_target_properties(
     machinetalk_proto_cc
     PROPERTIES SOVERSION 0
+               PREFIX "libmkh"
                VERSION ${CMAKE_PROJECT_VERSION}
                POSITION_INDEPENDENT_CODE TRUE)
   install(
     TARGETS machinetalk_proto_c machinetalk_proto_cc
-    EXPORT machinekit_hal
+    EXPORT machinekit_hal_proto
     LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
-            COMPONENT MachinekitHAL_Library_Base
-            NAMELINK_COMPONENT MachinekitHAL_Library_Development
-    PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
-                  COMPONENT MachinekitHAL_Library_Development)
+            COMPONENT MachinekitHAL_Library_Proto_Libraries
+            NAMELINK_COMPONENT MachinekitHAL_Library_Proto_Namelinks
+    PUBLIC_HEADER
+      DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/machinetalk/protobuf"
+      COMPONENT MachinekitHAL_Library_Proto_Headers)
+
+  cpack_add_component(
+    MachinekitHAL_Library_Proto_Libraries
+    GROUP MachinekitHAL_Library_Proto)
+  cpack_add_component(
+    MachinekitHAL_Library_Proto_Namelinks
+    GROUP MachinekitHAL_Library_Proto_Development
+    DEPENDS MachinekitHAL_Library_Proto_Libraries)
+  cpack_add_component(
+    MachinekitHAL_Library_Proto_Headers
+    GROUP MachinekitHAL_Library_Proto_Development
+    DEPENDS MachinekitHAL_Library_Proto_Libraries)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(MachinekitHAL_Library_Proto
+                            PARENT_GROUP MachinekitHAL_Package_Base_Libraries)
+  cpack_add_component_group(
+    MachinekitHAL_Library_Proto_Development
+    PARENT_GROUP MachinekitHAL_Package_Base_Libraries_Development)
 endif()

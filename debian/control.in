@@ -6,12 +6,15 @@ Maintainer: MachinekitBot <machinekitATeryafDOTcom>
 # does not set the Multi-Arch: foreign in its packaging scripts
 # Otherwise the dpkg-checkbuilddeps will reject such dependency with :native
 # as invalid, ergo autoconf:native (not) vs python:native
-Build-Depends: 
+Build-Depends:
+    dh-cmake,
+    dh-cmake-compat (= 1),
+    dh-sequence-cpack,
+    debhelper-compat (= 12),
     debhelper (>= 10),
     autoconf (>= 2.63),
     autoconf-archive,
     dpkg-sig:native,
-    automake,
     git,
     lsb-release,
     libmodbus-dev (>= 3.0),
@@ -53,90 +56,91 @@ Build-Depends:
     python3-pip:native,
     python3-venv:native,
     libck-dev @BUILDTIME_DEPENDENCIES@
-Standards-Version: 2.1.0
+#Build-conflicts: *linuxcnc
+Standards-Version: 4.5.1
+Homepage: https://machinekit.io
 
-Package: machinekit-hal
-Conflicts: machinekit
+
+Package: libmachinekit-hal
 Architecture: any
-Depends: 
-    ${shlibs:Depends},
-    ${python3:Depends},
-    ${misc:Depends},
-    python3-numpy,
-    libmodbus-dev (>= 3.0),
-    python3-xlib,
-    python3-configobj,
-    python3-zmq,
-    python3-protobuf (>= 2.4.1),
-    python3-avahi,
-    python3-simplejson,
-    python3-pyftpdlib,
-    python3-pydot,
-    xdot,
-    bc,
-    procps,
-    psmisc,
-    cgroup-tools,
-    python3-pil,
-    python3-gst-1.0,
-    uuid-runtime,
-    python3-setproctitle,
-    @RUNTIME_DEPENDENCIES@,
-Description: Universal framework for machine control based on Hardware Abstraction Layer principle
-    .
-    Machinekit is the next-generation Machine Controller.  It provides
-    motion and other control for atomation, robot and CNC machine tool
-    applications.
+Multi-Arch: same
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${cpack:Depends}
+Description: dh-cmake example - libraries
+ This package contains the shared libraries for the Machinekit-HAL project.
 
-Package: machinekit-hal-dev
+Package: libmachinekit-hal-dev
 Architecture: any
-Depends: 
-    make,
-    g++,
-    ${misc:Depends},
-    machinekit-hal (= ${binary:Version}),
-    python3-pytest,
-    yapps2
-Section: libs
-Description: Universal framework for machine control based on Hardware Abstraction Layer principle
- This package includes the development environment for Machinekit-HAL.
- .
- This package includes files needed to build new realtime components and
- alternate front-ends for machinekit
+Multi-Arch: same
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${cpack:Depends}
+Description: dh-cmake example - libraries
+ This package contains the development files for libraries of the Machinekit-HAL project.
 
-Package: machinekit-hal-rt-preempt
+Package: modmachinekit-hal-components
 Architecture: any
-Suggests: hostmot2-firmware-all [!armhf]
-Depends:
-    machinekit-hal,
-    linux-image-rt-686-pae [i386],
-    linux-image-rt-amd64 [amd64],
-    linux-image-rt-arm64 [arm64],
-    linux-image-rt-armmp [armhf]
-Description: Machinekit HAL RT_PREEMPT
- .
- This metapackage provides components and drivers that run on a realtime
- (PREEMPT RT) system.
+Multi-Arch: same
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${cpack:Depends}
+Description: dh-cmake example - libraries
+ This package contains the managed modules - components for the Machinekit-HAL project.
 
-
-Package: machinekit-hal-posix
-Architecture: any
-Suggests: hostmot2-firmware-all [!armhf]
-Description: Universal framework for machine control based on Hardware Abstraction Layer principle
- .
- This package provides components and drivers that run on a non-realtime
- (Posix) system.
-Depends:
-    machinekit-hal
-
-#Package: machinekit-hal-xenomai2
+#Package: modmachinekit-hal-drivers
 #Architecture: any
-#Suggests: hostmot2-firmware-all [!armhf]
-#Conflicts: machinekit-hal-xenomai
+#Multi-Arch: same
+#Depends: ${shlibs:Depends}, ${misc:Depends}
+#Description: dh-cmake example - libraries
+# This package contains the managed modules - drivers for the Machinekit-HAL project.
+#
+#Package: machinekit-hal-unmanaged-modules
+#Architecture: any
+#Multi-Arch: same
+#Depends: ${shlibs:Depends}, ${misc:Depends}
+#Description: dh-cmake example - libraries
+# This package contains the unmanaged modules for the Machinekit-HAL project.
+#
+#Package: machinekit-hal
+#Conflicts: machinekit
+#Architecture: any
+#Depends: 
+#    ${shlibs:Depends},
+#    ${python3:Depends},
+#    ${misc:Depends},
+#    python3-numpy,
+#    libmodbus-dev (>= 3.0),
+#    python3-xlib,
+#    python3-configobj,
+#    python3-zmq,
+#    python3-protobuf (>= 2.4.1),
+#    python3-avahi,
+#    python3-simplejson,
+#    python3-pyftpdlib,
+#    python3-pydot,
+#    xdot,
+#    bc,
+#    procps,
+#    psmisc,
+#    cgroup-tools,
+#    python3-pil,
+#    python3-gst-1.0,
+#    uuid-runtime,
+#    python3-setproctitle,
+#    @RUNTIME_DEPENDENCIES@,
 #Description: Universal framework for machine control based on Hardware Abstraction Layer principle
+#    .
+#    Machinekit is the next-generation Machine Controller.  It provides
+#    motion and other control for atomation, robot and CNC machine tool
+#    applications.
+#
+#Package: machinekit-hal-dev
+#Architecture: any
+#Depends: 
+#    make,
+#    g++,
+#    ${misc:Depends},
+#    machinekit-hal (= ${binary:Version}),
+#    python3-pytest,
+#    yapps2
+#Section: libs
+#Description: Universal framework for machine control based on Hardware Abstraction Layer principle
+# This package includes the development environment for Machinekit-HAL.
 # .
-# This package provides components and drivers that run on a realtime
-# (XENOMAI 2) system.
-#Depends:
-#    machinekit-hal,
-#    xenomai-runtime (<= 2.8)
+# This package includes files needed to build new realtime components and
+# alternate front-ends for machinekit

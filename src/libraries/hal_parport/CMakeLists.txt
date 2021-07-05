@@ -38,7 +38,7 @@ if(SYS_IO_AVAILABLE)
   add_library(rtapi_parport INTERFACE)
 
   set(PUBLIC_HEADER_FILES
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal_parport/hal_harport.h)
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal_parport/hal_parport.h)
 
   target_include_directories(rtapi_parport INTERFACE include)
 
@@ -47,7 +47,16 @@ if(SYS_IO_AVAILABLE)
 
   install(
     TARGETS rtapi_parport
-    EXPORT machinekit_hal
-    PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
-                  COMPONENT MachinekitHAL_Library_Development)
+    EXPORT machinekit_hal_hal_parport
+    PUBLIC_HEADER
+      DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/hal_parport"
+      COMPONENT MachinekitHAL_Library_HAL_Parport_Headers)
+
+  cpack_add_component(MachinekitHAL_Library_HAL_Parport_Headers
+                      GROUP MachinekitHAL_Library_HAL_Parport_Development)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(
+    MachinekitHAL_Library_HAL_Parport_Development
+    PARENT_GROUP MachinekitHAL_Package_Base_Libraries_Development)
 endif()

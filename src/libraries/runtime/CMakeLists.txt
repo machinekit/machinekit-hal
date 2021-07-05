@@ -149,7 +149,7 @@ if(BUILD_RUNTIME_LIBRARY)
     target_compile_definitions(runtime_api INTERFACE "SYS_IO_AVAILABLE")
     list(APPEND PUBLIC_HEADER_FILES ${RTAPI_IO_PUBLIC_HEADER})
     target_sources(runtime_api INTERFACE ${RTAPI_IO_PUBLIC_HEADER})
-    # Add here rtapi_io.h to PUBLIC_HEADER to install
+    # TODO: Add here rtapi_io.h to PUBLIC_HEADER to install
   endif()
 
   export_rtapi_symbols(TARGET runtime_module)
@@ -159,7 +159,8 @@ if(BUILD_RUNTIME_LIBRARY)
 
   set_target_properties(
     runtime
-    PROPERTIES OUTPUT_NAME "rtapi"
+    PROPERTIES OUTPUT_NAME "runtime"
+               PREFIX "libmkh"
                SOVERSION 0
                VERSION ${CMAKE_PROJECT_VERSION}
                PRIVATE_HEADER "${PRIVATE_HEADER_FILES}"
@@ -252,25 +253,57 @@ if(BUILD_RUNTIME_LIBRARY)
 
   install(
     TARGETS
-    runtime runtime_api EXPORT machinekit_hal
+    runtime runtime_api EXPORT machinekit_hal_runtime
     LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
-            COMPONENT MachinekitHAL_Library_Base
-            NAMELINK_COMPONENT MachinekitHAL_Library_Development
-    PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
-                  COMPONENT MachinekitHAL_Library_Development)
+            COMPONENT MachinekitHAL_Library_Runtime_Libraries
+            NAMELINK_COMPONENT MachinekitHAL_Library_Runtime_Namelinks
+    PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime"
+                  COMPONENT MachinekitHAL_Library_Runtime_Headers)
 
   install(
     TARGETS runtime_module
     EXPORT machinekit_hal_managed_module
     LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
-            COMPONENT MachinekitHAL_Managed_Module_Base)
+            COMPONENT MachinekitHAL_Library_Runtime_Managed_Components)
 
   install(
     FILES ${CMAKE_CURRENT_BINARY_DIR}/install/$<CONFIG>/rtapi.ini
           ${CMAKE_CURRENT_BINARY_DIR}/install/machinekit.ini
     DESTINATION "${MACHINEKIT_HAL_SYSTEM_CONFIG_FULL_INSTALL_DIRECTORY}"
     PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
-    COMPONENT MachinekitHAL_Library_Base)
+    COMPONENT MachinekitHAL_Library_Runtime_Config_Files)
+
+  cpack_add_component(
+    MachinekitHAL_Library_Runtime_Libraries
+    GROUP MachinekitHAL_Library_Runtime
+    DEPENDS MachinekitHAL_Library_SysLog_Async_Libraries
+            MachinekitHAL_Library_MKini_Libraries
+            MachinekitHAL_Library_Runtime_Memory_API_Libraries
+            MachinekitHAL_Library_Runtime_Config_Files)
+  cpack_add_component(
+    MachinekitHAL_Library_Runtime_Namelinks
+    GROUP MachinekitHAL_Library_Runtime_Development
+    DEPENDS MachinekitHAL_Library_Runtime_Libraries)
+  cpack_add_component(
+    MachinekitHAL_Library_Runtime_Config_Files
+    GROUP MachinekitHAL_Library_Runtime
+    DEPENDS MachinekitHAL_Library_Runtime_Libraries)
+  cpack_add_component(
+    MachinekitHAL_Library_Runtime_Headers
+    GROUP MachinekitHAL_Library_Runtime_Development
+    DEPENDS MachinekitHAL_Library_Runtime_Libraries)
+  cpack_add_component(MachinekitHAL_Library_Runtime_Managed_Components
+                      GROUP MachinekitHAL_Library_Runtime_Managed_HAL_Modules)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(MachinekitHAL_Library_Runtime
+                            PARENT_GROUP MachinekitHAL_Package_Base_Libraries)
+  cpack_add_component_group(
+    MachinekitHAL_Library_Runtime_Development
+    PARENT_GROUP MachinekitHAL_Package_Base_Libraries_Development)
+  cpack_add_component_group(
+    MachinekitHAL_Library_Runtime_Managed_HAL_Modules
+    PARENT_GROUP MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_subdirectory(test)
 endif()

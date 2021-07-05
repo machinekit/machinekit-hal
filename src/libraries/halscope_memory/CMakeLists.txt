@@ -44,8 +44,16 @@ if(BUILD_HALSCOPE_MEMORY_LIBRARY)
 
   install(
     TARGETS halscope_memory
-    EXPORT machinekit_hal
-    PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
-                  COMPONENT MachinekitHAL_Library_Development)
+    EXPORT machinekit_hal_halscope_memory
+    PUBLIC_HEADER
+      DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/halscope_memory"
+      COMPONENT MachinekitHAL_Library_HALscope_Memory_Headers)
 
+  cpack_add_component(MachinekitHAL_Library_HALscope_Memory_Headers
+                      GROUP MachinekitHAL_Library_HALscope_Memory_Development)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(
+    MachinekitHAL_Library_HALscope_Memory_Development
+    PARENT_GROUP MachinekitHAL_Package_Base_Libraries_Development)
 endif()

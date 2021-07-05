@@ -40,7 +40,16 @@ if(BUILD_SAMSTR_MEMDEFS_LIBRARY)
 
   install(
     TARGETS samstr_memdefs
-    EXPORT machinekit_hal
-    PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
-                  COMPONENT MachinekitHAL_Library_Development)
+    EXPORT machinekit_hal_samstr_memdefs
+    PUBLIC_HEADER
+      DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/samstr_memdefs"
+      COMPONENT MachinekitHAL_Library_SamStr_MemDefs_Headers)
+
+  cpack_add_component(MachinekitHAL_Library_SamStr_MemDefs_Headers
+                      GROUP MachinekitHAL_Library_SamStr_MemDefs_Development)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(
+    MachinekitHAL_Library_SamStr_MemDefs_Development
+    PARENT_GROUP MachinekitHAL_Package_Base_Libraries_Development)
 endif()
