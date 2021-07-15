@@ -26,7 +26,8 @@
 
 override_dh_auto_configure:
 	dh_auto_configure -- \
-		--toolchain $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))/debianMultiarchToolchain.cmake
+		--toolchain $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))/debianMultiarchToolchain.cmake \
+		-DCMAKE_BUILD_TYPE:STRING=DebWithRelInfo
 
 override_dh_auto_test:
 #	Only run tests (CTest) when not cross-compiling

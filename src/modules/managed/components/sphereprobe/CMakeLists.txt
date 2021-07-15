@@ -24,13 +24,22 @@
 # #####################################################################
 # ~~~
 
-option(BUILD_SPHEREPROBE_MANAGED_MODULE "Built the Sphereprobe HAL managed module." TRUE)
+option(BUILD_SPHEREPROBE_MANAGED_MODULE
+       "Built the Sphereprobe HAL managed module." TRUE)
 
 if(BUILD_SPHEREPROBE_MANAGED_MODULE)
   include(MachinekitHALInstcomp)
 
-  add_instantiatable_module(sphereprobe SOURCE src/sphereprobe.icomp OUTPUT_DIRECTORY
-                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+  add_instantiatable_module(
+    sphereprobe
+    SOURCE
+    src/sphereprobe.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(sphereprobe instcomp_executable)
 endif()

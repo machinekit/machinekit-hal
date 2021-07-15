@@ -31,8 +31,15 @@ if(BUILD_TIMEDELTA_MANAGED_MODULE)
   include(MachinekitHALInstcomp)
 
   add_instantiatable_module(
-    timedelta SOURCE src/timedelta.icomp OUTPUT_DIRECTORY
-    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+    timedelta
+    SOURCE
+    src/timedelta.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(timedelta instcomp_executable)
 endif()

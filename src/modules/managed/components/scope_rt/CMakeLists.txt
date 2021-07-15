@@ -24,7 +24,8 @@
 # #####################################################################
 # ~~~
 
-option(BUILD_SCOPE_RT_MANAGED_MODULE "Built the Scope RT HAL managed module." TRUE)
+option(BUILD_SCOPE_RT_MANAGED_MODULE "Built the Scope RT HAL managed module."
+       TRUE)
 
 if(BUILD_SCOPE_RT_MANAGED_MODULE)
   include(MachinekitHALSymbolVisibility)
@@ -37,9 +38,11 @@ if(BUILD_SCOPE_RT_MANAGED_MODULE)
 
   target_sources(scope_rt PRIVATE ${SOURCE_FILES} ${PUBLIC_HEADER_FILES})
 
-  target_include_directories(scope_rt PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+  target_include_directories(
+    scope_rt PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
-  target_link_libraries(scope_rt PRIVATE hal_api runtime_api runtime_math halscope_memory)
+  target_link_libraries(scope_rt PRIVATE hal_api runtime_api runtime_math
+                                         halscope_memory)
 
   export_rtapi_symbols(TARGET scope_rt)
 
@@ -50,9 +53,15 @@ if(BUILD_SCOPE_RT_MANAGED_MODULE)
     PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
                             "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
 
-  install(
-    TARGETS scope_rt
-    EXPORT machinekit_hal_managed_module_scope_rt
-    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
-            COMPONENT MachinekitHAL_Managed_Scope_RT)
+  install(TARGETS scope_rt
+          LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+                  COMPONENT MachinekitHAL_Managed_Module_Scope_RT_Components)
+
+  cpack_add_component(MachinekitHAL_Managed_Module_Scope_RT_Components
+                      GROUP MachinekitHAL_Managed_Module_Scope_RT)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(
+    MachinekitHAL_Managed_Module_Scope_RT
+    PARENT_GROUP MachinekitHAL_Package_Base_Managed_Modules_Components)
 endif()

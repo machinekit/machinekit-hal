@@ -58,12 +58,13 @@ int Module::load(string module)
     // module name
     if (module.find_last_of("/") != string::npos) {
         name = module.substr(module.find_last_of("/") + 1);
+        dlpath = module + ".so";
         is_rpath = false; // `module` contains `/` chars
     } else {
         name = module;
+        dlpath = "mod" + module + ".so";
         is_rpath = true; // `module` contains no `/` chars
     }
-    dlpath = "mod" + module + ".so";
     handle = NULL;
 
     // First look in `$MK_MODULE_DIR` if `module` contains no `/` chars

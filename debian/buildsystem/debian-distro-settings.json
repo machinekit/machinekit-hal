@@ -41,11 +41,19 @@
       "architecture": "i386"
     },
     {
+      "osVersionNumber": 11,
+      "architecture": "i386"
+    },
+    {
       "osVersionNumber": 18.04,
       "architecture": "amd64"
     },
     {
       "osVersionNumber": 10,
+      "architecture": "amd64"
+    },
+    {
+      "osVersionNumber": 11,
       "architecture": "amd64"
     },
     {
@@ -62,6 +70,10 @@
     },
     {
       "osVersionNumber": 10,
+      "architecture": "armhf"
+    },
+    {
+      "osVersionNumber": 11,
       "architecture": "armhf"
     },
     {
@@ -78,6 +90,10 @@
     },
     {
       "osVersionNumber": 10,
+      "architecture": "arm64"
+    },
+    {
+      "osVersionNumber": 11,
       "architecture": "arm64"
     },
     {

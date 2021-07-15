@@ -29,8 +29,16 @@ option(BUILD_NOTV2_MANAGED_MODULE "Built the Not V2 HAL managed module." TRUE)
 if(BUILD_NOTV2_MANAGED_MODULE)
   include(MachinekitHALInstcomp)
 
-  add_instantiatable_module(notv2 SOURCE src/notv2.icomp OUTPUT_DIRECTORY
-                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+  add_instantiatable_module(
+    notv2
+    SOURCE
+    src/notv2.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(notv2 instcomp_executable)
 endif()

@@ -31,8 +31,15 @@ if(BUILD_CONSTANTV2_MANAGED_MODULE)
   include(MachinekitHALInstcomp)
 
   add_instantiatable_module(
-    constantv2 SOURCE src/constantv2.icomp OUTPUT_DIRECTORY
-    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+    constantv2
+    SOURCE
+    src/constantv2.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(constantv2 instcomp_executable)
 endif()

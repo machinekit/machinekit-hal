@@ -58,7 +58,6 @@ if(BUILD_HAL_LIBRARY)
   set(HALPB_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/halpb.cc)
 
   set(PUBLIC_HEADER_FILES
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/config_module.h
       ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_accessor.h
       ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_accessor_macros.h
       ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_group.h
@@ -82,7 +81,7 @@ if(BUILD_HAL_LIBRARY)
   target_include_directories(
     hal_api
     INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-              $<INSTALL_INTERFACE:"${MACHINEKIT_HAL_INTERFACE_DIRECTORY}")
+              $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY})
 
   target_sources(hal PRIVATE ${SOURCE_FILES} ${HALPB_SOURCE_FILES})
   target_sources(hal_module PRIVATE ${SOURCE_FILES})
@@ -126,7 +125,7 @@ if(BUILD_HAL_LIBRARY)
 
   install(TARGETS hal_module
           LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
-                  COMPONENT MachinekitHAL_Library_HAL_Managed_Components)
+                  COMPONENT MachinekitHAL_Managed_Module_HAL_Components)
 
   cpack_add_component(
     MachinekitHAL_Library_HAL_Libraries
@@ -140,8 +139,8 @@ if(BUILD_HAL_LIBRARY)
     MachinekitHAL_Library_HAL_Headers
     GROUP MachinekitHAL_Library_HAL_Development
     DEPENDS MachinekitHAL_Library_HAL_Libraries)
-  cpack_add_component(MachinekitHAL_Library_HAL_Managed_Components
-                      GROUP MachinekitHAL_Library_HAL_Managed_HAL_Modules)
+  cpack_add_component(MachinekitHAL_Managed_Module_HAL_Components
+                      GROUP MachinekitHAL_Managed_Module_HAL)
 
   # Specification of artifacts placement in package tree
   cpack_add_component_group(MachinekitHAL_Library_HAL
@@ -150,6 +149,6 @@ if(BUILD_HAL_LIBRARY)
     MachinekitHAL_Library_HAL_Development
     PARENT_GROUP MachinekitHAL_Package_Base_Libraries_Development)
   cpack_add_component_group(
-    MachinekitHAL_Library_HAL_Managed_HAL_Modules
+    MachinekitHAL_Managed_Module_HAL
     PARENT_GROUP MachinekitHAL_Package_Base_Managed_Modules_Components)
 endif()

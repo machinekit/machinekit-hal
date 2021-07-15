@@ -24,7 +24,7 @@
 # #####################################################################
 # ~~~
 
-if(CMAKE_SYSTEM_PROCESSOR STREQUAL "armhf")
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
   option(BUILD_HAL_ZED_CAN_MANAGED_DRIVER_MODULE
          "Built the Zed CAN HAL managed driver module." TRUE)
 
@@ -37,8 +37,7 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "armhf")
 
     set(PRIVATE_HEADER_FILES src/2FOC_status.h)
 
-    target_sources(hal_zed_can PRIVATE ${SOURCE_FILES}
-                                          ${PRIVATE_HEADER_FILES})
+    target_sources(hal_zed_can PRIVATE ${SOURCE_FILES} ${PRIVATE_HEADER_FILES})
 
     target_link_libraries(hal_zed_can PRIVATE hal_api runtime_api)
 
@@ -52,9 +51,16 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "armhf")
                  LIBRARY_OUTPUT_DIRECTORY
                  "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
 
-    install(
-      TARGETS hal_zed_can
-      LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
-              COMPONENT MachinekitHAL_Managed_Driver_Module_HAL_Zed_CAN)
+    install(TARGETS hal_zed_can
+            LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+                    COMPONENT MachinekitHAL_Managed_Module_HAL_ZED_CAN_Drivers)
+
+    cpack_add_component(MachinekitHAL_Managed_Module_HAL_ZED_CAN_Drivers
+                        GROUP MachinekitHAL_Managed_Module_HAL_ZED_CAN)
+
+    # Specification of artifacts placement in package tree
+    cpack_add_component_group(
+      MachinekitHAL_Managed_Module_HAL_ZED_CAN
+      PARENT_GROUP MachinekitHAL_Package_Base_Managed_Modules_Drivers)
   endif()
 endif()

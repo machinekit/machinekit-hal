@@ -32,8 +32,8 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "^x86.*")
   if(BUILD_TEST_RTAPI_VSNPRINTF_EXECUTABLE)
     add_executable(test_rtapi_vsnprintf)
 
-    set(SOURCE_FILES src/test_rtapi_vsnprintf.c)
-    set(PRIVATE_HEADER_FILES src/vsnprintf.h)
+    set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/test_rtapi_vsnprintf.c)
+    set(PRIVATE_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/vsnprintf.h)
 
     target_sources(test_rtapi_vsnprintf PRIVATE ${SOURCE_FILES}
                                                 ${PRIVATE_HEADER_FILES})
@@ -43,5 +43,21 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "^x86.*")
       PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
     target_link_libraries(test_rtapi_vsnprintf PRIVATE runtime runtime_math)
+
+    install(
+      TARGETS test_rtapi_vsnprintf
+      RUNTIME DESTINATION "${MACHINEKIT_HAL_EXECUTABLE_DIRECTORY}"
+              COMPONENT MachinekitHAL_Executable_Test_RTAPI_Vsnprintf_Binaries)
+
+    cpack_add_component(
+      MachinekitHAL_Executable_Test_RTAPI_Vsnprintf_Binaries
+      GROUP MachinekitHAL_Executable_Test_RTAPI_Vsnprintf
+      DEPENDS MachinekitHAL_Library_Runtime_Libraries
+              MachinekitHAL_Library_Runtime_Math_Libraries)
+
+    # Specification of artifacts placement in package tree
+    cpack_add_component_group(
+      MachinekitHAL_Executable_Test_RTAPI_Vsnprintf
+      PARENT_GROUP MachinekitHAL_Package_Base_Executables)
   endif()
 endif()

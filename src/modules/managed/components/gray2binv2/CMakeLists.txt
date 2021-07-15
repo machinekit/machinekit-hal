@@ -31,8 +31,15 @@ if(BUILD_GRAY2BINV2_MANAGED_MODULE)
   include(MachinekitHALInstcomp)
 
   add_instantiatable_module(
-    gray2binv2 SOURCE src/gray2binv2.icomp OUTPUT_DIRECTORY
-    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+    gray2binv2
+    SOURCE
+    src/gray2binv2.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(gray2binv2 instcomp_executable)
 endif()

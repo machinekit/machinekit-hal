@@ -17,7 +17,7 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#include "hal/config_module.h"
+#include "user_pci/config_module.h"
 #include RTAPI_INC_SLAB_H
 
 #include "runtime/rtapi.h"
@@ -26,7 +26,7 @@
 
 #include "hal/hal.h"
 
-#include "hal/drivers/mesa-hostmot2/hostmot2.h"
+#include "hostmot2/hostmot2.h"
 
 void hm2_tp_pwmgen_handle_pwm_frequency(hostmot2_t *hm2) {
     u32 dds;

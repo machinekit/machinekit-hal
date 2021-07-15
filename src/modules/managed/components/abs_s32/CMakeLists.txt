@@ -31,8 +31,15 @@ if(BUILD_ABS_S32_MANAGED_MODULE)
   include(MachinekitHALInstcomp)
 
   add_instantiatable_module(
-    abs_s32 SOURCE src/abs_s32.icomp OUTPUT_DIRECTORY
-    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+    abs_s32
+    SOURCE
+    src/abs_s32.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(abs_s32 instcomp_executable)
 endif()

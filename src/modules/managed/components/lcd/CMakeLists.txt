@@ -32,7 +32,7 @@ if(BUILD_LCD_MANAGED_MODULE)
   add_library(lcd MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::lcd ALIAS lcd)
 
-  set(SOURCE_FILES src/lcd.c)
+  set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/lcd.c)
 
   target_sources(lcd PRIVATE ${SOURCE_FILES})
 
@@ -47,9 +47,15 @@ if(BUILD_LCD_MANAGED_MODULE)
     PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
                             "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
 
-  install(
-    TARGETS lcd
-    EXPORT machinekit_hal_managed_module_lcd
-    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
-            COMPONENT MachinekitHAL_Managed_Module_LCD)
+  install(TARGETS lcd
+          LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+                  COMPONENT MachinekitHAL_Managed_Module_LCD_Components)
+
+  cpack_add_component(MachinekitHAL_Managed_Module_LCD_Components
+                      GROUP MachinekitHAL_Managed_Module_LCD)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(
+    MachinekitHAL_Managed_Module_LCD
+    PARENT_GROUP MachinekitHAL_Package_Base_Managed_Modules_Components)
 endif()

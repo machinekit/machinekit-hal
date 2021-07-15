@@ -29,7 +29,7 @@ option(BUILD_LINMOVE_EXECUTABLE "Build the Linmove executable." TRUE)
 if(BUILD_LINMOVE_EXECUTABLE)
   add_executable(linmove)
 
-  set(SOURCE_FILES src/linmove.cc)
+  set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/linmove.cc)
 
   target_sources(linmove PRIVATE ${SOURCE_FILES})
 
@@ -40,4 +40,18 @@ if(BUILD_LINMOVE_EXECUTABLE)
 
   target_link_libraries(linmove PRIVATE machinetalk machinetalk_proto_cc mkini
                                         PkgConfig::JANSSON PkgConfig::PROTOBUF)
+  install(TARGETS linmove
+          RUNTIME DESTINATION "${MACHINEKIT_HAL_EXECUTABLE_DIRECTORY}"
+                  COMPONENT MachinekitHAL_Executable_LinMove_Binaries)
+
+  cpack_add_component(
+    MachinekitHAL_Executable_LinMove_Binaries
+    GROUP MachinekitHAL_Executable_LinMove
+    DEPENDS MachinekitHAL_Library_Proto_Libraries
+            MachinekitHAL_Library_Machinetalk_Libraries
+            MachinekitHAL_Library_MKini_Libraries)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(MachinekitHAL_Executable_LinMove
+                            PARENT_GROUP MachinekitHAL_Package_Base_Executables)
 endif()

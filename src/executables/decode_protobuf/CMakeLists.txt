@@ -30,7 +30,18 @@ option(BUILD_DECODE_PROTOBUF_EXECUTABLE "Build the Decode Protobuf executable."
 if(BUILD_DECODE_PROTOBUF_EXECUTABLE)
   add_executable(decode_protobuf)
 
-  set(SOURCE_FILES src/pb.c)
+  set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/pb.c)
 
   target_sources(decode_protobuf PRIVATE ${SOURCE_FILES})
+
+  install(TARGETS decode_protobuf
+          RUNTIME DESTINATION "${MACHINEKIT_HAL_EXECUTABLE_DIRECTORY}"
+                  COMPONENT MachinekitHAL_Executable_Decode_Protobuf_Binaries)
+
+  cpack_add_component(MachinekitHAL_Executables_Decode_Protobuf_Binaries
+                      GROUP MachinekitHAL_Executable_Decode_Protobuf)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(MachinekitHAL_Executable_Decode_Protobuf
+                            PARENT_GROUP MachinekitHAL_Package_Base_Executables)
 endif()

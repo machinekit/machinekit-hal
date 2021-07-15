@@ -99,6 +99,7 @@ if(BUILD_RUNTIME_LIBRARY)
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
       $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>
       $<BUILD_INTERFACE:$<TARGET_PROPERTY:rtapi_compat,INTERFACE_INCLUDE_DIRECTORIES>>
+      $<BUILD_INTERFACE:$<TARGET_PROPERTY:rtapi_pci,INTERFACE_INCLUDE_DIRECTORIES>>
   )
 
   target_sources(runtime_api INTERFACE ${PUBLIC_HEADER_FILES})
@@ -106,21 +107,16 @@ if(BUILD_RUNTIME_LIBRARY)
   target_sources(
     runtime
     PRIVATE $<TARGET_PROPERTY:rtapi_support,INTERFACE_SOURCES>
-            $<TARGET_PROPERTY:rtapi_compat,INTERFACE_SOURCES> ${SOURCE_FILES}
-            ${ULAPI_FLAVOR_SOURCE_FILE} ${PRIVATE_HEADER_FILES})
+            $<TARGET_PROPERTY:rtapi_compat,INTERFACE_SOURCES>
+            $<TARGET_PROPERTY:rtapi_pci,SOURCES>
+            ${SOURCE_FILES}
+            ${ULAPI_FLAVOR_SOURCE_FILE}
+            ${PRIVATE_HEADER_FILES})
 
   target_sources(
     runtime_module
     PRIVATE ${SOURCE_FILES} $<TARGET_PROPERTY:rtapi_support,INTERFACE_SOURCES>
             ${RT_PREEMPT_FLAVOR_SOURCE_FILE} ${PRIVATE_HEADER_FILES})
-
-  if(SYS_IO_AVAILABLE)
-    target_include_directories(
-      runtime_api
-      INTERFACE $<TARGET_PROPERTY:rtapi_pci,INTERFACE_INCLUDE_DIRECTORIES>)
-    target_sources(runtime PRIVATE $<TARGET_PROPERTY:rtapi_pci,SOURCES>)
-    target_link_libraries(runtime_api INTERFACE user_pci)
-  endif()
 
   pkg_check_modules(CK "ck" REQUIRED IMPORTED_TARGET)
   pkg_check_modules(LIBCGROUP "libcgroup" REQUIRED IMPORTED_TARGET)
@@ -264,7 +260,7 @@ if(BUILD_RUNTIME_LIBRARY)
     TARGETS runtime_module
     EXPORT machinekit_hal_managed_module
     LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
-            COMPONENT MachinekitHAL_Library_Runtime_Managed_Components)
+            COMPONENT MachinekitHAL_Managed_Module_Runtime_Components)
 
   install(
     FILES ${CMAKE_CURRENT_BINARY_DIR}/install/$<CONFIG>/rtapi.ini
@@ -292,8 +288,8 @@ if(BUILD_RUNTIME_LIBRARY)
     MachinekitHAL_Library_Runtime_Headers
     GROUP MachinekitHAL_Library_Runtime_Development
     DEPENDS MachinekitHAL_Library_Runtime_Libraries)
-  cpack_add_component(MachinekitHAL_Library_Runtime_Managed_Components
-                      GROUP MachinekitHAL_Library_Runtime_Managed_HAL_Modules)
+  cpack_add_component(MachinekitHAL_Managed_Module_Runtime_Components
+                      GROUP MachinekitHAL_Managed_Module_Runtime)
 
   # Specification of artifacts placement in package tree
   cpack_add_component_group(MachinekitHAL_Library_Runtime
@@ -302,7 +298,7 @@ if(BUILD_RUNTIME_LIBRARY)
     MachinekitHAL_Library_Runtime_Development
     PARENT_GROUP MachinekitHAL_Package_Base_Libraries_Development)
   cpack_add_component_group(
-    MachinekitHAL_Library_Runtime_Managed_HAL_Modules
+    MachinekitHAL_Managed_Module_Runtime
     PARENT_GROUP MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_subdirectory(test)

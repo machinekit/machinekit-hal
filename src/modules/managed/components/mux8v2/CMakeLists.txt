@@ -29,8 +29,16 @@ option(BUILD_MUX8V2_MANAGED_MODULE "Built the Mux8 V2 HAL managed module." TRUE)
 if(BUILD_MUX8V2_MANAGED_MODULE)
   include(MachinekitHALInstcomp)
 
-  add_instantiatable_module(mux8v2 SOURCE src/mux8v2.icomp OUTPUT_DIRECTORY
-                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+  add_instantiatable_module(
+    mux8v2
+    SOURCE
+    src/mux8v2.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(mux8v2 instcomp_executable)
 endif()

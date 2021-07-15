@@ -52,5 +52,13 @@ if(BUILD_ENCODER_MANAGED_MODULE)
     TARGETS encoder
     EXPORT machinekit_hal_managed_module_encoder
     LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
-            COMPONENT MachinekitHAL_Managed_Module_Encoder)
+            COMPONENT MachinekitHAL_Managed_Module_Encoder_Components)
+
+  cpack_add_component(MachinekitHAL_Managed_Module_Encoder_Components
+                      GROUP MachinekitHAL_Managed_Module_Encoder)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(
+    MachinekitHAL_Managed_Module_Encoder
+    PARENT_GROUP MachinekitHAL_Package_Base_Managed_Modules_Components)
 endif()

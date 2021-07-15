@@ -27,8 +27,9 @@ option(BUILD_HALCMD_EXECUTABLE "Build the HALcmd executable." TRUE)
 if(BUILD_HALCMD_EXECUTABLE)
   add_executable(halcmd)
 
-  set(SOURCE_FILES src/halcmd_completion.c src/halcmd_main.c)
-  set(PRIVATE_HEADER_FILES src/halcmd_completion.h)
+  set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/halcmd_completion.c
+                   ${CMAKE_CURRENT_SOURCE_DIR}/src/halcmd_main.c)
+  set(PRIVATE_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/halcmd_completion.h)
 
   find_package(Readline REQUIRED)
 
@@ -49,4 +50,20 @@ if(BUILD_HALCMD_EXECUTABLE)
             PkgConfig::AVAHICLIENT
             PkgConfig::PROTOBUF
             READLINE::READLINE)
+
+  install(TARGETS halcmd
+          RUNTIME DESTINATION "${MACHINEKIT_HAL_EXECUTABLE_DIRECTORY}"
+                  COMPONENT MachinekitHAL_Executable_Halcmd_Binaries)
+
+  cpack_add_component(
+    MachinekitHAL_Executable_Halcmd_Binaries
+    GROUP MachinekitHAL_Executable_Halcmd
+    DEPENDS MachinekitHAL_Library_Runtime_Libraries
+            MachinekitHAL_Library_HAL_Libraries
+            MachinekitHAL_Library_MKini_Libraries
+            MachinekitHAL_Library_HAL_Command_Libraries)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(MachinekitHAL_Executable_Halcmd
+                            PARENT_GROUP MachinekitHAL_Package_Base_Executables)
 endif()

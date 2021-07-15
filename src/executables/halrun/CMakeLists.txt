@@ -48,4 +48,16 @@ if(BUILD_HALRUN_EXECUTABLE)
       "${CMAKE_CURRENT_BINARY_DIR}/src/halrun"
       "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
     DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/src/halrun")
+
+  install(
+    PROGRAMS "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/halrun"
+    DESTINATION "${MACHINEKIT_HAL_EXECUTABLE_DIRECTORY}"
+    COMPONENT MachinekitHAL_Executable_Halrun_Binaries)
+
+  cpack_add_component(MachinekitHAL_Executable_Halrun_Binaries
+                      GROUP MachinekitHAL_Executable_Halrun)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(MachinekitHAL_Executable_Halrun
+                            PARENT_GROUP MachinekitHAL_Package_Base_Executables)
 endif()

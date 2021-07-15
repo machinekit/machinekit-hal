@@ -42,7 +42,7 @@ if(BUILD_HAL_COMMAND_LIBRARY)
   target_include_directories(
     hal_command
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-           $<INSTALL_INTERFACE:"${MACHINEKIT_HAL_INTERFACE_DIRECTORY}")
+           $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
   target_sources(hal_command PRIVATE ${SOURCE_FILES})
 

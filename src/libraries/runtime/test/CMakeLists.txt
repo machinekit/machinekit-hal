@@ -24,13 +24,9 @@
 # #####################################################################
 # ~~~
 
-add_executable(test_runtime_module_init)
-
-# TODO: Think of better solution, as the 'test_runtime_module_init' is used
-# for 'runtests', so having it decaled before  the CMAKE_RUNTIME_OUTPUT_DIRECTORY
-# change will have it in $PATH, but this is just a clutch before all tests are
-# declared in the workspace scope
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${MACHINEKIT_HAL_TEST_OUTPUT_DIRECTORY}")
+
+add_executable(test_runtime_module_init)
 
 add_executable(test_runtime_bitops)
 # add_executable(test_runtime_rtapi_flavor_RTAPI)
@@ -64,4 +60,25 @@ target_compile_definitions(test_runtime_bitops PRIVATE "ULAPI")
 target_compile_definitions(test_runtime_rtapi_flavor_ULAPI PRIVATE "ULAPI")
 target_compile_definitions(test_runtime_module_init PRIVATE "ULAPI")
 
+set_target_properties(
+  test_runtime_module_init
+  PROPERTIES RUNTIME_OUTPUT_DIRECTORY
+             "${MACHINEKIT_HAL_TEST_OUTPUT_DIRECTORY}/runtests/rtapi.0")
+
 add_test(NAME testRuntimeBitops COMMAND test_runtime_bitops)
+
+install(
+  TARGETS test_runtime_module_init
+  RUNTIME DESTINATION "${MACHINEKIT_HAL_TEST_DIRECTORY}/runtests/rtapi.0"
+          COMPONENT MachinekitHAL_TestSuite_Test_Runtime_Module_Init_Binaries)
+
+cpack_add_component(
+  MachinekitHAL_TestSuite_Test_Runtime_Module_Init_Binaries
+  GROUP MachinekitHAL_TestSuite_Test_Runtime_Module_Init
+  DEPENDS MachinekitHAL_Library_Runtime_Libraries
+          MachinekitHAL_Library_HAL_Libraries)
+
+# Specification of artifacts placement in package tree
+cpack_add_component_group(
+  MachinekitHAL_TestSuite_Test_Runtime_Module_Init
+  PARENT_GROUP MachinekitHAL_Package_Base_Tests_Runtests)

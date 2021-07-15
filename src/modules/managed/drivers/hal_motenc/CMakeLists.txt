@@ -61,6 +61,14 @@ if(SYS_IO_AVAILABLE)
 
     install(TARGETS hal_motenc
             LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
-                    COMPONENT MachinekitHAL_Managed_Driver_Module_HAL_MotEnc)
+                    COMPONENT MachinekitHAL_Managed_Module_HAL_MotEnc_Drivers)
+
+    cpack_add_component(MachinekitHAL_Managed_Module_HAL_MotEnc_Drivers
+                        GROUP MachinekitHAL_Managed_Module_HAL_MotEnc)
+
+    # Specification of artifacts placement in package tree
+    cpack_add_component_group(
+      MachinekitHAL_Managed_Module_HAL_MotEnc
+      PARENT_GROUP MachinekitHAL_Package_Base_Managed_Modules_Drivers)
   endif()
 endif()

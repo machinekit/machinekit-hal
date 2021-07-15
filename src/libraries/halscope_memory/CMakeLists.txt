@@ -37,7 +37,7 @@ if(BUILD_HALSCOPE_MEMORY_LIBRARY)
   target_include_directories(
     halscope_memory
     INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-              $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY})
+              $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
   set_target_properties(halscope_memory PROPERTIES PUBLIC_HEADER
                                                    "${PUBLIC_HEADER_FILES}")

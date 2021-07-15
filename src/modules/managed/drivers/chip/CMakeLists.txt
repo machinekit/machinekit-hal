@@ -24,7 +24,7 @@
 # #####################################################################
 # ~~~
 
-if(CMAKE_SYSTEM_PROCESSOR STREQUAL "armhf")
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
   option(BUILD_HAL_CHIP_GPIO_MANAGED_DRIVER_MODULE
          "Built the Chip HAL managed driver module." TRUE)
 
@@ -56,6 +56,14 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "armhf")
       TARGETS hal_chip_gpio
       EXPORT machinekit_hal_managed_driver_module_hal_chip_gpio
       LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
-              COMPONENT MachinekitHAL_Managed_Driver_Module_HAL_Chip_GPIO)
+              COMPONENT MachinekitHAL_Managed_Module_HAL_Chip_GPIO_Drivers)
+
+    cpack_add_component(MachinekitHAL_Managed_Module_HAL_Chip_GPIO_Drivers
+                        GROUP MachinekitHAL_Managed_Module_HAL_Chip_GPIO)
+
+    # Specification of artifacts placement in package tree
+    cpack_add_component_group(
+      MachinekitHAL_Managed_Module_HAL_Chip_GPIO
+      PARENT_GROUP MachinekitHAL_Package_Base_Managed_Modules_Drivers)
   endif()
 endif()

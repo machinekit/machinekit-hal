@@ -30,8 +30,20 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "^x86.*")
   if(BUILD_PPIOCTL_EXECUTABLE)
     add_executable(ppioctl)
 
-    set(SOURCE_FILES src/ppioctl.c)
+    set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/ppioctl.c)
 
     target_sources(ppioctl PRIVATE ${SOURCE_FILES})
+
+    install(TARGETS ppioctl
+            RUNTIME DESTINATION "${MACHINEKIT_HAL_EXECUTABLE_DIRECTORY}"
+                    COMPONENT MachinekitHAL_Executable_PPIOCtl_Binaries)
+
+    cpack_add_component(MachinekitHAL_Executable_PPIOCtl_Binaries
+                        GROUP MachinekitHAL_Executable_PPIOCtl)
+
+    # Specification of artifacts placement in package tree
+    cpack_add_component_group(
+      MachinekitHAL_Executable_PPIOCtl
+      PARENT_GROUP MachinekitHAL_Package_Base_Executables)
   endif()
 endif()

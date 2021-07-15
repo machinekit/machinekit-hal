@@ -24,13 +24,22 @@
 # #####################################################################
 # ~~~
 
-option(BUILD_IO_MUXN_MANAGED_MODULE "Built the IO MuxN HAL managed module." TRUE)
+option(BUILD_IO_MUXN_MANAGED_MODULE "Built the IO MuxN HAL managed module."
+       TRUE)
 
 if(BUILD_IO_MUXN_MANAGED_MODULE)
   include(MachinekitHALInstcomp)
 
-  add_instantiatable_module(io_muxn SOURCE src/io_muxn.icomp OUTPUT_DIRECTORY
-                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+  add_instantiatable_module(
+    io_muxn
+    SOURCE
+    src/io_muxn.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(io_muxn instcomp_executable)
 endif()

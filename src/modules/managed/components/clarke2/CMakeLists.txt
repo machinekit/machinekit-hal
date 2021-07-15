@@ -30,8 +30,16 @@ option(BUILD_CLARKE2_MANAGED_MODULE "Built the Clarke2 HAL managed module."
 if(BUILD_CLARKE2_MANAGED_MODULE)
   include(MachinekitHALInstcomp)
 
-  add_instantiatable_module(clarke2 SOURCE src/clarke2.icomp OUTPUT_DIRECTORY
-                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+  add_instantiatable_module(
+    clarke2
+    SOURCE
+    src/clarke2.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(clarke2 instcomp_executable)
 endif()

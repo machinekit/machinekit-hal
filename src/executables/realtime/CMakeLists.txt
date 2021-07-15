@@ -27,7 +27,7 @@
 option(BUILD_REALTIME_EXECUTABLE "Build the Realtime executable." TRUE)
 
 if(BUILD_REALTIME_EXECUTABLE)
-  set(SOURCE_FILE src/realtime.in)
+  set(SOURCE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/src/realtime.in)
 
   # Artifacts used when running from BINARY tree
   set(REALTIME_RTAPI_INI
@@ -71,16 +71,21 @@ if(BUILD_REALTIME_EXECUTABLE)
   # Artifacts used when running from installation
 
   set(REALTIME_RTAPI_INI
-      "${MACHINEKIT_HAL_SYSTEM_CONFIG_FULL_INSTALL_DIRECTORY}/rtapi.ini") # TODO:
-                                                                    # Change to
-                                                                    # target
-                                                                    # property
+      "${MACHINEKIT_HAL_SYSTEM_CONFIG_FULL_INSTALL_DIRECTORY}/rtapi.ini"
+  )# TODO:
+  # Change to target property
   set(REALTIME_MACHINEKIT_INI
       "${MACHINEKIT_HAL_SYSTEM_CONFIG_FULL_INSTALL_DIRECTORY}/machinekit.ini"
   )# TODO: Change to target property
-  set(REALTIME_INIVAR "${MACHINEKIT_HAL_EXECUTABLE_FULL_INSTALL_DIRECTORY}/$<TARGET_FILE_NAME:inivar>")
-  set(REALTIME_RTAPI_MSGD "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_FULL_INSTALL_DIRECTORY}/$<TARGET_FILE_NAME:msgd>")
-  set(REALTIME_RTAPI_APP "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_FULL_INSTALL_DIRECTORY}/$<TARGET_FILE_NAME:rtapi_app>")
+  set(REALTIME_INIVAR
+      "${MACHINEKIT_HAL_EXECUTABLE_FULL_INSTALL_DIRECTORY}/$<TARGET_FILE_NAME:inivar>"
+  )
+  set(REALTIME_RTAPI_MSGD
+      "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_FULL_INSTALL_DIRECTORY}/$<TARGET_FILE_NAME:msgd>"
+  )
+  set(REALTIME_RTAPI_APP
+      "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_FULL_INSTALL_DIRECTORY}/$<TARGET_FILE_NAME:rtapi_app>"
+  )
 
   configure_file(${SOURCE_FILE} install/realtime.configure @ONLY
                  NEWLINE_STYLE UNIX)
@@ -98,4 +103,16 @@ if(BUILD_REALTIME_EXECUTABLE)
     WORLD_EXECUTE
     NEWLINE_STYLE
     UNIX)
+
+  install(
+    PROGRAMS ${CMAKE_CURRENT_BINARY_DIR}/install/$<CONFIG>/realtime
+    DESTINATION "${MACHINEKIT_HAL_EXECUTABLE_DIRECTORY}"
+    COMPONENT MachinekitHAL_Executable_Realtime_Binaries)
+
+  cpack_add_component(MachinekitHAL_Executable_Realtime_Binaries
+                      GROUP MachinekitHAL_Executable_Realtime)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(MachinekitHAL_Executable_Realtime
+                            PARENT_GROUP MachinekitHAL_Package_Base_Executables)
 endif()

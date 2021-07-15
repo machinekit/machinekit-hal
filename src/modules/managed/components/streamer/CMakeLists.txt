@@ -24,7 +24,8 @@
 # #####################################################################
 # ~~~
 
-option(BUILD_STREAMER_MANAGED_MODULE "Built the Streamer HAL managed module." TRUE)
+option(BUILD_STREAMER_MANAGED_MODULE "Built the Streamer HAL managed module."
+       TRUE)
 
 if(BUILD_STREAMER_MANAGED_MODULE)
   include(MachinekitHALSymbolVisibility)
@@ -47,9 +48,15 @@ if(BUILD_STREAMER_MANAGED_MODULE)
     PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
                             "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
 
-  install(
-    TARGETS streamer
-    EXPORT machinekit_hal_managed_module_streamer
-    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
-            COMPONENT MachinekitHAL_Managed_Streamer)
+  install(TARGETS streamer
+          LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+                  COMPONENT MachinekitHAL_Managed_Module_Streamer_Components)
+
+  cpack_add_component(MachinekitHAL_Managed_Module_Streamer_Components
+                      GROUP MachinekitHAL_Managed_Module_Streamer)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(
+    MachinekitHAL_Managed_Module_Streamer
+    PARENT_GROUP MachinekitHAL_Package_Base_Managed_Modules_Components)
 endif()

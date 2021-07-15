@@ -36,8 +36,9 @@ endif()
 function(add_instantiatable_module target_name)
   set(prefix "instcomp")
   set(noValues "")
-  set(singleValues "OUTPUT_DIRECTORY" "SOURCE")
-  set(multiValues "LINK_LIBRARIES")
+  set(singleValues "OUTPUT_DIRECTORY" "SOURCE" "INSTALL_DIRECTORY"
+                   "CPACK_OUTPUT_GROUP")
+  set(multiValues "LINK_LIBRARIES" "CPACK_DEPENDENCY_COMPONENTS")
 
   cmake_parse_arguments(PARSE_ARGV 1 "${prefix}" "${noValues}"
                         "${singleValues}" "${multiValues}")
@@ -112,5 +113,31 @@ function(add_instantiatable_module target_name)
     set_target_properties(
       ${target_name} PROPERTIES LIBRARY_OUTPUT_DIRECTORY
                                 "${${prefix}_OUTPUT_DIRECTORY}")
+  endif()
+
+  if(${prefix}_INSTALL_DIRECTORY)
+    install(
+      TARGETS ${target_name}
+      LIBRARY
+        DESTINATION "${${prefix}_INSTALL_DIRECTORY}"
+        COMPONENT
+          MachinekitHAL_Managed_Module_${target_name}_Instantiable_Components)
+  endif()
+
+  if(${prefix}_CPACK_OUTPUT_GROUP)
+    if(${prefix}_CPACK_DEPENDENCY_COMPONENTS)
+      cpack_add_component(
+        MachinekitHAL_Managed_Module_${target_name}_Instantiable_Components
+        GROUP MachinekitHAL_Managed_Module_${target_name}
+        DEPENDS "${${prefix}_CPACK_DEPENDENCY_COMPONENTS}")
+    else()
+      cpack_add_component(
+        MachinekitHAL_Managed_Module_${target_name}_Instantiable_Components
+        GROUP MachinekitHAL_Managed_Module_${target_name})
+    endif()
+
+    # Specification of artifacts placement in package tree
+    cpack_add_component_group(MachinekitHAL_Managed_Module_${target_name}
+                              PARENT_GROUP ${${prefix}_CPACK_OUTPUT_GROUP})
   endif()
 endfunction()

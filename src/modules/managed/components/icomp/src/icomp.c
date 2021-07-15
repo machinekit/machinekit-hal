@@ -1,6 +1,7 @@
 #include <linux/limits.h>
 #include <unistd.h>
 #include <getopt.h>
+#include <stdio.h>
 
 #include "runtime/rtapi.h"
 #include "runtime/rtapi_app.h"

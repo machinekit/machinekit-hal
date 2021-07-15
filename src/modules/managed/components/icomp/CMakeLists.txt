@@ -51,5 +51,13 @@ if(BUILD_ICOMP_MANAGED_MODULE)
     TARGETS icomp
     EXPORT machinekit_hal_managed_module_icomp
     LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
-            COMPONENT MachinekitHAL_Managed_Module_Icomp)
+            COMPONENT MachinekitHAL_Managed_Module_Icomp_Components)
+
+  cpack_add_component(MachinekitHAL_Managed_Module_Icomp_Components
+                      GROUP MachinekitHAL_Managed_Module_Icomp)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(
+    MachinekitHAL_Managed_Module_Icomp
+    PARENT_GROUP MachinekitHAL_Package_Base_Managed_Modules_Components)
 endif()

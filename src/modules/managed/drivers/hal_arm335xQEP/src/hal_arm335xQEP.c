@@ -44,7 +44,7 @@
 //------------------------------------------------------------------------*/
 
 /* Use config_module.h instead of config.h so we can use RTAPI_INC_LIST_H */
-#include "hal/config_module.h"
+#include "user_pci/config_module.h"
 #include "runtime/rtapi.h"
 #include "runtime/rtapi_app.h"
 #include "runtime/rtapi_string.h"

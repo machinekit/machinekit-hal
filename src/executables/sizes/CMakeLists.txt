@@ -29,9 +29,22 @@ option(BUILD_SIZES_EXECUTABLE "Built the Sizes executable." TRUE)
 if(BUILD_SIZES_EXECUTABLE)
   add_executable(sizes)
 
-  set(SOURCE_FILES src/sizes.c)
+  set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/sizes.c)
 
   target_sources(sizes PRIVATE ${SOURCE_FILES})
 
   target_link_libraries(sizes PRIVATE machinetalk_proto_c)
+
+  install(TARGETS sizes
+          RUNTIME DESTINATION "${MACHINEKIT_HAL_EXECUTABLE_DIRECTORY}"
+                  COMPONENT MachinekitHAL_Executable_Sizes_Binaries)
+
+  cpack_add_component(
+    MachinekitHAL_Executable_Sizes_Binaries
+    GROUP MachinekitHAL_Executable_Sizes
+    DEPENDS MachinekitHAL_Library_Proto_Libraries)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(MachinekitHAL_Executable_Sizes
+                            PARENT_GROUP MachinekitHAL_Package_Base_Executables)
 endif()

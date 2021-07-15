@@ -29,7 +29,7 @@ option(BUILD_UNIONREAD_EXECUTABLE "Build the unionread executable." FALSE)
 if(BUILD_UNIONREAD_EXECUTABLE)
   add_executable(unionread)
 
-  set(SOURCE_FILES src/unionread.c)
+  set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/unionread.c)
 
   target_sources(unionread PRIVATE ${SOURCE_FILES})
 
@@ -39,4 +39,17 @@ if(BUILD_UNIONREAD_EXECUTABLE)
   target_link_libraries(unionread PRIVATE protobuf-nanopb-static machinetalk)
 
   target_compile_definitions(unionread PRIVATE "PB_FIELD_32BIT")
+
+  install(TARGETS unionread
+          RUNTIME DESTINATION "${MACHINEKIT_HAL_EXECUTABLE_DIRECTORY}"
+                  COMPONENT MachinekitHAL_Executable_UnionRead_Binaries)
+
+  cpack_add_component(
+    MachinekitHAL_Executable_UnionRead_Binaries
+    GROUP MachinekitHAL_Executable_UnionRead
+    DEPENDS MachinekitHAL_Library_Machinetalk_Libraries)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(MachinekitHAL_Executable_UnionRead
+                            PARENT_GROUP MachinekitHAL_Package_Base_Executables)
 endif()

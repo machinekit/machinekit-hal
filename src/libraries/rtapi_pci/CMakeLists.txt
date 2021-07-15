@@ -24,42 +24,36 @@
 # #####################################################################
 # ~~~
 
-if(NOT DEFINED SYS_IO_AVAILABLE)
-  check_include_files("sys/io.h" SYS_IO_AVAILABLE)
-endif()
+option(BUILD_RTAPI_PCI_LIBRARY "Built the RTAPI PCI libraries." TRUE)
 
-if(SYS_IO_AVAILABLE)
-  option(BUILD_RTAPI_PCI_LIBRARY "Built the RTAPI PCI libraries." TRUE)
+if(BUILD_RTAPI_PCI_LIBRARY)
+  add_library(rtapi_pci INTERFACE)
 
-  if(BUILD_RTAPI_PCI_LIBRARY)
-    add_library(rtapi_pci INTERFACE)
+  set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/rtapi_pci.c)
+  set(PUBLIC_HEADER_FILES
+      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_pci.h)
 
-    set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/rtapi_pci.c)
-    set(PUBLIC_HEADER_FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_pci.h)
+  target_sources(rtapi_pci INTERFACE ${SOURCE_FILES} ${PUBLIC_HEADER_FILES})
 
-    target_sources(rtapi_pci INTERFACE ${SOURCE_FILES} ${PUBLIC_HEADER_FILES})
+  target_include_directories(
+    rtapi_pci
+    INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+              $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
-    target_include_directories(
-      rtapi_pci
-      INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-                $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
+  set_target_properties(rtapi_pci PROPERTIES PUBLIC_HEADER
+                                             "${PUBLIC_HEADER_FILES}")
 
-    set_target_properties(rtapi_pci PROPERTIES PUBLIC_HEADER
-                                               "${PUBLIC_HEADER_FILES}")
+  install(
+    TARGETS rtapi_pci
+    EXPORT machinekit_hal_rtapi_pci
+    PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime"
+                  COMPONENT MachinekitHAL_Library_RTAPI_PCI_Headers)
 
-    install(
-      TARGETS rtapi_pci
-      EXPORT machinekit_hal_rtapi_pci
-      PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime"
-                    COMPONENT MachinekitHAL_Library_RTAPI_PCI_Headers)
+  cpack_add_component(MachinekitHAL_Library_RTAPI_PCI_Headers
+                      GROUP MachinekitHAL_Library_RTAPI_PCI_Development)
 
-    cpack_add_component(MachinekitHAL_Library_RTAPI_PCI_Headers
-                        GROUP MachinekitHAL_Library_RTAPI_PCI_Development)
-
-    # Specification of artifacts placement in package tree
-    cpack_add_component_group(
-      MachinekitHAL_Library_RTAPI_PCI_Development
-      PARENT_GROUP MachinekitHAL_Package_Base_Libraries_Development)
-  endif()
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(
+    MachinekitHAL_Library_RTAPI_PCI_Development
+    PARENT_GROUP MachinekitHAL_Package_Base_Libraries_Development)
 endif()

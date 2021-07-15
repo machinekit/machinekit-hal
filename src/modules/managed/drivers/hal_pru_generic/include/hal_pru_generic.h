@@ -59,7 +59,7 @@
 #define UINT32_MAX (4294967295U)
 //#include <stdint.h>
 
-#include "hal/config_module.h"
+#include "user_pci/config_module.h"
 #include RTAPI_INC_LIST_H
 #include "runtime/rtapi.h"
 #include "hal/hal.h"

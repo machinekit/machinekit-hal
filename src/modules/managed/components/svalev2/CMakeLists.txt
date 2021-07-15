@@ -30,8 +30,16 @@ option(BUILD_SCALEV2_MANAGED_MODULE "Built the Scale V2 HAL managed module."
 if(BUILD_SCALEV2_MANAGED_MODULE)
   include(MachinekitHALInstcomp)
 
-  add_instantiatable_module(scalev2 SOURCE src/scalev2.icomp OUTPUT_DIRECTORY
-                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+  add_instantiatable_module(
+    scalev2
+    SOURCE
+    src/scalev2.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(scalev2 instcomp_executable)
 endif()

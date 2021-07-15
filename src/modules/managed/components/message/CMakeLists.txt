@@ -30,8 +30,16 @@ option(BUILD_MESSAGE_MANAGED_MODULE "Built the Message HAL managed module."
 if(BUILD_MESSAGE_MANAGED_MODULE)
   include(MachinekitHALInstcomp)
 
-  add_instantiatable_module(message SOURCE src/message.icomp OUTPUT_DIRECTORY
-                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+  add_instantiatable_module(
+    message
+    SOURCE
+    src/message.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(message instcomp_executable)
 endif()

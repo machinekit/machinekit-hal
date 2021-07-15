@@ -30,11 +30,22 @@ option(BUILD_VARINT_EXECUTABLE "Build the varint executable." FALSE)
 if(BUILD_VARINT_EXECUTABLE)
   add_executable(varint)
 
-  set(SOURCE_FILES src/varint.cc)
+  set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/varint.cc)
 
   target_sources(varint PRIVATE ${SOURCE_FILES})
 
   pkg_check_modules(PROTOBUF "protobuf" REQUIRED IMPORTED_TARGET)
 
   target_link_libraries(varint PRIVATE PkgConfig::PROTOBUF)
+
+  install(TARGETS varint
+          RUNTIME DESTINATION "${MACHINEKIT_HAL_EXECUTABLE_DIRECTORY}"
+                  COMPONENT MachinekitHAL_Executable_VarInt_Binaries)
+
+  cpack_add_component(MachinekitHAL_Executable_VarInt_Binaries
+                      GROUP MachinekitHAL_Executable_VarInt)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(MachinekitHAL_Executable_VarInt
+                            PARENT_GROUP MachinekitHAL_Package_Base_Executables)
 endif()

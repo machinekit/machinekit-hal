@@ -26,7 +26,7 @@
 //
 
 
-#include "hal/config_module.h"
+#include "user_pci/config_module.h"
 #include RTAPI_INC_SLAB_H
 
 #include "runtime/rtapi.h"
@@ -35,7 +35,7 @@
 
 #include "hal/hal.h"
 
-#include "hal/drivers/mesa-hostmot2/hostmot2.h"
+#include "hostmot2/hostmot2.h"
 
 
 

@@ -30,8 +30,16 @@ option(BUILD_WCOMPNV2_MANAGED_MODULE "Built the WCompN V2 HAL managed module."
 if(BUILD_WCOMPNV2_MANAGED_MODULE)
   include(MachinekitHALInstcomp)
 
-  add_instantiatable_module(wcompnv2 SOURCE src/wcompnv2.icomp OUTPUT_DIRECTORY
-                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+  add_instantiatable_module(
+    wcompnv2
+    SOURCE
+    src/wcompnv2.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(wcompnv2 instcomp_executable)
 endif()

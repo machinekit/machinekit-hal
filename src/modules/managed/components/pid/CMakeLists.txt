@@ -29,8 +29,16 @@ option(BUILD_PID_MANAGED_MODULE "Built the PID HAL managed module." TRUE)
 if(BUILD_PID_MANAGED_MODULE)
   include(MachinekitHALInstcomp)
 
-  add_instantiatable_module(pid SOURCE src/pid.icomp OUTPUT_DIRECTORY
-                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+  add_instantiatable_module(
+    pid
+    SOURCE
+    src/pid.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(pid instcomp_executable)
 endif()

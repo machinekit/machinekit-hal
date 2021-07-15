@@ -17,7 +17,7 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#include "hal/config_module.h"
+#include "user_pci/config_module.h"
 #include RTAPI_INC_SLAB_H
 
 #include "runtime/rtapi.h"
@@ -27,7 +27,7 @@
 #include "hal/hal.h"
 #include "hal/hal_priv.h"
 
-#include "hal/drivers/mesa-hostmot2/hostmot2.h"
+#include "hostmot2/hostmot2.h"
 
 static void watchdog_handle_reset(hostmot2_t *hm2) {
     HM2_PRINT("trying to recover from IO error\n");

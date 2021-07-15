@@ -18,16 +18,16 @@
 //
 
 // Firmware ID decoder for the Mesa FPGA firwmare (socfpga)
-#include "hal/config_module.h"
+#include "user_pci/config_module.h"
 #include RTAPI_INC_SLAB_H
 
 #include "runtime/rtapi.h"
 #include "runtime/rtapi_string.h"
 #include "runtime/rtapi_hexdump.h"
 
-#include "hal/drivers/mesa-hostmot2/hostmot2.h"
-#include <machinetalk/nanopb/pb_decode.h>
-#include <machinetalk/build/machinetalk/protobuf/firmware.npb.c>
+#include "hostmot2/hostmot2.h"
+#include <pb_decode.h>
+#include <machinetalk/protobuf/firmware.npb.c>
 
 int hm2_fwid_parse_md(hostmot2_t *hm2, int md_index) {
     int r = 0;

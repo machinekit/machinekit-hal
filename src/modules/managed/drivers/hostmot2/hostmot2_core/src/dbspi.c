@@ -17,14 +17,14 @@
 //
 
 #include <stdbool.h>
-#include "hal/config_module.h"
+#include "user_pci/config_module.h"
 #include RTAPI_INC_SLAB_H
 #include "runtime/rtapi.h"
 #include "runtime/rtapi_app.h"
 #include "runtime/rtapi_string.h"
 #include "runtime/rtapi_math.h"
 #include "hal/hal.h"
-#include "hostmot2.h"
+#include "hostmot2/hostmot2.h"
 
 int hm2_dbspi_parse_md(hostmot2_t *hm2, int md_index)
 {

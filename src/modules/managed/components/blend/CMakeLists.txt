@@ -29,8 +29,16 @@ option(BUILD_BLEND_MANAGED_MODULE "Built the BLEND HAL managed module." TRUE)
 if(BUILD_BLEND_MANAGED_MODULE)
   include(MachinekitHALInstcomp)
 
-  add_instantiatable_module(blend SOURCE src/blend.icomp OUTPUT_DIRECTORY
-                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+  add_instantiatable_module(
+    blend
+    SOURCE
+    src/blend.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(blend instcomp_executable)
 endif()

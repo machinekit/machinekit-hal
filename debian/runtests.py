@@ -128,30 +128,22 @@ class Build():
         else:
             return self.build_directory / ".envrc"
 
-    def _prepare_run_runtests_executable(self, new_path: pathlib.Path) -> pathlib.Path:
-        run_runtests = self.source_directory / "tests" / "run_runtests"
-        new_run_runtests = new_path / "run_runtests"
-        shutil.copyfile(run_runtests, new_run_runtests)
-        new_run_runtests.chmod(stat.S_IWUSR | stat.S_IRUSR | stat.S_IXUSR)
-        return new_run_runtests
-
     def run_runtests(self, test_path: pathlib.Path = None) -> None:
-        if test_path is None:
-            test_path = self.source_directory / "tests" / "runtests"
-        else:
+        if test_path:
             test_path = test_path if isinstance(
                 test_path, pathlib.Path) else pathlib.Path(test_path)
         for config in self.configs:
+            config_test_path = self.build_directory / config if self.generator == "Ninja Multi-Config" else "." / \
+                "share" / "machinekit" / "hal" / "testsuite" / \
+                "runtests" if test_path is None else test_path
             test_directory = pathlib.Path(tempfile.mkdtemp(suffix=config))
             destination = test_directory / "runtests"
             print(
                 f"--->Tests for config {config} are run in directory {destination}.<---"
                 "\n====================================")
-            shutil.copytree(test_path, destination, ignore=shutil.ignore_patterns(
+            shutil.copytree(config_test_path, destination, ignore=shutil.ignore_patterns(
                 'pipe-*', 'result', 'strerr'))
-            run_runtests = self._prepare_run_runtests_executable(
-                test_directory)
-            bash_command_string = f". {self._envrc_path(config)}; {run_runtests} {destination}"
+            bash_command_string = f". {self._envrc_path(config)}; run_runtests {destination}"
             sh.bash("-c", bash_command_string,
                     _out=sys.stdout.buffer, _err=sys.stderr.buffer)
 
@@ -279,7 +271,7 @@ def main(args):
     if exception:
         print("Machinekit-HAL test suite FAILED!")
         sys.exit(1)
-    
+
     print("Machinekit-HAL test suite ran successfully!")
 
 

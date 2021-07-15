@@ -24,15 +24,22 @@
 # #####################################################################
 # ~~~
 
-option(BUILD_FLIPFLOPV2_MANAGED_MODULE "Built the Flipflop V2 HAL managed module."
-       TRUE)
+option(BUILD_FLIPFLOPV2_MANAGED_MODULE
+       "Built the Flipflop V2 HAL managed module." TRUE)
 
 if(BUILD_FLIPFLOPV2_MANAGED_MODULE)
   include(MachinekitHALInstcomp)
 
   add_instantiatable_module(
-    flipflopv2 SOURCE src/flipflopv2.icomp OUTPUT_DIRECTORY
-    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+    flipflopv2
+    SOURCE
+    src/flipflopv2.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(flipflopv2 instcomp_executable)
 endif()

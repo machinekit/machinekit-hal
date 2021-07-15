@@ -17,7 +17,7 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 
-#include "hal/config_module.h"
+#include "user_pci/config_module.h"
 
 #include "runtime/rtapi.h"
 #include "runtime/rtapi_app.h"
@@ -26,10 +26,10 @@
 
 #include "hal/hal.h"
 
-#include "hal/drivers/mesa-hostmot2/bitfile.h"
-#include "hal/drivers/mesa-hostmot2/hostmot2-lowlevel.h"
-#include "hal/drivers/mesa-hostmot2/hm2_7i43.h"
-#include "hal/drivers/mesa-hostmot2/hostmot2.h"
+#include "hostmot2/bitfile.h"
+#include "hostmot2/hostmot2-lowlevel.h"
+#include "hm2_7i43.h"
+#include "hostmot2/hostmot2.h"
 
 
 static int comp_id;

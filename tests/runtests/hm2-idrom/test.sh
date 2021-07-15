@@ -17,6 +17,7 @@ Error[12]="hm2/hm2_test\.0: hm2_set_pin_direction: invalid pin number 0"
 Error[13]="hm2/hm2_test\.0: invalid IDROM PortWidth 24, this board has 5 pins per connector, aborting load"
 Error[14]="hm2/hm2_test\.0: IDROM IOPorts is 0 but llio num_ioport_connectors is [[:digit:]]+"
 
+CURRENT_PATH="$(dirname $(readlink -f $0))"
 
 # obtain one logfile per test, and search only that for the pattern
 
@@ -34,10 +35,10 @@ while [ ! -z "${Error[$TEST_PATTERN]}" ]; do
     MSGD_OPTS="--stderr" RTAPI_APP_OPTS="-s" DEBUG=5 realtime start  >$LOG 2>&1
 
     halcmd loadrt hostmot2 >/dev/null 2>&1
-    halcmd loadrt hm2_test test_pattern=$TEST_PATTERN >/dev/null 2>&1
+    halcmd loadrt ${CURRENT_PATH}/modhm2_test test_pattern=$TEST_PATTERN >/dev/null 2>&1
 
     # NB: one test actually _does_ load successfully!
-    halcmd unloadrt hm2_test  >/dev/null 2>&1
+    halcmd unloadrt ${CURRENT_PATH}/modhm2_test  >/dev/null 2>&1
     halcmd unloadrt hostmot2  >/dev/null 2>&1
 
     realtime stop

@@ -52,5 +52,13 @@ if(BUILD_ENCODER_RATIO_MANAGED_MODULE)
     TARGETS encoder_ratio
     EXPORT machinekit_hal_managed_module_encoder_ratio
     LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
-            COMPONENT MachinekitHAL_Managed_Module_Encoder_Ratio)
+            COMPONENT MachinekitHAL_Managed_Module_Encoder_Ratio_Components)
+
+  cpack_add_component(MachinekitHAL_Managed_Module_Encoder_Ratio_Components
+                      GROUP MachinekitHAL_Managed_Module_Encoder_Ratio)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(
+    MachinekitHAL_Managed_Module_Encoder_Ratio
+    PARENT_GROUP MachinekitHAL_Package_Base_Managed_Modules_Components)
 endif()

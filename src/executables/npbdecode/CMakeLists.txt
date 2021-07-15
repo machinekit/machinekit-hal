@@ -29,11 +29,25 @@ option(BUILD_NPBDECODE_EXECUTABLE "Built the NPBdecode executable." TRUE)
 if(BUILD_NPBDECODE_EXECUTABLE)
   add_executable(npbdecode)
 
-  set(SOURCE_FILES src/npbdecode.c)
+  set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/npbdecode.c)
 
   target_sources(npbdecode PRIVATE ${SOURCE_FILES})
 
   target_link_libraries(npbdecode PRIVATE machinetalk machinetalk_proto_c)
 
   target_compile_definitions(npbdecode PRIVATE "PB_FIELD_32BIT")
+
+  install(TARGETS npbdecode
+          RUNTIME DESTINATION "${MACHINEKIT_HAL_EXECUTABLE_DIRECTORY}"
+                  COMPONENT MachinekitHAL_Executable_NPBDecode_Binaries)
+
+  cpack_add_component(
+    MachinekitHAL_Executable_NPBDecode_Binaries
+    GROUP MachinekitHAL_Executable_NPBDecode
+    DEPENDS MachinekitHAL_Library_Machinetalk_Libraries
+            MachinekitHAL_Library_Proto_Libraries)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(MachinekitHAL_Executable_NPBDecode
+                            PARENT_GROUP MachinekitHAL_Package_Base_Executables)
 endif()

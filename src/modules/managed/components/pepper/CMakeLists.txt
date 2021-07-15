@@ -24,7 +24,7 @@
 # #####################################################################
 # ~~~
 
-if(CMAKE_SYSTEM_PROCESSOR STREQUAL "armhf")
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
   option(BUILD_PEPPER_MANAGED_MODULE "Built the Pepper HAL managed module."
          TRUE)
 
@@ -52,10 +52,16 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "armhf")
                  LIBRARY_OUTPUT_DIRECTORY
                  "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
 
-    install(
-      TARGETS pepper
-      EXPORT machinekit_hal_managed_module_pepper
-      LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
-              COMPONENT MachinekitHAL_Managed_Module_Pepper)
+    install(TARGETS pepper
+            LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+                    COMPONENT MachinekitHAL_Managed_Module_Pepper_Components)
+
+    cpack_add_component(MachinekitHAL_Managed_Module_Pepper_Components
+                        GROUP MachinekitHAL_Managed_Module_Pepper)
+
+    # Specification of artifacts placement in package tree
+    cpack_add_component_group(
+      MachinekitHAL_Managed_Module_Pepper
+      PARENT_GROUP MachinekitHAL_Package_Base_Managed_Modules_Components)
   endif()
 endif()

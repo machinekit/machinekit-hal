@@ -29,8 +29,16 @@ option(BUILD_MAJ3_MANAGED_MODULE "Built the Maj3 HAL managed module." TRUE)
 if(BUILD_MAJ3_MANAGED_MODULE)
   include(MachinekitHALInstcomp)
 
-  add_instantiatable_module(maj3 SOURCE src/maj3.icomp OUTPUT_DIRECTORY
-                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+  add_instantiatable_module(
+    maj3
+    SOURCE
+    src/maj3.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(maj3 instcomp_executable)
 endif()

@@ -34,7 +34,7 @@ if(SYS_IO_AVAILABLE)
   if(BUILD_PCI_WRITE_EXECUTABLE)
     add_executable(pci_write)
 
-    set(SOURCE_FILES src/pci_write.c)
+    set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/pci_write.c)
 
     target_sources(pci_write PRIVATE ${SOURCE_FILES})
 
@@ -44,5 +44,29 @@ if(SYS_IO_AVAILABLE)
       pci_write
       PROPERTIES RUNTIME_OUTPUT_DIRECTORY
                  "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY}")
+
+    install(
+      TARGETS pci_write
+      PERMISSIONS
+        OWNER_READ
+        OWNER_EXECUTE
+        GROUP_READ
+        GROUP_EXECUTE
+        WORLD_READ
+        WORLD_EXECUTE
+        SETUID
+        SETGID
+      RUNTIME DESTINATION "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_DIRECTORY}"
+              COMPONENT MachinekitHAL_Executable_PCI_Write_Binaries)
+
+    cpack_add_component(
+      MachinekitHAL_Executable_PCI_Write_Binaries
+      GROUP MachinekitHAL_Executable_PCI_Write
+      DEPENDS MachinekitHAL_Library_UPCI_Libraries)
+
+    # Specification of artifacts placement in package tree
+    cpack_add_component_group(
+      MachinekitHAL_Executable_PCI_Write
+      PARENT_GROUP MachinekitHAL_Package_Base_Executables)
   endif()
 endif()

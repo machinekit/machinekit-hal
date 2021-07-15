@@ -22,7 +22,7 @@
 
 #include <sys/io.h>
 #include <runtime/rtapi.h>
-#include <rtapi/rtapi_pci.h>
+#include <runtime/rtapi_pci.h>
 
 #include "runtime/rtapi.h"
 #include "runtime/rtapi_app.h"
@@ -31,8 +31,8 @@
 
 #include "hal/hal.h"
 
-#include "bitfile.h"
-#include "hostmot2-lowlevel.h"
+#include "hostmot2/bitfile.h"
+#include "hostmot2/hostmot2-lowlevel.h"
 #include "hm2_pci.h"
 
 

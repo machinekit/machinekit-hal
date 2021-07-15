@@ -24,7 +24,8 @@
 # #####################################################################
 # ~~~
 
-option(BUILD_STEPGEN_MANAGED_MODULE "Built the Stepgen HAL managed module." TRUE)
+option(BUILD_STEPGEN_MANAGED_MODULE "Built the Stepgen HAL managed module."
+       TRUE)
 
 if(BUILD_STEPGEN_MANAGED_MODULE)
   include(MachinekitHALSymbolVisibility)
@@ -51,5 +52,15 @@ if(BUILD_STEPGEN_MANAGED_MODULE)
     TARGETS stepgen
     EXPORT machinekit_hal_managed_module_stepgen
     LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
-            COMPONENT MachinekitHAL_Managed_Stepgen)
+            COMPONENT MachinekitHAL_Managed_Module_Stepgen_Components)
+
+  cpack_add_component(
+    MachinekitHAL_Managed_Module_Stepgen_Components
+    GROUP MachinekitHAL_Managed_Module_Stepgen
+    DEPENDS MachinekitHAL_Library_Runtime_Math_Libraries)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(
+    MachinekitHAL_Managed_Module_Stepgen
+    PARENT_GROUP MachinekitHAL_Package_Base_Managed_Modules_Components)
 endif()

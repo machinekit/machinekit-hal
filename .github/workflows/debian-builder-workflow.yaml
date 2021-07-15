@@ -511,6 +511,49 @@ jobs:
           name: machinekit-hal-${{ env.distribution_normalized }}-${{ matrix.architecture }}-${{ matrix.osVersionNumber }}-${{ github.sha }}-${{ needs.prepareState.outputs.Timestamp }}
           path: machinekit-hal-${{ env.distribution_normalized }}
 
+      - name: >
+          Prepare base Docker image for installation of packages
+          of Machinekit-HAL on ${{ matrix.osDistribution }} 
+          ${{ matrix.osVersionCodename}}
+        if: matrix.architecture == 'amd64'
+        run: |
+          debian/buildcontainerimage.py -d ${IMAGE_NAME_PREFIX} \
+                                           ${DISTRIBUTION}      \
+                                           ${VERSION}           \
+                                           ${ARCHITECTURE}      \
+                                        -t ${BUILD_TARGET}      \
+                                           ${IMAGE_NAME}
+        env:
+          IMAGE_NAME_PREFIX: 'docker.pkg.github.com/${{ github.repository }}'
+          DISTRIBUTION: ${{ matrix.osDistribution}}
+          VERSION: ${{ matrix.osVersionCodename}}
+          ARCHITECTURE: ${{ matrix.architecture}}
+          BUILD_TARGET: 'machinekit-hal_base'
+          IMAGE_NAME: 'machinekit-hal-runner'
+        working-directory: ./build/machinekit-hal
+
+      - name: >
+          Install Machinekit-HAL ${{ matrix.osDistribution }} package for
+          ${{ matrix.osVersionCodename}}, ${{ matrix.architecture }} and
+          run Runtests
+        if: matrix.architecture == 'amd64'
+        run: |
+          docker run --tty --rm -u "$(id -u):$(id -g)" \
+            -v "$(pwd):/home/machinekit/machinekit-hal" \
+            -w "/home/machinekit/machinekit-hal" \
+            ${DOCKER_IMAGE} \
+            /bin/bash -c "
+            #!/bin/bash -e
+            sudo apt-get install -y \
+              /home/machinekit/machinekit-hal/*.deb
+            echo "ANNOUNCE_IPV4=0" | sudo tee -a /etc/machinekit/hal/machinekit.ini
+            echo "ANNOUNCE_IPV6=0" | sudo tee -a /etc/machinekit/hal/machinekit.ini
+            run_runtests
+            "
+        env:
+          DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/machinekit-hal-runner:latest'
+        working-directory: './machinekit-hal-${{ env.distribution_normalized }}'
+
   testMachinekitHALBuild:
     name: >
       Test on ${{ matrix.osDistribution }} ${{ matrix.osVersionCodename }},

@@ -29,8 +29,8 @@ option(BUILD_RTAPI_APP_EXECUTABLE "Built the RTAPI app executable." TRUE)
 if(BUILD_RTAPI_APP_EXECUTABLE)
   add_executable(rtapi_app)
 
-  set(SOURCE_FILES src/rtapi_app.cc)
-  set(PRIVATE_HEADER_FILES src/rtapi_app_module.hh)
+  set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/rtapi_app.cc)
+  set(PRIVATE_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/rtapi_app_module.hh)
 
   target_sources(
     rtapi_app
@@ -72,10 +72,10 @@ if(BUILD_RTAPI_APP_EXECUTABLE)
   file(RELATIVE_PATH BUILD_RELATIVE_ORIGIN_LIBRARIES
        ${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY} 
        ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
-  file(RELATIVE_PATH BUILD_RELATIVE_ORIGIN_MANAGED_MODULES
+  file(RELATIVE_PATH INSTALL_RELATIVE_ORIGIN_MANAGED_MODULES
        ${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_FULL_INSTALL_DIRECTORY} 
        ${MACHINEKIT_HAL_MANAGED_FULL_INSTALL_MODULE_DIRECTORY})
-  file(RELATIVE_PATH BUILD_RELATIVE_ORIGIN_LIBRARIES
+  file(RELATIVE_PATH INSTALL_RELATIVE_ORIGIN_LIBRARIES
        ${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_FULL_INSTALL_DIRECTORY} 
        ${MACHINEKIT_HAL_LIBRARY_FULL_INSTALL_DIRECTORY})
 
@@ -92,4 +92,32 @@ if(BUILD_RTAPI_APP_EXECUTABLE)
                "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY}"
                BUILD_RPATH "${RTAPI_APP_BUILD_RPATH}"
                INSTALL_RPATH "${RTAPI_APP_INSTALL_RPATH}")
+
+  install(
+    TARGETS rtapi_app
+    PERMISSIONS
+      OWNER_READ
+      OWNER_EXECUTE
+      GROUP_READ
+      GROUP_EXECUTE
+      WORLD_READ
+      WORLD_EXECUTE
+      SETUID
+      SETGID
+    RUNTIME DESTINATION "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_DIRECTORY}"
+            COMPONENT MachinekitHAL_Executable_RTAPI_App_Binaries)
+
+  cpack_add_component(
+    MachinekitHAL_Executable_RTAPI_App_Binaries
+    GROUP MachinekitHAL_Executable_RTAPI_App
+    DEPENDS MachinekitHAL_Library_Runtime_Memory_API_Libraries
+            MachinekitHAL_Library_MKIni_Libraries
+            MachinekitHAL_Library_Machinetalk_Libraries
+            MachinekitHAL_Library_Syslog_Async_Libraries
+            MachinekitHAL_Managed_Module_HAL
+            MachinekitHAL_Managed_Module_Runtime)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(MachinekitHAL_Executable_RTAPI_App
+                            PARENT_GROUP MachinekitHAL_Package_Base_Executables)
 endif()

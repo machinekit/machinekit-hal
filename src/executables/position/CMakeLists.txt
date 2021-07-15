@@ -29,11 +29,25 @@ option(BUILD_POSITION_EXECUTABLE "Built the Position executable." TRUE)
 if(BUILD_POSITION_EXECUTABLE)
   add_executable(position)
 
-  set(SOURCE_FILES src/position.cc)
+  set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/position.cc)
 
   target_sources(position PRIVATE ${SOURCE_FILES})
 
   target_link_libraries(position PRIVATE machinetalk mkini)
 
   target_compile_definitions(position PRIVATE "PB_FIELD_32BIT")
+
+  install(TARGETS position
+          RUNTIME DESTINATION "${MACHINEKIT_HAL_EXECUTABLE_DIRECTORY}"
+                  COMPONENT MachinekitHAL_Executable_Position_Binaries)
+
+  cpack_add_component(
+    MachinekitHAL_Executable_Position_Binaries
+    GROUP MachinekitHAL_Executable_Position
+    DEPENDS MachinekitHAL_Library_Machinetalk_Libraries
+            MachinekitHAL_Library_MKIni_Libraries)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(MachinekitHAL_Executable_Position
+                            PARENT_GROUP MachinekitHAL_Package_Base_Executables)
 endif()

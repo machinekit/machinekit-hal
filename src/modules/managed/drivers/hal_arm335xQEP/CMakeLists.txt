@@ -24,9 +24,9 @@
 # #####################################################################
 # ~~~
 
-if(CMAKE_SYSTEM_PROCESSOR STREQUAL "armhf")
-  option(BUILD_HAL_ARM335XQEP_MANAGED_DRIVER_MODULE "Built the Arm335xQEP HAL managed driver module."
-         TRUE)
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
+  option(BUILD_HAL_ARM335XQEP_MANAGED_DRIVER_MODULE
+         "Built the Arm335xQEP HAL managed driver module." TRUE)
 
   if(BUILD_HAL_ARM335XQEP_MANAGED_DRIVER_MODULE)
     include(MachinekitHALSymbolVisibility)
@@ -37,16 +37,17 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "armhf")
 
     set(PRIVATE_HEADER_FILES src/hal_arm335xQEP.h)
 
-    target_sources(hal_arm335xqep PRIVATE ${SOURCE_FILES} ${PRIVATE_HEADER_FILES})
+    target_sources(hal_arm335xqep PRIVATE ${SOURCE_FILES}
+                                          ${PRIVATE_HEADER_FILES})
 
-    target_link_libraries(hal_arm335xqep PRIVATE hal_api runtime_api)
+    target_link_libraries(hal_arm335xqep PRIVATE hal_api runtime_api user_pci)
 
     export_rtapi_symbols(TARGET hal_arm335xqep)
 
     target_compile_definitions(hal_arm335xqep PRIVATE "RTAPI")
 
     set_target_properties(
-        hal_arm335xqep
+      hal_arm335xqep
       PROPERTIES PREFIX "mod"
                  LIBRARY_OUTPUT_DIRECTORY
                  "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
@@ -55,6 +56,16 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "armhf")
       TARGETS hal_arm335xqep
       EXPORT machinekit_hal_managed_driver_module_hal_arm335xqep
       LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
-              COMPONENT MachinekitHAL_Managed_Driver_Module_HAL_arm335xQEP)
+              COMPONENT MachinekitHAL_Managed_Module_HAL_ARM335xQEP_Drivers)
+
+    cpack_add_component(
+      MachinekitHAL_Managed_Module_HAL_ARM335xQEP_Drivers
+      GROUP MachinekitHAL_Managed_Module_HAL_ARM335xQEP
+      DEPENDS MachinekitHAL_Library_User_PCI_Libraries)
+
+    # Specification of artifacts placement in package tree
+    cpack_add_component_group(
+      MachinekitHAL_Managed_Module_HAL_ARM335xQEP
+      PARENT_GROUP MachinekitHAL_Package_Base_Managed_Modules_Drivers)
   endif()
 endif()

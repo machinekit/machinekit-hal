@@ -24,16 +24,30 @@
 # #####################################################################
 # ~~~
 
-option(BUILD_MKSOCMEMIO_EXECUTABLE "Build the MKSoCMemIo executable." TRUE)
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "^arm.*")
+  option(BUILD_MKSOCMEMIO_EXECUTABLE "Build the MKSoCMemIo executable." TRUE)
 
-if(BUILD_MKSOCMEMIO_EXECUTABLE)
-  add_executable(mksocmemio)
+  if(BUILD_MKSOCMEMIO_EXECUTABLE)
+    add_executable(mksocmemio)
 
-  set(SOURCE_FILES src/mksocmemio.c)
+    set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/mksocmemio.c)
 
-  target_sources(mksocmemio PRIVATE ${SOURCE_FILES})
+    target_sources(mksocmemio PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(mksocmemio PRIVATE runtime_api hal_api)
+    target_link_libraries(mksocmemio PRIVATE runtime_api hal_api)
 
-  target_compile_definitions(mksocmemio PRIVATE "ULAPI")
+    target_compile_definitions(mksocmemio PRIVATE "ULAPI")
+
+    install(TARGETS mksocmemio
+            RUNTIME DESTINATION "${MACHINEKIT_HAL_EXECUTABLE_DIRECTORY}"
+                    COMPONENT MachinekitHAL_Executable_MKSoCMEMIO_Binaries)
+
+    cpack_add_component(MachinekitHAL_Executable_MKSoCMEMIO_Binaries
+                        GROUP MachinekitHAL_Executable_MKSoCMEMIO)
+
+    # Specification of artifacts placement in package tree
+    cpack_add_component_group(
+      MachinekitHAL_Executable_MKSoCMEMIO
+      PARENT_GROUP MachinekitHAL_Package_Base_Executables)
+  endif()
 endif()

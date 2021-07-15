@@ -40,9 +40,15 @@ if(BUILD_CONVS_MANAGED_MODULE)
                  NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
 
   add_instantiatable_module(
-    conv_float_s32 SOURCE
-    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_float_s32.icomp OUTPUT_DIRECTORY
-    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+    conv_float_s32
+    SOURCE
+    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_float_s32.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(conv_float_s32 instcomp_executable)
 
@@ -57,9 +63,15 @@ if(BUILD_CONVS_MANAGED_MODULE)
                  NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
 
   add_instantiatable_module(
-    conv_float_u32 SOURCE
-    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_float_u32.icomp OUTPUT_DIRECTORY
-    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+    conv_float_u32
+    SOURCE
+    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_float_u32.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(conv_float_u32 instcomp_executable)
 
@@ -74,9 +86,15 @@ if(BUILD_CONVS_MANAGED_MODULE)
                  NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
 
   add_instantiatable_module(
-    conv_bit_s32 SOURCE
-    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_bit_s32.icomp OUTPUT_DIRECTORY
-    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+    conv_bit_s32
+    SOURCE
+    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_bit_s32.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(conv_bit_s32 instcomp_executable)
 
@@ -91,9 +109,15 @@ if(BUILD_CONVS_MANAGED_MODULE)
                  NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
 
   add_instantiatable_module(
-    conv_bit_u32 SOURCE
-    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_bit_u32.icomp OUTPUT_DIRECTORY
-    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+    conv_bit_u32
+    SOURCE
+    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_bit_u32.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(conv_bit_u32 instcomp_executable)
 
@@ -108,9 +132,15 @@ if(BUILD_CONVS_MANAGED_MODULE)
                  NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
 
   add_instantiatable_module(
-    conv_s32_float SOURCE
-    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_s32_float.icomp OUTPUT_DIRECTORY
-    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+    conv_s32_float
+    SOURCE
+    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_s32_float.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(conv_s32_float instcomp_executable)
 
@@ -125,9 +155,15 @@ if(BUILD_CONVS_MANAGED_MODULE)
                  NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
 
   add_instantiatable_module(
-    conv_s32_bit SOURCE
-    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_s32_bit.icomp OUTPUT_DIRECTORY
-    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+    conv_s32_bit
+    SOURCE
+    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_s32_bit.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(conv_s32_bit instcomp_executable)
 
@@ -142,9 +178,15 @@ if(BUILD_CONVS_MANAGED_MODULE)
                  NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
 
   add_instantiatable_module(
-    conv_s32_u32 SOURCE
-    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_s32_u32.icomp OUTPUT_DIRECTORY
-    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+    conv_s32_u32
+    SOURCE
+    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_s32_u32.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(conv_s32_u32 instcomp_executable)
 
@@ -159,9 +201,15 @@ if(BUILD_CONVS_MANAGED_MODULE)
                  NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
 
   add_instantiatable_module(
-    conv_u32_float SOURCE
-    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_u32_float.icomp OUTPUT_DIRECTORY
-    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+    conv_u32_float
+    SOURCE
+    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_u32_float.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(conv_u32_float instcomp_executable)
 
@@ -176,9 +224,15 @@ if(BUILD_CONVS_MANAGED_MODULE)
                  NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
 
   add_instantiatable_module(
-    conv_u32_bit SOURCE
-    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_u32_bit.icomp OUTPUT_DIRECTORY
-    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+    conv_u32_bit
+    SOURCE
+    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_u32_bit.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(conv_u32_bit instcomp_executable)
 
@@ -193,9 +247,15 @@ if(BUILD_CONVS_MANAGED_MODULE)
                  NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
 
   add_instantiatable_module(
-    conv_u32_s32 SOURCE
-    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_u32_s32.icomp OUTPUT_DIRECTORY
-    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+    conv_u32_s32
+    SOURCE
+    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_u32_s32.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(conv_u32_s32 instcomp_executable)
 
@@ -210,9 +270,15 @@ if(BUILD_CONVS_MANAGED_MODULE)
                  NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
 
   add_instantiatable_module(
-    conv_float_s64 SOURCE
-    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_float_s64.icomp OUTPUT_DIRECTORY
-    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+    conv_float_s64
+    SOURCE
+    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_float_s64.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(conv_float_s64 instcomp_executable)
 
@@ -227,9 +293,15 @@ if(BUILD_CONVS_MANAGED_MODULE)
                  NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
 
   add_instantiatable_module(
-    conv_float_u64 SOURCE
-    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_float_u64.icomp OUTPUT_DIRECTORY
-    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+    conv_float_u64
+    SOURCE
+    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_float_u64.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(conv_float_u64 instcomp_executable)
 
@@ -244,9 +316,15 @@ if(BUILD_CONVS_MANAGED_MODULE)
                  NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
 
   add_instantiatable_module(
-    conv_bit_s64 SOURCE
-    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_bit_s64.icomp OUTPUT_DIRECTORY
-    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+    conv_bit_s64
+    SOURCE
+    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_bit_s64.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(conv_bit_s64 instcomp_executable)
 
@@ -261,9 +339,15 @@ if(BUILD_CONVS_MANAGED_MODULE)
                  NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
 
   add_instantiatable_module(
-    conv_bit_u64 SOURCE
-    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_bit_u64.icomp OUTPUT_DIRECTORY
-    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+    conv_bit_u64
+    SOURCE
+    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_bit_u64.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(conv_bit_u64 instcomp_executable)
 
@@ -278,9 +362,15 @@ if(BUILD_CONVS_MANAGED_MODULE)
                  NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
 
   add_instantiatable_module(
-    conv_s64_float SOURCE
-    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_s64_float.icomp OUTPUT_DIRECTORY
-    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+    conv_s64_float
+    SOURCE
+    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_s64_float.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(conv_s64_float instcomp_executable)
 
@@ -295,9 +385,15 @@ if(BUILD_CONVS_MANAGED_MODULE)
                  NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
 
   add_instantiatable_module(
-    conv_s64_bit SOURCE
-    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_s64_bit.icomp OUTPUT_DIRECTORY
-    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+    conv_s64_bit
+    SOURCE
+    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_s64_bit.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(conv_s64_bit instcomp_executable)
 
@@ -312,9 +408,15 @@ if(BUILD_CONVS_MANAGED_MODULE)
                  NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
 
   add_instantiatable_module(
-    conv_u64_float SOURCE
-    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_u64_float.icomp OUTPUT_DIRECTORY
-    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+    conv_u64_float
+    SOURCE
+    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_u64_float.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(conv_u64_float instcomp_executable)
 
@@ -329,9 +431,15 @@ if(BUILD_CONVS_MANAGED_MODULE)
                  NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
 
   add_instantiatable_module(
-    conv_u64_bit SOURCE
-    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_u64_bit.icomp OUTPUT_DIRECTORY
-    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+    conv_u64_bit
+    SOURCE
+    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_u64_bit.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(conv_u64_bit instcomp_executable)
 
@@ -346,9 +454,15 @@ if(BUILD_CONVS_MANAGED_MODULE)
                  NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
 
   add_instantiatable_module(
-    conv_u64_s64 SOURCE
-    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_u64_s64.icomp OUTPUT_DIRECTORY
-    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+    conv_u64_s64
+    SOURCE
+    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_u64_s64.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(conv_u64_s64 instcomp_executable)
 
@@ -363,9 +477,15 @@ if(BUILD_CONVS_MANAGED_MODULE)
                  NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
 
   add_instantiatable_module(
-    conv_s64_u64 SOURCE
-    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_s64_u64.icomp OUTPUT_DIRECTORY
-    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+    conv_s64_u64
+    SOURCE
+    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_s64_u64.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(conv_s64_u64 instcomp_executable)
 
@@ -380,9 +500,15 @@ if(BUILD_CONVS_MANAGED_MODULE)
                  NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
 
   add_instantiatable_module(
-    conv_u64_s32 SOURCE
-    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_u64_s32.icomp OUTPUT_DIRECTORY
-    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+    conv_u64_s32
+    SOURCE
+    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_u64_s32.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(conv_u64_s32 instcomp_executable)
 
@@ -397,9 +523,15 @@ if(BUILD_CONVS_MANAGED_MODULE)
                  NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
 
   add_instantiatable_module(
-    conv_s64_s32 SOURCE
-    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_s64_s32.icomp OUTPUT_DIRECTORY
-    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+    conv_s64_s32
+    SOURCE
+    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_s64_s32.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(conv_s64_s32 instcomp_executable)
 
@@ -414,9 +546,15 @@ if(BUILD_CONVS_MANAGED_MODULE)
                  NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
 
   add_instantiatable_module(
-    conv_u64_u32 SOURCE
-    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_u64_u32.icomp OUTPUT_DIRECTORY
-    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+    conv_u64_u32
+    SOURCE
+    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_u64_u32.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(conv_u64_u32 instcomp_executable)
 
@@ -431,9 +569,15 @@ if(BUILD_CONVS_MANAGED_MODULE)
                  NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
 
   add_instantiatable_module(
-    conv_s64_u32 SOURCE
-    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_s64_u32.icomp OUTPUT_DIRECTORY
-    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+    conv_s64_u32
+    SOURCE
+    ${CMAKE_CURRENT_BINARY_DIR}/build/src/conv_s64_u32.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(conv_s64_u32 instcomp_executable)
 endif()

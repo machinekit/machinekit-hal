@@ -24,7 +24,7 @@
 # #####################################################################
 # ~~~
 
-if(CMAKE_SYSTEM_PROCESSOR STREQUAL "armhf")
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
   option(BUILD_RASPI_CPUINFO_LIBRARY
          "Built the Raspberry Pi SPI HAL managed driver module." TRUE)
 

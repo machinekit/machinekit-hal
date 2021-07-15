@@ -24,7 +24,7 @@
 # #####################################################################
 # ~~~
 
-if(CMAKE_SYSTEM_PROCESSOR STREQUAL "armhf")
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
   option(BUILD_HAL_RASPI_GPIO_MANAGED_DRIVER_MODULE
          "Built the Raspberry Pi GPIO HAL managed driver module." TRUE)
 
@@ -56,6 +56,14 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "armhf")
     install(
       TARGETS hal_raspi_gpio
       LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
-              COMPONENT MachinekitHAL_Managed_Driver_Module_HAL_RASPI_GPIO)
+              COMPONENT MachinekitHAL_Managed_Module_HAL_RASPI_GPIO_Drivers)
+
+    cpack_add_component(MachinekitHAL_Managed_Module_HAL_RASPI_GPIO_Drivers
+                        GROUP MachinekitHAL_Managed_Module_HAL_RASPI_GPIO)
+
+    # Specification of artifacts placement in package tree
+    cpack_add_component_group(
+      MachinekitHAL_Managed_Module_HAL_RASPI_GPIO
+      PARENT_GROUP MachinekitHAL_Package_Base_Managed_Modules_Drivers)
   endif()
 endif()

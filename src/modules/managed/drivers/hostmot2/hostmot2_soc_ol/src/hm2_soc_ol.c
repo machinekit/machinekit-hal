@@ -98,9 +98,9 @@ see configs/hm2-soc-stepper/irqtest.hal for a usage example
 #include "runtime/rtapi_compat.h"
 #include "hal/hal.h"
 #include "hal/hal_priv.h"
-#include "hal/lib/config_module.h"
-#include "hostmot2-lowlevel.h"
-#include "hostmot2.h"
+#include "user_pci/config_module.h"
+#include "hostmot2/hostmot2-lowlevel.h"
+#include "hostmot2/hostmot2.h"
 #include "hm2_soc_ol.h"
 
 #include <fcntl.h>

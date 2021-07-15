@@ -24,7 +24,8 @@
 # #####################################################################
 # ~~~
 
-option(BUILD_PWMGENV2_MANAGED_MODULE "Built the PWMGen v2 HAL managed module." TRUE)
+option(BUILD_PWMGENV2_MANAGED_MODULE "Built the PWMGen v2 HAL managed module."
+       TRUE)
 
 if(BUILD_PWMGENV2_MANAGED_MODULE)
   include(MachinekitHALSymbolVisibility)
@@ -49,7 +50,14 @@ if(BUILD_PWMGENV2_MANAGED_MODULE)
 
   install(
     TARGETS pwmgenv2
-    EXPORT machinekit_hal_managed_module_pwmgenv2
     LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
-            COMPONENT MachinekitHAL_Managed_PWMGenV2)
+            COMPONENT MachinekitHAL_Managed_Module_PWMGenV2_Components)
+
+  cpack_add_component(MachinekitHAL_Managed_Module_PWMGenV2_Components
+                      GROUP MachinekitHAL_Managed_Module_PWMGenV2)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(
+    MachinekitHAL_Managed_Module_PWMGenV2
+    PARENT_GROUP MachinekitHAL_Package_Base_Managed_Modules_Components)
 endif()

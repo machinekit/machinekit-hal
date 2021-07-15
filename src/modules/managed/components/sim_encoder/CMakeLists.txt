@@ -24,7 +24,8 @@
 # #####################################################################
 # ~~~
 
-option(BUILD_SIM_ENCODER_MANAGED_MODULE "Built the SIM Encoder HAL managed module." TRUE)
+option(BUILD_SIM_ENCODER_MANAGED_MODULE
+       "Built the SIM Encoder HAL managed module." TRUE)
 
 if(BUILD_SIM_ENCODER_MANAGED_MODULE)
   include(MachinekitHALSymbolVisibility)
@@ -47,9 +48,15 @@ if(BUILD_SIM_ENCODER_MANAGED_MODULE)
     PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
                             "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
 
-  install(
-    TARGETS sim_encoder
-    EXPORT machinekit_hal_managed_module_sim_encoder
-    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
-            COMPONENT MachinekitHAL_Managed_Sim_Encoder)
+  install(TARGETS sim_encoder
+          LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+                  COMPONENT MachinekitHAL_Managed_Module_Sim_Encoder_Components)
+
+  cpack_add_component(MachinekitHAL_Managed_Module_Sim_Encoder_Components
+                      GROUP MachinekitHAL_Managed_Module_Sim_Encoder)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(
+    MachinekitHAL_Managed_Module_Sim_Encoder
+    PARENT_GROUP MachinekitHAL_Package_Base_Managed_Modules_Components)
 endif()

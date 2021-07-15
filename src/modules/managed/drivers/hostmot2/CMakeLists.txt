@@ -23,3 +23,13 @@
 #
 # #####################################################################
 # ~~~
+
+add_subdirectory(hostmot2_7i43)
+add_subdirectory(hostmot2_7i90)
+add_subdirectory(hostmot2_core)
+add_subdirectory(hostmot2_eth)
+add_subdirectory(hostmot2_pci)
+add_subdirectory(hostmot2_setsserial)
+add_subdirectory(hostmot2_soc_ol)
+add_subdirectory(mesa_7i65)
+add_subdirectory(mesa_uart)

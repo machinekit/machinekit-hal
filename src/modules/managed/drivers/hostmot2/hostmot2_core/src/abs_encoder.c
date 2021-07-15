@@ -8,9 +8,9 @@
 
 
 
-#include "hal/config_module.h"
+#include "user_pci/config_module.h"
 #include RTAPI_INC_SLAB_H
-#include "rtapi/rtapi_compat.h" //simple_strtol
+#include "runtime/rtapi_compat.h" //simple_strtol
 
 #include "runtime/rtapi.h"
 #include "runtime/rtapi_app.h"
@@ -19,7 +19,7 @@
 #include "runtime/rtapi_math64.h"
 #include "hal/hal.h"
 #include "hal/hal_priv.h"
-#include "hal/drivers/mesa-hostmot2/hostmot2.h"
+#include "hostmot2/hostmot2.h"
 
 static bool funct_flag = false;
 

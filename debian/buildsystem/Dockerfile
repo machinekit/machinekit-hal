@@ -52,6 +52,14 @@ RUN printf "%s;\n%s;\n"                 \
     'APT::Install-Suggests "0"'         \
     > /etc/apt/apt.conf.d/01norecommend
 
+# Ubuntu Focal needs debconf settings in addition
+# to setting 'DEBIAN_FRONTEND=noninteractive'
+RUN apt-get update &&                                                              \
+    apt-get install -y                                                             \
+        apt-utils &&                                                               \
+    apt-get clean &&                                                               \
+    echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+
 # Add Machinekit Dependencies repository
 RUN apt-get update &&                                                             \
     apt-get install -y                                                            \

@@ -45,7 +45,7 @@
  *  information, go to https://github.com/machinekit.
  ********************************************************************/
 
-#include "hal/config_module.h"
+#include "user_pci/config_module.h"
 #include RTAPI_INC_DEVICE_H
 
 extern int dev_set_name(struct device *dev, const char *name) {

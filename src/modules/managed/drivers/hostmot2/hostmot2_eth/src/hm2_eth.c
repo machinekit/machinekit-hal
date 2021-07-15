@@ -18,7 +18,7 @@
  */
 
 #include "runtime/config.h"
-#include "hal/config_module.h"
+#include "user_pci/config_module.h"
 #include RTAPI_INC_SLAB_H
 #include RTAPI_INC_CTYPE_H
 #include RTAPI_INC_STRING_H
@@ -45,8 +45,8 @@
 
 #include "hal/hal.h"
 
-#include "hostmot2-lowlevel.h"
-#include "hostmot2.h"
+#include "hostmot2/hostmot2-lowlevel.h"
+#include "hostmot2/hostmot2.h"
 #include "hm2_eth.h"
 
 struct kvlist {

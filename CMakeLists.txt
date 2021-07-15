@@ -24,14 +24,14 @@
 # #####################################################################
 # ~~~
 
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.21)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 set(CMAKE_EXPORT_LINK_COMMANDS TRUE)
 
 project(
   Machinekit-HAL
-  VERSION 0.4 # TODO: Get the right version from VERSION file and git
+  VERSION 0.5 # TODO: Get the right version from VERSION file and git
   DESCRIPTION "Universal framework for machine control."
   HOMEPAGE_URL "https://machinekit.io"
   LANGUAGES C CXX)
@@ -59,13 +59,17 @@ set(MACHINEKIT_HAL_LIBRARY_DIRECTORY "${CMAKE_INSTALL_LIBDIR}")
 set(MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY
     "${CMAKE_INSTALL_LIBDIR}/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/module/managed"
 )
+set(MACHINEKIT_HAL_UNMANAGED_MODULE_DIRECTORY
+    "${MACHINEKIT_HAL_EXECUTABLE_DIRECTORY}")
 set(MACHINEKIT_HAL_INTERNAL_EXECUTABLE_DIRECTORY
     "${CMAKE_INSTALL_LIBEXECDIR}/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}")
 set(MACHINEKIT_HAL_INTERFACE_DIRECTORY "${CMAKE_INSTALL_INCLUDEDIR}")
 set(MACHINEKIT_HAL_SYSTEM_CONFIG_DIRECTORY
     "${CMAKE_INSTALL_SYSCONFDIR}/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}")
 set(MACHINEKIT_HAL_LOCAL_STATE_DIRECTORY "${CMAKE_INSTALL_LOCALSTATEDIR}")
-set(MACHINEKIT_HAL_TEST_DIRECTORY "test")
+set(MACHINEKIT_HAL_TEST_DIRECTORY
+    "${CMAKE_INSTALL_DATAROOTDIR}/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/testsuite"
+)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/support/cmake/tools")
 
@@ -94,6 +98,14 @@ define_property(
 add_subdirectory(src)
 
 # Main package CPack groups
+cpack_add_component_group(MachinekitHAL_Package_Base_Executables)
 cpack_add_component_group(MachinekitHAL_Package_Base_Libraries)
 cpack_add_component_group(MachinekitHAL_Package_Base_Libraries_Development)
 cpack_add_component_group(MachinekitHAL_Package_Base_Managed_Modules_Components)
+cpack_add_component_group(MachinekitHAL_Package_Base_Managed_Modules_Drivers)
+cpack_add_component_group(
+  MachinekitHAL_Package_Base_Managed_Modules_Drivers_Development)
+cpack_add_component_group(
+  MachinekitHAL_Package_Base_Unmanaged_Modules_Components)
+cpack_add_component_group(MachinekitHAL_Package_Base_Unmanaged_Modules_Drivers)
+cpack_add_component_group(MachinekitHAL_Package_Base_Tests_Runtests)

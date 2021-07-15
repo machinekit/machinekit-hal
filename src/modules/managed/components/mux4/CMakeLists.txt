@@ -29,8 +29,16 @@ option(BUILD_MUX4_MANAGED_MODULE "Built the Mux4 HAL managed module." TRUE)
 if(BUILD_MUX4_MANAGED_MODULE)
   include(MachinekitHALInstcomp)
 
-  add_instantiatable_module(mux4 SOURCE src/mux4.icomp OUTPUT_DIRECTORY
-                            "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+  add_instantiatable_module(
+    mux4
+    SOURCE
+    src/mux4.icomp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
 
   add_dependencies(mux4 instcomp_executable)
 endif()

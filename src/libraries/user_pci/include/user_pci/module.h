@@ -41,7 +41,7 @@
 #ifndef _LINUX_MODULE_H
 #define _LINUX_MODULE_H
 
-#include "hal/config_module.h"
+#include "user_pci/config_module.h"
 #include RTAPI_INC_LIST_H
 
 /* The bulk of the usermode driver support functions */

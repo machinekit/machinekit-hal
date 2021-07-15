@@ -24,7 +24,8 @@
 # #####################################################################
 # ~~~
 
-option(BUILD_PROBE_PARPORT_MANAGED_MODULE "Built the Probe Parport HAL managed module." TRUE)
+option(BUILD_PROBE_PARPORT_MANAGED_MODULE
+       "Built the Probe Parport HAL managed module." TRUE)
 
 if(BUILD_PROBE_PARPORT_MANAGED_MODULE)
   include(MachinekitHALSymbolVisibility)
@@ -49,7 +50,14 @@ if(BUILD_PROBE_PARPORT_MANAGED_MODULE)
 
   install(
     TARGETS probe_parport
-    EXPORT machinekit_hal_managed_module_probe_parport
     LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
-            COMPONENT MachinekitHAL_Managed_Probe_Parport)
+            COMPONENT MachinekitHAL_Managed_Module_Probe_Parport_Components)
+
+  cpack_add_component(MachinekitHAL_Managed_Module_Probe_Parport_Components
+                      GROUP MachinekitHAL_Managed_Module_Probe_Parport)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(
+    MachinekitHAL_Managed_Module_Probe_Parport
+    PARENT_GROUP MachinekitHAL_Package_Base_Managed_Modules_Components)
 endif()

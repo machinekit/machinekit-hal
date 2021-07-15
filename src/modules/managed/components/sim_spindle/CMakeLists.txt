@@ -36,8 +36,14 @@ if(BUILD_SIM_SPINDLE_MANAGED_MODULE)
     src/sim_spindle.icomp
     OUTPUT_DIRECTORY
     "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
     LINK_LIBRARIES
-    runtime_math)
+    runtime_math
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components
+    CPACK_DEPENDENCY_COMPONENTS
+    "MachinekitHAL_Library_Runtime_Math_Libraries")
 
   add_dependencies(sim_spindle instcomp_executable)
 endif()

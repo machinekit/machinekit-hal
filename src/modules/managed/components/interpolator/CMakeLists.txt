@@ -30,29 +30,35 @@ option(BUILD_INTERPOLATE_MANAGED_MODULE
 if(BUILD_INTERPOLATE_MANAGED_MODULE)
   include(MachinekitHALSymbolVisibility)
 
-  add_library(interpolate MODULE)
-  add_library(${MACHINEKIT_HAL_NAMESPACE}::interpolate ALIAS interpolate)
+  add_library(interpolator MODULE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::interpolator ALIAS interpolator)
 
   set(SOURCE_FILES src/interpolate.c)
 
-  target_sources(interpolate PRIVATE ${SOURCE_FILES})
+  target_sources(interpolator PRIVATE ${SOURCE_FILES})
 
   target_link_libraries(
-    interpolate PRIVATE hal_api runtime_api runtime_math machinetalk_proto_c
-                        nanopb_interface)
+    interpolator PRIVATE hal_api runtime_api runtime_math machinetalk_proto_c
+                         nanopb_interface)
 
-  export_rtapi_symbols(TARGET interpolate)
+  export_rtapi_symbols(TARGET interpolator)
 
-  target_compile_definitions(interpolate PRIVATE "RTAPI")
+  target_compile_definitions(interpolator PRIVATE "RTAPI")
 
   set_target_properties(
-    interpolate
+    interpolator
     PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
                             "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
 
-  install(
-    TARGETS interpolate
-    EXPORT machinekit_hal_managed_module_interpolate
-    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
-            COMPONENT MachinekitHAL_Managed_Module_Interpolate)
+  install(TARGETS interpolator
+          LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+                  COMPONENT MachinekitHAL_Managed_Module_Iterpolator_Components)
+
+  cpack_add_component(MachinekitHAL_Managed_Module_Iterpolator_Components
+                      GROUP MachinekitHAL_Managed_Module_Iterpolator)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(
+    MachinekitHAL_Managed_Module_Iterpolator
+    PARENT_GROUP MachinekitHAL_Package_Base_Managed_Modules_Components)
 endif()

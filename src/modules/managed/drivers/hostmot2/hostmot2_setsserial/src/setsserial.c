@@ -18,7 +18,7 @@
 //
 //    The code in this file is based on UFLBP.PAS by Peter C. Wallace.  
 
-#include "hal/config_module.h"
+#include "user_pci/config_module.h"
 #include RTAPI_INC_SLAB_H
 #include RTAPI_INC_CTYPE_H
 #include RTAPI_INC_STRING_H
@@ -26,8 +26,8 @@
 #include "runtime/rtapi.h"
 #include "runtime/rtapi_app.h"
 #include "hal/hal.h"
-#include "hostmot2.h"
-#include "sserial.h"
+#include "hostmot2/hostmot2.h"
+#include "hostmot2/sserial.h"
 
 static int comp_id;
 
