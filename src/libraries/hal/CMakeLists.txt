@@ -81,7 +81,7 @@ if(BUILD_HAL_LIBRARY)
   target_include_directories(
     hal_api
     INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-              $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY})
+              $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
   target_sources(hal PRIVATE ${SOURCE_FILES} ${HALPB_SOURCE_FILES})
   target_sources(hal_module PRIVATE ${SOURCE_FILES})

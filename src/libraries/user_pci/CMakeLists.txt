@@ -69,11 +69,16 @@ if(BUILD_USER_PCI_LIBRARY)
     EXPORT machinekit_hal_user_pci
     LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARIES_DIRECTORY}"
             COMPONENT MachinekitHAL_Library_User_PCI_Libraries
+            NAMELINK_COMPONENT MachinekitHAL_Library_User_PCI_Namelinks
     PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/user_pci"
                   COMPONENT MachinekitHAL_Library_User_PCI_Headers)
 
   cpack_add_component(MachinekitHAL_Library_User_PCI_Libraries
                       GROUP MachinekitHAL_Library_User_PCI)
+  cpack_add_component(
+    MachinekitHAL_Library_User_PCI_Namelinks
+    GROUP MachinekitHAL_Library_User_PCI_Development
+    DEPENDS MachinekitHAL_Library_User_PCI_Libraries)
   cpack_add_component(
     MachinekitHAL_Library_User_PCI_Headers
     GROUP MachinekitHAL_Library_User_PCI_Development

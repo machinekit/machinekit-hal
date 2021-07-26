@@ -65,9 +65,8 @@ if(BUILD_RUNTIME_MEMORY_LIBRARY)
     PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime"
                   COMPONENT MachinekitHAL_Library_Runtime_Memory_API_Headers)
 
-  cpack_add_component(
-    MachinekitHAL_Library_Runtime_Memory_API_Libraries
-    GROUP MachinekitHAL_Library_Runtime_Memory_API)
+  cpack_add_component(MachinekitHAL_Library_Runtime_Memory_API_Libraries
+                      GROUP MachinekitHAL_Library_Runtime_Memory_API)
   cpack_add_component(
     MachinekitHAL_Library_Runtime_Memory_API_Namelinks
     GROUP MachinekitHAL_Library_Runtime_Memory_API_Development

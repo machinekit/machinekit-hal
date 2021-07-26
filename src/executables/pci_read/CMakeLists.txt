@@ -32,6 +32,8 @@ if(SYS_IO_AVAILABLE)
   option(BUILD_PCI_READ_EXECUTABLE "Built the PCI read executable." TRUE)
 
   if(BUILD_PCI_READ_EXECUTABLE)
+    find_program(CHOWN "chown" REQUIRED)
+    find_program(CHMOD "chmod" REQUIRED)
     add_executable(pci_read)
 
     set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/pci_read.c)
@@ -44,6 +46,17 @@ if(SYS_IO_AVAILABLE)
       pci_read
       PROPERTIES RUNTIME_OUTPUT_DIRECTORY
                  "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY}")
+
+    # Special SETUID target used only for running from BUILD tree
+    add_custom_target(
+      pci_read_setuid
+      COMMAND "${CHOWN}" "0:0" "$<TARGET_FILE:pci_read>"
+      COMMAND "${CHMOD}" "4755" "$<TARGET_FILE:pci_read>"
+      COMMENT "Setting the SETUID rules on target 'pci_read'.")
+    add_dependencies(pci_read_setuid pci_read)
+    if(TARGET setuid)
+      add_dependencies(setuid pci_read_setuid)
+    endif()
 
     install(
       TARGETS pci_read

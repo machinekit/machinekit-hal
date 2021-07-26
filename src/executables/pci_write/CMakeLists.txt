@@ -32,6 +32,8 @@ if(SYS_IO_AVAILABLE)
   option(BUILD_PCI_WRITE_EXECUTABLE "Built the PCI write executable." TRUE)
 
   if(BUILD_PCI_WRITE_EXECUTABLE)
+    find_program(CHOWN "chown" REQUIRED)
+    find_program(CHMOD "chmod" REQUIRED)
     add_executable(pci_write)
 
     set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/pci_write.c)
@@ -44,6 +46,17 @@ if(SYS_IO_AVAILABLE)
       pci_write
       PROPERTIES RUNTIME_OUTPUT_DIRECTORY
                  "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY}")
+
+    # Special SETUID target used only for running from BUILD tree
+    add_custom_target(
+      pci_write_setuid
+      COMMAND "${CHOWN}" "0:0" "$<TARGET_FILE:pci_write>"
+      COMMAND "${CHMOD}" "4755" "$<TARGET_FILE:pci_write>"
+      COMMENT "Setting the SETUID rules on target 'pci_write'.")
+    add_dependencies(pci_write_setuid pci_write)
+    if(TARGET setuid)
+      add_dependencies(setuid pci_write_setuid)
+    endif()
 
     install(
       TARGETS pci_write

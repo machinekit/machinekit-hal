@@ -24,10 +24,35 @@
 #
 # #####################################################################
 
+CURRENT_DEBIAN_VERSION :=$(shell grep "^VERSION_ID=" /etc/os-release | cut -d'=' -f2 | tr -d '"')
+DEBIAN_BULLSEYE_VERSION :=11
+
+#	Turn OFF the Link-Time Optimization (LTO) during compilation as it clashes with the
+#	current version of linker script turning symbols of HAL modules local (defined
+#	in 'MachinekitHALSymbolVisibility.cmake' CMake file)
+DEB_CFLAGS_MAINT_STRIP :=-flto=auto -ffat-lto-objects
+DEB_CXXFLAGS_MAINT_STRIP :=-flto=auto -ffat-lto-objects
+DEB_LDFLAGS_MAINT_STRIP :=-flto=auto
+
+#	Set the main optimization value for all parts to O0
+DEB_CFLAGS_MAINT_STRIP +=-O2
+DEB_CXXFLAGS_MAINT_STRIP +=-O2
+DEB_CFLAGS_MAINT_APPEND :=-O0
+DEB_CXXFLAGS_MAINT_APPEND :=-O0
+
+#	Do not warn on potential reproducible build datetime mismatch
+DEB_CPPFLAGS_MAINT_STRIP :=-Wdate-time
+
+export DEB_CFLAGS_MAINT_STRIP
+export DEB_CXXFLAGS_MAINT_STRIP
+export DEB_LDFLAGS_MAINT_STRIP
+export DEB_CFLAGS_MAINT_APPEND
+export DEB_CXXFLAGS_MAINT_APPEND
+export DEB_CPPFLAGS_MAINT_STRIP
+
 override_dh_auto_configure:
 	dh_auto_configure -- \
-		--toolchain $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))/debianMultiarchToolchain.cmake \
-		-DCMAKE_BUILD_TYPE:STRING=DebWithRelInfo
+		--toolchain $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))/debianMultiarchToolchain.cmake
 
 override_dh_auto_test:
 #	Only run tests (CTest) when not cross-compiling
@@ -35,6 +60,24 @@ ifeq ($(DEB_BUILD_GNU_TYPE),$(DEB_HOST_GNU_TYPE))
 	dh_auto_test --
 else
 $(warning "CROSS-COMPILATION: Not running tests.")
+endif
+
+override_dh_fixperms:
+	dh_fixperms
+	find debian -type f \( -name 'rtapi_app' -o -name 'pci_write' -o -name 'pci_read' \) -exec chmod 4755 {} \;
+
+#	Change to more modern version after support for Ubuntu 18.04 Bionic is dropped
+#execute_after_dh_fixperms:
+#	find debian -type f \( -name 'rtapi_app' -o -name 'pci_write' -o -name 'pci_read' \) -exec chmod 4755 {} \;
+
+override_dh_dwz:
+#	Debian 11 Bullseye started to have a problem with Machinekit-HAL's machinekit-hal-testsuite-runtests
+#	Situation should be solved in dwz version 0.14-1 (version in Ubuntu 21.04 Hirsute)
+#	The ERROR: '.debug_line reference above end of section' error'
+ifeq ($(CURRENT_DEBIAN_VERSION), $(DEBIAN_BULLSEYE_VERSION))
+$(warning "Debian Bullseye: Not going to run the dwz tool!")
+else
+	dh_dwz
 endif
 
 %:

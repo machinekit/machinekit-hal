@@ -29,6 +29,9 @@ option(BUILD_RUNTESTS_TESTSUITE "Build the Machinekit-HAL's Runtest testsuite."
 
 if(BUILD_RUNTESTS_TESTSUITE)
 
+  # Act on each file in 'runtests' separately as the Runtests run in-place and
+  # thus there is a possibility that the 'tests/runtests' folder will be dirty
+  # even in a SOURCE tree
   set(RUNTESTS_SOURCE_FILES
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/abs.0/expected
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/abs.0/runstreamer
@@ -489,6 +492,7 @@ if(BUILD_RUNTESTS_TESTSUITE)
       FILES "${output_file}"
       DESTINATION
         "${MACHINEKIT_HAL_TEST_DIRECTORY}/runtests/${source_file_parent_path_relative_path}"
+      # TODO: Do not set 'execute' bit on supporting files
       PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ
                   WORLD_EXECUTE
       COMPONENT MachinekitHAL_TestSuite_Runtests_Test_Files)
