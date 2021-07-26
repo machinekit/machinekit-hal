@@ -56,7 +56,7 @@ FetchContent_MakeAvailable(nanopb)
 configure_file(${nanopb_SOURCE_DIR}/generator/proto/nanopb.proto
                ${CMAKE_CURRENT_BINARY_DIR}/nanopb.proto COPYONLY)
 
-               set(SOURCE_NANOPB_PROTO_FILE ${CMAKE_CURRENT_BINARY_DIR}/nanopb.proto)
+set(SOURCE_NANOPB_PROTO_FILE ${CMAKE_CURRENT_BINARY_DIR}/nanopb.proto)
 
 # As upstream CMake implementation does not implement usable CMake targets
 # usable to just target_link_libraries() against, create internal ones
@@ -85,4 +85,5 @@ target_include_directories(nanopb_interface INTERFACE ${nanopb_SOURCE_DIR}
 # TODO: Add install public headers step?
 
 set_target_properties(nanopb_proto_cc PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
-set_target_properties(protobuf-nanopb-static PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+set_target_properties(protobuf-nanopb-static
+                      PROPERTIES POSITION_INDEPENDENT_CODE TRUE)

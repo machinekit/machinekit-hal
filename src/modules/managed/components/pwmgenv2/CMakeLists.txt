@@ -48,10 +48,9 @@ if(BUILD_PWMGENV2_MANAGED_MODULE)
     PROPERTIES PREFIX "mod" LIBRARY_OUTPUT_DIRECTORY
                             "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
 
-  install(
-    TARGETS pwmgenv2
-    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
-            COMPONENT MachinekitHAL_Managed_Module_PWMGenV2_Components)
+  install(TARGETS pwmgenv2
+          LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+                  COMPONENT MachinekitHAL_Managed_Module_PWMGenV2_Components)
 
   cpack_add_component(MachinekitHAL_Managed_Module_PWMGenV2_Components
                       GROUP MachinekitHAL_Managed_Module_PWMGenV2)

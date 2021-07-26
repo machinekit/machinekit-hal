@@ -80,8 +80,9 @@ if(BUILD_HAL_COMMAND_LIBRARY)
     LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
             COMPONENT MachinekitHAL_Library_HAL_Command_Libraries
             NAMELINK_COMPONENT MachinekitHAL_Library_HAL_Command_Namelinks
-    PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/hal_command"
-                  COMPONENT MachinekitHAL_Library_HAL_Command_Headers)
+    PUBLIC_HEADER
+      DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/hal_command"
+      COMPONENT MachinekitHAL_Library_HAL_Command_Headers)
 
   cpack_add_component(
     MachinekitHAL_Library_HAL_Command_Libraries

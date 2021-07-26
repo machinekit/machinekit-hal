@@ -76,13 +76,17 @@ list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/support/cmake/tools")
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CC_STANDARD 17)
 
-# TODO: Make real effort at setting relevant flags
+# TODO: Make a real effort at setting relevant flags
 set(CMAKE_C_FLAGS_DEBUG "-g -O0")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 set(CMAKE_C_FLAGS_RELEASE "-O0")
 set(CMAKE_CXX_FLAGS_RELEASE "-O0")
 set(CMAKE_C_FLAGS_RELWITHDEBINFO "-g -O0")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O0")
+
+message(STATUS "Value of CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
+message(STATUS "Value of CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
+message(STATUS "Value of CMAKE_EXE_LINKER_FLAGS: ${CMAKE_EXE_LINKER_FLAGS}")
 
 set(MACHINEKIT_HAL_GIT_BUILD_SHA "aaabbbccc") # TODO: Set based on actual Git
                                               # SHA

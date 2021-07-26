@@ -27,5 +27,5 @@
 option(BUILD_BLDC_MANAGED_MODULE "Built the BLDC HAL managed module." TRUE)
 
 if(BUILD_BLDC_MANAGED_MODULE)
-  
+
 endif()

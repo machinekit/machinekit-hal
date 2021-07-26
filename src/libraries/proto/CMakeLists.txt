@@ -36,25 +36,25 @@ if(BUILD_PROTO_LIBRARY)
               machinetalk_proto_cc)
 
   set(SOURCE_PROTO_FILES
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/canon.proto
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/config.proto
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/emcclass.proto
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/firmware.proto
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/jplan.proto
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/log.proto
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/message.proto
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/motcmds.proto
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/object.proto
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/preview.proto
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/ros.proto
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/rtapicommand.proto
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/rtapi_message.proto
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/sample.proto
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/status.proto
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/task.proto
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/test.proto
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/types.proto
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/value.proto)
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/canon.proto
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/config.proto
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/emcclass.proto
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/firmware.proto
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/jplan.proto
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/log.proto
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/message.proto
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/motcmds.proto
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/object.proto
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/preview.proto
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/ros.proto
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/rtapicommand.proto
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/rtapi_message.proto
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/sample.proto
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/status.proto
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/task.proto
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/test.proto
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/types.proto
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/machinetalk/protobuf/value.proto)
 
   set(SOURCE_NANOPB_PROTO_FILE
       ${nanopb_SOURCE_DIR}/generator/proto/nanopb.proto)
@@ -145,9 +145,8 @@ if(BUILD_PROTO_LIBRARY)
       DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/machinetalk/protobuf"
       COMPONENT MachinekitHAL_Library_Proto_Headers)
 
-  cpack_add_component(
-    MachinekitHAL_Library_Proto_Libraries
-    GROUP MachinekitHAL_Library_Proto)
+  cpack_add_component(MachinekitHAL_Library_Proto_Libraries
+                      GROUP MachinekitHAL_Library_Proto)
   cpack_add_component(
     MachinekitHAL_Library_Proto_Namelinks
     GROUP MachinekitHAL_Library_Proto_Development

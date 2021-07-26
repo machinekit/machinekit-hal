@@ -1,7 +1,7 @@
 Source: machinekit-hal
 Section: misc
-Priority: extra
-Maintainer: MachinekitBot <machinekitATeryafDOTcom>
+Priority: optional
+Maintainer: MachinekitBot <machinekit@eryaf.com>
 # Only designate Build-Depends packages as a :native in cases when the upstream
 # does not set the Multi-Arch: foreign in its packaging scripts
 # Otherwise the dpkg-checkbuilddeps will reject such dependency with :native
@@ -98,21 +98,21 @@ Description: Machinekit-HAL's managed modules - drivers, development files
 
 Package: machinekit-hal-unmanaged-components
 Architecture: any
-Multi-Arch: same
+Multi-Arch: foreign
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${cpack:Depends}
 Description: Machinekit-HAL's unmanaged modules - components
  This package contains the unmanaged modules - components for the Machinekit-HAL project.
 
 Package: machinekit-hal-unmanaged-drivers
 Architecture: any
-Multi-Arch: same
+Multi-Arch: foreign
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${cpack:Depends}
 Description: Machinekit-HAL's unmanaged modules - drivers
  This package contains the unmanaged modules - drivers for the Machinekit-HAL project.
 
 Package: machinekit-hal-testsuite-runtests
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, ${cpack:Depends}
+Depends: python3, ${shlibs:Depends}, ${misc:Depends}, ${cpack:Depends}
 Description: Machinekit-HAL's runtests (acceptance tests)
  This package contains the unmanaged modules - drivers for the Machinekit-HAL project.
 

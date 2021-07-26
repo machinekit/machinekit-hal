@@ -100,8 +100,7 @@ if(BUILD_PYTHON_DISTRIBUTIONS)
     set(MACHINEKIT_HAL_INSTCOMP_CMAKE_MODULE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/MachinekitHALInstcomp.cmake")
     set(MACHINEKIT_HAL_INSTCOMP_INTERNAL
-        "${CMAKE_CURRENT_BINARY_DIR}/venv_instcomp/bin/instcomp"
-    )
+        "${CMAKE_CURRENT_BINARY_DIR}/venv_instcomp/bin/instcomp")
 
     configure_file(
       src/MachinekitHALInstcompInternal.cmake.in

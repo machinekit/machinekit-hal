@@ -27,6 +27,8 @@
 option(BUILD_RTAPI_APP_EXECUTABLE "Built the RTAPI app executable." TRUE)
 
 if(BUILD_RTAPI_APP_EXECUTABLE)
+  find_program(CHOWN "chown" REQUIRED)
+  find_program(CHMOD "chmod" REQUIRED)
   add_executable(rtapi_app)
 
   set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/rtapi_app.cc)
@@ -63,9 +65,17 @@ if(BUILD_RTAPI_APP_EXECUTABLE)
 
   target_compile_definitions(rtapi_app PRIVATE "ULAPI")
 
-  # The relative difference should be the same for both for build BINARY tree
-  # and for installed tree, but if user overrides the *_OUTPUT directories it is
-  # not, compute both variants
+  #[[
+  # The 'rtapi_app' executable will mostly run as root setuid program or
+  # with CAP_SYS_NICE and  CAP_SYS_RAWIO capabilities, which means that
+  # the $ORIGIN placeholder in RPATH cannot be expanded and absolute path
+  # must be used, thus the program suite cannot really be relocatable
+  # at this point in time
+  #
+  # For 'posix' flavour and no I/O, the 'rtapi_app' executable does not
+  # have to run as setuid root (or with capabilities), and following
+  # construct can be used:
+
   file(RELATIVE_PATH BUILD_RELATIVE_ORIGIN_MANAGED_MODULES
        ${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY} 
        ${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY})
@@ -78,13 +88,20 @@ if(BUILD_RTAPI_APP_EXECUTABLE)
   file(RELATIVE_PATH INSTALL_RELATIVE_ORIGIN_LIBRARIES
        ${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_FULL_INSTALL_DIRECTORY} 
        ${MACHINEKIT_HAL_LIBRARY_FULL_INSTALL_DIRECTORY})
+  ]]
 
-  list(APPEND RTAPI_APP_BUILD_RPATH "$ORIGIN"
-       "$ORIGIN/${BUILD_RELATIVE_ORIGIN_MANAGED_MODULES}"
-       "$ORIGIN/${BUILD_RELATIVE_ORIGIN_LIBRARIES}")
-  list(APPEND RTAPI_APP_INSTALL_RPATH "$ORIGIN"
-       "$ORIGIN/${INSTALL_RELATIVE_ORIGIN_MANAGED_MODULES}"
-       "$ORIGIN/${INSTALL_RELATIVE_ORIGIN_LIBRARIES}")
+  list(
+    APPEND
+    RTAPI_APP_BUILD_RPATH
+    # "$ORIGIN/${BUILD_RELATIVE_ORIGIN_MANAGED_MODULES}"
+    # "$ORIGIN/${BUILD_RELATIVE_ORIGIN_LIBRARIES}"
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
+  list(
+    APPEND
+    RTAPI_APP_INSTALL_RPATH
+    # "$ORIGIN/${INSTALL_RELATIVE_ORIGIN_MANAGED_MODULES}"
+    # "$ORIGIN/${INSTALL_RELATIVE_ORIGIN_LIBRARIES}"
+    "${MACHINEKIT_HAL_MANAGED_FULL_INSTALL_MODULE_DIRECTORY}")
 
   set_target_properties(
     rtapi_app
@@ -92,6 +109,17 @@ if(BUILD_RTAPI_APP_EXECUTABLE)
                "${MACHINEKIT_HAL_INTERNAL_EXECUTABLE_OUTPUT_DIRECTORY}"
                BUILD_RPATH "${RTAPI_APP_BUILD_RPATH}"
                INSTALL_RPATH "${RTAPI_APP_INSTALL_RPATH}")
+
+  # Special SETUID target used only for running from BUILD tree
+  add_custom_target(
+    rtapi_app_setuid
+    COMMAND "${CHOWN}" "0:0" "$<TARGET_FILE:rtapi_app>"
+    COMMAND "${CHMOD}" "4755" "$<TARGET_FILE:rtapi_app>"
+    COMMENT "Setting the SETUID rules on target 'rtapi_app'.")
+  add_dependencies(rtapi_app_setuid rtapi_app)
+  if(TARGET setuid)
+    add_dependencies(setuid rtapi_app_setuid)
+  endif()
 
   install(
     TARGETS rtapi_app
