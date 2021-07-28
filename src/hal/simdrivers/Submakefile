@@ -1,9 +1,0 @@
-
-$(call TOOBJSDEPS, $(UPARPORT_SRCS)) : EXTRAFLAGS=-fPIC $(UPARPORT_FLAGS)
-
-../rtlib/hal_parport.so:   $(call TOOBJS, $(UPARPORT_SRCS)) $(UPARPORT_LIBS)
-	$(ECHO) Linking $(notdir $@)
-	mkdir -p ../rtlib/modules
-	@rm -f $@
-	$(CC) -g $(LDFLAGS) -Wl,-soname,$(notdir $@) \
-	-shared -o $@ $^  $(UPARPORT_LIBS)

@@ -1,8 +1,0 @@
-##  An effective way to build instantiated components from C code
-##  RTLIBDIR is permanant at present, need to add a job to make it later
-
-HALUSERICOMPDIR= hal/user_icomps
-
-HALUSERICOMP_SUBMAKEFILE= $(HALUSERICOMPDIR)/Submakefile
-
-$(eval $(call c_comp_build_rules,$(HALUSERICOMPDIR)/watch.o))

@@ -2,7 +2,7 @@
 /*
 
 # Include Docker image inputs
-! /scripts/buildsystem
+! /debian/buildsystem
 
 # Include MK packages and minimal debian packaging
 ! /packages/

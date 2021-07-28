@@ -1,0 +1,23 @@
+= Syslog async
+:author: Jakub Fišer <jakub DOT fiser AT eryaf DOT com>
+:description: Syslog_async sourcetree README 
+:sectanchors: 
+:url-repo: https://machinekit.io
+
+Syslog_async is a library from Simon Kelley used for block-less processing of `syslog()` function calls.
+
+Additional documentation can be found in original https://thekelleys.org.uk/syslog-async/READ-ME[README].
+
+== Distribution
+
+*   **syslog_async**: Shared library used to link into executables and other shared libraries
+-   Intended to be run from __real-time__ context
+-   Used as direct dependency of HAL modules
+
+== CMAKE targets
+
+Objects created in `CMAKE` Machinekit-HAL's namespace used for building.
+
+=== syslog_async (`libsyslog_async.so`)
+*   Standard shared library used for compile time linking into binaries
+*   Transitively exports **PUBLIC** interface header files through transitive dependencies

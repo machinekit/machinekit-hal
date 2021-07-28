@@ -1,0 +1,20 @@
+= HAL
+:author: Jakub Fišer <jakub DOT fiser AT eryaf DOT com> 
+:description: miscgtk sourcetree README 
+:sectanchors: 
+:url-repo: https://machinekit.io
+
+Misc_gtk is a library used in graphical parts of Machinekit-HAL like HALscope and HAL meter. Thus, should be a terporary as Machinekit-HAL is intended as mainly headless solution.
+
+== Distribution
+
+*   **misc_gtk:** Shared library used to link into executables and other shared libraries
+-   Doesn't need to support real-time execution, can include code sleeping, yielding or otherwise breaking __real-time__
+
+== CMAKE targets
+
+Objects created in `CMAKE` Machinekit-HAL's namespace used for building.
+
+=== misc_gtk (`libmisc_gtk.so`)
+*   Standard shared library used for compile time linking into binaries
+*   Transitively exports **PUBLIC** interface header files through transitive dependencies

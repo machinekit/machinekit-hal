@@ -21,9 +21,6 @@ src/modules.order
 !/configs/common/emc.nml
 lib/python/gremlin.py
 lib/python/touchy
-tests/*/skip
-tests/*/*/skip
-tests/*/*/*/skip
 /rtlib/
 /libexec/
 /etc/

@@ -1,0 +1,20 @@
+= HAL
+:author: Jakub Fišer <jakub DOT fiser AT eryaf DOT com> 
+:description: HAL_command sourcetree README 
+:sectanchors: 
+:url-repo: https://machinekit.io
+
+HAL_command is shared library providing function set for manipulating the **H**ardware **A**bstraction **L**ayer functionality of Machinekit-HAL. 
+
+== Distribution
+
+*   **hal_command:** Shared library used to link into executables and other shared libraries
+-   Doesn't need to support real-time execution, can include code sleeping, yielding or otherwise breaking __real-time__
+
+== CMAKE targets
+
+Objects created in `CMAKE` Machinekit-HAL's namespace used for building.
+
+=== hal_command (`libhal_command.so`)
+*   Standard shared library used for compile time linking into binaries
+*   Transitively exports **PUBLIC** interface header files through transitive dependencies

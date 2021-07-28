@@ -1,3 +1,0 @@
-USERFUNCTEXAMPLE_DIR := hal/userfunct-example
-
-$(eval $(call c_comp_build_rules,$(USERFUNCTEXAMPLE_DIR)/ufdemo.o))

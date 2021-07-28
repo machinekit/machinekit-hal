@@ -1,0 +1,25 @@
+component conv_@CONV_ICOMP_IN@_@CONV_ICOMP_OUT@ "Convert a value from @CONV_ICOMP_IN@ to @CONV_ICOMP_OUT@";
+pin in @CONV_ICOMP_IN@ in_;
+pin out @CONV_ICOMP_OUT@ out;
+@CONV_ICOMP_CC@ pin out bit out_of_range "TRUE when 'in' is not in the range of @CONV_ICOMP_OUT@";
+@CONV_ICOMP_CC@ pin io bit clamp """If TRUE, then clamp to the range of @CONV_ICOMP_OUT@.  If FALSE, then allow the value to "wrap around".""";
+function _ @CONV_ICOMP_FP@ "Update 'out' based on 'in'";
+license "GPL";
+
+;;
+FUNCTION(_) {
+    hal_@CONV_ICOMP_IN@_t in = in_;
+@CONV_ICOMP_CC@    if(clamp) {
+#if @CONV_ICOMP_MAX@ != 0
+@CONV_ICOMP_CC@	if(in > @CONV_ICOMP_MAX@) { out = @CONV_ICOMP_MAX@; out_of_range = 1; return 0; }
+#endif
+#if @CONV_ICOMP_MIN@ != -1
+@CONV_ICOMP_CC@	if(in < @CONV_ICOMP_MIN@) { out = @CONV_ICOMP_MIN@; out_of_range = 1; return 0; }
+#endif
+@CONV_ICOMP_CC@	out = in; out_of_range = 0;
+@CONV_ICOMP_CC@    } else {
+	out = in;
+@CONV_ICOMP_CC@	if(out != in) out_of_range = 1;
+@CONV_ICOMP_CC@    }
+    return 0;
+}

@@ -8,7 +8,7 @@
 #               building .deb and .ddeb native packages for Debian flavoured
 #               distributions.
 #
-# Copyright (C) 2020    Jakub Fišer  <jakub DOT fiser AT eryaf DOT com>
+# Copyright (C) 2020 -   Jakub Fišer  <jakub DOT fiser AT eryaf DOT com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -45,7 +45,7 @@ import sys
 import importlib.util
 spec = importlib.util.spec_from_file_location(
     "machinekit_hal_script_helpers",
-    "{0}/scripts/machinekit_hal_script_helpers.py".format(
+    "{0}/support/python/machinekit_hal_script_helpers.py".format(
         os.path.realpath(
             "{0}/..".format(os.path.dirname(os.path.abspath(__file__)))
         )))

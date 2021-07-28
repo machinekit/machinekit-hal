@@ -1,0 +1,20 @@
+= RTAPI PCI
+:author: Jakub Fišer <jakub DOT fiser AT eryaf DOT com> 
+:description: RTAPI_pci sourcetree README 
+:sectanchors: 
+:url-repo: https://machinekit.io
+
+Temporary solution to allow conditional inclusion of PCI related code for architectures supporting current implementation (all except ARM64). Should go away once the implementation can support PCI(e) on all supported platforms.
+
+Alternativelly turn it to independently loadable Runtime module.
+
+== CMAKE targets
+
+Objects created in `CMAKE` Machinekit-HAL's namespace used for building.
+
+=== rtapi_pci (`INTERFACE` library)
+*   Fully abstract `CMAKE` object with no output representation
+*   Used for adding sourcefiles to multiple other targets (executables) with the same compile options
+*   Compile once, use multiple times
+
+**This is ungly and hopefully temporary solution. In perfect world it would not be needed. But we don't live in perfect world.**
