@@ -49,7 +49,7 @@
 #include "runtime/config.h"
 #include "runtime/rtapi.h"		/* RTAPI realtime OS API */
 
-#include <prussdrv.h>
+#include "pru_app_loader/prussdrv.h"
 #include <pthread.h>
 #include <sys/types.h>
 #include <sys/stat.h>

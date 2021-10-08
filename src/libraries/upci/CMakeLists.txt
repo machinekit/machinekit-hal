@@ -50,7 +50,6 @@ if(SYS_IO_AVAILABLE)
     set_target_properties(
       upci
       PROPERTIES PREFIX "libmkh"
-                 LIBRARY_OUTPUT_DIRECTORY "${CMAKE_INSTALL_LIBDIR}"
                  PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
                  POSITION_INDEPENDENT_CODE TRUE)
 

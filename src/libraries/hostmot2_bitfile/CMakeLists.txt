@@ -28,7 +28,7 @@ option(BUILD_HOSTMOT2_BITFILE_LIBRARY "Define the Hostmot2 Bitfile library."
        TRUE)
 
 if(BUILD_HOSTMOT2_BITFILE_LIBRARY)
-  add_library(hostmot2_bitfile STATIC)
+  add_library(hostmot2_bitfile SHARED)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::hostmot2_bitfile ALIAS
               hostmot2_bitfile)
 
@@ -54,25 +54,39 @@ if(BUILD_HOSTMOT2_BITFILE_LIBRARY)
   target_compile_definitions(hostmot2_bitfile PRIVATE "RTAPI")
 
   set_target_properties(
-    hostmot2_bitfile PROPERTIES PREFIX "libmkh" PUBLIC_HEADER
-                                                "${PUBLIC_HEADER_FILES}")
+    hostmot2_bitfile
+    PROPERTIES SOVERSION 0
+               PREFIX "libmkh"
+               VERSION ${CMAKE_PROJECT_VERSION}
+               PUBLIC_HEADER "${PUBLIC_HEADER_FILES}")
 
   install(
     TARGETS hostmot2_bitfile
     EXPORT machinekit_hal_hostmot2_bitfile
-    ARCHIVE DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
             COMPONENT MachinekitHAL_Library_Hostmot_Bitfile_Libraries
+            NAMELINK_COMPONENT MachinekitHAL_Library_Hostmot_Bitfile_Namelinks
     PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/hostmot2"
                   COMPONENT MachinekitHAL_Library_Hostmot_Bitfile_Headers)
 
   cpack_add_component(
     MachinekitHAL_Library_Hostmot_Bitfile_Libraries
+    GROUP MachinekitHAL_Library_Hostmot_Bitfile
+    DEPENDS MachinekitHAL_Library_Runtime_Math_Libraries
+            MachinekitHAL_Library_User_PCI_Libraries)
+  cpack_add_component(
+    MachinekitHAL_Library_Hostmot_Bitfile_Namelinks
     GROUP MachinekitHAL_Library_Hostmot_Bitfile_Development
-    DEPENDS MachinekitHAL_Library_Runtime_Math_Libraries)
-  cpack_add_component(MachinekitHAL_Library_Hostmot_Bitfile_Headers
-                      GROUP MachinekitHAL_Library_Hostmot_Bitfile_Development)
+    DEPENDS MachinekitHAL_Library_Hostmot_Bitfile_Libraries
+            MachinekitHAL_Library_HAL_Command_Libraries)
+  cpack_add_component(
+    MachinekitHAL_Library_Hostmot_Bitfile_Headers
+    GROUP MachinekitHAL_Library_Hostmot_Bitfile_Development
+    DEPENDS MachinekitHAL_Library_Hostmot_Bitfile_Libraries)
 
   # Specification of artifacts placement in package tree
+  cpack_add_component_group(MachinekitHAL_Library_Hostmot_Bitfile
+                            PARENT_GROUP MachinekitHAL_Package_Base_Libraries)
   cpack_add_component_group(
     MachinekitHAL_Library_Hostmot_Bitfile_Development
     PARENT_GROUP MachinekitHAL_Package_Base_Libraries_Development)

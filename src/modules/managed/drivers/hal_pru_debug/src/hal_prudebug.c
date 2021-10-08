@@ -3,11 +3,6 @@
 
 #include "runtime/config.h"
 
-// this probably should be an ARM335x #define
-#if !defined(TARGET_PLATFORM_BEAGLEBONE)
-#error "This driver is for the beaglebone platform only"
-#endif
-
 // try to make sense of IEP and ECAP counters
 // not part of debugging
 #define EXPLORE_COUNTERS 1
@@ -17,9 +12,9 @@
 #include "hal/hal.h"		/* HAL public API decls */
 #include <pthread.h>
 
-#include "prussdrv.h"           // UIO interface to uio_pruss
-#include "pru.h"                // PRU-related defines
-#include "pruss_intc_mapping.h"
+#include "pru_app_loader/prussdrv.h"           // UIO interface to uio_pruss
+#include "pru_defines/pru.h"                // PRU-related defines
+#include "pru_app_loader/pruss_intc_mapping.h"
 
 static tprussdrv *pruss;                // driver descriptor
 #define PRUSSDESC (pruss)

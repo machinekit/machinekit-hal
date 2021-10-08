@@ -45,10 +45,6 @@
 #include "user_pci/config_module.h"
 #include "runtime/config.h"             // TARGET_PLATFORM_BEAGLEBONE
 
-#if !defined(TARGET_PLATFORM_BEAGLEBONE)
-#error "This driver is for the beaglebone platform only"
-#endif
-
 #include "runtime/rtapi.h"
 #include "runtime/rtapi_app.h"
 #include "runtime/rtapi_string.h"
@@ -56,7 +52,7 @@
 
 #include "hal/hal.h"
 
-#include "hal/drivers/hal_pru_generic/hal_pru_generic.h"
+#include "hal_pru_generic.h"
 
 void hpg_pwmread_read(hal_pru_generic_t *hpg) {
     int i;

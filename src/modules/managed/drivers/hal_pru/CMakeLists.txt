@@ -25,46 +25,42 @@
 # ~~~
 
 if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
-  option(BUILD_HAL_RASPI_GPIO_MANAGED_DRIVER_MODULE
-         "Built the Raspberry Pi GPIO HAL managed driver module." TRUE)
-
-  if(BUILD_HAL_RASPI_GPIO_MANAGED_DRIVER_MODULE)
+  option(BUILD_HAL_PRU_MANAGED_DRIVER_MODULE
+         "Built the PRU HAL managed driver module." TRUE)
+  if(BUILD_HAL_PRU_MANAGED_DRIVER_MODULE)
     include(MachinekitHALSymbolVisibility)
 
-    add_library(hal_raspi_gpio MODULE)
+    add_library(hal_pru MODULE)
 
-    set(SOURCE_FILES src/hal_gpio.c)
+    set(SOURCE_FILES src/hal_pru.c)
 
-    set(PRIVATE_HEADER_FILES src/bcm2835.h)
+    target_sources(hal_pru PRIVATE ${SOURCE_FILES})
 
-    target_sources(hal_raspi_gpio PRIVATE ${SOURCE_FILES}
-                                          ${PRIVATE_HEADER_FILES})
+    target_link_libraries(hal_pru PRIVATE hal_api runtime_api pru_app_loader
+                                          pru_defines)
 
-    target_link_libraries(hal_raspi_gpio PRIVATE raspi_cpuinfo hal_api
-                                                 runtime_api runtime_math)
+    export_rtapi_symbols(TARGET hal_pru)
 
-    export_rtapi_symbols(TARGET hal_raspi_gpio)
-
-    target_compile_definitions(hal_raspi_gpio PRIVATE "RTAPI")
+    target_compile_definitions(hal_pru PRIVATE "RTAPI")
 
     set_target_properties(
-      hal_raspi_gpio
+      hal_pru
       PROPERTIES PREFIX "mod"
                  LIBRARY_OUTPUT_DIRECTORY
                  "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
 
-    install(
-      TARGETS hal_raspi_gpio
-      LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
-              COMPONENT MachinekitHAL_Managed_Module_HAL_RASPI_GPIO_Drivers)
+    install(TARGETS hal_pru
+            LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+                    COMPONENT MachinekitHAL_Managed_Module_HAL_PRU_Drivers)
 
     cpack_add_component(
-      MachinekitHAL_Managed_Module_HAL_RASPI_GPIO_Drivers
-      GROUP MachinekitHAL_Managed_Module_HAL_RASPI_GPIO)
+      MachinekitHAL_Managed_Module_HAL_PRU_Drivers
+      GROUP MachinekitHAL_Managed_Module_HAL_PRU
+      DEPENDS MachinekitHAL_Library_PRU_App_Loader_Libraries)
 
     # Specification of artifacts placement in package tree
     cpack_add_component_group(
-      MachinekitHAL_Managed_Module_HAL_RASPI_GPIO
+      MachinekitHAL_Managed_Module_HAL_PRU
       PARENT_GROUP MachinekitHAL_Package_Base_Managed_Modules_Drivers)
   endif()
 endif()

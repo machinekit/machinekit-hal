@@ -64,7 +64,7 @@
 #include "runtime/rtapi.h"
 #include "hal/hal.h"
 
-#include "hal/drivers/hal_pru_generic/pru_tasks.h"
+#include "hal_pru_generic/pru_tasks.h"
 
 #define HPG_VERSION "0.01"
 #define HPG_NAME    "hpg"

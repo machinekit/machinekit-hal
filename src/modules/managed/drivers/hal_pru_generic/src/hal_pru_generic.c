@@ -71,9 +71,9 @@
 #include "hal/hal_priv.h"
 #include <pthread.h>
 
-#include "prussdrv.h"           // UIO interface to uio_pruss
+#include "pru_app_loader/prussdrv.h"           // UIO interface to uio_pruss
 //#include "pru.h"                // PRU-related defines
-#include "pruss_intc_mapping.h"
+#include "pru_app_loader/pruss_intc_mapping.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -81,13 +81,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "hal/drivers/hal_pru_generic/hal_pru_generic.h"
-#include "hal/drivers/hal_pru_generic/beaglebone_pinmap.h"
-
-// this probably should be an ARM335x #define
-#if !defined(TARGET_PLATFORM_BEAGLEBONE)
-#error "This driver is for the beaglebone platform only"
-#endif
+#include "hal_pru_generic.h"
+#include "beaglebone_pinmap.h"
 
 MODULE_AUTHOR("Charles Steinkuehler");
 MODULE_DESCRIPTION("AM335x PRU demo component");

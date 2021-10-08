@@ -71,7 +71,8 @@ set(MACHINEKIT_HAL_TEST_DIRECTORY
     "${CMAKE_INSTALL_DATAROOTDIR}/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/testsuite"
 )
 
-list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/support/cmake/tools")
+list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/support/cmake/tools"
+     "${PROJECT_SOURCE_DIR}/support/cmake/languages")
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CC_STANDARD 17)
@@ -99,6 +100,7 @@ define_property(
   Special global property specific to Machinekit-HAL's build tree holding the set of PATHs
   to defined CMake Modules in the source-tree.
   ]])
+
 add_subdirectory(src)
 
 # Main package CPack groups

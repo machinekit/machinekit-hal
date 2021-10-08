@@ -25,11 +25,12 @@
 # ~~~
 
 if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
-  option(BUILD_RASPI_CPUINFO_LIBRARY
-         "Built the Raspberry Pi SPI HAL managed driver module." TRUE)
+  option(BUILD_RASPI_CPUINFO_LIBRARY "Build the Raspberry Pi CPUInfo library."
+         TRUE)
 
   if(BUILD_RASPI_CPUINFO_LIBRARY)
     add_library(raspi_cpuinfo STATIC)
+    add_library(${MACHINEKIT_HAL_NAMESPACE}::raspi_cpuinfo ALIAS raspi_cpuinfo)
 
     set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/cpuinfo.c)
 
@@ -44,24 +45,26 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
              $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
     set_target_properties(
-      raspi_cpuinfo PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
-                               POSITION_INDEPENDENT_CODE TRUE)
+      raspi_cpuinfo
+      PROPERTIES 
+                 PREFIX "libmkh"
+                 PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
+                 POSITION_INDEPENDENT_CODE TRUE)
     install(
       TARGETS raspi_cpuinfo
       EXPORT machinekit_hal_raspi_cpuinfo
-      LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
-              COMPONENT MachinekitHAL_Library_RasPi_CPUInfo_Libraries
-              NAMELINK_COMPONENT MachinekitHAL_Library_RasPi_CPUInfo_Namelinks
+      ARCHIVE DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
+              COMPONENT MachinekitHAL_Library_RasPi_CPUInfo_Archives
       PUBLIC_HEADER
         DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/raspi_cpuinfo"
         COMPONENT MachinekitHAL_Library_RasPi_CPUInfo_Headers)
 
-    cpack_add_component(MachinekitHAL_Library_RasPi_CPUInfo_Libraries
+    cpack_add_component(MachinekitHAL_Library_RasPi_CPUInfo_Archives
                         GROUP MachinekitHAL_Library_RasPi_CPUInfo_Development)
-    cpack_add_component(MachinekitHAL_Library_RasPi_CPUInfo_Namelinks
-                        GROUP MachinekitHAL_Library_RasPi_CPUInfo_Development)
-    cpack_add_component(MachinekitHAL_Library_RasPi_CPUInfo_Headers
-                        GROUP MachinekitHAL_Library_RasPi_CPUInfo_Development)
+    cpack_add_component(
+      MachinekitHAL_Library_RasPi_CPUInfo_Headers
+      GROUP MachinekitHAL_Library_RasPi_CPUInfo_Development
+      DEPENDS MachinekitHAL_Library_RasPi_CPUInfo_Archives)
 
     # Specification of artifacts placement in package tree
     cpack_add_component_group(

@@ -1,12 +1,6 @@
 // based on supply.c
 
-
 #include "runtime/config.h"
-
-// this probably should be an ARM335x #define
-#if !defined(TARGET_PLATFORM_BEAGLEBONE)
-#error "This driver is for the beaglebone platform only"
-#endif
 
 #include "runtime/rtapi.h"		/* RTAPI realtime OS API */
 #include "runtime/rtapi_compat.h"       /* RTAPI support functions */
@@ -20,9 +14,9 @@
 // load this PRU code (prefixed by EMC_RTLIB_DIR)
 #define  DEFAULT_CODE  "pru_generic.bin"
 
-#include "prussdrv.h"           // UIO interface to uio_pruss
-#include "pru.h"                // PRU-related defines
-#include "pruss_intc_mapping.h"
+#include "pru_app_loader/prussdrv.h"           // UIO interface to uio_pruss
+#include "pru_defines/pru.h"                // PRU-related defines
+#include "pru_app_loader/pruss_intc_mapping.h"
 
 static tprussdrv *pruss;                // driver descriptor
 #define PRUSSDESC (pruss)

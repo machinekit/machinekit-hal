@@ -25,36 +25,44 @@
 # ~~~
 
 if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
-  option(BUILD_HAL_RASPI_SPI_MANAGED_DRIVER_MODULE
-         "Built the Raspberry Pi SPI HAL managed driver module." TRUE)
-
-  if(BUILD_HAL_RASPI_SPI_MANAGED_DRIVER_MODULE)
+  option(BUILD_HAL_PRU_DEBUG_MANAGED_DRIVER_MODULE
+         "Built the PRU Debug HAL managed driver module." TRUE)
+  if(BUILD_HAL_PRU_DEBUG_MANAGED_DRIVER_MODULE)
     include(MachinekitHALSymbolVisibility)
 
-    add_library(hal_raspi_spi MODULE)
+    add_library(hal_pru_debug MODULE)
 
-    set(SOURCE_FILES src/cpuinfo.c src/hal_spi.c)
+    set(SOURCE_FILES src/hal_prudebug.c)
 
-    set(PRIVATE_HEADER_FILES src/cpuinfo.h src/hal_spi.h)
+    target_sources(hal_pru_debug PRIVATE ${SOURCE_FILES})
 
-    target_sources(hal_raspi_spi PRIVATE ${SOURCE_FILES}
-                                         ${PRIVATE_HEADER_FILES})
+    target_link_libraries(hal_pru_debug PRIVATE hal_api runtime_api
+                                                pru_app_loader pru_defines)
 
-    target_link_libraries(hal_raspi_spi PRIVATE hal_api runtime_api
-                                                runtime_math raspi_cpuinfo)
+    export_rtapi_symbols(TARGET hal_pru_debug)
 
-    export_rtapi_symbols(TARGET hal_raspi_spi)
-
-    target_compile_definitions(hal_raspi_spi PRIVATE "RTAPI")
+    target_compile_definitions(hal_pru_debug PRIVATE "RTAPI")
 
     set_target_properties(
-      hal_raspi_spi
+      hal_pru_debug
       PROPERTIES PREFIX "mod"
                  LIBRARY_OUTPUT_DIRECTORY
                  "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
 
-    install(TARGETS hal_raspi_spi
-            LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
-                    COMPONENT MachinekitHAL_Managed_Driver_Module_HAL_RASPI_SPI)
+    install(
+      TARGETS hal_pru_debug
+      LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+              COMPONENT MachinekitHAL_Managed_Module_HAL_PRU_Debug_Drivers)
+
+    cpack_add_component(
+      MachinekitHAL_Managed_Module_HAL_PRU_Debug_Drivers
+      GROUP MachinekitHAL_Managed_Module_HAL_PRU_Debug
+      DEPENDS MachinekitHAL_Library_PRU_App_Loader_Libraries)
+
+    # Specification of artifacts placement in package tree
+    cpack_add_component_group(
+      MachinekitHAL_Managed_Module_HAL_PRU_Debug
+      PARENT_GROUP MachinekitHAL_Package_Base_Managed_Modules_Drivers)
+
   endif()
 endif()

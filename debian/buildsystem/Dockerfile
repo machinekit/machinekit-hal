@@ -163,7 +163,7 @@ RUN printf "%b"                                               \
 COPY debian/ /tmp/debian/
 
 RUN cd /tmp &&                                                                \
-    ./debian/bootstrap -s -p /tmp &&                                          \
+    ./debian/bootstrap -s -a ${HOST_ARCHITECTURE} -p /tmp &&                  \
     mk-build-deps --build-arch=$(dpkg-architecture -qDEB_BUILD_ARCH)          \
                   --host-arch=${HOST_ARCHITECTURE}                            \
                   -ir -t                                                      \
