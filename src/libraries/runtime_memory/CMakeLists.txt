@@ -57,13 +57,19 @@ if(BUILD_RUNTIME_MEMORY_LIBRARY)
                POSITION_INDEPENDENT_CODE TRUE)
   install(
     TARGETS runtime_memory_api
-    EXPORT machinekit_hal
+    EXPORT machinekit_hal_runtime_memory_api
     LIBRARY
       DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
       COMPONENT MachinekitHAL_Library_Runtime_Memory_API_Libraries
       NAMELINK_COMPONENT MachinekitHAL_Library_Runtime_Memory_API_Namelinks
     PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime"
                   COMPONENT MachinekitHAL_Library_Runtime_Memory_API_Headers)
+
+  export(
+    EXPORT machinekit_hal_runtime_memory_api
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALRuntimeMemoryAPITarget.cmake"
+  )
 
   cpack_add_component(MachinekitHAL_Library_Runtime_Memory_API_Libraries
                       GROUP MachinekitHAL_Library_Runtime_Memory_API)

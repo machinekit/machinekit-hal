@@ -50,6 +50,11 @@ install(
   PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime"
                 COMPONENT MachinekitHAL_Library_RTAPI_Compat_Headers)
 
+export(
+  EXPORT machinekit_hal_rtapi_compat
+  NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+  FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALRuntimeCompatTarget.cmake")
+
 cpack_add_component(MachinekitHAL_Library_RTAPI_Compat_Headers
                     GROUP MachinekitHAL_Library_RTAPI_Compat_Development)
 

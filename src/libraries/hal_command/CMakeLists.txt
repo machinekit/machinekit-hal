@@ -84,6 +84,11 @@ if(BUILD_HAL_COMMAND_LIBRARY)
       DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/hal_command"
       COMPONENT MachinekitHAL_Library_HAL_Command_Headers)
 
+  export(
+    EXPORT machinekit_hal_hal_command
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALHALCommandTarget.cmake")
+
   cpack_add_component(
     MachinekitHAL_Library_HAL_Command_Libraries
     GROUP MachinekitHAL_Library_HAL_Command

@@ -73,6 +73,11 @@ if(BUILD_USER_PCI_LIBRARY)
     PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/user_pci"
                   COMPONENT MachinekitHAL_Library_User_PCI_Headers)
 
+  export(
+    EXPORT machinekit_hal_user_pci
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALUserPCITarget.cmake")
+
   cpack_add_component(MachinekitHAL_Library_User_PCI_Libraries
                       GROUP MachinekitHAL_Library_User_PCI)
   cpack_add_component(

@@ -24,11 +24,77 @@
 # #####################################################################
 # ~~~
 
-# add_library(halmodule MODULE)
-# add_library(${MACHINEKIT_HAL_NAMESPACE}::halmodule ALIAS halmodule)
-#
-# set(SOURCE_FILES src/halmodule.cc)
-#
-# target_sources(halmodule PRIVATE ${SOURCE_FILES})
-#
-# find_package(Python COMPONENTS Interpreter Development)
+if(BUILD_PYTHON_DISTRIBUTIONS)
+  option(BUILD_PYHAL_MODULE_LIBRARY
+         "Built the PyHAL Python C++ extension library distribution." TRUE)
+
+  if(BUILD_PYHAL_MODULE_LIBRARY)
+    find_program(PYPROJECT_BUILD "pyproject-build" REQUIRED)
+    include(PEP427Installer)
+
+    set(PACKAGE_NAME "pyhal")
+
+    set(DISTRIBUTION_NAME "${MACHINEKIT_HAL_PACKAGE_PREFIX}_${PACKAGE_NAME}")
+    string(REGEX REPLACE "[._~ ]" "-" DISTRIBUTION_NORMALIZED_NAME
+                         ${DISTRIBUTION_NAME})
+
+    # Files representing the Python package
+    set(PYHAL_MODULE_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/src/halmodule.cc)
+    set(HAL_PYTHON_MODULE ${CMAKE_CURRENT_SOURCE_DIR}/src/hal.py)
+    # set(PYTHON_INIT ${CMAKE_CURRENT_SOURCE_DIR}/src/__init__.py)
+    set(PYTHON_PDM_BUILD ${CMAKE_CURRENT_SOURCE_DIR}/src/build.py)
+    set(PYHAL_MODULE_CMAKELISTS
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/CMakeLists.txt.in)
+    set(PYTHON_PYPROJECT ${CMAKE_CURRENT_SOURCE_DIR}/src/pyproject.toml.in)
+
+    set(OUTPUT_INDEX
+        ${MACHINEKIT_HAL_PYTHON_INDEX}/${DISTRIBUTION_NORMALIZED_NAME})
+
+    file(REMOVE_RECURSE
+         ${CMAKE_CURRENT_BINARY_DIR}/${DISTRIBUTION_NORMALIZED_NAME})
+    #[[configure_file(
+      ${PYTHON_INIT}
+      ${PACKAGE_NAME}/src/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/${PACKAGE_NAME}/__init__.py
+      COPYONLY
+      NO_SOURCE_PERMISSIONS)]]
+    configure_file(${PYTHON_PDM_BUILD} ${PACKAGE_NAME}/build.py COPYONLY
+                   NO_SOURCE_PERMISSIONS)
+    configure_file(
+      ${PYHAL_MODULE_SOURCE}
+      ${PACKAGE_NAME}/src/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/${PACKAGE_NAME}/halmodule.cc
+      COPYONLY
+      NO_SOURCE_PERMISSIONS)
+    configure_file(
+      ${HAL_PYTHON_MODULE}
+      ${PACKAGE_NAME}/src/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/${PACKAGE_NAME}/hal.py
+      COPYONLY
+      NO_SOURCE_PERMISSIONS)
+    configure_file(${PYHAL_MODULE_CMAKELISTS} ${PACKAGE_NAME}/CMakeLists.txt
+                   @ONLY NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
+    configure_file(${PYTHON_PYPROJECT} ${PACKAGE_NAME}/pyproject.toml @ONLY
+                   NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
+
+    add_custom_target(
+      ${DISTRIBUTION_NAME}_distribution ALL
+      DEPENDS
+        # ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/src/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/${PACKAGE_NAME}/__init__.py
+        ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/src/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/${PACKAGE_NAME}/halmodule.cc
+        ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/pyproject.toml
+      COMMAND ${CMAKE_COMMAND} "-E" "rm" "-rf" "${OUTPUT_INDEX}"
+      COMMAND ${CMAKE_COMMAND} "-E" "make_directory" "${OUTPUT_INDEX}"
+      COMMAND ${PYPROJECT_BUILD} -s -w -o ${OUTPUT_INDEX}
+              ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}
+      COMMENT "Building Python package ${DISTRIBUTION_NAME} via external tool")
+
+    install_wheel(WHEEL "${OUTPUT_INDEX}" COMPONENT
+                  MachinekitHAL_Library_PyHAL_Module_Python_Packages)
+
+    cpack_add_component(MachinekitHAL_Library_PyHAL_Module_Python_Packages
+                        GROUP MachinekitHAL_Library_PyHAL_Module)
+
+    # Specification of artifacts placement in package tree
+    cpack_add_component_group(
+      MachinekitHAL_Library_PyHAL_Module
+      PARENT_GROUP MachinekitHAL_Package_Base_Python_Libraries)
+  endif()
+endif()

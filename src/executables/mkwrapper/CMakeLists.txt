@@ -30,6 +30,7 @@ if(BUILD_PYTHON_DISTRIBUTIONS)
 
   if(BUILD_MKWRAPPER_EXECUTABLE)
     find_program(PYPROJECT_BUILD "pyproject-build" REQUIRED)
+    include(PEP427Installer)
 
     set(PACKAGE_NAME "mkwrapper")
 
@@ -72,5 +73,16 @@ if(BUILD_PYTHON_DISTRIBUTIONS)
       COMMAND ${PYPROJECT_BUILD} -s -w -o ${OUTPUT_INDEX}
               ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}
       COMMENT "Building Python package ${DISTRIBUTION_NAME} via external tool")
+
+    install_wheel(WHEEL "${OUTPUT_INDEX}" COMPONENT
+                  MachinekitHAL_Executable_MKWrapper_Python_Packages)
+
+    cpack_add_component(MachinekitHAL_Executable_MKWrapper_Python_Packages
+                        GROUP MachinekitHAL_Executable_MKWrapper)
+
+    # Specification of artifacts placement in package tree
+    cpack_add_component_group(
+      MachinekitHAL_Executable_MKWrapper
+      PARENT_GROUP MachinekitHAL_Package_Base_Python_Executables)
   endif()
 endif()

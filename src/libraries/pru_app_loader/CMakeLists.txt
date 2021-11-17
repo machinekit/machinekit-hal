@@ -60,13 +60,18 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
                  POSITION_INDEPENDENT_CODE TRUE)
     install(
       TARGETS pru_app_loader
-      EXPORT machinekit_pru_app_loader
+      EXPORT machinekit_hal_pru_app_loader
       LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
               COMPONENT MachinekitHAL_Library_PRU_App_Loader_Libraries
               NAMELINK_COMPONENT MachinekitHAL_Library_PRU_App_Loader_Namelinks
       PUBLIC_HEADER
         DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/pru_app_loader"
         COMPONENT MachinekitHAL_Library_PRU_App_Loader_Headers)
+
+    export(
+      EXPORT machinekit_hal_pru_app_loader
+      NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+      FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALPRUAppLoaderTarget.cmake")
 
     cpack_add_component(MachinekitHAL_Library_PRU_App_Loader_Libraries
                         GROUP MachinekitHAL_Library_PRU_App_Loader)

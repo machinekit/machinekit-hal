@@ -247,9 +247,21 @@ if(BUILD_RUNTIME_LIBRARY)
     INPUT ${CMAKE_CURRENT_BINARY_DIR}/install/rtapi.ini.configure
     NEWLINE_STYLE UNIX FILE_PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
 
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/MachinekitHALUNMANAGED-RuntimeComponent.cmake.in
+    ${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALUNMANAGED-RuntimeComponent.cmake
+    NO_SOURCE_PERMISSIONS
+    @ONLY)
+
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/MachinekitHALMANAGED-RuntimeComponent.cmake.in
+    ${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALMANAGED-RuntimeComponent.cmake
+    NO_SOURCE_PERMISSIONS
+    @ONLY)
+
   install(
     TARGETS
-    runtime runtime_api EXPORT machinekit_hal_runtime
+    runtime EXPORT machinekit_hal_runtime
     LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
             COMPONENT MachinekitHAL_Library_Runtime_Libraries
             NAMELINK_COMPONENT MachinekitHAL_Library_Runtime_Namelinks
@@ -257,10 +269,14 @@ if(BUILD_RUNTIME_LIBRARY)
                   COMPONENT MachinekitHAL_Library_Runtime_Headers)
 
   install(
-    TARGETS runtime_module
-    EXPORT machinekit_hal_managed_module
-    LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
-            COMPONENT MachinekitHAL_Managed_Module_Runtime_Components)
+    TARGETS runtime_api
+    EXPORT machinekit_hal_runtime_api
+    PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime"
+                  COMPONENT MachinekitHAL_Library_Runtime_Headers)
+
+  install(TARGETS runtime_module
+          LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+                  COMPONENT MachinekitHAL_Managed_Module_Runtime_Components)
 
   install(
     FILES ${CMAKE_CURRENT_BINARY_DIR}/install/$<CONFIG>/rtapi.ini
@@ -268,6 +284,18 @@ if(BUILD_RUNTIME_LIBRARY)
     DESTINATION "${MACHINEKIT_HAL_SYSTEM_CONFIG_FULL_INSTALL_DIRECTORY}"
     PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
     COMPONENT MachinekitHAL_Library_Runtime_Config_Files)
+
+  export(
+    EXPORT machinekit_hal_runtime
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALRuntimeTarget.cmake"
+  )
+
+  export(
+    EXPORT machinekit_hal_runtime_api
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALRuntimeAPITarget.cmake"
+  )
 
   cpack_add_component(
     MachinekitHAL_Library_Runtime_Libraries

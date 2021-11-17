@@ -87,3 +87,19 @@ target_include_directories(nanopb_interface INTERFACE ${nanopb_SOURCE_DIR}
 set_target_properties(nanopb_proto_cc PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 set_target_properties(protobuf-nanopb-static
                       PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+
+export(
+  TARGETS nanopb_interface
+  NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+  FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALNanoPBInterfaceTarget.cmake")
+
+export(
+  TARGETS nanopb_proto_cc
+  NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+  FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALNanoPBProtoCCTarget.cmake")
+
+export(
+  TARGETS protobuf-nanopb-static
+  NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+  FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALProtobufNanoPBStaticTarget.cmake"
+)

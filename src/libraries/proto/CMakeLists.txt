@@ -137,13 +137,19 @@ if(BUILD_PROTO_LIBRARY)
                POSITION_INDEPENDENT_CODE TRUE)
   install(
     TARGETS machinetalk_proto_c machinetalk_proto_cc
-    EXPORT machinekit_hal_proto
+    EXPORT machinekit_hal_machinetalk_proto
     LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
             COMPONENT MachinekitHAL_Library_Proto_Libraries
             NAMELINK_COMPONENT MachinekitHAL_Library_Proto_Namelinks
     PUBLIC_HEADER
       DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/machinetalk/protobuf"
       COMPONENT MachinekitHAL_Library_Proto_Headers)
+
+  export(
+    EXPORT machinekit_hal_machinetalk_proto
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALMachinetalkProtoTarget.cmake"
+  )
 
   cpack_add_component(MachinekitHAL_Library_Proto_Libraries
                       GROUP MachinekitHAL_Library_Proto)

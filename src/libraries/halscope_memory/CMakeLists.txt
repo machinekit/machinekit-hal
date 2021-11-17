@@ -49,6 +49,11 @@ if(BUILD_HALSCOPE_MEMORY_LIBRARY)
       DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/halscope_memory"
       COMPONENT MachinekitHAL_Library_HALscope_Memory_Headers)
 
+  export(
+    EXPORT machinekit_hal_halscope_memory
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALHALScopeMemoryTarget.cmake")
+
   cpack_add_component(MachinekitHAL_Library_HALscope_Memory_Headers
                       GROUP MachinekitHAL_Library_HALscope_Memory_Development)
 

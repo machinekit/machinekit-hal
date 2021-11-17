@@ -44,7 +44,7 @@ documentation = "https://machinekit.io"
 repository = "https://github.com/machinekit/machinekit-hal"
 
 [project.scripts]
-comp = "machinekit.hal.bitfile:cli"
+bitfile = "machinekit.hal.bitfile:cli"
 
 [tool]
 [tool.pdm]

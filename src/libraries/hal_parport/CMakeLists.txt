@@ -52,6 +52,11 @@ if(SYS_IO_AVAILABLE)
       DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/hal_parport"
       COMPONENT MachinekitHAL_Library_HAL_Parport_Headers)
 
+  export(
+    EXPORT machinekit_hal_hal_parport
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALHALParportTarget.cmake")
+
   cpack_add_component(MachinekitHAL_Library_HAL_Parport_Headers
                       GROUP MachinekitHAL_Library_HAL_Parport_Development)
 

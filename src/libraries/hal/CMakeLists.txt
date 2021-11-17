@@ -115,7 +115,7 @@ if(BUILD_HAL_LIBRARY)
                ${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY})
 
   install(
-    TARGETS hal hal_api
+    TARGETS hal
     EXPORT machinekit_hal_hal
     LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
             COMPONENT MachinekitHAL_Library_HAL_Libraries
@@ -123,9 +123,27 @@ if(BUILD_HAL_LIBRARY)
     PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/hal"
                   COMPONENT MachinekitHAL_Library_HAL_Headers)
 
+  install(
+    TARGETS hal_api
+    EXPORT machinekit_hal_hal_api
+    PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/hal"
+                  COMPONENT MachinekitHAL_Library_HAL_Headers)
+
   install(TARGETS hal_module
           LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
                   COMPONENT MachinekitHAL_Managed_Module_HAL_Components)
+
+  export(
+    EXPORT machinekit_hal_hal
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALHALTarget.cmake"
+  )
+
+  export(
+    EXPORT machinekit_hal_hal_api
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALHALAPITarget.cmake"
+  )
 
   cpack_add_component(
     MachinekitHAL_Library_HAL_Libraries

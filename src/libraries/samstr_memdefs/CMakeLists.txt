@@ -45,6 +45,11 @@ if(BUILD_SAMSTR_MEMDEFS_LIBRARY)
       DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/samstr_memdefs"
       COMPONENT MachinekitHAL_Library_SamStr_MemDefs_Headers)
 
+  export(
+    EXPORT machinekit_hal_samstr_memdefs
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALSamStrMemDefsTarget.cmake")
+
   cpack_add_component(MachinekitHAL_Library_SamStr_MemDefs_Headers
                       GROUP MachinekitHAL_Library_SamStr_MemDefs_Development)
 

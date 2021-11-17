@@ -30,6 +30,7 @@ if(BUILD_PYTHON_DISTRIBUTIONS)
 
   if(BUILD_SERVICE_LIBRARY)
     find_program(PYPROJECT_BUILD "pyproject-build" REQUIRED)
+    include(PEP427Installer)
 
     set(PACKAGE_NAME "service")
 
@@ -72,5 +73,16 @@ if(BUILD_PYTHON_DISTRIBUTIONS)
       COMMAND ${PYPROJECT_BUILD} -s -w -o ${OUTPUT_INDEX}
               ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}
       COMMENT "Building Python package ${DISTRIBUTION_NAME} via external tool")
+
+    install_wheel(WHEEL "${OUTPUT_INDEX}" COMPONENT
+                  MachinekitHAL_Library_Service_Python_Packages)
+
+    cpack_add_component(MachinekitHAL_Library_Service_Python_Packages
+                        GROUP MachinekitHAL_Library_Service)
+
+    # Specification of artifacts placement in package tree
+    cpack_add_component_group(
+      MachinekitHAL_Library_Service
+      PARENT_GROUP MachinekitHAL_Package_Base_Python_Libraries)
   endif()
 endif()

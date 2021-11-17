@@ -25,13 +25,17 @@
 # ~~~
 
 if(BUILD_PYTHON_DISTRIBUTIONS)
-  find_package(Python COMPONENTS Interpreter)
+  find_package(
+    Python
+    COMPONENTS Interpreter
+    REQUIRED)
   option(BUILD_INSTCOMP_EXECUTABLE
          "Built the Instcomp executable Python distribution." TRUE)
 
   if(BUILD_INSTCOMP_EXECUTABLE)
     find_program(YAPPS2 "yapps2" REQUIRED)
     find_program(PYPROJECT_BUILD "pyproject-build" REQUIRED)
+    include(PEP427Installer)
 
     set(PACKAGE_NAME "instcomp")
 
@@ -110,6 +114,17 @@ if(BUILD_PYTHON_DISTRIBUTIONS)
     set_property(
       GLOBAL APPEND PROPERTY MACHINEKIT_HAL_MODULE_PATH
                              "${CMAKE_CURRENT_BINARY_DIR}/cmake_module")
+
+    install_wheel(WHEEL "${OUTPUT_INDEX}" COMPONENT
+                  MachinekitHAL_Executable_Instcomp_Python_Packages)
+
+    cpack_add_component(MachinekitHAL_Executable_Instcomp_Python_Packages
+                        GROUP MachinekitHAL_Executable_Instcomp)
+
+    # Specification of artifacts placement in package tree
+    cpack_add_component_group(
+      MachinekitHAL_Executable_Instcomp
+      PARENT_GROUP MachinekitHAL_Package_Base_Python_Executables)
 
   endif()
 endif()

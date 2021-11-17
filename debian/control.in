@@ -150,6 +150,34 @@ Description: Universal framework for machine control based on Hardware Abstracti
     motion and other control for atomation, robot and CNC machine tool
     applications.
 
+Package: python3-machinekit-hal
+Architecture: any
+Multi-Arch: foreign
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${cpack:Depends}, ${python3:Depends}
+Description: Machinekit-HAL's Python exacutables
+ This package contains the executables written in Python for the Machinekit-HAL project
+
+Package: python3-libmachinekit-hal
+Architecture: any
+Multi-Arch: foreign
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${cpack:Depends}, ${python3:Depends}
+Description: Machinekit-HAL's Python libraries
+ This package contains the libraries written in Python for the Machinekit-HAL project
+
+Package: python3-modmachinekit-hal-unmanaged-components
+Architecture: any
+Multi-Arch: foreign
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${cpack:Depends}, ${python3:Depends}
+Description: Machinekit-HAL's Python unmanaged modules - components
+ This package contains the unmanaged modules - components written in Python3 for the Machinekit-HAL project.
+
+Package: python3-modmachinekit-hal-unmanaged-drivers
+Architecture: any
+Multi-Arch: foreign
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${cpack:Depends}, ${python3:Depends}
+Description: Machinekit-HAL's Python unmanaged modules - drivers
+ This package contains the unmanaged modules - drivers written in Python3 for the Machinekit-HAL project.
+
 #Package: machinekit-hal-dev
 #Architecture: any
 #Depends: 

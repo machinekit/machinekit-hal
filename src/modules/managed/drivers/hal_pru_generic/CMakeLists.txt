@@ -46,6 +46,11 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
     add_executable(pru_generic_direct_io_only)
     add_executable(pru_generic_bbai_direct_io_only)
     add_executable(pru_decamux)
+    add_executable(pru_generic_debug)
+    add_executable(pru_generic_bbai_debug)
+    add_executable(pru_generic_direct_io_only_debug)
+    add_executable(pru_generic_bbai_direct_io_only_debug)
+    add_executable(pru_decamux_debug)
     add_library(pru_empty_resource_table OBJECT)
 
     # ~~~
@@ -146,14 +151,16 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
     # ~~~
     #[[
     # TODO: The current implementation of FIRMWARE build is a bit
-    # broken or at least not a CMake-ish, because each target
-    # produces 3 output files: the .bin, .dbg and .bin.elf.
+    # broken or at least not a CMake-ish. The '_debug' targets produce
+    # the '.dbg' files, but the other ones produce a '.bin' file
+    # and a '.bin.elf' file both.
     # Usually targets in CMake produce only one file.
-    # The PASM creates (because the language implicitly passes '-d -b'
-    # flags to the assembler) two files ('.bin' and '.dbg'), the 'POST_BUILD'
-    # step create the third '.bin.elf'.
     # Better solution would be to create three targets, one for the '.bin'
-    # output, one for the '.dbg' output and one for the '.bin.elf
+    # output, one for the '.dbg' output and one for the '.bin.elf'
+    # The flags to produce the '.bin' or '.dbg' files also need to be
+    # specified explixitly now. The usual practise is differentiate between
+    # outputs by target type, however everything is build as an executable
+    # target so far.
     ]]
     target_sources(pru_generic PRIVATE ${FIRMWARE_PRU_GENERIC_SOURCE})
     target_sources(pru_generic_bbai PRIVATE ${FIRMWARE_PRU_GENERIC_BBAI_SOURCE})
@@ -162,6 +169,14 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
     target_sources(pru_generic_bbai_direct_io_only
                    PRIVATE ${FIRMWARE_PRU_GENERIC_BBAI_DIRECT_IO_ONLY_SOURCE})
     target_sources(pru_decamux PRIVATE ${FIRMWARE_PRU_DECAMUX_SOURCE})
+    target_sources(pru_generic_debug PRIVATE ${FIRMWARE_PRU_GENERIC_SOURCE})
+    target_sources(pru_generic_bbai_debug
+                   PRIVATE ${FIRMWARE_PRU_GENERIC_BBAI_SOURCE})
+    target_sources(pru_generic_direct_io_only_debug
+                   PRIVATE ${FIRMWARE_PRU_GENERIC_DIRECT_IO_ONLY_SOURCE})
+    target_sources(pru_generic_bbai_direct_io_only_debug
+                   PRIVATE ${FIRMWARE_PRU_GENERIC_BBAI_DIRECT_IO_ONLY_SOURCE})
+    target_sources(pru_decamux_debug PRIVATE ${FIRMWARE_PRU_DECAMUX_SOURCE})
     target_sources(pru_empty_resource_table
                    PRIVATE ${PRU_EMPTY_RESOURCE_TABLE_SOURCES})
 
@@ -181,6 +196,9 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
     # ~~~
     # The FIRMWARE portion ###
     # ~~~
+    set(pru_little_endian_binary "-b")
+    set(pru_pview_debug_file "-d")
+
     foreach(processed_target IN
             ITEMS "pru_generic" "pru_generic_bbai" "pru_generic_direct_io_only"
                   "pru_generic_bbai_direct_io_only" "pru_decamux")
@@ -206,12 +224,34 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
 
       add_dependencies(${processed_target} pru_empty_resource_table)
 
+      target_compile_options(${processed_target}
+                             PRIVATE "${pru_little_endian_binary}")
+
       set_target_properties(
         ${processed_target}
         PROPERTIES
           RUNTIME_OUTPUT_DIRECTORY
           "${MACHINEKIT_HAL_ARTIFACTS_MOUNTPOINT_DIRECTORY}/${CMAKE_INSTALL_LIBDIR}/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/prubin"
       )
+    endforeach()
+
+    foreach(
+      processed_target IN
+      ITEMS "pru_generic_debug" "pru_generic_bbai_debug"
+            "pru_generic_direct_io_only_debug"
+            "pru_generic_bbai_direct_io_only_debug" "pru_decamux_debug")
+
+      string(REPLACE "_debug" "" output_name "${processed_target}")
+
+      target_compile_options(${processed_target}
+                             PRIVATE "${pru_pview_debug_file}")
+
+      set_target_properties(
+        ${processed_target}
+        PROPERTIES
+          RUNTIME_OUTPUT_DIRECTORY
+          "${MACHINEKIT_HAL_ARTIFACTS_MOUNTPOINT_DIRECTORY}/${CMAKE_INSTALL_LIBDIR}/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/prubin"
+          OUTPUT_NAME "${output_name}")
     endforeach()
 
     # ~~~

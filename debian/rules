@@ -81,4 +81,4 @@ else
 endif
 
 %:
-	dh $@ --buildsystem=cmake
+	dh $@ --buildsystem=cmake --with=python3

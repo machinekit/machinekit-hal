@@ -43,9 +43,6 @@ homepage = "https://machinekit.io"
 documentation = "https://machinekit.io"
 repository = "https://github.com/machinekit/machinekit-hal"
 
-[project.scripts]
-comp = "machinekit.hal.comp:cli"
-
 [tool]
 [tool.pdm]
 includes = [

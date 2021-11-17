@@ -23,3 +23,41 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_FIX_UUID_EXECUTABLE "Build the Fix UUID executable." TRUE)
+
+if(BUILD_FIX_UUID_EXECUTABLE)
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/fix-uuid
+    ${CMAKE_CURRENT_BINARY_DIR}/src/fix-uuid
+    FILE_PERMISSIONS
+    OWNER_READ
+    OWNER_EXECUTE
+    GROUP_READ
+    GROUP_EXECUTE
+    WORLD_READ
+    WORLD_EXECUTE
+    @ONLY
+    NEWLINE_STYLE UNIX)
+
+  add_custom_target(
+    fix_uuid ALL
+    COMMENT "Creating the Fix UUID executable"
+    COMMAND
+      ${CMAKE_COMMAND} "-E" "copy_if_different"
+      "${CMAKE_CURRENT_BINARY_DIR}/src/fix-uuid"
+      "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
+    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/src/fix-uuid")
+
+  install(
+    PROGRAMS "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/fix-uuid"
+    DESTINATION "${MACHINEKIT_HAL_EXECUTABLE_DIRECTORY}"
+    COMPONENT MachinekitHAL_Executable_Fix_UUID_Binaries)
+
+  cpack_add_component(MachinekitHAL_Executable_Fix_UUID_Binaries
+                      GROUP MachinekitHAL_Executable_Fix_UUID)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(MachinekitHAL_Executable_Fix_UUID
+                            PARENT_GROUP MachinekitHAL_Package_Base_Executables)
+endif()

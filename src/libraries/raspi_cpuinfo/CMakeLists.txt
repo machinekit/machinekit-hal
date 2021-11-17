@@ -46,8 +46,7 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
 
     set_target_properties(
       raspi_cpuinfo
-      PROPERTIES 
-                 PREFIX "libmkh"
+      PROPERTIES PREFIX "libmkh"
                  PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
                  POSITION_INDEPENDENT_CODE TRUE)
     install(
@@ -58,6 +57,11 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
       PUBLIC_HEADER
         DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/raspi_cpuinfo"
         COMPONENT MachinekitHAL_Library_RasPi_CPUInfo_Headers)
+
+    export(
+      EXPORT machinekit_hal_raspi_cpuinfo
+      NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+      FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALRaspiCPUInfoTarget.cmake")
 
     cpack_add_component(MachinekitHAL_Library_RasPi_CPUInfo_Archives
                         GROUP MachinekitHAL_Library_RasPi_CPUInfo_Development)

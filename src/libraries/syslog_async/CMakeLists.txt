@@ -61,6 +61,11 @@ if(BUILD_SYSLOG_ASYNC_LIBRARY)
       DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/syslog_async"
       COMPONENT MachinekitHAL_Library_SysLog_Async_Headers)
 
+  export(
+    EXPORT machinekit_hal_syslog_async
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALSysLogAsyncTarget.cmake")
+
   cpack_add_component(MachinekitHAL_Library_SysLog_Async_Libraries
                       GROUP MachinekitHAL_Library_SysLog_Async)
   cpack_add_component(

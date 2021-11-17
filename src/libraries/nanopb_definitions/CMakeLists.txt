@@ -57,6 +57,12 @@ if(BUILD_NANOPB_DEFINITIONS_LIBRARY)
       COMPONENT MachinekitHAL_Library_NanoPB_Definitions_Libraries
       NAMELINK_COMPONENT MachinekitHAL_Library_NanoPB_Definitions_Namelinks)
 
+  export(
+    EXPORT machinekit_hal_nanopb_definitions
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALNanoPBDefinitionsTarget.cmake"
+  )
+
   cpack_add_component(MachinekitHAL_Library_NanoPB_Definitions_Libraries
                       GROUP MachinekitHAL_Library_NanoPB_Definitions)
   cpack_add_component(

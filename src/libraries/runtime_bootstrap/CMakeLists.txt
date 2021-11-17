@@ -139,6 +139,12 @@ install(
   PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
                 COMPONENT MachinekitHAL_Library_Runtime_Config_Headers)
 
+export(
+  # EXPORT machinekit_hal_runtime_config
+  TARGETS runtime_config
+  NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+  FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALRuntimeConfigTarget.cmake")
+
 cpack_add_component(MachinekitHAL_Library_Runtime_Config_Libraries
                     GROUP MachinekitHAL_Library_Runtime_Config)
 cpack_add_component(

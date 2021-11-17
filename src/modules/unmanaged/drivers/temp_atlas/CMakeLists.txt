@@ -31,6 +31,7 @@ if(BUILD_PYTHON_DISTRIBUTIONS)
 
   if(BUILD_TEMP_ATLAS_UNMANAGED_MODULE)
     find_program(PYPROJECT_BUILD "pyproject-build" REQUIRED)
+    include(PEP427Installer)
 
     set(PACKAGE_NAME "temp_atlas")
 
@@ -73,5 +74,18 @@ if(BUILD_PYTHON_DISTRIBUTIONS)
       COMMAND ${PYPROJECT_BUILD} -s -w -o ${OUTPUT_INDEX}
               ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}
       COMMENT "Building Python package ${DISTRIBUTION_NAME} via external tool")
+
+    install_wheel(
+      WHEEL "${OUTPUT_INDEX}" COMPONENT
+      MachinekitHAL_Unmanaged_Module_Temp_Atlas_Python_Package_Drivers)
+
+    cpack_add_component(
+      MachinekitHAL_Unmanaged_Module_Temp_Atlas_Python_Package_Drivers
+      GROUP MachinekitHAL_Unmanaged_Module_Temp_Atlas)
+
+    # Specification of artifacts placement in package tree
+    cpack_add_component_group(
+      MachinekitHAL_Unmanaged_Module_Temp_Atlas
+      PARENT_GROUP MachinekitHAL_Package_Base_Python_Unmanaged_Modules_Drivers)
   endif()
 endif()

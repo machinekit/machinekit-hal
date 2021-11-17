@@ -8,6 +8,11 @@
 # directory artifacts
 /tmp
 /machinekit-hal*/
+/libmachinekit-hal*/
+/modmachinekit-hal*/
+/python3*/
+
+/.cpack/
 
 # file artifacts
 /*substvars
@@ -15,5 +20,7 @@
 /shlibs.local
 /files
 /__pycache__
+
+/debhelper-build-stamp
 
 !/changelog.in

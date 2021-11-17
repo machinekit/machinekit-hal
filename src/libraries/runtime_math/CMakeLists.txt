@@ -156,6 +156,11 @@ if(BUILD_RUNTIME_MATH_LIBRARY)
     PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime"
                   COMPONENT MachinekitHAL_Library_Runtime_Math_Headers)
 
+  export(
+    EXPORT machinekit_hal_runtime_math
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALRuntimeMathTarget.cmake")
+
   cpack_add_component(MachinekitHAL_Library_Runtime_Math_Libraries
                       GROUP MachinekitHAL_Library_Runtime_Math)
   cpack_add_component(

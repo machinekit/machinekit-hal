@@ -25,11 +25,11 @@ set(CMAKE_ASM${ASM_DIALECT}_SOURCE_FILE_EXTENSIONS p)
 if(CMAKE_GENERATOR MATCHES "Ninja")
   set(CMAKE_ASM${ASM_DIALECT}_COMPILE_OBJECT
       "mkdir -p $$(echo \"<OBJECT>\" | sed 's/\\.//g')"
-      "<CMAKE_ASM${ASM_DIALECT}_COMPILER> <FLAGS> -b -d <SOURCE> $$(echo \"<OBJECT>\" | sed 's/\\.//g')"
+      "<CMAKE_ASM${ASM_DIALECT}_COMPILER> <FLAGS> <SOURCE> $$(echo \"<OBJECT>\" | sed 's/\\.//g')"
   )
 elseif(CMAKE_GENERATOR MATCHES "Make")
   set(CMAKE_ASM${ASM_DIALECT}_COMPILE_OBJECT
-      "<CMAKE_ASM${ASM_DIALECT}_COMPILER> <FLAGS> -b -d <SOURCE> <TARGET>")
+      "<CMAKE_ASM${ASM_DIALECT}_COMPILER> <FLAGS> <SOURCE> <TARGET>")
 endif()
 
 include(CMakeASMInformation)

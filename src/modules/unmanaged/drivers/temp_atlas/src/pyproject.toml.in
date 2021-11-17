@@ -44,7 +44,7 @@ documentation = "https://machinekit.io"
 repository = "https://github.com/machinekit/machinekit-hal"
 
 [project.scripts]
-comp = "machinekit.hal.module.temp_atlas:cli"
+hal_temp_atlas = "machinekit.hal.module.temp_atlas:cli"
 
 [tool]
 [tool.pdm]

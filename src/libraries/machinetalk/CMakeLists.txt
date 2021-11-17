@@ -102,6 +102,11 @@ if(BUILD_MACHINETALK_LIBRARY)
       DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/machinetalk"
       COMPONENT MachinekitHAL_Library_Machinetalk_Headers)
 
+  export(
+    EXPORT machinekit_hal_machinetalk
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALMachinetalkTarget.cmake")
+
   cpack_add_component(
     MachinekitHAL_Library_Machinetalk_Libraries
     GROUP MachinekitHAL_Library_Machinetalk

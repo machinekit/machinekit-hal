@@ -61,6 +61,11 @@ if(SYS_IO_AVAILABLE)
       PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/upci"
                     COMPONENT MachinekitHAL_Library_UPCI_Headers)
 
+    export(
+      EXPORT machinekit_hal_upci
+      NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+      FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALUPCITarget.cmake")
+
     cpack_add_component(MachinekitHAL_Library_UPCI_Archives
                         GROUP MachinekitHAL_Library_UPCI_Development)
     cpack_add_component(

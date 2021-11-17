@@ -69,6 +69,12 @@ if(BUILD_HOSTMOT2_BITFILE_LIBRARY)
     PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/hostmot2"
                   COMPONENT MachinekitHAL_Library_Hostmot_Bitfile_Headers)
 
+  export(
+    EXPORT machinekit_hal_hostmot2_bitfile
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALHostMot2BitfileTarget.cmake"
+  )
+
   cpack_add_component(
     MachinekitHAL_Library_Hostmot_Bitfile_Libraries
     GROUP MachinekitHAL_Library_Hostmot_Bitfile

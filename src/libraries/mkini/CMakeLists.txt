@@ -60,6 +60,11 @@ if(BUILD_MKINI_LIBRARY)
     PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/mkini"
                   COMPONENT MachinekitHAL_Library_MKini_Headers)
 
+  export(
+    EXPORT machinekit_hal_mkini
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALMKIniTarget.cmake")
+
   cpack_add_component(MachinekitHAL_Library_MKini_Libraries
                       GROUP MachinekitHAL_Library_MKini)
   cpack_add_component(

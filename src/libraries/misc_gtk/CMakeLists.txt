@@ -60,6 +60,11 @@ if(BUILD_MISC_GTK_LIBRARY)
     PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/misc_gtk"
                   COMPONENT MachinekitHAL_Library_Misc_GTK_Headers)
 
+  export(
+    EXPORT machinekit_hal_misc_gtk
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALMiscGTKTarget.cmake")
+
   cpack_add_component(MachinekitHAL_Library_Misc_GTK_Libraries
                       GROUP MachinekitHAL_Library_Misc_GTK)
   cpack_add_component(

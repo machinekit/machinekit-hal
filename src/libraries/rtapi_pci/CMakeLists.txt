@@ -49,6 +49,11 @@ if(BUILD_RTAPI_PCI_LIBRARY)
     PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime"
                   COMPONENT MachinekitHAL_Library_RTAPI_PCI_Headers)
 
+  export(
+    EXPORT machinekit_hal_rtapi_pci
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALRTAPIPCITarget.cmake")
+
   cpack_add_component(MachinekitHAL_Library_RTAPI_PCI_Headers
                       GROUP MachinekitHAL_Library_RTAPI_PCI_Development)
 

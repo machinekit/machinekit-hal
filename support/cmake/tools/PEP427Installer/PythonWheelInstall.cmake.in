@@ -1,0 +1,96 @@
+# ~~~
+# ####################################################################
+# Description:  PythonWheelInstall.cmake.in
+#
+#               This file, 'PythonWheelInstall.cmake.in', implements build system
+#               rules for Machinekit-HAL project
+#
+# Copyright (C) 2021    Jakub Fišer  <jakub DOT fiser AT eryaf DOT com>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+#
+# #####################################################################
+# ~~~
+
+set(python_wheel "@PYTHON_WHEEL_PACKAGE@")
+set(installer_script "@PYTHON_INSTALLER_SCRIPT@")
+set(execution_interpreter "@EXECUTION_INTERPRETER@")
+
+if("${python_wheel}" STREQUAL "")
+  message(FATAL_ERROR "Path to the Python wheel file hs to be specified!")
+endif()
+if("${installer_script}" STREQUAL "")
+  message(
+    FATAL_ERROR
+      "Path to the Machinekit-HAL Python wheel installer executable has to be specified!"
+  )
+endif()
+if("${execution_interpreter}" STREQUAL "")
+  message(
+    FATAL_ERROR
+      "Path to the Python execution interpreter executable to run the Machinekit-HAL installer has to be specified!"
+  )
+endif()
+
+set(python_interpreter "@PYTHON_INTERPRETER@")
+set(python_stdlib_path "@PYTHON_STDLIB_PATH@")
+set(python_platstdlib_path "@PYTHON_PLATSTDLIB_PATH@")
+set(python_purelib_path "@PYTHON_PURELIB_PATH@")
+set(python_platlib_path "@PYTHON_PLATLIB_PATH@")
+set(python_include_path "@PYTHON_INCLUDE_PATH@")
+set(python_platinclude_path "@PYTHON_PLATINCLUDE_PATH@")
+set(python_scripts_path "@PYTHON_SCRIPTS_PATH@")
+set(python_data_path "@PYTHON_DATA_PATH@")
+
+set(wheel_installer_arguments "${installer_script}")
+
+if(NOT "${python_stdlib_path}" STREQUAL "")
+  list(APPEND wheel_installer_arguments "--stdlib-path" "${python_stdlib_path}")
+endif()
+if(NOT "${python_platstdlib_path}" STREQUAL "")
+  list(APPEND wheel_installer_arguments "--platstdlib-path"
+       "${python_platstdlib_path}")
+endif()
+if(NOT "${python_purelib_path}" STREQUAL "")
+  list(APPEND wheel_installer_arguments "--purelib-path"
+       "${python_purelib_path}")
+endif()
+if(NOT "${python_platlib_path}" STREQUAL "")
+  list(APPEND wheel_installer_arguments "--platlib-path"
+       "${python_platlib_path}")
+endif()
+if(NOT "${python_include_path}" STREQUAL "")
+  list(APPEND wheel_installer_arguments "--include-path"
+       "${python_include_path}")
+endif()
+if(NOT "${python_platinclude_path}" STREQUAL "")
+  list(APPEND wheel_installer_arguments "--platinclude-path"
+       "${python_platinclude_path}")
+endif()
+if(NOT "${python_scripts_path}" STREQUAL "")
+  list(APPEND wheel_installer_arguments "--scripts-path"
+       "${python_scripts_path}")
+endif()
+if(NOT "${python_data_path}" STREQUAL "")
+  list(APPEND wheel_installer_arguments "--data-path" "${python_data_path}")
+endif()
+if(NOT "${python_interpreter}" STREQUAL "")
+  list(APPEND wheel_installer_arguments "--interpreter" "${python_interpreter}")
+endif()
+
+list(APPEND wheel_installer_arguments "${python_wheel}")
+
+execute_process(COMMAND ${execution_interpreter} ${wheel_installer_arguments}
+                        COMMAND_ERROR_IS_FATAL ANY)

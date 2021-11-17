@@ -53,6 +53,11 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
     cpack_add_component(MachinekitHAL_Library_PRU_Defines_Headers
                         GROUP MachinekitHAL_Library_PRU_Defines_Development)
 
+    export(
+      EXPORT machinekit_hal_pru_defines
+      NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+      FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALPRUDefinesTarget.cmake")
+
     # Specification of artifacts placement in package tree
     cpack_add_component_group(
       MachinekitHAL_Library_PRU_Defines_Development
