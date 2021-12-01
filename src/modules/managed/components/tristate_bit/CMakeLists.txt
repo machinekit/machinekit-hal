@@ -28,7 +28,7 @@ option(BUILD_TRISTATE_BIT_MANAGED_MODULE
        "Built the Tristate Bit HAL managed module." TRUE)
 
 if(BUILD_TRISTATE_BIT_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     tristate_bit

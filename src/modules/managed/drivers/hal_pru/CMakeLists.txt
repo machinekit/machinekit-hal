@@ -28,7 +28,7 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
   option(BUILD_HAL_PRU_MANAGED_DRIVER_MODULE
          "Built the PRU HAL managed driver module." TRUE)
   if(BUILD_HAL_PRU_MANAGED_DRIVER_MODULE)
-    include(MachinekitHALSymbolVisibility)
+    include(MachinekitHALSymbolVisibilityFunction)
 
     add_library(hal_pru MODULE)
 

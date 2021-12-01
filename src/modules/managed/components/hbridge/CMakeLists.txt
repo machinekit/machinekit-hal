@@ -28,7 +28,7 @@ option(BUILD_HBRIDGE_MANAGED_MODULE "Built the HBridge HAL managed module."
        TRUE)
 
 if(BUILD_HBRIDGE_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     hbridge

@@ -24,7 +24,7 @@
 # #####################################################################
 # ~~~
 
-include(MachinekitHALSymbolVisibility)
+include(MachinekitHALSymbolVisibilityFunction)
 
 add_library(hostmot2_test MODULE)
 

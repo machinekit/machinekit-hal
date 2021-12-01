@@ -28,7 +28,7 @@ option(BUILD_MULTICLICKV2_MANAGED_MODULE
        "Built the Multiclick V2 HAL managed module." TRUE)
 
 if(BUILD_MULTICLICKV2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     multiclickv2

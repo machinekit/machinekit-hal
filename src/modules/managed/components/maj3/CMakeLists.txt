@@ -27,7 +27,7 @@
 option(BUILD_MAJ3_MANAGED_MODULE "Built the Maj3 HAL managed module." TRUE)
 
 if(BUILD_MAJ3_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     maj3

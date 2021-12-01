@@ -1,10 +1,8 @@
-#!/usr/bin/env python3
-
 # create a ring
 # assure records written can be read back
 
 import pytest
-from machinekit import hal
+import machinekit.hal.cyhal as hal
 
 @pytest.mark.usefixtures('realtime')
 class TestCompat(object):

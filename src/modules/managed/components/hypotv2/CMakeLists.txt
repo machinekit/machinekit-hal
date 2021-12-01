@@ -28,7 +28,7 @@ option(BUILD_HYPOTV2_MANAGED_MODULE "Built the Hypot V2 HAL managed module."
        TRUE)
 
 if(BUILD_HYPOTV2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     hypotv2

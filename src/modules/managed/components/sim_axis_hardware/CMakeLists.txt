@@ -28,7 +28,7 @@ option(BUILD_SIM_AXIS_HARDWARE_MANAGED_MODULE
        "Built the Sim AXIS hardware HAL managed module." TRUE)
 
 if(BUILD_SIM_AXIS_HARDWARE_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     sim_axis_hardware

@@ -27,7 +27,7 @@
 option(BUILD_UPDOWN_MANAGED_MODULE "Built the Updown HAL managed module." TRUE)
 
 if(BUILD_UPDOWN_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     updown

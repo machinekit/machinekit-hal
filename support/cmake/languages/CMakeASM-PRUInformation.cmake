@@ -19,9 +19,9 @@ set(CMAKE_ASM${ASM_DIALECT}_SOURCE_FILE_EXTENSIONS p)
 # he is following the requirement
 #
 # Because the Ninja build-system generator for some reason does not recognize
-# the <TARGET> build rule substitution in COMPILE_OBJECT step (and Make has a problem
-# with copying the built artifacts to the target output directory), use this hack
-# to make both Make and Ninja working and happy
+# the <TARGET> build rule substitution in COMPILE_OBJECT step (and Make has a
+# problem with copying the built artifacts to the target output directory), use
+# this hack to make both Make and Ninja working and happy
 if(CMAKE_GENERATOR MATCHES "Ninja")
   set(CMAKE_ASM${ASM_DIALECT}_COMPILE_OBJECT
       "mkdir -p $$(echo \"<OBJECT>\" | sed 's/\\.//g')"

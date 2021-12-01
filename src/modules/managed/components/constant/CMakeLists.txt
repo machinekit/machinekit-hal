@@ -28,7 +28,7 @@ option(BUILD_CONSTANT_MANAGED_MODULE "Built the Constant HAL managed module."
        TRUE)
 
 if(BUILD_CONSTANT_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     constant

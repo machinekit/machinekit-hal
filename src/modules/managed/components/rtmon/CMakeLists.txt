@@ -23,3 +23,22 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_RTMON_MANAGED_MODULE "Built the RTMon HAL managed module." TRUE)
+
+if(BUILD_RTMON_MANAGED_MODULE)
+  include(MachinekitHALCompFunction)
+
+  add_legacy_managed_module(
+    rtmon
+    SOURCE
+    src/rtmon.comp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
+
+  add_dependencies(rtmon comp_executable)
+endif()

@@ -27,5 +27,20 @@
 option(BUILD_BLDC_MANAGED_MODULE "Built the BLDC HAL managed module." TRUE)
 
 if(BUILD_BLDC_MANAGED_MODULE)
+  include(MachinekitHALCompFunction)
 
+  add_legacy_managed_module(
+    bldc
+    SOURCE
+    src/bldc.comp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    LINK_LIBRARIES
+    runtime_math
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
+
+  add_dependencies(bldc comp_executable)
 endif()

@@ -27,7 +27,7 @@
 option(BUILD_MATCH8_MANAGED_MODULE "Built the Match8 HAL managed module." TRUE)
 
 if(BUILD_MATCH8_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     match8

@@ -28,7 +28,7 @@ option(BUILD_STREAMER_MANAGED_MODULE "Built the Streamer HAL managed module."
        TRUE)
 
 if(BUILD_STREAMER_MANAGED_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(streamer MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::streamer ALIAS streamer)

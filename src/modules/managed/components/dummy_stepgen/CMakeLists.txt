@@ -28,7 +28,7 @@ option(BUILD_DUMMY_STEPGEN_MANAGED_MODULE
        "Built the Dummy Stepgen HAL managed module." TRUE)
 
 if(BUILD_DUMMY_STEPGEN_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     dummy_stepgen

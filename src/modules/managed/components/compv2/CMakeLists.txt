@@ -27,7 +27,7 @@
 option(BUILD_COMPV2_MANAGED_MODULE "Built the Comp V2 HAL managed module." TRUE)
 
 if(BUILD_COMPV2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     compv2

@@ -72,6 +72,9 @@ function(install_wheel)
 
   if(${prefix}_INTERPRETER)
     set(PYTHON_INTERPRETER "${prefix}_INTERPRETER")
+  else()
+    set(PYTHON_INTERPRETER
+        "${MACHINEKIT_HAL_PYTHON_INTERPRETER_INSTALL_EXECUTABLE}")
   endif()
 
   set(PYTHON_WHEEL_PACKAGE "${${prefix}_WHEEL}")
@@ -86,7 +89,8 @@ function(install_wheel)
     set(PYTHON_PLATSTDLIB_PATH "\$ENV{DESTDIR}${${prefix}_PLATSTDLIB_PATH}")
   else()
     set(PYTHON_PLATSTDLIB_PATH
-        "\$ENV{DESTDIR}${MACHINEKIT_HAL_PYTHON_PLATSTDLIB_FULL_INSTALL_DIRECTORY}")
+        "\$ENV{DESTDIR}${MACHINEKIT_HAL_PYTHON_PLATSTDLIB_FULL_INSTALL_DIRECTORY}"
+    )
   endif()
   if(${prefix}_PURELIB_PATH)
     set(PYTHON_PURELIB_PATH "\$ENV{DESTDIR}${${prefix}_PURELIB_PATH}")

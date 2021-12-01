@@ -31,3 +31,20 @@
 # #####################################################################
 
 export PATH="@CMAKE_RUNTIME_OUTPUT_DIRECTORY@:${PATH}"
+
+# Needed for the PyTest test run (temporary hack, TODO)
+export MACHINEKIT_INI="@MACHINEKIT_HAL_SYSTEM_CONFIG_OUTPUT_DIRECTORY@/machinekit.ini"
+
+# Needed for the Python virtual environment in BINARY TREE as the Python packages
+# are "installed" and thus the Python modules have the RPATH already removed
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:@CMAKE_LIBRARY_OUTPUT_DIRECTORY@"
+
+# Needed for the Comp and Instcomp executables to properly run the generated CMake
+# projects
+export CMAKE_PREFIX_PATH="@CMAKE_BINARY_DIR@"
+export CMAKE_GENERATOR="@CMAKE_GENERATOR@"
+export MACHINEKIT_HAL_BUILD_CONFIG="$<CONFIG>"
+
+# Activate the BINARY TREE Python virtual environment
+export VIRTUAL_ENV="@PYTHON_VENV_DIRECTORY@"
+export PATH="@PYTHON_VENV_DIRECTORY@/bin:$PATH"

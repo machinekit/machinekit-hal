@@ -28,7 +28,7 @@ option(BUILD_INVERTV2_MANAGED_MODULE "Built the Invert V2 HAL managed module."
        TRUE)
 
 if(BUILD_INVERTV2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     invertv2

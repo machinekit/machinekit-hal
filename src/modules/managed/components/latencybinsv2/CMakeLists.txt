@@ -28,7 +28,7 @@ option(BUILD_LATENCYBINSV2_MANAGED_MODULE
        "Built the Latency Bins V2 HAL managed module." TRUE)
 
 if(BUILD_LATENCYBINSV2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     latencybinsv2

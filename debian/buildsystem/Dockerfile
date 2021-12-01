@@ -125,11 +125,11 @@ RUN curl -1vLf                                                                  
         --output /tmp/cmake.sh &&                                                                                   \
     bash /tmp/cmake.sh --skip-license --prefix=/usr/local
 
-# Python 3.9 has --upgrade-deps, but lower versions needs manual action
+# Python 3.9 has --upgrade-deps, but lower versions need manual action
 RUN python3 -m venv /home/${USER}/pybuild        \
             --system-site-packages            && \
         /home/${USER}/pybuild/bin/pip install    \
-            --upgrade pip build setuptools
+            --upgrade pip setuptools
 
 RUN ln -s /home/${USER}/pybuild/bin/activate \
         /opt/environment/pyactivate

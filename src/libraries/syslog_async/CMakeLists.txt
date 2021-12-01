@@ -31,12 +31,15 @@ if(BUILD_SYSLOG_ASYNC_LIBRARY)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::syslog_async ALIAS syslog_async)
 
   set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/syslog_async.c)
+
+  set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
   set(PUBLIC_HEADER_FILES
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/syslog_async/syslog_async.h)
+      ${PUBLIC_INCLUDE_DIRECTORY}/syslog_async/syslog_async.h)
 
   target_include_directories(
     syslog_async
-    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    PUBLIC $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}>
            $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
   target_sources(
@@ -50,7 +53,8 @@ if(BUILD_SYSLOG_ASYNC_LIBRARY)
                PREFIX "libmkh"
                VERSION ${CMAKE_PROJECT_VERSION}
                PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
-               POSITION_INDEPENDENT_CODE TRUE)
+               POSITION_INDEPENDENT_CODE TRUE
+               PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
   install(
     TARGETS syslog_async
     EXPORT machinekit_hal_syslog_async
@@ -64,7 +68,8 @@ if(BUILD_SYSLOG_ASYNC_LIBRARY)
   export(
     EXPORT machinekit_hal_syslog_async
     NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
-    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALSysLogAsyncTarget.cmake")
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALSysLogAsyncTarget.cmake"
+  )
 
   cpack_add_component(MachinekitHAL_Library_SysLog_Async_Libraries
                       GROUP MachinekitHAL_Library_SysLog_Async)

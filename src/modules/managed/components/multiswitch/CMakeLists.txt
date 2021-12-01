@@ -28,7 +28,7 @@ option(BUILD_MULTISWITCH_MANAGED_MODULE
        "Built the Multiswitch HAL managed module." TRUE)
 
 if(BUILD_MULTISWITCH_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     multiswitch

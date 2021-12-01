@@ -27,7 +27,7 @@
 option(BUILD_WCOMPN_MANAGED_MODULE "Built the WCompN HAL managed module." TRUE)
 
 if(BUILD_WCOMPN_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     wcompn

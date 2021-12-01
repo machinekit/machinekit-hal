@@ -29,7 +29,7 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
          "Built the Arm335xQEP HAL managed driver module." TRUE)
 
   if(BUILD_HAL_ARM335XQEP_MANAGED_DRIVER_MODULE)
-    include(MachinekitHALSymbolVisibility)
+    include(MachinekitHALSymbolVisibilityFunction)
 
     add_library(hal_arm335xqep MODULE)
 

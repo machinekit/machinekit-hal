@@ -14,7 +14,8 @@ import pytest
 import os
 from configparser import ConfigParser
 
-from machinekit import rtapi,hal
+import machinekit.hal.cyhal as hal
+import machinekit.hal.cyruntime as rtapi
 
 @pytest.mark.usefixtures("realtime")
 class TestIcomp():

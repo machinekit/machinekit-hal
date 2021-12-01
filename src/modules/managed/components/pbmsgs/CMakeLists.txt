@@ -29,7 +29,7 @@
 option(BUILD_PBMSGS_MANAGED_MODULE "Built the PBMsgs HAL managed module." TRUE)
 
 if(BUILD_PBMSGS_MANAGED_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(pbmsgs MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::pbmsgs ALIAS pbmsgs)

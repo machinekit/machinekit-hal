@@ -6,7 +6,11 @@
 # and RTAPI are loaded into Python, it's impossible to clear out state, even
 # restarting `realtime`, since `libhal` etc. are now loaded.
 
-PYTEST=pytest-3
+if [ -z ${PYTHON_INTERPRETER+x} ];
+then
+    PYTHON_INTERPRETER="$(which python3)" || ( echo "Python interpreter could not be found"; exit 1 )
+fi
+PYTEST="$PYTHON_INTERPRETER -m pytest"
 TESTDIR="$(dirname $0)"
 
 TESTS=""

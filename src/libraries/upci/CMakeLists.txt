@@ -36,8 +36,11 @@ if(SYS_IO_AVAILABLE)
 
     set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/upci.c
                      ${CMAKE_CURRENT_SOURCE_DIR}/src/bitfile.c)
-    set(PUBLIC_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/upci/bitfile.h
-                            ${CMAKE_CURRENT_SOURCE_DIR}/include/upci/upci.h)
+
+    set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
+    set(PUBLIC_HEADER_FILES ${PUBLIC_INCLUDE_DIRECTORY}/upci/bitfile.h
+                            ${PUBLIC_INCLUDE_DIRECTORY}/upci/upci.h)
 
     target_sources(
       upci
@@ -45,13 +48,14 @@ if(SYS_IO_AVAILABLE)
       PRIVATE ${SOURCE_FILES})
 
     target_include_directories(
-      upci PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+      upci PUBLIC $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}>)
 
     set_target_properties(
       upci
       PROPERTIES PREFIX "libmkh"
                  PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
-                 POSITION_INDEPENDENT_CODE TRUE)
+                 POSITION_INDEPENDENT_CODE TRUE
+                 PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
 
     install(
       TARGETS upci
@@ -64,7 +68,8 @@ if(SYS_IO_AVAILABLE)
     export(
       EXPORT machinekit_hal_upci
       NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
-      FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALUPCITarget.cmake")
+      FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALUPCITarget.cmake"
+    )
 
     cpack_add_component(MachinekitHAL_Library_UPCI_Archives
                         GROUP MachinekitHAL_Library_UPCI_Development)

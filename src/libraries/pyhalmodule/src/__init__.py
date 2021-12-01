@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# vim: sts=4 sw=4 et
-
 """
 
 This module allows the creation of userspace HAL components in Python.
@@ -27,8 +24,8 @@ When the component is requested to exit with 'halcmd unload', a
 KeyboardInterrupt exception will be raised.
 """
 
-import _hal
-from _hal import *
+import machinekit.hal.pyhal.pyhal as _hal
+from .pyhal import *
 
 class _ItemWrap(object):
     def __new__(cls, item):

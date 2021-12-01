@@ -39,7 +39,7 @@ if(SYS_IO_AVAILABLE)
          "Built the Evoreg HAL managed driver module." TRUE)
 
   if(BUILD_HAL_EVOREG_MANAGED_DRIVER_MODULE)
-    include(MachinekitHALSymbolVisibility)
+    include(MachinekitHALSymbolVisibilityFunction)
 
     add_library(hal_evoreg MODULE)
 

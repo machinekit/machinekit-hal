@@ -27,7 +27,7 @@
 option(BUILD_PLUG_MANAGED_MODULE "Built the Plug HAL managed module." TRUE)
 
 if(BUILD_PLUG_MANAGED_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(plug MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::plug ALIAS plug)

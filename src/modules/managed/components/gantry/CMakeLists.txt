@@ -27,7 +27,7 @@
 option(BUILD_GANTRY_MANAGED_MODULE "Built the Gantry HAL managed module." TRUE)
 
 if(BUILD_GANTRY_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     gantry

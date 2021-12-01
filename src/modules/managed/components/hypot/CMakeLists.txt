@@ -27,7 +27,7 @@
 option(BUILD_HYPOT_MANAGED_MODULE "Built the Hypot HAL managed module." TRUE)
 
 if(BUILD_HYPOT_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     hypot

@@ -23,3 +23,23 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_VARI_BIT_ADC_MANAGED_MODULE "Built the Vari bit ADC HAL managed module."
+       TRUE)
+
+if(BUILD_VARI_BIT_ADC_MANAGED_MODULE)
+  include(MachinekitHALCompFunction)
+
+  add_legacy_managed_module(
+    vari_bit_adc
+    SOURCE
+    src/vari_bit_adc.comp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
+
+  add_dependencies(vari_bit_adc comp_executable)
+endif()

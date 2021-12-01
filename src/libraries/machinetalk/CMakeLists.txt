@@ -42,20 +42,22 @@ if(BUILD_MACHINETALK_LIBRARY)
       ${CMAKE_CURRENT_SOURCE_DIR}/src/setup_signals.c
       ${CMAKE_CURRENT_SOURCE_DIR}/src/zeroconf_resolve.cc)
 
+  set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
   set(PUBLIC_HEADER_FILES
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/machinetalk/bin2ascii.hh
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/machinetalk/container.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/machinetalk/czmq-watch.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/machinetalk/inihelp.hh
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/machinetalk/json2pb.hh
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/machinetalk/ll-zeroconf.hh
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/machinetalk/mk-backtrace.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/machinetalk/mk-service.hh
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/machinetalk/mk-zeroconf.hh
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/machinetalk/mk-zeroconf-types.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/machinetalk/pb-hal.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/machinetalk/pbutil.hh
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/machinetalk/setup_signals.h)
+      ${PUBLIC_INCLUDE_DIRECTORY}/machinetalk/bin2ascii.hh
+      ${PUBLIC_INCLUDE_DIRECTORY}/machinetalk/container.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/machinetalk/czmq-watch.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/machinetalk/inihelp.hh
+      ${PUBLIC_INCLUDE_DIRECTORY}/machinetalk/json2pb.hh
+      ${PUBLIC_INCLUDE_DIRECTORY}/machinetalk/ll-zeroconf.hh
+      ${PUBLIC_INCLUDE_DIRECTORY}/machinetalk/mk-backtrace.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/machinetalk/mk-service.hh
+      ${PUBLIC_INCLUDE_DIRECTORY}/machinetalk/mk-zeroconf.hh
+      ${PUBLIC_INCLUDE_DIRECTORY}/machinetalk/mk-zeroconf-types.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/machinetalk/pb-hal.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/machinetalk/pbutil.hh
+      ${PUBLIC_INCLUDE_DIRECTORY}/machinetalk/setup_signals.h)
 
   target_sources(machinetalk PRIVATE ${SOURCE_FILES} ${PUBLIC_HEADER_FILES})
 
@@ -79,7 +81,7 @@ if(BUILD_MACHINETALK_LIBRARY)
 
   target_include_directories(
     machinetalk
-    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    PUBLIC $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}>
            $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
   target_compile_definitions(machinetalk PRIVATE "PB_FIELD_32BIT")
@@ -90,7 +92,8 @@ if(BUILD_MACHINETALK_LIBRARY)
                PREFIX "libmkh"
                VERSION ${CMAKE_PROJECT_VERSION}
                PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
-               POSITION_INDEPENDENT_CODE TRUE)
+               POSITION_INDEPENDENT_CODE TRUE
+               PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
 
   install(
     TARGETS machinetalk
@@ -105,7 +108,8 @@ if(BUILD_MACHINETALK_LIBRARY)
   export(
     EXPORT machinekit_hal_machinetalk
     NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
-    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALMachinetalkTarget.cmake")
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALMachinetalkTarget.cmake"
+  )
 
   cpack_add_component(
     MachinekitHAL_Library_Machinetalk_Libraries

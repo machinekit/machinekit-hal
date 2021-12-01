@@ -23,3 +23,25 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_ADXL345_MANAGED_MODULE "Built the ADXL345 HAL managed module."
+       TRUE)
+
+if(BUILD_ADXL345_MANAGED_MODULE)
+  include(MachinekitHALCompFunction)
+
+  add_legacy_unmanaged_module(
+    adxl345
+    SOURCE
+    src/adxl345.comp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_UNMANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_UNMANAGED_MODULE_DIRECTORY}"
+    LINK_LIBRARIES
+    runtime_math
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Unmanaged_Modules_Components)
+
+  add_dependencies(adxl345 comp_executable)
+endif()

@@ -24,9 +24,5 @@
 # #####################################################################
 # ~~~
 
-get_property(_module_path GLOBAL PROPERTY MACHINEKIT_HAL_MODULE_PATH)
-list(APPEND CMAKE_MODULE_PATH "${_module_path}")
-unset(_module_path)
-
 add_subdirectory(unmanaged)
 add_subdirectory(managed)

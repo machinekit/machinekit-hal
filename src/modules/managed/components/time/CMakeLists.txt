@@ -27,7 +27,7 @@
 option(BUILD_TIME_MANAGED_MODULE "Built the Time HAL managed module." TRUE)
 
 if(BUILD_TIME_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     time

@@ -28,7 +28,7 @@ option(BUILD_XHC_HB04_UTIL_MANAGED_MODULE
        "Built the XHC HB04 Util HAL managed module." TRUE)
 
 if(BUILD_XHC_HB04_UTIL_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     xhc_hb04_util

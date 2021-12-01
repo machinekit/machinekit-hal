@@ -28,7 +28,7 @@ option(BUILD_DEADZONE_MANAGED_MODULE "Built the Deadzone HAL managed module."
        TRUE)
 
 if(BUILD_DEADZONE_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     deadzone

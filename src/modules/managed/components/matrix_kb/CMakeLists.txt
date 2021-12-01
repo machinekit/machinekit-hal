@@ -28,7 +28,7 @@ option(BUILD_MATRIX_KB_MANAGED_MODULE "Built the Matrix KB HAL managed module."
        TRUE)
 
 if(BUILD_MATRIX_KB_MANAGED_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(matrix_kb MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::matrix_kb ALIAS matrix_kb)

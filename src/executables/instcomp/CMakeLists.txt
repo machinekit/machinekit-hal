@@ -37,6 +37,16 @@ if(BUILD_PYTHON_DISTRIBUTIONS)
     find_program(PYPROJECT_BUILD "pyproject-build" REQUIRED)
     include(PEP427Installer)
 
+    define_property(
+      GLOBAL
+      PROPERTY MACHINEKIT_HAL_INSTCOMP
+      BRIEF_DOCS "Path to the Instcomp executable"
+      FULL_DOCS
+        [[
+      Machinekit-HAL buildsystem (internal only) global property to specify the Instcomp
+      executable (which should live in a special Python virtual environment).
+      ]])
+
     set(PACKAGE_NAME "instcomp")
 
     set(DISTRIBUTION_NAME "${MACHINEKIT_HAL_PACKAGE_PREFIX}_${PACKAGE_NAME}")
@@ -71,49 +81,88 @@ if(BUILD_PYTHON_DISTRIBUTIONS)
     configure_file(src/pyproject.toml.in ${PACKAGE_NAME}/pyproject.toml @ONLY
                    NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
 
-    add_custom_target(
-      instcomp_distribution ALL
+    add_custom_command(
+      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/build_${PACKAGE_NAME}_wheel.stamp
       DEPENDS
         ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/src/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/${PACKAGE_NAME}/__init__.py
         ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/src/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/${PACKAGE_NAME}/instcomp.py
         ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/pyproject.toml
-      COMMAND ${CMAKE_COMMAND} "-E" "rm" "-rf" "${OUTPUT_INDEX}"
+        ${INSTCOMP_SOURCE}
+      COMMAND ${CMAKE_COMMAND} "-E" "rm" "-f" "${OUTPUT_INDEX}/*.whl"
       COMMAND ${CMAKE_COMMAND} "-E" "make_directory" "${OUTPUT_INDEX}"
-      COMMAND ${PYPROJECT_BUILD} -s -w -o ${OUTPUT_INDEX}
-              ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}
-      COMMENT "Building Python package ${DISTRIBUTION_NAME} via external tool")
+      COMMAND
+        ${CMAKE_COMMAND} "-E" "env"
+        "CMAKE_PREFIX_PATH=${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}"
+        "CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}" "${PYPROJECT_BUILD}" "-w"
+        "-o" "${OUTPUT_INDEX}" "${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}"
+      COMMAND ${CMAKE_COMMAND} "-E" "touch"
+              "${CMAKE_CURRENT_BINARY_DIR}/build_${PACKAGE_NAME}_wheel.stamp"
+      COMMENT
+        "Building Python package wheel ${DISTRIBUTION_NAME} via external tool")
 
-    set(MACHINEKIT_HAL_INSTCOMP_CMAKE_MODULE
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/MachinekitHALInstcomp.cmake")
-    set(MACHINEKIT_HAL_INSTCOMP_INTERNAL
-        "${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/src/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/${PACKAGE_NAME}/instcomp.py"
+    add_custom_command(
+      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/build_${PACKAGE_NAME}_sdist.stamp
+      DEPENDS
+        ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/src/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/${PACKAGE_NAME}/__init__.py
+        ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/src/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/${PACKAGE_NAME}/instcomp.py
+        ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/pyproject.toml
+        ${INSTCOMP_SOURCE}
+      COMMAND ${CMAKE_COMMAND} "-E" "rm" "-f" "${OUTPUT_INDEX}/*.tar.gz"
+      COMMAND ${CMAKE_COMMAND} "-E" "make_directory" "${OUTPUT_INDEX}"
+      COMMAND
+        ${CMAKE_COMMAND} "-E" "env"
+        "CMAKE_PREFIX_PATH=${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}"
+        "CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}" "${PYPROJECT_BUILD}" "-s"
+        "-o" "${OUTPUT_INDEX}" "${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}"
+      COMMAND ${CMAKE_COMMAND} "-E" "touch"
+              "${CMAKE_CURRENT_BINARY_DIR}/build_${PACKAGE_NAME}_sdist.stamp"
+      COMMENT
+        "Building Python package sdist ${DISTRIBUTION_NAME} via external tool")
+
+    add_custom_target(
+      ${DISTRIBUTION_NAME}_wheel_distribution ALL
+      DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/build_${PACKAGE_NAME}_wheel.stamp
+              ${INSTCOMP_SOURCE}
+      COMMENT
+        "Requesting building Python package wheel ${DISTRIBUTION_NAME} via external tool"
     )
 
     add_custom_target(
-      instcomp_executable ALL
+      ${DISTRIBUTION_NAME}_sdist_distribution ALL
+      DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/build_${PACKAGE_NAME}_sdist.stamp
+              ${INSTCOMP_SOURCE}
+      COMMENT
+        "Requesting building Python package sdist ${DISTRIBUTION_NAME} via external tool"
+    )
+
+    add_custom_command(
+      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/build_instcomp_executable.stamp
+      DEPENDS ${DISTRIBUTION_NAME}_wheel_distribution
       COMMAND Python::Interpreter "-m" "venv"
               "${CMAKE_CURRENT_BINARY_DIR}/venv_instcomp"
       COMMAND
         ${CMAKE_COMMAND} "-E" "env"
         "${CMAKE_CURRENT_BINARY_DIR}/venv_instcomp/bin/pip" "install"
-        "${OUTPUT_INDEX}/*.whl"
+        "--force-reinstall" "${OUTPUT_INDEX}/*.whl"
       COMMENT "Creating virtual environment for the 'instcomp' tool")
 
-    add_dependencies(instcomp_executable instcomp_distribution)
+    add_custom_target(
+      instcomp_executable ALL
+      DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/build_instcomp_executable.stamp
+      COMMENT "Building the virtual environment for the 'instcomp' tool")
 
-    set(MACHINEKIT_HAL_INSTCOMP_CMAKE_MODULE
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/MachinekitHALInstcomp.cmake")
-    set(MACHINEKIT_HAL_INSTCOMP_INTERNAL
-        "${CMAKE_CURRENT_BINARY_DIR}/venv_instcomp/bin/instcomp")
+    add_dependencies(instcomp_executable
+                     ${DISTRIBUTION_NAME}_wheel_distribution)
 
     configure_file(
-      src/MachinekitHALInstcompInternal.cmake.in
-      cmake_module/MachinekitHALInstcomp.cmake @ONLY
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/MachinekitHALInstcompFunction.cmake
+      ${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALInstcompFunction.cmake
+      @ONLY
       NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
 
     set_property(
-      GLOBAL APPEND PROPERTY MACHINEKIT_HAL_MODULE_PATH
-                             "${CMAKE_CURRENT_BINARY_DIR}/cmake_module")
+      GLOBAL PROPERTY MACHINEKIT_HAL_INSTCOMP
+                      "${CMAKE_CURRENT_BINARY_DIR}/venv_instcomp/bin/instcomp")
 
     install_wheel(WHEEL "${OUTPUT_INDEX}" COMPONENT
                   MachinekitHAL_Executable_Instcomp_Python_Packages)

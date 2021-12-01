@@ -29,7 +29,7 @@
 option(BUILD_LUTN_MANAGED_MODULE "Built the LUTN HAL managed module." TRUE)
 
 if(BUILD_LUTN_MANAGED_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(lutn MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::lutn ALIAS lutn)

@@ -31,13 +31,15 @@ if(BUILD_MISC_GTK_LIBRARY)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::miscgtk ALIAS miscgtk)
 
   set(SOURCE_FILES src/miscgtk.c)
-  set(PUBLIC_HEADER_FILES
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/misc_gtk/miscgtk.h)
+
+  set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
+  set(PUBLIC_HEADER_FILES ${PUBLIC_INCLUDE_DIRECTORY}/misc_gtk/miscgtk.h)
 
   target_sources(miscgtk PRIVATE ${SOURCE_FILES} ${PUBLIC_HEADER_FILES})
 
   target_include_directories(
-    miscgtk PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+    miscgtk PUBLIC $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}>)
 
   pkg_check_modules(GTK "gtk+-2.0" REQUIRED IMPORTED_TARGET)
 
@@ -49,7 +51,8 @@ if(BUILD_MISC_GTK_LIBRARY)
                PREFIX "libmkh"
                VERSION ${CMAKE_PROJECT_VERSION}
                RUNTIME_OUTPUT_DIRECTORY "${CMAKE_INSTALL_LIBDIR}"
-               PUBLIC_HEADER "${PUBLIC_HEADER_FILES}")
+               PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
+               PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
 
   install(
     TARGETS miscgtk
@@ -63,7 +66,8 @@ if(BUILD_MISC_GTK_LIBRARY)
   export(
     EXPORT machinekit_hal_misc_gtk
     NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
-    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALMiscGTKTarget.cmake")
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALMiscGTKTarget.cmake"
+  )
 
   cpack_add_component(MachinekitHAL_Library_Misc_GTK_Libraries
                       GROUP MachinekitHAL_Library_Misc_GTK)

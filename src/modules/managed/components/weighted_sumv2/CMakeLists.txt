@@ -28,7 +28,7 @@ option(BUILD_WEIGHTED_SUMV2_MANAGED_MODULE
        "Built the Weighted Sum V2 HAL managed module." TRUE)
 
 if(BUILD_WEIGHTED_SUMV2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     weighted_sumv2

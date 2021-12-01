@@ -28,7 +28,7 @@ option(BUILD_MUX_GENERIC_MANAGED_MODULE
        "Built the Mux Generic HAL managed module." TRUE)
 
 if(BUILD_MUX_GENERIC_MANAGED_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(mux_generic MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::mux_generic ALIAS mux_generic)

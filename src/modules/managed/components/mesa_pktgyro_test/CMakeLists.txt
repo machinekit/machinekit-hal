@@ -23,3 +23,27 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_MESA_PTHGYRO_TEST_MANAGED_MODULE
+       "Built the Mesa Pktgyro Test HAL managed module." TRUE)
+
+if(BUILD_MESA_PTHGYRO_TEST_MANAGED_MODULE)
+  include(MachinekitHALCompFunction)
+
+  add_legacy_managed_module(
+    mesa_pktgyro_test
+    SOURCE
+    src/mesa_pktgyro_test.comp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    LINK_LIBRARIES
+    hostmot2_api
+    hostmot2_bitfile
+    user_pci
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
+
+  add_dependencies(mesa_pktgyro_test comp_executable)
+endif()

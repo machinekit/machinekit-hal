@@ -28,7 +28,7 @@ option(BUILD_OUT_TO_IO_MANAGED_MODULE "Built the Out to IO HAL managed module."
        TRUE)
 
 if(BUILD_OUT_TO_IO_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     out_to_io

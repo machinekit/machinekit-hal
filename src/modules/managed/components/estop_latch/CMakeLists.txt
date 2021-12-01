@@ -28,7 +28,7 @@ option(BUILD_ESTOP_LATCH_MANAGED_MODULE
        "Built the Estop Latch HAL managed module." TRUE)
 
 if(BUILD_ESTOP_LATCH_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     estop_latch

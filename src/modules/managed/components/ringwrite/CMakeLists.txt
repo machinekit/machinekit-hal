@@ -23,3 +23,23 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_RINGWRITE_MANAGED_MODULE "Built the RingWrite HAL managed module."
+       TRUE)
+
+if(BUILD_RINGWRITE_MANAGED_MODULE)
+  include(MachinekitHALCompFunction)
+
+  add_legacy_managed_module(
+    ringwrite
+    SOURCE
+    src/ringwrite.comp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
+
+  add_dependencies(ringwrite comp_executable)
+endif()

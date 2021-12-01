@@ -28,7 +28,7 @@ option(BUILD_STATSV2_MANAGED_MODULE "Built the Stats V2 HAL managed module."
        TRUE)
 
 if(BUILD_STATSV2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     statsv2

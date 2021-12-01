@@ -27,7 +27,7 @@
 option(BUILD_ANDN_MANAGED_MODULE "Built the ANDN HAL managed module." TRUE)
 
 if(BUILD_ANDH_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     andn

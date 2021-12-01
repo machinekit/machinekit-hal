@@ -27,7 +27,7 @@
 option(BUILD_MUX16_MANAGED_MODULE "Built the Mux16 HAL managed module." TRUE)
 
 if(BUILD_MUX16_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     mux16

@@ -39,9 +39,22 @@ find_package(
   REQUIRED)
 
 find_program(FIND "find" REQUIRED)
+# find_program(XARGS "xargs" REQUIRED)
+find_program(PIP "pip" "pip3" REQUIRED)
+
+configure_file(
+  ${CMAKE_CURRENT_LIST_DIR}/PEP503PythonIndex/create_index.py.in
+  ${CMAKE_CURRENT_BINARY_DIR}/PEP503PythonIndex/create_index.py.configured @ONLY
+  NO_SOURCE_PERMISSIONS NEWLINE_STYLE UNIX)
+
+file(
+  GENERATE
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/PEP503PythonIndex/$<CONFIG>/create_index.py
+  INPUT ${CMAKE_CURRENT_BINARY_DIR}/PEP503PythonIndex/create_index.py.configured
+  NO_SOURCE_PERMISSIONS NEWLINE_STYLE UNIX)
 
 add_custom_target(
-  create_binary_tree_venv ALL
+  create_binary_tree_venv
   COMMAND ${CMAKE_COMMAND} "-E" "rm" "-rf" "${PYTHON_VENV_DIRECTORY}"
   COMMAND ${CMAKE_COMMAND} "-E" "make_directory" "${PYTHON_VENV_DIRECTORY}"
   COMMAND Python::Interpreter "-m" "venv" "--system-site-packages" "--prompt"
@@ -53,6 +66,18 @@ add_custom_target(
 add_custom_target(
   generate_pep503_index
   COMMAND Python::Interpreter
-          "${CMAKE_CURRENT_BINARY_DIR}/create_pep503_index.py"
+          "${CMAKE_CURRENT_BINARY_DIR}/PEP503PythonIndex/$<CONFIG>/create_index.py"
   COMMENT "Generating the PEP503 Index repository"
   VERBATIM)
+
+add_custom_target(
+  binary_tree_venv
+  DEPENDS create_binary_tree_venv generate_pep503_index
+  COMMAND
+    ${FIND} "${MACHINEKIT_HAL_PYTHON_INDEX}" "-iname" "*.whl" "-exec"
+    "${PYTHON_VENV_DIRECTORY}/bin/pip" "install" "--force-reinstall"
+    "--extra-index-url" "file://${MACHINEKIT_HAL_PYTHON_INDEX}" "{}" \;
+  VERBATIM
+  COMMENT
+    "Installing Machinekit-HAL's Python packages into BINARY TREE runtime virtual environment"
+)

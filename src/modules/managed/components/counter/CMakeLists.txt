@@ -28,7 +28,7 @@ option(BUILD_COUNTER_MANAGED_MODULE "Built the Counter HAL managed module."
        TRUE)
 
 if(BUILD_COUNTER_MANAGED_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(counter MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::counter ALIAS counter)

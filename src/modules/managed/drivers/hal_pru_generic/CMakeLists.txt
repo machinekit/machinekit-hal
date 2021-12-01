@@ -29,7 +29,7 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
          "Built the PRU Generic HAL managed driver module." TRUE)
   if(BUILD_HAL_PRU_GENERIC_MANAGED_DRIVER_MODULE)
 
-    cmake_minimum_required(VERSION 3.21)
+    cmake_minimum_required(VERSION 3.22)
 
     project(
       HAL-PRU-generic
@@ -257,7 +257,7 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
     # ~~~
     # The MODULE portion ###
     # ~~~
-    include(MachinekitHALSymbolVisibility)
+    include(MachinekitHALSymbolVisibilityFunction)
 
     target_link_libraries(
       hal_pru_generic PRIVATE runtime_api hal_api user_pci runtime_math

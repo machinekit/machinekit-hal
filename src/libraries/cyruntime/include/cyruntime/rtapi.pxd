@@ -6,7 +6,7 @@ cdef extern from "stdarg.h":
     ctypedef struct va_list:
         pass
 
-cdef extern from "rtapi_shmkeys.h":
+cdef extern from "runtime/rtapi_shmkeys.h":
     cdef int DEFAULT_MOTION_SHMEM_KEY
     cdef int GLOBAL_KEY
     cdef int SCOPE_SHM_KEY
@@ -15,12 +15,12 @@ cdef extern from "rtapi_shmkeys.h":
     cdef int RTAPI_RING_SHM_KEY
 
 
-cdef extern from "rtapi_bitops.h":
+cdef extern from "runtime/rtapi_bitops.h":
     ctypedef unsigned long rtapi_atomic_type
     int RTAPI_BIT_TEST(rtapi_atomic_type *a, int b)
     int RTAPI_BIT(int b)
 
-cdef extern from "rtapi.h":
+cdef extern from "runtime/rtapi.h":
     int rtapi_init(const char *name)
     int rtapi_exit(int comp_id)
     int rtapi_next_handle()
@@ -62,7 +62,7 @@ cdef extern from "rtapi.h":
     void rtapi_print_msg(int level, const char *fmt, ...)
 
 
-cdef extern from "rtapi_heap.h":
+cdef extern from "runtime/rtapi_heap.h":
     int RTAPIHEAP_TRACE_MALLOC
     int RTAPIHEAP_TRACE_FREE
 
@@ -81,3 +81,6 @@ cdef extern from "rtapi_heap.h":
     size_t rtapi_heap_walk_freelist(rtapi_heap *h,
                                     chunk_t callback,
                                     void *user)
+
+cdef extern from "runtime/config.h":
+    cdef char *const machinekit_hal_ini_file

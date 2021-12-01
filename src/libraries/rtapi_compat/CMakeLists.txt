@@ -32,18 +32,24 @@
 add_library(rtapi_compat INTERFACE)
 
 set(SOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/src/rtapi_compat.c")
-set(PUBLIC_HEADER_FILES
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_compat.h")
+
+set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
+set(PUBLIC_HEADER_FILES "${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_compat.h")
 
 target_sources(rtapi_compat INTERFACE ${SOURCE_FILES} ${PUBLIC_HEADER_FILES})
 
 target_include_directories(
   rtapi_compat
-  INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  INTERFACE $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}>
             $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
-set_target_properties(rtapi_compat PROPERTIES PUBLIC_HEADER
-                                              "${PUBLIC_HEADER_FILES}")
+            target_link_libraries(rtapi_compat INTERFACE mkini)
+
+set_target_properties(
+  rtapi_compat
+  PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
+             PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
 install(
   TARGETS rtapi_compat
   EXPORT machinekit_hal_rtapi_compat
@@ -53,7 +59,8 @@ install(
 export(
   EXPORT machinekit_hal_rtapi_compat
   NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
-  FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALRuntimeCompatTarget.cmake")
+  FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALRuntimeCompatTarget.cmake"
+)
 
 cpack_add_component(MachinekitHAL_Library_RTAPI_Compat_Headers
                     GROUP MachinekitHAL_Library_RTAPI_Compat_Development)

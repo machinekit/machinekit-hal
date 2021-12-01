@@ -30,11 +30,14 @@ if(BUILD_RUNTIME_MEMORY_LIBRARY)
               runtime_memory_api)
 
   set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/shmdrvapi.c)
-  set(PUBLIC_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/shmdrv.h)
+
+  set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
+  set(PUBLIC_HEADER_FILES ${PUBLIC_INCLUDE_DIRECTORY}/runtime/shmdrv.h)
 
   target_include_directories(
     runtime_memory_api
-    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    PUBLIC $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}>
            $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
   target_sources(
@@ -54,7 +57,8 @@ if(BUILD_RUNTIME_MEMORY_LIBRARY)
                PREFIX "libmkh"
                VERSION ${CMAKE_PROJECT_VERSION}
                PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
-               POSITION_INDEPENDENT_CODE TRUE)
+               POSITION_INDEPENDENT_CODE TRUE
+               PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
   install(
     TARGETS runtime_memory_api
     EXPORT machinekit_hal_runtime_memory_api

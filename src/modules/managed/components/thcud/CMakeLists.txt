@@ -23,3 +23,24 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_THCUD_MANAGED_MODULE "Built the THCud HAL managed module." TRUE)
+
+if(BUILD_THCUD_MANAGED_MODULE)
+  include(MachinekitHALCompFunction)
+
+  add_legacy_managed_module(
+    thcud
+    SOURCE
+    src/thcud.comp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    LINK_LIBRARIES
+    runtime_math
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
+
+  add_dependencies(thcud comp_executable)
+endif()

@@ -34,10 +34,13 @@ if(BUILD_HAL_COMMAND_LIBRARY)
       ${CMAKE_CURRENT_SOURCE_DIR}/src/halcmd_commands.c
       ${CMAKE_CURRENT_SOURCE_DIR}/src/halcmd.c
       ${CMAKE_CURRENT_SOURCE_DIR}/src/halcmd_rtapiapp.cc)
+
+  set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
   set(PUBLIC_HEADER_FILES
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal_command/halcmd_commands.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal_command/halcmd.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal_command/halcmd_rtapiapp.h)
+      ${PUBLIC_INCLUDE_DIRECTORY}/hal_command/halcmd_commands.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/hal_command/halcmd.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/hal_command/halcmd_rtapiapp.h)
 
   target_include_directories(
     hal_command
@@ -72,7 +75,14 @@ if(BUILD_HAL_COMMAND_LIBRARY)
                PREFIX "libmkh"
                VERSION ${CMAKE_PROJECT_VERSION}
                PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
-               POSITION_INDEPENDENT_CODE TRUE)
+               POSITION_INDEPENDENT_CODE TRUE
+               PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
+
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/MachinekitHALHAL-CommandComponent.cmake.in
+    ${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALHAL-CommandComponent.cmake
+    NO_SOURCE_PERMISSIONS
+    @ONLY)
 
   install(
     TARGETS hal_command
@@ -87,7 +97,8 @@ if(BUILD_HAL_COMMAND_LIBRARY)
   export(
     EXPORT machinekit_hal_hal_command
     NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
-    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALHALCommandTarget.cmake")
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALHALCommandTarget.cmake"
+  )
 
   cpack_add_component(
     MachinekitHAL_Library_HAL_Command_Libraries

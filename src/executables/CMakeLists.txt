@@ -24,9 +24,7 @@
 # #####################################################################
 # ~~~
 
-add_custom_target(
-  setuid
-  COMMENT "Setting the setuid bit on selected targets")
+add_custom_target(setuid COMMENT "Setting the setuid bit on selected targets")
 
 add_subdirectory(comp)
 add_subdirectory(decode_protobuf)

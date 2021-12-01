@@ -27,14 +27,20 @@ option(BUILD_SAMSTR_MEMDEFS_LIBRARY "Built the SamStr MemDefs library." TRUE)
 if(BUILD_SAMSTR_MEMDEFS_LIBRARY)
   add_library(samstr_memdefs INTERFACE)
 
+  set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
+  set(PUBLIC_HEADER_FILES
+      ${PUBLIC_INCLUDE_DIRECTORY}/samstr_memdefs/samstr_memdefs.h)
+
   target_include_directories(
     samstr_memdefs
-    INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    INTERFACE $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}>
               $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
   set_target_properties(
-    samstr_memdefs PROPERTIES PUBLIC_HEADER
-                              include/samstr_memdefs/samstr_memdefs.h)
+    samstr_memdefs
+    PROPERTIES PUBLIC_HEADER ${PUBLIC_HEADER_FILES}
+               PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
 
   target_link_libraries(samstr_memdefs INTERFACE runtime_api)
 
@@ -48,7 +54,8 @@ if(BUILD_SAMSTR_MEMDEFS_LIBRARY)
   export(
     EXPORT machinekit_hal_samstr_memdefs
     NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
-    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALSamStrMemDefsTarget.cmake")
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALSamStrMemDefsTarget.cmake"
+  )
 
   cpack_add_component(MachinekitHAL_Library_SamStr_MemDefs_Headers
                       GROUP MachinekitHAL_Library_SamStr_MemDefs_Development)

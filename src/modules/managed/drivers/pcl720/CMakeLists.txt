@@ -1,9 +1,8 @@
 # ~~~
 # ####################################################################
-# Description:  MachinekitHALUNMANAGED-HALComponent.cmake.in
+# Description:  CMakeLists.txt
 #
-#               This file, 'MachinekitHALUNMANAGED-HALComponent.cmake.in',
-#               implements build system
+#               This file, 'CMakeLists.txt', implements build system
 #               rules for Machinekit-HAL project
 #
 # Copyright (C) 2021    Jakub Fišer  <jakub DOT fiser AT eryaf DOT com>
@@ -24,3 +23,33 @@
 #
 # #####################################################################
 # ~~~
+
+if(NOT DEFINED SYS_IO_AVAILABLE)
+  if(NOT DEFINED check_include_files)
+    include(CheckIncludeFiles)
+  endif()
+
+  check_include_files("sys/io.h" SYS_IO_AVAILABLE)
+endif()
+
+if(SYS_IO_AVAILABLE)
+  option(BUILD_PCL720_MANAGED_MODULE "Built the PCL720 HAL managed module."
+         TRUE)
+
+  if(BUILD_PCL720_MANAGED_MODULE)
+    include(MachinekitHALCompFunction)
+
+    add_legacy_managed_module(
+      pcl720
+      SOURCE
+      src/pcl720.comp
+      OUTPUT_DIRECTORY
+      "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+      INSTALL_DIRECTORY
+      "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+      CPACK_OUTPUT_GROUP
+      MachinekitHAL_Package_Base_Managed_Modules_Components)
+
+    add_dependencies(pcl720 comp_executable)
+  endif()
+endif()

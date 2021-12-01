@@ -1,0 +1,74 @@
+# ~~~
+# ####################################################################
+# Description:  CMakeLists.txt
+#
+#               This file, 'CMakeLists.txt', implements build system
+#               rules for Machinekit-HAL project
+#
+# Copyright (C) 2021    Jakub Fišer  <jakub DOT fiser AT eryaf DOT com>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+#
+# #####################################################################
+# ~~~
+
+cmake_minimum_required(VERSION 3.22)
+
+project(
+  CyRuntimeModule
+  VERSION @CMAKE_PROJECT_VERSION@
+  DESCRIPTION "Python Cython extension module for Machinekit-HAL Runtime."
+  HOMEPAGE_URL "https://machinekit.io"
+  LANGUAGES C)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
+set(CMAKE_EXPORT_LINK_COMMANDS TRUE)
+
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_EXTENSIONS FALSE)
+set(CMAKE_CXX_EXTENSIONS FALSE)
+set(CMAKE_C_STANDARD_REQUIRED TRUE)
+
+set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
+
+find_package(
+  Python 3.6...4.0
+  COMPONENTS Development
+  REQUIRED)
+
+find_package(
+  Machinekit-HAL
+  COMPONENTS Unmanaged-Runtime HAL-Command
+  REQUIRED)
+
+set(SOURCE_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/machinekit/hal/cyruntime/rtapi.c)
+
+python_add_library(cyruntime MODULE WITH_SOABI ${SOURCE_FILES})
+
+target_link_libraries(
+  cyruntime PRIVATE Machinekit::HAL::runtime Machinekit::HAL::hal_command
+                   Machinekit::HAL::runtime_config)
+
+set_target_properties(
+    cyruntime
+    PROPERTIES OUTPUT_NAME "rtapi")
+
+install(
+  TARGETS cyruntime
+  LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}
+  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_PREFIX})

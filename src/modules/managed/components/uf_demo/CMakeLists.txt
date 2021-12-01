@@ -27,7 +27,7 @@
 option(BUILD_UFDEMO_MANAGED_MODULE "Built the Ufdemo HAL managed module." TRUE)
 
 if(BUILD_UFDEMO_MANAGED_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(ufdemo MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::ufdemo ALIAS ufdemo)

@@ -1,1 +1,1 @@
-from .cyhal import *
+from .rtapi import *

@@ -24,43 +24,22 @@
 # #####################################################################
 # ~~~
 
-if(NOT DEFINED SYS_IO_AVAILABLE)
-  if(NOT DEFINED check_include_files)
-    include(CheckIncludeFiles)
+option(BUILD_REMOTE_MANAGED_MODULE "Built the Remote HAL managed module."
+         TRUE)
+
+  if(BUILD_REMOTE_MANAGED_MODULE)
+    include(MachinekitHALCompFunction)
+
+    add_legacy_managed_module(
+      remote
+      SOURCE
+      src/remote.comp
+      OUTPUT_DIRECTORY
+      "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+      INSTALL_DIRECTORY
+      "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+      CPACK_OUTPUT_GROUP
+      MachinekitHAL_Package_Base_Managed_Modules_Components)
+
+    add_dependencies(remote comp_executable)
   endif()
-
-  check_include_files("sys/io.h" SYS_IO_AVAILABLE)
-endif()
-
-if(SYS_IO_AVAILABLE)
-  #[[
-  option(BUILD_HAL_PARPORT_MANAGED_DRIVER_MODULE
-         "Built the Parport HAL managed driver module." TRUE)
-
-  if(BUILD_HAL_PARPORT_MANAGED_DRIVER_MODULE)
-    include(MachinekitHALSymbolVisibility)
-
-    add_library(hal_parport MODULE)
-
-    set(SOURCE_FILES src/hal_parport.c)
-
-    target_sources(hal_parport PRIVATE ${SOURCE_FILES})
-
-    target_link_libraries(hal_parport PRIVATE hal_api runtime_api)
-
-    export_rtapi_symbols(TARGET hal_parport)
-
-    target_compile_definitions(hal_parport PRIVATE "RTAPI")
-
-    set_target_properties(
-      hal_parport
-      PROPERTIES PREFIX "mod"
-                 LIBRARY_OUTPUT_DIRECTORY
-                 "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
-
-    install(
-      TARGETS hal_parport
-      LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
-              COMPONENT MachinekitHAL_Managed_Driver_Module_HAL_Parport)
-  endif()]]
-endif()

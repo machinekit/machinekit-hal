@@ -45,9 +45,13 @@ set(MACHINEKIT_HAL_LOG_FILE
     "${MACHINEKIT_HAL_LOCAL_STATE_OUTPUT_DIRECTORY}/log/hal.log")
 set(MACHINEKIT_HAL_BIN_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 
+set(PUBLIC_BUILD_INCLUDE_DIRECTORY
+    "${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/include")
+set(PUBLIC_INSTALL_INCLUDE_DIRECTORY
+    "${CMAKE_CURRENT_BINARY_DIR}/install/runtime_config/include")
+
 configure_file(
-  ${RUNTIME_CONFIG}
-  ${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/include/runtime/config.h
+  ${RUNTIME_CONFIG} ${PUBLIC_BUILD_INCLUDE_DIRECTORY}/runtime/config.h
   NO_SOURCE_PERMISSIONS @ONLY NEWLINE_STYLE UNIX)
 
 configure_file(
@@ -73,8 +77,7 @@ set(MACHINEKIT_HAL_BIN_DIRECTORY
     "${MACHINEKIT_HAL_EXECUTABLE_FULL_INSTALL_DIRECTORY}")
 
 configure_file(
-  ${RUNTIME_CONFIG}
-  ${CMAKE_CURRENT_BINARY_DIR}/install/runtime_config/include/runtime/config.h
+  ${RUNTIME_CONFIG} ${PUBLIC_INSTALL_INCLUDE_DIRECTORY}/runtime/config.h
   NO_SOURCE_PERMISSIONS @ONLY NEWLINE_STYLE UNIX)
 
 configure_file(
@@ -84,32 +87,29 @@ configure_file(
 
 target_sources(
   runtime_config
-  PUBLIC
-    ${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/include/runtime/config.h
+  PUBLIC ${PUBLIC_BUILD_INCLUDE_DIRECTORY}/runtime/config.h
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/src/$<CONFIG>/runtime_config.c
 )
 
-target_include_directories(
-  runtime_config
-  PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/include)
+target_include_directories(runtime_config
+                           PUBLIC ${PUBLIC_BUILD_INCLUDE_DIRECTORY})
 
 target_sources(
   runtime_config-install
-  PUBLIC
-    ${CMAKE_CURRENT_BINARY_DIR}/install/runtime_config/include/runtime/config.h
+  PUBLIC ${PUBLIC_INSTALL_INCLUDE_DIRECTORY}/runtime/config.h
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}/install/runtime_config/src/runtime_config.c)
 
-target_include_directories(
-  runtime_config-install
-  PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/install/runtime_config/include)
+target_include_directories(runtime_config-install
+                           PUBLIC ${PUBLIC_INSTALL_INCLUDE_DIRECTORY})
 
 set_target_properties(
   runtime_config
   PROPERTIES SOVERSION 0
              PREFIX "libmkh"
-             VERSION ${CMAKE_PROJECT_VERSION})
+             VERSION ${CMAKE_PROJECT_VERSION}
+             PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_BUILD_INCLUDE_DIRECTORY}")
 
 set_target_properties(
   runtime_config-install
@@ -118,7 +118,8 @@ set_target_properties(
              VERSION ${CMAKE_PROJECT_VERSION}
              OUTPUT_NAME "runtime_config" # Needs to have the same name as
                                           # target 'runtime_config'
-             LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/install")
+             LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/install"
+             PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INSTALL_INCLUDE_DIRECTORY}")
 
 configure_file(
   src/dot_envrc.in ${CMAKE_CURRENT_BINARY_DIR}/build/dot_envrc.configure @ONLY
@@ -143,7 +144,8 @@ export(
   # EXPORT machinekit_hal_runtime_config
   TARGETS runtime_config
   NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
-  FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALRuntimeConfigTarget.cmake")
+  FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALRuntimeConfigTarget.cmake"
+)
 
 cpack_add_component(MachinekitHAL_Library_Runtime_Config_Libraries
                     GROUP MachinekitHAL_Library_Runtime_Config)

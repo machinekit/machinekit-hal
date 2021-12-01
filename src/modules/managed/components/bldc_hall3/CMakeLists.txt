@@ -28,7 +28,7 @@ option(BUILD_BLDC_HALL3_MANAGED_MODULE
        "Built the BLDC HALL3 HAL managed module." TRUE)
 
 if(BUILD_BLDC_HALL3_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     bldc_hall3

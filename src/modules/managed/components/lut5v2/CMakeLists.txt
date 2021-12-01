@@ -27,7 +27,7 @@
 option(BUILD_LUT5V2_MANAGED_MODULE "Built the LUT5 v2 HAL managed module." TRUE)
 
 if(BUILD_LUT5V2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     lut5v2

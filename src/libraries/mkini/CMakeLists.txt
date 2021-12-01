@@ -31,9 +31,11 @@ if(BUILD_MKINI_LIBRARY)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::mkini ALIAS mkini)
 
   set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/inifile.cc)
-  set(PUBLIC_HEADER_FILES
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/mkini/mk-inifile.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/mkini/mk-inifile.hh)
+
+  set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
+  set(PUBLIC_HEADER_FILES ${PUBLIC_INCLUDE_DIRECTORY}/mkini/mk-inifile.h
+                          ${PUBLIC_INCLUDE_DIRECTORY}/mkini/mk-inifile.hh)
 
   target_sources(mkini PRIVATE ${SOURCE_FILES} ${PUBLIC_HEADER_FILES})
 
@@ -41,7 +43,7 @@ if(BUILD_MKINI_LIBRARY)
   target_link_libraries(mkini PRIVATE runtime_api)
 
   target_include_directories(
-    mkini PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    mkini PUBLIC $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}>
                  $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
   set_target_properties(
@@ -50,7 +52,8 @@ if(BUILD_MKINI_LIBRARY)
                PREFIX "libmkh"
                VERSION ${CMAKE_PROJECT_VERSION}
                PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
-               POSITION_INDEPENDENT_CODE TRUE)
+               POSITION_INDEPENDENT_CODE TRUE
+               PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
   install(
     TARGETS mkini
     EXPORT machinekit_hal_mkini
@@ -63,7 +66,8 @@ if(BUILD_MKINI_LIBRARY)
   export(
     EXPORT machinekit_hal_mkini
     NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
-    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALMKIniTarget.cmake")
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALMKIniTarget.cmake"
+  )
 
   cpack_add_component(MachinekitHAL_Library_MKini_Libraries
                       GROUP MachinekitHAL_Library_MKini)

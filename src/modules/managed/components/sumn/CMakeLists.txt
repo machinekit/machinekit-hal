@@ -27,7 +27,7 @@
 option(BUILD_SUMN_MANAGED_MODULE "Built the SumN HAL managed module." TRUE)
 
 if(BUILD_SUMN_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     sumn

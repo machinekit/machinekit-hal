@@ -28,7 +28,7 @@ option(BUILD_DELAYLINE_MANAGED_MODULE "Built the Delayline HAL managed module."
        TRUE)
 
 if(BUILD_DELAYLINE_MANAGED_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(delayline MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::delayline ALIAS delayline)

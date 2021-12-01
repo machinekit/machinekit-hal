@@ -1,7 +1,5 @@
-#!/usr/bin/env python3
-
 import pytest
-from machinekit import hal
+import machinekit.hal.cyhal as hal
 
 @pytest.mark.usefixtures("realtime")
 class TestPinOps():

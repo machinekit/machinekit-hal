@@ -80,11 +80,12 @@ if(NOT MACHINEKIT_HAL_TEST_OUTPUT_DIRECTORY)
       "${MACHINEKIT_HAL_ARTIFACTS_MOUNTPOINT_DIRECTORY}/${MACHINEKIT_HAL_TEST_DIRECTORY}"
   )
 endif()
-# The export contains versions for all configuration, so there is no need for the configuration
-# specific ${MACHINEKIT_HAL_ARTIFACTS_MOUNTPOINT_DIRECTORY} (and it even cannot be used for generator
-# expression in it), but to have direct similarity to install TREE, use the './lib/<GNU-triplet>/cmake'
-# format even for BUILD tree (even though it may seem odd)
-# TODO: Investigate if this is really the best solution (as the relative path change does not matter much)
+# The export contains versions for all configuration, so there is no need for
+# the configuration specific ${MACHINEKIT_HAL_ARTIFACTS_MOUNTPOINT_DIRECTORY}
+# (and it even cannot be used for generator expression in it), but to have
+# direct similarity to install TREE, use the './lib/<GNU-triplet>/cmake' format
+# even for BUILD tree (even though it may seem odd) TODO: Investigate if this is
+# really the best solution (as the relative path change does not matter much)
 if(NOT MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY)
   set(MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY
       "${CMAKE_BINARY_DIR}/${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}")
@@ -185,6 +186,13 @@ if(BUILD_PYTHON_DISTRIBUTIONS)
     COMPONENTS Interpreter Development
     REQUIRED)
 
+  set(MACHINEKIT_HAL_PYTHON_INTERPRETER_INSTALL_EXECUTABLE
+      "${Python_EXECUTABLE}"
+      CACHE
+        FILEPATH
+        "Path to the Python3 interpreter which will be used as main execution interpreter for installed COMPONENTS."
+  )
+
   if(NOT MACHINEKIT_HAL_PYTHON_STDLIB_FULL_INSTALL_DIRECTORY)
     set(MACHINEKIT_HAL_PYTHON_STDLIB_FULL_INSTALL_DIRECTORY "${Python_STDLIB}")
   endif()
@@ -224,6 +232,11 @@ if(BUILD_PYTHON_DISTRIBUTIONS)
   endif()
   include(PEP503PythonIndex)
 endif()
+
+list(APPEND CMAKE_MODULE_PATH
+     "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}")
+list(APPEND CMAKE_PREFIX_PATH
+     "${MACHINEKIT_HAL_ARTIFACTS_MOUNTPOINT_DIRECTORY}")
 
 add_subdirectory(libraries)
 add_subdirectory(executables)

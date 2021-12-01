@@ -28,7 +28,7 @@ option(BUILD_STEPGENV2_MANAGED_MODULE
        "Built the Stepgen v2 HAL managed module." TRUE)
 
 if(BUILD_STEPGENV2_MANAGED_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(stepgenv2 MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::stepgenv2 ALIAS stepgenv2)

@@ -29,7 +29,7 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
          "Built the Raspberry Pi SPI HAL managed driver module." TRUE)
 
   if(BUILD_HAL_RASPI_SPI_MANAGED_DRIVER_MODULE)
-    include(MachinekitHALSymbolVisibility)
+    include(MachinekitHALSymbolVisibilityFunction)
 
     add_library(hal_raspi_spi MODULE)
 

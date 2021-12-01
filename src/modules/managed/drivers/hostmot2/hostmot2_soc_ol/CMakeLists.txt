@@ -29,7 +29,7 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "^arm.*")
          "Built the Hostmot2 SoC OL HAL managed driver module." TRUE)
 
   if(BUILD_HOSTMOT2_SOC_OL_MANAGED_DRIVER_MODULE)
-    include(MachinekitHALSymbolVisibility)
+    include(MachinekitHALSymbolVisibilityFunction)
 
     add_library(hostmot2_soc_ol MODULE)
 

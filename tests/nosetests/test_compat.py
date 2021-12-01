@@ -1,8 +1,7 @@
-#!/usr/bin/env python3
-
 import pytest
+import pathlib
 
-from machinekit import compat
+import machinekit.hal.cycompat as compat
 
 @pytest.mark.usefixtures('realtime')
 class TestCompat(object):
@@ -10,7 +9,7 @@ class TestCompat(object):
     def test_get_rtapi_config(self):
         ld = compat.get_rtapi_config('LIBEXEC_DIR')
         print(repr(ld))
-        assert ld.endswith("libexec")
+        assert pathlib.Path(ld).exists()
 
 (lambda s=__import__('signal'):
      s.signal(s.SIGTERM, s.SIG_IGN))()

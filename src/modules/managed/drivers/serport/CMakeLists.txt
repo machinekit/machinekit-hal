@@ -33,34 +33,23 @@ if(NOT DEFINED SYS_IO_AVAILABLE)
 endif()
 
 if(SYS_IO_AVAILABLE)
-  #[[
-  option(BUILD_HAL_PARPORT_MANAGED_DRIVER_MODULE
-         "Built the Parport HAL managed driver module." TRUE)
+  option(BUILD_SERPORT_MANAGED_MODULE "Built the Serport HAL managed module."
+         TRUE)
 
-  if(BUILD_HAL_PARPORT_MANAGED_DRIVER_MODULE)
-    include(MachinekitHALSymbolVisibility)
+  if(BUILD_SERPORT_MANAGED_MODULE)
+    include(MachinekitHALCompFunction)
 
-    add_library(hal_parport MODULE)
+    add_legacy_managed_module(
+      serport
+      SOURCE
+      src/serport.comp
+      OUTPUT_DIRECTORY
+      "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+      INSTALL_DIRECTORY
+      "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+      CPACK_OUTPUT_GROUP
+      MachinekitHAL_Package_Base_Managed_Modules_Components)
 
-    set(SOURCE_FILES src/hal_parport.c)
-
-    target_sources(hal_parport PRIVATE ${SOURCE_FILES})
-
-    target_link_libraries(hal_parport PRIVATE hal_api runtime_api)
-
-    export_rtapi_symbols(TARGET hal_parport)
-
-    target_compile_definitions(hal_parport PRIVATE "RTAPI")
-
-    set_target_properties(
-      hal_parport
-      PROPERTIES PREFIX "mod"
-                 LIBRARY_OUTPUT_DIRECTORY
-                 "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}")
-
-    install(
-      TARGETS hal_parport
-      LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
-              COMPONENT MachinekitHAL_Managed_Driver_Module_HAL_Parport)
-  endif()]]
+    add_dependencies(serport comp_executable)
+  endif()
 endif()

@@ -24,10 +24,12 @@
 # #####################################################################
 # ~~~
 
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.22)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 set(CMAKE_EXPORT_LINK_COMMANDS TRUE)
+set(CMAKE_DISABLE_SOURCE_CHANGES TRUE)
+set(CMAKE_DISABLE_IN_SOURCE_BUILD TRUE)
 
 project(
   Machinekit-HAL
@@ -40,6 +42,26 @@ if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_CURRENT_SOURCE_DIR}")
   # include(cmake/packaging/packaging.cmake)
   include(CTest)
   enable_testing()
+endif()
+
+if(CMAKE_TOOLCHAIN_FILE)
+  cmake_path(IS_RELATIVE CMAKE_TOOLCHAIN_FILE _toolchain_file_is_relative)
+  if(_toolchain_file_is_relative)
+    file(REAL_PATH "${CMAKE_TOOLCHAIN_FILE}" _toolchain_path BASE_DIRECTORY
+         "${CMAKE_BINARY_DIR}" EXPAND_TILDE)
+    if(NOT EXISTS "${_toolchain_path}")
+      message(
+        FATAL_ERROR "Specified Toolchain file ${_toolchain_path} doesn't exist!"
+      )
+    endif()
+    set(CMAKE_TOOLCHAIN_FILE "${_toolchain_path}")
+    message(
+      WARNING
+        "CMAKE_TOOLCHAIN_FILE set to ${CMAKE_TOOLCHAIN_FILE} to resolve the relative path issue. Please, avoid using relative paths!"
+    )
+    unset(_toolchain_path)
+  endif()
+  unset(_toolchain_file_is_relative)
 endif()
 
 string(REGEX REPLACE "[-~ .]" "_" MACHINEKIT_HAL_PACKAGE_PREFIX_NORMALIZED
@@ -95,14 +117,15 @@ message(STATUS "Value of CMAKE_EXE_LINKER_FLAGS: ${CMAKE_EXE_LINKER_FLAGS}")
 
 set(MACHINEKIT_HAL_GIT_BUILD_SHA "aaabbbccc") # TODO: Set based on actual Git
                                               # SHA
+
 define_property(
-  GLOBAL
-  PROPERTY MACHINEKIT_HAL_MODULE_PATH
-  BRIEF_DOCS "Machinekit-HAL specific CMake module PATH"
+  TARGET
+  PROPERTY "PUBLIC_INCLUDE_DIRECTORY"
+  BRIEF_DOCS "Header directory for a target"
   FULL_DOCS
     [[
-  Special global property specific to Machinekit-HAL's build tree holding the set of PATHs
-  to defined CMake Modules in the source-tree.
+    Special traget specific property for storing a path to directory where PUBLIC HEADERS
+    live, typically the "include/package_name" one
   ]])
 
 add_subdirectory(src)

@@ -1,9 +1,7 @@
-#!/usr/bin/env python3
-
-
 import pytest
 from rtapilog import Log
-from machinekit import hal,rtapi
+import machinekit.hal.cyhal as hal
+import machinekit.hal.cyruntime as rtapi
 
 l = Log(level=rtapi.MSG_INFO,tag="nosetest")
 

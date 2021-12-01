@@ -9,7 +9,7 @@
 
 
 import time
-from machinekit import hal
+import machinekit.hal.cyhal as hal
 
 c = hal.Component('zzz')
 p = c.newpin("p0", hal.HAL_S32, hal.HAL_OUT, init=42)

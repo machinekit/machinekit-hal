@@ -28,7 +28,7 @@ option(BUILD_WATCHDOGV2_MANAGED_MODULE
        "Built the Watchdog V2 HAL managed module." TRUE)
 
 if(BUILD_WATCHDOGV2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     watchdogv2

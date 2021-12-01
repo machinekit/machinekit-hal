@@ -28,7 +28,7 @@ option(BUILD_TRISTATE_BITV2_MANAGED_MODULE
        "Built the Tristate Bit V2 HAL managed module." TRUE)
 
 if(BUILD_TRISTATE_BITV2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     tristate_bitv2

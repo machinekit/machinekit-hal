@@ -29,7 +29,7 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
          TRUE)
 
   if(BUILD_PEPPER_MANAGED_MODULE)
-    include(MachinekitHALSymbolVisibility)
+    include(MachinekitHALSymbolVisibilityFunction)
 
     add_library(pepper MODULE)
     add_library(${MACHINEKIT_HAL_NAMESPACE}::pepper ALIAS pepper)

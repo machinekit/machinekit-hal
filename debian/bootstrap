@@ -233,6 +233,23 @@ check_necessity_of_pasm() {
     return 0
 }
 
+check_necessity_of_importlib_resourses() {
+    local python="$(apt-cache show python3.6)"
+    local retval="$?" 
+    if ((retval != 0 ))
+    then
+        log_error "Command 'apt-cache show python3-importlib-resources' returned error code $retval!"
+        return -1
+    fi
+
+    if [[ ! -z "$python" ]]
+    then
+        BUILDTIME_DEPENDENCIES+=", python3-importlib-resources:native"
+    fi
+
+    return 0
+}
+
 test_dir(){
     local version_file="$1/VERSION"
     local readme_file="$1/README.md"
@@ -348,6 +365,12 @@ _main(){
         failure
     fi
     check_necessity_of_pasm
+    retval=$?
+    if (( retval != 0 ))
+    then
+        failure
+    fi
+    check_necessity_of_importlib_resourses
     retval=$?
     if (( retval != 0 ))
     then

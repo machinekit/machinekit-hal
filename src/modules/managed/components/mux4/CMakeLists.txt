@@ -27,7 +27,7 @@
 option(BUILD_MUX4_MANAGED_MODULE "Built the Mux4 HAL managed module." TRUE)
 
 if(BUILD_MUX4_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     mux4

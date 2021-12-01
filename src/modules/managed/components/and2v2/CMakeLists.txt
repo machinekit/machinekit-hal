@@ -27,7 +27,7 @@
 option(BUILD_AND2V2_MANAGED_MODULE "Built the AND2 V2 HAL managed module." TRUE)
 
 if(BUILD_AND2V2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     and2v2

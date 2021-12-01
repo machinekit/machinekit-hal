@@ -99,6 +99,8 @@ parser Hal:
 %%
 
 import os, sys, tempfile, shutil, getopt, time, stat
+import pathlib
+import subprocess
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 
@@ -633,68 +635,194 @@ def epilogue(f):
     else:
         f.write("static int __comp_get_data_size(void) { return 0; }\n")
 
-INSTALL, COMPILE, PREPROCESS, DOCUMENT, INSTALLDOC, VIEWDOC, MODINC = range(7)
-modename = ("install", "compile", "preprocess", "document", "installdoc", "viewdoc", "print-modinc")
+INSTALL, COMPILE, PREPROCESS, DOCUMENT, INSTALLDOC, VIEWDOC = range(6)
+modename = ("install", "compile", "preprocess", "document", "installdoc", "viewdoc")
 
-modinc = None
-def find_modinc():
-    global modinc
-    if modinc: return modinc
-    d = os.path.abspath(os.path.dirname(os.path.dirname(sys.argv[0])))
-    for e in ['src', 'etc/machinekit', '/etc/machinekit', 'share/machinekit']:
-        e = os.path.join(d, e, 'Makefile.modinc')
-        if os.path.exists(e):
-            modinc = e
-            return e
-    raise SystemExit("Error: Unable to locate Makefile.modinc")
+cmake_recipe_base_unmanaged = """
+cmake_minimum_required(VERSION 3.22)
 
-def build_usr(tempdir, filename, mode, origfilename):
-    binname = os.path.basename(os.path.splitext(filename)[0])
+set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
+set(CMAKE_EXPORT_LINK_COMMANDS TRUE)
+set(CMAKE_DISABLE_SOURCE_CHANGES TRUE)
+set(CMAKE_DISABLE_IN_SOURCE_BUILD TRUE)
 
-    makefile = os.path.join(tempdir, "Makefile")
-    f = open(makefile, "w")
-    f.write("%s: %s\n" % (binname, filename))
-    f.write("\t$(CC) $(EXTRA_CFLAGS) -URTAPI -U__MODULE__ -DULAPI -Os %s -o $@ $< -Wl,-rpath,$(LIBDIR) -L$(LIBDIR) -lhal -lhalulapi %s\n" % (
-        options.get("extra_compile_args", ""),
-        options.get("extra_link_args", "")))
-    f.write("include %s\n" % find_modinc())
-    f.write("EXTRA_CFLAGS += -I%s\n" % os.path.abspath(os.path.dirname(origfilename)))
-    f.write("EXTRA_CFLAGS += -I%s\n" % os.path.abspath('.'))
-    f.close()
-    result = os.system("cd %s && make -S %s" % (tempdir, binname))
-    if result != 0:
-        raise SystemExit(os.WEXITSTATUS(result) or 1)
-    output = os.path.join(tempdir, binname)
+project(
+  Machinekit-HAL{module_project_name}Module
+  VERSION 0.5
+  DESCRIPTION "HAL module {module_project_name} for Machinekit-HAL."
+  HOMEPAGE_URL "https://machinekit.io"
+  LANGUAGES C)
+
+find_package(
+  Machinekit-HAL
+  COMPONENTS Unmanaged-HAL
+  REQUIRED)
+
+add_executable({module_name})
+target_sources({module_name} PRIVATE {c_source_file})
+
+target_link_libraries({module_name}
+    PRIVATE Machinekit::HAL::hal)
+
+target_compile_definitions({module_name} PRIVATE "ULAPI")
+
+set_target_properties(
+  {module_name}
+  PROPERTIES OUTPUT_NAME "{module_name}"
+             RUNTIME_OUTPUT_DIRECTORY "{build_output_directory}")
+
+"""
+cmake_recipe_install_unmanaged = """
+install(TARGETS {module_name} RUNTIME DESTINATION "{install_directory}")
+"""
+
+def build_usr(tempdir, filename, mode, origfilename, installdir):
+    if isinstance(filename, str):
+        filename = pathlib.Path(filename)
+    if isinstance(tempdir, str):
+        tempdir = pathlib.Path(tempdir)
+    if isinstance(installdir, str):
+        installdir = pathlib.Path(installdir)
+
+    cmake_recipe = cmake_recipe_base_unmanaged
     if mode == INSTALL:
-        shutil.copy(output, os.path.join(BASE, "bin", binname))
-    elif mode == COMPILE:
-        shutil.copy(output, os.path.join(os.path.dirname(origfilename),binname))
-
-def build_rt(tempdir, filename, mode, origfilename):
-    objname = os.path.basename(os.path.splitext(filename)[0] + ".o")
-    makefile = os.path.join(tempdir, "Makefile")
-    f = open(makefile, "w")
-    f.write("obj-m += %s\n" % objname)
-    f.write("include %s\n" % find_modinc())
-    f.write("EXTRA_CFLAGS += -I%s\n" % os.path.abspath(os.path.dirname(origfilename)))
-    f.write("EXTRA_CFLAGS += -I%s\n" % os.path.abspath('.'))
-    f.write("EXTRA_CFLAGS += -DRTAPI -L$(LIBDIR) -lhal")
-    f.close()
-    if mode == INSTALL:
-        target = "modules install"
+        cmake_recipe += cmake_recipe_install_unmanaged
     else:
-        target = "modules"
-    result = os.system("cd %s && make -S %s" % (tempdir, target))
-    if result != 0:
-        raise SystemExit(os.WEXITSTATUS(result) or 1)
+        installdir = tempdir
+
+    module_name = filename.stem
+    cmakelists_file = tempdir / "CMakeLists.txt"
+    cmake_builddir = tempdir / "build"
+
+    cmakelists = cmake_recipe.format(
+        module_name=module_name.lower(),
+        module_project_name=module_name.capitalize(),
+        c_source_file=filename,
+        build_output_directory=tempdir,
+        install_directory=installdir)
+
+    with open(cmakelists_file, "w") as file:
+        file.write(cmakelists)
+
+    _config = os.environ.get("MACHINEKIT_HAL_BUILD_CONFIG", "")
+    if _config:
+        _config = f"--config {_config}"
+    # Generator should be taken from the CMAKE_GENERATOR evironment variable
+    # by CMake automatically
+
+    cmake_generate = f"cmake -S {tempdir} -B {cmake_builddir}"
+    cmake_build = f"cmake --build {cmake_builddir} {_config}"
+    cmake_install = f"cmake --install {cmake_builddir} {_config}"
+
+    
+    _generate = subprocess.run(cmake_generate, shell=True, check=True)
+    _build = subprocess.run(cmake_build, shell=True, check=True)
+    
+    if mode == INSTALL:
+        _install = subprocess.run(cmake_install, shell=True, check=True)
+    
     if mode == COMPILE:
-        for extension in ".ko", ".so", ".o":
-            kobjname = os.path.splitext(filename)[0] + extension
-            if os.path.exists(kobjname):
-                shutil.copy(kobjname, os.path.basename(kobjname))
-                break
-        else:
-            raise SystemExit("Error: Unable to copy module from temporary directory")
+        # Copying out with the build RPATH
+        # TODO: Does this really make sense?
+        for sofile in tempdir.glob('*.so'):
+            shutil.copy(sofile, pathlib.Path.cwd() / sofile.name)
+        #else:
+        #    raise SystemExit("Error: Unable to copy module from temporary directory")
+
+cmake_recipe_base_managed = """
+cmake_minimum_required(VERSION 3.22)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
+set(CMAKE_EXPORT_LINK_COMMANDS TRUE)
+set(CMAKE_DISABLE_SOURCE_CHANGES TRUE)
+set(CMAKE_DISABLE_IN_SOURCE_BUILD TRUE)
+
+project(
+  Machinekit-HAL{module_project_name}Module
+  VERSION 0.5
+  DESCRIPTION "HAL module {module_project_name} for Machinekit-HAL."
+  HOMEPAGE_URL "https://machinekit.io"
+  LANGUAGES C)
+
+find_package(
+  Machinekit-HAL
+  COMPONENTS Managed-Runtime
+  REQUIRED)
+
+add_library({module_name} MODULE)
+target_sources({module_name} PRIVATE {c_source_file})
+
+target_link_libraries({module_name}
+    PRIVATE Machinekit::HAL::hal_api
+            Machinekit::HAL::runtime_api)
+
+export_rtapi_symbols(TARGET {module_name})
+
+target_compile_definitions({module_name} PRIVATE "RTAPI")
+
+set_target_properties(
+  {module_name}
+  PROPERTIES OUTPUT_NAME "{module_name}"
+             PREFIX "mod"
+             LIBRARY_OUTPUT_DIRECTORY "{build_output_directory}")
+
+"""
+cmake_recipe_install_managed = """
+install(TARGETS {module_name} LIBRARY DESTINATION "{install_directory}")
+"""
+
+def build_rt(tempdir, filename, mode, origfilename, installdir):
+    if isinstance(filename, str):
+        filename = pathlib.Path(filename)
+    if isinstance(tempdir, str):
+        tempdir = pathlib.Path(tempdir)
+    if isinstance(installdir, str):
+        installdir = pathlib.Path(installdir)
+
+    cmake_recipe = cmake_recipe_base_managed
+    if mode == INSTALL:
+        cmake_recipe += cmake_recipe_install_managed
+    else:
+        installdir = tempdir
+
+    module_name = filename.stem
+    cmakelists_file = tempdir / "CMakeLists.txt"
+    cmake_builddir = tempdir / "build"
+
+    cmakelists = cmake_recipe.format(
+        module_name=module_name.lower(),
+        module_project_name=module_name.capitalize(),
+        c_source_file=filename,
+        build_output_directory=tempdir,
+        install_directory=installdir)
+
+    with open(cmakelists_file, "w") as file:
+        file.write(cmakelists)
+
+    _config = os.environ.get("MACHINEKIT_HAL_BUILD_CONFIG", "")
+    if _config:
+        _config = f"--config {_config}"
+    # Generator should be taken from the CMAKE_GENERATOR evironment variable
+    # by CMake automatically
+    
+    cmake_generate = f"cmake -S {tempdir} -B {cmake_builddir}"
+    cmake_build = f"cmake --build {cmake_builddir} {_config}"
+    cmake_install = f"cmake --install {cmake_builddir} {_config}"
+
+    
+    _generate = subprocess.run(cmake_generate, shell=True, check=True)
+    _build = subprocess.run(cmake_build, shell=True, check=True)
+    
+    if mode == INSTALL:
+        _install = subprocess.run(cmake_install, shell=True, check=True)
+    
+    if mode == COMPILE:
+        # Copying out with the build RPATH
+        # TODO: Does this really make sense?
+        for sofile in tempdir.glob('*.so'):
+            shutil.copy(sofile, pathlib.Path.cwd() / sofile.name)
+        #else:
+        #    raise SystemExit("Error: Unable to copy module from temporary directory")
 
 ############################################################
 
@@ -998,10 +1126,11 @@ def process(filename, mode, outfilename):
         f.close()
 
         if mode != PREPROCESS:
+            installdir = install_path if install_path is not None else tempdir
             if options.get("userspace"):
-                build_usr(tempdir, outfilename, mode, filename)
+                build_usr(tempdir, outfilename, mode, filename, installdir)
             else:
-                build_rt(tempdir, outfilename, mode, filename)
+                build_rt(tempdir, outfilename, mode, filename, installdir)
 
     finally:
         shutil.rmtree(tempdir)
@@ -1019,8 +1148,12 @@ Usage:
 """) % {'name': os.path.basename(sys.argv[0])}
     raise SystemExit(exitval)
 
+# TODO: This is hacky and ugly, rework it!
+install_path = None
+
 def main():
     global require_license
+    global install_path
     require_license = True
     mode = PREPROCESS
     outfile = None
@@ -1028,10 +1161,10 @@ def main():
     userspace = False
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "f:luicpdjvo:h?",
+        opts, args = getopt.getopt(sys.argv[1:], "f:lui:cpdjvo:h?",
                            ['frontmatter=', 'install', 'compile', 'preprocess', 'outfile=',
                             'document', 'help', 'userspace', 'install-doc',
-                            'view-doc', 'require-license', 'print-modinc'])
+                            'view-doc', 'require-license'])
     except getopt.GetoptError:
         usage(1)
 
@@ -1040,6 +1173,9 @@ def main():
             userspace = True
         if k in ("-i", "--install"):
             mode = INSTALL
+            if len(args) != 1:
+                raise SystemExit("Error: Install path must be a single directory")
+            install_path = v
         if k in ("-c", "--compile"):
             mode = COMPILE
         if k in ("-p", "--preprocess"):
@@ -1050,8 +1186,6 @@ def main():
             mode = INSTALLDOC
         if k in ("-v", "--view-doc"):
             mode = VIEWDOC
-        if k in ("--print-modinc",):
-            mode = MODINC
         if k in ("-l", "--require-license"):
             require_license = True
         if k in ("-o", "--outfile"):
@@ -1066,12 +1200,12 @@ def main():
     if outfile and mode != PREPROCESS and mode != DOCUMENT:
         raise SystemExit("Error: Can only specify -o when preprocessing or documenting")
 
-    if mode == MODINC:
-        if args:
-            raise SystemExit(
-                "Error: Can not specify input files when using --print-modinc")
-        print (find_modinc())
-        return 0
+    #if mode == MODINC:
+    #    if args:
+    #        raise SystemExit(
+    #            "Error: Can not specify input files when using --print-modinc")
+    #    print (find_modinc())
+    #    return 0
 
     for f in args:
         try:
@@ -1108,12 +1242,13 @@ def main():
             elif f.endswith(".c") and mode != PREPROCESS:
                 initialize()
                 tempdir = tempfile.mkdtemp()
+                installdir = install_path if install_path is not None else tempdir
                 try:
                     shutil.copy(f, tempdir)
                     if userspace:
-                        build_usr(tempdir, os.path.join(tempdir, os.path.basename(f)), mode, f)
+                        build_usr(tempdir, os.path.join(tempdir, os.path.basename(f)), mode, f, installdir)
                     else:
-                        build_rt(tempdir, os.path.join(tempdir, os.path.basename(f)), mode, f)
+                        build_rt(tempdir, os.path.join(tempdir, os.path.basename(f)), mode, f, installdir)
                 finally:
                     shutil.rmtree(tempdir)
             else:

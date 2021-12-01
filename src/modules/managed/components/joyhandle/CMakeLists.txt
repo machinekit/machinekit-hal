@@ -28,7 +28,7 @@ option(BUILD_JOYHANDLE_MANAGED_MODULE "Built the JoyHandle HAL managed module."
        TRUE)
 
 if(BUILD_JOYHANDLE_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     joyhandle

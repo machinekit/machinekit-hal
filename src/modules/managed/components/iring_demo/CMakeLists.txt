@@ -30,7 +30,7 @@ option(BUILD_IRING_MANAGED_MODULE
        "Built the IRing HAL managed module." TRUE)
 
 if(BUILD_IRING_MANAGED_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(iring MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::iring ALIAS iring)

@@ -91,12 +91,14 @@ set_target_properties(protobuf-nanopb-static
 export(
   TARGETS nanopb_interface
   NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
-  FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALNanoPBInterfaceTarget.cmake")
+  FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALNanoPBInterfaceTarget.cmake"
+)
 
 export(
   TARGETS nanopb_proto_cc
   NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
-  FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALNanoPBProtoCCTarget.cmake")
+  FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALNanoPBProtoCCTarget.cmake"
+)
 
 export(
   TARGETS protobuf-nanopb-static

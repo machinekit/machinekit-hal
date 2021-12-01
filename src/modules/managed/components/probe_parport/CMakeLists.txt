@@ -28,7 +28,7 @@ option(BUILD_PROBE_PARPORT_MANAGED_MODULE
        "Built the Probe Parport HAL managed module." TRUE)
 
 if(BUILD_PROBE_PARPORT_MANAGED_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(probe_parport MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::probe_parport ALIAS probe_parport)

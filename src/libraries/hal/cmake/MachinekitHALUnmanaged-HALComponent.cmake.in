@@ -1,0 +1,81 @@
+# ~~~
+# ####################################################################
+# Description:  MachinekitHALUNMANAGED-HALComponent.cmake.in
+#
+#               This file, 'MachinekitHALUNMANAGED-HALComponent.cmake.in',
+#               implements build system
+#               rules for Machinekit-HAL project
+#
+# Copyright (C) 2021    Jakub Fišer  <jakub DOT fiser AT eryaf DOT com>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+#
+# #####################################################################
+# ~~~
+
+# Set the variable prefix of this file to 'MHUHC_'
+
+set(MHUHC_targets_paths
+    "[
+    {
+        \"target\":\"@MACHINEKIT_HAL_NAMESPACE@::hal_api\",
+        \"file\":\"${CMAKE_CURRENT_LIST_DIR}/MachinekitHALHALAPITarget.cmake\"
+    },
+    {
+      \"target\":\"@MACHINEKIT_HAL_NAMESPACE@::hal\",
+      \"file\":\"${CMAKE_CURRENT_LIST_DIR}/MachinekitHALHALTarget.cmake\"
+  },
+]")
+
+set(MHUHC_components_paths
+    "[
+    {
+        \"component\":\"Unmanaged-Runtime\",
+        \"file\":\"${CMAKE_CURRENT_LIST_DIR}/MachinekitHALUnmanaged-RuntimeComponent.cmake\"
+    },
+]")
+
+string(JSON MHUHC_targets_paths_length LENGTH "${MHUHC_targets_paths}")
+math(EXPR MHUHC_targets_paths_length "${MHUHC_targets_paths_length} - 1"
+     OUTPUT_FORMAT DECIMAL)
+
+string(JSON MHUHC_components_paths_length LENGTH "${MHUHC_components_paths}")
+math(EXPR MHUHC_components_paths_length "${MHUHC_components_paths_length} - 1"
+     OUTPUT_FORMAT DECIMAL)
+
+foreach(_index RANGE 0 ${MHUHC_components_paths_length} 1)
+  string(JSON MHUHC_path GET "${MHUHC_components_paths}" ${_index} "file")
+  if(NOT EXISTS "${MHUHC_path}")
+    set(${CMAKE_FIND_PACKAGE_NAME}_FOUND False)
+    set(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE
+        "File \"${MHUHC_path}\" is missing!")
+    return()
+  endif()
+  include("${MHUHC_path}")
+endforeach()
+
+foreach(_index RANGE 0 ${MHUHC_targets_paths_length} 1)
+  string(JSON MHUHC_name GET "${MHUHC_targets_paths}" ${_index} "target")
+  string(JSON MHUHC_path GET "${MHUHC_targets_paths}" ${_index} "file")
+  if(NOT EXISTS "${MHUHC_path}")
+    set(${CMAKE_FIND_PACKAGE_NAME}_FOUND False)
+    set(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE
+        "File \"${MHUHC_path}\" is missing!")
+    return()
+  endif()
+  if(NOT TARGET "${MHUHC_name}")
+    include("${MHUHC_path}")
+  endif()
+endforeach()

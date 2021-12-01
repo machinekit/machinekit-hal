@@ -28,7 +28,7 @@ option(BUILD_SAMPLER_MANAGED_MODULE "Built the Sampler HAL managed module."
        TRUE)
 
 if(BUILD_SAMPLER_MANAGED_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(sampler MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::sampler ALIAS sampler)

@@ -28,7 +28,7 @@ option(BUILD_OUT_TO_IOV2_MANAGED_MODULE
        "Built the Out to IO V2 HAL managed module." TRUE)
 
 if(BUILD_OUT_TO_IOV2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     out_to_iov2

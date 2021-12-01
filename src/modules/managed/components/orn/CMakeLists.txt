@@ -27,7 +27,7 @@
 option(BUILD_ORN_MANAGED_MODULE "Built the ORN HAL managed module." TRUE)
 
 if(BUILD_ORN_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     orn

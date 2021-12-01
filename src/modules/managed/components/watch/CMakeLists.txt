@@ -27,7 +27,7 @@
 option(BUILD_WATCH_MANAGED_MODULE "Built the Watch HAL managed module." TRUE)
 
 if(BUILD_STEPGEN_MANAGED_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(watch MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::watch ALIAS watch)

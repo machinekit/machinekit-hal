@@ -1,8 +1,8 @@
 # ~~~
 # ####################################################################
-# Description:  MachinekitHALInstcomp.cmake
+# Description:  MachinekitHALInstcompFunction.cmake
 #
-#               This file, 'MachinekitHALInstcomp.cmake', implements
+#               This file, 'MachinekitHALInstcompFunction.cmake', implements
 #               CMake module to build Machinekit-HAL managed HAL modules
 #               from the '.icomp' template files
 #
@@ -26,11 +26,21 @@
 # ~~~
 
 if(NOT DEFINED MACHINEKIT_HAL_INSTCOMP)
-  find_program(MACHINEKIT_HAL_INSTCOMP "instcomp" REQUIRED)
+  get_property(
+    _instcomp_set GLOBAL
+    PROPERTY MACHINEKIT_HAL_INSTCOMP
+    SET)
+  if(_instcomp_set)
+    get_property(MACHINEKIT_HAL_INSTCOMP GLOBAL
+                 PROPERTY MACHINEKIT_HAL_INSTCOMP)
+  else()
+    find_program(MACHINEKIT_HAL_INSTCOMP "instcomp" REQUIRED)
+  endif()
+  unset(_instcomp_set)
 endif()
 
 if(NOT DEFINED export_rtapi_symbols)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 endif()
 
 function(add_instantiatable_module target_name)

@@ -30,18 +30,21 @@ if(BUILD_RTAPI_PCI_LIBRARY)
   add_library(rtapi_pci INTERFACE)
 
   set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/rtapi_pci.c)
-  set(PUBLIC_HEADER_FILES
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_pci.h)
+
+  set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
+  set(PUBLIC_HEADER_FILES ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_pci.h)
 
   target_sources(rtapi_pci INTERFACE ${SOURCE_FILES} ${PUBLIC_HEADER_FILES})
 
   target_include_directories(
     rtapi_pci
-    INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    INTERFACE $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}>
               $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
-  set_target_properties(rtapi_pci PROPERTIES PUBLIC_HEADER
-                                             "${PUBLIC_HEADER_FILES}")
+  set_target_properties(
+    rtapi_pci PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
+                         PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
 
   install(
     TARGETS rtapi_pci
@@ -52,7 +55,8 @@ if(BUILD_RTAPI_PCI_LIBRARY)
   export(
     EXPORT machinekit_hal_rtapi_pci
     NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
-    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALRTAPIPCITarget.cmake")
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALRTAPIPCITarget.cmake"
+  )
 
   cpack_add_component(MachinekitHAL_Library_RTAPI_PCI_Headers
                       GROUP MachinekitHAL_Library_RTAPI_PCI_Development)

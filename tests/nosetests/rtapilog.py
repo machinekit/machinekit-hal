@@ -1,4 +1,4 @@
-from machinekit import rtapi
+import machinekit.hal.cyruntime as rtapi
 import inspect
 
 # helper for logging in nosetests scripts to rtapi

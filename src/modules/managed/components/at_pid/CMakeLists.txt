@@ -27,7 +27,7 @@
 option(BUILD_AT_PID_MANAGED_MODULE "Built the At PID HAL managed module." TRUE)
 
 if(BUILD_AT_PID_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     at_pid

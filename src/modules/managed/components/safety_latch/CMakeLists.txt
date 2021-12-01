@@ -28,7 +28,7 @@ option(BUILD_SAFETY_LATCH_MANAGED_MODULE
        "Built the Safety Latch HAL managed module." TRUE)
 
 if(BUILD_SAFETY_LATCH_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     safety_latch

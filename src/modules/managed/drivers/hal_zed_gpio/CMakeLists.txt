@@ -29,7 +29,7 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
          "Built the Zed GPIO HAL managed driver module." TRUE)
 
   if(BUILD_HAL_ZED_GPIO_MANAGED_DRIVER_MODULE)
-    include(MachinekitHALSymbolVisibility)
+    include(MachinekitHALSymbolVisibilityFunction)
 
     add_library(hal_zed_gpio MODULE)
 

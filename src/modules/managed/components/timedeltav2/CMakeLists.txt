@@ -28,7 +28,7 @@ option(BUILD_TIMEDELTAV2_MANAGED_MODULE
        "Built the Timedelta V2 HAL managed module." TRUE)
 
 if(BUILD_TIMEDELTAV2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     timedeltav2

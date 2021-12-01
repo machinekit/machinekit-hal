@@ -28,7 +28,7 @@ option(BUILD_MINMAXV2_MANAGED_MODULE "Built the MinMax V2 HAL managed module."
        TRUE)
 
 if(BUILD_MINMAXV2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     minmaxv2

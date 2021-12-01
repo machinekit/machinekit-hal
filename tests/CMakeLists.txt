@@ -406,13 +406,12 @@ if(BUILD_RUNTESTS_TESTSUITE)
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/overrun/test.sh
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/pll_correction/checkresult
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/pll_correction/params.py.sh
-      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/pll_correction/pll_correction.comp
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/pll_correction/pll_correction.hal
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/pll_correction/pll_time.h
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/pll_correction/README.md
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/pll_correction/skip
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/pll_correction/test.sh
-      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/README
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/README.asciidoc
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/rtapi.0/expected
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/rtapi.0/test.sh
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/rtapi_printf.0/checkresult
@@ -444,14 +443,10 @@ if(BUILD_RUNTESTS_TESTSUITE)
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/stepgen-v2.2/test.hal
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/symbols.0/checkresult
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/symbols.0/dotest.hal
-      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/symbols.0/test_define.comp
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/symbols.0/test.sh
-      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/symbols.0/test_use.comp
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/symbols.1/checkresult
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/symbols.1/dotest.hal
-      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/symbols.1/test_define1.comp
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/symbols.1/test.sh
-      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/symbols.1/test_use1.comp
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/threads.0/checkresult
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/threads.0/README
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/threads.0/test.hal
@@ -465,6 +460,7 @@ if(BUILD_RUNTESTS_TESTSUITE)
 
   add_custom_target(copy_runtests ALL COMMENT "Copying Runtests source files")
 
+  set(test_files "")
   foreach(source_file IN ITEMS ${RUNTESTS_SOURCE_FILES})
     cmake_path(GET source_file PARENT_PATH source_file_parent_path)
     cmake_path(
@@ -480,13 +476,14 @@ if(BUILD_RUNTESTS_TESTSUITE)
     )
 
     add_custom_command(
-      TARGET copy_runtests
-      POST_BUILD
+      OUTPUT "${output_file}"
       COMMAND ${CMAKE_COMMAND} "-E" "copy_if_different" "${source_file}"
               "${output_file}"
-      BYPRODUCTS "${output_file}"
+      DEPENDS "${source_file}"
       COMMENT
         "Copying runtests source file ${source_file_runtests_relative_part}.")
+
+    list(APPEND test_files "${output_file}")
 
     install(
       FILES "${output_file}"
@@ -522,14 +519,19 @@ if(BUILD_RUNTESTS_TESTSUITE)
     @ONLY
     NEWLINE_STYLE UNIX)
 
-  add_custom_target(
-    run_runtests ALL
-    COMMENT "Creating the Run_runtests executable"
+  add_custom_command(
+    OUTPUT ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/run_runtests
     COMMAND
       ${CMAKE_COMMAND} "-E" "copy_if_different"
       "${CMAKE_CURRENT_BINARY_DIR}/build/run_runtests"
       "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
-    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/build/run_runtests")
+    DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/build/run_runtests"
+    COMMENT "Creating the Run_runtests executable")
+
+  add_custom_target(
+    run_runtests ALL
+    COMMENT "Building the Run_runtests executable"
+    DEPENDS "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/run_runtests" ${test_files})
 
   install(
     PROGRAMS "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/run_runtests"

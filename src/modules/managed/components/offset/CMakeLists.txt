@@ -27,7 +27,7 @@
 option(BUILD_OFFSET_MANAGED_MODULE "Built the Offset HAL managed module." TRUE)
 
 if(BUILD_OFFSET_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     offset

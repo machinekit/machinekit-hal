@@ -2,7 +2,7 @@ import pathlib
 import re
 
 python_index_directory = pathlib.Path(
-    '/home/mars/Documents/Programming/machinekit/cmk-hal/e/python_index')
+    '@MACHINEKIT_HAL_PYTHON_INDEX@')
 
 html_page_start = """
 <!DOCTYPE html>
@@ -23,9 +23,6 @@ def normalize(name):
 
 
 _callable = pathlib.Path.is_dir
-
-print(type(_callable))
-print(_callable.__name__)
 
 for d in python_index_directory.iterdir():
     func = getattr(d, _callable.__name__)

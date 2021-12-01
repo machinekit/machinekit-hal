@@ -27,7 +27,7 @@
 option(BUILD_LCD_MANAGED_MODULE "Built the LCD HAL managed module." TRUE)
 
 if(BUILD_LCD_MANAGED_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(lcd MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::lcd ALIAS lcd)

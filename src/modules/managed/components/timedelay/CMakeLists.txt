@@ -28,7 +28,7 @@ option(BUILD_TIMEDELAY_MANAGED_MODULE "Built the Timedelay HAL managed module."
        TRUE)
 
 if(BUILD_TIMEDELAY_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     timedelay

@@ -33,15 +33,17 @@ if(BUILD_USER_PCI_LIBRARY)
       ${CMAKE_CURRENT_SOURCE_DIR}/src/firmware.c
       ${CMAKE_CURRENT_SOURCE_DIR}/src/string.c)
 
+  set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
   set(PUBLIC_HEADER_FILES
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/user_pci/config_module.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/user_pci/device.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/user_pci/firmware.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/user_pci/gfp.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/user_pci/list.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/user_pci/module.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/user_pci/slab.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/user_pci/string.h)
+      ${PUBLIC_INCLUDE_DIRECTORY}/user_pci/config_module.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/user_pci/device.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/user_pci/firmware.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/user_pci/gfp.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/user_pci/list.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/user_pci/module.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/user_pci/slab.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/user_pci/string.h)
 
   target_sources(
     user_pci
@@ -49,7 +51,7 @@ if(BUILD_USER_PCI_LIBRARY)
     PRIVATE ${SOURCE_FILES})
 
   target_include_directories(
-    user_pci PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    user_pci PUBLIC $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}>
                     $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
   target_link_libraries(user_pci PRIVATE runtime_api hal_api)
@@ -60,7 +62,8 @@ if(BUILD_USER_PCI_LIBRARY)
                PREFIX "libmkh"
                VERSION ${CMAKE_PROJECT_VERSION}
                PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
-               POSITION_INDEPENDENT_CODE TRUE)
+               POSITION_INDEPENDENT_CODE TRUE
+               PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
 
   target_compile_definitions(user_pci PRIVATE "RTAPI")
 
@@ -76,7 +79,8 @@ if(BUILD_USER_PCI_LIBRARY)
   export(
     EXPORT machinekit_hal_user_pci
     NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
-    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALUserPCITarget.cmake")
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALUserPCITarget.cmake"
+  )
 
   cpack_add_component(MachinekitHAL_Library_User_PCI_Libraries
                       GROUP MachinekitHAL_Library_User_PCI)

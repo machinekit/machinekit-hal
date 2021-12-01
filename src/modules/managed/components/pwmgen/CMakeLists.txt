@@ -27,7 +27,7 @@
 option(BUILD_PWMGEN_MANAGED_MODULE "Built the PWMGen HAL managed module." TRUE)
 
 if(BUILD_PWMGEN_MANAGED_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(pwmgen MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::pwmgen ALIAS pwmgen)

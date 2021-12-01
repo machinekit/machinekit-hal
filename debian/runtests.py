@@ -43,6 +43,7 @@ import stat
 import shutil
 import pathlib
 import tempfile
+from contextlib import nullcontext
 from typing import Union, List
 
 import importlib.util
@@ -133,9 +134,11 @@ class Build():
             test_path = test_path if isinstance(
                 test_path, pathlib.Path) else pathlib.Path(test_path)
         for config in self.configs:
-            config_test_path = self.build_directory / config if self.generator == "Ninja Multi-Config" else "." / \
+            config_test_path = self.build_directory / \
+                (config if self.generator == "Ninja Multi-Config" else ".") / \
                 "share" / "machinekit" / "hal" / "testsuite" / \
                 "runtests" if test_path is None else test_path
+                
             test_directory = pathlib.Path(tempfile.mkdtemp(suffix=config))
             destination = test_directory / "runtests"
             print(
@@ -144,6 +147,7 @@ class Build():
             shutil.copytree(config_test_path, destination, ignore=shutil.ignore_patterns(
                 'pipe-*', 'result', 'strerr'))
             bash_command_string = f". {self._envrc_path(config)}; run_runtests {destination}"
+
             sh.bash("-c", bash_command_string,
                     _out=sys.stdout.buffer, _err=sys.stderr.buffer)
 
@@ -152,13 +156,16 @@ class Build():
             sh.ctest("-C", config, _cwd=self.build_directory,
                      _out=sys.stdout.buffer, _err=sys.stderr.buffer)
 
-    # def run_python_tests(self: object) -> None:
-    #    bash_command_string = ". {0}; ./nosetests/runpytest.sh".format(
-    #        self.rip_environment_path)
-    #    sh.bash("-c", bash_command_string,
-    #            _cwd=self.normalized_path,
-    #            _out=sys.stdout.buffer,
-    #            _err=sys.stderr.buffer)
+    def run_python_tests(self: object) -> None:
+        runpytest_path = self.source_directory / "tests" / "nosetests" / "runpytest.sh"
+        for config in self.configs:
+            print(
+                f"--->PyTests for config {config}.<---"
+                "\n====================================")
+        bash_command_string = f". {self._envrc_path(config)}; {runpytest_path}"
+        sh.bash("-c", bash_command_string,
+                _out=sys.stdout.buffer,
+                _err=sys.stderr.buffer)
 
     def configure(self,
                   cache: dict = dict()) -> None:
@@ -176,28 +183,28 @@ class Build():
                  _out=sys.stdout.buffer)
 
     def build(self,
-              target: str = None) -> None:
+              target: str = None,
+              sudo: bool = False) -> None:
         number_of_cores_string = sh.nproc(_tty_out=False).strip()
 
         build_additional = list()
         if target is not None:
             build_additional.append(["--target", target])
 
-        for config in self.configs:
-            sh.cmake("--build", self.build_directory,
-                     "-j", number_of_cores_string,
-                     "--verbose",
-                     "--config", config,
-                     *build_additional,
-                     _out=sys.stdout.buffer)
+        if sudo:
+            _context = sh.contrib.sudo(
+                password=self.sudo_password, _with=True, _out=sys.stdout.buffer)
+        else:
+            _context = nullcontext()
 
-        # sh.Command(autogen_path)(_cwd=src_directory, _out=sys.stdout.buffer)
-        # configure_path = "{0}/configure".format(src_directory)
-        # sh.Command(configure_path)(_cwd=src_directory, _out=sys.stdout.buffer)
-        # sh.make("-j", number_of_cores_string,
-        #        _cwd=src_directory, _out=sys.stdout.buffer)
-        # sh.sudo("-S", "make", "setuid", _in=self.sudo_password,
-        #        _cwd=src_directory, _out=sys.stdout.buffer)
+        for config in self.configs:
+            with _context:
+                sh.cmake("--build", self.build_directory,
+                         "-j", number_of_cores_string,
+                         "--verbose",
+                         "--config", config,
+                         *build_additional,
+                         _out=sys.stdout.buffer)
 
     def test_for_sudo(self: object) -> bool:
         try:
@@ -245,8 +252,10 @@ def main(args):
             build_script.configure()
         if not args.no_build:
             build_script.build()
-        # or args.no_python_tests):
-        if not (args.no_runtests or args.no_ctests):
+            build_script.build(target='binary_tree_venv')
+            build_script.build(target='setuid', sudo=True)
+
+        if not (args.no_runtests or args.no_ctests or args.no_python_tests):
             build_script.disable_zeroconf()
         if not args.no_runtests:
             try:
@@ -262,8 +271,13 @@ def main(args):
                 exception = True
                 print(e)
                 print("Run of Machinekit-HAL's CTests FAILED!")
-        # if not args.no_python_tests:
-        #    build_script.run_python_tests()
+        if not args.no_python_tests:
+            try:
+                build_script.run_python_tests()
+            except Exception as e:
+                exception = True
+                print(e)
+                print("Run of Machinekit-HAL's PyTests FAILED!")
     except ValueError as e:
         print(e)
         exception = True
@@ -349,6 +363,7 @@ if __name__ == "__main__":
                         dest="sudo_password",
                         action="store",
                         metavar="PASSWORD",
+                        default="",
                         help="Password for usage with sudo command.")
 
     parser.add_argument("--no-configure",
@@ -367,9 +382,9 @@ if __name__ == "__main__":
                         action="store_true",
                         help="Do not run CMake CTest tests")
 
-    # parser.add_argument("--no-python-tests",
-    #                    action="store_true",
-    #                    help="Do not run python tests")
+    parser.add_argument("--no-python-tests",
+                        action="store_true",
+                        help="Do not run python tests")
 
     args = parser.parse_args()
 

@@ -28,7 +28,7 @@ option(BUILD_LUTN_DEMO_MANAGED_MODULE "Built the LUTN DEMO HAL managed module."
        TRUE)
 
 if(BUILD_LUTN_MANAGED_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(lutn_demo MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::lutn_demo ALIAS lutn_demo)

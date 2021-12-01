@@ -27,7 +27,7 @@
 option(BUILD_RESET_MANAGED_MODULE "Built the Reset HAL managed module." TRUE)
 
 if(BUILD_RESET_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     reset

@@ -27,7 +27,7 @@
 option(BUILD_RUNTIME_LIBRARY "Built the Runtime libraries." TRUE)
 
 if(BUILD_RUNTIME_LIBRARY)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   if(NOT DEFINED SYS_IO_AVAILABLE)
     check_include_files("sys/io.h" SYS_IO_AVAILABLE)
@@ -58,35 +58,36 @@ if(BUILD_RUNTIME_LIBRARY)
   set(RT_PREEMPT_FLAVOR_SOURCE_FILE
       ${CMAKE_CURRENT_SOURCE_DIR}/src/rt-preempt.c)
 
-  set(PUBLIC_HEADER_FILES
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/multiframe_flag.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/multiframe.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/ring.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_app.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_atomics.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_bitops.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_bool.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_common.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_errno.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_exception.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_export.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_flavor.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_global.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_heap.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_heap_private.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_hexdump.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_int.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_limits.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_mbarrier.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_mutex.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_shmkeys.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_stdint.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_string.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/triple-buffer.h)
+  set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-  set(RTAPI_IO_PUBLIC_HEADER
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_io.h)
+  set(PUBLIC_HEADER_FILES
+      ${PUBLIC_INCLUDE_DIRECTORY}/runtime/multiframe_flag.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/runtime/multiframe.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/runtime/ring.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_app.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_atomics.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_bitops.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_bool.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_common.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_errno.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_exception.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_export.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_flavor.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_global.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_heap.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_heap_private.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_hexdump.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_int.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_limits.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_mbarrier.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_mutex.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_shmkeys.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_stdint.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_string.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/runtime/triple-buffer.h)
+
+  set(RTAPI_IO_PUBLIC_HEADER ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_io.h)
 
   set(PRIVATE_HEADER_FILES
       ${CMAKE_CURRENT_SOURCE_DIR}/src/ulapi.h
@@ -96,7 +97,7 @@ if(BUILD_RUNTIME_LIBRARY)
   target_include_directories(
     runtime_api
     INTERFACE
-      $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+      $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}>
       $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>
       $<BUILD_INTERFACE:$<TARGET_PROPERTY:rtapi_compat,INTERFACE_INCLUDE_DIRECTORIES>>
       $<BUILD_INTERFACE:$<TARGET_PROPERTY:rtapi_pci,INTERFACE_INCLUDE_DIRECTORIES>>
@@ -150,8 +151,10 @@ if(BUILD_RUNTIME_LIBRARY)
 
   export_rtapi_symbols(TARGET runtime_module)
 
-  set_target_properties(runtime_api PROPERTIES PUBLIC_HEADER
-                                               "${PUBLIC_HEADER_FILES}")
+  set_target_properties(
+    runtime_api
+    PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
+               PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
 
   set_target_properties(
     runtime
@@ -248,14 +251,14 @@ if(BUILD_RUNTIME_LIBRARY)
     NEWLINE_STYLE UNIX FILE_PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
 
   configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/MachinekitHALUNMANAGED-RuntimeComponent.cmake.in
-    ${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALUNMANAGED-RuntimeComponent.cmake
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/MachinekitHALUnmanaged-RuntimeComponent.cmake.in
+    ${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALUnmanaged-RuntimeComponent.cmake
     NO_SOURCE_PERMISSIONS
     @ONLY)
 
   configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/MachinekitHALMANAGED-RuntimeComponent.cmake.in
-    ${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALMANAGED-RuntimeComponent.cmake
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/MachinekitHALManaged-RuntimeComponent.cmake.in
+    ${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALManaged-RuntimeComponent.cmake
     NO_SOURCE_PERMISSIONS
     @ONLY)
 

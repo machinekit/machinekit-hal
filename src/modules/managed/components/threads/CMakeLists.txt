@@ -28,7 +28,7 @@ option(BUILD_THREADS_MANAGED_MODULE "Built the Threads HAL managed module."
        TRUE)
 
 if(BUILD_THREADS_MANAGED_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(threads MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::threads ALIAS threads)

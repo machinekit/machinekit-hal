@@ -48,9 +48,10 @@ repository = "https://github.com/machinekit/machinekit-hal"
 includes = [
     "src/machinekit",
 ]
+source-includes = ["CMakeLists.txt", "src/**/*.cc"]
 package-dir = "src"
 build = "build.py"
 
 [build-system]
-requires = ["pdm-pep517", "setuptools", "cmake", "cmake_build_extension"]
+requires = ["pdm-pep517", "setuptools", "cmake", "cmake_build_extension", "ninja"]
 build-backend = "pdm.pep517.api"

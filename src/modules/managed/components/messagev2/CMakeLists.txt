@@ -28,7 +28,7 @@ option(BUILD_MESSAGEV2_MANAGED_MODULE
        "Built the Message V2 HAL managed module." TRUE)
 
 if(BUILD_MESSAGEV2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     messagev2

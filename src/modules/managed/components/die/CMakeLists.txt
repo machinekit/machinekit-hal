@@ -23,3 +23,22 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_DIE_MANAGED_MODULE "Built the Die HAL managed module." TRUE)
+
+if(BUILD_DIE_MANAGED_MODULE)
+  include(MachinekitHALCompFunction)
+
+  add_legacy_managed_module(
+    die
+    SOURCE
+    src/die.comp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
+
+  add_dependencies(die comp_executable)
+endif()

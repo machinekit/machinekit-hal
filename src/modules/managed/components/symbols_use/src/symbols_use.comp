@@ -1,4 +1,4 @@
-component test_use;
+component symbols_use;
 
 pin out bit out;
 function _ nofp;

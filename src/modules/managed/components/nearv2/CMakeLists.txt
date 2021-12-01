@@ -27,7 +27,7 @@
 option(BUILD_NEARV2_MANAGED_MODULE "Built the Near V2 HAL managed module." TRUE)
 
 if(BUILD_NEARV2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     nearv2

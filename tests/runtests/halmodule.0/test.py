@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import hal
+import machinekit.hal.pyhal as hal
 import os
 
 h = hal.component("x")

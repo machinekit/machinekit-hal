@@ -1,10 +1,9 @@
 # ~~~
 # ####################################################################
-# Description:  MachinekitHALInstcompInterna.cmake.in
+# Description:  CMakeLists.txt
 #
-#               This file, 'MachinekitHALInstcompInternal.cmake.in',
-#               implements internal (BINARY tree) accessor to the
-#               CMake module MachinekitHALInstcomp
+#               This file, 'CMakeLists.txt', implements build system
+#               rules for Machinekit-HAL project
 #
 # Copyright (C) 2021    Jakub Fišer  <jakub DOT fiser AT eryaf DOT com>
 #
@@ -25,5 +24,22 @@
 # #####################################################################
 # ~~~
 
-set(MACHINEKIT_HAL_INSTCOMP "@MACHINEKIT_HAL_INSTCOMP_INTERNAL@")
-include("@MACHINEKIT_HAL_INSTCOMP_CMAKE_MODULE@")
+option(BUILD_SYMBOLS_USE_OUT_TEST_MANAGED_MODULE
+       "Built the Symbols Use test managed module." TRUE)
+
+if(BUILD_SYMBOLS_USE_OUT_TEST_MANAGED_MODULE)
+  include(MachinekitHALCompFunction)
+
+  add_legacy_managed_module(
+    symbols_use_out
+    SOURCE
+    src/symbols_use_out.comp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Tests_Runtests)
+
+  add_dependencies(symbols_use_out comp_executable)
+endif()

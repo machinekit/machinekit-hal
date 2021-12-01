@@ -70,6 +70,13 @@ if(DEFINED ENV{DEB_BUILD_GNU_TYPE}
     set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
     set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 
+    # Is the ARMHF platform the only one with a special name?
+    if("$ENV{DEB_HOST_GNU_CPU}" STREQUAL "arm")
+      set(PYTHON_PLAT_NAME "$ENV{DEB_HOST_ARCH_OS}-armv7l")
+    else()
+      set(PYTHON_PLAT_NAME "$ENV{DEB_HOST_ARCH_OS}-$ENV{DEB_HOST_GNU_CPU}")
+    endif()
+
     # Prepend the architecture specific include directories to the compiler
     # search path
     include_directories(BEFORE "/usr/$ENV{DEB_HOST_GNU_TYPE}/include"

@@ -27,7 +27,7 @@
 option(BUILD_DIV2V2_MANAGED_MODULE "Built the Div2 V2 HAL managed module." TRUE)
 
 if(BUILD_DIV2V2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     div2v2

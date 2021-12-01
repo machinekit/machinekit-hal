@@ -37,7 +37,7 @@ if(SYS_IO_AVAILABLE)
          "Built the AX5214H HAL managed driver module." TRUE)
 
   if(BUILD_HAL_AX5214H_MANAGED_DRIVER_MODULE)
-    include(MachinekitHALSymbolVisibility)
+    include(MachinekitHALSymbolVisibilityFunction)
 
     add_library(hal_ax5214h MODULE)
 

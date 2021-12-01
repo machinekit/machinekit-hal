@@ -28,7 +28,7 @@ option(BUILD_CONVS_MANAGED_MODULE "Built the Conv set of HAL managed modules."
        TRUE)
 
 if(BUILD_CONVS_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
   set(CONV_ICOMP_IN "float")
   set(CONV_ICOMP_OUT "s32")
   set(CONV_ICOMP_CC "")

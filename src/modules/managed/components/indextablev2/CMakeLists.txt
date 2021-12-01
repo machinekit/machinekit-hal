@@ -28,7 +28,7 @@ option(BUILD_INDEXTABLEV2_MANAGED_MODULE
        "Built the IndexTable V2 HAL managed module." TRUE)
 
 if(BUILD_INDEXTABLEV2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     indextablev2

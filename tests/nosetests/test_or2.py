@@ -1,9 +1,8 @@
-#!/usr/bin/env python3
-
 import pytest
 import time, os
 from configparser import ConfigParser
-from machinekit import rtapi,hal
+import machinekit.hal.cyhal as hal
+import machinekit.hal.cyruntime as rtapi
 
 @pytest.mark.usefixtures("realtime")
 class TestOr2():

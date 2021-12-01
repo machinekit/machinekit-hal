@@ -28,7 +28,7 @@ option(BUILD_SIM_PARPORTV2_MANAGED_MODULE
        "Built the Sim Parport V2 HAL managed module." TRUE)
 
 if(BUILD_SIM_PARPORTV2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     sim_parportv2

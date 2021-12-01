@@ -28,7 +28,7 @@ option(BUILD_SAMPLE_HOLD_MANAGED_MODULE
        "Built the Sample Hold HAL managed module." TRUE)
 
 if(BUILD_SAMPLE_HOLD_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     sample_hold

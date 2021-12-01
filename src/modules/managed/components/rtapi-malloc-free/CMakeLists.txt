@@ -23,3 +23,23 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_RTAPI_MALLOC_FREE_MANAGED_MODULE
+       "Built the RTAPI Malloc Free test HAL managed module." TRUE)
+
+if(BUILD_RTAPI_MALLOC_FREE_MANAGED_MODULE)
+  include(MachinekitHALCompFunction)
+
+  add_legacy_managed_module(
+    rtapi_malloc_free
+    SOURCE
+    src/rtapi_malloc_free.comp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
+
+  add_dependencies(rtapi_malloc_free comp_executable)
+endif()

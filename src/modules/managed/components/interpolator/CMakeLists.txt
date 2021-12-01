@@ -28,7 +28,7 @@ option(BUILD_INTERPOLATE_MANAGED_MODULE
        "Built the Interpolate HAL managed module." TRUE)
 
 if(BUILD_INTERPOLATE_MANAGED_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(interpolator MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::interpolator ALIAS interpolator)

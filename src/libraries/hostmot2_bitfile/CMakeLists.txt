@@ -33,8 +33,10 @@ if(BUILD_HOSTMOT2_BITFILE_LIBRARY)
               hostmot2_bitfile)
 
   set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/bitfile.c)
-  set(PUBLIC_HEADER_FILES
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/hostmot2/bitfile.h)
+
+  set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
+  set(PUBLIC_HEADER_FILES ${PUBLIC_INCLUDE_DIRECTORY}/hostmot2/bitfile.h)
 
   target_sources(
     hostmot2_bitfile
@@ -43,7 +45,7 @@ if(BUILD_HOSTMOT2_BITFILE_LIBRARY)
 
   target_include_directories(
     hostmot2_bitfile
-    PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    PUBLIC $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}>
            $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
   target_link_libraries(
@@ -58,7 +60,8 @@ if(BUILD_HOSTMOT2_BITFILE_LIBRARY)
     PROPERTIES SOVERSION 0
                PREFIX "libmkh"
                VERSION ${CMAKE_PROJECT_VERSION}
-               PUBLIC_HEADER "${PUBLIC_HEADER_FILES}")
+               PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
+               PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
 
   install(
     TARGETS hostmot2_bitfile

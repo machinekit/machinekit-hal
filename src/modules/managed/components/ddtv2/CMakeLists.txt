@@ -27,7 +27,7 @@
 option(BUILD_DDTV2_MANAGED_MODULE "Built the Ddt HAL managed module." TRUE)
 
 if(BUILD_DDTV2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     ddtv2

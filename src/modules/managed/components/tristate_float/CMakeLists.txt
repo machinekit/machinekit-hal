@@ -28,7 +28,7 @@ option(BUILD_TRISTATE_FLOAT_MANAGED_MODULE
        "Built the Tristate Float HAL managed module." TRUE)
 
 if(BUILD_TRISTATE_FLOAT_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     tristate_float

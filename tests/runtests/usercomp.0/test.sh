@@ -1,2 +1,2 @@
 #!/bin/sh
-comp --compile rand.comp
+comp -i /tmp ./rand.comp

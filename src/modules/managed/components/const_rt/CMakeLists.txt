@@ -30,7 +30,7 @@ option(BUILD_CONST_RT_MANAGED_MODULE "Built the Const-RT HAL managed module."
        FALSE)
 
 if(BUILD_CONST_RT_MANAGED_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(const_rt MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::const-rt ALIAS const_rt)

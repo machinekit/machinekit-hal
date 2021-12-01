@@ -28,7 +28,7 @@ option(BUILD_ENCODER_RATIO_MANAGED_MODULE
        "Built the Encoder ratio HAL managed module." TRUE)
 
 if(BUILD_ENCODER_RATIO_MANAGED_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(encoder_ratio MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::encoder_ratio ALIAS encoder_ratio)

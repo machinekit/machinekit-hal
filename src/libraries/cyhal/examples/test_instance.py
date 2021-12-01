@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from machinekit import hal
+import machinekit.hal.cyhal as hal
 
 
 for name in hal.instances():

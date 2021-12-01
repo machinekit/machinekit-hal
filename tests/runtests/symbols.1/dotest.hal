@@ -1,9 +1,9 @@
-loadrt test_define1
-loadrt test_use1
+loadrt symbols_define_out
+loadrt symbols_use_out
 newthread thread1 1000000 fp
-addf test-define1.0 thread1
-addf test-use1.0 thread1
+addf symbols-define-out.0 thread1
+addf symbols-use-out.0 thread1
 start
 loadusr -w sleep 1
-getp test-define1.0.out
-getp test-use1.0.out
+getp symbols-define-out.0.out
+getp symbols-use-out.0.out

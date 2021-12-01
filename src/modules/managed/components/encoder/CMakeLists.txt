@@ -28,7 +28,7 @@ option(BUILD_ENCODER_MANAGED_MODULE "Built the Encoder HAL managed module."
        TRUE)
 
 if(BUILD_ENCODER_MANAGED_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(encoder MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::encoder ALIAS encoder)

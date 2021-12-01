@@ -27,7 +27,7 @@
 option(BUILD_MAXNV2_MANAGED_MODULE "Built the MaxN V2 HAL managed module." TRUE)
 
 if(BUILD_MAXNV2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     maxnv2

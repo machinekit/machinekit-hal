@@ -1,4 +1,4 @@
-from .bitfile import main
+from .comp import main
 
 
 def cli():

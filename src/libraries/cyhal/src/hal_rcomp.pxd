@@ -2,7 +2,7 @@
 
 from hal_priv cimport hal_data_u, hal_pin_t
 
-cdef extern from "hal_rcomp.h":
+cdef extern from "hal/hal_rcomp.h":
     int RCOMP_ACCEPT_VALUES_ON_BIND
 
     ctypedef struct hal_compiled_comp_t:

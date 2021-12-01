@@ -27,7 +27,7 @@
 option(BUILD_BIQUAD_MANAGED_MODULE "Built the Biquad HAL managed module." TRUE)
 
 if(BUILD_BIQUAD_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     biquad

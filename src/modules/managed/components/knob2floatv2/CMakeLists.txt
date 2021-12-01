@@ -28,7 +28,7 @@ option(BUILD_KNOB2FLOATV2_MANAGED_MODULE
        "Built the Knob2Float V2 HAL managed module." TRUE)
 
 if(BUILD_KNOB2FLOATV2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     knob2floatv2

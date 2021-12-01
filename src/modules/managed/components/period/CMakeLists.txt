@@ -27,7 +27,7 @@
 option(BUILD_PERIOD_MANAGED_MODULE "Built the Period HAL managed module." TRUE)
 
 if(BUILD_PERIOD_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     period

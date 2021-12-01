@@ -1,9 +1,8 @@
-#!/usr/bin/env python3
 import os
 import time
 import pytest
-from machinekit import rtapi
-from machinekit import hal
+import machinekit.hal.cyhal as hal
+import machinekit.hal.cyruntime as rtapi
 
 from configparser import ConfigParser
 

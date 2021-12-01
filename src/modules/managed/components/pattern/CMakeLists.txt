@@ -28,7 +28,7 @@ option(BUILD_PATTERN_MANAGED_MODULE "Built the Pattern HAL managed module."
        TRUE)
 
 if(BUILD_PATTERN_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     pattern

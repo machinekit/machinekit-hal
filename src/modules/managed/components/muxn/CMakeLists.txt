@@ -27,7 +27,7 @@
 option(BUILD_MUXN_MANAGED_MODULE "Built the MuxN HAL managed module." TRUE)
 
 if(BUILD_MUXN_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     muxn

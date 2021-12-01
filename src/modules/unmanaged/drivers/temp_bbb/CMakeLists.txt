@@ -64,19 +64,57 @@ if(BUILD_PYTHON_DISTRIBUTIONS)
     configure_file(${PYTHON_PYPROJECT} ${PACKAGE_NAME}/pyproject.toml @ONLY
                    NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
 
-    add_custom_target(
-      ${DISTRIBUTION_NAME}_distribution ALL
+    add_custom_command(
+      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/build_${PACKAGE_NAME}_wheel.stamp
       DEPENDS
         ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/src/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/${PACKAGE_NAME}/__init__.py
         ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/src/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/${PACKAGE_NAME}/hal_temp_bbb.py
         ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/pyproject.toml
-      COMMAND ${CMAKE_COMMAND} "-E" "rm" "-rf" "${OUTPUT_INDEX}"
+      COMMAND ${CMAKE_COMMAND} "-E" "rm" "-f" "${OUTPUT_INDEX}/*.whl"
       COMMAND ${CMAKE_COMMAND} "-E" "make_directory" "${OUTPUT_INDEX}"
-      COMMAND ${PYPROJECT_BUILD} -s -w -o ${OUTPUT_INDEX}
-              ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}
-      COMMENT "Building Python package ${DISTRIBUTION_NAME} via external tool")
+      COMMAND
+        ${CMAKE_COMMAND} "-E" "env"
+        "CMAKE_PREFIX_PATH=${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}"
+        "CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}" "${PYPROJECT_BUILD}" "-w"
+        "-o" "${OUTPUT_INDEX}" "${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}"
+      COMMAND ${CMAKE_COMMAND} "-E" "touch"
+              "${CMAKE_CURRENT_BINARY_DIR}/build_${PACKAGE_NAME}_wheel.stamp"
+      COMMENT
+        "Building Python package wheel ${DISTRIBUTION_NAME} via external tool")
 
-      install_wheel(
+    add_custom_command(
+      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/build_${PACKAGE_NAME}_sdist.stamp
+      DEPENDS
+        ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/src/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/${PACKAGE_NAME}/__init__.py
+        ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/src/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/${PACKAGE_NAME}/hal_temp_bbb.py
+        ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/pyproject.toml
+      COMMAND ${CMAKE_COMMAND} "-E" "rm" "-f" "${OUTPUT_INDEX}/*.tar.gz"
+      COMMAND ${CMAKE_COMMAND} "-E" "make_directory" "${OUTPUT_INDEX}"
+      COMMAND
+        ${CMAKE_COMMAND} "-E" "env"
+        "CMAKE_PREFIX_PATH=${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}"
+        "CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}" "${PYPROJECT_BUILD}" "-s"
+        "-o" "${OUTPUT_INDEX}" "${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}"
+      COMMAND ${CMAKE_COMMAND} "-E" "touch"
+              "${CMAKE_CURRENT_BINARY_DIR}/build_${PACKAGE_NAME}_sdist.stamp"
+      COMMENT
+        "Building Python package sdist ${DISTRIBUTION_NAME} via external tool")
+
+    add_custom_target(
+      ${DISTRIBUTION_NAME}_wheel_distribution ALL
+      DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/build_${PACKAGE_NAME}_wheel.stamp
+      COMMENT
+        "Requesting building Python package wheel ${DISTRIBUTION_NAME} via external tool"
+    )
+
+    add_custom_target(
+      ${DISTRIBUTION_NAME}_sdist_distribution ALL
+      DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/build_${PACKAGE_NAME}_sdist.stamp
+      COMMENT
+        "Requesting building Python package sdist ${DISTRIBUTION_NAME} via external tool"
+    )
+
+    install_wheel(
       WHEEL "${OUTPUT_INDEX}" COMPONENT
       MachinekitHAL_Unmanaged_Module_Temp_BBB_Python_Package_Drivers)
 

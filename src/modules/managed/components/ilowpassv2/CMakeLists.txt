@@ -28,7 +28,7 @@ option(BUILD_ILOWPASSV2_MANAGED_MODULE
        "Built the ILowPass V2 HAL managed module." TRUE)
 
 if(BUILD_ILOWPASSV2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     ilowpassv2

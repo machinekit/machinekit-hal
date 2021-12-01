@@ -29,7 +29,7 @@
 option(BUILD_PBRING_MANAGED_MODULE "Built the PBRing HAL managed module." TRUE)
 
 if(BUILD_PBRING_MANAGED_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(pbring MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::pbring ALIAS pbring)

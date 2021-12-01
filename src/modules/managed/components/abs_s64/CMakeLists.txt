@@ -28,7 +28,7 @@ option(BUILD_ABS_S64_MANAGED_MODULE "Built the ABS S64 HAL managed module."
        TRUE)
 
 if(BUILD_ABS_S64_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     abs_s64

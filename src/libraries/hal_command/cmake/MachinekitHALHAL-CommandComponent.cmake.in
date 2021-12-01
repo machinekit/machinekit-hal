@@ -1,0 +1,77 @@
+# ~~~
+# ####################################################################
+# Description:  MachinekitHALMANAGED-HALComponent.cmake.in
+#
+#               This file, 'MachinekitHALMANAGED-HALComponent.cmake.in',
+#               implements build system
+#               rules for Machinekit-HAL project
+#
+# Copyright (C) 2021    Jakub Fišer  <jakub DOT fiser AT eryaf DOT com>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+#
+# #####################################################################
+# ~~~
+
+# Set the variable prefix of this file to 'MHHCC_'
+
+set(MHHCC_targets_paths
+    "[
+    {
+        \"target\":\"@MACHINEKIT_HAL_NAMESPACE@::hal_command\",
+        \"file\":\"${CMAKE_CURRENT_LIST_DIR}/MachinekitHALHALCommandTarget.cmake\"
+    },
+]")
+
+set(MHHCC_components_paths
+    "[
+    {
+        \"component\":\"Unmanaged-HAL\",
+        \"file\":\"${CMAKE_CURRENT_LIST_DIR}/MachinekitHALUnmanaged-HALComponent.cmake\"
+    },
+]")
+
+string(JSON MHHCC_targets_paths_length LENGTH "${MHHCC_targets_paths}")
+math(EXPR MHHCC_targets_paths_length "${MHHCC_targets_paths_length} - 1"
+     OUTPUT_FORMAT DECIMAL)
+
+string(JSON MHHCC_components_paths_length LENGTH "${MHHCC_components_paths}")
+math(EXPR MHHCC_components_paths_length "${MHHCC_components_paths_length} - 1"
+     OUTPUT_FORMAT DECIMAL)
+
+foreach(_index RANGE 0 ${MHHCC_components_paths_length} 1)
+  string(JSON MHHCC_path GET "${MHHCC_components_paths}" ${_index} "file")
+  if(NOT EXISTS "${MHHCC_path}")
+    set(${CMAKE_FIND_PACKAGE_NAME}_FOUND False)
+    set(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE
+        "File \"${MHHCC_path}\" is missing!")
+    return()
+  endif()
+  include("${MHHCC_path}")
+endforeach()
+
+foreach(_index RANGE 0 ${MHHCC_targets_paths_length} 1)
+  string(JSON MHHCC_name GET "${MHHCC_targets_paths}" ${_index} "target")
+  string(JSON MHHCC_path GET "${MHHCC_targets_paths}" ${_index} "file")
+  if(NOT EXISTS "${MHHCC_path}")
+    set(${CMAKE_FIND_PACKAGE_NAME}_FOUND False)
+    set(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE
+        "File \"${MHHCC_path}\" is missing!")
+    return()
+  endif()
+  if(NOT TARGET "${MHHCC_name}")
+    include("${MHHCC_path}")
+  endif()
+endforeach()

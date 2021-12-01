@@ -27,7 +27,7 @@
 option(BUILD_MAXN_MANAGED_MODULE "Built the MaxN HAL managed module." TRUE)
 
 if(BUILD_MAXN_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     maxn

@@ -37,7 +37,7 @@ if(SYS_IO_AVAILABLE)
          "Built the Hostmot2 7I90 HAL managed driver module." TRUE)
 
   if(BUILD_HOSTMOT2_7I90_MANAGED_DRIVER_MODULE)
-    include(MachinekitHALSymbolVisibility)
+    include(MachinekitHALSymbolVisibilityFunction)
 
     add_library(hostmot2_7i90 MODULE)
 

@@ -27,7 +27,7 @@
 option(BUILD_PIDV2_MANAGED_MODULE "Built the PID V2 HAL managed module." TRUE)
 
 if(BUILD_PIDV2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     pidv2

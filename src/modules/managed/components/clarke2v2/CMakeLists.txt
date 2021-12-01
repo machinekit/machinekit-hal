@@ -28,7 +28,7 @@ option(BUILD_CLARKE2V2_MANAGED_MODULE
        "Built the Clarke2 V2 HAL managed module." TRUE)
 
 if(BUILD_CLARKE2V2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     clarke2v2

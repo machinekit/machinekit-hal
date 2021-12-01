@@ -38,7 +38,7 @@ if(SYS_IO_AVAILABLE)
          "Built the Parport HAL managed driver module." TRUE)
 
   if(BUILD_UPARPORT_MANAGED_DRIVER_MODULE)
-    include(MachinekitHALSymbolVisibility)
+    include(MachinekitHALSymbolVisibilityFunction)
 
     add_library(uparport MODULE)
 

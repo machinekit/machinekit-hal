@@ -1,8 +1,8 @@
 # ~~~
 # ####################################################################
-# Description:  MachinekitHALSymbolVisibility.cmake
+# Description:  MachinekitHALSymbolVisibilityFunction.cmake
 #
-#               This file, 'MachinekitHALSymbolVisibility.cmake', is
+#               This file, 'MachinekitHALSymbolVisibilityFunction.cmake', is
 #               a Machinekit-HAL specific CMake Module used to manipulate
 #               a C or C++ target's symbol visibility
 #

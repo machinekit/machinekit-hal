@@ -28,7 +28,7 @@ option(BUILD_SCOPE_RT_MANAGED_MODULE "Built the Scope RT HAL managed module."
        TRUE)
 
 if(BUILD_SCOPE_RT_MANAGED_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(scope_rt MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::scope_rt ALIAS scope_rt)

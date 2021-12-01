@@ -27,7 +27,7 @@
 option(BUILD_SIGGEN_MANAGED_MODULE "Built the Siggen HAL managed module." TRUE)
 
 if(BUILD_SIGGEN_MANAGED_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(siggen MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::siggen ALIAS siggen)

@@ -30,7 +30,7 @@ option(BUILD_OPTO_AC5_MANAGED_DRIVER_MODULE
        "Built the Opto AC5 HAL managed driver module." TRUE)
 
 if(BUILD_OPTO_AC5_MANAGED_DRIVER_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(opto_ac5 MODULE)
 

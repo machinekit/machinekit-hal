@@ -28,7 +28,7 @@ option(BUILD_CHARGE_PUMPV2_MANAGED_MODULE
        "Built the Charge Pump V2 HAL managed module." TRUE)
 
 if(BUILD_CHARGE_PUMPV2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     charge_pumpv2

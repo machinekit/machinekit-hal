@@ -27,7 +27,7 @@
 option(BUILD_PID_MANAGED_MODULE "Built the PID HAL managed module." TRUE)
 
 if(BUILD_PID_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     pid

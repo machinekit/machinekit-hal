@@ -27,7 +27,7 @@
 option(BUILD_EDGEV2_MANAGED_MODULE "Built the Edge V2 HAL managed module." TRUE)
 
 if(BUILD_EDGEV2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     edgev2

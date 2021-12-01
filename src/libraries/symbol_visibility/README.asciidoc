@@ -9,7 +9,7 @@ in managed modules screated as a `add_library(<name> MODULE)`.
 
 == Distribution
 
-*   **MachinekitHALSymbolVisibility:** CMake module
+*   **MachinekitHALSymbolVisibilityFunction:** CMake module
 -   Sets all but those symbols in _ELF_ file declared with `RTAPI_EXPORT(<name>)` as **local**
 
 == CMAKE targets

@@ -2,7 +2,7 @@
 # cython: language_level=3
 
 
-cdef extern from "shmdrv.h":
+cdef extern from "runtime/shmdrv.h":
     cdef extern int c_shmdrv_loaded "shmdrv_loaded"
 
     ctypedef struct shm_stat:

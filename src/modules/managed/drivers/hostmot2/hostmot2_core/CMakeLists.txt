@@ -28,7 +28,7 @@ option(BUILD_HOSTMOT2_CORE_MANAGED_DRIVER_MODULE
        "Built the Hostmot2 Core HAL managed driver module." TRUE)
 
 if(BUILD_HOSTMOT2_CORE_MANAGED_DRIVER_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(hostmot2_api INTERFACE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::hostmot2_api ALIAS hostmot2_api)

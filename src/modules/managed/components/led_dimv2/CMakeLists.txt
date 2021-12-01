@@ -28,7 +28,7 @@ option(BUILD_LED_DIMV2_MANAGED_MODULE
        "Built the Led Dim V2 HAL managed module." TRUE)
 
 if(BUILD_LED_DIMV2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     led_dimv2

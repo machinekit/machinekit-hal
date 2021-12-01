@@ -28,7 +28,7 @@ option(BUILD_LOWPASS_MANAGED_MODULE "Built the LowPass HAL managed module."
        TRUE)
 
 if(BUILD_LOWPASS_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     lowpass

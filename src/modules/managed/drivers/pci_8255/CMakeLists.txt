@@ -37,7 +37,7 @@ if(SYS_IO_AVAILABLE)
          "Built the PCI 8255 HAL managed driver module." TRUE)
 
   if(BUILD_PCI_8255_MANAGED_DRIVER_MODULE)
-    include(MachinekitHALSymbolVisibility)
+    include(MachinekitHALSymbolVisibilityFunction)
 
     add_library(pci_8255 MODULE)
 

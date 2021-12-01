@@ -28,7 +28,7 @@ option(BUILD_SELECTNV2_MANAGED_MODULE
        "Built the SelectN V2 HAL managed module." TRUE)
 
 if(BUILD_SELECTNV2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     selectnv2

@@ -27,7 +27,7 @@
 option(BUILD_OR2_MANAGED_MODULE "Built the OR2 HAL managed module." TRUE)
 
 if(BUILD_OR2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     or2

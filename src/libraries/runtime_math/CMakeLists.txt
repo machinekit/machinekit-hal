@@ -118,10 +118,12 @@ if(BUILD_RUNTIME_MATH_LIBRARY)
       ${CMAKE_CURRENT_SOURCE_DIR}/src/w_sinh.c
       ${CMAKE_CURRENT_SOURCE_DIR}/src/w_sqrt.c)
 
+  set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
   set(PUBLIC_HEADER_FILES
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_byteorder.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_math64.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/rtapi_math.h)
+      ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_byteorder.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_math64.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_math.h)
 
   set(PRIVATE_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/mathP.h)
 
@@ -131,7 +133,7 @@ if(BUILD_RUNTIME_MATH_LIBRARY)
     PRIVATE ${SOURCE_FILES} ${PRIVATE_HEADER_FILES})
 
   target_include_directories(
-    runtime_math PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
+    runtime_math PUBLIC $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}>)
 
   target_link_libraries(runtime_math PRIVATE runtime_api)
 
@@ -146,7 +148,8 @@ if(BUILD_RUNTIME_MATH_LIBRARY)
                VERSION ${CMAKE_PROJECT_VERSION}
                PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
                PRIVATE_HEADER "${PRIVATE_HEADER_FILES}"
-               POSITION_INDEPENDENT_CODE TRUE)
+               POSITION_INDEPENDENT_CODE TRUE
+               PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
   install(
     TARGETS runtime_math
     EXPORT machinekit_hal_runtime_math
@@ -159,7 +162,8 @@ if(BUILD_RUNTIME_MATH_LIBRARY)
   export(
     EXPORT machinekit_hal_runtime_math
     NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
-    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALRuntimeMathTarget.cmake")
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALRuntimeMathTarget.cmake"
+  )
 
   cpack_add_component(MachinekitHAL_Library_Runtime_Math_Libraries
                       GROUP MachinekitHAL_Library_Runtime_Math)

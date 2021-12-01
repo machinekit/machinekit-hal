@@ -28,7 +28,7 @@ option(BUILD_GEARCHANGE_MANAGED_MODULE
        "Built the Gearchange HAL managed module." TRUE)
 
 if(BUILD_GEARCHANGE_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     gearchange

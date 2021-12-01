@@ -1,5 +1,5 @@
 # vim: sts=4 sw=4 et
-cdef extern from "halcmd_rtapiapp.h":
+cdef extern from "hal_command/halcmd_rtapiapp.h":
 
     int rtapi_connect(int instance, char *uri,  char *svc_uuid)
     int rtapi_loadrt(int instance, const char *modname, const char **args)

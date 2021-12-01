@@ -25,6 +25,6 @@ start
 # Load userland sampler comp
 # - LinuxCNC
 #loadusr -Wn halsampler halsampler -N halsampler -n 2000
-# - Machinekit
+# - Machinekit-HAL
 loadusr -w halsampler -n $(NUMSAMPS_X4)
 

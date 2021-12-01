@@ -27,7 +27,7 @@
 option(BUILD_IDB_MANAGED_MODULE "Built the IDB HAL managed module." TRUE)
 
 if(BUILD_IDB_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     idb

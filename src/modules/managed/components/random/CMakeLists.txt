@@ -29,7 +29,7 @@
 option(BUILD_RANDOM_MANAGED_MODULE "Built the Random HAL managed module." TRUE)
 
 if(BUILD_PWMGENV2_MANAGED_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(random MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::random ALIAS random)

@@ -30,7 +30,7 @@ option(BUILD_HAL_PPMC_MANAGED_DRIVER_MODULE
        "Built the PPMC HAL managed driver module." TRUE)
 
 if(BUILD_HAL_PPMC_MANAGED_DRIVER_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(hal_ppmc MODULE)
 

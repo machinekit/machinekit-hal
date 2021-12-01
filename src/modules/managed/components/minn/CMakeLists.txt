@@ -27,7 +27,7 @@
 option(BUILD_MINN_MANAGED_MODULE "Built the MinN HAL managed module." TRUE)
 
 if(BUILD_MINN_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     minn

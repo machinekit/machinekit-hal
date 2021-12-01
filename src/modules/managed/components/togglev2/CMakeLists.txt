@@ -28,7 +28,7 @@ option(BUILD_TOGGLEV2_MANAGED_MODULE "Built the Toggle V2 HAL managed module."
        TRUE)
 
 if(BUILD_TOGGLEV2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     togglev2

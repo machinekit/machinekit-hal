@@ -28,7 +28,7 @@ option(BUILD_DEBOUNCEV2_MANAGED_MODULE
        "Built the Debounce V2 HAL managed module." TRUE)
 
 if(BUILD_DEBOUNCEV2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     debouncev2

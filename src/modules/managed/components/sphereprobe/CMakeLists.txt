@@ -28,7 +28,7 @@ option(BUILD_SPHEREPROBE_MANAGED_MODULE
        "Built the Sphereprobe HAL managed module." TRUE)
 
 if(BUILD_SPHEREPROBE_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     sphereprobe

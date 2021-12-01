@@ -40,8 +40,7 @@ if(BUILD_PYTHON_DISTRIBUTIONS)
 
     # Files representing the Python package
     set(PYHAL_MODULE_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/src/halmodule.cc)
-    set(HAL_PYTHON_MODULE ${CMAKE_CURRENT_SOURCE_DIR}/src/hal.py)
-    # set(PYTHON_INIT ${CMAKE_CURRENT_SOURCE_DIR}/src/__init__.py)
+    set(PYTHON_INIT ${CMAKE_CURRENT_SOURCE_DIR}/src/__init__.py)
     set(PYTHON_PDM_BUILD ${CMAKE_CURRENT_SOURCE_DIR}/src/build.py)
     set(PYHAL_MODULE_CMAKELISTS
         ${CMAKE_CURRENT_SOURCE_DIR}/src/CMakeLists.txt.in)
@@ -52,11 +51,11 @@ if(BUILD_PYTHON_DISTRIBUTIONS)
 
     file(REMOVE_RECURSE
          ${CMAKE_CURRENT_BINARY_DIR}/${DISTRIBUTION_NORMALIZED_NAME})
-    #[[configure_file(
+    configure_file(
       ${PYTHON_INIT}
       ${PACKAGE_NAME}/src/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/${PACKAGE_NAME}/__init__.py
       COPYONLY
-      NO_SOURCE_PERMISSIONS)]]
+      NO_SOURCE_PERMISSIONS)
     configure_file(${PYTHON_PDM_BUILD} ${PACKAGE_NAME}/build.py COPYONLY
                    NO_SOURCE_PERMISSIONS)
     configure_file(
@@ -64,27 +63,85 @@ if(BUILD_PYTHON_DISTRIBUTIONS)
       ${PACKAGE_NAME}/src/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/${PACKAGE_NAME}/halmodule.cc
       COPYONLY
       NO_SOURCE_PERMISSIONS)
-    configure_file(
-      ${HAL_PYTHON_MODULE}
-      ${PACKAGE_NAME}/src/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/${PACKAGE_NAME}/hal.py
-      COPYONLY
-      NO_SOURCE_PERMISSIONS)
     configure_file(${PYHAL_MODULE_CMAKELISTS} ${PACKAGE_NAME}/CMakeLists.txt
                    @ONLY NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
     configure_file(${PYTHON_PYPROJECT} ${PACKAGE_NAME}/pyproject.toml @ONLY
                    NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
 
-    add_custom_target(
-      ${DISTRIBUTION_NAME}_distribution ALL
+    if(PYTHON_PLAT_NAME)
+      set(_python_plat_name
+          "--config-setting=\"--plat-name=${PYTHON_PLAT_NAME}\"")
+    else()
+      set(_python_plat_name "") # Make sure it is empty
+    endif()
+
+    add_custom_command(
+      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/build_${PACKAGE_NAME}_wheel.stamp
       DEPENDS
-        # ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/src/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/${PACKAGE_NAME}/__init__.py
+        ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/src/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/${PACKAGE_NAME}/__init__.py
         ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/src/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/${PACKAGE_NAME}/halmodule.cc
         ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/pyproject.toml
-      COMMAND ${CMAKE_COMMAND} "-E" "rm" "-rf" "${OUTPUT_INDEX}"
+        ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/CMakeLists.txt
+      COMMAND ${CMAKE_COMMAND} "-E" "rm" "-f" "${OUTPUT_INDEX}/*.whl"
       COMMAND ${CMAKE_COMMAND} "-E" "make_directory" "${OUTPUT_INDEX}"
-      COMMAND ${PYPROJECT_BUILD} -s -w -o ${OUTPUT_INDEX}
-              ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}
-      COMMENT "Building Python package ${DISTRIBUTION_NAME} via external tool")
+      # TODO: This is hackins approach to solve issue with building multiple CONFIGS:
+      # Each config build is separated and because the wheel build uses an isolated
+      # environment, the paths to executables (python, pip etc.) are stored in CMake
+      # cache during generation. Second (et al) builds then try to reuse the first
+      # generation and fails because the temporary environment from the first run no
+      # longer exists
+      # This will need a rework as it should use its own manual isolation (for Debian
+      # and other distros because they require it) and generally to keep the build
+      # files for possibility of post-mortem
+      COMMAND ${CMAKE_COMMAND} "-E" "rm" "-rf" "${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/build"
+      COMMAND
+        ${CMAKE_COMMAND} "-E" "env"
+        "CMAKE_PREFIX_PATH=${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}"
+        "CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}"
+        "MACHINEKIT_HAL_BUILD_CONFIG=$<CONFIG>" "${PYPROJECT_BUILD}" "-w" "-o"
+        "${OUTPUT_INDEX}" "${_python_plat_name}"
+        "${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}"
+      COMMAND ${CMAKE_COMMAND} "-E" "touch"
+              "${CMAKE_CURRENT_BINARY_DIR}/build_${PACKAGE_NAME}_wheel.stamp"
+      COMMENT
+        "Building Python package wheel ${DISTRIBUTION_NAME} via external tool")
+
+    add_custom_command(
+      OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/build_${PACKAGE_NAME}_sdist.stamp
+      DEPENDS
+        ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/src/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/${PACKAGE_NAME}/__init__.py
+        ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/src/${MACHINEKIT_HAL_PACKAGE_PREFIX_PATH}/${PACKAGE_NAME}/halmodule.cc
+        ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/pyproject.toml
+        ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/CMakeLists.txt
+      COMMAND ${CMAKE_COMMAND} "-E" "rm" "-f" "${OUTPUT_INDEX}/*.tar.gz"
+      COMMAND ${CMAKE_COMMAND} "-E" "make_directory" "${OUTPUT_INDEX}"
+      COMMAND
+        ${CMAKE_COMMAND} "-E" "env"
+        "CMAKE_PREFIX_PATH=${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}"
+        "CMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}" "${PYPROJECT_BUILD}" "-s"
+        "-o" "${OUTPUT_INDEX}" "${_python_plat_name}"
+        "${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}"
+      COMMAND ${CMAKE_COMMAND} "-E" "touch"
+              "${CMAKE_CURRENT_BINARY_DIR}/build_${PACKAGE_NAME}_sdist.stamp"
+      COMMENT
+        "Building Python package sdist ${DISTRIBUTION_NAME} via external tool")
+
+    add_custom_target(
+      ${DISTRIBUTION_NAME}_wheel_distribution ALL
+      DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/build_${PACKAGE_NAME}_wheel.stamp
+      COMMENT
+        "Requesting building Python package wheel ${DISTRIBUTION_NAME} via external tool"
+    )
+
+    add_custom_target(
+      ${DISTRIBUTION_NAME}_sdist_distribution ALL
+      DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/build_${PACKAGE_NAME}_sdist.stamp
+      COMMENT
+        "Requesting building Python package sdist ${DISTRIBUTION_NAME} via external tool"
+    )
+
+    add_dependencies(${DISTRIBUTION_NAME}_wheel_distribution hal)
+    add_dependencies(${DISTRIBUTION_NAME}_sdist_distribution hal)
 
     install_wheel(WHEEL "${OUTPUT_INDEX}" COMPONENT
                   MachinekitHAL_Library_PyHAL_Module_Python_Packages)

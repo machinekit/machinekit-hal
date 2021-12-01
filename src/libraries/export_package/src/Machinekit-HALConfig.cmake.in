@@ -1,0 +1,105 @@
+# ~~~
+# ####################################################################
+# Description:  CMakeLists.txt
+#
+#               This file, 'CMakeLists.txt', implements build system
+#               rules for Machinekit-HAL project
+#
+# Copyright (C) 2021    Jakub Fišer  <jakub DOT fiser AT eryaf DOT com>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+#
+# #####################################################################
+# ~~~
+
+@PACKAGE_INIT@
+
+# Set the variable prefix of this file to 'MHC_'
+
+cmake_policy(SET CMP0057 NEW)
+cmake_policy(SET CMP0011 NEW)
+
+# The missing "-" in Machinekit-HAL CMake files denotes the internal scripts not
+# for direct use from external projects TODO: Can this be broken from CMake
+# perspective?
+
+file(
+  GLOB MHC_found_component_files
+  LIST_DIRECTORIES False
+  "${CMAKE_CURRENT_LIST_DIR}/MachinekitHAL*Component.cmake")
+
+# Quick bypass to avoid querying the JSON in CMake
+set(MHC_known_components "")
+set(MHC_components_paths "[")
+
+foreach(_item IN LISTS MHC_found_component_files)
+  # Further limit naming of the component to just [a-zA-z0-9_-] type of
+  # characters
+  if("${_item}" MATCHES "^.+/MachinekitHAL([a-zA-z0-9_-]+)Component\\.cmake$")
+    string(TOLOWER "${CMAKE_MATCH_1}" MHC_component_name)
+    if("${MHC_component_name}" IN_LIST MHC_known_components)
+      set(${CMAKE_FIND_PACKAGE_NAME}_FOUND False)
+      set(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE
+          "Multiple files named \"${MHC_component_name}\" found!")
+      return()
+    endif()
+    list(APPEND MHC_known_components "${MHC_component_name}")
+    set(MHC_components_paths
+        "${MHC_components_paths}
+    {
+        \"name\" : \"${MHC_component_name}\",
+        \"file\" : \"${_item}\"
+    },")
+  endif()
+endforeach()
+
+set(MHC_components_paths "${MHC_components_paths}
+]")
+
+string(JSON MHC_component_length LENGTH "${MHC_components_paths}")
+math(EXPR MHC_component_length "${MHC_component_length} - 1"
+     OUTPUT_FORMAT DECIMAL)
+
+if(NOT ${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS)
+  set(${CMAKE_FIND_PACKAGE_NAME}_FOUND False)
+  list(JOIN MHC_known_components " " MHC_known_components_set)
+  string(TOUPPER "${MHC_known_components_set}" MHC_known_components_set)
+  set(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE
+      "${CMAKE_FIND_PACKAGE_NAME} requires at least one component specified. Known components are: ${MHC_known_components_set}"
+  )
+  return()
+endif()
+
+foreach(_component ${${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS})
+  string(TOLOWER "${_component}" MHC_component_name)
+  if(NOT MHC_component_name IN_LIST MHC_known_components)
+    set(${CMAKE_FIND_PACKAGE_NAME}_FOUND False)
+    set(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE
+        "Unsupported component: ${MHC_component}")
+    return()
+  endif()
+  foreach(_item RANGE 0 ${MHC_component_length} 1)
+    string(JSON MHC_component_path_name GET "${MHC_components_paths}" ${_item}
+           "name")
+    if("${MHC_component_path_name}" STREQUAL "${MHC_component_name}")
+      string(JSON MHC_component_path_file GET "${MHC_components_paths}" ${_item}
+             "file")
+      include("${MHC_component_path_file}")
+      set(${CMAKE_FIND_PACKAGE_NAME}_${_component}_FOUND True)
+    endif()
+  endforeach()
+endforeach()
+
+check_required_components(${CMAKE_FIND_PACKAGE_NAME})

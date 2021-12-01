@@ -23,3 +23,27 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_MESA_UART_MANAGED_MODULE "Built the Mesa UART HAL managed module."
+       TRUE)
+
+if(BUILD_MESA_UART_MANAGED_MODULE)
+  include(MachinekitHALCompFunction)
+
+  add_legacy_managed_module(
+    mesa_uart
+    SOURCE
+    src/mesa_uart.comp
+    OUTPUT_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY}"
+    INSTALL_DIRECTORY
+    "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
+    LINK_LIBRARIES
+    hostmot2_api
+    hostmot2_bitfile
+    user_pci
+    CPACK_OUTPUT_GROUP
+    MachinekitHAL_Package_Base_Managed_Modules_Components)
+
+  add_dependencies(mesa_uart comp_executable)
+endif()

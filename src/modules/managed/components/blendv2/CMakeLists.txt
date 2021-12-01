@@ -28,7 +28,7 @@ option(BUILD_BLENDV2_MANAGED_MODULE "Built the BLEND V2 HAL managed module."
        TRUE)
 
 if(BUILD_BLENDV2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     blendv2

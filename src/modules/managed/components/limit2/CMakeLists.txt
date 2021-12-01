@@ -27,7 +27,7 @@
 option(BUILD_LIMIT2_MANAGED_MODULE "Built the Limit2 HAL managed module." TRUE)
 
 if(BUILD_LIMIT2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     limit2

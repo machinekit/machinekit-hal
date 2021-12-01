@@ -4,6 +4,8 @@
 # RT logger
 # rtapi_app command interface
 
+from rtapi cimport *
+
 from os import strerror, getpid
 from libc.stdlib cimport malloc, free
 from cpython.bytes cimport PyBytes_FromString
@@ -135,11 +137,8 @@ cdef char ** _to_argv(args):
 
 import sys
 import os
-from machinekit import hal, config
-if sys.version_info >= (3, 0):
-    import configparser
-else:
-    import ConfigParser as configparser
+import machinekit.hal.cyhal as hal
+import configparser
 
 # enums for classify_comp
 CS_NOT_LOADED = 0
@@ -167,10 +166,13 @@ class RTAPIcommand:
     def __init__(self, unicode uuid="", int instance=0, unicode uri=""):
         rtapi_required()
         if uuid == "" and uri == "":  # try to get the uuid from the ini
-            mkconfig = config.Config()
+            # Config Python module temporarily disabled as the exact same functionality can
+            # be found linked in directly into Machinekit-HAL's Runtime from C API
+            #mkconfig = config.Config()
             mkini = os.getenv("MACHINEKIT_INI")
             if mkini is None:
-                mkini = mkconfig.MACHINEKIT_INI
+                #mkini = mkconfig.MACHINEKIT_INI
+                mkini = machinekit_hal_ini_file
             if not os.path.isfile(mkini):
                 raise RuntimeError("MACHINEKIT_INI " + mkini + " does not exist")
 

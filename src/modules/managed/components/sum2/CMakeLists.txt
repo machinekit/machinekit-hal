@@ -27,7 +27,7 @@
 option(BUILD_SUM2_MANAGED_MODULE "Built the Sum2 HAL managed module." TRUE)
 
 if(BUILD_SUM2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     sum2

@@ -29,11 +29,13 @@ option(BUILD_SYMBOL_VISIBILITY_CMAKE_MODULE
 
 if(BUILD_SYMBOL_VISIBILITY_CMAKE_MODULE)
 
-  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src")
-  set(CMAKE_MODULE_PATH
-      "${CMAKE_MODULE_PATH}"
-      PARENT_SCOPE)
-  set_property(GLOBAL APPEND PROPERTY MACHINEKIT_HAL_MODULE_PATH
-                                      "${CMAKE_CURRENT_SOURCE_DIR}/src")
+  set(SOURCE_FILE
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/MachinekitHALSymbolVisibilityFunction.cmake)
+
+  configure_file(
+    ${SOURCE_FILE}
+    "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALSymbolVisibilityFunction.cmake"
+    NO_SOURCE_PERMISSIONS
+    COPYONLY)
 
 endif()

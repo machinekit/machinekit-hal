@@ -1,9 +1,8 @@
 # ~~~
 # ####################################################################
-# Description:  MachinekitHALMANAGED-HALComponent.cmake.in
+# Description:  CMakeLists.txt
 #
-#               This file, 'MachinekitHALMANAGED-HALComponent.cmake.in',
-#               implements build system
+#               This file, 'CMakeLists.txt', implements build system
 #               rules for Machinekit-HAL project
 #
 # Copyright (C) 2021    Jakub Fišer  <jakub DOT fiser AT eryaf DOT com>
@@ -24,3 +23,25 @@
 #
 # #####################################################################
 # ~~~
+
+option(BUILD_EXPORT_PACKAGE_LIBRARY "Built the Export package library." TRUE)
+
+if(BUILD_EXPORT_PACKAGE_LIBRARY)
+  include(CMakePackageConfigHelpers)
+
+  write_basic_package_version_file(
+    "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/Machinekit-HALVersion.cmake"
+    VERSION "${CMAKE_PROJECT_VERSION}"
+    COMPATIBILITY SameMajorVersion)
+
+  configure_package_config_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/Machinekit-HALConfig.cmake.in
+    "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/Machinekit-HALConfig.cmake"
+    INSTALL_DESTINATION "${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}")
+
+  install(
+    FILES
+      "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/Machinekit-HALConfig.cmake"
+      "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/Machinekit-HALVersion.cmake"
+    DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY})
+endif()

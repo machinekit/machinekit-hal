@@ -28,7 +28,7 @@ option(BUILD_BITSLICE_MANAGED_MODULE "Built the BitSlice HAL managed module."
        TRUE)
 
 if(BUILD_BITSLICE_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     bitslice

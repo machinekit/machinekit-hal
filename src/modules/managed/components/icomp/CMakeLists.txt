@@ -27,7 +27,7 @@
 option(BUILD_ICOMP_MANAGED_MODULE "Built the IComp HAL managed module." TRUE)
 
 if(BUILD_ICOMP_MANAGED_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(icomp MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::icomp ALIAS icomp)

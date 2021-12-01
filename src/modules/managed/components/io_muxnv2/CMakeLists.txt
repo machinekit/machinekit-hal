@@ -28,7 +28,7 @@ option(BUILD_IO_MUXNV2_MANAGED_MODULE
        "Built the IO MuxN V2 HAL managed module." TRUE)
 
 if(BUILD_IO_MUXNV2_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     io_muxnv2

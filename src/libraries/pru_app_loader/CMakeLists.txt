@@ -34,17 +34,19 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
 
     set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/prussdrv.c)
 
+    set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
     set(PUBLIC_HEADER_FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/pru_app_loader/__prussdrv.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/pru_app_loader/pruss_intc_mapping.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/pru_app_loader/prussdrv.h)
+        ${PUBLIC_INCLUDE_DIRECTORY}/pru_app_loader/__prussdrv.h
+        ${PUBLIC_INCLUDE_DIRECTORY}/pru_app_loader/pruss_intc_mapping.h
+        ${PUBLIC_INCLUDE_DIRECTORY}/pru_app_loader/prussdrv.h)
 
     target_sources(pru_app_loader PRIVATE ${SOURCE_FILES}
                                           ${PUBLIC_HEADER_FILES})
 
     target_include_directories(
       pru_app_loader
-      PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+      PUBLIC $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}>
              $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
     target_link_libraries(pru_app_loader PRIVATE runtime_api runtime_config)
@@ -57,7 +59,8 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
                  PREFIX "libmkh"
                  VERSION ${CMAKE_PROJECT_VERSION}
                  PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
-                 POSITION_INDEPENDENT_CODE TRUE)
+                 POSITION_INDEPENDENT_CODE TRUE
+                 PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
     install(
       TARGETS pru_app_loader
       EXPORT machinekit_hal_pru_app_loader
@@ -71,7 +74,8 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
     export(
       EXPORT machinekit_hal_pru_app_loader
       NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
-      FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALPRUAppLoaderTarget.cmake")
+      FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALPRUAppLoaderTarget.cmake"
+    )
 
     cpack_add_component(MachinekitHAL_Library_PRU_App_Loader_Libraries
                         GROUP MachinekitHAL_Library_PRU_App_Loader)

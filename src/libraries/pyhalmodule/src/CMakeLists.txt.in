@@ -24,13 +24,13 @@
 # #####################################################################
 # ~~~
 
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.22)
 
 project(
   PyHALModule
   VERSION @CMAKE_PROJECT_VERSION@
   DESCRIPTION
-    "Python C extensiom module for Machinekit-HAL Hardware Abstraction Layer."
+    "Python C extension module for Machinekit-HAL Hardware Abstraction Layer."
   HOMEPAGE_URL "https://machinekit.io"
   LANGUAGES CXX)
 
@@ -42,23 +42,30 @@ set(CMAKE_C_EXTENSIONS FALSE)
 set(CMAKE_CXX_EXTENSIONS FALSE)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
-include(GNUInstallDirs)
-
 set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
 
 find_package(
-  Python3
-  COMPONENTS Interpreter Development.Module
+  Python 3.6...4.0
+  COMPONENTS Development
   REQUIRED)
 
-find_package(Runtime REQUIRED)
-find_package(HAL REQUIRED)
-find_package(RuntimeConfig REQUIRED)
+find_package(
+  Machinekit-HAL
+  COMPONENTS Unmanaged-HAL
+  REQUIRED)
 
-python3_add_library(
-  pyhal MODULE WITH_SOABI
-  ${CMAKE_CURRENT_SOURCE_DIR}/src/machinekit/hal/pyhal/halmodule.cc)
+set(SOURCE_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/machinekit/hal/pyhal/halmodule.cc)
+
+python_add_library(pyhal MODULE WITH_SOABI ${SOURCE_FILES})
 
 target_link_libraries(
   pyhal PUBLIC Machinekit::HAL::hal Machinekit::HAL::runtime
                Machinekit::HAL::runtime_config)
+
+install(
+  TARGETS pyhal
+  LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}
+  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_PREFIX})

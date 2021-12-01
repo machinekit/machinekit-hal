@@ -1,4 +1,4 @@
-component test_define1;
+component symbols_define_out;
 
 pin out s32 out;
 function _ nofp;

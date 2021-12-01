@@ -13,14 +13,18 @@ if "CMAKE_PREFIX_PATH" in os.environ:
     CMAKE_CONFIGURE_EXTENSION_OPTIONS.append(
         f"-DCMAKE_PREFIX_PATH={os.environ['CMAKE_PREFIX_PATH']}")
 
+if "CMAKE_TOOLCHAIN_FILE" in os.environ and os.environ["CMAKE_TOOLCHAIN_FILE"]:
+    CMAKE_CONFIGURE_EXTENSION_OPTIONS.append(
+        f"--toolchain={os.environ['CMAKE_TOOLCHAIN_FILE']}")
+
 ext_modules = [
     cmake_build_extension.CMakeExtension(name='pyhal',
                                          install_prefix="machinekit/hal/pyhal",
                                          source_dir=str(
                                               pathlib.Path(__file__).absolute().parent),
+                                         cmake_build_type=os.environ.get(
+                                             "MACHINEKIT_HAL_BUILD_CONFIG", "Release"),
                                          cmake_configure_options=[
-                                             f"-DPython3_ROOT_DIR={pathlib.Path(sys.prefix)}",
-                                             "-DCALL_FROM_SETUP_PY:BOOL=TRUE",
                                              "-DBUILD_SHARED_LIBS:BOOL=FALSE",
                                          ] + CMAKE_CONFIGURE_EXTENSION_OPTIONS
                                          )

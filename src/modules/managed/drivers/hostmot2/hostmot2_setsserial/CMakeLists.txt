@@ -28,7 +28,7 @@ option(BUILD_HOSTMOT2_SETSERIAL_MANAGED_DRIVER_MODULE
        "Built the Hostmot2 SetSerial HAL managed driver module." TRUE)
 
 if(BUILD_HOSTMOT2_SETSERIAL_MANAGED_DRIVER_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(hostmot2_setserial MODULE)
 

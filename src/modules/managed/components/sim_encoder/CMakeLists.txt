@@ -28,7 +28,7 @@ option(BUILD_SIM_ENCODER_MANAGED_MODULE
        "Built the SIM Encoder HAL managed module." TRUE)
 
 if(BUILD_SIM_ENCODER_MANAGED_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(sim_encoder MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::sim_encoder ALIAS sim_encoder)

@@ -28,7 +28,7 @@ option(BUILD_TOGGLE2NIST_MANAGED_MODULE
        "Built the Toggle2Nist HAL managed module." TRUE)
 
 if(BUILD_TOGGLE2NIST_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     toggle2nist

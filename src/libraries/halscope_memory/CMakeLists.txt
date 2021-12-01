@@ -31,16 +31,20 @@ if(BUILD_HALSCOPE_MEMORY_LIBRARY)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::halscope_memory ALIAS
               halscope_memory)
 
+  set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
   set(PUBLIC_HEADER_FILES
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/halscope_memory/scope_shm.h)
+      ${PUBLIC_INCLUDE_DIRECTORY}/halscope_memory/scope_shm.h)
 
   target_include_directories(
     halscope_memory
     INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
               $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
-  set_target_properties(halscope_memory PROPERTIES PUBLIC_HEADER
-                                                   "${PUBLIC_HEADER_FILES}")
+  set_target_properties(
+    halscope_memory
+    PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
+               PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
 
   install(
     TARGETS halscope_memory
@@ -52,7 +56,8 @@ if(BUILD_HALSCOPE_MEMORY_LIBRARY)
   export(
     EXPORT machinekit_hal_halscope_memory
     NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
-    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALHALScopeMemoryTarget.cmake")
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALHALScopeMemoryTarget.cmake"
+  )
 
   cpack_add_component(MachinekitHAL_Library_HALscope_Memory_Headers
                       GROUP MachinekitHAL_Library_HALscope_Memory_Development)

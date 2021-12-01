@@ -27,7 +27,7 @@
 option(BUILD_JPLAN_MANAGED_MODULE "Built the JPlan HAL managed module." TRUE)
 
 if(BUILD_JPLAN_MANAGED_MODULE)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(jplan MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::jplan ALIAS jplan)

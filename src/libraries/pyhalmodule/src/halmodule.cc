@@ -1306,13 +1306,13 @@ const char *module_doc = "Interface to hal\n"
 
 static struct PyModuleDef hal_moduledef = {
     PyModuleDef_HEAD_INIT,  /* m_base */
-    "_hal",                 /* m_name */
+    "pyhal",                 /* m_name */
     module_doc,                   /* m_doc */
     -1,                     /* m_size */
     module_methods            /* m_methods */
 };
 
-PyMODINIT_FUNC PyInit__hal(void)
+PyMODINIT_FUNC PyInit_pyhal(void)
 {
     PyObject *m = PyModule_Create(&hal_moduledef);
 

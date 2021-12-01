@@ -1,6 +1,6 @@
 from hal_group cimport hal_group_t, hal_member_t
 
-cdef extern from "hal_iter.h":
+cdef extern from "hal/hal_iter.h":
     ctypedef int (*hal_comp_callback_t)  (hal_comp_t *comp,  void *arg)
     ctypedef int (*hal_sig_callback_t)   (hal_sig_t *sig,  void *arg)
     ctypedef int (*hal_ring_callback_t)  (hal_ring_t *ring,  void *arg)

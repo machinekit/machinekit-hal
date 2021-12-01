@@ -28,7 +28,7 @@ option(BUILD_CLARKE3_MANAGED_MODULE "Built the Clarke3 HAL managed module."
        TRUE)
 
 if(BUILD_CLARKE3_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     clarke3

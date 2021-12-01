@@ -37,7 +37,7 @@ if(SYS_IO_AVAILABLE)
          "Built the MotEnc HAL managed driver module." TRUE)
 
   if(BUILD_HAL_MOTENC_MANAGED_DRIVER_MODULE)
-    include(MachinekitHALSymbolVisibility)
+    include(MachinekitHALSymbolVisibilityFunction)
 
     add_library(hal_motenc MODULE)
 

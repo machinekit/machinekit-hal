@@ -28,7 +28,7 @@ option(BUILD_BIN2GRAY_MANAGED_MODULE "Built the Bin2Gray HAL managed module."
        TRUE)
 
 if(BUILD_BIN2GRAY_MANAGED_MODULE)
-  include(MachinekitHALInstcomp)
+  include(MachinekitHALInstcompFunction)
 
   add_instantiatable_module(
     bin2gray

@@ -30,18 +30,21 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
   if(BUILD_PRU_DEFINES_LIBRARY)
     add_library(pru_defines INTERFACE)
 
-    set(PUBLIC_HEADER_FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/pru_defines/pru.h)
+    set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
+    set(PUBLIC_HEADER_FILES ${PUBLIC_INCLUDE_DIRECTORY}/pru_defines/pru.h)
 
     # TODO: How to integrate the 'pru_macros.hp' file?
 
     target_include_directories(
       pru_defines
-      INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+      INTERFACE $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}>
                 $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
-    set_target_properties(pru_defines PROPERTIES PUBLIC_HEADER
-                                                 "${PUBLIC_HEADER_FILES}")
+    set_target_properties(
+      pru_defines
+      PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
+                 PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
 
     install(
       TARGETS pru_defines
@@ -56,7 +59,8 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
     export(
       EXPORT machinekit_hal_pru_defines
       NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
-      FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALPRUDefinesTarget.cmake")
+      FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALPRUDefinesTarget.cmake"
+    )
 
     # Specification of artifacts placement in package tree
     cpack_add_component_group(

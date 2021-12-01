@@ -1,31 +1,33 @@
-# ##############################################################################
+# ~~~
+# ####################################################################
 # Description:  CMakeLists.txt
 #
-# This file, 'CMakeLists.txt', implements build system rules for Machinekit-HAL
-# project
+#               This file, 'CMakeLists.txt', implements build system
+#               rules for Machinekit-HAL project
 #
 # Copyright (C) 2021    Jakub Fišer  <jakub DOT fiser AT eryaf DOT com>
 #
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of the GNU Lesser General Public License as published by the Free
-# Software Foundation; either version 2.1 of the License, or (at your option)
-# any later version.
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
 #
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
-# details.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
 #
-# You should have received a copy of the GNU Lesser General Public License along
-# with this library; if not, write to the Free Software Foundation, Inc., 51
-# Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #
-# ##############################################################################
+# #####################################################################
+# ~~~
 
 option(BUILD_HAL_LIBRARY "Built the HAL library." TRUE)
 
 if(BUILD_HAL_LIBRARY)
-  include(MachinekitHALSymbolVisibility)
+  include(MachinekitHALSymbolVisibilityFunction)
 
   add_library(hal_api INTERFACE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::hal_api ALIAS hal_api)
@@ -57,24 +59,26 @@ if(BUILD_HAL_LIBRARY)
 
   set(HALPB_SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/halpb.cc)
 
+  set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
   set(PUBLIC_HEADER_FILES
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_accessor.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_accessor_macros.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_group.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_internal.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_iring.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_iter.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_list.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_logging.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_object.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_object_selectors.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/halpb.hh
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_priv.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_rcomp.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_ring.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/hal_types.h
-      ${CMAKE_CURRENT_SOURCE_DIR}/include/hal/vtable.h)
+      ${PUBLIC_INCLUDE_DIRECTORY}/hal/hal_accessor.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/hal/hal_accessor_macros.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/hal/hal_group.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/hal/hal.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/hal/hal_internal.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/hal/hal_iring.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/hal/hal_iter.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/hal/hal_list.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/hal/hal_logging.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/hal/hal_object.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/hal/hal_object_selectors.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/hal/halpb.hh
+      ${PUBLIC_INCLUDE_DIRECTORY}/hal/hal_priv.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/hal/hal_rcomp.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/hal/hal_ring.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/hal/hal_types.h
+      ${PUBLIC_INCLUDE_DIRECTORY}/hal/vtable.h)
   # TODO: Filter out header files from HAL which can safely be private
   # set(PRIVATE_HEADER_FILES "")
 
@@ -96,8 +100,9 @@ if(BUILD_HAL_LIBRARY)
 
   export_rtapi_symbols(TARGET hal_module)
 
-  set_target_properties(hal_api PROPERTIES PUBLIC_HEADER
-                                           "${PUBLIC_HEADER_FILES}")
+  set_target_properties(
+    hal_api PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
+                       PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
 
   set_target_properties(
     hal
@@ -113,6 +118,18 @@ if(BUILD_HAL_LIBRARY)
                PREFIX "mod"
                LIBRARY_OUTPUT_DIRECTORY
                ${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY})
+
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/MachinekitHALUnmanaged-HALComponent.cmake.in
+    ${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALUnmanaged-HALComponent.cmake
+    NO_SOURCE_PERMISSIONS
+    @ONLY)
+
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/MachinekitHALManaged-HALComponent.cmake.in
+    ${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALManaged-HALComponent.cmake
+    NO_SOURCE_PERMISSIONS
+    @ONLY)
 
   install(
     TARGETS hal
@@ -169,4 +186,6 @@ if(BUILD_HAL_LIBRARY)
   cpack_add_component_group(
     MachinekitHAL_Managed_Module_HAL
     PARENT_GROUP MachinekitHAL_Package_Base_Managed_Modules_Components)
+
+    add_subdirectory(test)
 endif()
