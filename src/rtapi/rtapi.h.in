@@ -892,6 +892,9 @@ extern rtapi_exception_handler_t  rtapi_set_exception(rtapi_exception_handler_t 
 
     static __inline__ void *rtapi_request_region(unsigned long base,
             unsigned long size, const char *name) {
+        (void)size;
+        (void)base;
+        (void)name;
         return (void*)-1;
     }
 
@@ -902,6 +905,8 @@ extern rtapi_exception_handler_t  rtapi_set_exception(rtapi_exception_handler_t 
 */
     static __inline__ void rtapi_release_region(unsigned long base,
             unsigned long int size) {
+      (void)size;
+      (void)base;
     }
 #endif // RTAPI && BUILD_DRIVERS
 
