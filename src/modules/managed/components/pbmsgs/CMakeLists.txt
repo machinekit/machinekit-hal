@@ -41,11 +41,9 @@ if(BUILD_PBMSGS_MANAGED_MODULE)
 
   target_include_directories(pbmsgs PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
-  target_link_libraries(pbmsgs PRIVATE hal_api runtime_api machinetalk)
+  target_link_libraries(pbmsgs PRIVATE managed_hal managed_runtime machinetalk)
 
   export_rtapi_symbols(TARGET pbmsgs)
-
-  target_compile_definitions(pbmsgs PRIVATE "RTAPI")
 
   set_target_properties(
     pbmsgs

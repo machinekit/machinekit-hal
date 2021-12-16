@@ -43,8 +43,8 @@ if(BUILD_MSGD_EXECUTABLE)
 
   target_link_libraries(
     msgd
-    PRIVATE runtime
-            hal
+    PRIVATE unmanaged_runtime
+            unmanaged_hal
             runtime_memory_api
             mkini
             machinetalk

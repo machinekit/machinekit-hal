@@ -41,7 +41,10 @@ if(SYS_IO_AVAILABLE)
 
   set(PUBLIC_HEADER_FILES ${PUBLIC_INCLUDE_DIRECTORY}/hal_parport/hal_parport.h)
 
-  target_include_directories(rtapi_parport INTERFACE include)
+  target_include_directories(
+    rtapi_parport
+    INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+              $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
   set_target_properties(
     rtapi_parport
@@ -55,6 +58,13 @@ if(SYS_IO_AVAILABLE)
       DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/hal_parport"
       COMPONENT MachinekitHAL_Library_HAL_Parport_Headers)
 
+  install(
+    EXPORT machinekit_hal_hal_parport
+    DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "MachinekitHALHALParportTarget.cmake"
+    COMPONENT MachinekitHAL_Library_HAL_Parport_Package_Exports)
+
   export(
     EXPORT machinekit_hal_hal_parport
     NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
@@ -63,6 +73,10 @@ if(SYS_IO_AVAILABLE)
 
   cpack_add_component(MachinekitHAL_Library_HAL_Parport_Headers
                       GROUP MachinekitHAL_Library_HAL_Parport_Development)
+  cpack_add_component(
+    MachinekitHAL_Library_HAL_Parport_Package_Exports
+    DEPENDS MachinekitHAL_Library_HAL_Parport_Headers
+    GROUP MachinekitHAL_Library_HAL_Parport_Development)
 
   # Specification of artifacts placement in package tree
   cpack_add_component_group(

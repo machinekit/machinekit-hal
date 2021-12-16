@@ -48,11 +48,9 @@ if(SYS_IO_AVAILABLE)
 
     target_sources(uparport PRIVATE ${SOURCE_FILES} ${PRIVATE_HEADER_FILES})
 
-    target_link_libraries(uparport PRIVATE hal_api runtime_api)
+    target_link_libraries(uparport PRIVATE managed_hal managed_runtime)
 
     export_rtapi_symbols(TARGET uparport)
-
-    target_compile_definitions(uparport PRIVATE "RTAPI")
 
     set_target_properties(
       uparport

@@ -37,8 +37,9 @@ if(BUILD_VFDB_VFD_UNMANAGED_MODULE)
   pkg_check_modules(LIBMODBUS "libmodbus" REQUIRED IMPORTED_TARGET)
   find_library(MATH NAMES "m" REQUIRED)
 
-  target_link_libraries(vfdb_vfd PRIVATE runtime hal mkini runtime_math
-                                         PkgConfig::LIBMODBUS ${MATH})
+  target_link_libraries(
+    vfdb_vfd PRIVATE unmanaged_runtime unmanaged_hal mkini runtime_math
+                     PkgConfig::LIBMODBUS ${MATH})
 
   install(TARGETS vfdb_vfd
           RUNTIME DESTINATION "${MACHINEKIT_HAL_UNMANAGED_MODULE_DIRECTORY}"

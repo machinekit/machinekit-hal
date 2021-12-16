@@ -38,11 +38,9 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
 
     target_sources(pepper PRIVATE ${SOURCE_FILES})
 
-    target_link_libraries(pepper PRIVATE hal_api runtime_api runtime_math)
+    target_link_libraries(pepper PRIVATE managed_hal managed_runtime runtime_math)
 
     export_rtapi_symbols(TARGET pepper)
-
-    target_compile_definitions(pepper PRIVATE "RTAPI")
 
     target_compile_options(pepper PRIVATE "-Wno-packed-bitfield-compat")
 

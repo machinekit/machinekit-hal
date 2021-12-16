@@ -24,42 +24,51 @@
 # #####################################################################
 # ~~~
 
-include(MachinekitHALSymbolVisibilityFunction)
+if(NOT DEFINED SYS_IO_AVAILABLE)
+  if(NOT DEFINED check_include_files)
+    include(CheckIncludeFiles)
+  endif()
 
-add_library(hostmot2_test MODULE)
+  check_include_files("sys/io.h" SYS_IO_AVAILABLE)
+endif()
 
-set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/hostmot2_test/src/hm2_test.c)
+if(SYS_IO_AVAILABLE)
+  include(MachinekitHALSymbolVisibilityFunction)
 
-set(PRIVATE_HEADER_FILES
-    ${CMAKE_CURRENT_SOURCE_DIR}/hostmot2_test/src/hm2_test.h)
+  add_library(hostmot2_test MODULE)
 
-target_sources(hostmot2_test PRIVATE ${SOURCE_FILES} ${PRIVATE_HEADER_FILES})
+  set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/hostmot2_test/src/hm2_test.c)
 
-target_link_libraries(hostmot2_test PRIVATE runtime_api hal_api hostmot2_api
-                                            hostmot2_bitfile)
+  set(PRIVATE_HEADER_FILES
+      ${CMAKE_CURRENT_SOURCE_DIR}/hostmot2_test/src/hm2_test.h)
 
-target_compile_definitions(hostmot2_test PRIVATE "RTAPI")
+  target_sources(hostmot2_test PRIVATE ${SOURCE_FILES} ${PRIVATE_HEADER_FILES})
 
-export_rtapi_symbols(TARGET hostmot2_test)
+  target_link_libraries(
+    hostmot2_test PRIVATE managed_hal managed_runtime managed_rtapi_pci
+                          hostmot2_api hostmot2_bitfile)
 
-set_target_properties(
-  hostmot2_test
-  PROPERTIES OUTPUT_NAME "hm2_test"
-             PREFIX "mod"
-             LIBRARY_OUTPUT_DIRECTORY
-             "${MACHINEKIT_HAL_TEST_OUTPUT_DIRECTORY}/runtests/hm2-idrom")
+  export_rtapi_symbols(TARGET hostmot2_test)
 
-install(
-  TARGETS hostmot2_test
-  LIBRARY DESTINATION "${MACHINEKIT_HAL_TEST_DIRECTORY}/runtests/hm2-idrom"
-          COMPONENT MachinekitHAL_Managed_Module_Hostmot2_Test_Drivers)
+  set_target_properties(
+    hostmot2_test
+    PROPERTIES OUTPUT_NAME "hm2_test"
+               PREFIX "mod"
+               LIBRARY_OUTPUT_DIRECTORY
+               "${MACHINEKIT_HAL_TEST_OUTPUT_DIRECTORY}/runtests/hm2-idrom")
 
-cpack_add_component(
-  MachinekitHAL_Managed_Module_Hostmot2_Test_Drivers
-  GROUP MachinekitHAL_Managed_Module_Hostmot2_Test
-  DEPENDS MachinekitHAL_Managed_Module_Hostmot2_Core_Drivers)
+  install(
+    TARGETS hostmot2_test
+    LIBRARY DESTINATION "${MACHINEKIT_HAL_TEST_DIRECTORY}/runtests/hm2-idrom"
+            COMPONENT MachinekitHAL_Managed_Module_Hostmot2_Test_Drivers)
 
-# Specification of artifacts placement in package tree
-cpack_add_component_group(
-  MachinekitHAL_Managed_Module_Hostmot2_Test
-  PARENT_GROUP MachinekitHAL_Package_Base_Tests_Runtests)
+  cpack_add_component(
+    MachinekitHAL_Managed_Module_Hostmot2_Test_Drivers
+    GROUP MachinekitHAL_Managed_Module_Hostmot2_Test
+    DEPENDS MachinekitHAL_Managed_Module_Hostmot2_Core_Drivers)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(
+    MachinekitHAL_Managed_Module_Hostmot2_Test
+    PARENT_GROUP MachinekitHAL_Package_Base_Tests_Runtests)
+endif()

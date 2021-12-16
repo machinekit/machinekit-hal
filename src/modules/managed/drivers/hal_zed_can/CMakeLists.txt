@@ -39,11 +39,9 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
 
     target_sources(hal_zed_can PRIVATE ${SOURCE_FILES} ${PRIVATE_HEADER_FILES})
 
-    target_link_libraries(hal_zed_can PRIVATE hal_api runtime_api)
+    target_link_libraries(hal_zed_can PRIVATE managed_hal managed_runtime)
 
     export_rtapi_symbols(TARGET hal_zed_can)
-
-    target_compile_definitions(hal_zed_can PRIVATE "RTAPI")
 
     set_target_properties(
       hal_zed_can

@@ -40,11 +40,9 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
     target_sources(hal_chip_gpio PRIVATE ${SOURCE_FILES}
                                          ${PRIVATE_HEADER_FILES})
 
-    target_link_libraries(hal_chip_gpio PRIVATE hal_api runtime_api)
+    target_link_libraries(hal_chip_gpio PRIVATE managed_hal managed_runtime)
 
     export_rtapi_symbols(TARGET hal_chip_gpio)
-
-    target_compile_definitions(hal_chip_gpio PRIVATE "RTAPI")
 
     set_target_properties(
       hal_chip_gpio

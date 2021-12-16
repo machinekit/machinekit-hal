@@ -40,7 +40,9 @@ if(BUILD_HOSTMOT2_BITFILE_LIBRARY)
 
   target_sources(
     hostmot2_bitfile
-    PUBLIC ${PUBLIC_HEADER_FILES}
+    PUBLIC
+      $<BUILD_INTERFACE:${PUBLIC_HEADER_FILES}>
+      $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/hostmot2/bitfile.h>
     PRIVATE ${SOURCE_FILES})
 
   target_include_directories(
@@ -51,9 +53,7 @@ if(BUILD_HOSTMOT2_BITFILE_LIBRARY)
   target_link_libraries(
     hostmot2_bitfile
     PUBLIC user_pci
-    PRIVATE runtime_api hal_api runtime_math hostmot2_api)
-
-  target_compile_definitions(hostmot2_bitfile PRIVATE "RTAPI")
+    PRIVATE managed_runtime managed_hal runtime_math hostmot2_api)
 
   set_target_properties(
     hostmot2_bitfile
@@ -71,6 +71,13 @@ if(BUILD_HOSTMOT2_BITFILE_LIBRARY)
             NAMELINK_COMPONENT MachinekitHAL_Library_Hostmot_Bitfile_Namelinks
     PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/hostmot2"
                   COMPONENT MachinekitHAL_Library_Hostmot_Bitfile_Headers)
+
+  install(
+    EXPORT machinekit_hal_hostmot2_bitfile
+    DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "MachinekitHALHostMot2BitfileTarget.cmake"
+    COMPONENT MachinekitHAL_Library_Hostmot_Bitfile_Package_Exports)
 
   export(
     EXPORT machinekit_hal_hostmot2_bitfile
@@ -92,6 +99,12 @@ if(BUILD_HOSTMOT2_BITFILE_LIBRARY)
     MachinekitHAL_Library_Hostmot_Bitfile_Headers
     GROUP MachinekitHAL_Library_Hostmot_Bitfile_Development
     DEPENDS MachinekitHAL_Library_Hostmot_Bitfile_Libraries)
+  cpack_add_component(
+    MachinekitHAL_Library_Hostmot_Bitfile_Package_Exports
+    GROUP MachinekitHAL_Library_Hostmot_Bitfile_Development
+    DEPENDS MachinekitHAL_Library_Hostmot_Bitfile_Libraries
+            MachinekitHAL_Library_Hostmot_Bitfile_Headers
+            MachinekitHAL_Library_Hostmot_Bitfile_Namelinks)
 
   # Specification of artifacts placement in package tree
   cpack_add_component_group(MachinekitHAL_Library_Hostmot_Bitfile

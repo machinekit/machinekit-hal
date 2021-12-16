@@ -38,11 +38,9 @@ if(BUILD_LUTN_MANAGED_MODULE)
 
   target_sources(lutn PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(lutn PRIVATE hal_api runtime_api)
+  target_link_libraries(lutn PRIVATE managed_hal managed_runtime)
 
   export_rtapi_symbols(TARGET lutn)
-
-  target_compile_definitions(lutn PRIVATE "RTAPI")
 
   set_target_properties(
     lutn

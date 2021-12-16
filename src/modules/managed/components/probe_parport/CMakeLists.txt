@@ -37,11 +37,9 @@ if(BUILD_PROBE_PARPORT_MANAGED_MODULE)
 
   target_sources(probe_parport PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(probe_parport PRIVATE hal_api runtime_api)
+  target_link_libraries(probe_parport PRIVATE managed_hal managed_runtime)
 
   export_rtapi_symbols(TARGET probe_parport)
-
-  target_compile_definitions(probe_parport PRIVATE "RTAPI")
 
   set_target_properties(
     probe_parport

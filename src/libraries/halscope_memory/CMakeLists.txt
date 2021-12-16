@@ -53,6 +53,13 @@ if(BUILD_HALSCOPE_MEMORY_LIBRARY)
       DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/halscope_memory"
       COMPONENT MachinekitHAL_Library_HALscope_Memory_Headers)
 
+  install(
+    EXPORT machinekit_hal_halscope_memory
+    DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "MachinekitHALHALScopeMemoryTarget.cmake"
+    COMPONENT MachinekitHAL_Library_HALscope_Memory_Package_Exports)
+
   export(
     EXPORT machinekit_hal_halscope_memory
     NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
@@ -61,6 +68,10 @@ if(BUILD_HALSCOPE_MEMORY_LIBRARY)
 
   cpack_add_component(MachinekitHAL_Library_HALscope_Memory_Headers
                       GROUP MachinekitHAL_Library_HALscope_Memory_Development)
+  cpack_add_component(
+    MachinekitHAL_Library_HALscope_Memory_Package_Exports
+    DEPENDS MachinekitHAL_Library_HALscope_Memory_Headers
+    GROUP MachinekitHAL_Library_HALscope_Memory_Development)
 
   # Specification of artifacts placement in package tree
   cpack_add_component_group(

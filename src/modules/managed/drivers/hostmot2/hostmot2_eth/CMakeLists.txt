@@ -39,10 +39,9 @@ if(BUILD_HOSTMOT2_ETH_MANAGED_DRIVER_MODULE)
 
   target_sources(hostmot2_eth PRIVATE ${SOURCE_FILES} ${PRIVATE_HEADER_FILES})
 
-  target_link_libraries(hostmot2_eth PRIVATE runtime_api hal_api hostmot2_api
-                                             hostmot2_bitfile user_pci)
-
-  target_compile_definitions(hostmot2_eth PRIVATE "RTAPI")
+  target_link_libraries(
+    hostmot2_eth PRIVATE managed_hal managed_runtime hostmot2_api
+                         hostmot2_bitfile user_pci)
 
   export_rtapi_symbols(TARGET hostmot2_eth)
 

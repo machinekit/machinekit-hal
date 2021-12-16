@@ -39,11 +39,9 @@ if(BUILD_CONST_RT_MANAGED_MODULE)
 
   target_sources(const_rt PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(const_rt PRIVATE hal_api runtime_api)
+  target_link_libraries(const_rt PRIVATE managed_hal managed_runtime)
 
   export_rtapi_symbols(TARGET const_rt)
-
-  target_compile_definitions(const_rt PRIVATE "RTAPI")
 
   set_target_properties(
     const_rt

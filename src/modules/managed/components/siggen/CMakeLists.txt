@@ -36,11 +36,9 @@ if(BUILD_SIGGEN_MANAGED_MODULE)
 
   target_sources(siggen PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(siggen PRIVATE hal_api runtime_api runtime_math)
+  target_link_libraries(siggen PRIVATE managed_hal managed_runtime runtime_math)
 
   export_rtapi_symbols(TARGET siggen)
-
-  target_compile_definitions(siggen PRIVATE "RTAPI")
 
   set_target_properties(
     siggen

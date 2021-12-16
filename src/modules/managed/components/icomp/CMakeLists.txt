@@ -36,11 +36,9 @@ if(BUILD_ICOMP_MANAGED_MODULE)
 
   target_sources(icomp PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(icomp PRIVATE hal_api runtime_api)
+  target_link_libraries(icomp PRIVATE managed_hal managed_runtime)
 
   export_rtapi_symbols(TARGET icomp)
-
-  target_compile_definitions(icomp PRIVATE "RTAPI")
 
   set_target_properties(
     icomp

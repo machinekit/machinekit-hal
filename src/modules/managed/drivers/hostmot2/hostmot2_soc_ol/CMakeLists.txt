@@ -41,10 +41,8 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "^arm.*")
                                            ${PRIVATE_HEADER_FILES})
 
     target_link_libraries(
-      hostmot2_soc_ol PRIVATE runtime_api hal_api hostmot2_api hostmot2_bitfile
-                              user_pci)
-
-    target_compile_definitions(hostmot2_soc_ol PRIVATE "RTAPI")
+      hostmot2_soc_ol PRIVATE managed_hal managed_runtime hostmot2_api
+                              hostmot2_bitfile user_pci)
 
     export_rtapi_symbols(TARGET hostmot2_soc_ol)
 

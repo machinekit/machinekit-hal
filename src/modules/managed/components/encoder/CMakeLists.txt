@@ -37,11 +37,9 @@ if(BUILD_ENCODER_MANAGED_MODULE)
 
   target_sources(encoder PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(encoder PRIVATE hal_api runtime_api)
+  target_link_libraries(encoder PRIVATE managed_hal managed_runtime)
 
   export_rtapi_symbols(TARGET encoder)
-
-  target_compile_definitions(encoder PRIVATE "RTAPI")
 
   set_target_properties(
     encoder

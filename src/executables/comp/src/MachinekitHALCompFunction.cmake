@@ -100,15 +100,13 @@ function(add_legacy_managed_module target_name)
   add_library(${target_name} MODULE)
   target_sources(${target_name} PRIVATE ${preprocessed_c_source_file})
 
-  target_link_libraries(${target_name} PRIVATE hal_api runtime_api)
+  target_link_libraries(${target_name} PRIVATE managed_hal managed_runtime)
 
   if(${prefix}_LINK_LIBRARIES)
     target_link_libraries(${target_name} PRIVATE ${${prefix}_LINK_LIBRARIES})
   endif()
 
   export_rtapi_symbols(TARGET ${target_name})
-
-  target_compile_definitions(${target_name} PRIVATE "RTAPI")
 
   set_target_properties(
     ${target_name} PROPERTIES OUTPUT_NAME "${source_file_stem}" PREFIX "mod")
@@ -207,13 +205,11 @@ function(add_legacy_unmanaged_module target_name)
   add_executable(${target_name})
   target_sources(${target_name} PRIVATE ${preprocessed_c_source_file})
 
-  target_link_libraries(${target_name} PRIVATE hal runtime)
+  target_link_libraries(${target_name} PRIVATE unmanaged_hal unmanaged_runtime)
 
   if(${prefix}_LINK_LIBRARIES)
     target_link_libraries(${target_name} PRIVATE ${${prefix}_LINK_LIBRARIES})
   endif()
-
-  target_compile_definitions(${target_name} PRIVATE "ULAPI")
 
   if(${prefix}_OUTPUT_DIRECTORY)
     cmake_path(IS_ABSOLUTE ${prefix}_OUTPUT_DIRECTORY

@@ -39,21 +39,26 @@ if(SYS_IO_AVAILABLE)
 
     set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-    set(PUBLIC_HEADER_FILES ${PUBLIC_INCLUDE_DIRECTORY}/upci/bitfile.h
-                            ${PUBLIC_INCLUDE_DIRECTORY}/upci/upci.h)
+    set(PUBLIC_HEADER_FILES_BUILD ${PUBLIC_INCLUDE_DIRECTORY}/upci/bitfile.h
+                                  ${PUBLIC_INCLUDE_DIRECTORY}/upci/upci.h)
+
+    set(PUBLIC_HEADER_FILES_INSTALL
+        ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/upci/bitfile.h
+        ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/upci/upci.h)
 
     target_sources(
-      upci
-      PUBLIC ${PUBLIC_HEADER_FILES}
+      upci #[[PUBLIC $<BUILD_INTERFACE:${PUBLIC_HEADER_FILES_BUILD}>
+             $<INSTALL_INTERFACE:${PUBLIC_HEADER_FILES_INSTALL}>]]
       PRIVATE ${SOURCE_FILES})
 
     target_include_directories(
-      upci PUBLIC $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}>)
+      upci PUBLIC $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}>
+                  $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
     set_target_properties(
       upci
       PROPERTIES PREFIX "libmkh"
-                 PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
+                 PUBLIC_HEADER "${PUBLIC_HEADER_FILES_BUILD}"
                  POSITION_INDEPENDENT_CODE TRUE
                  PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
 
@@ -64,6 +69,13 @@ if(SYS_IO_AVAILABLE)
               COMPONENT MachinekitHAL_Library_UPCI_Archives
       PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/upci"
                     COMPONENT MachinekitHAL_Library_UPCI_Headers)
+
+    install(
+      EXPORT machinekit_hal_upci
+      DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}
+      NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+      FILE "MachinekitHALUPCITarget.cmake"
+      COMPONENT MachinekitHAL_Library_UPCI_Package_Exports)
 
     export(
       EXPORT machinekit_hal_upci
@@ -77,6 +89,11 @@ if(SYS_IO_AVAILABLE)
       MachinekitHAL_Library_UPCI_Headers
       GROUP MachinekitHAL_Library_UPCI_Development
       DEPENDS MachinekitHAL_Library_UPCI_Archives)
+    cpack_add_component(
+      MachinekitHAL_Library_UPCI_Package_Exports
+      GROUP MachinekitHAL_Library_UPCI_Development
+      DEPENDS MachinekitHAL_Library_UPCI_Archives
+              MachinekitHAL_Library_UPCI_Headers)
 
     # Specification of artifacts placement in package tree
     cpack_add_component_group(

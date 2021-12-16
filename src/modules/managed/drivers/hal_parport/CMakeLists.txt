@@ -45,11 +45,10 @@ if(SYS_IO_AVAILABLE)
 
     target_sources(hal_parport PRIVATE ${SOURCE_FILES})
 
-    target_link_libraries(hal_parport PRIVATE hal_api runtime_api rtapi_parport)
+    target_link_libraries(hal_parport PRIVATE managed_hal managed_runtime
+                                              rtapi_parport)
 
     export_rtapi_symbols(TARGET hal_parport)
-
-    target_compile_definitions(hal_parport PRIVATE "RTAPI")
 
     set_target_properties(
       hal_parport

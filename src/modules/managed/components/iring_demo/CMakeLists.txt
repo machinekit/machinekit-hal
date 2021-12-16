@@ -39,11 +39,9 @@ if(BUILD_IRING_MANAGED_MODULE)
 
   target_sources(iring PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(iring PRIVATE hal_api runtime_api)
+  target_link_libraries(iring PRIVATE managed_hal managed_runtime)
 
   export_rtapi_symbols(TARGET iring)
-
-  target_compile_definitions(iring PRIVATE "RTAPI")
 
   set_target_properties(
     iring

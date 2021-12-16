@@ -43,7 +43,7 @@ import stat
 import shutil
 import pathlib
 import tempfile
-from contextlib import nullcontext
+#from contextlib import nullcontext
 from typing import Union, List
 
 import importlib.util
@@ -138,7 +138,7 @@ class Build():
                 (config if self.generator == "Ninja Multi-Config" else ".") / \
                 "share" / "machinekit" / "hal" / "testsuite" / \
                 "runtests" if test_path is None else test_path
-                
+
             test_directory = pathlib.Path(tempfile.mkdtemp(suffix=config))
             destination = test_directory / "runtests"
             print(
@@ -191,20 +191,34 @@ class Build():
         if target is not None:
             build_additional.append(["--target", target])
 
-        if sudo:
-            _context = sh.contrib.sudo(
-                password=self.sudo_password, _with=True, _out=sys.stdout.buffer)
-        else:
-            _context = nullcontext()
+        # Available only in Python 3.7 and later
+        # if sudo:
+        #    _context = sh.contrib.sudo(
+        #        password=self.sudo_password, _with=True, _out=sys.stdout.buffer)
+        # else:
+        #    _context = nullcontext()
 
         for config in self.configs:
-            with _context:
+            # Until fully supported, use ExitStack
+            # with _context:
+            if not sudo:
                 sh.cmake("--build", self.build_directory,
                          "-j", number_of_cores_string,
                          "--verbose",
                          "--config", config,
                          *build_additional,
                          _out=sys.stdout.buffer)
+
+            else:
+                # Using `sh.contrib.sudo` is not possible because of the old version of `sh`
+                # in Ubuntu Bionic registry
+                sudo_cmd = sh.sudo.bake("-S", _in=self.sudo_password)
+                sudo_cmd.cmake("--build", self.build_directory,
+                               "-j", number_of_cores_string,
+                               "--verbose",
+                               "--config", config,
+                               *build_additional,
+                               _out=sys.stdout.buffer)
 
     def test_for_sudo(self: object) -> bool:
         try:

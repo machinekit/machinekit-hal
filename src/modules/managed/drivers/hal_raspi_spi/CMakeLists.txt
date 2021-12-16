@@ -40,12 +40,10 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
     target_sources(hal_raspi_spi PRIVATE ${SOURCE_FILES}
                                          ${PRIVATE_HEADER_FILES})
 
-    target_link_libraries(hal_raspi_spi PRIVATE hal_api runtime_api
+    target_link_libraries(hal_raspi_spi PRIVATE managed_hal managed_runtime
                                                 runtime_math raspi_cpuinfo)
 
     export_rtapi_symbols(TARGET hal_raspi_spi)
-
-    target_compile_definitions(hal_raspi_spi PRIVATE "RTAPI")
 
     set_target_properties(
       hal_raspi_spi

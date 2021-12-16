@@ -41,8 +41,10 @@ if(BUILD_CONSTV2_UNMANAGED_MODULE)
 
   find_library(MATH NAMES "m" REQUIRED)
 
-  target_link_libraries(const PRIVATE runtime hal mkini ${MATH})
-  target_link_libraries(constv2 PRIVATE runtime hal mkini ${MATH})
+  target_link_libraries(const PRIVATE unmanaged_runtime unmanaged_hal mkini
+                                      ${MATH})
+  target_link_libraries(constv2 PRIVATE unmanaged_runtime unmanaged_hal mkini
+                                        ${MATH})
 
   install(TARGETS const constv2
           RUNTIME DESTINATION "${MACHINEKIT_HAL_UNMANAGED_MODULE_DIRECTORY}"

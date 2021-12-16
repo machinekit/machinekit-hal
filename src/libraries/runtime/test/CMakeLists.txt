@@ -47,18 +47,14 @@ target_sources(test_runtime_module_init PRIVATE ${MODULE_INIT_SOURCE_FILES})
 
 pkg_check_modules(CMOCKA "cmocka" REQUIRED IMPORTED_TARGET)
 
-target_link_libraries(test_runtime_bitops PRIVATE runtime_api)
-# target_link_libraries( test_runtime_rtapi_flavor_RTAPI PRIVATE runtime_api
-# PkgConfig::CMOCKA runtime syslog_async runtime_memory_api mkini)
+target_link_libraries(test_runtime_bitops PRIVATE unmanaged_runtime)
+# target_link_libraries( test_runtime_rtapi_flavor_RTAPI PRIVATE
+# unmanaged_runtime PkgConfig::CMOCKA syslog_async runtime_memory_api mkini)
 target_link_libraries(
-  test_runtime_rtapi_flavor_ULAPI PRIVATE runtime_api PkgConfig::CMOCKA runtime
+  test_runtime_rtapi_flavor_ULAPI PRIVATE unmanaged_runtime PkgConfig::CMOCKA
                                           syslog_async runtime_memory_api mkini)
-target_link_libraries(test_runtime_module_init PRIVATE runtime_api runtime hal)
-
-target_compile_definitions(test_runtime_bitops PRIVATE "ULAPI")
-# target_compile_definitions(test_runtime_rtapi_flavor_RTAPI PRIVATE "RTAPI")
-target_compile_definitions(test_runtime_rtapi_flavor_ULAPI PRIVATE "ULAPI")
-target_compile_definitions(test_runtime_module_init PRIVATE "ULAPI")
+target_link_libraries(test_runtime_module_init PRIVATE unmanaged_runtime
+                                                       unmanaged_hal)
 
 set_target_properties(
   test_runtime_module_init

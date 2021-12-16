@@ -47,11 +47,9 @@ if(SYS_IO_AVAILABLE)
 
     target_sources(hal_stg PRIVATE ${SOURCE_FILES} ${PRIVATE_HEADER_FILES})
 
-    target_link_libraries(hal_stg PRIVATE hal_api runtime_api)
+    target_link_libraries(hal_stg PRIVATE managed_hal managed_runtime)
 
     export_rtapi_symbols(TARGET hal_stg)
-
-    target_compile_definitions(hal_stg PRIVATE "RTAPI")
 
     set_target_properties(
       hal_stg

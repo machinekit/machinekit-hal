@@ -102,5 +102,12 @@ else
 	dh_dwz
 endif
 
+# This is hopefully a temporary hack (but HACK nonetheless) to install the CMake configuration files
+# for `find_package()` calls as there is a problem with CPack based installation as outlined
+# in https://discourse.cmake.org/t/installing-cmake-exports-with-cpack/4718 and waiting for an expert help
+override_dh_install:
+	cd debian/tmp && find . -iwholename '*/Machinekit-HAL/*.cmake' -exec mkdir \
+		-p ../libmachinekit-hal-dev/$(dirname {}) \; -exec cp {} ../libmachinekit-hal-dev/{} \;
+
 %:
 	dh $@ --buildsystem=cmake --with=python3

@@ -34,7 +34,7 @@ if(BUILD_SHUTTLEXPRESS_UNMANAGED_MODULE)
 
   target_sources(shuttlexpress PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(shuttlexpress runtime hal)
+  target_link_libraries(shuttlexpress unmanaged_runtime unmanaged_hal )
 
   install(
     TARGETS shuttlexpress

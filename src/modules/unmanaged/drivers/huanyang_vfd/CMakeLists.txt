@@ -37,7 +37,7 @@ if(BUILD_HUANYANG_VFD_UNMANAGED_MODULE)
 
   target_sources(huanyang_vfd PRIVATE ${SOURCE_FILES} ${PRIVATE_HEADER_FILES})
 
-  target_link_libraries(huanyang_vfd PRIVATE hal ${CMAKE_LIBS_LD})
+  target_link_libraries(huanyang_vfd PRIVATE unmanaged_hal ${CMAKE_LIBS_LD})
 
   install(
     TARGETS huanyang_vfd

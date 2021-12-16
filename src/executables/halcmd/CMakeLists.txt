@@ -35,16 +35,14 @@ if(BUILD_HALCMD_EXECUTABLE)
 
   target_sources(halcmd PRIVATE ${SOURCE_FILES} ${PRIVATE_HEADER_FILES})
 
-  target_compile_definitions(halcmd PRIVATE "ULAPI")
-
   pkg_check_modules(AVAHICLIENT "avahi-client" REQUIRED IMPORTED_TARGET)
   pkg_check_modules(PROTOBUF "protobuf" REQUIRED IMPORTED_TARGET)
 
   # TODO: Needed just because of the config.h??
   target_link_libraries(
     halcmd
-    PRIVATE runtime
-            hal
+    PRIVATE unmanaged_runtime
+            unmanaged_hal
             hal_command
             mkini
             PkgConfig::AVAHICLIENT

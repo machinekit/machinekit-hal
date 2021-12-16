@@ -74,8 +74,9 @@ if(BUILD_PROTO_LIBRARY)
   pkg_check_modules(PROTOBUF "protobuf" REQUIRED IMPORTED_TARGET)
 
   target_link_libraries(
-    machinetalk_proto_c PUBLIC nanopb_interface PkgConfig::PROTOBUF
-                               protobuf-nanopb-static)
+    machinetalk_proto_c
+    PUBLIC nanopb_interface PkgConfig::PROTOBUF
+    PRIVATE protobuf-nanopb-static)
   target_link_libraries(
     machinetalk_proto_cc PUBLIC nanopb_interface nanopb_proto_cc
                                 PkgConfig::PROTOBUF)
@@ -145,6 +146,13 @@ if(BUILD_PROTO_LIBRARY)
       DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/machinetalk/protobuf"
       COMPONENT MachinekitHAL_Library_Proto_Headers)
 
+  install(
+    EXPORT machinekit_hal_machinetalk_proto
+    DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "MachinekitHALMachinetalkProtoTarget.cmake"
+    COMPONENT MachinekitHAL_Library_Proto_Package_Exports)
+
   export(
     EXPORT machinekit_hal_machinetalk_proto
     NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
@@ -161,6 +169,12 @@ if(BUILD_PROTO_LIBRARY)
     MachinekitHAL_Library_Proto_Headers
     GROUP MachinekitHAL_Library_Proto_Development
     DEPENDS MachinekitHAL_Library_Proto_Libraries)
+  cpack_add_component(
+    MachinekitHAL_Library_Proto_Package_Exports
+    GROUP MachinekitHAL_Library_Proto_Development
+    DEPENDS MachinekitHAL_Library_Proto_Libraries
+            MachinekitHAL_Library_Proto_Headers
+            MachinekitHAL_Library_Proto_Namelinks)
 
   # Specification of artifacts placement in package tree
   cpack_add_component_group(MachinekitHAL_Library_Proto

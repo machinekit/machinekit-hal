@@ -63,6 +63,13 @@ if(BUILD_MKINI_LIBRARY)
     PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/mkini"
                   COMPONENT MachinekitHAL_Library_MKini_Headers)
 
+  install(
+    EXPORT machinekit_hal_mkini
+    DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "MachinekitHALMKIniTarget.cmake"
+    COMPONENT MachinekitHAL_Library_MKini_Package_Exports)
+
   export(
     EXPORT machinekit_hal_mkini
     NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
@@ -79,6 +86,12 @@ if(BUILD_MKINI_LIBRARY)
     MachinekitHAL_Library_MKini_Headers
     GROUP MachinekitHAL_Library_MKini_Development
     DEPENDS MachinekitHAL_Library_MKini_Libraries)
+  cpack_add_component(
+    MachinekitHAL_Library_MKini_Package_Exports
+    GROUP MachinekitHAL_Library_MKini_Development
+    DEPENDS MachinekitHAL_Library_MKini_Libraries
+            MachinekitHAL_Library_MKini_Headers
+            MachinekitHAL_Library_MKini_Namelinks)
 
   # Specification of artifacts placement in package tree
   cpack_add_component_group(MachinekitHAL_Library_MKini

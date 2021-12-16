@@ -37,11 +37,10 @@ if(BUILD_STREAMER_MANAGED_MODULE)
 
   target_sources(streamer PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(streamer PRIVATE hal_api runtime_api samstr_memdefs)
+  target_link_libraries(streamer PRIVATE managed_hal managed_runtime
+                                         samstr_memdefs)
 
   export_rtapi_symbols(TARGET streamer)
-
-  target_compile_definitions(streamer PRIVATE "RTAPI")
 
   set_target_properties(
     streamer

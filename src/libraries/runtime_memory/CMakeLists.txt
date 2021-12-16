@@ -33,7 +33,10 @@ if(BUILD_RUNTIME_MEMORY_LIBRARY)
 
   set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-  set(PUBLIC_HEADER_FILES ${PUBLIC_INCLUDE_DIRECTORY}/runtime/shmdrv.h)
+  set(PUBLIC_HEADER_FILES_BUILD ${PUBLIC_INCLUDE_DIRECTORY}/runtime/shmdrv.h)
+
+  set(PUBLIC_HEADER_FILES_INSTALL
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/shmdrv.h)
 
   target_include_directories(
     runtime_memory_api
@@ -42,21 +45,28 @@ if(BUILD_RUNTIME_MEMORY_LIBRARY)
 
   target_sources(
     runtime_memory_api
-    PUBLIC ${PUBLIC_HEADER_FILES}
+    PUBLIC $<BUILD_INTERFACE:${PUBLIC_HEADER_FILES_BUILD}>
+           $<INSTALL_INTERFACE:${PUBLIC_HEADER_FILES_INSTALL}>
     PRIVATE ${SOURCE_FILES})
 
   find_library(RT NAMES "rt" "librt" "librt.so" "librt.so.1" REQUIRED)
 
   target_link_libraries(runtime_memory_api PRIVATE runtime_api ${RT})
 
-  target_compile_definitions(runtime_memory_api PRIVATE "ULAPI")
+  # This is a special case because runtime_memory_api TARGET is a direct
+  # dependency of unmanaged_runtime TARGET and thus the "ULAPI" compile
+  # definition cannot be transitivelly defined by linking agains the
+  # unmanaged_runtime as that would create a cyclic dependency and CMake error
+  #
+  # TODO: Maybe there is a better solution to this mess?
+  add_compile_definitions(runtime_memory_api PRIVATE "ULAPI")
 
   set_target_properties(
     runtime_memory_api
     PROPERTIES SOVERSION 0
                PREFIX "libmkh"
                VERSION ${CMAKE_PROJECT_VERSION}
-               PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
+               PUBLIC_HEADER "${PUBLIC_HEADER_FILES_BUILD}"
                POSITION_INDEPENDENT_CODE TRUE
                PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
   install(
@@ -68,6 +78,13 @@ if(BUILD_RUNTIME_MEMORY_LIBRARY)
       NAMELINK_COMPONENT MachinekitHAL_Library_Runtime_Memory_API_Namelinks
     PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime"
                   COMPONENT MachinekitHAL_Library_Runtime_Memory_API_Headers)
+
+  install(
+    EXPORT machinekit_hal_runtime_memory_api
+    DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "MachinekitHALRuntimeMemoryAPITarget.cmake"
+    COMPONENT MachinekitHAL_Library_Runtime_Memory_API_Package_Exports)
 
   export(
     EXPORT machinekit_hal_runtime_memory_api
@@ -85,6 +102,12 @@ if(BUILD_RUNTIME_MEMORY_LIBRARY)
     MachinekitHAL_Library_Runtime_Memory_API_Headers
     GROUP MachinekitHAL_Library_Runtime_Memory_API_Development
     DEPENDS MachinekitHAL_Library_Runtime_Memory_API_Libraries)
+  cpack_add_component(
+    MachinekitHAL_Library_Runtime_Memory_API_Package_Exports
+    GROUP MachinekitHAL_Library_Runtime_Memory_API_Development
+    DEPENDS MachinekitHAL_Library_Runtime_Memory_API_Libraries
+            MachinekitHAL_Library_Runtime_Memory_API_Headers
+            MachinekitHAL_Library_Runtime_Memory_API_Namelinks)
 
   # Specification of artifacts placement in package tree
   cpack_add_component_group(MachinekitHAL_Library_Runtime_Memory_API

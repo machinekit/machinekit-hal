@@ -38,12 +38,10 @@ if(BUILD_INTERPOLATE_MANAGED_MODULE)
   target_sources(interpolator PRIVATE ${SOURCE_FILES})
 
   target_link_libraries(
-    interpolator PRIVATE hal_api runtime_api runtime_math machinetalk_proto_c
-                         nanopb_interface)
+    interpolator PRIVATE managed_hal managed_runtime runtime_math
+                         machinetalk_proto_c nanopb_interface)
 
   export_rtapi_symbols(TARGET interpolator)
-
-  target_compile_definitions(interpolator PRIVATE "RTAPI")
 
   set_target_properties(
     interpolator

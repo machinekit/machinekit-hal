@@ -41,12 +41,10 @@ if(BUILD_SCOPE_RT_MANAGED_MODULE)
   target_include_directories(
     scope_rt PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
-  target_link_libraries(scope_rt PRIVATE hal_api runtime_api runtime_math
-                                         halscope_memory)
+  target_link_libraries(scope_rt PRIVATE managed_hal managed_runtime
+                                         runtime_math halscope_memory)
 
   export_rtapi_symbols(TARGET scope_rt)
-
-  target_compile_definitions(scope_rt PRIVATE "RTAPI")
 
   set_target_properties(
     scope_rt

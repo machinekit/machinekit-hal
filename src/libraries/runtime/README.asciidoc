@@ -28,8 +28,12 @@ Objects created in `CMAKE` Machinekit-HAL's namespace used for building.
 *   Many of the symbols will be resolved at runtime from modules loaded beforehand (as per `RTLD_GLOBAL`)
 *   Not intended for `target_link_libraries()` use
 
-=== runtime (`libulapi.so`)
+=== unmanaged_runtime (`libulapi.so`)
 *   Standard shared library used for compile time linking into binaries
+*   Transitively exports **PUBLIC** interface header files through transitive dependencies
+
+=== managed_runtime (`INTERFACE` library)
+*   Interface library used to assemble the rules and dependencies for building of MODULES to run in Runtime environment
 *   Transitively exports **PUBLIC** interface header files through transitive dependencies
 
 == Notes

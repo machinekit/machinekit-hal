@@ -36,11 +36,9 @@ if(BUILD_UFDEMO_MANAGED_MODULE)
 
   target_sources(ufdemo PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(ufdemo PRIVATE hal_api runtime_api)
+  target_link_libraries(ufdemo PRIVATE managed_hal managed_runtime)
 
   export_rtapi_symbols(TARGET ufdemo)
-
-  target_compile_definitions(ufdemo PRIVATE "RTAPI")
 
   set_target_properties(
     ufdemo

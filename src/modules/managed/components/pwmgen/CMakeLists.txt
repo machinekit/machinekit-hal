@@ -36,11 +36,9 @@ if(BUILD_PWMGEN_MANAGED_MODULE)
 
   target_sources(pwmgen PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(pwmgen PRIVATE hal_api runtime_api)
+  target_link_libraries(pwmgen PRIVATE managed_hal managed_runtime)
 
   export_rtapi_symbols(TARGET pwmgen)
-
-  target_compile_definitions(pwmgen PRIVATE "RTAPI")
 
   set_target_properties(
     pwmgen

@@ -155,7 +155,9 @@ Description: Universal framework for machine control based on Hardware Abstracti
 Package: python3-machinekit-hal
 Architecture: any
 Multi-Arch: foreign
-Depends: ${shlibs:Depends}, ${misc:Depends}, ${cpack:Depends}, ${python3:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${cpack:Depends}, ${python3:Depends},
+    python3-yapps,
+    yapps2
 Description: Machinekit-HAL's Python exacutables
  This package contains the executables written in Python for the Machinekit-HAL project
 

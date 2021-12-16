@@ -60,8 +60,9 @@ set(SOURCE_FILES
 python_add_library(pyhal MODULE WITH_SOABI ${SOURCE_FILES})
 
 target_link_libraries(
-  pyhal PUBLIC Machinekit::HAL::hal Machinekit::HAL::runtime
-               Machinekit::HAL::runtime_config)
+  pyhal
+  PUBLIC Machinekit::HAL::unmanaged_hal Machinekit::HAL::unmanaged_runtime
+         Machinekit::HAL::runtime_config)
 
 install(
   TARGETS pyhal

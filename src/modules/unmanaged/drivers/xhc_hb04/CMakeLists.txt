@@ -36,7 +36,8 @@ if(BUILD_XHC_HB04_UNMANAGED_MODULE)
 
   pkg_check_modules(USB "libusb-1.0" REQUIRED IMPORTED_TARGET)
 
-  target_link_libraries(xhc_hb04 PRIVATE hal mkini runtime_math PkgConfig::USB)
+  target_link_libraries(xhc_hb04 PRIVATE unmanaged_hal mkini runtime_math
+                                         PkgConfig::USB)
 
   # TODO: Replace the placeholder
   target_compile_definitions(xhc_hb04 PRIVATE "PACKAGE_VERSION=00000000")

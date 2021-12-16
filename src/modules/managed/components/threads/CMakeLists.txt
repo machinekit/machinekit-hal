@@ -37,11 +37,9 @@ if(BUILD_THREADS_MANAGED_MODULE)
 
   target_sources(threads PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(threads PRIVATE hal_api runtime_api)
+  target_link_libraries(threads PRIVATE managed_hal managed_runtime)
 
   export_rtapi_symbols(TARGET threads)
-
-  target_compile_definitions(threads PRIVATE "RTAPI")
 
   set_target_properties(
     threads

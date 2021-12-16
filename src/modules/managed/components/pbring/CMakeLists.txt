@@ -38,12 +38,10 @@ if(BUILD_PBRING_MANAGED_MODULE)
 
   target_sources(pbring PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(pbring PRIVATE hal_api runtime_api machinetalk
+  target_link_libraries(pbring PRIVATE managed_hal managed_runtime machinetalk
                                        machinetalk_proto_c)
 
   export_rtapi_symbols(TARGET pbring)
-
-  target_compile_definitions(pbring PRIVATE "RTAPI")
 
   set_target_properties(
     pbring

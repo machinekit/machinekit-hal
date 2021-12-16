@@ -37,11 +37,9 @@ if(BUILD_MUX_GENERIC_MANAGED_MODULE)
 
   target_sources(mux_generic PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(mux_generic PRIVATE hal_api runtime_api)
+  target_link_libraries(mux_generic PRIVATE managed_hal managed_runtime)
 
   export_rtapi_symbols(TARGET mux_generic)
-
-  target_compile_definitions(mux_generic PRIVATE "RTAPI")
 
   set_target_properties(
     mux_generic

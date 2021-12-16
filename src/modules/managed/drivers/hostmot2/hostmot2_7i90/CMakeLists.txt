@@ -49,10 +49,8 @@ if(SYS_IO_AVAILABLE)
                                          ${PRIVATE_HEADER_FILES})
 
     target_link_libraries(
-      hostmot2_7i90 PRIVATE runtime_api hal_api hostmot2_api hostmot2_bitfile
-                            runtime_math rtapi_parport)
-
-    target_compile_definitions(hostmot2_7i90 PRIVATE "RTAPI")
+      hostmot2_7i90 PRIVATE managed_hal managed_runtime hostmot2_api
+                            hostmot2_bitfile runtime_math rtapi_parport)
 
     export_rtapi_symbols(TARGET hostmot2_7i90)
 

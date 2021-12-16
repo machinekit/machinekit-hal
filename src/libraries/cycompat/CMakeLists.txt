@@ -98,16 +98,17 @@ if(BUILD_PYTHON_DISTRIBUTIONS)
         ${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/CMakeLists.txt
       COMMAND ${CMAKE_COMMAND} "-E" "rm" "-f" "${OUTPUT_INDEX}/*.whl"
       COMMAND ${CMAKE_COMMAND} "-E" "make_directory" "${OUTPUT_INDEX}"
-      # TODO: This is hackins approach to solve issue with building multiple CONFIGS:
-      # Each config build is separated and because the wheel build uses an isolated
-      # environment, the paths to executables (python, pip etc.) are stored in CMake
-      # cache during generation. Second (et al) builds then try to reuse the first
-      # generation and fails because the temporary environment from the first run no
-      # longer exists
-      # This will need a rework as it should use its own manual isolation (for Debian
-      # and other distros because they require it) and generally to keep the build
-      # files for possibility of post-mortem
-      COMMAND ${CMAKE_COMMAND} "-E" "rm" "-rf" "${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/build"
+      # TODO: This is hackins approach to solve issue with building multiple
+      # CONFIGS: Each config build is separated and because the wheel build uses
+      # an isolated environment, the paths to executables (python, pip etc.) are
+      # stored in CMake cache during generation. Second (et al) builds then try
+      # to reuse the first generation and fails because the temporary
+      # environment from the first run no longer exists This will need a rework
+      # as it should use its own manual isolation (for Debian and other distros
+      # because they require it) and generally to keep the build files for
+      # possibility of post-mortem
+      COMMAND ${CMAKE_COMMAND} "-E" "rm" "-rf"
+              "${CMAKE_CURRENT_BINARY_DIR}/${PACKAGE_NAME}/build"
       COMMAND
         ${CMAKE_COMMAND} "-E" "env"
         "CMAKE_PREFIX_PATH=${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}"
@@ -159,10 +160,8 @@ if(BUILD_PYTHON_DISTRIBUTIONS)
         "Requesting building Python package sdist ${DISTRIBUTION_NAME} via external tool"
     )
 
-    add_dependencies(${DISTRIBUTION_NAME}_wheel_distribution runtime
-                     rtapi_compat)
-    add_dependencies(${DISTRIBUTION_NAME}_sdist_distribution runtime
-                     rtapi_compat)
+    add_dependencies(${DISTRIBUTION_NAME}_wheel_distribution unmanaged_runtime)
+    add_dependencies(${DISTRIBUTION_NAME}_sdist_distribution unmanaged_runtime)
 
     install_wheel(WHEEL "${OUTPUT_INDEX}" COMPONENT
                   MachinekitHAL_Library_CyCompat_Module_Python_Packages)

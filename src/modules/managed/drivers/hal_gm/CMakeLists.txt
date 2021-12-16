@@ -40,11 +40,9 @@ if(BUILD_HAL_GM_MANAGED_DRIVER_MODULE)
 
   target_sources(hal_gm PRIVATE ${SOURCE_FILES} ${PRIVATE_HEADER_FILES})
 
-  target_link_libraries(hal_gm PRIVATE hal_api runtime_api runtime_math)
+  target_link_libraries(hal_gm PRIVATE managed_hal managed_runtime runtime_math)
 
   export_rtapi_symbols(TARGET hal_gm)
-
-  target_compile_definitions(hal_gm PRIVATE "RTAPI")
 
   set_target_properties(
     hal_gm

@@ -36,9 +36,8 @@ if(BUILD_MUTEXWATCH_EXECUTABLE)
   # TODO: Use FindLibRT CMake module or not?
   find_library(RT "rt" REQUIRED)
 
-  target_link_libraries(mutexwatch PRIVATE runtime hal runtime_memory_api ${RT})
-
-  target_compile_definitions(mutexwatch PRIVATE "ULAPI")
+  target_link_libraries(mutexwatch PRIVATE unmanaged_runtime unmanaged_hal
+                                           runtime_memory_api ${RT})
 
   install(TARGETS mutexwatch
           RUNTIME DESTINATION "${MACHINEKIT_HAL_EXECUTABLE_DIRECTORY}"

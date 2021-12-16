@@ -27,12 +27,10 @@
 add_library(runtime_config SHARED)
 add_library(${MACHINEKIT_HAL_NAMESPACE}::runtime_config ALIAS runtime_config)
 
-add_library(runtime_config-install SHARED)
-add_library(${MACHINEKIT_HAL_NAMESPACE}::runtime_config-install ALIAS
-            runtime_config-install)
+add_library(runtime_config_binary_tree SHARED)
 
 set(RUNTIME_CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/config.h.in)
-set(SOURCE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/src/runtime_config.c.in)
+set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/runtime_config.c.in)
 
 set(LINELEN "255")
 set(ZMQIPC_FORMAT "ipc://%s/%d.%s.%s")
@@ -45,26 +43,25 @@ set(MACHINEKIT_HAL_LOG_FILE
     "${MACHINEKIT_HAL_LOCAL_STATE_OUTPUT_DIRECTORY}/log/hal.log")
 set(MACHINEKIT_HAL_BIN_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 
-set(PUBLIC_BUILD_INCLUDE_DIRECTORY
-    "${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/include")
-set(PUBLIC_INSTALL_INCLUDE_DIRECTORY
-    "${CMAKE_CURRENT_BINARY_DIR}/install/runtime_config/include")
+set(PUBLIC_INCLUDE_DIRECTORY
+    "${CMAKE_CURRENT_BINARY_DIR}/runtime_config/include")
+
+configure_file(${RUNTIME_CONFIG} ${PUBLIC_INCLUDE_DIRECTORY}/runtime/config.h
+               NO_SOURCE_PERMISSIONS @ONLY NEWLINE_STYLE UNIX)
 
 configure_file(
-  ${RUNTIME_CONFIG} ${PUBLIC_BUILD_INCLUDE_DIRECTORY}/runtime/config.h
-  NO_SOURCE_PERMISSIONS @ONLY NEWLINE_STYLE UNIX)
-
-configure_file(
-  ${SOURCE_FILE}
-  ${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/runtime_config.c.configure
-  NO_SOURCE_PERMISSIONS @ONLY NEWLINE_STYLE UNIX)
+  ${SOURCE_FILES}
+  ${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/runtime_config.c.configure.binary_tree
+  NO_SOURCE_PERMISSIONS
+  @ONLY
+  NEWLINE_STYLE UNIX)
 
 file(
   GENERATE
   OUTPUT
     ${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/src/$<CONFIG>/runtime_config.c
   INPUT
-    ${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/runtime_config.c.configure
+    ${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/runtime_config.c.configure.binary_tree
   NO_SOURCE_PERMISSIONS NEWLINE_STYLE UNIX)
 
 # TODO: Use the right variables to assemble the paths!
@@ -77,49 +74,62 @@ set(MACHINEKIT_HAL_BIN_DIRECTORY
     "${MACHINEKIT_HAL_EXECUTABLE_FULL_INSTALL_DIRECTORY}")
 
 configure_file(
-  ${RUNTIME_CONFIG} ${PUBLIC_INSTALL_INCLUDE_DIRECTORY}/runtime/config.h
+  ${SOURCE_FILES}
+  ${CMAKE_CURRENT_BINARY_DIR}/install/runtime_config/runtime_config.c.configure
   NO_SOURCE_PERMISSIONS @ONLY NEWLINE_STYLE UNIX)
 
-configure_file(
-  ${SOURCE_FILE}
-  ${CMAKE_CURRENT_BINARY_DIR}/install/runtime_config/src/runtime_config.c
-  NO_SOURCE_PERMISSIONS @ONLY NEWLINE_STYLE UNIX)
+file(
+  GENERATE
+  OUTPUT
+    ${CMAKE_CURRENT_BINARY_DIR}/install/runtime_config/src/$<CONFIG>/runtime_config.c
+  INPUT
+    ${CMAKE_CURRENT_BINARY_DIR}/install/runtime_config/runtime_config.c.configure
+  NO_SOURCE_PERMISSIONS NEWLINE_STYLE UNIX)
 
 target_sources(
-  runtime_config
-  PUBLIC ${PUBLIC_BUILD_INCLUDE_DIRECTORY}/runtime/config.h
+  runtime_config_binary_tree
+  PUBLIC $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}/runtime/config.h>
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/src/$<CONFIG>/runtime_config.c
 )
 
-target_include_directories(runtime_config
-                           PUBLIC ${PUBLIC_BUILD_INCLUDE_DIRECTORY})
+target_include_directories(
+  runtime_config_binary_tree
+  PUBLIC $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}>)
 
 target_sources(
-  runtime_config-install
-  PUBLIC ${PUBLIC_INSTALL_INCLUDE_DIRECTORY}/runtime/config.h
+  runtime_config
+  PUBLIC
+    $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}/runtime/config.h>
+    $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/config.h>
   PRIVATE
-    ${CMAKE_CURRENT_BINARY_DIR}/install/runtime_config/src/runtime_config.c)
+    ${CMAKE_CURRENT_BINARY_DIR}/install/runtime_config/src/$<CONFIG>/runtime_config.c
+)
 
-target_include_directories(runtime_config-install
-                           PUBLIC ${PUBLIC_INSTALL_INCLUDE_DIRECTORY})
+target_include_directories(
+  runtime_config
+  PUBLIC $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}>
+         $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
+set_target_properties(
+  runtime_config_binary_tree
+  PROPERTIES SOVERSION 0
+             PREFIX "libmkh"
+             VERSION ${CMAKE_PROJECT_VERSION}
+             PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_BUILD_INCLUDE_DIRECTORY}"
+             OUTPUT_NAME "runtime_config" # Needs to have the same name as
+                                          # target 'runtime_config'
+)
 set_target_properties(
   runtime_config
   PROPERTIES SOVERSION 0
              PREFIX "libmkh"
              VERSION ${CMAKE_PROJECT_VERSION}
-             PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_BUILD_INCLUDE_DIRECTORY}")
-
-set_target_properties(
-  runtime_config-install
-  PROPERTIES SOVERSION 0
-             PREFIX "libmkh"
-             VERSION ${CMAKE_PROJECT_VERSION}
-             OUTPUT_NAME "runtime_config" # Needs to have the same name as
-                                          # target 'runtime_config'
              LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/install"
-             PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INSTALL_INCLUDE_DIRECTORY}")
+             PUBLIC_HEADER "${PUBLIC_INCLUDE_DIRECTORY}/runtime/config.h"
+             PUBLIC_INCLUDE_DIRECTORY
+             $<BUILD_INTERFACE:${PUBLIC_INSTALL_INCLUDE_DIRECTORY}>)
+# $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
 configure_file(
   src/dot_envrc.in ${CMAKE_CURRENT_BINARY_DIR}/build/dot_envrc.configure @ONLY
@@ -132,13 +142,20 @@ file(
   NEWLINE_STYLE UNIX FILE_PERMISSIONS OWNER_READ GROUP_READ WORLD_READ)
 
 install(
-  TARGETS runtime_config-install
+  TARGETS runtime_config
   EXPORT machinekit_hal_runtime_config
   LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
           COMPONENT MachinekitHAL_Library_Runtime_Config_Libraries
           NAMELINK_COMPONENT MachinekitHAL_Library_Runtime_Config_Namelinks
-  PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}"
+  PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime"
                 COMPONENT MachinekitHAL_Library_Runtime_Config_Headers)
+
+install(
+  EXPORT machinekit_hal_runtime_config
+  DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}
+  NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+  FILE "MachinekitHALRuntimeConfigTarget.cmake"
+  COMPONENT MachinekitHAL_Library_Runtime_Config_Package_Exports)
 
 export(
   # EXPORT machinekit_hal_runtime_config
@@ -147,16 +164,28 @@ export(
   FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALRuntimeConfigTarget.cmake"
 )
 
+export(
+  # EXPORT machinekit_hal_runtime_config
+  TARGETS runtime_config_binary_tree
+  NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+  FILE "${CMAKE_CURRENT_BINARY_DIR}/MachinekitHALRuntimeConfigTarget.cmake")
+
 cpack_add_component(MachinekitHAL_Library_Runtime_Config_Libraries
                     GROUP MachinekitHAL_Library_Runtime_Config)
 cpack_add_component(
-  MachinekitHAL_Library_Runtime_Namelinks
+  MachinekitHAL_Library_Runtime_Config_Namelinks
   GROUP MachinekitHAL_Library_Runtime_Config_Development
   DEPENDS MachinekitHAL_Library_Runtime_Config_Libraries)
 cpack_add_component(
-  MachinekitHAL_Library_Runtime_Headers
+  MachinekitHAL_Library_Runtime_Config_Headers
   GROUP MachinekitHAL_Library_Runtime_Config_Development
   DEPENDS MachinekitHAL_Library_Runtime_Config_Libraries)
+cpack_add_component(
+  MachinekitHAL_Library_Runtime_Config_Package_Exports
+  GROUP MachinekitHAL_Library_Runtime_Config_Development
+  DEPENDS MachinekitHAL_Library_Runtime_Config_Libraries
+          MachinekitHAL_Library_Runtime_Config_Headers
+          MachinekitHAL_Library_Runtime_Namelinks)
 
 # Specification of artifacts placement in package tree
 cpack_add_component_group(MachinekitHAL_Library_Runtime_Config

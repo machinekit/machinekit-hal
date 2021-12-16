@@ -38,11 +38,9 @@ if(BUILD_HAL_PPMC_MANAGED_DRIVER_MODULE)
 
   target_sources(hal_ppmc PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(hal_ppmc PRIVATE hal_api runtime_api)
+  target_link_libraries(hal_ppmc PRIVATE managed_hal managed_runtime)
 
   export_rtapi_symbols(TARGET hal_ppmc)
-
-  target_compile_definitions(hal_ppmc PRIVATE "RTAPI")
 
   set_target_properties(
     hal_ppmc

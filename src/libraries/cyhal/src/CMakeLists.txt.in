@@ -59,7 +59,7 @@ set(SOURCE_FILES
 python_add_library(cyhal MODULE WITH_SOABI ${SOURCE_FILES})
 
 target_link_libraries(
-  cyhal PRIVATE Machinekit::HAL::runtime Machinekit::HAL::hal Machinekit::HAL::hal_api Machinekit::HAL::runtime_api)
+  cyhal PRIVATE Machinekit::HAL::unmanaged_runtime Machinekit::HAL::unmanaged_hal)
 
 set_target_properties(
     cyhal

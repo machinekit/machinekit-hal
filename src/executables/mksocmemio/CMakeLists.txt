@@ -34,9 +34,7 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "^arm.*")
 
     target_sources(mksocmemio PRIVATE ${SOURCE_FILES})
 
-    target_link_libraries(mksocmemio PRIVATE runtime_api hal_api)
-
-    target_compile_definitions(mksocmemio PRIVATE "ULAPI")
+    target_link_libraries(mksocmemio PRIVATE unmanaged_runtime unmanaged_hal)
 
     install(TARGETS mksocmemio
             RUNTIME DESTINATION "${MACHINEKIT_HAL_EXECUTABLE_DIRECTORY}"

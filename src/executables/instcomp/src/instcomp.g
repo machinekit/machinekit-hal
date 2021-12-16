@@ -1082,12 +1082,10 @@ add_library({module_name} MODULE)
 target_sources({module_name} PRIVATE {c_source_file})
 
 target_link_libraries({module_name}
-    PRIVATE Machinekit::HAL::hal_api
-            Machinekit::HAL::runtime_api)
+    PRIVATE Machinekit::HAL::managed_hal
+            Machinekit::HAL::managed_runtime)
 
 export_rtapi_symbols(TARGET {module_name})
-
-target_compile_definitions({module_name} PRIVATE "RTAPI")
 
 set_target_properties(
   {module_name}

@@ -35,7 +35,7 @@ if(BUILD_USER_PCI_LIBRARY)
 
   set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-  set(PUBLIC_HEADER_FILES
+  set(PUBLIC_HEADER_FILES_BUILD
       ${PUBLIC_INCLUDE_DIRECTORY}/user_pci/config_module.h
       ${PUBLIC_INCLUDE_DIRECTORY}/user_pci/device.h
       ${PUBLIC_INCLUDE_DIRECTORY}/user_pci/firmware.h
@@ -45,27 +45,36 @@ if(BUILD_USER_PCI_LIBRARY)
       ${PUBLIC_INCLUDE_DIRECTORY}/user_pci/slab.h
       ${PUBLIC_INCLUDE_DIRECTORY}/user_pci/string.h)
 
+  set(PUBLIC_HEADER_FILES_INSTALL
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/user_pci/config_module.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/user_pci/device.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/user_pci/firmware.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/user_pci/gfp.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/user_pci/list.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/user_pci/module.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/user_pci/slab.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/user_pci/string.h)
+
   target_sources(
     user_pci
-    PUBLIC ${PUBLIC_HEADER_FILES}
+    PUBLIC #[[$<BUILD_INTERFACE:${PUBLIC_HEADER_FILES_BUILD}>
+           $<INSTALL_INTERFACE:${PUBLIC_HEADER_FILES_INSTALL}>]]
     PRIVATE ${SOURCE_FILES})
 
   target_include_directories(
     user_pci PUBLIC $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}>
                     $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
-  target_link_libraries(user_pci PRIVATE runtime_api hal_api)
+  target_link_libraries(user_pci PRIVATE managed_runtime managed_hal)
 
   set_target_properties(
     user_pci
     PROPERTIES SOVERSION 0
                PREFIX "libmkh"
                VERSION ${CMAKE_PROJECT_VERSION}
-               PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
+               PUBLIC_HEADER "${PUBLIC_HEADER_FILES_BUILD}"
                POSITION_INDEPENDENT_CODE TRUE
                PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
-
-  target_compile_definitions(user_pci PRIVATE "RTAPI")
 
   install(
     TARGETS user_pci
@@ -75,6 +84,13 @@ if(BUILD_USER_PCI_LIBRARY)
             NAMELINK_COMPONENT MachinekitHAL_Library_User_PCI_Namelinks
     PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/user_pci"
                   COMPONENT MachinekitHAL_Library_User_PCI_Headers)
+
+  install(
+    EXPORT machinekit_hal_user_pci
+    DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "MachinekitHALUserPCITarget.cmake"
+    COMPONENT MachinekitHAL_Library_User_PCI_Package_Exports)
 
   export(
     EXPORT machinekit_hal_user_pci
@@ -92,6 +108,12 @@ if(BUILD_USER_PCI_LIBRARY)
     MachinekitHAL_Library_User_PCI_Headers
     GROUP MachinekitHAL_Library_User_PCI_Development
     DEPENDS MachinekitHAL_Library_User_PCI_Libraries)
+  cpack_add_component(
+    MachinekitHAL_Library_User_PCI_Package_Exports
+    GROUP MachinekitHAL_Library_User_PCI_Development
+    DEPENDS MachinekitHAL_Library_User_PCI_Libraries
+            MachinekitHAL_Library_User_PCI_Headers
+            MachinekitHAL_Library_User_PCI_Namelinks)
 
   # Specification of artifacts placement in package tree
   cpack_add_component_group(MachinekitHAL_Library_User_PCI

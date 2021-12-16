@@ -37,11 +37,9 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
 
     target_sources(hal_zed_gpio PRIVATE ${SOURCE_FILES})
 
-    target_link_libraries(hal_zed_gpio PRIVATE hal_api runtime_api)
+    target_link_libraries(hal_zed_gpio PRIVATE managed_hal managed_runtime)
 
     export_rtapi_symbols(TARGET hal_zed_gpio)
-
-    target_compile_definitions(hal_zed_gpio PRIVATE "RTAPI")
 
     set_target_properties(
       hal_zed_gpio

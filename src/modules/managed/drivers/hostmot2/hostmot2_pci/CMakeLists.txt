@@ -47,10 +47,9 @@ if(SYS_IO_AVAILABLE)
 
     target_sources(hostmot2_pci PRIVATE ${SOURCE_FILES} ${PRIVATE_HEADER_FILES})
 
-    target_link_libraries(hostmot2_pci PRIVATE runtime_api hal_api hostmot2_api
-                                               hostmot2_bitfile)
-
-    target_compile_definitions(hostmot2_pci PRIVATE "RTAPI")
+    target_link_libraries(
+      hostmot2_pci PRIVATE managed_hal managed_runtime hostmot2_api
+                           hostmot2_bitfile managed_rtapi_pci)
 
     export_rtapi_symbols(TARGET hostmot2_pci)
 

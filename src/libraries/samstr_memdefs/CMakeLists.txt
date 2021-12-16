@@ -51,6 +51,13 @@ if(BUILD_SAMSTR_MEMDEFS_LIBRARY)
       DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/samstr_memdefs"
       COMPONENT MachinekitHAL_Library_SamStr_MemDefs_Headers)
 
+  install(
+    EXPORT machinekit_hal_samstr_memdefs
+    DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "MachinekitHALSamStrMemDefsTarget.cmake"
+    COMPONENT MachinekitHAL_Library_SamStr_MemDefs_Package_Exports)
+
   export(
     EXPORT machinekit_hal_samstr_memdefs
     NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
@@ -59,6 +66,10 @@ if(BUILD_SAMSTR_MEMDEFS_LIBRARY)
 
   cpack_add_component(MachinekitHAL_Library_SamStr_MemDefs_Headers
                       GROUP MachinekitHAL_Library_SamStr_MemDefs_Development)
+  cpack_add_component(
+    MachinekitHAL_Library_SamStr_MemDefs_Package_Exports
+    DEPENDS MachinekitHAL_Library_SamStr_MemDefs_Headers
+    GROUP MachinekitHAL_Library_SamStr_MemDefs_Development)
 
   # Specification of artifacts placement in package tree
   cpack_add_component_group(

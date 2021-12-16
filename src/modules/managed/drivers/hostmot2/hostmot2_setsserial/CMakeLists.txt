@@ -37,10 +37,8 @@ if(BUILD_HOSTMOT2_SETSERIAL_MANAGED_DRIVER_MODULE)
   target_sources(hostmot2_setserial PRIVATE ${SOURCE_FILES})
 
   target_link_libraries(
-    hostmot2_setserial PRIVATE runtime_api hal_api hostmot2_api
+    hostmot2_setserial PRIVATE managed_hal managed_runtime hostmot2_api
                                hostmot2_bitfile user_pci)
-
-  target_compile_definitions(hostmot2_setserial PRIVATE "RTAPI")
 
   export_rtapi_symbols(TARGET hostmot2_setserial)
 

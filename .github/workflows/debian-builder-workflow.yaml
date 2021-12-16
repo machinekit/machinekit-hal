@@ -528,7 +528,7 @@ jobs:
           DISTRIBUTION: ${{ matrix.osDistribution}}
           VERSION: ${{ matrix.osVersionCodename}}
           ARCHITECTURE: ${{ matrix.architecture}}
-          BUILD_TARGET: 'machinekit-hal_base'
+          BUILD_TARGET: 'machinekit-hal_builder_base'
           IMAGE_NAME: 'machinekit-hal-runner'
         working-directory: ./build/machinekit-hal
 
@@ -548,7 +548,7 @@ jobs:
               /home/machinekit/machinekit-hal/*.deb
             echo "ANNOUNCE_IPV4=0" | sudo tee -a /etc/machinekit/hal/machinekit.ini
             echo "ANNOUNCE_IPV6=0" | sudo tee -a /etc/machinekit/hal/machinekit.ini
-            run_runtests
+            run_runtests -v
             "
         env:
           DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/machinekit-hal-runner:latest'

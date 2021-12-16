@@ -33,7 +33,8 @@ if(BUILD_NPBDECODE_EXECUTABLE)
 
   target_sources(npbdecode PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(npbdecode PRIVATE machinetalk machinetalk_proto_c)
+  target_link_libraries(npbdecode PRIVATE machinetalk machinetalk_proto_c
+                                          protobuf-nanopb-static)
 
   target_compile_definitions(npbdecode PRIVATE "PB_FIELD_32BIT")
 

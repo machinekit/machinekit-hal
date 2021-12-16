@@ -36,12 +36,10 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
 
     target_sources(hal_pru PRIVATE ${SOURCE_FILES})
 
-    target_link_libraries(hal_pru PRIVATE hal_api runtime_api pru_app_loader
-                                          pru_defines)
+    target_link_libraries(hal_pru PRIVATE managed_hal managed_runtime
+                                          pru_app_loader pru_defines)
 
     export_rtapi_symbols(TARGET hal_pru)
-
-    target_compile_definitions(hal_pru PRIVATE "RTAPI")
 
     set_target_properties(
       hal_pru

@@ -60,6 +60,13 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
         DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/raspi_cpuinfo"
         COMPONENT MachinekitHAL_Library_RasPi_CPUInfo_Headers)
 
+    install(
+      EXPORT machinekit_hal_raspi_cpuinfo
+      DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}
+      NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+      FILE "MachinekitHALRaspiCPUInfoTarget.cmake"
+      COMPONENT MachinekitHAL_Library_RasPi_CPUInfo_Package_Exports)
+
     export(
       EXPORT machinekit_hal_raspi_cpuinfo
       NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
@@ -72,6 +79,11 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
       MachinekitHAL_Library_RasPi_CPUInfo_Headers
       GROUP MachinekitHAL_Library_RasPi_CPUInfo_Development
       DEPENDS MachinekitHAL_Library_RasPi_CPUInfo_Archives)
+    cpack_add_component(
+      MachinekitHAL_Library_RasPi_CPUInfo_Package_Exports
+      GROUP MachinekitHAL_Library_RasPi_CPUInfo_Development
+      DEPENDS MachinekitHAL_Library_RasPi_CPUInfo_Archives
+              MachinekitHAL_Library_RasPi_CPUInfo_Headers)
 
     # Specification of artifacts placement in package tree
     cpack_add_component_group(

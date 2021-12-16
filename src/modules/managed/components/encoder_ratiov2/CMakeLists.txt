@@ -38,11 +38,9 @@ if(BUILD_ENCODER_RATIOV2_MANAGED_MODULE)
 
   target_sources(encoder_ratiov2 PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(encoder_ratiov2 PRIVATE hal_api runtime_api)
+  target_link_libraries(encoder_ratiov2 PRIVATE managed_hal managed_runtime)
 
   export_rtapi_symbols(TARGET encoder_ratiov2)
-
-  target_compile_definitions(encoder_ratiov2 PRIVATE "RTAPI")
 
   set_target_properties(
     encoder_ratiov2

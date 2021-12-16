@@ -35,7 +35,7 @@ if(BUILD_RINGBENCH_UNMANAGED_MODULE)
 
   target_sources(ringbench PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(ringbench PRIVATE hal Threads::Threads)
+  target_link_libraries(ringbench PRIVATE unmanaged_hal Threads::Threads)
 
   install(TARGETS ringbench
           RUNTIME DESTINATION "${MACHINEKIT_HAL_UNMANAGED_MODULE_DIRECTORY}"

@@ -15,33 +15,6 @@
 #define MAXUIOIDS  100
 #define MAXNAMELEN 256
 
-// filename is printf-style
-int rtapi_fs_read(char *buf, const size_t maxlen, const char *name, ...)
-{
-    char fname[4096];
-    va_list args;
-
-    va_start(args, name);
-    size_t len = vsnprintf(fname, sizeof(fname), name, args);
-    va_end(args);
-
-    if (len < 1)
-    return -EINVAL; // name too short
-
-    int fd, rc;
-    if ((fd = open(fname, O_RDONLY)) >= 0) {
-    rc = read(fd, buf, maxlen);
-    close(fd);
-    if (rc < 0)
-        return -errno;
-    char *s = strchr(buf, '\n');
-    if (s) *s = '\0';
-    return strlen(buf);
-    } else {
-    return -errno;
-    }
-}
-
 static void show_usage(void)
 {
     printf("mksocmemio: Utility to read or write hm2socfpga memory locatons\n");

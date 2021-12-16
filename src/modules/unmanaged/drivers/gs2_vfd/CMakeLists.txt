@@ -36,7 +36,8 @@ if(BUILD_GS2_VFD_UNMANAGED_MODULE)
 
   pkg_check_modules(LIBMODBUS "libmodbus" REQUIRED IMPORTED_TARGET)
 
-  target_link_libraries(gs2_vfd PRIVATE runtime hal PkgConfig::LIBMODBUS)
+  target_link_libraries(gs2_vfd PRIVATE unmanaged_runtime unmanaged_hal
+                                        PkgConfig::LIBMODBUS)
 
   install(TARGETS gs2_vfd
           RUNTIME DESTINATION "${MACHINEKIT_HAL_UNMANAGED_MODULE_DIRECTORY}"

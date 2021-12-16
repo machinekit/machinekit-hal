@@ -37,11 +37,10 @@ if(BUILD_STEPGENV2_MANAGED_MODULE)
 
   target_sources(stepgenv2 PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(stepgenv2 PRIVATE hal_api runtime_api runtime_math)
+  target_link_libraries(stepgenv2 PRIVATE managed_hal managed_runtime
+                                          runtime_math)
 
   export_rtapi_symbols(TARGET stepgenv2)
-
-  target_compile_definitions(stepgenv2 PRIVATE "RTAPI")
 
   set_target_properties(
     stepgenv2

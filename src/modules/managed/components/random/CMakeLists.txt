@@ -38,11 +38,9 @@ if(BUILD_PWMGENV2_MANAGED_MODULE)
 
   target_sources(random PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(random PRIVATE hal_api runtime_api)
+  target_link_libraries(random PRIVATE managed_hal managed_runtime)
 
   export_rtapi_symbols(TARGET random)
-
-  target_compile_definitions(random PRIVATE "RTAPI")
 
   set_target_properties(
     random

@@ -120,20 +120,28 @@ if(BUILD_RUNTIME_MATH_LIBRARY)
 
   set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-  set(PUBLIC_HEADER_FILES
+  set(PUBLIC_HEADER_FILES_BUILD
       ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_byteorder.h
       ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_math64.h
       ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_math.h)
+
+  set(PUBLIC_HEADER_FILES_INSTALL
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_byteorder.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_math64.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_math.h)
 
   set(PRIVATE_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/mathP.h)
 
   target_sources(
     runtime_math
-    PUBLIC ${PUBLIC_HEADER_FILES}
+    PUBLIC #[[$<BUILD_INTERFACE:${PUBLIC_HEADER_FILES_BUILD}>
+           $<INSTALL_INTERFACE:${PUBLIC_HEADER_FILES_INSTALL}>]]
     PRIVATE ${SOURCE_FILES} ${PRIVATE_HEADER_FILES})
 
   target_include_directories(
-    runtime_math PUBLIC $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}>)
+    runtime_math
+    PUBLIC $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}>
+           $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
   target_link_libraries(runtime_math PRIVATE runtime_api)
 
@@ -146,10 +154,11 @@ if(BUILD_RUNTIME_MATH_LIBRARY)
     PROPERTIES SOVERSION 0
                PREFIX "libmkh"
                VERSION ${CMAKE_PROJECT_VERSION}
-               PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
+               PUBLIC_HEADER "${PUBLIC_HEADER_FILES_BUILD}"
                PRIVATE_HEADER "${PRIVATE_HEADER_FILES}"
                POSITION_INDEPENDENT_CODE TRUE
                PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
+
   install(
     TARGETS runtime_math
     EXPORT machinekit_hal_runtime_math
@@ -158,6 +167,13 @@ if(BUILD_RUNTIME_MATH_LIBRARY)
             NAMELINK_COMPONENT MachinekitHAL_Library_Runtime_Math_Namelinks
     PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime"
                   COMPONENT MachinekitHAL_Library_Runtime_Math_Headers)
+
+  install(
+    EXPORT machinekit_hal_runtime_math
+    DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "MachinekitHALRuntimeMathTarget.cmake"
+    COMPONENT MachinekitHAL_Library_Runtime_Math_Package_Exports)
 
   export(
     EXPORT machinekit_hal_runtime_math
@@ -175,6 +191,12 @@ if(BUILD_RUNTIME_MATH_LIBRARY)
     MachinekitHAL_Library_Runtime_Math_Headers
     GROUP MachinekitHAL_Library_Runtime_Math_Development
     DEPENDS MachinekitHAL_Library_Runtime_Math_Libraries)
+  cpack_add_component(
+    MachinekitHAL_Library_Runtime_Math_Package_Exports
+    GROUP MachinekitHAL_Library_Runtime_Math_Development
+    DEPENDS MachinekitHAL_Library_Runtime_Math_Libraries
+            MachinekitHAL_Library_Runtime_Math_Headers
+            MachinekitHAL_Library_Runtime_Math_Namelinks)
 
   # Specification of artifacts placement in package tree
   cpack_add_component_group(MachinekitHAL_Library_Runtime_Math

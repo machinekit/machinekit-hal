@@ -105,6 +105,13 @@ if(BUILD_MACHINETALK_LIBRARY)
       DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/machinetalk"
       COMPONENT MachinekitHAL_Library_Machinetalk_Headers)
 
+  install(
+    EXPORT machinekit_hal_machinetalk
+    DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "MachinekitHALMachinetalkTarget.cmake"
+    COMPONENT MachinekitHAL_Library_Machinetalk_Package_Exports)
+
   export(
     EXPORT machinekit_hal_machinetalk
     NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
@@ -125,6 +132,12 @@ if(BUILD_MACHINETALK_LIBRARY)
     MachinekitHAL_Library_Machinetalk_Headers
     GROUP MachinekitHAL_Library_Machinetalk_Development
     DEPENDS MachinekitHAL_Library_Machinetalk_Libraries)
+  cpack_add_component(
+    MachinekitHAL_Library_Machinetalk_Package_Exports
+    GROUP MachinekitHAL_Library_Machinetalk_Development
+    DEPENDS MachinekitHAL_Library_Machinetalk_Libraries
+            MachinekitHAL_Library_Machinetalk_Headers
+            MachinekitHAL_Library_Machinetalk_Namelinks)
 
   # Specification of artifacts placement in package tree
   cpack_add_component_group(MachinekitHAL_Library_Machinetalk

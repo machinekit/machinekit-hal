@@ -49,8 +49,8 @@ if(BUILD_XHC_WBH04B_6_UNMANAGED_MODULE)
 
   pkg_check_modules(LIBUSB "libusb-1.0" REQUIRED IMPORTED_TARGET)
 
-  target_link_libraries(xhc_whb04b_6 PRIVATE hal mkini machinetalk runtime_math
-                                             PkgConfig::LIBUSB)
+  target_link_libraries(xhc_whb04b_6 PRIVATE unmanaged_hal mkini machinetalk
+                                             runtime_math PkgConfig::LIBUSB)
 
   # TODO: Replace the placeholder
   target_compile_definitions(xhc_whb04b_6 PRIVATE "PACKAGE_VERSION=00000000")

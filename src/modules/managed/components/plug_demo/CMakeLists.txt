@@ -36,11 +36,9 @@ if(BUILD_PLUG_MANAGED_MODULE)
 
   target_sources(plug PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(plug PRIVATE hal_api runtime_api)
+  target_link_libraries(plug PRIVATE managed_hal managed_runtime)
 
   export_rtapi_symbols(TARGET plug)
-
-  target_compile_definitions(plug PRIVATE "RTAPI")
 
   set_target_properties(
     plug

@@ -36,11 +36,9 @@ if(BUILD_LCD_MANAGED_MODULE)
 
   target_sources(lcd PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(lcd PRIVATE hal_api runtime_api runtime_math)
+  target_link_libraries(lcd PRIVATE managed_hal managed_runtime runtime_math)
 
   export_rtapi_symbols(TARGET lcd)
-
-  target_compile_definitions(lcd PRIVATE "RTAPI")
 
   set_target_properties(
     lcd

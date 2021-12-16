@@ -47,11 +47,9 @@ if(SYS_IO_AVAILABLE)
 
     target_sources(hal_evoreg PRIVATE ${SOURCE_FILES})
 
-    target_link_libraries(hal_evoreg PRIVATE hal_api runtime_api)
+    target_link_libraries(hal_evoreg PRIVATE managed_hal managed_runtime)
 
     export_rtapi_symbols(TARGET hal_evoreg)
-
-    target_compile_definitions(hal_evoreg PRIVATE "RTAPI")
 
     set_target_properties(
       hal_evoreg

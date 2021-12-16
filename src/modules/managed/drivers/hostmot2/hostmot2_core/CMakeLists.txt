@@ -72,8 +72,8 @@ if(BUILD_HOSTMOT2_CORE_MANAGED_DRIVER_MODULE)
 
   target_link_libraries(
     hostmot2_core
-    PRIVATE runtime_api
-            hal_api
+    PRIVATE managed_hal
+            managed_runtime
             hostmot2_api
             hostmot2_bitfile
             user_pci
@@ -85,8 +85,6 @@ if(BUILD_HOSTMOT2_CORE_MANAGED_DRIVER_MODULE)
     hostmot2_api
     INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
               $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
-
-  target_compile_definitions(hostmot2_core PRIVATE "RTAPI")
 
   export_rtapi_symbols(TARGET hostmot2_core)
 

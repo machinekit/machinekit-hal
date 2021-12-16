@@ -53,14 +53,25 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
         DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/pru_defines"
         COMPONENT MachinekitHAL_Library_PRU_Defines_Headers)
 
-    cpack_add_component(MachinekitHAL_Library_PRU_Defines_Headers
-                        GROUP MachinekitHAL_Library_PRU_Defines_Development)
+    install(
+      EXPORT machinekit_hal_pru_defines
+      DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}
+      NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+      FILE "MachinekitHALPRUDefinesTarget.cmake"
+      COMPONENT MachinekitHAL_Library_PRU_Defines_Package_Exports)
 
     export(
       EXPORT machinekit_hal_pru_defines
       NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
       FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALPRUDefinesTarget.cmake"
     )
+
+    cpack_add_component(MachinekitHAL_Library_PRU_Defines_Headers
+                        GROUP MachinekitHAL_Library_PRU_Defines_Development)
+    cpack_add_component(
+      MachinekitHAL_Library_PRU_Defines_Package_Exports
+      DEPENDS MachinekitHAL_Library_PRU_Defines_Headers
+      GROUP MachinekitHAL_Library_PRU_Defines_Development)
 
     # Specification of artifacts placement in package tree
     cpack_add_component_group(

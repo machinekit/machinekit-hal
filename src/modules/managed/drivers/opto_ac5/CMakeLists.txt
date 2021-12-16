@@ -40,11 +40,9 @@ if(BUILD_OPTO_AC5_MANAGED_DRIVER_MODULE)
 
   target_sources(opto_ac5 PRIVATE ${SOURCE_FILES} ${PRIVATE_HEADER_FILES})
 
-  target_link_libraries(opto_ac5 PRIVATE hal_api runtime_api)
+  target_link_libraries(opto_ac5 PRIVATE managed_hal managed_runtime)
 
   export_rtapi_symbols(TARGET opto_ac5)
-
-  target_compile_definitions(opto_ac5 PRIVATE "RTAPI")
 
   set_target_properties(
     opto_ac5

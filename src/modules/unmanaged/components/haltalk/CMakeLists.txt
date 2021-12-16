@@ -55,8 +55,8 @@ if(BUILD_HALTALK_UNMANAGED_MODULE)
     haltalk
     PRIVATE machinetalk
             machinetalk_proto_cc
-            hal
-            runtime
+            unmanaged_runtime
+            unmanaged_hal
             mkini
             syslog_async
             PkgConfig::AVAHICLIENT

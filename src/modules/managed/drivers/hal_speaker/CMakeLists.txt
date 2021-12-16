@@ -45,11 +45,9 @@ if(SYS_IO_AVAILABLE)
 
     target_sources(hal_speaker PRIVATE ${SOURCE_FILES})
 
-    target_link_libraries(hal_speaker PRIVATE hal_api runtime_api)
+    target_link_libraries(hal_speaker PRIVATE managed_hal managed_runtime)
 
     export_rtapi_symbols(TARGET hal_speaker)
-
-    target_compile_definitions(hal_speaker PRIVATE "RTAPI")
 
     set_target_properties(
       hal_speaker

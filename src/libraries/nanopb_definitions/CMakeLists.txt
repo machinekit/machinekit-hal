@@ -28,52 +28,65 @@ option(BUILD_NANOPB_DEFINITIONS_LIBRARY "Built the NanoPB definitions library."
        TRUE)
 
 if(BUILD_NANOPB_DEFINITIONS_LIBRARY)
-  add_library(nanopb_definitions SHARED)
-  add_library(${MACHINEKIT_HAL_NAMESPACE}::nanopb_definitions ALIAS
-              nanopb_definitions)
+  add_library(managed_nanopb_definitions SHARED)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::managed_nanopb_definitions ALIAS
+              managed_nanopb_definitions)
 
   set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/nanopb.c)
 
-  target_sources(nanopb_definitions PRIVATE ${SOURCE_FILES})
+  target_sources(managed_nanopb_definitions PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(nanopb_definitions PRIVATE nanopb_interface runtime_api
-                                                   machinetalk)
+  target_link_libraries(managed_nanopb_definitions
+                        PRIVATE nanopb_interface managed_runtime machinetalk)
 
-  target_compile_definitions(nanopb_definitions PRIVATE "RTAPI"
-                                                        "PB_FIELD_32BIT")
+  target_compile_definitions(managed_nanopb_definitions
+                             PRIVATE "PB_FIELD_32BIT")
 
   set_target_properties(
-    nanopb_definitions
+    managed_nanopb_definitions
     PROPERTIES SOVERSION 0
                PREFIX "libmkh"
                VERSION ${CMAKE_PROJECT_VERSION}
                POSITION_INDEPENDENT_CODE TRUE)
 
   install(
-    TARGETS nanopb_definitions
-    EXPORT machinekit_hal_nanopb_definitions
+    TARGETS managed_nanopb_definitions
+    EXPORT machinekit_hal_managed_nanopb_definitions
     LIBRARY
       DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
-      COMPONENT MachinekitHAL_Library_NanoPB_Definitions_Libraries
-      NAMELINK_COMPONENT MachinekitHAL_Library_NanoPB_Definitions_Namelinks)
+      COMPONENT MachinekitHAL_Library_Managed_NanoPB_Definitions_Libraries
+      NAMELINK_COMPONENT
+        MachinekitHAL_Library_Managed_NanoPB_Definitions_Namelinks)
+
+  install(
+    EXPORT machinekit_hal_managed_nanopb_definitions
+    DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "MachinekitHALNanoPBDefinitionsTarget.cmake"
+    COMPONENT MachinekitHAL_Library_Managed_NanoPB_Definitions_Package_Exports)
 
   export(
-    EXPORT machinekit_hal_nanopb_definitions
+    EXPORT machinekit_hal_managed_nanopb_definitions
     NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
     FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALNanoPBDefinitionsTarget.cmake"
   )
 
-  cpack_add_component(MachinekitHAL_Library_NanoPB_Definitions_Libraries
-                      GROUP MachinekitHAL_Library_NanoPB_Definitions)
+  cpack_add_component(MachinekitHAL_Library_Managed_NanoPB_Definitions_Libraries
+                      GROUP MachinekitHAL_Library_Managed_NanoPB_Definitions)
   cpack_add_component(
-    MachinekitHAL_Library_NanoPB_Definitions_Namelinks
-    GROUP MachinekitHAL_Library_NanoPB_Definitions_Development
-    DEPENDS MachinekitHAL_Library_NanoPB_Definitions_Libraries)
+    MachinekitHAL_Library_Managed_NanoPB_Definitions_Namelinks
+    GROUP MachinekitHAL_Library_Managed_NanoPB_Definitions_Development
+    DEPENDS MachinekitHAL_Library_Managed_NanoPB_Definitions_Libraries)
+  cpack_add_component(
+    MachinekitHAL_Library_Managed_NanoPB_Definitions_Package_Exports
+    GROUP MachinekitHAL_Library_Managed_NanoPB_Definitions_Development
+    DEPENDS MachinekitHAL_Library_Managed_NanoPB_Definitions_Libraries
+            MachinekitHAL_Library_Managed_NanoPB_Definitions_Namelinks)
 
   # Specification of artifacts placement in package tree
-  cpack_add_component_group(MachinekitHAL_Library_NanoPB_Definitions
+  cpack_add_component_group(MachinekitHAL_Library_Managed_NanoPB_Definitions
                             PARENT_GROUP MachinekitHAL_Package_Base_Libraries)
   cpack_add_component_group(
-    MachinekitHAL_Library_NanoPB_Definitions_Development
+    MachinekitHAL_Library_Managed_NanoPB_Definitions_Development
     PARENT_GROUP MachinekitHAL_Package_Base_Libraries_Development)
 endif()

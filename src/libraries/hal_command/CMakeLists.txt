@@ -56,18 +56,14 @@ if(BUILD_HAL_COMMAND_LIBRARY)
   target_link_libraries(
     hal_command
     PRIVATE runtime_config
-            runtime_api
-            runtime
-            hal_api
-            hal
+            unmanaged_runtime
+            unmanaged_hal
             machinetalk_proto_c
             runtime_math
             runtime_memory_api
             mkini
             machinetalk
             PkgConfig::CZMQ)
-
-  target_compile_definitions(hal_command PRIVATE "ULAPI")
 
   set_target_properties(
     hal_command
@@ -94,6 +90,13 @@ if(BUILD_HAL_COMMAND_LIBRARY)
       DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/hal_command"
       COMPONENT MachinekitHAL_Library_HAL_Command_Headers)
 
+  install(
+    EXPORT machinekit_hal_hal_command
+    DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "MachinekitHALHALCommandTarget.cmake"
+    COMPONENT MachinekitHAL_Library_HAL_Command_Package_Exports)
+
   export(
     EXPORT machinekit_hal_hal_command
     NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
@@ -114,6 +117,10 @@ if(BUILD_HAL_COMMAND_LIBRARY)
     DEPENDS MachinekitHAL_Library_HAL_Command_Libraries)
   cpack_add_component(
     MachinekitHAL_Library_HAL_Command_Headers
+    GROUP MachinekitHAL_Library_HAL_Command_Development
+    DEPENDS MachinekitHAL_Library_HAL_Command_Libraries)
+  cpack_add_component(
+    MachinekitHAL_Library_HAL_Command_Package_Exports
     GROUP MachinekitHAL_Library_HAL_Command_Development
     DEPENDS MachinekitHAL_Library_HAL_Command_Libraries)
 

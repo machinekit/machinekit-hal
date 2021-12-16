@@ -43,5 +43,14 @@ if(BUILD_EXPORT_PACKAGE_LIBRARY)
     FILES
       "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/Machinekit-HALConfig.cmake"
       "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/Machinekit-HALVersion.cmake"
-    DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY})
+    DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}
+    COMPONENT MachinekitHAL_Library_Export_Package_Package_Exports)
+
+  cpack_add_component(MachinekitHAL_Library_Export_Package_Package_Exports
+                      GROUP MachinekitHAL_Library_Export_Package)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(
+    MachinekitHAL_Library_Export_Package
+    PARENT_GROUP MachinekitHAL_Package_Base_Libraries_Development)
 endif()

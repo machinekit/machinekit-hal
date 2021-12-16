@@ -260,10 +260,8 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
     include(MachinekitHALSymbolVisibilityFunction)
 
     target_link_libraries(
-      hal_pru_generic PRIVATE runtime_api hal_api user_pci runtime_math
+      hal_pru_generic PRIVATE managed_hal managed_runtime user_pci runtime_math
                               pru_app_loader pru_defines)
-
-    target_compile_definitions(hal_pru_generic PRIVATE "RTAPI")
 
     export_rtapi_symbols(TARGET hal_pru_generic)
 

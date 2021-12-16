@@ -45,11 +45,9 @@ if(SYS_IO_AVAILABLE)
 
     target_sources(hal_ax5214h PRIVATE ${SOURCE_FILES})
 
-    target_link_libraries(hal_ax5214h PRIVATE hal_api runtime_api)
+    target_link_libraries(hal_ax5214h PRIVATE managed_hal managed_runtime)
 
     export_rtapi_symbols(TARGET hal_ax5214h)
-
-    target_compile_definitions(hal_ax5214h PRIVATE "RTAPI")
 
     set_target_properties(
       hal_ax5214h

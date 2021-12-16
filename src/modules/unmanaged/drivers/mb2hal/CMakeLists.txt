@@ -42,7 +42,7 @@ if(BUILD_MB2HAL_UNMANAGED_MODULE)
 
   pkg_check_modules(LIBMODBUS "libmodbus" REQUIRED IMPORTED_TARGET)
 
-  target_link_libraries(mb2hal PRIVATE hal mkini PkgConfig::LIBMODBUS
+  target_link_libraries(mb2hal PRIVATE unmanaged_hal mkini PkgConfig::LIBMODBUS
                                        Threads::Threads)
 
   install(TARGETS mb2hal

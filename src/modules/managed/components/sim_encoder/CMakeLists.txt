@@ -37,11 +37,9 @@ if(BUILD_SIM_ENCODER_MANAGED_MODULE)
 
   target_sources(sim_encoder PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(sim_encoder PRIVATE hal_api runtime_api)
+  target_link_libraries(sim_encoder PRIVATE managed_hal managed_runtime)
 
   export_rtapi_symbols(TARGET sim_encoder)
-
-  target_compile_definitions(sim_encoder PRIVATE "RTAPI")
 
   set_target_properties(
     sim_encoder

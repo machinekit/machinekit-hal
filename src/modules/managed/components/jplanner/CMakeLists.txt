@@ -36,12 +36,10 @@ if(BUILD_JPLAN_MANAGED_MODULE)
 
   target_sources(jplan PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(jplan PRIVATE hal_api runtime_api runtime_math
+  target_link_libraries(jplan PRIVATE managed_hal managed_runtime runtime_math
                                       machinetalk_proto_c)
 
   export_rtapi_symbols(TARGET jplan)
-
-  target_compile_definitions(jplan PRIVATE "RTAPI")
 
   set_target_properties(
     jplan

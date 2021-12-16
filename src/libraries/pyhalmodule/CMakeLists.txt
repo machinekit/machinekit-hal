@@ -140,8 +140,8 @@ if(BUILD_PYTHON_DISTRIBUTIONS)
         "Requesting building Python package sdist ${DISTRIBUTION_NAME} via external tool"
     )
 
-    add_dependencies(${DISTRIBUTION_NAME}_wheel_distribution hal)
-    add_dependencies(${DISTRIBUTION_NAME}_sdist_distribution hal)
+    add_dependencies(${DISTRIBUTION_NAME}_wheel_distribution unmanaged_hal)
+    add_dependencies(${DISTRIBUTION_NAME}_sdist_distribution unmanaged_hal)
 
     install_wheel(WHEEL "${OUTPUT_INDEX}" COMPONENT
                   MachinekitHAL_Library_PyHAL_Module_Python_Packages)

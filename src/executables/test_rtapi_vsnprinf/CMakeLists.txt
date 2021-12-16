@@ -42,7 +42,8 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "^x86.*")
       test_rtapi_vsnprintf
       PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
-    target_link_libraries(test_rtapi_vsnprintf PRIVATE runtime runtime_math)
+    target_link_libraries(test_rtapi_vsnprintf PRIVATE unmanaged_runtime
+                                                       runtime_math)
 
     install(
       TARGETS test_rtapi_vsnprintf

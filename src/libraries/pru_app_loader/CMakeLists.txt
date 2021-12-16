@@ -49,9 +49,7 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
       PUBLIC $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}>
              $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
-    target_link_libraries(pru_app_loader PRIVATE runtime_api runtime_config)
-
-    target_compile_definitions(pru_app_loader PRIVATE "RTAPI")
+    target_link_libraries(pru_app_loader PRIVATE managed_runtime runtime_config)
 
     set_target_properties(
       pru_app_loader
@@ -71,6 +69,13 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
         DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/pru_app_loader"
         COMPONENT MachinekitHAL_Library_PRU_App_Loader_Headers)
 
+    install(
+      EXPORT machinekit_hal_pru_app_loader
+      DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}
+      NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+      FILE "MachinekitHALPRUAppLoaderTarget.cmake"
+      COMPONENT MachinekitHAL_Library_PRU_App_Loader_Package_Exports)
+
     export(
       EXPORT machinekit_hal_pru_app_loader
       NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
@@ -87,6 +92,12 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
       MachinekitHAL_Library_PRU_App_Loader_Headers
       GROUP MachinekitHAL_Library_PRU_App_Loader_Development
       DEPENDS MachinekitHAL_Library_PRU_App_Loader_Libraries)
+    cpack_add_component(
+      MachinekitHAL_Library_PRU_App_Loader_Package_Exports
+      GROUP MachinekitHAL_Library_PRU_App_Loader_Development
+      DEPENDS MachinekitHAL_Library_PRU_App_Loader_Libraries
+              MachinekitHAL_Library_PRU_App_Loader_Headers
+              MachinekitHAL_Library_PRU_App_Loader_Namelinks)
 
     # Specification of artifacts placement in package tree
     cpack_add_component_group(MachinekitHAL_Library_PRU_App_Loader

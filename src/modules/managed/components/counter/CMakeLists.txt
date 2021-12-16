@@ -37,11 +37,9 @@ if(BUILD_COUNTER_MANAGED_MODULE)
 
   target_sources(counter PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(counter PRIVATE hal_api runtime_api)
+  target_link_libraries(counter PRIVATE managed_hal managed_runtime)
 
   export_rtapi_symbols(TARGET counter)
-
-  target_compile_definitions(counter PRIVATE "RTAPI")
 
   set_target_properties(
     counter

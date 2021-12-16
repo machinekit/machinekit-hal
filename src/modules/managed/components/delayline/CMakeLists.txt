@@ -37,11 +37,9 @@ if(BUILD_DELAYLINE_MANAGED_MODULE)
 
   target_sources(delayline PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(delayline PRIVATE hal_api runtime_api)
+  target_link_libraries(delayline PRIVATE managed_hal managed_runtime)
 
   export_rtapi_symbols(TARGET delayline)
-
-  target_compile_definitions(delayline PRIVATE "RTAPI")
 
   set_target_properties(
     delayline

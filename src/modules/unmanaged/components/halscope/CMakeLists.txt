@@ -42,8 +42,8 @@ if(BUILD_HALSCOPE_UNMANAGED_MODULE)
 
   target_sources(halscope PRIVATE ${SOURCE_FILES} ${PRIVATE_HEADER_FILES})
 
-  target_link_libraries(halscope PRIVATE halscope_memory runtime hal miscgtk
-                                         runtime_math)
+  target_link_libraries(halscope PRIVATE halscope_memory unmanaged_runtime
+                                         unmanaged_hal miscgtk runtime_math)
 
   # TODO: Replace the placeholder
   target_compile_definitions(

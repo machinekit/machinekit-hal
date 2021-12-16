@@ -59,7 +59,7 @@ set(SOURCE_FILES
 python_add_library(cyruntime MODULE WITH_SOABI ${SOURCE_FILES})
 
 target_link_libraries(
-  cyruntime PRIVATE Machinekit::HAL::runtime Machinekit::HAL::hal_command
+  cyruntime PRIVATE Machinekit::HAL::unmanaged_runtime Machinekit::HAL::hal_command
                    Machinekit::HAL::runtime_config)
 
 set_target_properties(

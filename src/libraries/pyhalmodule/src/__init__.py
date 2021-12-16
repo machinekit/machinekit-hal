@@ -24,7 +24,11 @@ When the component is requested to exit with 'halcmd unload', a
 KeyboardInterrupt exception will be raised.
 """
 
-import machinekit.hal.pyhal.pyhal as _hal
+# This weird for is used because of a bug 30024 in Python 3.6
+# If you want to change it, take it into account
+# https://bugs.python.org/issue30024
+# https://stackoverflow.com/questions/24807434/imports-in-init-py-and-import-as-statement/24968941
+from machinekit.hal.pyhal import pyhal as _hal
 from .pyhal import *
 
 class _ItemWrap(object):

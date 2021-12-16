@@ -37,11 +37,9 @@ if(BUILD_MATRIX_KB_MANAGED_MODULE)
 
   target_sources(matrix_kb PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(matrix_kb PRIVATE hal_api runtime_api)
+  target_link_libraries(matrix_kb PRIVATE managed_hal managed_runtime)
 
   export_rtapi_symbols(TARGET matrix_kb)
-
-  target_compile_definitions(matrix_kb PRIVATE "RTAPI")
 
   set_target_properties(
     matrix_kb

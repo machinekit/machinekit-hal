@@ -69,3 +69,6 @@ share/pkgconfig/machinekit-hal.pc
 /packages/
 # install artifacts
 /include/
+# CMake binary tree usual directories
+obj-*
+build

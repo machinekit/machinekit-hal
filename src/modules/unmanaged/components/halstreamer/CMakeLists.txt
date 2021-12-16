@@ -34,7 +34,7 @@ if(BUILD_STREAMER_USR_UNMANAGED_MODULE)
 
   target_sources(halstreamer PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(halstreamer PRIVATE hal samstr_memdefs)
+  target_link_libraries(halstreamer PRIVATE unmanaged_hal samstr_memdefs)
 
   install(
     TARGETS halstreamer

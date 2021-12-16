@@ -50,15 +50,13 @@ if(SYS_IO_AVAILABLE)
 
     target_link_libraries(
       hostmot2_7i43
-      PRIVATE runtime_api
-              hal_api
+      PRIVATE managed_hal
+              managed_runtime
               hostmot2_api
               hostmot2_bitfile
               user_pci
               runtime_math
               rtapi_parport)
-
-    target_compile_definitions(hostmot2_7i43 PRIVATE "RTAPI")
 
     export_rtapi_symbols(TARGET hostmot2_7i43)
 

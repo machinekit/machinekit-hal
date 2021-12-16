@@ -37,11 +37,9 @@ if(BUILD_ENCODER_RATIO_MANAGED_MODULE)
 
   target_sources(encoder_ratio PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(encoder_ratio PRIVATE hal_api runtime_api)
+  target_link_libraries(encoder_ratio PRIVATE managed_hal managed_runtime)
 
   export_rtapi_symbols(TARGET encoder_ratio)
-
-  target_compile_definitions(encoder_ratio PRIVATE "RTAPI")
 
   set_target_properties(
     encoder_ratio

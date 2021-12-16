@@ -30,21 +30,35 @@ if(BUILD_RUNTIME_LIBRARY)
   include(MachinekitHALSymbolVisibilityFunction)
 
   if(NOT DEFINED SYS_IO_AVAILABLE)
+    if(NOT DEFINED check_include_files)
+      include(CheckIncludeFiles)
+    endif()
+
     check_include_files("sys/io.h" SYS_IO_AVAILABLE)
   endif()
 
   add_library(runtime_api INTERFACE)
-  add_library(${MACHINEKIT_HAL_NAMESPACE}::runtime_api ALIAS runtime_api)
-  add_library(runtime SHARED)
-  add_library(${MACHINEKIT_HAL_NAMESPACE}::runtime ALIAS runtime)
-  # Technically not a library, but a managed module
+  # Runtime_api target should be considered as internal TARGET of the
+  # Machinekit-HAL source tree and should not be exported outside of it
+  # add_library(${MACHINEKIT_HAL_NAMESPACE}::runtime_api ALIAS runtime_api)
+  add_library(managed_runtime INTERFACE)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::managed_runtime ALIAS
+              managed_runtime)
+  add_library(unmanaged_runtime SHARED)
+  add_library(${MACHINEKIT_HAL_NAMESPACE}::unmanaged_runtime ALIAS
+              unmanaged_runtime)
+  # Technically not a library, but a managed module to be loaded into
+  # Machinekit-HAL's namespace of the managing process
   add_library(runtime_module MODULE)
+  # Runtime_api target should be considered as internal TARGET of the
+  # Machinekit-HAL source tree and should not be exported outside of it
   add_library(${MACHINEKIT_HAL_NAMESPACE}::runtime_module ALIAS runtime_module)
 
   find_package(Threads REQUIRED)
 
   set(SOURCE_FILES
       ${CMAKE_CURRENT_SOURCE_DIR}/src/rtapi.c
+      # ${CMAKE_CURRENT_SOURCE_DIR}/src/rtapi_compat.c
       ${CMAKE_CURRENT_SOURCE_DIR}/src/rtapi_exception.c
       ${CMAKE_CURRENT_SOURCE_DIR}/src/rtapi_flavor.c
       ${CMAKE_CURRENT_SOURCE_DIR}/src/rtapi_flavor_hook_wrappers.c
@@ -55,12 +69,13 @@ if(BUILD_RUNTIME_LIBRARY)
       ${CMAKE_CURRENT_SOURCE_DIR}/src/rtapi_time.c)
 
   set(ULAPI_FLAVOR_SOURCE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/src/ulapi.c)
+
   set(RT_PREEMPT_FLAVOR_SOURCE_FILE
       ${CMAKE_CURRENT_SOURCE_DIR}/src/rt-preempt.c)
 
   set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-  set(PUBLIC_HEADER_FILES
+  set(PUBLIC_HEADER_FILES_BUILD
       ${PUBLIC_INCLUDE_DIRECTORY}/runtime/multiframe_flag.h
       ${PUBLIC_INCLUDE_DIRECTORY}/runtime/multiframe.h
       ${PUBLIC_INCLUDE_DIRECTORY}/runtime/ring.h
@@ -69,6 +84,7 @@ if(BUILD_RUNTIME_LIBRARY)
       ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_bitops.h
       ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_bool.h
       ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_common.h
+      # ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_compat.h
       ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_errno.h
       ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_exception.h
       ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_export.h
@@ -87,7 +103,39 @@ if(BUILD_RUNTIME_LIBRARY)
       ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_string.h
       ${PUBLIC_INCLUDE_DIRECTORY}/runtime/triple-buffer.h)
 
-  set(RTAPI_IO_PUBLIC_HEADER ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_io.h)
+  set(PUBLIC_HEADER_FILES_BUILD_INSTALL
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/multiframe_flag.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/multiframe.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/ring.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_app.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_atomics.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_bitops.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_bool.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_common.h
+      # ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_compat.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_errno.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_exception.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_export.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_flavor.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_global.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_heap.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_heap_private.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_hexdump.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_int.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_limits.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_mbarrier.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_mutex.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_shmkeys.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_stdint.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_string.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/triple-buffer.h)
+
+  set(RTAPI_IO_PUBLIC_HEADER_BUILD
+      ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_io.h)
+
+  set(RTAPI_IO_PUBLIC_HEADER_INSTALL
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_io.h)
 
   set(PRIVATE_HEADER_FILES
       ${CMAKE_CURRENT_SOURCE_DIR}/src/ulapi.h
@@ -96,23 +144,28 @@ if(BUILD_RUNTIME_LIBRARY)
 
   target_include_directories(
     runtime_api
-    INTERFACE
-      $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}>
-      $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>
-      $<BUILD_INTERFACE:$<TARGET_PROPERTY:rtapi_compat,INTERFACE_INCLUDE_DIRECTORIES>>
-      $<BUILD_INTERFACE:$<TARGET_PROPERTY:rtapi_pci,INTERFACE_INCLUDE_DIRECTORIES>>
-  )
+    INTERFACE $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}>
+              $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
-  target_sources(runtime_api INTERFACE ${PUBLIC_HEADER_FILES})
+  check_include_files("sys/io.h" SYS_IO_AVAILABLE)
+
+  if(SYS_IO_AVAILABLE)
+    list(APPEND PUBLIC_HEADER_FILES_BUILD ${RTAPI_IO_PUBLIC_HEADER_BUILD})
+    list(APPEND PUBLIC_HEADER_FILES_INSTALL ${RTAPI_IO_PUBLIC_HEADER_INSTALL})
+
+    target_compile_definitions(runtime_api INTERFACE "SYS_IO_AVAILABLE")
+    # TODO: Add here rtapi_io.h to PUBLIC_HEADER to install
+  endif()
 
   target_sources(
-    runtime
-    PRIVATE $<TARGET_PROPERTY:rtapi_support,INTERFACE_SOURCES>
-            $<TARGET_PROPERTY:rtapi_compat,INTERFACE_SOURCES>
-            $<TARGET_PROPERTY:rtapi_pci,SOURCES>
-            ${SOURCE_FILES}
-            ${ULAPI_FLAVOR_SOURCE_FILE}
-            ${PRIVATE_HEADER_FILES})
+    runtime_api
+    INTERFACE $<BUILD_INTERFACE:${RTAPI_IO_PUBLIC_HEADER_BUILD}>
+              $<INSTALL_INTERFACE:${RTAPI_IO_PUBLIC_HEADER_INSTALL}>)
+
+  target_sources(
+    unmanaged_runtime
+    PRIVATE $<TARGET_PROPERTY:rtapi_support,INTERFACE_SOURCES> ${SOURCE_FILES}
+            ${ULAPI_FLAVOR_SOURCE_FILE} ${PRIVATE_HEADER_FILES})
 
   target_sources(
     runtime_module
@@ -121,45 +174,47 @@ if(BUILD_RUNTIME_LIBRARY)
 
   pkg_check_modules(CK "ck" REQUIRED IMPORTED_TARGET)
   pkg_check_modules(LIBCGROUP "libcgroup" REQUIRED IMPORTED_TARGET)
-  pkg_check_modules(LIBUDEV "libudev" REQUIRED IMPORTED_TARGET)
 
   target_link_libraries(runtime_api INTERFACE runtime_config)
+  target_link_libraries(managed_runtime INTERFACE runtime_api rtapi_compat)
   target_link_libraries(
-    runtime
-    PUBLIC runtime_api runtime_memory_api
-    PRIVATE ${CMAKE_DL_LIBS} syslog_async mkini)
-  target_link_libraries(
-    runtime_module PRIVATE runtime_api runtime_memory_api syslog_async mkini
-                           Threads::Threads ${CMAKE_DL_LIBS})
-
-  # Jesus Christ, the rtapi headers need hal headers: hal_types.h
-  target_link_libraries(runtime PUBLIC hal_api)
-  target_link_libraries(runtime_module PRIVATE hal_api PkgConfig::LIBCGROUP
-                                               PkgConfig::LIBUDEV PkgConfig::CK)
-
-  target_compile_definitions(runtime PUBLIC "ULAPI")
-  target_compile_definitions(runtime_module PRIVATE "RTAPI" "HAVE_CK")
-
-  check_include_files("sys/io.h" SYS_IO_AVAILABLE)
+    unmanaged_runtime
+    PUBLIC runtime_api runtime_memory_api rtapi_compat mkini
+    PRIVATE ${CMAKE_DL_LIBS} syslog_async)
 
   if(SYS_IO_AVAILABLE)
-    target_compile_definitions(runtime_api INTERFACE "SYS_IO_AVAILABLE")
-    list(APPEND PUBLIC_HEADER_FILES ${RTAPI_IO_PUBLIC_HEADER})
-    target_sources(runtime_api INTERFACE ${RTAPI_IO_PUBLIC_HEADER})
-    # TODO: Add here rtapi_io.h to PUBLIC_HEADER to install
+    target_link_libraries(unmanaged_runtime PUBLIC unmanaged_rtapi_pci)
   endif()
+
+  target_link_libraries(
+    runtime_module
+    PRIVATE rtapi_compat
+            managed_runtime
+            runtime_memory_api
+            syslog_async
+            mkini
+            Threads::Threads
+            ${CMAKE_DL_LIBS})
+
+  # Jesus Christ, the rtapi headers need hal headers: hal_types.h TODO!
+  target_link_libraries(unmanaged_runtime PUBLIC hal_api)
+  target_link_libraries(runtime_module PRIVATE hal_api PkgConfig::LIBCGROUP
+                                               PkgConfig::CK)
+
+  target_compile_definitions(unmanaged_runtime PUBLIC "ULAPI")
+  target_compile_definitions(managed_runtime INTERFACE "RTAPI")
+  target_compile_definitions(runtime_module PRIVATE "HAVE_CK")
 
   export_rtapi_symbols(TARGET runtime_module)
 
   set_target_properties(
     runtime_api
-    PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
+    PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADER_FILES_BUILD}"
                PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
 
   set_target_properties(
-    runtime
-    PROPERTIES OUTPUT_NAME "runtime"
-               PREFIX "libmkh"
+    unmanaged_runtime
+    PROPERTIES PREFIX "libmkh"
                SOVERSION 0
                VERSION ${CMAKE_PROJECT_VERSION}
                PRIVATE_HEADER "${PRIVATE_HEADER_FILES}"
@@ -173,7 +228,7 @@ if(BUILD_RUNTIME_LIBRARY)
                ${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY})
 
   set_target_properties(runtime_api PROPERTIES PUBLIC_HEADERS
-                                               "${PUBLIC_HEADER_FILES}")
+                                               "${PUBLIC_HEADER_FILES_BUILD}")
 
   string(TIMESTAMP RIGHT_NOW)
   string(
@@ -263,19 +318,26 @@ if(BUILD_RUNTIME_LIBRARY)
     @ONLY)
 
   install(
-    TARGETS
-    runtime EXPORT machinekit_hal_runtime
+    TARGETS unmanaged_runtime
+    EXPORT machinekit_hal_unmanaged_runtime
     LIBRARY DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
-            COMPONENT MachinekitHAL_Library_Runtime_Libraries
-            NAMELINK_COMPONENT MachinekitHAL_Library_Runtime_Namelinks
+            COMPONENT MachinekitHAL_Library_Unmanaged_Runtime_Libraries
+            NAMELINK_COMPONENT MachinekitHAL_Library_Unmanaged_Runtime_Namelinks
     PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime"
-                  COMPONENT MachinekitHAL_Library_Runtime_Headers)
+                  COMPONENT MachinekitHAL_Library_Unmanaged_Runtime_Headers)
+
+  # Managed_runtime TARGET is an INTERFACE (virtual) library which has not any
+  # installable artifacts, but we want to be able to call install(EXPORT) later
+  install(
+    TARGETS managed_runtime
+    EXPORT machinekit_hal_managed_runtime
+    COMPONENT MachinekitHAL_Library_Managed_Runtime_Libraries)
 
   install(
     TARGETS runtime_api
     EXPORT machinekit_hal_runtime_api
     PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime"
-                  COMPONENT MachinekitHAL_Library_Runtime_Headers)
+                  COMPONENT MachinekitHAL_Library_Runtime_API_Headers)
 
   install(TARGETS runtime_module
           LIBRARY DESTINATION "${MACHINEKIT_HAL_MANAGED_MODULE_DIRECTORY}"
@@ -288,10 +350,49 @@ if(BUILD_RUNTIME_LIBRARY)
     PERMISSIONS OWNER_READ GROUP_READ WORLD_READ
     COMPONENT MachinekitHAL_Library_Runtime_Config_Files)
 
-  export(
-    EXPORT machinekit_hal_runtime
+  install(
+    EXPORT machinekit_hal_unmanaged_runtime
+    DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}
     NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
-    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALRuntimeTarget.cmake"
+    FILE "MachinekitHALUnmanagedRuntimeTarget.cmake"
+    COMPONENT MachinekitHAL_Library_Unmanaged_Runtime_Package_Exports)
+
+  install(
+    EXPORT machinekit_hal_managed_runtime
+    DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "MachinekitHALManagedRuntimeTarget.cmake"
+    COMPONENT MachinekitHAL_Library_Managed_Runtime_Package_Exports)
+
+  install(
+    EXPORT machinekit_hal_runtime_api
+    DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "MachinekitHALRuntimeAPITarget.cmake"
+    COMPONENT MachinekitHAL_Library_Runtime_API_Package_Exports)
+
+  install(
+    FILES
+      "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALUnmanaged-RuntimeComponent.cmake"
+    DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}
+    COMPONENT MachinekitHAL_Library_Unmanaged_Runtime_Package_Exports)
+
+  install(
+    FILES
+      "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALManaged-RuntimeComponent.cmake"
+    DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}
+    COMPONENT MachinekitHAL_Library_Managed_Runtime_Package_Exports)
+
+  export(
+    EXPORT machinekit_hal_unmanaged_runtime
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALUnmanagedRuntimeTarget.cmake"
+  )
+
+  export(
+    EXPORT machinekit_hal_managed_runtime
+    NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+    FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALManagedRuntimeTarget.cmake"
   )
 
   export(
@@ -301,24 +402,43 @@ if(BUILD_RUNTIME_LIBRARY)
   )
 
   cpack_add_component(
-    MachinekitHAL_Library_Runtime_Libraries
+    MachinekitHAL_Library_Unmanaged_Runtime_Libraries
     GROUP MachinekitHAL_Library_Runtime
     DEPENDS MachinekitHAL_Library_SysLog_Async_Libraries
             MachinekitHAL_Library_MKini_Libraries
             MachinekitHAL_Library_Runtime_Memory_API_Libraries
+            MachinekitHAL_Library_RTAPI_PCI_Libraries
             MachinekitHAL_Library_Runtime_Config_Files)
+  cpack_add_component(MachinekitHAL_Library_Managed_Runtime_Libraries
+                      GROUP MachinekitHAL_Library_Runtime)
   cpack_add_component(
-    MachinekitHAL_Library_Runtime_Namelinks
+    MachinekitHAL_Library_Unmanaged_Runtime_Namelinks
     GROUP MachinekitHAL_Library_Runtime_Development
-    DEPENDS MachinekitHAL_Library_Runtime_Libraries)
+    DEPENDS MachinekitHAL_Library_Unmanaged_Runtime_Libraries)
+  cpack_add_component(
+    MachinekitHAL_Library_Unmanaged_Runtime_Headers
+    GROUP MachinekitHAL_Library_Runtime_Development
+    DEPENDS MachinekitHAL_Library_Unmanaged_Runtime_Libraries)
+  cpack_add_component(MachinekitHAL_Library_Runtime_API_Headers
+                      GROUP MachinekitHAL_Library_Runtime_Development)
+  cpack_add_component(
+    MachinekitHAL_Library_Unmanaged_Runtime_Package_Exports
+    GROUP MachinekitHAL_Library_Runtime_Development
+    DEPENDS MachinekitHAL_Library_Unmanaged_Runtime_Libraries
+            MachinekitHAL_Library_Unmanaged_Runtime_Headers
+            MachinekitHAL_Library_Unmanaged_Runtime_Namelinks)
+  cpack_add_component(
+    MachinekitHAL_Library_Runtime_API_Package_Exports
+    GROUP MachinekitHAL_Library_Runtime_Development
+    DEPENDS MachinekitHAL_Library_Runtime_API_Headers)
+  cpack_add_component(
+    MachinekitHAL_Library_Managed_Runtime_Package_Exports
+    GROUP MachinekitHAL_Library_Runtime_Development
+    DEPENDS MachinekitHAL_Library_Managed_Runtime_Libraries)
   cpack_add_component(
     MachinekitHAL_Library_Runtime_Config_Files
     GROUP MachinekitHAL_Library_Runtime
-    DEPENDS MachinekitHAL_Library_Runtime_Libraries)
-  cpack_add_component(
-    MachinekitHAL_Library_Runtime_Headers
-    GROUP MachinekitHAL_Library_Runtime_Development
-    DEPENDS MachinekitHAL_Library_Runtime_Libraries)
+    DEPENDS MachinekitHAL_Library_Unmanaged_Runtime_Libraries)
   cpack_add_component(MachinekitHAL_Managed_Module_Runtime_Components
                       GROUP MachinekitHAL_Managed_Module_Runtime)
 

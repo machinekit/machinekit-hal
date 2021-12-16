@@ -34,7 +34,8 @@ if(BUILD_HALMETER_UNMANAGED_MODULE)
 
   target_sources(halmeter PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(halmeter PRIVATE runtime hal miscgtk)
+  target_link_libraries(halmeter PRIVATE unmanaged_runtime unmanaged_hal
+                                         miscgtk)
 
   # TODO: Replace the placeholder
   target_compile_definitions(

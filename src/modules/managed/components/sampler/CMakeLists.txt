@@ -37,11 +37,9 @@ if(BUILD_SAMPLER_MANAGED_MODULE)
 
   target_sources(sampler PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(sampler PRIVATE hal_api runtime_api samstr_memdefs)
+  target_link_libraries(sampler PRIVATE managed_hal managed_runtime samstr_memdefs)
 
   export_rtapi_symbols(TARGET sampler)
-
-  target_compile_definitions(sampler PRIVATE "RTAPI")
 
   set_target_properties(
     sampler

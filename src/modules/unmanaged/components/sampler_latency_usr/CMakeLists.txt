@@ -34,7 +34,8 @@ if(BUILD_SAMPLER_LATENCY_USR_UNMANAGED_MODULE)
 
   target_sources(sampler_latency_usr PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(sampler_latency_usr PRIVATE hal samstr_memdefs)
+  target_link_libraries(sampler_latency_usr PRIVATE unmanaged_hal
+                                                    samstr_memdefs)
 
   install(
     TARGETS sampler_latency_usr

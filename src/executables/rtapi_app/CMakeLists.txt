@@ -35,15 +35,11 @@ if(BUILD_RTAPI_APP_EXECUTABLE)
   set(PRIVATE_HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/rtapi_app_module.hh)
 
   target_sources(
-    rtapi_app
-    PRIVATE ${SOURCE_FILES} ${PRIVATE_HEADER_FILES}
-            $<TARGET_PROPERTY:rtapi_support,INTERFACE_SOURCES>
-            $<TARGET_PROPERTY:rtapi_compat,INTERFACE_SOURCES>)
+    rtapi_app PRIVATE ${SOURCE_FILES} ${PRIVATE_HEADER_FILES}
+                      $<TARGET_PROPERTY:rtapi_support,INTERFACE_SOURCES>)
 
   target_include_directories(
-    rtapi_app
-    PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-            $<TARGET_PROPERTY:rtapi_compat,INTERFACE_INCLUDE_DIRECTORIES>)
+    rtapi_app PRIVATE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
 
   pkg_check_modules(CZMQ "libczmq" REQUIRED IMPORTED_TARGET)
   pkg_check_modules(UUID "uuid" REQUIRED IMPORTED_TARGET)
@@ -55,15 +51,17 @@ if(BUILD_RTAPI_APP_EXECUTABLE)
     rtapi_app
     PRIVATE mkini
             runtime_memory_api
+            rtapi_compat
             machinetalk
-            runtime_api
-            hal_api
+            unmanaged_runtime # TODO: Check if symbols pollution from
+                               # unmanaged_runtime
+            # is not problematic; was runtime_api
+            unmanaged_hal # TODO: Check if symbols pollution from unmanaged_hal
+                          # is not problematic; was hal_api
             syslog_async
             PkgConfig::UUID
             PkgConfig::CZMQ
             ${CMAKE_DL_LIBS})
-
-  target_compile_definitions(rtapi_app PRIVATE "ULAPI")
 
   #[[
   # The 'rtapi_app' executable will mostly run as root setuid program or

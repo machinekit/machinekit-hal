@@ -34,7 +34,7 @@ if(BUILD_SAMPLER_USR_UNMANAGED_MODULE)
 
   target_sources(sampler_usr PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(sampler_usr PRIVATE hal samstr_memdefs)
+  target_link_libraries(sampler_usr PRIVATE unmanaged_hal samstr_memdefs)
 
   set_target_properties(sampler_usr PROPERTIES OUTPUT_NAME "halsampler")
 

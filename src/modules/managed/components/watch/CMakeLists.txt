@@ -36,11 +36,9 @@ if(BUILD_STEPGEN_MANAGED_MODULE)
 
   target_sources(watch PRIVATE ${SOURCE_FILES})
 
-  target_link_libraries(watch PRIVATE hal_api runtime_api)
+  target_link_libraries(watch PRIVATE managed_hal managed_runtime)
 
   export_rtapi_symbols(TARGET watch)
-
-  target_compile_definitions(watch PRIVATE "RTAPI")
 
   set_target_properties(
     watch

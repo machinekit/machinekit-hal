@@ -45,11 +45,9 @@ if(SYS_IO_AVAILABLE)
 
     target_sources(pci_8255 PRIVATE ${SOURCE_FILES})
 
-    target_link_libraries(pci_8255 PRIVATE hal_api runtime_api)
+    target_link_libraries(pci_8255 PRIVATE managed_hal managed_runtime)
 
     export_rtapi_symbols(TARGET pci_8255)
-
-    target_compile_definitions(pci_8255 PRIVATE "RTAPI")
 
     set_target_properties(
       pci_8255

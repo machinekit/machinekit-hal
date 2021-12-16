@@ -40,11 +40,10 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
     target_sources(hal_arm335xqep PRIVATE ${SOURCE_FILES}
                                           ${PRIVATE_HEADER_FILES})
 
-    target_link_libraries(hal_arm335xqep PRIVATE hal_api runtime_api user_pci)
+    target_link_libraries(hal_arm335xqep PRIVATE managed_hal managed_runtime
+                                                 user_pci)
 
     export_rtapi_symbols(TARGET hal_arm335xqep)
-
-    target_compile_definitions(hal_arm335xqep PRIVATE "RTAPI")
 
     set_target_properties(
       hal_arm335xqep

@@ -34,8 +34,8 @@ set(MHUHC_targets_paths
         \"file\":\"${CMAKE_CURRENT_LIST_DIR}/MachinekitHALHALAPITarget.cmake\"
     },
     {
-      \"target\":\"@MACHINEKIT_HAL_NAMESPACE@::hal\",
-      \"file\":\"${CMAKE_CURRENT_LIST_DIR}/MachinekitHALHALTarget.cmake\"
+      \"target\":\"@MACHINEKIT_HAL_NAMESPACE@::unmanaged_hal\",
+      \"file\":\"${CMAKE_CURRENT_LIST_DIR}/MachinekitHALUnmanagedHALTarget.cmake\"
   },
 ]")
 

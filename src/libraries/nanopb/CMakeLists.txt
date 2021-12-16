@@ -64,7 +64,10 @@ set(SOURCE_NANOPB_PROTO_FILE ${CMAKE_CURRENT_BINARY_DIR}/nanopb.proto)
 add_library(nanopb_proto_cc STATIC)
 add_library(nanopb_interface INTERFACE)
 
-target_include_directories(nanopb_proto_cc PUBLIC "${CMAKE_CURRENT_BINARY_DIR}")
+target_include_directories(
+  nanopb_proto_cc
+  PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
+         $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
 protobuf_generate(
   LANGUAGE
@@ -79,8 +82,10 @@ protobuf_generate(
   ${SOURCE_NANOPB_PROTO_FILE}
   APPEND_PATH)
 
-target_include_directories(nanopb_interface INTERFACE ${nanopb_SOURCE_DIR}
-)# TODO: Add both install and build INTERFACEs
+target_include_directories(
+  nanopb_interface
+  INTERFACE $<BUILD_INTERFACE:${nanopb_SOURCE_DIR}>
+            $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
 
 # TODO: Add install public headers step?
 
@@ -88,20 +93,82 @@ set_target_properties(nanopb_proto_cc PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 set_target_properties(protobuf-nanopb-static
                       PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
+target_link_libraries(nanopb_interface INTERFACE protobuf-nanopb-static)
+
+install(
+  TARGETS nanopb_interface protobuf-nanopb-static
+  EXPORT machinekit_hal_nanopb_interface
+  ARCHIVE DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
+          COMPONENT MachinekitHAL_Library_NanoPB_Archives
+  PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/upci"
+                COMPONENT MachinekitHAL_Library_NanoPB_Headers)
+
+install(
+  TARGETS nanopb_proto_cc
+  EXPORT machinekit_hal_nanopb_proto_cc
+  ARCHIVE DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
+          COMPONENT MachinekitHAL_Library_NanoPB_Archives
+  PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/upci"
+                COMPONENT MachinekitHAL_Library_NanoPB_Headers)
+
+#[[install(
+  TARGETS protobuf-nanopb-static
+  EXPORT machinekit_hal_protobuf_nanopb_static
+  ARCHIVE DESTINATION "${MACHINEKIT_HAL_LIBRARY_DIRECTORY}"
+          COMPONENT MachinekitHAL_Library_NanoPB_Archives
+  PUBLIC_HEADER DESTINATION "${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/upci"
+                COMPONENT MachinekitHAL_Library_NanoPB_Headers)]]
+
+install(
+  EXPORT machinekit_hal_nanopb_interface
+  DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}
+  NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+  FILE "MachinekitHALNanoPBInterfaceTarget.cmake"
+  COMPONENT MachinekitHAL_Library_NanoPB_Package_Exports)
+
+install(
+  EXPORT machinekit_hal_nanopb_proto_cc
+  DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}
+  NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+  FILE "MachinekitHALNanoPBProtoCCTarget.cmake"
+  COMPONENT MachinekitHAL_Library_NanoPB_Package_Exports)
+
+#[[install(
+  EXPORT machinekit_hal_protobuf_nanopb_static
+  DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}
+  NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
+  FILE "MachinekitHALProtobufNanoPBStaticTarget.cmake"
+  COMPONENT MachinekitHAL_Library_NanoPB_Package_Exports)]]
+
 export(
-  TARGETS nanopb_interface
+  EXPORT machinekit_hal_nanopb_interface
   NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
   FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALNanoPBInterfaceTarget.cmake"
 )
 
 export(
-  TARGETS nanopb_proto_cc
+  EXPORT machinekit_hal_nanopb_proto_cc
   NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
   FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALNanoPBProtoCCTarget.cmake"
 )
 
-export(
+#[[export(
   TARGETS protobuf-nanopb-static
   NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"
   FILE "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALProtobufNanoPBStaticTarget.cmake"
-)
+)]]
+
+cpack_add_component(MachinekitHAL_Library_NanoPB_Archives
+                    GROUP MachinekitHAL_Library_NanoPB_Development)
+cpack_add_component(MachinekitHAL_Library_NanoPB_Headers
+                    GROUP MachinekitHAL_Library_NanoPB_Development)
+cpack_add_component(
+  MachinekitHAL_Library_NanoPB_Package_Exports
+  GROUP MachinekitHAL_Library_NanoPB_Development
+  DEPENDS MachinekitHAL_Library_NanoPB_Archives
+          MachinekitHAL_Library_NanoPB_Headers)
+
+# Specification of artifacts placement in package tree
+cpack_add_component_group(
+  MachinekitHAL_Library_NanoPB_Development
+  PARENT_GROUP MachinekitHAL_Package_Base_Libraries_Development)
