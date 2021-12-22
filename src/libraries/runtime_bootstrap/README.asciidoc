@@ -15,7 +15,7 @@ Runtime-bootstrap experts exports the core functionality for build workflow of M
 Objects created in `CMAKE` Machinekit-HAL's namespace used for building.
 
 === runtime_config (`STATIC` library)
-*   Isolates the `VERSION` and `MACHINEKIT_HAL_GIT_BUILD_SHA` into separate library statically linked to functional libraries, thus eliminatin constly build step on each commit
+*   Isolates the `VERSION` and `GIT_HEAD_SHA1` into separate library statically linked to functional libraries, thus eliminatin constly build step on each commit
 
 == Notes
 

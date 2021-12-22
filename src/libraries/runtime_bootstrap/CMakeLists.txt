@@ -32,6 +32,15 @@ add_library(runtime_config_binary_tree SHARED)
 set(RUNTIME_CONFIG ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/config.h.in)
 set(SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/runtime_config.c.in)
 
+set(GIT_CONFIG_FILE ${CMAKE_CURRENT_SOURCE_DIR}/include/runtime/git_config.h.in)
+
+set(PUBLIC_INCLUDE_DIRECTORY
+    "${CMAKE_CURRENT_BINARY_DIR}/runtime_config/include")
+
+set(PRE_CONFIGURE_FILE "${GIT_CONFIG_FILE}")
+set(POST_CONFIGURE_FILE "${PUBLIC_INCLUDE_DIRECTORY}/runtime/git_config.h")
+include(git_watcher)
+
 set(LINELEN "255")
 set(ZMQIPC_FORMAT "ipc://%s/%d.%s.%s")
 set(RUNDIR "/tmp")
@@ -42,9 +51,6 @@ set(MACHINEKIT_HAL_INI_FILE
 set(MACHINEKIT_HAL_LOG_FILE
     "${MACHINEKIT_HAL_LOCAL_STATE_OUTPUT_DIRECTORY}/log/hal.log")
 set(MACHINEKIT_HAL_BIN_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
-
-set(PUBLIC_INCLUDE_DIRECTORY
-    "${CMAKE_CURRENT_BINARY_DIR}/runtime_config/include")
 
 configure_file(${RUNTIME_CONFIG} ${PUBLIC_INCLUDE_DIRECTORY}/runtime/config.h
                NO_SOURCE_PERMISSIONS @ONLY NEWLINE_STYLE UNIX)
@@ -89,6 +95,7 @@ file(
 target_sources(
   runtime_config_binary_tree
   PUBLIC $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}/runtime/config.h>
+         $<BUILD_INTERFACE:${POST_CONFIGURE_FILE}>
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/src/$<CONFIG>/runtime_config.c
 )
@@ -101,6 +108,7 @@ target_sources(
   runtime_config
   PUBLIC
     $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}/runtime/config.h>
+    $<BUILD_INTERFACE:${POST_CONFIGURE_FILE}>
     $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/config.h>
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}/install/runtime_config/src/$<CONFIG>/runtime_config.c
@@ -130,6 +138,9 @@ set_target_properties(
              PUBLIC_INCLUDE_DIRECTORY
              $<BUILD_INTERFACE:${PUBLIC_INSTALL_INCLUDE_DIRECTORY}>)
 # $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
+
+add_dependencies(runtime_config_binary_tree check_git)
+add_dependencies(runtime_config check_git)
 
 configure_file(
   src/dot_envrc.in ${CMAKE_CURRENT_BINARY_DIR}/build/dot_envrc.configure @ONLY

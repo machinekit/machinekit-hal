@@ -31,9 +31,12 @@ set(CMAKE_EXPORT_LINK_COMMANDS TRUE)
 set(CMAKE_DISABLE_SOURCE_CHANGES TRUE)
 set(CMAKE_DISABLE_IN_SOURCE_BUILD TRUE)
 
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" MachinekitHALVersion)
+string(STRIP "${MachinekitHALVersion}" MachinekitHALVersion)
+
 project(
   Machinekit-HAL
-  VERSION 0.5 # TODO: Get the right version from VERSION file and git
+  VERSION "${MachinekitHALVersion}"
   DESCRIPTION "Universal framework for machine control."
   HOMEPAGE_URL "https://machinekit.io"
   LANGUAGES C CXX)
@@ -115,9 +118,6 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O0")
 message(STATUS "Value of CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 message(STATUS "Value of CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
 message(STATUS "Value of CMAKE_EXE_LINKER_FLAGS: ${CMAKE_EXE_LINKER_FLAGS}")
-
-set(MACHINEKIT_HAL_GIT_BUILD_SHA "aaabbbccc") # TODO: Set based on actual Git
-                                              # SHA
 
 define_property(
   TARGET
