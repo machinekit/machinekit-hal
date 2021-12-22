@@ -52,7 +52,7 @@
 
 **Machinekit-HAL** is a powerful software for _real-time_ control of machinery based on _**H**ardware **A**bstraction **L**ayer_ principle. With tools and libraries making development of new _components_ and _drivers_ easy. Integrators can choose to control **industrial robotic arm**, **single purpose machine** or **CNC mill** or **lathe** with additional software package.
 
-Supporting _RT PREEMPT_ and _Xenomai 2_ real-time Linux kernel patches. **APT** packages available for Debian 9 _Stretch_, Debian 10 _Buster_, Ubuntu 18.04 _Bionic_ LTS, Ubuntu 20.04 _Focal_ LTS and Ubuntu 21.04 Hirsute.
+Supporting _RT PREEMPT_ and _Xenomai 2_ real-time Linux kernel patches. **APT** packages available for Debian 11 _Bullseye_, Ubuntu 18.04 _Bionic_ LTS, Ubuntu 20.04 _Focal_ LTS and Ubuntu 21.04 Hirsute.
 
 <div align="center"><img alt="Machinekit demo" src="https://raw.githubusercontent.com/cerna/machinekit-hal/various-bugfixes/media/machinekit_hal_ethercat_demo.gif" width="650px" /></div>
 

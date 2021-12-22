@@ -24,7 +24,7 @@ is on best effort basis.
 
     Where:
       - ARCHITECTURE is the HOST architecture for which you want to build the Machinekit-HAL packages
-      - VERSION is the version of the supported distribution (for example Buster)
+      - VERSION is the version of the supported distribution (for example Bullseye)
       - DISTRIBUTION is the distro name (for example Debian)
 
       Currently supported possibilities are listed in `scripts/debian-distro-settings.json`

@@ -2,12 +2,6 @@
   "osVersions": [
     {
       "distributionID": "Debian",
-      "distributionCodename": "Buster",
-      "baseImage": "debian:buster",
-      "releaseNumber": 10
-    },
-    {
-      "distributionID": "Debian",
       "distributionCodename": "Bullseye",
       "baseImage": "debian:bullseye",
       "releaseNumber": 11
@@ -37,19 +31,11 @@
       "architecture": "i386"
     },
     {
-      "osVersionNumber": 10,
-      "architecture": "i386"
-    },
-    {
       "osVersionNumber": 11,
       "architecture": "i386"
     },
     {
       "osVersionNumber": 18.04,
-      "architecture": "amd64"
-    },
-    {
-      "osVersionNumber": 10,
       "architecture": "amd64"
     },
     {
@@ -69,10 +55,6 @@
       "architecture": "armhf"
     },
     {
-      "osVersionNumber": 10,
-      "architecture": "armhf"
-    },
-    {
       "osVersionNumber": 11,
       "architecture": "armhf"
     },
@@ -86,10 +68,6 @@
     },
     {
       "osVersionNumber": 18.04,
-      "architecture": "arm64"
-    },
-    {
-      "osVersionNumber": 10,
       "architecture": "arm64"
     },
     {
