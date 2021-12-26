@@ -35,5 +35,8 @@ option(BUILD_RTAPI_SUPPORT_LIBRARY "Built the Runtime RTAPI Support libraries."
 if(BUILD_RTAPI_SUPPORT_LIBRARY)
   add_library(rtapi_support INTERFACE)
 
-  target_sources(rtapi_support INTERFACE src/rtapi_support.c)
+  target_sources(
+    rtapi_support
+    INTERFACE
+      "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/rtapi_support.c>")
 endif()

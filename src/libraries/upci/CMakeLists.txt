@@ -47,8 +47,9 @@ if(SYS_IO_AVAILABLE)
         ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/upci/upci.h)
 
     target_sources(
-      upci #[[PUBLIC $<BUILD_INTERFACE:${PUBLIC_HEADER_FILES_BUILD}>
-             $<INSTALL_INTERFACE:${PUBLIC_HEADER_FILES_INSTALL}>]]
+      upci
+      PUBLIC "$<BUILD_INTERFACE:${PUBLIC_HEADER_FILES_BUILD}>"
+             "$<INSTALL_INTERFACE:${PUBLIC_HEADER_FILES_INSTALL}>"
       PRIVATE ${SOURCE_FILES})
 
     target_include_directories(

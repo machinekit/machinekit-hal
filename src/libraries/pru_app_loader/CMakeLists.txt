@@ -36,13 +36,22 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
 
     set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-    set(PUBLIC_HEADER_FILES
+    # TODO: Are some of these headers non-PUBLIC ones?
+    set(PUBLIC_HEADER_FILES_BUILD
         ${PUBLIC_INCLUDE_DIRECTORY}/pru_app_loader/__prussdrv.h
         ${PUBLIC_INCLUDE_DIRECTORY}/pru_app_loader/pruss_intc_mapping.h
         ${PUBLIC_INCLUDE_DIRECTORY}/pru_app_loader/prussdrv.h)
 
-    target_sources(pru_app_loader PRIVATE ${SOURCE_FILES}
-                                          ${PUBLIC_HEADER_FILES})
+    set(PUBLIC_HEADER_FILES_INSTALL
+        ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/pru_app_loader/__prussdrv.h
+        ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/pru_app_loader/pruss_intc_mapping.h
+        ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/pru_app_loader/prussdrv.h)
+
+    target_sources(
+      pru_app_loader
+      PUBLIC "$<BUILD_INTERFACE:${PUBLIC_HEADER_FILES_BUILD}>"
+             "$<INSTALL_INTERFACE:${PUBLIC_HEADER_FILES_INSTALL}>"
+      PRIVATE ${SOURCE_FILES})
 
     target_include_directories(
       pru_app_loader
@@ -56,7 +65,7 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
       PROPERTIES SOVERSION 0
                  PREFIX "libmkh"
                  VERSION ${CMAKE_PROJECT_VERSION}
-                 PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
+                 PUBLIC_HEADER "${PUBLIC_HEADER_FILES_BUILD}"
                  POSITION_INDEPENDENT_CODE TRUE
                  PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
     install(

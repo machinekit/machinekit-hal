@@ -30,7 +30,6 @@ add_subdirectory(symbol_visibility)
 
 add_subdirectory(ads7828)
 add_subdirectory(config_service)
-# add_subdirectory(cyattic)
 add_subdirectory(cycompat)
 add_subdirectory(cyhal)
 add_subdirectory(cyruntime)

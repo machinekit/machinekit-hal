@@ -74,7 +74,8 @@ class Build():
                  source_directory: Union[str, pathlib.Path],
                  build_directory: Union[str, pathlib.Path],
                  generator: str,
-                 configs: Union[List[str], str]):
+                 configs: Union[List[str], str],
+                 parallel_jobs: int):
         if not isinstance(source_directory, pathlib.Path):
             source_directory = pathlib.Path(source_directory)
         if not isinstance(build_directory, pathlib.Path):
@@ -102,6 +103,8 @@ class Build():
             self.build_directory = self.build_directory.resolve()
         if not self.build_directory.is_dir():
             self.build_directory.mkdir()  # Throws in case Path is another object
+            
+        self.parallel_jobs = parallel_jobs
 
     def disable_zeroconf(self) -> None:
         ini_files = []
@@ -184,8 +187,7 @@ class Build():
 
     def build(self,
               target: str = None,
-              sudo: bool = False) -> None:
-        number_of_cores_string = sh.nproc(_tty_out=False).strip()
+              sudo: bool = False) -> None: 
 
         build_additional = list()
         if target is not None:
@@ -203,7 +205,7 @@ class Build():
             # with _context:
             if not sudo:
                 sh.cmake("--build", self.build_directory,
-                         "-j", number_of_cores_string,
+                         "-j", self.parallel_jobs,
                          "--verbose",
                          "--config", config,
                          *build_additional,
@@ -214,7 +216,7 @@ class Build():
                 # in Ubuntu Bionic registry
                 sudo_cmd = sh.sudo.bake("-S", _in=self.sudo_password)
                 sudo_cmd.cmake("--build", self.build_directory,
-                               "-j", number_of_cores_string,
+                               "-j", self.parallel_jobs,
                                "--verbose",
                                "--config", config,
                                *build_additional,
@@ -251,7 +253,8 @@ def main(args):
             args.source_path,
             args.build_path if args.build_path else f"{args.source_path}/build",
             args.generator,
-            args.configs)
+            args.configs,
+            args.jobs)
         if build_script.am_i_root():
             raise ValueError(
                 "This script cannot be run under the 'root' user.")
@@ -399,6 +402,15 @@ if __name__ == "__main__":
     parser.add_argument("--no-python-tests",
                         action="store_true",
                         help="Do not run python tests")
+    
+    parser.add_argument("-j",
+                        "--jobs",
+                        dest="jobs",
+                        action="store",
+                        type=int,
+                        metavar="PROCESSES",
+                        default=sh.nproc(_tty_out=False).strip(),
+                        help="Number of processes started at given time by the underlying buildsystem.")
 
     args = parser.parse_args()
 

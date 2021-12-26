@@ -33,8 +33,16 @@ if(BUILD_HALSCOPE_MEMORY_LIBRARY)
 
   set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-  set(PUBLIC_HEADER_FILES
+  set(PUBLIC_HEADER_FILES_BUILD
       ${PUBLIC_INCLUDE_DIRECTORY}/halscope_memory/scope_shm.h)
+
+  set(PUBLIC_HEADER_FILES_INSTALL
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/halscope_memory/scope_shm.h)
+
+  target_sources(
+    halscope_memory
+    INTERFACE "$<BUILD_INTERFACE:${PUBLIC_HEADER_FILES_BUILD}>"
+              "$<INSTALL_INTERFACE:${PUBLIC_HEADER_FILES_INSTALL}>")
 
   target_include_directories(
     halscope_memory
@@ -43,7 +51,7 @@ if(BUILD_HALSCOPE_MEMORY_LIBRARY)
 
   set_target_properties(
     halscope_memory
-    PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
+    PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADER_FILES_BUILD}"
                PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
 
   install(

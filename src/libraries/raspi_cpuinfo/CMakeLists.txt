@@ -36,9 +36,17 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
 
     set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-    set(PUBLIC_HEADER_FILES ${PUBLIC_INCLUDE_DIRECTORY}/raspi_cpuinfo/cpuinfo.h)
+    set(PUBLIC_HEADER_FILES_BUILD
+        ${PUBLIC_INCLUDE_DIRECTORY}/raspi_cpuinfo/cpuinfo.h)
 
-    target_sources(raspi_cpuinfo PRIVATE ${SOURCE_FILES} ${PUBLIC_HEADER_FILES})
+    set(PUBLIC_HEADER_FILES_INSTALL
+        ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/raspi_cpuinfo/cpuinfo.h)
+
+    target_sources(
+      raspi_cpuinfo
+      PUBLIC "$<BUILD_INTERFACE:${PUBLIC_HEADER_FILES_BUILD}>"
+             "$<INSTALL_INTERFACE:${PUBLIC_HEADER_FILES_INSTALL}>"
+      PRIVATE ${SOURCE_FILES})
 
     target_include_directories(
       raspi_cpuinfo
@@ -48,7 +56,7 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
     set_target_properties(
       raspi_cpuinfo
       PROPERTIES PREFIX "libmkh"
-                 PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
+                 PUBLIC_HEADER "${PUBLIC_HEADER_FILES_BUILD}"
                  POSITION_INDEPENDENT_CODE TRUE
                  PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
     install(

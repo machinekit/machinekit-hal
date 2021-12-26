@@ -34,10 +34,18 @@ if(BUILD_MKINI_LIBRARY)
 
   set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-  set(PUBLIC_HEADER_FILES ${PUBLIC_INCLUDE_DIRECTORY}/mkini/mk-inifile.h
-                          ${PUBLIC_INCLUDE_DIRECTORY}/mkini/mk-inifile.hh)
+  set(PUBLIC_HEADER_FILES_BUILD ${PUBLIC_INCLUDE_DIRECTORY}/mkini/mk-inifile.h
+                                ${PUBLIC_INCLUDE_DIRECTORY}/mkini/mk-inifile.hh)
 
-  target_sources(mkini PRIVATE ${SOURCE_FILES} ${PUBLIC_HEADER_FILES})
+  set(PUBLIC_HEADER_FILES_INSTALL
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/mkini/mk-inifile.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/mkini/mk-inifile.hh)
+
+  target_sources(
+    mkini
+    PUBLIC "$<BUILD_INTERFACE:${PUBLIC_HEADER_FILES_BUILD}>"
+           "$<INSTALL_INTERFACE:${PUBLIC_HEADER_FILES_INSTALL}>"
+    PRIVATE ${SOURCE_FILES})
 
   # TODO: Needed just because of the config.h??
   target_link_libraries(mkini PRIVATE runtime_api)
@@ -51,7 +59,7 @@ if(BUILD_MKINI_LIBRARY)
     PROPERTIES SOVERSION 0
                PREFIX "libmkh"
                VERSION ${CMAKE_PROJECT_VERSION}
-               PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
+               PUBLIC_HEADER "${PUBLIC_HEADER_FILES_BUILD}"
                POSITION_INDEPENDENT_CODE TRUE
                PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
   install(

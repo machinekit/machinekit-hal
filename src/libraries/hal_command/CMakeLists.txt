@@ -37,17 +37,26 @@ if(BUILD_HAL_COMMAND_LIBRARY)
 
   set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-  set(PUBLIC_HEADER_FILES
+  set(PUBLIC_HEADER_FILES_BUILD
       ${PUBLIC_INCLUDE_DIRECTORY}/hal_command/halcmd_commands.h
       ${PUBLIC_INCLUDE_DIRECTORY}/hal_command/halcmd.h
       ${PUBLIC_INCLUDE_DIRECTORY}/hal_command/halcmd_rtapiapp.h)
+
+  set(PUBLIC_HEADER_FILES_INSTALL
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/hal_command/halcmd_commands.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/hal_command/halcmd.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/hal_command/halcmd_rtapiapp.h)
+
+  target_sources(
+    hal_command
+    PUBLIC "$<BUILD_INTERFACE:${PUBLIC_HEADER_FILES_BUILD}>"
+           "$<INSTALL_INTERFACE:${PUBLIC_HEADER_FILES_INSTALL}>"
+    PRIVATE ${SOURCE_FILES})
 
   target_include_directories(
     hal_command
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
            $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
-
-  target_sources(hal_command PRIVATE ${SOURCE_FILES})
 
   pkg_check_modules(CZMQ "libczmq" REQUIRED IMPORTED_TARGET)
 
@@ -70,7 +79,7 @@ if(BUILD_HAL_COMMAND_LIBRARY)
     PROPERTIES SOVERSION 0
                PREFIX "libmkh"
                VERSION ${CMAKE_PROJECT_VERSION}
-               PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
+               PUBLIC_HEADER "${PUBLIC_HEADER_FILES_BUILD}"
                POSITION_INDEPENDENT_CODE TRUE
                PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
 

@@ -39,7 +39,16 @@ if(SYS_IO_AVAILABLE)
 
   set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-  set(PUBLIC_HEADER_FILES ${PUBLIC_INCLUDE_DIRECTORY}/hal_parport/hal_parport.h)
+  set(PUBLIC_HEADER_FILES_BUILD
+      ${PUBLIC_INCLUDE_DIRECTORY}/hal_parport/hal_parport.h)
+
+  set(PUBLIC_HEADER_FILES_INSTALL
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/hal_parport/hal_parport.h)
+
+  target_sources(
+    rtapi_parport
+    INTERFACE "$<BUILD_INTERFACE:${PUBLIC_HEADER_FILES_BUILD}>"
+              "$<INSTALL_INTERFACE:${PUBLIC_HEADER_FILES_INSTALL}>")
 
   target_include_directories(
     rtapi_parport
@@ -48,7 +57,7 @@ if(SYS_IO_AVAILABLE)
 
   set_target_properties(
     rtapi_parport
-    PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
+    PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADER_FILES_BUILD}"
                PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
 
   install(

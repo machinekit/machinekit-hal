@@ -34,7 +34,11 @@ if(BUILD_SCOPE_RT_MANAGED_MODULE)
   add_library(${MACHINEKIT_HAL_NAMESPACE}::scope_rt ALIAS scope_rt)
 
   set(SOURCE_FILES src/scope_rt.c)
-  set(PUBLIC_HEADER_FILES include/scope_rt.h)
+
+  set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
+  # TODO: Are these files really PUBLIC?
+  set(PUBLIC_HEADER_FILES ${PUBLIC_INCLUDE_DIRECTORY}/scope_rt.h)
 
   target_sources(scope_rt PRIVATE ${SOURCE_FILES} ${PUBLIC_HEADER_FILES})
 

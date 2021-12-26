@@ -84,7 +84,6 @@ if(BUILD_RUNTIME_LIBRARY)
       ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_bitops.h
       ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_bool.h
       ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_common.h
-      # ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_compat.h
       ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_errno.h
       ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_exception.h
       ${PUBLIC_INCLUDE_DIRECTORY}/runtime/rtapi_export.h
@@ -112,7 +111,6 @@ if(BUILD_RUNTIME_LIBRARY)
       ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_bitops.h
       ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_bool.h
       ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_common.h
-      # ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_compat.h
       ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_errno.h
       ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_exception.h
       ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/rtapi_export.h
@@ -155,12 +153,16 @@ if(BUILD_RUNTIME_LIBRARY)
 
     target_compile_definitions(runtime_api INTERFACE "SYS_IO_AVAILABLE")
     # TODO: Add here rtapi_io.h to PUBLIC_HEADER to install
+
+    target_sources(
+      runtime_api
+      INTERFACE "$<BUILD_INTERFACE:${RTAPI_IO_PUBLIC_HEADER_BUILD}>"
+                "$<INSTALL_INTERFACE:${RTAPI_IO_PUBLIC_HEADER_INSTALL}>")
   endif()
 
   target_sources(
-    runtime_api
-    INTERFACE $<BUILD_INTERFACE:${RTAPI_IO_PUBLIC_HEADER_BUILD}>
-              $<INSTALL_INTERFACE:${RTAPI_IO_PUBLIC_HEADER_INSTALL}>)
+    runtime_api INTERFACE "$<BUILD_INTERFACE:${PUBLIC_HEADER_FILES_BUILD}>"
+                          "$<INSTALL_INTERFACE:${PUBLIC_HEADER_FILES_INSTALL}>")
 
   target_sources(
     unmanaged_runtime
@@ -169,8 +171,9 @@ if(BUILD_RUNTIME_LIBRARY)
 
   target_sources(
     runtime_module
-    PRIVATE ${SOURCE_FILES} $<TARGET_PROPERTY:rtapi_support,INTERFACE_SOURCES>
-            ${RT_PREEMPT_FLAVOR_SOURCE_FILE} ${PRIVATE_HEADER_FILES})
+    PRIVATE "${SOURCE_FILES}"
+            "$<TARGET_PROPERTY:rtapi_support,INTERFACE_SOURCES>"
+            "${RT_PREEMPT_FLAVOR_SOURCE_FILE}" "${PRIVATE_HEADER_FILES}")
 
   pkg_check_modules(CK "ck" REQUIRED IMPORTED_TARGET)
   pkg_check_modules(LIBCGROUP "libcgroup" REQUIRED IMPORTED_TARGET)

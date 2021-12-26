@@ -32,9 +32,17 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
 
     set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-    set(PUBLIC_HEADER_FILES ${PUBLIC_INCLUDE_DIRECTORY}/pru_defines/pru.h)
+    set(PUBLIC_HEADER_FILES_BUILD ${PUBLIC_INCLUDE_DIRECTORY}/pru_defines/pru.h)
+
+    set(PUBLIC_HEADER_FILES_INSTALL
+        ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/pru_defines/pru.h)
 
     # TODO: How to integrate the 'pru_macros.hp' file?
+
+    target_sources(
+      pru_defines
+      INTERFACE "$<BUILD_INTERFACE:${PUBLIC_HEADER_FILES_BUILD}>"
+                "$<INSTALL_INTERFACE:${PUBLIC_HEADER_FILES_INSTALL}>")
 
     target_include_directories(
       pru_defines
@@ -43,7 +51,7 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm")
 
     set_target_properties(
       pru_defines
-      PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
+      PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADER_FILES_BUILD}"
                  PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
 
     install(

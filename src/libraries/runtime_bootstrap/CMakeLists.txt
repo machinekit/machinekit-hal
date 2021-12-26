@@ -94,8 +94,8 @@ file(
 
 target_sources(
   runtime_config_binary_tree
-  PUBLIC $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}/runtime/config.h>
-         $<BUILD_INTERFACE:${POST_CONFIGURE_FILE}>
+  PUBLIC "$<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}/runtime/config.h>"
+         "$<BUILD_INTERFACE:${POST_CONFIGURE_FILE}>"
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}/build/runtime_config/src/$<CONFIG>/runtime_config.c
 )
@@ -107,9 +107,9 @@ target_include_directories(
 target_sources(
   runtime_config
   PUBLIC
-    $<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}/runtime/config.h>
-    $<BUILD_INTERFACE:${POST_CONFIGURE_FILE}>
-    $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/config.h>
+    "$<BUILD_INTERFACE:${PUBLIC_INCLUDE_DIRECTORY}/runtime/config.h>"
+    "$<BUILD_INTERFACE:${POST_CONFIGURE_FILE}>"
+    "$<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/runtime/config.h>"
   PRIVATE
     ${CMAKE_CURRENT_BINARY_DIR}/install/runtime_config/src/$<CONFIG>/runtime_config.c
 )
@@ -136,8 +136,8 @@ set_target_properties(
              LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/install"
              PUBLIC_HEADER "${PUBLIC_INCLUDE_DIRECTORY}/runtime/config.h"
              PUBLIC_INCLUDE_DIRECTORY
-             $<BUILD_INTERFACE:${PUBLIC_INSTALL_INCLUDE_DIRECTORY}>)
-# $<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>)
+             "$<BUILD_INTERFACE:${PUBLIC_INSTALL_INCLUDE_DIRECTORY}>")
+# "$<INSTALL_INTERFACE:${MACHINEKIT_HAL_INTERFACE_DIRECTORY}>")
 
 add_dependencies(runtime_config_binary_tree check_git)
 add_dependencies(runtime_config check_git)

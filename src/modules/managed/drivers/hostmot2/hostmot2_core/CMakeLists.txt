@@ -61,14 +61,22 @@ if(BUILD_HOSTMOT2_CORE_MANAGED_DRIVER_MODULE)
       ${CMAKE_CURRENT_SOURCE_DIR}/src/uart.c
       ${CMAKE_CURRENT_SOURCE_DIR}/src/watchdog.c)
 
-  set(PUBLIC_HEADER_FILES
+  set(PUBLIC_HEADER_FILES_BUILD
       ${CMAKE_CURRENT_SOURCE_DIR}/include/hostmot2/hostmot2-lowlevel.h
       ${CMAKE_CURRENT_SOURCE_DIR}/include/hostmot2/hostmot2.h
       ${CMAKE_CURRENT_SOURCE_DIR}/include/hostmot2/sserial.h)
 
+  set(PUBLIC_HEADER_FILES_INSTALL
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/hostmot2/hostmot2-lowlevel.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/hostmot2/hostmot2.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/hostmot2/sserial.h)
+
   target_sources(hostmot2_core PRIVATE ${SOURCE_FILES})
 
-  target_sources(hostmot2_api INTERFACE ${PUBLIC_HEADER_FILES})
+  target_sources(
+    hostmot2_api
+    INTERFACE "$<BUILD_INTERFACE:${PUBLIC_HEADER_FILES_BUILD}>"
+              "$<INSTALL_INTERFACE:${PUBLIC_HEADER_FILES_INSTALL}>")
 
   target_link_libraries(
     hostmot2_core
@@ -96,7 +104,7 @@ if(BUILD_HOSTMOT2_CORE_MANAGED_DRIVER_MODULE)
                ${MACHINEKIT_HAL_MANAGED_MODULE_OUTPUT_DIRECTORY})
 
   set_target_properties(hostmot2_api PROPERTIES PUBLIC_HEADER
-                                                "${PUBLIC_HEADER_FILES}")
+                                                "${PUBLIC_HEADER_FILES_BUILD}")
 
   install(
     TARGETS hostmot2_api hostmot2_core

@@ -44,7 +44,7 @@ if(BUILD_MACHINETALK_LIBRARY)
 
   set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-  set(PUBLIC_HEADER_FILES
+  set(PUBLIC_HEADER_FILES_BUILD
       ${PUBLIC_INCLUDE_DIRECTORY}/machinetalk/bin2ascii.hh
       ${PUBLIC_INCLUDE_DIRECTORY}/machinetalk/container.h
       ${PUBLIC_INCLUDE_DIRECTORY}/machinetalk/czmq-watch.h
@@ -59,6 +59,22 @@ if(BUILD_MACHINETALK_LIBRARY)
       ${PUBLIC_INCLUDE_DIRECTORY}/machinetalk/pbutil.hh
       ${PUBLIC_INCLUDE_DIRECTORY}/machinetalk/setup_signals.h)
 
+  set(PUBLIC_HEADER_FILES_INSTALL
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/machinetalk/bin2ascii.hh
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/machinetalk/container.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/machinetalk/czmq-watch.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/machinetalk/inihelp.hh
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/machinetalk/json2pb.hh
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/machinetalk/ll-zeroconf.hh
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/machinetalk/mk-backtrace.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/machinetalk/mk-service.hh
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/machinetalk/mk-zeroconf.hh
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/machinetalk/mk-zeroconf-types.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/machinetalk/pb-hal.h
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/machinetalk/pbutil.hh
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/machinetalk/setup_signals.h)
+
+  # Are these headers really PUBLIC or not?
   target_sources(machinetalk PRIVATE ${SOURCE_FILES} ${PUBLIC_HEADER_FILES})
 
   pkg_check_modules(AVAHICLIENT "avahi-client" REQUIRED IMPORTED_TARGET)
@@ -91,7 +107,7 @@ if(BUILD_MACHINETALK_LIBRARY)
     PROPERTIES SOVERSION 0
                PREFIX "libmkh"
                VERSION ${CMAKE_PROJECT_VERSION}
-               PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
+               PUBLIC_HEADER "${PUBLIC_HEADER_FILES_BUILD}"
                POSITION_INDEPENDENT_CODE TRUE
                PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
 

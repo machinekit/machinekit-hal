@@ -90,6 +90,7 @@ if(BUILD_RUNTESTS_TESTSUITE)
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/halmodule.0/test.sh
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/hm2-idrom/expected
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/hm2-idrom/README
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/hm2-idrom/skip
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/hm2-idrom/test.sh
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/ilowpass.0/expected
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/ilowpass.0/README

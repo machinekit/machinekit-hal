@@ -57,8 +57,8 @@ if(SYS_IO_AVAILABLE)
 
     target_sources(
       rtapi_pci_api
-      PUBLIC $<BUILD_INTERFACE:${PUBLIC_HEADER_FILES_BUILD}>
-             $<INSTALL_INTERFACE:${PUBLIC_HEADER_FILES_INSTALL}>
+      PUBLIC "$<BUILD_INTERFACE:${PUBLIC_HEADER_FILES_BUILD}>"
+             "$<INSTALL_INTERFACE:${PUBLIC_HEADER_FILES_INSTALL}>"
       PRIVATE ${SOURCE_FILES})
 
     target_sources(managed_rtapi_pci PRIVATE ${SOURCE_FILES})

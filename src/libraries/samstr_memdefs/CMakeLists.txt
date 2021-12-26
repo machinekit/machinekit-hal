@@ -29,8 +29,16 @@ if(BUILD_SAMSTR_MEMDEFS_LIBRARY)
 
   set(PUBLIC_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-  set(PUBLIC_HEADER_FILES
+  set(PUBLIC_HEADER_FILES_BUILD
       ${PUBLIC_INCLUDE_DIRECTORY}/samstr_memdefs/samstr_memdefs.h)
+
+  set(PUBLIC_HEADER_FILES
+      ${MACHINEKIT_HAL_INTERFACE_DIRECTORY}/samstr_memdefs/samstr_memdefs.h)
+
+  target_sources(
+    samstr_memdefs
+    INTERFACE "$<BUILD_INTERFACE:${PUBLIC_HEADER_FILES_BUILD}>"
+              "$<INSTALL_INTERFACE:${PUBLIC_HEADER_FILES_INSTALL}>")
 
   target_include_directories(
     samstr_memdefs
@@ -39,7 +47,7 @@ if(BUILD_SAMSTR_MEMDEFS_LIBRARY)
 
   set_target_properties(
     samstr_memdefs
-    PROPERTIES PUBLIC_HEADER ${PUBLIC_HEADER_FILES}
+    PROPERTIES PUBLIC_HEADER "${PUBLIC_HEADER_FILES_BUILD}"
                PUBLIC_INCLUDE_DIRECTORY "${PUBLIC_INCLUDE_DIRECTORY}")
 
   target_link_libraries(samstr_memdefs INTERFACE runtime_api)
