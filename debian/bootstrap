@@ -42,6 +42,7 @@ set -o pipefail
 # Global Variables Declarations
 ################################################################################
 
+HOST_ARCH=${HOST_ARCH:-}
 MK_PATH=${MK_PATH:-}
 BUILDTIME_DEPENDENCIES=${BUILDTIME_DEPENDENCIES:-}
 RUNTIME_DEPENDENCIES=${RUNTIME_DEPENDENCIES:-}
@@ -62,6 +63,8 @@ Simple description on how to use this script...
 
 OPTION      DESCRIPTION
 ==========  ==================================================================
+-a          HOST architecture
+                -> (Default: current state of DPKG Architecture)
 -p          Machinekit-HAL git repository base path
                 -> (Default: current directory)
 -h          Print this helpful text
@@ -73,8 +76,9 @@ USAGEHEREDOC
 }
 
 _process_options(){
-    while getopts ":p:sh" opt; do
+    while getopts ":p:a:sh" opt; do
     	case $opt in
+            a) HOST_ARCH=${OPTARG} ;;
     	    p) MK_PATH=${OPTARG} ;;
             s) SKIP_CHECKS="true" ;;
     	    h) usage "Print help" ; exit 0;;
@@ -205,6 +209,47 @@ search_for_readline(){
     return -1
 }
 
+check_necessity_of_pasm() {
+    if ! which dpkg-architecture >/dev/null;
+    then
+        log_error "Executable 'dpkg-architecture' not found!"
+        return 1
+    fi
+
+    local host_architecture_specification=""
+    if [[ "$HOST_ARCH" != "" ]]
+    then
+        host_architecture_specification="-a$HOST_ARCH"
+    fi
+
+    local host_architecture="$(dpkg-architecture $host_architecture_specification -qDEB_HOST_MULTIARCH)"
+
+    if [[ "$host_architecture" =~ ^arm-linux-gnueabihf ]];
+    then
+        BUILDTIME_DEPENDENCIES+=", pru-assembler"
+        log_info "Adding build requirement for PRU Assembler"
+    fi
+
+    return 0
+}
+
+check_necessity_of_importlib_resourses() {
+    local python="$(apt-cache show python3.6)"
+    local retval="$?" 
+    if ((retval != 0 ))
+    then
+        log_error "Command 'apt-cache show python3-importlib-resources' returned error code $retval!"
+        return -1
+    fi
+
+    if [[ ! -z "$python" ]]
+    then
+        BUILDTIME_DEPENDENCIES+=", python3-importlib-resources:native"
+    fi
+
+    return 0
+}
+
 test_dir(){
     local version_file="$1/VERSION"
     local readme_file="$1/README.md"
@@ -314,6 +359,18 @@ _main(){
         failure
     fi
     search_for_readline
+    retval=$?
+    if (( retval != 0 ))
+    then
+        failure
+    fi
+    check_necessity_of_pasm
+    retval=$?
+    if (( retval != 0 ))
+    then
+        failure
+    fi
+    check_necessity_of_importlib_resourses
     retval=$?
     if (( retval != 0 ))
     then

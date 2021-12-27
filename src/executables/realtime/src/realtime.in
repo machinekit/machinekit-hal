@@ -1,0 +1,308 @@
+#! /bin/bash
+#
+# @configure_input@
+# on @DATE@
+#
+
+# Basic variables
+export LANG=C
+
+RTAPI_INI="@REALTIME_RTAPI_INI@"
+
+INIVAR="@REALTIME_INIVAR@"
+rtapi_msgd="@REALTIME_RTAPI_MSGD@"
+rtapi_app="@REALTIME_RTAPI_APP@"
+
+# Required executables which has to be available on PATH
+PIDOF="$(which pidof)"
+if (($? != 0)); then
+  echo "Pidof executable not found on PATH! Exiting!"
+  exit 1
+fi
+PS="$(which ps)"
+if (($? != 0)); then
+  echo "PS executable not found on PATH! Exiting!"
+  exit 1
+fi
+AWK="$(which awk)"
+if (($? != 0)); then
+  echo "AWK executable not found on PATH! Exiting!"
+  exit 1
+fi
+HALCMD="$(which halcmd)"
+if (($? != 0)); then
+  echo "HALcmd executable not found on PATH! Exiting!"
+  exit 1
+fi
+
+RUNTIME_VERSION="@CMAKE_PROJECT_VERSION@"
+
+# if not overridden by user, point MACHINEKIT_INI to installed default:
+if [ -z "$MACHINEKIT_INI" ]; then
+    MACHINEKIT_INI="@REALTIME_MACHINEKIT_INI@"
+fi
+export MACHINEKIT_INI
+
+# Basic checks
+if ! test -r "$RTAPI_INI"; then
+    echo "RTAPI configuration file unreadable:  $RTAPI_INI" >&2
+    exit 1
+fi
+if ! test -x "$INIVAR"; then
+    echo "Config file tool unusable:  $INIVAR" >&2
+    exit 1
+fi
+
+# Helper function to get variables from config
+getvar() {
+    # getvar <variable>
+    # set variable from rtapi_ini
+    var=$1
+    eval "$var='$($INIVAR -var $var -ini $RTAPI_INI 2>/dev/null)'"
+}
+
+if [ "$HAL_SIZE" == "" ]  ; then
+    getvar HAL_SIZE
+fi
+
+if [ "$DEBUG" == "" ]  ; then
+    getvar DEBUG
+fi
+DEBUG=$((10#0$DEBUG))  # be sure $DEBUG is some base-10 number
+
+# SYSLOG_TO_STDERR:  when set, log to stdout instead of syslog
+if test -n "$SYSLOG_TO_STDERR"; then
+    MSGD_OPTS+=" -s"
+    RTAPI_APP_OPTS+=" -s"
+fi
+
+# set the default instance, if not already set
+MK_INSTANCE=`printf '%d' $MK_INSTANCE`
+if [ "$MK_INSTANCE_NAME" != "" ]  ; then
+    NAME_CMD=--instance_name="$MK_INSTANCE_NAME"
+else
+    unset NAME_CMD
+fi
+
+
+# wait for a process to exit
+anywait(){
+    proc_name=$1
+    tries=${2:-20}
+    sig=${3:-0}
+    pid=$(FindRunningProcs $proc_name)
+    if test -z "$pid"; then
+	return 0 # Already exited
+    fi
+
+    # Kill proc if requested
+    if test -n "$sig"; then
+	kill -$sig "$pid" >/dev/null 2>&1 || return 0
+    fi
+
+    # Wait to see if it exited
+    for (( n=0; $n<$tries; $((n++)) )); do
+	# return success if process died
+	if ! CheckRunningProcs $proc_name; then
+	    return 0
+	fi
+	# otherwise, wait 1/2 second and try again, up to $tries/2 seconds
+	sleep 0.5
+    done
+    return 1
+}
+
+FindRunningProcs() {
+    # Usage: FindRunningProcs $proc_name
+    # Find non-zombie procs named $proc_name and echo their PIDs
+    local proc_name=$1
+    local all="$(${PIDOF} ${proc_name})"
+    if test -z "$all"; then
+	return  # No procs named $proc_name found at all
+    fi
+    local live="$(ps -p "$all" -o pid= -o s= | ${AWK} '$2 != "Z" {print $1}')"
+    if test -z "$live"; then
+	return  # No non-zombie procs named $proc_name found
+    fi
+    echo $live
+    return 0
+}
+
+CheckRunningProcs() {
+    # Usage: CheckRunningProcs $proc_name
+    # Return true if there are any non-zombie procs named $proc_name, else false
+    local proc_name=$1
+    local live="$(FindRunningProcs "$proc_name")"
+    test -n "$live"
+}
+
+CheckStatus(){
+    local res=0
+
+    # check if rtapi_msgd and rtapi_app are running
+    progs="msgd:${MK_INSTANCE} rtapi:${MK_INSTANCE}"
+
+    for prog in $progs; do
+	if CheckRunningProcs $prog; then
+	    echo "$prog running" >&2
+	else
+	    echo "$prog stopped" >&2
+	    res=1
+	fi
+    done
+
+    return $res
+}
+
+
+Load(){
+
+    # rtapi_msgd creates the global segment containing the error ring buffer
+    # so start this first:
+
+    local cmd=(${rtapi_msgd} --instance=$MK_INSTANCE $NAME_CMD
+			     --rtmsglevel=$DEBUG
+			     --usrmsglevel=$DEBUG
+                 --debug=$DEBUG
+			     --halsize=$HAL_SIZE $MSGD_OPTS)
+    [ $DEBUG -eq 0 ] || echo "rtapi_msgd command:  ${cmd[@]}" >&2
+    "${cmd[@]}" || (
+	e=$?; echo "rtapi_msgd startup failed - aborting" >&2; exit $e)
+
+    # rtapi_app
+    local cmd=(${rtapi_app} --instance=$MK_INSTANCE --debug=$DEBUG $RTAPI_APP_OPTS)
+    if [ $DEBUG -gt 0 ] ; then
+	echo "rtapi_app command:  ${cmd[@]}" >&2
+	"${cmd[@]}" || (
+	    e=$?; echo "rtapi_app startup failed; aborting" >&2; exit $e)
+    else
+	"${cmd[@]}" 2>&1 || (
+	    e=$?; echo "rtapi_app startup failed; aborting" >&2; exit $e)
+    fi
+    # wait until rtapi_app responds, meaning setup is complete
+    # this avoids startup races
+    ${HALCMD} ping
+}
+
+Unload(){
+
+    # shutdown rtapi if it exists
+
+    if CheckRunningProcs rtapi:$MK_INSTANCE; then
+	if [ $DEBUG -gt 0 ] ; then
+	    ${HALCMD} shutdown
+	else
+	    ${HALCMD} shutdown            >/dev/null 2>&1
+        fi
+    fi
+
+    # remove any hal-specific POSIX shm segments if they exist
+    # see src/rtapi/rtapi_shmkeys.h: SHM_FMT
+
+    INSTKEY=`printf 'hal-%d-' $MK_INSTANCE`
+    rm  -f  /dev/shm/${INSTKEY}* >/dev/null 2>&1
+
+
+    # wait until rtapi_msgd has vanished. This assures
+    # that the last user of the global data segment has vanished,
+    # making sure an immediate restart of realtime does not find
+    # shm segments still hanging around. The only realistic scenario
+    # which could trigger this is runtests.
+
+    # msgd should detect an rtapi_app shutdown, so give some time to
+    # let that happen. However, after detecting rtapi_app exit, msgd
+    # enters a grace period of 2seconds to collect any remaining messages
+    # written to the RT log in the global segment ringbuffer.
+    # This helps to debug issues during the critical shutdown phase;
+    # if msgd exited right away those messages would be lost.
+
+    # Wait 5s to see if rtapi_msgd exits on its own
+    if ! anywait msgd:$MK_INSTANCE 10 ''; then
+	# It didn't; get nasty
+	echo "ERROR:  msgd:$MK_INSTANCE failed to exit on its own;" \
+	     "sending SIGTERM" >&2
+	if ! anywait msgd:$MK_INSTANCE 20 TERM; then
+	    # ...and get even nastier if SIGTERM fails.  FIXME this needs
+	    # to be reviewed; if we get this far, then we might need
+	    # operator intervention, including debugging
+	    echo "ERROR:  msgd:$MK_INSTANCE failed to exit after SIGTERM;" >&2
+	    echo "sending SIGKILL" >&2
+	    kill -KILL $(FindRunningProcs msgd:$MK_INSTANCE)
+	fi
+    fi
+}
+
+CheckUnloaded(){
+
+    # if msgd:$MK_INSTANCE is still around, this might still be a running instance
+    # after all - msgd is always there, so cop out
+
+
+    if CheckRunningProcs msgd:$MK_INSTANCE; then
+	MSGD_PID=`FindRunningProcs msgd:$MK_INSTANCE`
+	echo "instance $MK_INSTANCE still running;" \
+	     "process msgd:$MK_INSTANCE present (pid $MSGD_PID) !" >&2
+	exit 1
+    fi
+
+    # if msgd:$MK_INSTANCE isnt running but rtapi:$MK_INSTANCE is, that's bad - msgd
+    # should be last to exit
+
+    if CheckRunningProcs rtapi:$MK_INSTANCE; then
+	RTAPI_PID=`FindRunningProcs rtapi:$MK_INSTANCE`
+	echo "instance $MK_INSTANCE inproperly shutdown!" >&2
+	echo "msgd:$MK_INSTANCE gone," \
+	     "but rtapi:$MK_INSTANCE alive (pid $RTAPI_PID)" >&2
+	exit 1
+    fi
+
+    # Posix shm segments for this particular instance should not exist
+    # and be in use at this point, which could be the case if a HAL
+    # usercomp were still hanging around
+
+    # if any, determine if a process is still using it; complain if so,
+    # else remove with a note
+
+    POSIXSHM=`printf '/dev/shm/hal-%d-*' $MK_INSTANCE`
+
+    for seg in `ls $POSIXSHM 2>/dev/null` ; do
+	if pids=`fuser $seg  2>/dev/null` ; then
+	    echo "instance $MK_INSTANCE: " \
+		 "shared memory $seg still in use by pid: $pids !" >&2
+	else
+	    echo "instance $MK_INSTANCE: " \
+		 "leftover shared memory $seg unused, removing" >&2
+	    rm -f $seg
+	fi
+    done
+}
+
+CMD=$1
+
+case "$CMD" in
+
+  start|load)
+	Load || exit $?
+	;;
+  restart|force-reload)
+	Unload
+	CheckUnloaded
+	Load || exit $?
+	;;
+  stop|unload)
+	Unload || exit $?
+	;;
+  status)
+	CheckStatus || exit $?
+	;;
+  # for script debugging
+  unloadcheck)
+	CheckUnloaded
+	;;
+  *)
+	echo "Usage: $0 {start|load|stop|unload|restart|force-reload|status}" >&2
+	exit 1
+	;;
+esac
+
+exit 0

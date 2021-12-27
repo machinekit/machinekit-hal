@@ -17,7 +17,7 @@
 <img alt="Coverity Scan Build Status" src="https://img.shields.io/coverity/scan/20589.svg?style=for-the-badge" />
 </a>
 
-<img alt="Version" src="https://img.shields.io/badge/version-0.4-blue.svg?cacheSeconds=2592000&style=for-the-badge" />
+<img alt="Version" src="https://img.shields.io/badge/version-0.5-blue.svg?cacheSeconds=2592000&style=for-the-badge" />
 
 <a href="https://matrix.to/#/#machinekit:matrix.org" target="_blank">
 <img alt="Matrix Machinekit Room" src="https://img.shields.io/matrix/machinekit:matrix.org?style=for-the-badge&logo=matrix" />
@@ -52,7 +52,7 @@
 
 **Machinekit-HAL** is a powerful software for _real-time_ control of machinery based on _**H**ardware **A**bstraction **L**ayer_ principle. With tools and libraries making development of new _components_ and _drivers_ easy. Integrators can choose to control **industrial robotic arm**, **single purpose machine** or **CNC mill** or **lathe** with additional software package.
 
-Supporting _RT PREEMPT_ and _Xenomai 2_ real-time Linux kernel patches. **APT** packages available for Debian 9 _Stretch_, Debian 10 _Buster_, Ubuntu 18.04 _Bionic_ LTS, Ubuntu 20.04 _Focal_ LTS and Ubuntu 21.04 Hirsute.
+Supporting _RT PREEMPT_ and _Xenomai 2_ real-time Linux kernel patches. **APT** packages available for Debian 11 _Bullseye_, Ubuntu 18.04 _Bionic_ LTS, Ubuntu 20.04 _Focal_ LTS and Ubuntu 21.04 Hirsute.
 
 <div align="center"><img alt="Machinekit demo" src="https://raw.githubusercontent.com/cerna/machinekit-hal/various-bugfixes/media/machinekit_hal_ethercat_demo.gif" width="650px" /></div>
 
@@ -60,19 +60,84 @@ Supporting _RT PREEMPT_ and _Xenomai 2_ real-time Linux kernel patches. **APT** 
 
 The easiest way how to get **Machinekit-HAL** running is to install Debian package. Packages can be obtained by triggering Github Actions _workflow_ and downloading **build artifacts** on your own _fork_. Packages build from every push to [master branch](https://github.com/machinekit/machinekit-hal/actions?query=branch:master) on official [Machinekit/Machinekit-HAL repository](https://github.com/machinekit/machinekit-hal) are also distributed through [Machinekit-HAL](https://cloudsmith.io/~machinekit/repos/machinekit-hal/packages/) repository ([Dependencies](https://cloudsmith.io/~machinekit/repos/machinekit/packages/)) kindly hosted by [Cloudsmith](https://cloudsmith.io).
 
-Alternatively you can build locally on your machine in _**R**un-**I**n-**P**lace_ mode. The briefest sequence of commands would be:
+Available packages constituting the Machinekit-HAL are:
+
+* **libmachinekit-hal**: Main shared libraries needed for the core functionality
+
+* **libmachinekit-hal-dev**: Development files (headers, CMake export scripts and `STATIC` libraries) for the `libmachinekit-hal` package
+
+* **modmachinekit-hal-components**: Managed modules (components) for dynamic loading into HAL
+
+* **modmachinekit-hal-drivers**: Managed modules (drivers) for dynamic loading into HAL
+
+* **modmachinekit-hal-drivers-dev**: Development files (headers, CMake export scripts and `STATIC` libraries) for the `modmachinekit-hal-drivers` package
+
+* **machinekit-hal-unmanaged-components**: Unmanaged modules (components) for dynamic loading into HAL
+
+* **machinekit-hal-unmanaged-drivers**: Unmanaged modules (drivers) for dynamic loading into HAL
+
+* **machinekit-hal-testsuite-runtests**: Machinekit-HAL `runtest` suite of tests
+
+* **machinekit-hal**: Main executables of the Machinekit-HAL project
+
+* **python3-machinekit-hal**: Python3 specific executables of the Machinekit-HAL project
+
+* **python3-libmachinekit-hal**: Python3 specific modules and packages of the Machinekit-HAL project
+
+* **python3-modmachinekit-hal-unmanaged-components**: Machinekit-HAL unmanaged modules (components) implemented in a Python3
+
+* **python3-modmachinekit-hal-unmanaged-drivers**: Machinekit-HAL unmanaged modules (drivers) implemented in a Python3
+
+In most cases, all packages will be installed (with maybe the exception of `machinekit-hal-testsuite-runtests`).
+
+```sh
+sudo apt install -y libmachinekit-hal libmachinekit-hal-dev modmachinekit-hal-components modmachinekit-hal-drivers modmachinekit-hal-drivers-dev machinekit-hal-unmanaged-components machinekit-hal-unmanaged-drivers machinekit-hal-testsuite-runtests machinekit-hal python3-machinekit-hal python3-libmachinekit-hal python3-modmachinekit-hal-unmanaged-components python3-modmachinekit-hal-unmanaged-drivers
+```
+
+Machinekit-HAL uses a **CMake** based buildsystem and supports generation and usage of both *makefiles* and *ninjafiles* for **GNU make** and **Ninja Multi-Config** centered workflows.
+
+Building requires a Linux installation with build tools installed (functioning C and C++ compiler, linker, pkg-config, sysroot etc) and the latest stable CMake executables as specified on [download page](https://cmake.org/download/). (Main target for Machinekit-HAL are Debian based distribution, others not tested so far.)
+
+Generally, for Ninja Multi-Config build-tool, the sequence of commands will be (for run from a build **binary tree** in CMake nomenclature):
+
+```sh
+git clone https://github.com/machinekit/machinekit-hal.git
+cd machinekit-hal
+mkdir build
+cmake -S . -B ./build -G"Ninja Multi-Config"
+cmake --build ./build --config Debug
+sudo cmake --build ./build --config Debug --target setuid
+cmake --build ./build --config Debug --target binary_tree_venv
+cd build
+direnw allow
+halrun
+```
+
+For GNU Make then:
+
+```sh
+git clone https://github.com/machinekit/machinekit-hal.git
+cd machinekit-hal
+mkdir build
+cmake -S . -B ./build
+cmake --build ./build
+sudo cmake --build ./build --target setuid
+cmake --build ./build --target binary_tree_venv
+cd build
+direnw allow
+halrun
+```
+
+You can use a standard **Debian** tools to download and install most of the dependencies (with the exception of build tools):
 
 ```sh
 git clone https://github.com/machinekit/machinekit-hal.git
 cd machinekit-hal
 debian/bootstrap
 mk-build-deps -irs sudo
-cd src
-./autogen.sh
-./configure
-make
-sudo make setuid
 ```
+
+To get a functioning filesystem capable of building Machinekit-HAL, consult the `machinekit-builder` Docker images. You can build them via the `debian/buildcontainerimage.py` script from `Dockerfile` in the `debian/buildsystem` directory.
 
 More information about building can be glanced from [documentation](http://www.machinekit.io/docs/developing/machinekit-developing).
 

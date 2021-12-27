@@ -1,0 +1,153 @@
+#!/bin/bash
+
+HALRUN_VERSION="@CMAKE_PROJECT_VERSION@"
+
+# Required executables which has to be available on PATH
+REALTIME="$(which realtime)"
+if (($? != 0)); then
+  echo "Realtime executable not found on PATH! Exiting!"
+  exit 1
+fi
+HALCMD="$(which halcmd)"
+if (($? != 0)); then
+  echo "HALcmd executable not found on PATH! Exiting!"
+  exit 1
+fi
+THIS=$(basename $0)
+
+help() {
+  ${HALCMD} -h
+  cat <<EOF
+
+$THIS Usage:
+
+  $THIS [-I] [halcmd_opts] [filename[.hal]
+  $THIS  -T  [halcmd_opts] [filename[.hal]]
+
+  $THIS  -h  this help
+  $THIS  --version  print version of executable
+  $THIS  -U  forcibly cause the realtime environment to exit
+
+  filename[.hal] may also be specified as '-f filename[.hal]'
+  halcmd_opts apply for .hal files only
+
+  Interactive if: no filename (runs halcmd)
+              or  -I          (runs halcmd)
+
+  Found depending executables:
+    REALTIME = ${REALTIME}
+    HALCMD = ${HALCMD}
+
+EOF
+}
+
+INTERACTIVE=""
+inifile=""
+theargs=""
+while getopts "ef:hi:kqsvIRQTUV-:" opt; do
+  case $opt in
+  h)
+    help
+    exit 0
+    ;;
+
+  U)
+    ${HALCMD} -R
+    ${HALCMD} stop
+    ${HALCMD} unload all
+    ${REALTIME} stop
+    exit 0
+    ;;
+
+  f) filename=$OPTARG ;;
+  i) inifile=$OPTARG ;;
+
+  I) INTERACTIVE="${HALCMD} -kf" ;;
+
+  e) theargs="$theargs -$opt" ;;
+  k) theargs="$theargs -$opt" ;;
+  q) theargs="$theargs -$opt" ;;
+  s) theargs="$theargs -$opt" ;;
+  v) theargs="$theargs -$opt" ;;
+  R) theargs="$theargs -$opt" ;;
+  Q) theargs="$theargs -$opt" ;;
+  V) theargs="$theargs -$opt" ;;
+  -)
+    case "${OPTARG}" in
+    version)
+      echo "$HALRUN_VERSION"
+      ;;
+    esac ;;
+  \?)
+    echo ""
+    echo "For usage try: $THIS -h"
+    exit 1
+    ;;
+  esac
+done
+shift $(($OPTIND - 1))
+
+if [ $# -gt 1 ]; then
+  echo "$THIS: too many arguments <$*>"
+  exit 1
+fi
+
+# filename can be specified two ways:
+#    as parameter for -f ('f filename')
+# or as trailing parameter
+if [ $# -gt 0 ]; then
+  if [ "X$filename" = "X" ]; then
+    filename=$1
+    shift
+  else
+    echo "$THIS: Error: Specified '-f $1' and also <$filename>"
+    exit 1
+  fi
+fi
+
+if ${REALTIME} status >/dev/null; then
+  echo "$THIS: Realtime already running.  Use 'halrun -U' to stop existing realtime session." 1>&2
+  exit 1
+fi
+
+HAVEFILE=false
+case $filename in
+*.hal)
+  HAVEFILE=true
+  if [ -n "$inifile" ]; then
+    theargs="$theargs -i $inifile"
+  fi
+  # halcmd uses all $theargs:
+  set -- "$theargs -f $filename"
+  ;;
+"") # for nil filename, support interactive halcmd
+  INTERACTIVE="${HALCMD} $theargs -kf"
+  ;;
+*)
+  echo "$THIS: Unknown file extension for filename=<$filename>"
+  exit 1
+  ;;
+esac
+
+case "$INTERACTIVE" in
+halcmd*)
+  if [ -n "$inifile" ]; then
+    INTERACTIVE="$INTERACTIVE -i $inifile"
+  fi
+  ;;
+esac
+
+${REALTIME} start || exit $?
+
+if $HAVEFILE; then
+  ${HALCMD} $@
+  result=$?
+fi
+
+if [ ! -z "$INTERACTIVE" ]; then $INTERACTIVE; fi
+
+${HALCMD} stop || result=$?
+
+${REALTIME} stop || result=$?
+
+exit $result

@@ -8,7 +8,7 @@
 #               building .deb and .ddeb native packages for Debian flavoured
 #               distributions.
 #
-# Copyright (C) 2020    Jakub Fišer  <jakub DOT fiser AT eryaf DOT com>
+# Copyright (C) 2020 -   Jakub Fišer  <jakub DOT fiser AT eryaf DOT com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -45,7 +45,7 @@ import sys
 import importlib.util
 spec = importlib.util.spec_from_file_location(
     "machinekit_hal_script_helpers",
-    "{0}/scripts/machinekit_hal_script_helpers.py".format(
+    "{0}/support/python/machinekit_hal_script_helpers.py".format(
         os.path.realpath(
             "{0}/..".format(os.path.dirname(os.path.abspath(__file__)))
         )))
@@ -54,10 +54,11 @@ spec.loader.exec_module(helpers)
 
 
 class Buildpackages_script():
-    def __init__(self: object, path, host_architecture):
+    def __init__(self: object, path, host_architecture, parallel_jobs):
         self.normalized_path = helpers.NormalizeMachinekitHALPath(path)()
         self.host_architecture = host_architecture
         self.architecture_can_be_build()
+        self.parallel_jobs = parallel_jobs
 
     def architecture_can_be_build(self: object) -> None:
         build_architectures = sh.dpkg(
@@ -80,7 +81,8 @@ class Buildpackages_script():
                                                   "-us",
                                                   "-a",
                                                   self.host_architecture,
-                                                  "-B"]
+                                                  "-B",
+                                                  f"--jobs={self.parallel_jobs}"]
             if sh.lsb_release("-cs", _tty_out=False).strip().lower() in ["stretch", "bionic"]:
                 dpkg_buildpackage_string_arguments.append("-d")
             sh.dpkg_buildpackage(*dpkg_buildpackage_string_arguments,
@@ -97,7 +99,7 @@ def main(args):
     """ Main entry point of the app """
     try:
         buildpackages_script = Buildpackages_script(
-            args.path, args.host_architecture)
+            args.path, args.host_architecture, args.jobs)
         buildpackages_script.build_packages()
         print("Packages built successfully!")
     except ValueError as e:
@@ -137,6 +139,15 @@ if __name__ == "__main__":
                             _tty_out=False).strip(),
                         metavar="ARCHITECTURE",
                         help="Build packages for specific architecture")
+    # Optional argument for many jobs to start
+    parser.add_argument("-j",
+                        "--jobs",
+                        dest="jobs",
+                        action="store",
+                        type=int,
+                        metavar="PROCESSES",
+                        default=sh.nproc(_tty_out=False).strip(),
+                        help="Number of processes started at given time by the underlying buildsystem.")
 
     args = parser.parse_args()
 

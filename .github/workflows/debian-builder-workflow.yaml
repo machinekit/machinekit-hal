@@ -5,7 +5,7 @@
 #               the builder/tester CI/CD workflow for Debian based
 #               systems.
 #
-# Copyright (C) 2020       Jakub Fišer <jakub DOT fiser AT eryaf DOT com>
+# Copyright (C) 2020 -     Jakub Fišer <jakub DOT fiser AT eryaf DOT com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -102,7 +102,7 @@ jobs:
                "===========================================================\n"
         echo "$ALLOWED_COMBINATIONS" | jq '.'
       env:
-        BASE_JSON_FILE: './machinekit-hal/scripts/debian-distro-settings.json'
+        BASE_JSON_FILE: './machinekit-hal/debian/buildsystem/debian-distro-settings.json'
 
     - name: Download data from Github Packages Docker registry
       id: docker_data_downloader
@@ -242,7 +242,7 @@ jobs:
                " not going to force rebuild.\n"
       env:
         BEFORE_COMMIT_SHA: ${{ steps.docker_metadata_normalizer.outputs.git_sha }}
-        DOCKER_REGEX: '^(scripts/(((containers/){0,1}buildsystem/debian/.{1,})|buildcontainerimage.py|debian-distro-settings.json))|debian/.{1,}$'
+        DOCKER_REGEX: '^debian/.{1,}$'
       working-directory: ./machinekit-hal
     
     - name: Prepare matrixes for creation of following jobs
@@ -387,10 +387,10 @@ jobs:
         run: |
           if [ "${{ needs.prepareState.outputs.BuildDockerImages }}" == "true" ]
           then
-            scripts/buildcontainerimage.py -d ${IMAGE_NAME_PREFIX} \
-                                           ${DISTRIBUTION}         \
-                                           ${VERSION}              \
-                                           ${ARCHITECTURE}
+            debian/buildcontainerimage.py -d ${IMAGE_NAME_PREFIX} \
+                                          ${DISTRIBUTION}         \
+                                          ${VERSION}              \
+                                          ${ARCHITECTURE}
             exit 0
           fi
           printf "${{ env.GITHUB_TOKEN}}" | docker login docker.pkg.github.com \
@@ -511,6 +511,49 @@ jobs:
           name: machinekit-hal-${{ env.distribution_normalized }}-${{ matrix.architecture }}-${{ matrix.osVersionNumber }}-${{ github.sha }}-${{ needs.prepareState.outputs.Timestamp }}
           path: machinekit-hal-${{ env.distribution_normalized }}
 
+      - name: >
+          Prepare base Docker image for installation of packages
+          of Machinekit-HAL on ${{ matrix.osDistribution }} 
+          ${{ matrix.osVersionCodename}}
+        if: matrix.architecture == 'amd64'
+        run: |
+          debian/buildcontainerimage.py -d ${IMAGE_NAME_PREFIX} \
+                                           ${DISTRIBUTION}      \
+                                           ${VERSION}           \
+                                           ${ARCHITECTURE}      \
+                                        -t ${BUILD_TARGET}      \
+                                           ${IMAGE_NAME}
+        env:
+          IMAGE_NAME_PREFIX: 'docker.pkg.github.com/${{ github.repository }}'
+          DISTRIBUTION: ${{ matrix.osDistribution}}
+          VERSION: ${{ matrix.osVersionCodename}}
+          ARCHITECTURE: ${{ matrix.architecture}}
+          BUILD_TARGET: 'machinekit-hal_builder_base'
+          IMAGE_NAME: 'machinekit-hal-runner'
+        working-directory: ./build/machinekit-hal
+
+      - name: >
+          Install Machinekit-HAL ${{ matrix.osDistribution }} package for
+          ${{ matrix.osVersionCodename}}, ${{ matrix.architecture }} and
+          run Runtests
+        if: matrix.architecture == 'amd64'
+        run: |
+          docker run --tty --rm -u "$(id -u):$(id -g)" \
+            -v "$(pwd):/home/machinekit/machinekit-hal" \
+            -w "/home/machinekit/machinekit-hal" \
+            ${DOCKER_IMAGE} \
+            /bin/bash -c "
+            #!/bin/bash -e
+            sudo apt-get install -y \
+              /home/machinekit/machinekit-hal/*.deb
+            echo "ANNOUNCE_IPV4=0" | sudo tee -a /etc/machinekit/hal/machinekit.ini
+            echo "ANNOUNCE_IPV6=0" | sudo tee -a /etc/machinekit/hal/machinekit.ini
+            run_runtests -v
+            "
+        env:
+          DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/machinekit-hal-runner:latest'
+        working-directory: './machinekit-hal-${{ env.distribution_normalized }}'
+
   testMachinekitHALBuild:
     name: >
       Test on ${{ matrix.osDistribution }} ${{ matrix.osVersionCodename }},
@@ -549,7 +592,7 @@ jobs:
         if: needs.prepareState.outputs.BuildDockerImages == 'true'
         uses: actions/setup-python@v2
         with:
-          python-version: '3.8'
+          python-version: '3.9'
 
       - name: Install Python SH tool to runner VM environment
         if: needs.prepareState.outputs.BuildDockerImages == 'true'
@@ -559,10 +602,10 @@ jobs:
         run: |
           if [ "${{ needs.prepareState.outputs.BuildDockerImages }}" == "true" ]
           then
-            scripts/buildcontainerimage.py -d ${IMAGE_NAME_PREFIX} \
-                                           ${DISTRIBUTION}         \
-                                           ${VERSION}              \
-                                           ${ARCHITECTURE}
+            debian/buildcontainerimage.py -d ${IMAGE_NAME_PREFIX} \
+                                             ${DISTRIBUTION}      \
+                                             ${VERSION}           \
+                                             ${ARCHITECTURE}
             exit 0
           fi
           printf "${{ env.GITHUB_TOKEN}}" | docker login docker.pkg.github.com \
@@ -598,18 +641,15 @@ jobs:
 
       - name: Execute Runtests
         run: |
-          docker run --tty --rm -u "$(id -u):$(id -g)"        \
-            -v "$(pwd):/home/machinekit/build/machinekit-hal" \
-            -w "/home/machinekit/build/machinekit-hal"        \
-            --cap-add=sys_nice                                \
-            ${DOCKER_IMAGE}                                   \
-            debian/ripruntests.py
+          docker run --tty --rm -u "$(id -u):$(id -g)"                               \
+            -v "$(pwd):/home/machinekit/build/machinekit-hal"                        \
+            -w "/home/machinekit/build/machinekit-hal"                               \
+            --cap-add=sys_nice                                                       \
+            ${DOCKER_IMAGE}                                                          \
+            debian/runtests.py -p . -b ./build -g N -c Debug Release RelWithDebInfo
         env:
           DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ matrix.dockerImage.basename }}:latest'
         working-directory: ./build/machinekit-hal
-
-      - name: Execute CMOCKA UNIT tests
-        run: printf "Not yet implemented\n"
 
   # This has a chance to cause problems when developing multiple branches 
   # simultaneously all or some of which use different builder configuration,
@@ -641,7 +681,7 @@ jobs:
       - name: Prepare specific Python version for Machinekit-HAL build scripts
         uses: actions/setup-python@v2
         with:
-          python-version: '3.8'
+          python-version: '3.9'
 
       - name: Install Python SH tool to runner VM environment
         run: pip install sh
@@ -650,9 +690,9 @@ jobs:
           Build the docker image for ${{ matrix.osDistribution }}
           ${{ matrix.osVersionCodename}}, ${{ matrix.architecture }} Builder
         run: |
-          scripts/buildcontainerimage.py -d ${IMAGE_NAME_PREFIX} \
-                                           ${DISTRIBUTION}         \
-                                           ${VERSION}              \
+          debian/buildcontainerimage.py -d ${IMAGE_NAME_PREFIX} \
+                                           ${DISTRIBUTION}      \
+                                           ${VERSION}           \
                                            ${ARCHITECTURE}
         env:
           IMAGE_NAME_PREFIX: 'docker.pkg.github.com/${{ github.repository }}'
@@ -798,4 +838,3 @@ jobs:
           PACKAGES_REGEX: '^.*/machinekit-hal-([a-z]{1,})-([a-z0-9]{1,})-([0-9\.]{1,})-${{ github.sha }}-${{ needs.prepareState.outputs.Timestamp }}/.{1,}\.d?deb$'
           REPOSITORY_REGEX: '^${{ github.event.repository.name }}$'
           CLOUDSMITH_API_KEY: '${{ secrets.CLOUDSMITH_TOKEN }}'
-

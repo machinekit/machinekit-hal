@@ -1,0 +1,33 @@
+= HAL
+:author: Jakub Fišer <jakub DOT fiser AT eryaf DOT com> 
+:description: HAL sourcetree README 
+:sectanchors: 
+:url-repo: https://machinekit.io
+
+HAL represents the **H**ardware **A**bstraction **L**ayer functionality of Machinekit-HAL. It provides the __IPC__ mechanism for communication between modules. Should be generally loaded as second object after **Runtime**.
+
+== Distribution
+
+*   **hal_module:** Dynamically loaded (`dl_open`) module into managed namespace
+-   Supports real-time execution
+-   Compiled with `RTAPI` flag __DEFINE__
+*   **hal**: Shared library used to link into executables and other shared libraries
+-   Doesn't need to support real-time execution, can include code sleeping, yielding or otherwise breaking __real-time__
+-   Compiled with `ULAPI` flag __DEFINE__
+
+== CMAKE targets
+
+Objects created in `CMAKE` Machinekit-HAL's namespace used for building.
+
+=== hal_api (`INTERFACE` library)
+*   Fully abstract `CMAKE` object with no output representation
+*   Used for propagation of **interface** headers to depending modules
+
+=== hal_module (`hal_module.so`)
+*   **MODULE** dynamically loaded into linked namespace
+*   Many of the symbols will be resolved at runtime from modules loaded beforehand (as per `RTLD_GLOBAL`)
+*   Not intended for `target_link_libraries()` use
+
+=== hal (`libhal.so`)
+*   Standard shared library used for compile time linking into binaries
+*   Transitively exports **PUBLIC** interface header files through transitive dependencies

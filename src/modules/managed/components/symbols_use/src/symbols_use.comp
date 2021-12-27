@@ -1,0 +1,9 @@
+component symbols_use;
+
+pin out bit out;
+function _ nofp;
+license "GPL";
+;;
+void testuse();
+
+FUNCTION(_) { testuse(); }

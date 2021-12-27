@@ -1,3 +1,11 @@
+machinekit-hal (0.5.0) bullseye; urgency=low
+
+  * Drop Debian 10 Buster and Debian 9 Stretch as a supported OS
+  * Implement CMake based build-system
+  * Completely restructuralize the repository and parts of Machinekit-HAL
+
+ -- Jakub Fišer <jakub.fiser@eryaf.com>  Wed, 22 Dec 2021 15:00:00 +0200
+
 machinekit-hal (0.4.0) buster; urgency=low
 
   * Drop Debian 8 Jessie as a supported OS
