@@ -34,10 +34,6 @@ set(MHMRC_targets_paths
         \"file\":\"${CMAKE_CURRENT_LIST_DIR}/MachinekitHALRuntimeConfigTarget.cmake\"
     },
     {
-        \"target\":\"@MACHINEKIT_HAL_NAMESPACE@::rtapi_pci\",
-        \"file\":\"${CMAKE_CURRENT_LIST_DIR}/MachinekitHALRTAPIPCITarget.cmake\"
-    },
-    {
         \"target\":\"@MACHINEKIT_HAL_NAMESPACE@::mkini\",
         \"file\":\"${CMAKE_CURRENT_LIST_DIR}/MachinekitHALMKIniTarget.cmake\"
     },
@@ -48,6 +44,10 @@ set(MHMRC_targets_paths
     {
         \"target\":\"@MACHINEKIT_HAL_NAMESPACE@::runtime_api\",
         \"file\":\"${CMAKE_CURRENT_LIST_DIR}/MachinekitHALRuntimeAPITarget.cmake\"
+    },
+    {
+        \"target\":\"Machinekit::HAL::rtapi_compat\",
+        \"file\":\"${CMAKE_CURRENT_LIST_DIR}/MachinekitHALRuntimeCompatTarget.cmake\"
     },
     {
         \"target\":\"@MACHINEKIT_HAL_NAMESPACE@::managed_runtime\",

@@ -87,7 +87,7 @@ foreach(_component ${${CMAKE_FIND_PACKAGE_NAME}_FIND_COMPONENTS})
   if(NOT MHC_component_name IN_LIST MHC_known_components)
     set(${CMAKE_FIND_PACKAGE_NAME}_FOUND False)
     set(${CMAKE_FIND_PACKAGE_NAME}_NOT_FOUND_MESSAGE
-        "Unsupported component: ${MHC_component}")
+        "Unsupported component: ${MHC_component_name}")
     return()
   endif()
   foreach(_item RANGE 0 ${MHC_component_length} 1)

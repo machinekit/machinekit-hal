@@ -43,6 +43,31 @@ if(BUILD_RUNTESTS_TESTSUITE)
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/basic/expected
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/basic/README
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/basic/test.hal
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/all-cmake-components/checkresult
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/all-cmake-components/test.py
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/all-cmake-components/test.sh
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/cmake_test_helpers.py
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/hal-command-cmake-component/checkresult
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/hal-command-cmake-component/test.py
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/hal-command-cmake-component/test.sh
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/managed-hal-cmake-component/checkresult
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/managed-hal-cmake-component/test.py
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/managed-hal-cmake-component/test.sh
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/managed-runtime-cmake-component/checkresult
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/managed-runtime-cmake-component/test.py
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/managed-runtime-cmake-component/test.sh
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/managed-runtime-pci-cmake-component/checkresult
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/managed-runtime-pci-cmake-component/test.py
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/managed-runtime-pci-cmake-component/test.sh
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/unmanaged-hal-cmake-component/checkresult
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/unmanaged-hal-cmake-component/test.py
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/unmanaged-hal-cmake-component/test.sh
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/unmanaged-runtime-cmake-component/checkresult
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/unmanaged-runtime-cmake-component/test.py
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/unmanaged-runtime-cmake-component/test.sh
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/unmanaged-runtime-pci-cmake-component/checkresult
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/unmanaged-runtime-pci-cmake-component/test.py
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/unmanaged-runtime-pci-cmake-component/test.sh
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/counter-encoder.0/expected
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/counter-encoder.0/README
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/counter-encoder.0/test.hal
