@@ -25,6 +25,7 @@
 
 import importlib.util
 import pathlib
+import platform
 
 current_directory = pathlib.Path(__file__).resolve().parent
 
@@ -38,20 +39,30 @@ spec.loader.exec_module(helpers)
 def main():
     all_components = ['Managed-Runtime', 'Managed-HAL',
                       'Unmanaged-Runtime', 'Unmanaged-HAL',
-                      'Managed-Runtime-PCI', 'Unmanaged-Runtime-PCI',
                       'HAL-Command']
+    rtapi_pci_component = ['Managed-Runtime-PCI', 'Unmanaged-Runtime-PCI']
     expected_targets = [
         'Machinekit::HAL::managed_runtime',
         'Machinekit::HAL::managed_hal',
         'Machinekit::HAL::unmanaged_runtime',
         'Machinekit::HAL::unmanaged_hal',
+        'Machinekit::HAL::hal_command',
+    ]
+    rtapi_pci_targets = [
         'Machinekit::HAL::unmanaged_rtapi_pci',
         'Machinekit::HAL::managed_rtapi_pci',
-        'Machinekit::HAL::hal_command',
     ]
     unexpected_targets = [
         'Machinekit::HAL::non_existent',
     ]
+    # This is minimal and presumes only the amd64, i686, armhf and arm64
+    # on the Debian based systems and with Python3 installed from packages
+    # Basicaly 'Good Enough' solution for now only!
+    if platform.machine() in ['aarch64', 'armv7l']:
+        unexpected_targets.extend(rtapi_pci_targets)
+    else:
+        expected_targets.extend(rtapi_pci_targets)
+        all_components.extend(rtapi_pci_component)
     expected_commands = [
         'export_rtapi_symbols',
     ]

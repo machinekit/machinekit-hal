@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [[ -n "$(find /usr -type f -iwholename '*/sys/io.h')" ]]
+then
+    exit 0
+else
+    exit 1
+fi

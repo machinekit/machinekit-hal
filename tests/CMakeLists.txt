@@ -57,6 +57,7 @@ if(BUILD_RUNTESTS_TESTSUITE)
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/managed-runtime-cmake-component/test.py
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/managed-runtime-cmake-component/test.sh
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/managed-runtime-pci-cmake-component/checkresult
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/managed-runtime-pci-cmake-component/skip
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/managed-runtime-pci-cmake-component/test.py
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/managed-runtime-pci-cmake-component/test.sh
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/unmanaged-hal-cmake-component/checkresult
@@ -66,6 +67,7 @@ if(BUILD_RUNTESTS_TESTSUITE)
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/unmanaged-runtime-cmake-component/test.py
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/unmanaged-runtime-cmake-component/test.sh
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/unmanaged-runtime-pci-cmake-component/checkresult
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/unmanaged-runtime-pci-cmake-component/skip
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/unmanaged-runtime-pci-cmake-component/test.py
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/cmake-exports/unmanaged-runtime-pci-cmake-component/test.sh
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/counter-encoder.0/expected
