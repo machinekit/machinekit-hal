@@ -52,9 +52,21 @@ def main():
     unexpected_targets = [
         'Machinekit::HAL::non_existent',
     ]
+    expected_commands = [
+        'export_rtapi_symbols',
+    ]
+    unexpected_commands = [
+        'unknown_function',
+        'another_non_existent_function'
+    ]
 
     helpers.verify_cmake_targets(
-        all_components, expected_targets, unexpected_targets, current_directory)
+        all_components,
+        expected_targets,
+        unexpected_targets,
+        expected_commands,
+        unexpected_commands,
+        current_directory)
 
 
 if __name__ == '__main__':

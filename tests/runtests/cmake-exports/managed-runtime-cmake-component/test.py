@@ -45,9 +45,20 @@ def main():
         'Machinekit::HAL::unmanaged_runtime',
         'Machinekit::HAL::managed_hal',
     ]
+    expected_commands = [
+        'export_rtapi_symbols',
+    ]
+    unexpected_commands = [
+        'unknown_function',
+    ]
 
     helpers.verify_cmake_targets(
-        all_components, expected_targets, unexpected_targets, current_directory)
+        all_components,
+        expected_targets,
+        unexpected_targets,
+        expected_commands,
+        unexpected_commands,
+        current_directory)
 
 
 if __name__ == '__main__':

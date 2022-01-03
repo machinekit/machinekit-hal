@@ -47,7 +47,7 @@ def main() -> int:
 
     try:
         helpers.verify_cmake_targets(
-            all_components, expected_targets, unexpected_targets, current_directory)
+            all_components, expected_targets, unexpected_targets, None, None, current_directory)
 
     except Exception as e:
         print(e)

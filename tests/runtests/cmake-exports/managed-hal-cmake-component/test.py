@@ -44,10 +44,16 @@ def main() -> int:
     unexpected_targets = [
         'Machinekit::HAL::unmanaged_hal',
     ]
+    expected_commands = [
+        'export_rtapi_symbols',
+    ]
+    unexpected_commands = [
+        'unknown_function',
+    ]
 
     try:
         helpers.verify_cmake_targets(
-            all_components, expected_targets, unexpected_targets, current_directory)
+            all_components, expected_targets, unexpected_targets, None, None, current_directory)
 
     except Exception as e:
         print(e)

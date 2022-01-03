@@ -50,6 +50,15 @@ foreach(
     message("TARGET ${{_target}} NOT found!")
   endif()
 endforeach()
+
+foreach(
+  _command {tested_commands})
+  if(COMMAND ${{_command}})
+    message("COMMAND ${{_command}} found.")
+  else()
+    message("COMMAND ${{_command}} NOT found!")
+  endif()
+endforeach()
 """
 
 
@@ -57,6 +66,8 @@ def verify_cmake_targets(
         components: List[str],
         defined_targets: List[str] = [],
         undefined_targets: List[str] = [],
+        defined_commands: List[str] = [],
+        undefined_commands: List[str] = [],
         directory_path: pathlib.Path = None,
         test_name: str = 'componentTest'
 ):
@@ -64,16 +75,22 @@ def verify_cmake_targets(
         defined_targets = []
     if undefined_targets is None:
         undefined_targets = []
+    if defined_commands is None:
+        defined_commands = []
+    if undefined_commands is None:
+        undefined_commands = []
 
     required_components = ' '.join(components)
     tested_targets = ';'.join(defined_targets+undefined_targets)
+    tested_commands = ';'.join(defined_commands+undefined_commands)
     cmake_directory = pathlib.Path(tempfile.mkdtemp(
         suffix=f'cmake_{test_name}', prefix='mkh_runtest', dir=directory_path))
 
     cmakefile = basic_testing_cmake.format(
         test_name=test_name,
         required_components=required_components,
-        tested_targets=tested_targets)
+        tested_targets=tested_targets,
+        tested_commands=tested_commands)
 
     with open(cmake_directory / 'CMakeLists.txt', 'w')as f:
         f.write(cmakefile)
@@ -97,45 +114,43 @@ def verify_cmake_targets(
     print(
         f'CMake run output:\n**************\n{cmake_output}\n**************')
 
-    if defined_targets:
-        target_found_regex = re.compile(r'TARGET (?P<target>[\w:]+) found.')
+    def check_output_for_objects(
+        searched_objects: List[str],
+        pattern_string: str
+    ):
+        compiled_regex = re.compile(pattern_string)
 
-        _available_matches = target_found_regex.findall(cmake_output)
+        _available_matches = compiled_regex.findall(cmake_output)
 
         print(
-            f'Available TARGETS found in the CMake output: {_available_matches}')
+            f'For regex pattern "{compiled_regex.pattern}" found'
+            f' in the CMake output: {_available_matches}')
 
         if not _available_matches:
             raise RuntimeError(
-                f'No matches for regex "{target_found_regex.pattern}" found!')
+                f'No matches for regex "{compiled_regex.pattern}" found!')
 
-        leftover_defined_targets = copy.copy(defined_targets)
+        leftover_defined_objects = copy.copy(searched_objects)
         for _match in _available_matches:
-            if _match in leftover_defined_targets:
-                leftover_defined_targets.remove(_match)
+            if _match in leftover_defined_objects:
+                leftover_defined_objects.remove(_match)
 
-        if leftover_defined_targets:
+        if leftover_defined_objects:
             raise RuntimeError(
-                f'Defined targets not found: {leftover_defined_targets}')
+                f'Defined objects not found: {leftover_defined_objects}')
+
+    if defined_targets:
+        check_output_for_objects(
+            defined_targets, r'TARGET (?P<target>[\w:]+) found.')
 
     if undefined_targets:
-        target_not_found_regex = re.compile(
-            r'TARGET (?P<target>[\w:]+) NOT found!')
+        check_output_for_objects(
+            undefined_targets, r'TARGET (?P<target>[\w:]+) NOT found!')
 
-        _unavailable_matches = target_not_found_regex.findall(cmake_output)
+    if defined_commands:
+        check_output_for_objects(
+            defined_commands, r'COMMAND (?P<target>[\w:]+) found.')
 
-        print(
-            f'Non-Available TARGETS found in the CMake output: {_unavailable_matches}')
-
-        if not _unavailable_matches:
-            raise RuntimeError(
-                f'No matches for regex "{target_not_found_regex.pattern}" found!')
-
-        leftover_undefined_targets = copy.copy(undefined_targets)
-        for _match in _unavailable_matches:
-            if _match in leftover_undefined_targets:
-                leftover_undefined_targets.remove(_match)
-
-        if leftover_undefined_targets:
-            raise RuntimeError(
-                f'Found targets which should not have been: {leftover_undefined_targets}')
+    if undefined_commands:
+        check_output_for_objects(
+            undefined_commands, r'COMMAND (?P<target>[\w:]+) NOT found!')
