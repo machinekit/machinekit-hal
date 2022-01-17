@@ -105,6 +105,19 @@ In most cases, all packages will be installed (with maybe the exception of `mach
 sudo apt install -y libmachinekit-hal libmachinekit-hal-dev modmachinekit-hal-components modmachinekit-hal-drivers modmachinekit-hal-drivers-dev machinekit-hal-unmanaged-components machinekit-hal-unmanaged-drivers machinekit-hal-testsuite-runtests machinekit-hal python3-machinekit-hal python3-libmachinekit-hal python3-modmachinekit-hal-unmanaged-components python3-modmachinekit-hal-unmanaged-drivers
 ```
 
+You can use a standard **Debian** tools to download and install most of the dependencies (with the exception of build tools):
+
+```sh
+git clone https://github.com/machinekit/machinekit-hal.git
+cd machinekit-hal
+debian/bootstrap
+mk-build-deps -irs sudo
+```
+
+To get a functioning filesystem capable of building Machinekit-HAL, consult the `machinekit-builder` Docker images. You can build them via the `debian/buildcontainerimage.py` script from `Dockerfile` in the `debian/buildsystem` directory.
+
+## Building from Source:
+
 Machinekit-HAL uses a **CMake** based buildsystem and supports generation and usage of both *makefiles* and *ninjafiles* for **GNU make** and **Ninja Multi-Config** centered workflows.
 
 Building requires a Linux installation with build tools installed (functioning C and C++ compiler, linker, pkg-config, sysroot etc) and the latest stable CMake executables as specified on [download page](https://cmake.org/download/). (Main target for Machinekit-HAL are Debian based distribution, others not tested so far.)
@@ -138,17 +151,6 @@ cd build
 direnw allow
 halrun
 ```
-
-You can use a standard **Debian** tools to download and install most of the dependencies (with the exception of build tools):
-
-```sh
-git clone https://github.com/machinekit/machinekit-hal.git
-cd machinekit-hal
-debian/bootstrap
-mk-build-deps -irs sudo
-```
-
-To get a functioning filesystem capable of building Machinekit-HAL, consult the `machinekit-builder` Docker images. You can build them via the `debian/buildcontainerimage.py` script from `Dockerfile` in the `debian/buildsystem` directory.
 
 More information about building can be glanced from [documentation](http://www.machinekit.io/docs/developing/machinekit-developing).
 
