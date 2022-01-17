@@ -116,6 +116,20 @@ mk-build-deps -irs sudo
 
 To get a functioning filesystem capable of building Machinekit-HAL, consult the `machinekit-builder` Docker images. You can build them via the `debian/buildcontainerimage.py` script from `Dockerfile` in the `debian/buildsystem` directory.
 
+If you have trouble, please try installing the dependancies by hand:
+```sh
+sudo apt install python3-build cython3 libczmq-dev python3-avahi \
+  avahi-daemon avahi-discover avahi-utils libnss-mdns mdns-scan git \
+  gcc g++ python pkg-config libssl-dev libdbus-1-dev \
+  libglib2.0-dev libavahi-client-dev ninja-build python3-venv python3-dev \
+  python3-pip unzip libgirepository1.0-dev libcairo2-dev \
+  libjansson-dev libgtk2.0-dev python3-protobuf libprotobuf-dev \
+  libck-dev libcgroup-dev libcmocka-dev yapps2 libreadline-dev \
+  libmodbus-dev libusb-dev libusb-1.0-0-dev nanopb libboost-dev \
+  libck-dev libcgroup-dev libcmocka-dev yapps2 libreadline-dev \
+  libwebsockets-dev
+```
+
 ## Building from Source:
 
 Machinekit-HAL uses a **CMake** based buildsystem and supports generation and usage of both *makefiles* and *ninjafiles* for **GNU make** and **Ninja Multi-Config** centered workflows.
