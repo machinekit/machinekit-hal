@@ -108,6 +108,8 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CC_STANDARD 17)
 
 # TODO: Make a real effort at setting relevant flags
+set(CMAKE_C_FLAGS "-g -O0")
+set(CMAKE_CXX_FLAGS "-g -O0")
 set(CMAKE_C_FLAGS_DEBUG "-g -O0")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 set(CMAKE_C_FLAGS_RELEASE "-O0")
