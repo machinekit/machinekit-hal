@@ -1,4 +1,3 @@
-# ~~~
 # ####################################################################
 # Description:  CMakeLists.txt
 #
@@ -107,15 +106,32 @@ list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/support/cmake/tools"
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CC_STANDARD 17)
 
-# TODO: Make a real effort at setting relevant flags
-set(CMAKE_C_FLAGS "-g -O0")
-set(CMAKE_CXX_FLAGS "-g -O0")
-set(CMAKE_C_FLAGS_DEBUG "-g -O0")
-set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
-set(CMAKE_C_FLAGS_RELEASE "-O0")
-set(CMAKE_CXX_FLAGS_RELEASE "-O0")
-set(CMAKE_C_FLAGS_RELWITHDEBINFO "-g -O0")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g -O0")
+# 3B+: ARM Cortex-A53 64bit (ARMv8) 1.4GHz (4 cores)
+# 4B: ARM Cortex-A72 (ARMv8) 1.5GHz (4 cores)
+#   -march=armv8-a
+#   -mcpu=cortex-a72
+#   -mcpu=cortex-a53
+set(CMAKE_SYSTEM_PROCESSOR "armv8")
+
+#message( WARNING "*********** RASPBERRY_VERSION = ${RASPBERRY_VERSION}" )
+#if(RASPBERRY_VERSION VERSION_GREATER 3)
+#  set(CMAKE_C_FLAGS "-O0 -march=armv8-a -mfloat-abi=hard -mfpu=neon-fp-armv8 ${COMMON_FLAGS}" CACHE STRING "Flags for Raspberry PI 4")
+#  set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS}" CACHE STRING "Flags for Raspberry PI 4")
+#else()
+#  set(CMAKE_C_FLAGS "-O0 -march=armv8-a -mfloat-abi=hard -mfpu=neon-fp-armv8 ${COMMON_FLAGS}" CACHE STRING "Flags for Raspberry PI 3")
+#  set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS}" CACHE STRING "Flags for Raspberry PI 3")
+#endif()
+
+set(CMAKE_C_FLAGS "-O0 -march=armv8-a -mfloat-abi=hard -mfpu=neon-fp-armv8 ${COMMON_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS}")
+
+  # TODO: Make a real effort at setting relevant flags
+set(CMAKE_C_FLAGS_DEBUG "-g ${CMAKE_C_FLAGS}")
+set(CMAKE_CXX_FLAGS_DEBUG "-g ${CMAKE_CXX_FLAGS}")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS}")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS}")
+set(CMAKE_C_FLAGS_RELWITHDEBINFO "-g ${CMAKE_C_FLAGS}")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-g ${CMAKE_CXX_FLAGS}")
 
 message(STATUS "Value of CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
 message(STATUS "Value of CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
