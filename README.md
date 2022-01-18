@@ -105,6 +105,7 @@ In most cases, all packages will be installed (with maybe the exception of `mach
 sudo apt install -y libmachinekit-hal libmachinekit-hal-dev modmachinekit-hal-components modmachinekit-hal-drivers modmachinekit-hal-drivers-dev machinekit-hal-unmanaged-components machinekit-hal-unmanaged-drivers machinekit-hal-testsuite-runtests machinekit-hal python3-machinekit-hal python3-libmachinekit-hal python3-modmachinekit-hal-unmanaged-components python3-modmachinekit-hal-unmanaged-drivers
 ```
 
+## Dependencies and Tools
 You can use a standard **Debian** tools to download and install most of the dependencies (with the exception of build tools):
 
 ```sh
