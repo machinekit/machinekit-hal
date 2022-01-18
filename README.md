@@ -94,9 +94,11 @@ keyring and sources.list:
 ```sh
 curl -1sLf 'https://dl.cloudsmith.io/public/machinekit/machinekit-hal/cfg/gpg/gpg.D35981AB4276AC36.key' | sudo apt-key --keyring /etc/apt/trusted.gpg.d/cloudsmith-apt-key.gpg add
 
-sudo sh -c "echo 'deb https://dl.cloudsmith.io/public/machinekit/machinekit-hal/deb/debian bullseye main' > /etc/apt/sources.list.d/machinekit.list"
+touch /etc/apt/sources.list.d/machinekit.list
 
-sudo sh -c "echo 'deb-src https://dl.cloudsmith.io/public/machinekit/machinekit-hal/deb/debian bullseye main' > /etc/apt/sources.list.d/machinekit.list"
+sudo sh -c "echo 'deb https://dl.cloudsmith.io/public/machinekit/machinekit-hal/deb/debian bullseye main' >> /etc/apt/sources.list.d/machinekit.list"
+
+sudo sh -c "echo 'deb-src https://dl.cloudsmith.io/public/machinekit/machinekit-hal/deb/debian bullseye main' >> /etc/apt/sources.list.d/machinekit.list"
 ```
 
 In most cases, all packages will be installed (with maybe the exception of `machinekit-hal-testsuite-runtests`).
