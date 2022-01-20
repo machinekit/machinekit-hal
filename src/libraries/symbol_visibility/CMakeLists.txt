@@ -30,12 +30,27 @@ option(BUILD_SYMBOL_VISIBILITY_CMAKE_MODULE
 if(BUILD_SYMBOL_VISIBILITY_CMAKE_MODULE)
 
   set(SOURCE_FILE
-      ${CMAKE_CURRENT_SOURCE_DIR}/src/MachinekitHALSymbolVisibilityFunction.cmake)
+      ${CMAKE_CURRENT_SOURCE_DIR}/src/MachinekitHALSymbolVisibilityFunction.cmake
+  )
 
   configure_file(
     ${SOURCE_FILE}
     "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALSymbolVisibilityFunction.cmake"
     NO_SOURCE_PERMISSIONS
     COPYONLY)
+
+  install(
+    FILES
+      "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALSymbolVisibilityFunction.cmake"
+    DESTINATION "${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}"
+    COMPONENT MachinekitHAL_Library_Symbol_Visibility_CMake_Functions)
+
+  cpack_add_component(MachinekitHAL_Library_Symbol_Visibility_CMake_Functions
+                      GROUP MachinekitHAL_Library_Symbol_Visibility_Development)
+
+  # Specification of artifacts placement in package tree
+  cpack_add_component_group(
+    MachinekitHAL_Library_Symbol_Visibility_Development
+    PARENT_GROUP MachinekitHAL_Package_Base_Libraries_Development)
 
 endif()

@@ -100,6 +100,12 @@ if(BUILD_HAL_COMMAND_LIBRARY)
       COMPONENT MachinekitHAL_Library_HAL_Command_Headers)
 
   install(
+    FILES
+      "${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALHAL-CommandComponent.cmake"
+    DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}
+    COMPONENT MachinekitHAL_Library_HAL_Command_Package_Exports)
+
+  install(
     EXPORT machinekit_hal_hal_command
     DESTINATION ${MACHINEKIT_HAL_CMAKE_PACKAGE_DIRECTORY}
     NAMESPACE "${MACHINEKIT_HAL_NAMESPACE}::"

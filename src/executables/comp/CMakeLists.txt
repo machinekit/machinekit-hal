@@ -148,7 +148,8 @@ if(BUILD_PYTHON_DISTRIBUTIONS)
     configure_file(
       ${CMAKE_CURRENT_SOURCE_DIR}/src/MachinekitHALCompFunction.cmake
       ${MACHINEKIT_HAL_CMAKE_PACKAGE_OUTPUT_DIRECTORY}/MachinekitHALCompFunction.cmake
-      @ONLY NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
+      @ONLY
+      NEWLINE_STYLE UNIX NO_SOURCE_PERMISSIONS)
 
     set_property(
       GLOBAL PROPERTY MACHINEKIT_HAL_COMP
@@ -157,8 +158,10 @@ if(BUILD_PYTHON_DISTRIBUTIONS)
     install_wheel(WHEEL "${OUTPUT_INDEX}" COMPONENT
                   MachinekitHAL_Executable_Comp_Python_Packages)
 
-    cpack_add_component(MachinekitHAL_Executable_Comp_Python_Packages
-                        GROUP MachinekitHAL_Executable_Comp)
+    cpack_add_component(
+      MachinekitHAL_Executable_Comp_Python_Packages
+      DEPENDS MachinekitHAL_Library_Symbol_Visibility_CMake_Functions
+      GROUP MachinekitHAL_Executable_Comp)
 
     # Specification of artifacts placement in package tree
     cpack_add_component_group(
