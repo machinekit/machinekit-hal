@@ -88,11 +88,52 @@ Available packages constituting the Machinekit-HAL are:
 
 * **python3-modmachinekit-hal-unmanaged-drivers**: Machinekit-HAL unmanaged modules (drivers) implemented in a Python3
 
+To access the Cloudsmith repositories you will need to add it to your
+keyring and sources.list:
+
+```sh
+curl -1sLf 'https://dl.cloudsmith.io/public/machinekit/machinekit-hal/cfg/gpg/gpg.D35981AB4276AC36.key' | sudo apt-key --keyring /etc/apt/trusted.gpg.d/cloudsmith-apt-key.gpg add
+
+touch /etc/apt/sources.list.d/machinekit.list
+
+sudo sh -c "echo 'deb https://dl.cloudsmith.io/public/machinekit/machinekit-hal/deb/debian bullseye main' >> /etc/apt/sources.list.d/machinekit.list"
+
+sudo sh -c "echo 'deb-src https://dl.cloudsmith.io/public/machinekit/machinekit-hal/deb/debian bullseye main' >> /etc/apt/sources.list.d/machinekit.list"
+```
+
 In most cases, all packages will be installed (with maybe the exception of `machinekit-hal-testsuite-runtests`).
 
 ```sh
 sudo apt install -y libmachinekit-hal libmachinekit-hal-dev modmachinekit-hal-components modmachinekit-hal-drivers modmachinekit-hal-drivers-dev machinekit-hal-unmanaged-components machinekit-hal-unmanaged-drivers machinekit-hal-testsuite-runtests machinekit-hal python3-machinekit-hal python3-libmachinekit-hal python3-modmachinekit-hal-unmanaged-components python3-modmachinekit-hal-unmanaged-drivers
 ```
+
+## Dependencies and Tools
+You can use a standard **Debian** tools to download and install most of the dependencies (with the exception of build tools):
+
+```sh
+git clone https://github.com/machinekit/machinekit-hal.git
+cd machinekit-hal
+debian/bootstrap
+mk-build-deps -irs sudo
+```
+
+To get a functioning filesystem capable of building Machinekit-HAL, consult the `machinekit-builder` Docker images. You can build them via the `debian/buildcontainerimage.py` script from `Dockerfile` in the `debian/buildsystem` directory.
+
+If you have trouble, please try installing the dependancies by hand:
+```sh
+sudo apt install python3-build cython3 libczmq-dev python3-avahi \
+  avahi-daemon avahi-discover avahi-utils libnss-mdns mdns-scan git \
+  gcc g++ python pkg-config libssl-dev libdbus-1-dev \
+  libglib2.0-dev libavahi-client-dev ninja-build python3-venv python3-dev \
+  python3-pip unzip libgirepository1.0-dev libcairo2-dev \
+  libjansson-dev libgtk2.0-dev python3-protobuf libprotobuf-dev \
+  libck-dev libcgroup-dev libcmocka-dev yapps2 libreadline-dev \
+  libmodbus-dev libusb-dev libusb-1.0-0-dev nanopb libboost-dev \
+  libck-dev libcgroup-dev libcmocka-dev yapps2 libreadline-dev \
+  libwebsockets-dev
+```
+
+## Building from Source:
 
 Machinekit-HAL uses a **CMake** based buildsystem and supports generation and usage of both *makefiles* and *ninjafiles* for **GNU make** and **Ninja Multi-Config** centered workflows.
 
@@ -127,17 +168,6 @@ cd build
 direnw allow
 halrun
 ```
-
-You can use a standard **Debian** tools to download and install most of the dependencies (with the exception of build tools):
-
-```sh
-git clone https://github.com/machinekit/machinekit-hal.git
-cd machinekit-hal
-debian/bootstrap
-mk-build-deps -irs sudo
-```
-
-To get a functioning filesystem capable of building Machinekit-HAL, consult the `machinekit-builder` Docker images. You can build them via the `debian/buildcontainerimage.py` script from `Dockerfile` in the `debian/buildsystem` directory.
 
 More information about building can be glanced from [documentation](http://www.machinekit.io/docs/developing/machinekit-developing).
 
