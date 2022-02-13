@@ -1,9 +1,9 @@
 # components
-loadrt sampler cfg=bb depth=4096
-loadrt stepgen step_type=0
+loadrt sampler cfg=bb depth=4096 
+loadrt stepgen step_type=0 
 
 # signals
-newsig unlinked bit
+newsig unlinked bit  
 
 # nets
 net dir => sampler.0.pin.0
@@ -25,3 +25,4 @@ addf stepgen.update-freq fast
 addf stepgen.make-pulses fast
 addf stepgen.capture-position fast
 addf sampler.0 fast
+

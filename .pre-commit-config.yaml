@@ -23,7 +23,12 @@
 #
 # #####################################################################
 
-exclude: ^attic/.*
+exclude: |
+            (?x)^(
+                attic/.*|
+                tests/.*/expected|
+                tests/.*/input-signals
+            )$
 default_stages:
   - commit
   - push
