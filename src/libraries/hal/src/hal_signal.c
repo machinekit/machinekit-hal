@@ -286,7 +286,7 @@ int halg_link(const int use_hal_mutex,
 
 	    // assure proper typing on assignment, assigning a hal_data_u is
 	    // a surefire cause for memory corrupion as hal_data_u is larger
-	    // than hal_bit_t, hal_s32_t, and hal_u32_t - this works only for 
+	    // than hal_bit_t, hal_s32_t, and hal_u32_t - this works only for
 	    // hal_float_t (!)
 	    // my old, buggy code:
 	    //*((hal_data_u *)data_addr) = pin->dummysig;

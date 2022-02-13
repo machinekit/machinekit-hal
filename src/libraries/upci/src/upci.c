@@ -534,7 +534,7 @@ __u8 upci_read_u8(int rd, __u32 offset)
     volatile __u8 *ptr, data;
 
     /* test for out of range, not mapped, or offset beyond end of region */
-    if ((rd < 0 ) || ( rd >= MAX_REGIONS ) || 
+    if ((rd < 0 ) || ( rd >= MAX_REGIONS ) ||
 	( (reg = regions[rd]) == NULL ) || ( offset > reg->size )) return 0;
     /* get the data */
     if ( reg->type == UPCI_REG_IO ) {
@@ -656,7 +656,7 @@ void upci_write_u8(int rd, __u32 offset, __u8 data)
     volatile __u8 *ptr;
 
     /* test for out of range, not mapped, or offset beyond end of region */
-    if ((rd < 0 ) || ( rd >= MAX_REGIONS ) || 
+    if ((rd < 0 ) || ( rd >= MAX_REGIONS ) ||
 	( (reg = regions[rd]) == NULL ) || ( offset > reg->size )) return;
     /* write the data */
     if ( reg->type == UPCI_REG_IO ) {

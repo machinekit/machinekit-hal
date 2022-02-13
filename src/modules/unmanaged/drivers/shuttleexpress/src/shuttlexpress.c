@@ -60,7 +60,7 @@
 #define PACKET_LEN 5
 
 
-// the module name, and prefix for all HAL pins 
+// the module name, and prefix for all HAL pins
 char *modname = "shuttlexpress";
 
 
@@ -388,4 +388,3 @@ int main(int argc, char *argv[]) {
 
     exit(0);
 }
-

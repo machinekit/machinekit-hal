@@ -31,6 +31,9 @@ set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 
 option(BUILD_PYTHON_DISTRIBUTIONS "Build Python3 distribution packages" TRUE)
 
+# TODO: Allow sitting this from option and/or automatically check this exists
+set(BASH_SHEBANG "#!/usr/bin/env bash")
+
 # Define the outer rules for output directories for build artifacts
 set(MACHINEKIT_HAL_ARTIFACTS_MOUNTPOINT_DIRECTORY
     "${CMAKE_BINARY_DIR}/$<CONFIG>")

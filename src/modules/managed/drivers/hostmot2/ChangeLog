@@ -1,6 +1,6 @@
 
 released 2008-12-12
-    hm 0.15 
+    hm 0.15
 
     Fixed a system crash bug in pwmgen.
 
@@ -213,4 +213,3 @@ released 2008-08-13
 
     Wrote a new driver that plugs the 5i20 board into the hostmot2 driver.
     Firmware loading on the 5i20 was already supported by bfload.
-

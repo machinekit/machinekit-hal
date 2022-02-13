@@ -14,16 +14,16 @@ license "GPL";
 ;;
 FUNCTION(_)
 {
-    if (gb(enable) ^ prev_enable) 
+    if (gb(enable) ^ prev_enable)
         { // edge
-        if (gb(enable)) 
+        if (gb(enable))
             {  // positive edge
             sf(mean, 0.0);
             su(n, 0);
             m2 = 0.0;
             }
         }
-    if (gb(enable)) 
+    if (gb(enable))
         {
         incu(n);
         delta = gf(in) - gf(mean);

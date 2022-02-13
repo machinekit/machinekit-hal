@@ -1,6 +1,6 @@
 component thc "Torch Height Control";
 
-description 
+description
 """
 Torch Height Control
 Mesa THC > encoder > Machinekit THC component
@@ -46,7 +46,7 @@ thc.requested-vel <= motion.requested-vel
 thc.current-vel <= motion.current-vel
 
 """;
- 
+
 author "John Thornton";
 
 license "GPLv2 or greater";
@@ -98,14 +98,14 @@ FUNCTION(_) {
         float min_velocity = requested_vel -(requested_vel*(velocity_tol*0.01));
         if(current_vel > 0 && current_vel >= min_velocity){vel_status = 1;}
         else {vel_status =0;}
-        
+
         if(torch_on && arc_ok && vel_status){ // allow correction
             if((volts + voltage_tol) > volts_requested){
                 offset -= correction_vel;
             }
             if((volts - voltage_tol) < volts_requested){
                 offset += correction_vel;
-            }    
+            }
             last_z_in = 0;
         }
         if(!torch_on){ // remove any offset
@@ -135,4 +135,3 @@ FUNCTION(_) {
         z_fb_out = z_pos_in; // keep axis motor position fb from being confused
     }
 }
-

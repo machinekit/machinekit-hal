@@ -15,11 +15,11 @@ FUNCTION(_)
     hal_float_t hi = gf(center) + th2;
     hal_float_t in_ = gf(in);
 
-    if(in_ < lo) 
+    if(in_ < lo)
         sf(out, in_ + th2);
-    else if(in_ > hi) 
+    else if(in_ > hi)
         sf(out, in_ - th2);
-    else 
+    else
         sf(out, gf(center));
 
 return 0;

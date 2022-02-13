@@ -1,4 +1,3 @@
 
 loadrt sim_encoder names=simenc0
 show pin
-

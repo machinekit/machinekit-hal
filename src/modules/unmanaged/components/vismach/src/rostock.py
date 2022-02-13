@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 #    Copyright 2013 Jeff Epler <jepler@unpythonic.net>
 #
 #    This program is free software; you can redistribute it and/or modify
@@ -43,7 +42,7 @@ class DeltaTranslate(Collection):
 
     def apply(self):
         glPushMatrix()
-        lineardeltakins.set_geometry(self.comp['R'], self.comp['L'])        
+        lineardeltakins.set_geometry(self.comp['R'], self.comp['L'])
         f = lineardeltakins.forward(self.comp['joint0'], self.comp['joint1'], self.comp['joint2'])
         if f is not None:
             self.x = x = f[0]
@@ -68,7 +67,7 @@ class TriangularPrismZ:
         x0 = 0
         x1 = -self.h*sin(pi/3)
         x2 = self.h*sin(pi/3)
-        y0 = self.h 
+        y0 = self.h
         y1 = y2 = -self.h*cos(pi/3)
         z0 = self.z0
         z1 = self.z1
@@ -174,7 +173,7 @@ class Strut:
         # the top cap needs flipped and translated
         glTranslatef(0,0, L)
         gluDisk(self.q, 0, 5, 32, 1)
-       
+
 tooltip = Capture()
 tool = DeltaTranslate([
     Translate([

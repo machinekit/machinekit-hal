@@ -34,4 +34,3 @@ void user_mainloop(void) {
         FOR_ALL_INSTS() out = drand48();
     }
 }
-

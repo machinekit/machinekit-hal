@@ -126,7 +126,7 @@ Z_DONE:
 
     // Save state data for this encoder
     SBBO    Encoder_First_Wr, Index.wraddr, Index.Offset, SIZE(Encoder) - OFFSET(Encoder_First_Wr)
-    
+
     // Point to the next Encoder struct and carry on...
     ADD     Index.Offset, Index.Offset, SIZE(Encoder)
     SUB     GTask.len, GTask.len, 1

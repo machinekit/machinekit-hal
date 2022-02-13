@@ -58,7 +58,7 @@
 #include <linux/miscdevice.h>
 #include <linux/device.h>
 #include <linux/ioctl.h>
-#include <linux/sched.h> 
+#include <linux/sched.h>
 #include <linux/kallsyms.h>
 #include <linux/string.h>
 #include <linux/semaphore.h>
@@ -160,7 +160,7 @@ static void shmdrv_vma_open(struct vm_area_struct *vma)
     struct shm_segment *seg = &shm_segments[segno];
 
     dbg("VMA open, virt %lx, phys %lx length %ld segno=%d",
-	vma->vm_start, 
+	vma->vm_start,
 	vma->vm_pgoff << PAGE_SHIFT,
 	vma->vm_end - vma->vm_start,
 	segno);
@@ -248,7 +248,7 @@ static int shm_mmap(struct file *file, struct vm_area_struct *vma)
     segno = (int) file->private_data;
 
     dbg("%s(%ld) , segno=%d",
-	__func__, 
+	__func__,
 	vma->vm_end - vma->vm_start,
 	segno);
 
@@ -292,7 +292,7 @@ static int  shm_nonstandard_attach(struct shm_segment *segs)
 {
     dbg("");
 
-    // ll_mutex already engaged 
+    // ll_mutex already engaged
     if (segs->flags &  OUTBOARD1_CREATE) {
 	dbg("attach code for outboard type 1 missing");
 	return -EINVAL;
@@ -326,9 +326,9 @@ static int  shm_nonstandard_detach(struct shm_segment *segs)
 static int shm_open(struct inode* inode, struct file* filp)
 {
     // no valid segment associated yet
-    // this is set in a successful 
+    // this is set in a successful
     // IOC_SHM_CREATE or IOC_SHM_ATTACH ioctl
-    filp->private_data = (void *) -1; 
+    filp->private_data = (void *) -1;
 
     dbg("");
     nopen++;
@@ -424,7 +424,7 @@ void init_shmemdata(void)
 
 // the in-kernel exported API:
 
-int shmdrv_status(struct shm_status *shmstat) 
+int shmdrv_status(struct shm_status *shmstat)
 {
     struct shm_segment *seg;
     int ret = 0, segno;
@@ -462,13 +462,13 @@ int shmdrv_attach_pid(struct shm_status *shmstat, void **shm, int pid)
 
     ret = find_shm_by_key(shmstat->key);
     if (ret < 0) {
-	dbg("shm segment does not exist: key=0x%8.8x ret=%d", 
+	dbg("shm segment does not exist: key=0x%8.8x ret=%d",
 	    shmstat->key, ret);
 	goto done;
     }
     seg = &shm_segments[ret];
     // dont increment n_uattach, this will be handled during mmap()
-    if (!pid) 
+    if (!pid)
 	seg->n_kattach++;
 
     shmstat->id = ret;
@@ -502,7 +502,7 @@ static int shmdrv_create_pid(struct shm_status *shmstat, int pid)
     }
     segno = find_shm_by_key(shmstat->key);
     if (segno > -1) {
-	err("shm segment exists: key=0x%8.8x pos=%d pid %d", shmstat->key, segno, pid);	
+	err("shm segment exists: key=0x%8.8x pos=%d pid %d", shmstat->key, segno, pid);
 	ret = -EINVAL;
 	goto done;
     }
@@ -531,7 +531,7 @@ static int shmdrv_create_pid(struct shm_status *shmstat, int pid)
 	    ret = -ENOMEM;
     }
     if (ret) {
-	err("IOC_SHM_CREATE: shm_malloc fail size=%zu key=0x%8.8x pid %d", 
+	err("IOC_SHM_CREATE: shm_malloc fail size=%zu key=0x%8.8x pid %d",
 	    seg->size, seg->key, pid);
 	goto done;
     }
@@ -607,7 +607,7 @@ EXPORT_SYMBOL(shmdrv_detach);
 static long shm_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
 {
     int ret = 0, segno;
-    struct shm_status sm; 
+    struct shm_status sm;
     struct shm_segment *seg;
 
     if (down_interruptible(&shm_mutex))
@@ -641,7 +641,7 @@ static long shm_unlocked_ioctl(struct file *file, unsigned int cmd, unsigned lon
 	}
 	segno = shmdrv_create_pid(&sm, current->pid);
 	if (segno < 0) {
-	    err("IOC_SHM_CREATE: shmdrv_create_pid fail key=0x%8.8x size=%zu", 
+	    err("IOC_SHM_CREATE: shmdrv_create_pid fail key=0x%8.8x size=%zu",
 		sm.key,sm.size);
 	    goto done;
 	}
@@ -715,7 +715,7 @@ static struct miscdevice shm_misc_dev = {
     .mode       = (S_IRUSR|S_IRGRP|S_IWUSR|S_IWGRP),
 };
 
-static ssize_t sys_status(struct device* dev, struct device_attribute* attr, 
+static ssize_t sys_status(struct device* dev, struct device_attribute* attr,
 			  char* buf, size_t count)
 {
     int i;
@@ -742,9 +742,9 @@ static ssize_t sys_status(struct device* dev, struct device_attribute* attr,
 	    kattach += seg->n_kattach;
 	}
     }
-    size = scnprintf(buf, left, 
-		     "%d segment(s), open=%d u=%d k=%d total=%d aligned=%d alloced=%zuK freed=%zuK balance=%zuK\n", 
-		     nsegments, nopen, uattach, kattach, total_alloc, total_alloc_aligned, 
+    size = scnprintf(buf, left,
+		     "%d segment(s), open=%d u=%d k=%d total=%d aligned=%d alloced=%zuK freed=%zuK balance=%zuK\n",
+		     nsegments, nopen, uattach, kattach, total_alloc, total_alloc_aligned,
 		     allocated >> 10, freed >> 10, (allocated-freed) >> 10);
     left -= size;
     buf += size;
@@ -760,7 +760,7 @@ static ssize_t sys_status(struct device* dev, struct device_attribute* attr,
 	    }
 	    size = scnprintf(buf, left,
 			    "%d: key=0x%8.8x size=%zu aligned=%zu ul=%d k=%d creator=%d mem=%p\n",
-			     i, seg->key, seg->size, seg->act_size, 
+			     i, seg->key, seg->size, seg->act_size,
 			     seg->n_uattach,
 			     seg->n_kattach, seg->creator, seg->kmem);
 	    left -= size;
@@ -815,7 +815,7 @@ static int shmdrv_init(void) {
     return 0;
 }
 
-static void shmdrv_exit(void) 
+static void shmdrv_exit(void)
 {
     int ret;
 

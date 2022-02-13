@@ -178,7 +178,7 @@ static int comp_id;		/* component ID */
 static long periodns = -1;	/* makepulses function period in nanosec */
 
 static const char *compname = "pwmgenv2";
-static const char *prefix = "pwmgenv2"; 
+static const char *prefix = "pwmgenv2";
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -241,12 +241,12 @@ static int instantiate_pwmgen(const int argc, char* const *argv)
     pwmgen_t *p;
     int retval;
     const char* name;
-    
+
     if(argc >= 2)
         name = argv[1];
     else
         HALFAIL_RC(EINVAL, "ERROR: insufficient args in argv");
-    
+
     if ((retval = hal_inst_create(name, comp_id, sizeof(pwmgen_t), (void **)&p)) < 0)
 	return retval;
 

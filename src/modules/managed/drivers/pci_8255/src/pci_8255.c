@@ -58,7 +58,7 @@ static void read_all(struct state *inst, long period);
 static void extra_cleanup(void);
 
 #define SHIFT 4
-static inline void WRITE(int value, hal_u32_t base, int offset) { 
+static inline void WRITE(int value, hal_u32_t base, int offset) {
     // int *mem = (int*) base;
     rtapi_outb(value, base + SHIFT*offset);
     // mem[offset] = value;
@@ -113,7 +113,7 @@ static int export(char *prefix, struct port *inst, int ioaddr, int dir) {
         if(i < 4) {
             if(inst->dir_ & 1) direction = HAL_OUT;
             else direction = HAL_IN;
-        } else { 
+        } else {
             if(inst->dir_ & 4) direction = HAL_OUT;
             else direction = HAL_IN;
         }
@@ -206,7 +206,7 @@ int rtapi_app_main(void) {
 	    if(r != 0) goto out_error;
 	}
 	hal_pin_bit_newf(HAL_IN, &(inst[i].relay), comp_id, "pci8255.%d.relay", i);
-	hal_param_bit_newf(HAL_RW, &(inst[i].relay_invert), comp_id, 
+	hal_param_bit_newf(HAL_RW, &(inst[i].relay_invert), comp_id,
 		    "pci8255.%d.relay-invert", i);
 	rtapi_snprintf(buf, sizeof(buf), "pci8255.%d.write-relay", i);
 	r = hal_export_funct(buf, (void(*)(void *inst, long))write_relay, &inst[i], 0, 0, comp_id);
@@ -264,7 +264,7 @@ static int extra_setup(void) {
     if(!rtapi_request_region(io[extra_arg], 16, "pci_8255")) {
 	// set this I/O port to 0 so that EXTRA_CLEANUP does not release the IO
 	// ports that were never requested.
-        io[extra_arg] = 0; 
+        io[extra_arg] = 0;
         return -EBUSY;
     }
     dir_ = dir[extra_arg/3] & 0xf;

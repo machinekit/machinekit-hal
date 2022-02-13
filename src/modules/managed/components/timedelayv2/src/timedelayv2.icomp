@@ -1,15 +1,15 @@
 component timedelayv2 "The equivalent of a time-delay relay";
 
 pin_ptr in bit in;
-pin_ptr out bit out 
+pin_ptr out bit out
 """Follows the value of \\fBin\\fR after applying the delays
 \\fBon-delay\\fR and \\fBoff-delay\\fR.""";
 
-pin_ptr in float on-delay = 0.5 
+pin_ptr in float on-delay = 0.5
 """The time, in seconds, for which \\fBin\\fR must be
 \\fBtrue\\fR before \\fBout\\fR becomes \\fBtrue\\fR""";
 
-pin_ptr in float off-delay = 0.5 
+pin_ptr in float off-delay = 0.5
 """The time, in seconds, for which \\fBin\\fR must be
 \\fBfalse\\fR before \\fBout\\fR becomes \\fBfalse\\fR""";
 

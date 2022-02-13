@@ -20,7 +20,7 @@
    * [HAL pins](#hal-pins)
    * [Run in HAL mode (halrun)](#run-in-hal-mode-halrun)
 
-## Introduction 
+## Introduction
 
 This component provides an interface to the WHB04B-6 pendant. In productive mode the interface is placed in shared memory, where other components can interact with. The component may be alternatively started in simulation mode, which does not require shared memory at all, but allows a user to inspect the device connectivity.
 
@@ -407,5 +407,5 @@ hal   start/stop disabled (pin # 4)
 ^Ctermination requested upon signal number 2 ...
 connection lost, cleaning up
 
-halcmd: 
+halcmd:
 ```

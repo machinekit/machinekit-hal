@@ -1,4 +1,4 @@
-// simple unmanaged counter component 
+// simple unmanaged counter component
 // set target pin to value and will count up to value in half second increments
 // I used for generating changing pin values to test reading by other components
 
@@ -10,7 +10,7 @@ pin in bit trigger = 0;
 pin out bit start = 0;
 pin out bit running = 0;
 pin out bit stopped = 0;
-option singleton yes;               
+option singleton yes;
 option userspace yes;
 
 author "ArcEye <arceyeATmgwareDOTcoDOTuk>";
@@ -18,7 +18,7 @@ license "GPL";
 ;;
 
 #include <stdio.h>    /* Standard input/output definitions */
-#include <stdlib.h> 
+#include <stdlib.h>
 #include <stdint.h>   /* Standard types */
 #include <unistd.h>   /* UNIX standard function definitions */
 

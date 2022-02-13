@@ -60,11 +60,11 @@ function process_wsums fp;
 FUNCTION(process_wsums)
 {
 hal_s32_t b;
-    
-    if (!hold) 
+
+    if (!hold)
 	{
 	running_total = offset;
-	for (b=0 ; b < local_pincount ; b++) 
+	for (b=0 ; b < local_pincount ; b++)
 	    {
 	    if (in(b))
 		running_total += weight(b);
@@ -74,6 +74,3 @@ hal_s32_t b;
 
     return 0;
 }
-
-
-

@@ -1,18 +1,18 @@
 /*****************************************************************************
 
     Instantiatiable recorder with configurable pins
-    
+
     This recorder puts pin values with a timestamp in a protobuf encoded message
     in a HAL ringbuffer.
-    
+
     See also:
     * sample_channel.hal
     * show_sample.py
     * sample.proto
-    
+
     Usage:
     newinst sample_channel_pb sampler --- samples=bbfusUS cycles=10
-    
+
     This will create an instance "sampler" with pins and a ring.
     The ring can contain at least 10 cycles of the record_sample.funct
     Pins:
@@ -28,7 +28,7 @@
     Optionally:
     * you can name the pins at instantiation time like so:
       newinst sample_channel_pb sampler --- samples=bff pinnames=foo,bar,baz cycles=10
-    
+
       this will than create the following pins of types:
       sampler.foo -> bit
       sampler.bar -> float
@@ -38,7 +38,7 @@
     License: GPL Version 2
 
     Copyright (c) 2019 All rights reserved.
-    
+
     This program is free software; you can redistribute it and/or
     modify it under the terms of version 2 of the GNU General
     Public License as published by the Free Software Foundation.
@@ -46,7 +46,7 @@
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-    
+
     You should have received a copy of the GNU General Public
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111 USA
@@ -94,7 +94,7 @@ struct inst_data{
     hal_u32_t 		*send_fail;		    // error counter on the send side
     hal_u32_t       *dropped;           // dropped sampled due to full ring;
     char            pinnames[MAX_PINS][HAL_NAME_LEN];  //contains names
-  
+
     // the ringbuffer
     ringbuffer_t    sample_ring;
     size_t          sample_size;
@@ -220,7 +220,7 @@ static int record_sample(void *arg, const hal_funct_args_t *fa)
                     rtapi_print_msg(RTAPI_MSG_ERR,
                     "%s: sending of message failed = %d", compname, retval);
                 *(ip->send_fail) +=1;
-            } 
+            }
         }
     }
     return 0;
@@ -343,7 +343,7 @@ static int export_pins(struct inst_data *ip, const char *name)
                 comp_id, "%s", ip->pinnames[i])) < 0) {
             return retval;
         }
-        
+
 	}
     // create misc pins
     if (((retval = hal_pin_bit_newf(HAL_IN, &(ip->record), comp_id,
@@ -385,7 +385,7 @@ static int create_ring(struct inst_data *ip, const char *name)
             flags & RINGTYPE_MASK);
 		    return -EINVAL;
 		}
-    } 
+    }
     else
     {
 		HALERR("ring %s.ring does not exist", name);

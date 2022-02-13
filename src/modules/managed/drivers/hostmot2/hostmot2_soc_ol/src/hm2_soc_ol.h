@@ -24,8 +24,8 @@
 
 #define HM2_SOC_MAX_BOARDS  2
 
-// AFAICT  hm2_soc_pins_t struct 
-// is not used, its members are 
+// AFAICT  hm2_soc_pins_t struct
+// is not used, its members are
 // not referenced anywhere
 // and the driver does not create
 // pins of these names
@@ -58,4 +58,3 @@ typedef struct {
     int debug;
     int already_programmed;
 } hm2_soc_t;
-

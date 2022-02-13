@@ -93,7 +93,7 @@ RTAPI_MP_ARRAY_STRING(fmt_strings, MAX_CHAN, "screen formatting scancodes")
 int rtapi_app_main(void){
     int i, f, f1, k, p;
     int retval;
-    
+
     if (!fmt_strings[0]){
         rtapi_print_msg(RTAPI_MSG_ERR, "The LCD component requires at least one valid format string");
         return -EINVAL;
@@ -104,7 +104,7 @@ int rtapi_app_main(void){
         rtapi_print_msg(RTAPI_MSG_ERR, "LCD: ERROR: hal_init() failed\n");
         return -1;
     }
-    
+
     // allocate shared memory for data
     lcd = hal_malloc(sizeof(lcd_t));
     if (lcd == 0) {
@@ -113,21 +113,21 @@ int rtapi_app_main(void){
         hal_exit(comp_id);
         return -1;
     }
-    
+
     // Count the instances. Very unlikely to be more than one, but...
     for (lcd->num_insts = 0; fmt_strings[lcd->num_insts];lcd->num_insts++){}
     lcd->insts = hal_malloc(lcd->num_insts * sizeof(lcd_inst_t));
-    
+
     for (i = 0; i < lcd->num_insts; i++){
         lcd_inst_t *inst = &lcd->insts[i];
         inst->num_pages = 1;
-        
+
         // count the pages demarked by | chars.
         for (f = 0; fmt_strings[i][f]; f++){
             if (fmt_strings[i][f] =='|') inst->num_pages++;
         }
         inst->pages = hal_malloc(inst->num_pages * sizeof(lcd_page_t));
-        
+
         //second pass
         f1 = k = p = 0;
         for (f = 0; fmt_strings[i][f]; f++){
@@ -137,7 +137,7 @@ int rtapi_app_main(void){
                     inst->pages[p].num_args++;
                 }
             }
-            
+
             if (fmt_strings[i][f + 1] =='|' || fmt_strings[i][f + 1] == 0) {
                 inst->pages[p].fmt = hal_malloc(f - f1 + 2);
                 retval = rtapi_snprintf(inst->pages[p].fmt,
@@ -150,9 +150,9 @@ int rtapi_app_main(void){
                 {
                     int a = -1, s = -1;
                     lcd_page_t page = inst->pages[p];
-                    
+
                     while (page.fmt[++s]){
-                        
+
                         if (page.fmt[s] == '%'){
                             int type = parse_fmt(page.fmt, &s, NULL, NULL, 0);
                             a++;
@@ -175,7 +175,7 @@ int rtapi_app_main(void){
                                     if (retval != 0) {
                                         return retval;
                                     }
-                                    
+
                                     break;
                                 case 's':
                                     retval = hal_pin_s32_newf(HAL_IN,
@@ -208,7 +208,7 @@ int rtapi_app_main(void){
         rtapi_print_msg(RTAPI_MSG_ERR, "LCD: ERROR: function export failed\n");
         return -1;
     }
-    
+
     for (i = 0; i < lcd->num_insts; i++){
         retval = hal_pin_u32_newf(HAL_IN, &(lcd->insts[i].page_num), comp_id,
                                   "lcd.%02i.page_num", i);
@@ -260,10 +260,10 @@ int rtapi_app_main(void){
 void write(void *arg, long period){
     lcd_t *lcd;
     int i;
-    
+
     lcd = arg;
 
-    for (i = 0; i < lcd->num_insts; i++){ 
+    for (i = 0; i < lcd->num_insts; i++){
         lcd_inst_t *inst = &lcd->insts[i];
         write_one(inst);
     }
@@ -273,7 +273,7 @@ static void write_one(lcd_inst_t *inst){
     static int counter = 100; //100 cycle delay before start
     int retval;
     char c1, c2;
-    
+
     if (counter > 0){
         --counter;
         return;}
@@ -282,12 +282,12 @@ static void write_one(lcd_inst_t *inst){
         *inst->out = inst->buff[inst->c_ptr++];
         return;
     }
-    
+
     inst->c_ptr = 0;
     inst->buff[0] = 0;
 
     if (*inst->page_num >= inst->num_pages) return; // should this error?
-    
+
     if (*inst->page_num != inst->last_page){
         inst->last_page = *inst->page_num;
         *inst->out = 0x11; //cursor off
@@ -311,7 +311,7 @@ static void write_one(lcd_inst_t *inst){
         inst->a_ptr = 0;
         return;
     }
-    
+
     if (*inst->contrast != inst->last_contrast){
         int c = *inst->contrast * 159.0 + 0x20;
         if (c > 0xBF) c = 0xBF;
@@ -324,7 +324,7 @@ static void write_one(lcd_inst_t *inst){
         inst->c_ptr = 0;
         return;
     }
-    
+
     switch (inst->pages[*inst->page_num].fmt[inst->f_ptr]){
         case '\\': //escape chars
             c1 = inst->pages[*inst->page_num].fmt[++inst->f_ptr];
@@ -350,14 +350,14 @@ static void write_one(lcd_inst_t *inst){
                     inst->f_ptr++;
                     inst->buff[0] = '\\';
                     inst->buff[1] = 0;
-                    
+
                 default: //check for hex
                     c2 = inst->pages[*inst->page_num].fmt[++inst->f_ptr];
                     inst->f_ptr++;
                     if (c1 > '9') c1 &= 0xDF; //upper case
                     if (c2 > '9') c2 &= 0xDF;
                     if (strchr(digits, c1) && strchr(digits, c2)){
-                        inst->buff[0] = (16 * (strchr(digits, c1) - digits) 
+                        inst->buff[0] = (16 * (strchr(digits, c1) - digits)
                                                + (strchr(digits, c2) - digits));
                         inst->buff[1] = 0;
                     } else {
@@ -398,10 +398,10 @@ static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp){
      if out is null, then simply return the type of the format
      as u, s or f. a return value of -1 indicates an invalid pointer
      on exit ptr will point after the end of the format*/
-    
+
     const double pow10[] = {1,10,1e2,1e3,1e4,1e5,1e6,1e7,1e8,1e9,1e10,1e11,
         1e12,1e13,1e14,1e15,1e16,1e17,1e18,1e19,1e20};
-    
+
     char fill = ' ';
 
     int d = 0; // dot found
@@ -458,11 +458,11 @@ static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp){
                         c = (in[*ptr] - '0');
                     }
                 }
-                
+
                 if (c > MAX_ENTRY) c = MAX_ENTRY;
-                
+
                 break;
-                        
+
             case 'x':
             case 'X':
                 base = 16;
@@ -502,12 +502,12 @@ static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp){
                 int tmp, s = 0;
                 int i;
                 int v = *((hal_s32_t*)val);
-                
+
                 if (sgn == '+') s = 1;
                 if (v < 0) {s = 1; sgn = '-'; v = -v;}
-                
+
                 if (c < 1) c = num_digits_baseN(v, base) + s;
- 
+
                 tmp = abs(v);
                 for (i = c - 1; i >= s; i--){
                     if (tmp != 0 || i == c - 1){
@@ -530,9 +530,9 @@ static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp){
                     for (i = 0; i < c; i++){out[i] = '*';}
                 }
                 if (s) out[0] = sgn;
-                
+
                 out[c] = 0;
-                
+
                 return 's';
             }
             case 'f':
@@ -543,25 +543,25 @@ static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp){
                 double v = *((hal_float_t*)val);
                 __u64 tmp = 0; //enough bits for 9 decimal digits.
                 int s = 0;
-                
+
                 if (sgn != ' ') s = 1;
                 if (v < 0) {s = 1; sgn = '-'; v = -v;}
-                
+
                 if (m < 0) m = 4;
-                
+
                 if (c < 1) c = num_digits_baseN(v, base) + m + 1 + s;
-                
+
                 if (c > MAX_ENTRY){ // then it won't fit
                     tmp = 2;
                     goto overflow;
                 }
-                
+
                 tmp = v * pow10[m] + 0.5;
-                
+
                 for (i = c - 1; i > c - m - 1 ; i--){
                     out[i] = digits[do_div(tmp, 10)];
                 }
-                
+
                 if (m > 0) {
                     out[i] = dp;
                 }
@@ -569,7 +569,7 @@ static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp){
                 {
                     m = -1; // shuffle down into decimal point
                 }
-                
+
                 for (i = c - m - 2; i >= s ; i--){
                     if (tmp > 0 || i == c - m - 2){
                         out[i] = digits[do_div(tmp, 10)];
@@ -587,18 +587,18 @@ static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp){
                         }
                     }
                 }
-                
+
                 if (s){
                     out[0] = sgn;
                 }
-                
+
             overflow:
                 if (tmp > 0){ // it didn't fit
                     for (i = 1; i < c; i++){out[i] = '*';}
                 }
-                
+
                 out[c] = 0; //terminate the string
-                
+
                 return 'f';
             }
             case 'c':
@@ -606,7 +606,7 @@ static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp){
             {
                 int i;
                 unsigned char v = *((hal_u32_t*)val);
-                
+
                 if (c == 0) c = 1;
                 for (i = 0; i < c; i++){
                     out[i] = (v > ' ')? v : ' ';
@@ -626,10 +626,10 @@ static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp){
                     c2 = in[++(*ptr)];
                     if (c2 > '9') c2 &= 0xDF;
                     if (strchr(digits, c1) && strchr(digits, c2)){
-                        bt = (16 * (strchr(digits, c1) - digits) 
+                        bt = (16 * (strchr(digits, c1) - digits)
                               + (strchr(digits, c2) - digits));
                     }
-                } 
+                }
                 else
                 {
                     bt = in[*ptr];
@@ -638,10 +638,10 @@ static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp){
                     c1 = in[++(*ptr)] & 0xDF;
                     c2 = in[++(*ptr)] & 0xDF;
                     if (strchr(digits, c1) && strchr(digits, c2)){
-                        bf = (16 * (strchr(digits, c1) - digits) 
+                        bf = (16 * (strchr(digits, c1) - digits)
                               + (strchr(digits, c2) - digits));
                     }
-                } 
+                }
                 else
                 {
                     bf = in[*ptr];

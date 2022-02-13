@@ -3,7 +3,7 @@
 # You may distribute this software under the GNU GPL v2 or later
 #
 # Hexapod visualization.
-# In HAL, you must link axis.* to cartesian coordinates from 
+# In HAL, you must link axis.* to cartesian coordinates from
 # halui, because I am too lazy to implement inverse kinematics.
 # This causes some mismatch between the struts and platform.
 # Hopefully this can be fixed with some twiddling.
@@ -42,9 +42,9 @@ c.ready()
 #draw it!
 
 minitetra = 1
-#stolen from genhexkins.h 
+#stolen from genhexkins.h
 # you must change these if you are not using minitetra
-# positions of base strut ends in base (world) coordinates	
+# positions of base strut ends in base (world) coordinates
 base_offsets = list(range(6))
 base_offsets[0] = (-22.950, 13.250, 0)
 base_offsets[1] = (22.950, 13.250, 0)
@@ -53,7 +53,7 @@ base_offsets[3] = (0, -26.5, 0)
 base_offsets[4] = (0, -26.5, 0)
 base_offsets[5] = (-22.950, 13.250, 0)
 
-# position of platform strut end in platform coordinate system 
+# position of platform strut end in platform coordinate system
 plat_offsets = list(range(6))
 plat_offsets[0] = (-1, 11.5, 0)
 plat_offsets[1] = (1, 11.5, 0)
@@ -113,8 +113,8 @@ for i in range(6):
   inner = HalTranslate([inner],c,hal_pin,0,0,scale)
   inner = Translate([inner],0,0,strut_length)
   strut = Collection([inner, outer])
-  
-  #build platform  
+
+  #build platform
 #  plat_joint_coords += [Capture()]
   plat_joint_coords = Capture()
   plat_joint = BoxCentered(1,1,2)
@@ -123,12 +123,12 @@ for i in range(6):
   if(minitetra):
     plat_joint = Rotate([plat_joint],-120*(i%2)+60*i, 0,0,1)
     x,y,z = plat_offsets[i]
-    plat_joint = Translate([plat_joint],x,y,z) 
+    plat_joint = Translate([plat_joint],x,y,z)
   else:
     plat_joint = Translate([plat_joint], 0.8*plat_radius,0,-plat_thickness)
     plat_joint = Rotate([plat_joint], angles[i]-120*(i%2)+60, 0,0,1)
   plat_joints += [plat_joint]
-  
+
   #build base
 #  base_joint_coords += [Capture()]
   base_joint_coords = Capture()
@@ -143,7 +143,7 @@ for i in range(6):
     base_joint = Translate([base_joint], 0.8*base_radius,0,0)
     base_joint = Rotate([base_joint], angles[i], 0,0,1)
   base_joints += [base_joint]
-  
+
   #point strut at platform - this also translates the strut to the base joint
   #because i couldnt figure out how to rotate it around the base of the strut
   strut = Track([strut],base_joint_coords, plat_joint_coords, world_coords)
@@ -188,4 +188,3 @@ model = Collection([platform, struts, base, workpiece, foo])
 
 #main(model, tool_coords, work_coords, size=30, hud=myhud)
 main(model, tool_coords, work_coords, size=30)
-

@@ -29,7 +29,7 @@
 #include "runtime/rtapi_app.h"
 #endif
 #include "runtime/rtapi_string.h"
-#include <hal/hal.h>		
+#include <hal/hal.h>
 #include <hal/hal_priv.h>	// need to get this from source and add it
 #include <hal/hal_accessor.h>
 #include "hal/hal_internal.h"
@@ -49,4 +49,3 @@
 #define false (0)
 
 #endif
-

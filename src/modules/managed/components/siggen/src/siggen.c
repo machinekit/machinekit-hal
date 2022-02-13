@@ -1,18 +1,18 @@
 /********************************************************************
 * Description:  siggen.c
-*               This file, 'siggen.c', is a HAL component that 
-*               generates square, triangle, sine, cosine, and 
+*               This file, 'siggen.c', is a HAL component that
+*               generates square, triangle, sine, cosine, and
 *               sawtooth waves plus a clock signal.
 *
 * Author: John Kasunich
 * License: GPL Version 2
-*    
+*
 * Copyright (c) 2003 All rights reserved.
 *
 * Last change:  17Nov2010 - Matt Shaver added the "clock" output pin.
 ********************************************************************/
 /** This file, 'siggen.c', is a HAL component that generates square,
-    triangle, sine, cosine, and sawtooth waves.  I expect that it 
+    triangle, sine, cosine, and sawtooth waves.  I expect that it
     will mostly be used for testing.  It is a realtime component.
 
     It supports any number of signal generators, as set by the

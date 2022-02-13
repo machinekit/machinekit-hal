@@ -25,9 +25,9 @@
 
 
 
-// 
+//
 // EPP stuff
-// 
+//
 
 #define HM2_7I43_EPP_STATUS_OFFSET   (1)
 #define HM2_7I43_EPP_CONTROL_OFFSET  (2)
@@ -56,4 +56,3 @@ typedef struct {
 
     hm2_lowlevel_io_t llio;
 } hm2_7i43_t;
-

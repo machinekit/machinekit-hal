@@ -1,11 +1,11 @@
 /**********************************************************************
  * Demo of writing a SMP_SAFE managed module in std C++
- * 
+ *
  * Based on the constant.icomp component
- * 
+ *
  * ArcEye 2015  <arceyeATmgwareDOTcoDOTuk>
- * 
-***********************************************************************/ 
+ *
+***********************************************************************/
 
 #include "LCNC_Headers.h"
 

@@ -1,7 +1,7 @@
 = RTAPI PCI
-:author: Jakub Fišer <jakub DOT fiser AT eryaf DOT com> 
-:description: RTAPI_pci sourcetree README 
-:sectanchors: 
+:author: Jakub Fišer <jakub DOT fiser AT eryaf DOT com>
+:description: RTAPI_pci sourcetree README
+:sectanchors:
 :url-repo: https://machinekit.io
 
 Temporary solution to allow conditional inclusion of PCI related code for architectures supporting current implementation (all except ARM64). Should go away once the implementation can support PCI(e) on all supported platforms.

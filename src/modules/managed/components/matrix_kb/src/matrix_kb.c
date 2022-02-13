@@ -74,37 +74,37 @@ void keyup(kb_inst_t *inst){
 
     r = keycode >> inst->rowshift;
     c = keycode & ~(0xFFFFFFFF << inst->rowshift);
-    
-    if  (r < 0 
+
+    if  (r < 0
          || c < 0
-         || r >= inst->nrows 
+         || r >= inst->nrows
          || c >= inst->ncols
          || inst->hal.key[r * inst->ncols + c] == NULL){
         return;
     }
-    
+
     if (inst->num_keys > 0) inst->num_keys--;
-    
+
     *inst->hal.key[r * inst->ncols + c] = 0;
 }
 void keydown(kb_inst_t *inst){
     int r, c;
     int keycode = *inst->hal.keycode & ~(inst->keydown | inst->keyup);
-    
+
     r = keycode >> inst->rowshift;
     c = keycode & ~(0xFFFFFFFF << inst->rowshift);
-    
-    if  (r < 0 
+
+    if  (r < 0
          || c < 0
-         || r >= inst->nrows 
+         || r >= inst->nrows
          || c >= inst->ncols
          || inst->hal.key[r * inst->ncols + c] == NULL){
         return;
     }
-    
+
     if (inst->num_keys >= inst->param.rollover) return;
     inst->num_keys++;
-    
+
     *inst->hal.key[r * inst->ncols + c] = 1;
 }
 
@@ -112,7 +112,7 @@ void keydown(kb_inst_t *inst){
     int c;
     hal_u32_t scan = 0;
     kb_inst_t *inst = arg;
-    
+
     if (inst->scan){ //scanning request
         for (c = 0; c < inst->ncols; c++){
             scan += ((*inst->hal.cols[c] != inst->param.invert) << c);
@@ -122,24 +122,24 @@ void keydown(kb_inst_t *inst){
             for (c = 0; c < inst->ncols; c++){
                 int mask = 1 << c;
                 if ((inst->then[inst->row] & mask) && !(scan & mask)){ //keyup
-                    *inst->hal.keycode = inst->keyup 
-                    + (inst->row << inst->rowshift) 
+                    *inst->hal.keycode = inst->keyup
+                    + (inst->row << inst->rowshift)
                     + c;
                     keyup(inst);
                 }
                 else if (!(inst->then[inst->row] & mask) && (scan & mask)){//keydown
-                    *inst->hal.keycode = inst->keydown 
-                    + (inst->row << inst->rowshift) 
+                    *inst->hal.keycode = inst->keydown
+                    + (inst->row << inst->rowshift)
                     + c;
-                    
+
                     keydown(inst);
                 }
             }
         }
-        
+
         inst->then[inst->row] = inst->now[inst->row];
         inst->now[inst->row] = scan;
-        
+
         *inst->hal.rows[inst->row] = inst->param.invert;
         inst->row++;
         if (inst->row >= inst->nrows) inst->row = 0;
@@ -167,7 +167,7 @@ int rtapi_app_main(void){
         rtapi_print_msg(RTAPI_MSG_ERR, "matrix_kb: ERROR: hal_init() failed\n");
         return -1;
     }
-    
+
     // allocate shared memory for data
     kb = hal_malloc(sizeof(kb_t));
     if (kb == 0) {
@@ -176,21 +176,21 @@ int rtapi_app_main(void){
         hal_exit(comp_id);
         return -1;
     }
-    
+
     // Count the instances.
     for (kb->num_insts = 0; config[kb->num_insts];kb->num_insts++);
     // Count the names.
     for (n = 0; names[n];n++);
-    
+
     if (n && n != kb->num_insts){
         rtapi_print_msg(RTAPI_MSG_ERR, "matrix_kb: Number of sizes and number"
                         " of names must match\n");
         hal_exit(comp_id);
         return -1;
     }
-    
+
     kb->insts = hal_malloc(kb->num_insts * sizeof(kb_inst_t));
-    
+
     for (i = 0; i < kb->num_insts; i++){
         int a = 0;
         int c, r;
@@ -202,7 +202,7 @@ int rtapi_app_main(void){
         inst->scan = 0;
         inst->keystroke = 0;
         inst->param.invert = 1;
-        
+
         for(j = 0; config[i][j] !=0; j++){
             int n = (config[i][j] | 0x20); //lower case
             if (n == 'x'){
@@ -217,33 +217,33 @@ int rtapi_app_main(void){
             }
         }
         inst->ncols = a;
-        
+
         if (inst->ncols == 0 || inst->nrows == 0){
             rtapi_print_msg(RTAPI_MSG_ERR,
                             "matrix_kb: Invalid size format. should be NxN\n");
             hal_exit(comp_id);
             return -1;
         }
-        
+
         if (inst->ncols > 32){
             rtapi_print_msg(RTAPI_MSG_ERR,
                             "matrix_kb: maximum number of columns is 32. Sorry\n");
             hal_exit(comp_id);
             return -1;
         }
-        
+
         for (inst->rowshift = 1; inst->ncols > (1 << inst->rowshift); inst->rowshift++);
         for (inst->keydown = 0xC0, inst->keyup = 0x80
              ; (inst->nrows << inst->rowshift) > inst->keydown
              ; inst->keydown <<= 1, inst->keyup <<= 1);
-        
+
         inst->hal.key = (hal_bit_t **)hal_malloc(inst->nrows * inst->ncols * sizeof(hal_bit_t*));
         inst->now = hal_malloc(inst->nrows * sizeof(hal_u32_t));
         inst->then = hal_malloc(inst->nrows * sizeof(hal_u32_t));
         inst->row = 0;
         inst->param.rollover = 2;
-        
-        
+
+
         if (names[i]){
             rtapi_snprintf(inst->name, sizeof(inst->name), "%s", names[i]);
         }
@@ -251,13 +251,13 @@ int rtapi_app_main(void){
         {
             rtapi_snprintf(inst->name, sizeof(inst->name), "matrix_kb.%i", i);
         }
-        
+
         for (c = 0; c < inst->ncols; c++){
-            for (r = 0; r < inst->nrows; r++){  
+            for (r = 0; r < inst->nrows; r++){
                 retval = hal_pin_bit_newf(HAL_OUT,
-                                          &(inst->hal.key[r * inst->ncols + c]), 
+                                          &(inst->hal.key[r * inst->ncols + c]),
                                           comp_id,
-                                          "%s.key.r%xc%x", 
+                                          "%s.key.r%xc%x",
                                           inst->name, r, c);
                 if (retval != 0) {
                     rtapi_print_msg(RTAPI_MSG_ERR,
@@ -267,11 +267,11 @@ int rtapi_app_main(void){
                 }
             }
         }
-        
+
         if (inst->scan){ //internally generated scanning
             inst->hal.rows = (hal_bit_t **)hal_malloc(inst->nrows * sizeof(hal_bit_t*));
             inst->hal.cols = (hal_bit_t **)hal_malloc(inst->ncols * sizeof(hal_bit_t*));
-            
+
             for (r = 0; r < inst->nrows; r++){
                 retval = hal_pin_bit_newf(HAL_OUT,
                                           &(inst->hal.rows[r]), comp_id,
@@ -294,7 +294,7 @@ int rtapi_app_main(void){
                     return -1;
                 }
             }
-                
+
             retval = hal_pin_u32_newf(HAL_OUT,
                                       &(inst->hal.keycode), comp_id,
                                       "%s.keycode",inst->name);
@@ -304,7 +304,7 @@ int rtapi_app_main(void){
                 hal_exit(comp_id);
                 return -1;
             }
-            
+
             retval = hal_param_bit_newf(HAL_RW,
                                       &(inst->param.invert), comp_id,
                                       "%s.negative-logic",inst->name);
@@ -314,8 +314,8 @@ int rtapi_app_main(void){
                 hal_exit(comp_id);
                 return -1;
             }
-            
-            
+
+
             retval = hal_param_u32_newf(HAL_RW,
                                       &(inst->param.rollover), comp_id,
                                       "%s.key_rollover",inst->name);
@@ -325,7 +325,7 @@ int rtapi_app_main(void){
                 hal_exit(comp_id);
                 return -1;
             }
-            
+
         }
         else // scanning by 7i73 or similar
         {
@@ -339,7 +339,7 @@ int rtapi_app_main(void){
                 return -1;
             }
         }
-        
+
         retval = hal_export_funct(inst->name, loop, inst, 1, 0, comp_id); //needs fp?
         if (retval < 0) {
             rtapi_print_msg(RTAPI_MSG_ERR, "matrix_kb: ERROR: function export failed\n");
@@ -347,7 +347,7 @@ int rtapi_app_main(void){
         }
     }
     hal_ready(comp_id);
-    
+
     return 0;
 }
 

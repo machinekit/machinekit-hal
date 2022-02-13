@@ -411,7 +411,7 @@ process_rcomp_bind(htself_t *self, zmsg_t *from,
         retval = validate_component(cname, pbcomp, self->tx);
         if (retval) {
 	    zframe_t *o = zmsg_first (from);  // freed with msg
-	    if(o == NULL){                          
+	    if(o == NULL){
 		rtapi_print_msg(RTAPI_MSG_ERR,"process_rcomp_bind(): NULL zframe_t 'o' passed");
 		return -1;
 		}
@@ -482,7 +482,7 @@ dispatch_request(htself_t *self, zmsg_t *from, void *socket)
         // check for component submessages, and fail if none present
         if (self->rx.comp_size() == 0) {
 	    zframe_t *o = zmsg_first (from);  // freed with msg
-	    if(o == NULL){                          
+	    if(o == NULL){
 		rtapi_print_msg(RTAPI_MSG_ERR,"dispatch_request(): NULL zframe_t 'o' passed");
 		return -1;
 		}
@@ -523,7 +523,7 @@ dispatch_request(htself_t *self, zmsg_t *from, void *socket)
         note_printf(self->tx, "rcommand %d: not implemented", self->rx.type());
         send_pbcontainer(from, self->tx, socket);
 	zframe_t *o = zmsg_first (from);  // freed with msg
-	if(o == NULL){                          
+	if(o == NULL){
 	    rtapi_print_msg(RTAPI_MSG_ERR,"process_rcomp_bind(): NULL zframe_t 'o' passed");
 	    return -1;
 	    }

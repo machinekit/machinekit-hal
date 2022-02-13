@@ -52,12 +52,12 @@ FUNCTION(_)
 {
 hal_float_t p, a, b, alin, clin, xm, ym, xinv, yinv;
 
-    if (gf(power) < 1.0) 
+    if (gf(power) < 1.0)
         sf(power, 1.0);
 
-    if (gf(deadband) >= 0.99) 
+    if (gf(deadband) >= 0.99)
         sf(deadband, 0.99);
-    else if (gf(deadband) <= 0.0) 
+    else if (gf(deadband) <= 0.0)
         sf(deadband, 0.0);
 
     p = gf(power) - 1.0;
@@ -66,21 +66,21 @@ hal_float_t p, a, b, alin, clin, xm, ym, xinv, yinv;
     alin = -gf(scale)/(gf(deadband)-1.0);
     clin = 1.0 *(gf(scale)+gf(offset)-alin);
 
-    if (gf(in) >= 1.0) 
+    if (gf(in) >= 1.0)
         sf(out, gf(scale) + gf(offset));
-    else if ((gf(in) <= gf(deadband)) && (gf(in) >= (-1.0 *gf(deadband)))) 
+    else if ((gf(in) <= gf(deadband)) && (gf(in) >= (-1.0 *gf(deadband))))
         sf(out, 0.0);
-    else if (gf(in) <= -1.0) 
+    else if (gf(in) <= -1.0)
         sf(out, -gf(scale) - gf(offset));
     else if ((gf(in) > gf(deadband)) && (gf(in) < 1.0))
         {
-        if (gf(power) == 1.0) 
+        if (gf(power) == 1.0)
             sf(out, alin * gf(in) + clin);
-        else 
+        else
             {
-            if (gb(inverse) == 0) 
+            if (gb(inverse) == 0)
                 sf(out, gf(scale) * (a * rtapi_pow(gf(in),gf(power)) + b * gf(in)) + gf(offset));
-            else 
+            else
                 {
                 xm = (gf(deadband)+1.0) / 2.0;
                 ym = alin*xm + clin;
@@ -92,13 +92,13 @@ hal_float_t p, a, b, alin, clin, xm, ym, xinv, yinv;
         }
     else if ((gf(in) < (-1.0 *gf(deadband))) && (gf(in) > -1.0))
         {
-        if (gf(power) == 1.0) 
+        if (gf(power) == 1.0)
             sf(out, -1.0 * (alin*-1.0 * gf(in) + clin));
-        else 
+        else
             {
-            if (gb(inverse) == 0) 
+            if (gb(inverse) == 0)
                 sf(out, -1.0 *(gf(scale) * (a * rtapi_pow((-1.0 * gf(in)),gf(power)) - b * gf(in)) + gf(offset)));
-            else 
+            else
                 {
                 xm = (gf(deadband)+1.0)/2.0;
                 ym = alin*xm + clin;
@@ -108,7 +108,7 @@ hal_float_t p, a, b, alin, clin, xm, ym, xinv, yinv;
                 }
             }
         }
-    else 
+    else
         sf(out, 0.0);
 
 return 0;

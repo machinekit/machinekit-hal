@@ -1,7 +1,7 @@
 = Symbol Visibility
 :author: Jakub Fišer <jakub DOT fiser AT eryaf DOT com>
-:description: Symbol Visibility sourcetree README 
-:sectanchors: 
+:description: Symbol Visibility sourcetree README
+:sectanchors:
 :url-repo: https://machinekit.io
 
 Symbol Visibility provides a Machinekit-HAL specific CMake module used to limit symbol visibility

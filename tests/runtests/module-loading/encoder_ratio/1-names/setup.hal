@@ -1,4 +1,3 @@
 
 loadrt encoder_ratio names=er0
 show pin
-

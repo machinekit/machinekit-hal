@@ -134,7 +134,7 @@ static void pio_set_level(mmap_gpio *pio)
         {
                val |= (0x01 << pio->pin);
         }
-        else 
+        else
         {
                val &= ~(0x01 << pio->pin);
         }
@@ -155,14 +155,14 @@ int libsoc_mmap_gpio_init()
 	int offset = 0x01c20800 & (pagesize - 1);
 
 	int fd = open("/dev/mem", O_RDWR);
-	if (fd == -1) 
+	if (fd == -1)
 	{
 		printf("Failed to open /dev/mem");
 		goto clean;
 	}
 
 	gpio_mem = mmap(NULL, (0x800 + pagesize - 1) & ~(pagesize - 1), PROT_WRITE | PROT_READ, MAP_SHARED, fd, addr);
-	if (gpio_mem == MAP_FAILED) 
+	if (gpio_mem == MAP_FAILED)
 	{
 		printf("Failed to map GPIO");
 		goto clean;

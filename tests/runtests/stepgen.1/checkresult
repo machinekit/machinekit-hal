@@ -33,4 +33,4 @@ done < $1
 # if the end position isn't 1280, it's an error
 if [ $count -ne 1280 ]; then exit 1; fi
 
-exit 0    
+exit 0

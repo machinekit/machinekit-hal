@@ -8,16 +8,16 @@ license "GPL";
 ;;
 FUNCTION(_)
 {
-    if(gb(reset)) 
+    if(gb(reset))
         {
         sf(max_, gf(in));
-        sf(min_, gf(in)); 
+        sf(min_, gf(in));
         }
-    else 
+    else
         {
-        if(gf(in) > gf(max_)) 
+        if(gf(in) > gf(max_))
             sf(max_, gf(in));
-        if(gf(in) < gf(min_)) 
+        if(gf(in) < gf(min_))
             sf(min_, gf(in));
         }
 

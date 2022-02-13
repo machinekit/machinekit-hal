@@ -691,7 +691,7 @@ int main (int argc,char **argv)
     		sleep(5);
     		do_reconnect = 0;
     	}
-    
+
 		r = libusb_init(&ctx);
 
 		if(r < 0) {

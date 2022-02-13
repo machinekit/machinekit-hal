@@ -1,14 +1,14 @@
-# !/bin/bash
+#!/bin/bash
 
 if [ "$#" -lt 2 ]; then
     echo "fix-uuid requires 2 args, an inifile path and a new MKUUID"
-    exit -1 
+    exit -1
 else
     INIFILE=$1
     NEWUUID=$2
 fi
 
-# check machinekit.ini and if it contains old uuid, replace with 
+# check machinekit.ini and if it contains old uuid, replace with
 # new one from command line
 
 if [ -f $INIFILE ]; then

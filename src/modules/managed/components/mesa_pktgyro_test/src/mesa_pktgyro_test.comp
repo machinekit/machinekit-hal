@@ -1,6 +1,6 @@
 component mesa_pktgyro_test "PktUART simple test with Microstrain 3DM-GX3-15 gyro";
 
-description 
+description
 """
 This component is written in order to test
 the PktUART driver for Mesa. It resembles partly Andy Pugh's mesa_uart.comp .

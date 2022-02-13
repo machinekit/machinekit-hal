@@ -62,7 +62,7 @@ FUNCTION(_) {
   } else
     // increment time base by period
     time_set(time_base, time(time_base) + period);
-    
+
   // Difference between expected and actual period start
   period_actual = time(now) - time(prev);
 
@@ -77,7 +77,7 @@ FUNCTION(_) {
 
   // Get reference (unused)
   time_set(ref, rtapi_task_pll_get_reference());
-  
+
   // Average
   samps[(samp_last++)%numsamps] = pll_err;
   samp_avg = 0;

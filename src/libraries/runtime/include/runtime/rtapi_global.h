@@ -23,7 +23,7 @@
     nowadays 'posix threads') session, or a an RT session as supported
     by the currently running kernel
 
-    Dynamic sizing values, e.g. the HAL shm segment size. These values 
+    Dynamic sizing values, e.g. the HAL shm segment size. These values
     change from 'compiled in' to 'startup parameter'.
 
     Data which should be shared within a session, for instance, the
@@ -38,7 +38,7 @@
     instance.
 
     Other possible uses of global_data include, but are not limited to,
-    for instance instance management if one were to support multiple 
+    for instance instance management if one were to support multiple
     HAL/RTAPI instances within a single machine.
 */
 

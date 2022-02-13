@@ -27,7 +27,7 @@ hal_bit_t tmp = false;
     if ( !gb(in) ) goto nomatch;
     if (( gb(a0) && !gb(b0) ) || ( gb(b0) && !gb(a0) )) goto nomatch;
     if (( gb(a1) && !gb(b1) ) || ( gb(b1) && !gb(a1) )) goto nomatch;
-    if (( gb(a2) && !gb(b2) ) || ( gb(b2) && !gb(a2) )) goto nomatch;    
+    if (( gb(a2) && !gb(b2) ) || ( gb(b2) && !gb(a2) )) goto nomatch;
     if (( gb(a3) && !gb(b3) ) || ( gb(b3) && !gb(a3) )) goto nomatch;
     if (( gb(a4) && !gb(b4) ) || ( gb(b4) && !gb(a4) )) goto nomatch;
     if (( gb(a5) && !gb(b5) ) || ( gb(b5) && !gb(a5) )) goto nomatch;

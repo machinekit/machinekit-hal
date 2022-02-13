@@ -26,13 +26,13 @@
 
 
 #define PIN_MODE0	0
-#define PIN_MODE1 1 
-#define PIN_MODE2 2 
-#define PIN_MODE3 3 
-#define PIN_MODE4 4 
-#define PIN_MODE5 5 
-#define PIN_MODE6 6 
-#define PIN_MODE7 7 
+#define PIN_MODE1 1
+#define PIN_MODE2 2
+#define PIN_MODE3 3
+#define PIN_MODE4 4
+#define PIN_MODE5 5
+#define PIN_MODE6 6
+#define PIN_MODE7 7
 
 
 #define CONF_GPIO1_28 0x878
@@ -112,8 +112,8 @@ extern int board_id;
 
 bb_gpio_pin BEAGLEBONE_HLO_PINS[BEAGLEBONE_PINS_PER_HEADER+1] = {
     { NULL, -1, -1, -1, 1 }, // 0 unused
-    { NULL, -1, -1, -1, 1 }, // 1 GND 
-    { NULL, -1, -1, -1, 1 }, // 2 GND 
+    { NULL, -1, -1, -1, 1 }, // 1 GND
+    { NULL, -1, -1, -1, 1 }, // 2 GND
     { NULL, 1,  6, 0x818, 0 }, // pin 3, gpmc_ad6
     { NULL, 1,  7, 0x81C, 0 }, // pin 4, gpmc_ad7
     { NULL, 1,  2, 0x808, 0 }, // pin 5, gpmc_ad2
@@ -162,8 +162,8 @@ bb_gpio_pin BEAGLEBONE_HLO_PINS[BEAGLEBONE_PINS_PER_HEADER+1] = {
 
 bb_gpio_pin BEAGLEBONE_HHI_PINS[BEAGLEBONE_PINS_PER_HEADER+1] = {
     { NULL, -1, -1, -1, 1 }, // 0 unused
-    { NULL, -1, -1, -1, 1 }, // 1 GND 
-    { NULL, -1, -1, -1, 1 }, // 2 GND 
+    { NULL, -1, -1, -1, 1 }, // 1 GND
+    { NULL, -1, -1, -1, 1 }, // 2 GND
     { NULL, -1, -1, -1, 1 }, // 3 3.3v
     { NULL, -1, -1, -1, 1 }, // 4 3.v
     { NULL, -1, -1, -1, 1 }, // 5 Vdd 5v
@@ -207,10 +207,10 @@ bb_gpio_pin BEAGLEBONE_HHI_PINS[BEAGLEBONE_PINS_PER_HEADER+1] = {
     { NULL, 0, 20, 0x9B4, 0 }, // pin 41, xdma_event_intr1
     { NULL, 0,  7, 0x964, 0 }, // pin 42, ecap0_in_pwm0_out
 //    { NULL, 3, 18, 0x9A0, 0 }, // pin 42, mcasp0_aclkr
-    { NULL, -1, -1, -1, 1 }, // 43 GND 
-    { NULL, -1, -1, -1, 1 }, // 44 GND 
-    { NULL, -1, -1, -1, 1 }, // 45 GND 
-    { NULL, -1, -1, -1, 1 }, // 46 GND 
+    { NULL, -1, -1, -1, 1 }, // 43 GND
+    { NULL, -1, -1, -1, 1 }, // 44 GND
+    { NULL, -1, -1, -1, 1 }, // 45 GND
+    { NULL, -1, -1, -1, 1 }, // 46 GND
 };
 
 // PocketBeagle definitions

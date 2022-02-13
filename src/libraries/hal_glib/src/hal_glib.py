@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# vim: sts=4 sw=4 et
-
 import _hal, hal, gobject
 import linuxcnc
 import sys

@@ -10,9 +10,9 @@ FUNCTION(_)
 {
 hal_float_t tmp = gf(in);
 
-    if(tmp < gf(min_)) 
+    if(tmp < gf(min_))
         tmp = gf(min_);
-    if(tmp > gf(max_)) 
+    if(tmp > gf(max_))
         tmp = gf(max_);
     sf(out, tmp);
 

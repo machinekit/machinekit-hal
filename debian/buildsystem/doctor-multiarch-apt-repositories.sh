@@ -63,14 +63,14 @@ USAGEHEREDOC
 
 # TODO:
 # This whole should be taken only as an initial commit
-# The colorful output logging with icons and timestamps is currently missing 
+# The colorful output logging with icons and timestamps is currently missing
 # and the code should act accordingly when the output is being piped to other
 # programs (the colors should be automatically turned off, icons and time
 # stripped off)
 _write_out() {
     local level=$1
     local message="${@:2}"
-    
+
     printf "%b"          \
            "$message\n";
 }
@@ -181,7 +181,7 @@ add_architecture_to_existing_entry(){
     done < ${1}
 
     echo -e "$OUTPUT" >| ${1}
-    return 0  
+    return 0
 }
 
 copy_and_transform_repositories(){
@@ -340,11 +340,11 @@ attend_to_ubuntu(){
                     *)
                         add_architecture_to_existing_entry "$SOURCES_FILE"       \
                                                            "$HOST_ARCHITECTURE"  \
-                                                           "$address_from_regex" 
+                                                           "$address_from_regex"
                         if (( retval != 0 ))
                         then
                             return ${retval}
-                        fi                    
+                        fi
                     ;;
                 esac
             ;;
@@ -394,7 +394,7 @@ _main(){
     then
         failure
     fi
-    
+
     lsb_release_installed
     retval=$?
     if (( retval != 0 ))
@@ -428,7 +428,7 @@ _main(){
              "=============================================================\n" \
              "$OUTPUT\n"                                                       \
              "=============================================================\n"
-    
+
     success
 }
 

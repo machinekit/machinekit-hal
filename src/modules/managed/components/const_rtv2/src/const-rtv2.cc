@@ -1,8 +1,8 @@
 /************************************************************************
  * Demo of SMP_SAFE instantiated component in C++ class
- * 
+ *
  * ArcEye 2015  <arceyeATmgwareDOTcoDOTuk>
-************************************************************************/ 
+************************************************************************/
 
 #define _CORRECT_ISO_CPP_STRING_H_PROTO
 
@@ -57,13 +57,13 @@ class ConstRt
 public:
     ConstRt();
     ~ConstRt();
-    
-    // these members must be static to work as and in callbacks from 
+
+    // these members must be static to work as and in callbacks from
     // the rtapi C functions and that is the root of all the problems
     static int export_halobjs(struct inst_data *ip, int owner_id, const char *name, const int argc, const char **argv);
     static int instantiate(const char *name, const int argc, const char**argv);
     static int constant_(void *arg, const hal_funct_args_t *fa);
-    
+
     struct inst_data *inst;
 };
 
@@ -119,10 +119,10 @@ int ConstRt::export_halobjs(struct inst_data *ip, int owner_id, const char *name
     if (float_pin_null(ip->value))
             return _halerrno;
 
-    
+
     ip->local_argv = argv;
     ip->local_argc = argc;
-    
+
     // exporting an extended thread function:
     hal_export_xfunct_args_t __xf;
 

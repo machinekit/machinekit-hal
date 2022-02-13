@@ -5,21 +5,21 @@
 *
 * Author: Alex Joni
 * License: GPL Version 2
-*    
+*
 * Copyright (c) 2003 All rights reserved.
 *
-* Last change: 
+* Last change:
 ********************************************************************/
 
 /** This is the driver for an ISA (PC104) encoder reading board.
     The board includes up to 4 channels of LS7166 chips for counting
     quadrature encoders. Schematics of the board will be included on
     my webpage www.juve.ro.
-    
+
     Installation of the driver only realtime:
-    
+
     insmod hal_tiro base=0x300 num_chan=4
-    
+
     This code can to some extent be used for the DRO board (with minor
     adjustments). If it is required a DRO driver will follow.
 */
@@ -146,8 +146,8 @@ int rtapi_app_main(void)
 		*(counter_array[n].count) = 0;
 		*(counter_array[n].pos) = 0.0;
 		counter_array[n].pos_scale = 1.0;
-		
-		/* init counter chip */		
+
+		/* init counter chip */
 		LS7166Init(n);
     }
     /* export functions */

@@ -34,14 +34,14 @@ FUNCTION(_) {
         sf(out, -tmp);
     }
 
-    if (tmp > 0.000001) 
+    if (tmp > 0.000001)
         sb(is_positive, true);
-    else 
+    else
         sb(is_positive, false);
 
-    if (tmp < -0.000001) 
+    if (tmp < -0.000001)
         sb(is_negative, true);
-    else 
+    else
         sb(is_negative, false);
 
     return 0;

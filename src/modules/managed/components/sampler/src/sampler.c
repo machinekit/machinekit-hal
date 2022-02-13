@@ -6,15 +6,15 @@
 *
 * Author: John Kasunich <jmkasunich at sourceforge dot net>
 * License: GPL Version 2
-*    
+*
 * Copyright (c) 2006 All rights reserved.
 *
 ********************************************************************/
 /** This file, 'sampler.c', is the realtime part of a HAL component
     that allows data from HAL pins to be sampled at a uniform realtime
     sample rate and then be transferred to a file.  When this realtime
-    module is loaded, it creates a fifo in shared memory and begins 
-    capturing data from HAL pins to the fifo.  Then, the user space 
+    module is loaded, it creates a fifo in shared memory and begins
+    capturing data from HAL pins to the fifo.  Then, the user space
     program 'halsampler' is invoked, which reads the fifo and writes
     the data to stdout.
 
@@ -432,4 +432,3 @@ static int init_sampler(int num, fifo_t *tmp_fifo)
     fifo->magic = FIFO_MAGIC_NUM;
     return 0;
 }
-

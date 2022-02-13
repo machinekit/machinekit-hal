@@ -243,30 +243,30 @@ hal_float_t V;
 
     i  = (gu(pattern) << 3) + (gb(hall1) << 2) + (gb(hall2) << 1) + gb(hall3);
 
-    if (gb(dir)) 
+    if (gb(dir))
         V = -gf(value);
-    else 
+    else
         V = gf(value);
 
-    if (P[i] & 040) 
+    if (P[i] & 040)
         sf(A_value,V);
-    else if (P[i] & 004) 
+    else if (P[i] & 004)
         sf(A_value, -V);
-    else 
+    else
         sf(A_value, 0);
 
-    if (P[i] & 020) 
+    if (P[i] & 020)
         sf(B_value, V);
-    else if (P[i] & 002) 
+    else if (P[i] & 002)
         sf(B_value, -V);
-    else 
+    else
         sf(B_value, 0);
 
-    if (P[i] & 010) 
+    if (P[i] & 010)
         sf(C_value, V);
-    else if (P[i] & 001) 
+    else if (P[i] & 001)
         sf(C_value, -V);
-    else 
+    else
         sf(C_value, 0);
 
 return 0;

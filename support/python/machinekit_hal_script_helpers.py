@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# # -*- coding: utf-8 -*-
-
 #####################################################################
 # Description:  machinekit_hal_script_helpers.py
 #

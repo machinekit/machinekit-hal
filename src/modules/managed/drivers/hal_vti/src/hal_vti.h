@@ -6,16 +6,16 @@
 	4 channels of analog output, 8 on board digital I/O, and up
 	to 128 digital I/O on the expanded I/O module, 3 timers
 	with interrupt.
-	
+
 	A further 4 quadrature encoder inputs, 4 channels of DAC
 	output and 8 additional channels of digital I/O are
 	available through the Industry Pack interface. While some
 	of the hooks are in place, the IP interface is not
 	currently supported, nor is the ISA version of the board.
-	
+
  To Do:	Add full support for the Industray pack
  	Add support for the ISA version of the board.
-	Add support for timers	
+	Add support for timers
 **/
 
 /** Copyright (C) 2006 Eric H. Johnson
@@ -116,6 +116,6 @@ typedef union
   signed long int	Long;
   signed short int	Word[2];
 } Longword;
-    
+
 
 #endif

@@ -55,7 +55,7 @@ jobs:
         echo "$GITHUB_CONTEXT"
       env:
         GITHUB_CONTEXT: ${{ toJson(github) }}
-    
+
     - name: Cancel any previous run of the same workflow on the same branch
       uses: styfle/cancel-workflow-action@0.4.1
       with:
@@ -69,11 +69,11 @@ jobs:
         ref: '${{ github.event.ref }}'
         fetch-depth: '0'
         path: 'machinekit-hal'
-      
-      # DANGER: Changing value imageNameRoot in settings JSON will mean 
+
+      # DANGER: Changing value imageNameRoot in settings JSON will mean
       #         a new Docker image name!
       #         Public Docker images in GitHub Packages cannot be deleted,
-      #         every change will stay visible 'forever' in form of old packages  
+      #         every change will stay visible 'forever' in form of old packages
     - name: >
         Prepare data matrix with operating system and architecture combinations
         from JSON file
@@ -84,14 +84,14 @@ jobs:
           jq -c --arg IMAGE_NAME_ROOT "$IMAGE_NAME_ROOT" \
          '{include: [.allowedCombinations[]+.osVersions[] |
           select(.osVersionNumber == .releaseNumber) |
-          ((.architecture|ascii_downcase) + "_" + (.osVersionNumber|tostring)) 
+          ((.architecture|ascii_downcase) + "_" + (.osVersionNumber|tostring))
             as $tag |
           (.distributionID|ascii_downcase) as $distribution |
           {osDistribution: .distributionID,
           osVersionNumber: .osVersionNumber,
           architecture: .architecture,
           osVersionCodename: .distributionCodename,
-          dockerImage: {basename: $IMAGE_NAME_ROOT |  
+          dockerImage: {basename: $IMAGE_NAME_ROOT |
               sub( "@DISTRIBUTION@"; $distribution ) |
               sub( "@TAG@"; $tag ),
             tag: $tag}
@@ -202,7 +202,7 @@ jobs:
         exists in the current Git history
       if: env.BuildDockerImage != 'true'
       run: |
-        if git cat-file -e ${GIT_COMMIT_SHA} 2> /dev/null 
+        if git cat-file -e ${GIT_COMMIT_SHA} 2> /dev/null
         then
           printf "%b"                                                       \
                  "Git commit $GIT_COMMIT_SHA from which the current cached" \
@@ -229,7 +229,7 @@ jobs:
                "==========================================================\n"
         while IFS= read -r line; do
           if [[ $line =~ $DOCKER_REGEX ]]
-          then 
+          then
             printf "%b"                                               \
                    "Found file $line matching the regular expression" \
                    " for Debian builder files.\n"
@@ -244,7 +244,7 @@ jobs:
         BEFORE_COMMIT_SHA: ${{ steps.docker_metadata_normalizer.outputs.git_sha }}
         DOCKER_REGEX: '^debian/.{1,}$'
       working-directory: ./machinekit-hal
-    
+
     - name: Prepare matrixes for creation of following jobs
       id: data_matrix_normalizer
       run: |
@@ -252,14 +252,14 @@ jobs:
         if [[ "${{ env.BuildDockerImage }}" != "true" ]]
         then
           MAIN_MATRIX=$(jq -c --argjson DOCKER_METADATA "$DOCKER_METADATA_JSON" \
-            '.include[].dockerImage |= . as $base_matrix | 
-            $base_matrix + ($DOCKER_METADATA[] | 
+            '.include[].dockerImage |= . as $base_matrix |
+            $base_matrix + ($DOCKER_METADATA[] |
             select(.basename == $base_matrix.basename))'                        \
             <<< "$SUPPORTED_SYSTEMS_JSON")
         else
           MAIN_MATRIX="$SUPPORTED_SYSTEMS_JSON"
         fi
-        OS_MATRIX=$(jq -c '{include: [.include[] | 
+        OS_MATRIX=$(jq -c '{include: [.include[] |
           select(.architecture == "amd64")]}' <<< "$MAIN_MATRIX")
         echo "::set-output name=matrix::$MAIN_MATRIX"
         echo "::set-output name=osMatrix::$OS_MATRIX"
@@ -274,7 +274,7 @@ jobs:
       env:
         SUPPORTED_SYSTEMS_JSON: '${{ steps.system_combinations_normalizer.outputs.matrix }}'
         DOCKER_METADATA_JSON: '${{ steps.docker_data_downloader.outputs.image_data }}'
-    
+
     - name: >
         Check if Cloudsmith authorization token is present in GitHub secrets
         storage
@@ -353,17 +353,17 @@ jobs:
     strategy:
       matrix: ${{ fromJson(needs.prepareState.outputs.MainMatrix) }}
       fail-fast: false
-    
+
     steps:
         # Building packages needs deep clone for the ability to create a version
-        # number by counting all commits 
+        # number by counting all commits
       - name: Clone Machinekit-HAL repository
         uses: actions/checkout@v2
         with:
           ref: '${{ github.event.ref }}'
           fetch-depth: '0'
           path: 'build/machinekit-hal'
-      
+
       - name: Prepare specific Python version for Machinekit-HAL build scripts
         if: needs.prepareState.outputs.BuildDockerImages == 'true'
         uses: actions/setup-python@v2
@@ -467,7 +467,7 @@ jobs:
 
       - name: Sign the package with Machinekit Builder Signer Key
         if: >
-          github.event_name == 'push' && 
+          github.event_name == 'push' &&
           needs.prepareState.outputs.HasSigningKey == 'true'
         run: |
           mkdir ${ROOT_DIR}/secrets_mountpoint
@@ -513,7 +513,7 @@ jobs:
 
       - name: >
           Prepare base Docker image for installation of packages
-          of Machinekit-HAL on ${{ matrix.osDistribution }} 
+          of Machinekit-HAL on ${{ matrix.osDistribution }}
           ${{ matrix.osVersionCodename}}
         if: matrix.architecture == 'amd64'
         run: |
@@ -587,7 +587,7 @@ jobs:
           esac
           printf "This job is going to use $RENAMEARCH as an achitecture tag\n"
           echo "::set-output name=architecture::$RENAMEARCH"
-      
+
       - name: Prepare specific Python version for Machinekit-HAL build scripts
         if: needs.prepareState.outputs.BuildDockerImages == 'true'
         uses: actions/setup-python@v2
@@ -596,7 +596,7 @@ jobs:
 
       - name: Install Python SH tool to runner VM environment
         if: needs.prepareState.outputs.BuildDockerImages == 'true'
-        run: pip install sh 
+        run: pip install sh
 
       - name: Prepare the Docker image
         run: |
@@ -651,11 +651,11 @@ jobs:
           DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ matrix.dockerImage.basename }}:latest'
         working-directory: ./build/machinekit-hal
 
-  # This has a chance to cause problems when developing multiple branches 
+  # This has a chance to cause problems when developing multiple branches
   # simultaneously all or some of which use different builder configuration,
-  # one way how to solve it is to use different tags for different branches, 
-  # but with the current state with Github Packages when one cannot delete 
-  # public packages (there is discussion on github.community it will be) 
+  # one way how to solve it is to use different tags for different branches,
+  # but with the current state with Github Packages when one cannot delete
+  # public packages (there is discussion on github.community it will be)
   # and fact that Github doesn't say how much space is available for Open
   # Source repository, I am going to let it be limited to :latest for now
   buildContainerImagesForUpload:
@@ -723,13 +723,13 @@ jobs:
                    "$TRY"
             TRY=$(( $TRY + 1 ))
           done
-          exit ${RETVAL} 
+          exit ${RETVAL}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_OWNER: ${{ github.actor }}
           MAX_TRIES: 50
           DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ matrix.dockerImage.basename }}:latest'
-      
+
       - name: Upload the container image to third party registry
         if: needs.prepareState.outputs.HasSpecificDockerRegistry == 'true'
         run: |
@@ -754,7 +754,7 @@ jobs:
                    "$TRY"
             TRY=$(( $TRY + 1 ))
           done
-          exit ${RETVAL}           
+          exit ${RETVAL}
         env:
           DOCKER_IMAGE: 'docker.pkg.github.com/${{ github.repository }}/${{ matrix.dockerImage.basename }}:latest'
           MAX_TRIES: 50
@@ -770,18 +770,18 @@ jobs:
       needs.prepareState.outputs.HasCloudsmithToken == 'true' &&
       github.event_name == 'push'
     needs: [buildMachinekitHALDebianPackages, testMachinekitHALBuild, prepareState]
-    
+
     steps:
       - name: Download all built artifacts from GitHub storage
         uses: actions/download-artifact@v2
         with:
           path: ./artifacts
-      
+
       - name: >
           Show artifacts downloaded from GitHub storage in directory structure
         run: ls -R
         working-directory: ./artifacts
-      
+
       - name: Prepare specific Python version for Cloudsmith CLI
         uses: actions/setup-python@v2
         with:
@@ -793,17 +793,17 @@ jobs:
           cloudsmith --help
           cloudsmith whoami
         env:
-          CLOUDSMITH_API_KEY: '${{ secrets.CLOUDSMITH_TOKEN }}' 
+          CLOUDSMITH_API_KEY: '${{ secrets.CLOUDSMITH_TOKEN }}'
 
       - name: Upload the Debian packages to Cloudsmith hosting service
         run: |
           test_array=()
           CLOUDSMITH_REPLY=$(cloudsmith list repos --output-format json)
           FOUND_NAMESPACE=$(echo "$CLOUDSMITH_REPLY" | \
-            jq -e -r --arg INPUTREGEX "$REPOSITORY_REGEX" '.data[] | 
+            jq -e -r --arg INPUTREGEX "$REPOSITORY_REGEX" '.data[] |
             select(.slug|test($INPUTREGEX)) | .namespace')
           FOUND_REPOSITORY=$(echo "$CLOUDSMITH_REPLY" | \
-            jq -e -r --arg INPUTREGEX "$REPOSITORY_REGEX" '.data[] | 
+            jq -e -r --arg INPUTREGEX "$REPOSITORY_REGEX" '.data[] |
             select(.slug|test($INPUTREGEX)) | .slug')
           if [ "$FOUND_REPOSITORY" == "" -o "$FOUND_REPOSITORY" == "null" \
             -o "$FOUND_NAMESPACE" == "" -o "$FOUND_NAMESPACE" == "null" ]

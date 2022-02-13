@@ -17,18 +17,18 @@ def main():
         r = hal.Ring(name)
     except NameError as e:
         print(e)
-    
+
     else:
         while True:
             # peek at the ring contents:
             for i in r:
                 print("peek record: ",i.tobytes())
-    
+
             # then consume all records available
             for i in r:
                 print("consume record: ",i.tobytes())
                 r.shift()
-    
+
             time.sleep(1)
 
 if __name__ == "__main__":

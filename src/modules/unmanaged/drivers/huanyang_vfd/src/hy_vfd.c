@@ -75,10 +75,10 @@ int slave = 1;
 /* HAL data struct */
 typedef struct {
 	// The HAL comp name will be set to <string>, and all pin and parameter
-	// names will begin with <string>.  
+	// names will begin with <string>.
 
 	hal_bit_t	*enable;				// bit to enable this component
-	
+
 	hal_float_t	*Set_F;					// frequency command
 	hal_float_t	*Out_F;					// actual output frequency
 	hal_float_t	*Out_A;					// actual output amps
@@ -87,13 +87,13 @@ typedef struct {
 	hal_float_t	*ACV;					// AC Volts (to be confirmed)
 	hal_float_t	*Cont;
 	hal_float_t *Tmp;					// Temperature (to be confirmed)
-	
+
 	hal_bit_t *spindle_forward;			// spindle forward input
 	hal_bit_t *spindle_reverse;			// spindle reverse input
 	hal_bit_t *spindle_on;				// spinlde on input
 	hal_s32_t *CNTR;				// stores the status of the control request
 	hal_s32_t *CNST;				// stores the response of the control request
-	
+
 	hal_bit_t *CNST_Run;				// CNST Run bit
 	hal_bit_t *CNST_Jog;				// CNST Jog bit
 	hal_bit_t *CNST_Command_rf;			// CNST Run reverse / forward bit
@@ -111,9 +111,9 @@ typedef struct {
 	hal_float_t *rated_motor_voltage; 	// PD141 Rated Motor Voltage - as per motor name plate
 	hal_float_t *rated_motor_current;	// PD142 Rated Motor Current - as per motor name plate
 	hal_float_t *rated_motor_rev;		// max motor speed (at max_freq).  PD144 gets set to value corresponding to RPM at 50Hz
-	
+
 	hal_bit_t	*hycomm_ok;			// the last HYCOMM_OK transactions returned successfully
-	
+
 	hal_float_t *max_rpm;				// calculated based on VFD max frequency setup parameter
 
 	hal_float_t	*spindle_speed_fb;	// (out) reports current spindle speed
@@ -240,52 +240,52 @@ int write_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 	hal_float_t hz_per_rpm;
 	int freq_comp;
 	int freq, old_freq;
-	
+
 	// calculate and set frequency register, limit the frequency (upper and lower to VFD set parameters
 	hc_data->function = WRITE_FREQ_DATA;
 	hc_data->parameter = 0x00;
-	
+
 	if ((*(haldata->spindle_forward) && !*(haldata->spindle_reverse)) && *(haldata->spindle_on)) {
 		freq_comp = 1;
 	} else if ((*(haldata->spindle_reverse) && !*(haldata->spindle_forward)) && *(haldata->spindle_on)) {
 		freq_comp = -1;
 	} else {
-		freq_comp = 0;	
+		freq_comp = 0;
 	}
 
 	hz_per_rpm = *haldata->max_freq / *(haldata->rated_motor_rev);
 	freq =  abs((int)((*(haldata->speed_command)+freq_comp)*hz_per_rpm*100));
-	
+
 	// limit the frequency to the max and min as setup in the VFD
 	if (freq > *(haldata->max_freq)*100)
 		freq = *(haldata->max_freq)*100;
 	if (freq < *(haldata->freq_lower_limit)*100)
 		freq = *(haldata->freq_lower_limit)*100;
-	
+
 	old_freq = *(haldata->freq_cmd);
-	
+
 	if (freq != old_freq) {
 		// commanded frequency has changed
 		hc_data->data = freq;
 		if ((retval = hy_comm(hc_param, hc_data)) != 0)
 			goto failed;
-		*(haldata->freq_cmd)  =  freq; 
+		*(haldata->freq_cmd)  =  freq;
 	}
-	
-	
-	
+
+
+
 	// update the control register
 	hc_data->function = WRITE_CONTROL_DATA;
 	hc_data->parameter = 0x00;
-	
+
 	if ((*(haldata->spindle_forward) && !*(haldata->spindle_reverse)) && *(haldata->spindle_on)) {
 		CNTR = CONTROL_Run_Fwd;
 	} else if ((*(haldata->spindle_reverse) && !*(haldata->spindle_forward)) && (*haldata->spindle_on)) {
 		CNTR = CONTROL_Run_Rev;
 	} else {
-		CNTR = CONTROL_Stop;	
+		CNTR = CONTROL_Stop;
 	}
-	
+
 	old_CNTR = *(haldata->CNTR);
 	hc_data->data = old_CNTR;
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
@@ -296,59 +296,59 @@ int write_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 		*(haldata->CNTR) = CNTR;
 	}
 
-	
+
 	CNST = hc_data->ret_data;
 	*(haldata->CNST) = CNST;
-	
+
 	if ((CNST & CONTROL_Run) != 0) {
 		*(haldata->CNST_Run) = TRUE;
 	} else {
 		*(haldata->CNST_Run) = FALSE;
 	}
-	
+
 	if ((CNST & CONTROL_Jog) != 0) {
 		*(haldata->CNST_Jog) = TRUE;
 	} else {
 		*(haldata->CNST_Jog) = FALSE;
 	}
-	
+
 	if ((CNST & CONTROL_Command_rf) != 0) {
 		*(haldata->CNST_Command_rf) = TRUE;
 	} else {
 		*(haldata->CNST_Command_rf) = FALSE;
 	}
-	
+
 	if ((CNST & CONTROL_Running) != 0) {
 		*(haldata->CNST_Running) = TRUE;
 	} else {
 		*(haldata->CNST_Running) = FALSE;
 	}
-	
+
 	if ((CNST & CONTROL_Jogging) != 0) {
 		*(haldata->CNST_Jogging) = TRUE;
 	} else {
 		*(haldata->CNST_Jogging) = FALSE;
 	}
-	
+
 	if ((CNST & CONTROL_Running_rf) != 0) {
 		*(haldata->CNST_Running_rf) = TRUE;
 	} else {
-		*(haldata->CNST_Running_rf) = FALSE;	
+		*(haldata->CNST_Running_rf) = FALSE;
 	}
-	
-	
+
+
 	if ((CNST & CONTROL_Bracking) != 0) {
 		*(haldata->CNST_Bracking) = TRUE;
 	} else {
 		*(haldata->CNST_Bracking) = FALSE;
 	}
-	
+
 	if ((CNST & CONTROL_Track_Start) != 0) {
 		*(haldata->CNST_Track_Start) = TRUE;
 	} else {
-		*(haldata->CNST_Track_Start) = FALSE;	
+		*(haldata->CNST_Track_Start) = FALSE;
 	}
-	
+
 	retval = 0;
 	*(haldata->retval) = retval;
 	return retval;
@@ -396,7 +396,7 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
             hc_data->function = FUNCTION_READ;
         }
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
-		goto failed;		
+		goto failed;
 	*(haldata->max_freq) = hc_data->ret_data * 0.01;
 
 	hc_data->parameter = 11; // PD011 Frequency Lower Limit
@@ -410,7 +410,7 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
             hc_data->function = FUNCTION_READ;
         }
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
-		goto failed;		
+		goto failed;
 	*(haldata->freq_lower_limit) = hc_data->ret_data * 0.01;
 
 	hc_data->parameter = 141; // PD141 Rated Motor Voltage
@@ -424,7 +424,7 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
             hc_data->function = FUNCTION_READ;
         }
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
-		goto failed;		
+		goto failed;
 	*(haldata->rated_motor_voltage) = hc_data->ret_data * 0.1;
 
 	hc_data->parameter = 142; // PD142 Rated Motor Current
@@ -438,7 +438,7 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
             hc_data->function = FUNCTION_READ;
         }
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
-		goto failed;		
+		goto failed;
 	*(haldata->rated_motor_current) = hc_data->ret_data * 0.1;
 
         hc_data->parameter = 144; // PD144 Rated Motor Rev (at 50 Hz)
@@ -456,7 +456,7 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
         }
 
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
-		goto failed;		
+		goto failed;
         rpm_at_50hz = hc_data->ret_data;
         *(haldata->rated_motor_rev) = (rpm_at_50hz / 50.0) * *haldata->max_freq;
 
@@ -477,7 +477,7 @@ int read_setup(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *hald
 	*(haldata->retval) = retval;
 	(*(haldata->errorcount))++;
 	retval = -1;
-	return retval;	
+	return retval;
 }
 
 
@@ -486,22 +486,22 @@ int read_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *halda
 	int retval;
 
 	// Read the Status Data registers
-	
+
 	hc_data->function = READ_CONTROL_STATUS;
 	hc_data->parameter = 0x00;
 
 	hc_data->data = STATUS_SetF;
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
-		goto failed;		
+		goto failed;
 	*(haldata->Set_F) = hc_data->ret_data * 0.01;
 	if (hc_param->debug) {
 		printf("Set_F = [%.2X]", hc_data->ret_data);
 		printf("\n");
 	}
-			
+
 	hc_data->data = STATUS_OutF;
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
-		goto failed;		
+		goto failed;
 	*(haldata->Out_F) = hc_data->ret_data * 0.01;
 	if (hc_param->debug) {
 		printf("Out_F = [%.2X]", hc_data->ret_data);
@@ -526,58 +526,58 @@ int read_data(hycomm_param_t *hc_param, hycomm_data_t *hc_data, haldata_t *halda
 
 	hc_data->data = STATUS_OutA;
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
-		goto failed;		
+		goto failed;
 	*(haldata->Out_A) = hc_data->ret_data * 0.1;
 	if (hc_param->debug) {
 		printf("Out_A = [%.2X]", hc_data->ret_data);
 		printf("\n");
 	}
-	
+
 	hc_data->data = STATUS_RoTT;
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
-		goto failed;		
+		goto failed;
 	*(haldata->RoTT) = hc_data->ret_data;
 	if (hc_param->debug) {
 		printf("RoTT = [%.2X]", hc_data->ret_data);
 		printf("\n");
 	}
-	
+
 	hc_data->data = STATUS_DCV;
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
-		goto failed;		
+		goto failed;
 	*(haldata->DCV) = (float)hc_data->ret_data / 10.0f;
 	if (hc_param->debug) {
 		printf("DCV = [%.2X]", hc_data->ret_data);
 		printf("\n");
 	}
-	
+
 	hc_data->data = STATUS_ACV;
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
-		goto failed;		
+		goto failed;
 	*(haldata->ACV) = (float)hc_data->ret_data / 10.0f;
 	if (hc_param->debug) {
 		printf("ACV = [%.2X]", hc_data->ret_data);
 		printf("\n");
 	}
-	
+
 	hc_data->data = STATUS_Cont;
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
-		goto failed;		
+		goto failed;
 	*(haldata->Cont) = hc_data->ret_data;
 	if (hc_param->debug) {
 		printf("Cont = [%.2X]", hc_data->ret_data);
 		printf("\n");
 	}
-	
+
 	hc_data->data = STATUS_Tmp;
 	if ((retval = hy_comm(hc_param, hc_data)) != 0)
-		goto failed;		
+		goto failed;
 	*(haldata->Tmp) = hc_data->ret_data;
 	if (hc_param->debug) {
 		printf("Tmp = [%.2X]", hc_data->ret_data);
 		printf("\n");
 	}
-	
+
 
 	retval = 0;
 	*(haldata->retval) = retval;
@@ -624,7 +624,7 @@ int main(int argc, char **argv)
 	parity = "even";
 	slave = 1;
 
-	
+
 	// process command line options
 	while ((opt=getopt_long(argc, argv, option_string, long_options, NULL)) != -1) {
 		switch(opt) {
@@ -746,7 +746,7 @@ int main(int argc, char **argv)
 			break;
 		}
 	}
-	
+
 	if (debug) {
 		printf("%s: device='%s', baud=%d, bits=%d, parity='%s', stopbits=%d, address=%d, debug=%d, PID=%d\n",
 				modname,device, baud, bits, parity, stopbits, slave, debug, getpid());
@@ -760,22 +760,22 @@ int main(int argc, char **argv)
 	hycomm_init(&hc_param, device, baud, parity, bits, stopbits);
 	hc_param.debug = debug;
 	hc_param.print_errors = 1;
-	
+
 	/* the open has got to work, or we're out of business */
 	if (((retval = hycomm_connect(&hc_param))!=0) || done) {
 		printf("%s: ERROR: couldn't open serial device\n", modname);
 		goto out_noclose;
 	}
-	
-	
+
+
 	/* create HAL component */
 	hal_comp_id = hal_init(modname);
 	if ((hal_comp_id < 0) || done) {
 		printf("%s: ERROR: hal_init failed\n", modname);
 		retval = hal_comp_id;
 		goto out_close;
-	} 
-	
+	}
+
 	/* grab some shmem to store the HAL data in */
 	haldata = (haldata_t *)hal_malloc(sizeof(haldata_t));
 
@@ -783,11 +783,11 @@ int main(int argc, char **argv)
 		printf("%s: ERROR: unable to allocate shared memory\n", modname);
 		retval = -1;
 		goto out_close;
-	} 
+	}
 
 	retval = hal_pin_bit_newf(HAL_IN, &(haldata->enable), hal_comp_id, "%s.enable", modname);
 	if (retval!=0) goto out_closeHAL;
-	
+
 	retval = hal_pin_float_newf(HAL_OUT, &(haldata->Set_F), hal_comp_id, "%s.SetF", modname);
 	if (retval!=0) goto out_closeHAL;
 	retval = hal_pin_float_newf(HAL_OUT, &(haldata->Out_F), hal_comp_id, "%s.OutF", modname);
@@ -804,7 +804,7 @@ int main(int argc, char **argv)
 	if (retval!=0) goto out_closeHAL;
 	retval = hal_pin_float_newf(HAL_OUT, &(haldata->Tmp), hal_comp_id, "%s.Tmp", modname);
 	if (retval!=0) goto out_closeHAL;
-	
+
 	retval = hal_pin_bit_newf(HAL_IN, &(haldata->spindle_forward), hal_comp_id, "%s.spindle-forward", modname);
 	if (retval!=0) goto out_closeHAL;
 	retval = hal_pin_bit_newf(HAL_IN, &(haldata->spindle_reverse), hal_comp_id, "%s.spindle-reverse", modname);
@@ -815,29 +815,29 @@ int main(int argc, char **argv)
 	if (retval!=0) goto out_closeHAL;
 	retval = hal_pin_s32_newf(HAL_OUT, &(haldata->CNST), hal_comp_id, "%s.CNST", modname);
 	if (retval!=0) goto out_closeHAL;
-	
-	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->CNST_Run), hal_comp_id, "%s.CNST-run", modname); 
+
+	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->CNST_Run), hal_comp_id, "%s.CNST-run", modname);
 	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->CNST_Jog), hal_comp_id, "%s.CNST-jog", modname); 
+	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->CNST_Jog), hal_comp_id, "%s.CNST-jog", modname);
 	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->CNST_Command_rf), hal_comp_id, "%s.CNST-command-rf", modname); 
+	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->CNST_Command_rf), hal_comp_id, "%s.CNST-command-rf", modname);
 	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->CNST_Running), hal_comp_id, "%s.CNST-running", modname); 
+	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->CNST_Running), hal_comp_id, "%s.CNST-running", modname);
 	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->CNST_Jogging), hal_comp_id, "%s.CNST-jogging", modname); 
+	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->CNST_Jogging), hal_comp_id, "%s.CNST-jogging", modname);
 	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->CNST_Running_rf), hal_comp_id, "%s.CNST-running-rf", modname); 
+	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->CNST_Running_rf), hal_comp_id, "%s.CNST-running-rf", modname);
 	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->CNST_Bracking), hal_comp_id, "%s.CNST-bracking", modname); 
+	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->CNST_Bracking), hal_comp_id, "%s.CNST-bracking", modname);
 	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->CNST_Track_Start), hal_comp_id, "%s.CNST-track-start", modname); 
+	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->CNST_Track_Start), hal_comp_id, "%s.CNST-track-start", modname);
 	if (retval!=0) goto out_closeHAL;
-	
+
 	retval = hal_pin_float_newf(HAL_IN, &(haldata->speed_command), hal_comp_id, "%s.speed-command", modname);
 	if (retval!=0) goto out_closeHAL;
 	retval = hal_pin_float_newf(HAL_OUT, &(haldata->freq_cmd), hal_comp_id, "%s.frequency-command", modname);
 	if (retval!=0) goto out_closeHAL;
-	
+
 	retval = hal_pin_float_newf(HAL_OUT, &(haldata->max_freq), hal_comp_id, "%s.max-freq", modname);
 	if (retval!=0) goto out_closeHAL;
 	retval = hal_pin_float_newf(HAL_OUT, &(haldata->freq_lower_limit), hal_comp_id, "%s.freq-lower-limit", modname);
@@ -849,9 +849,9 @@ int main(int argc, char **argv)
 	retval = hal_pin_float_newf(HAL_OUT, &(haldata->rated_motor_rev), hal_comp_id, "%s.rated-motor-rev", modname);
 	if (retval!=0) goto out_closeHAL;
 
-	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->hycomm_ok), hal_comp_id, "%s.hycomm-ok", modname); 
+	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->hycomm_ok), hal_comp_id, "%s.hycomm-ok", modname);
 	if (retval!=0) goto out_closeHAL;
-	
+
 	retval = hal_pin_s32_newf(HAL_OUT, &(haldata->errorcount), hal_comp_id, "%s.error-count", modname);
 	if (retval!=0) goto out_closeHAL;
 
@@ -873,7 +873,7 @@ int main(int argc, char **argv)
 	/* make default data match what we expect to use */
 
 	*(haldata->enable) = 0;
-	
+
 	*(haldata->Set_F) = 0;
 	*(haldata->Out_F) = 0;
 	*(haldata->Out_A) = 0;
@@ -882,14 +882,14 @@ int main(int argc, char **argv)
 	*(haldata->ACV) = 0;
 	*(haldata->Cont) = 0;
 	*(haldata->Tmp) = 0;
-	
+
 	*(haldata->spindle_forward) = 0;
 	*(haldata->spindle_reverse) = 0;
 	*(haldata->spindle_on) = 0;
 	*(haldata->freq_cmd) = 0;
 	*(haldata->CNTR) = 0;
 	*(haldata->CNST) = 0;
-	
+
 	*(haldata->max_freq) = max_freq;
 	*(haldata->freq_lower_limit) = min_freq;
 	*(haldata->rated_motor_voltage) = motor_u;
@@ -907,7 +907,7 @@ int main(int argc, char **argv)
 	*(haldata->errorcount) = 0;
 	*(haldata->looptime) = 0.1;
 
-	
+
 	//haldata->motor_nameplate_hz = 50;	// folks in The Colonies typically would use 60Hz and 1730 rpm
 	//haldata->motor_nameplate_RPM = 1410;
 	//haldata->rpm_limit = MAX_RPM;
@@ -920,7 +920,7 @@ int main(int argc, char **argv)
 
 	hal_ready(hal_comp_id);
 	hc_data.slave = slave;
-	
+
 	// wait until EMC and AXIS is ready, ie enable bit is set
 	while (!*(haldata->enable)){
 		// do nothing until enabled
@@ -930,7 +930,7 @@ int main(int argc, char **argv)
                     exit(0);
                 }
 	}
-	
+
 	// read the VFD setup parameters
         do {
             retval = read_setup(&hc_param, &hc_data, haldata);
@@ -946,15 +946,15 @@ int main(int argc, char **argv)
 
 	// here's the meat of the program.  loop until done (which may be never)
 	while (done==0) {
-		
-		if (*(haldata->enable)) {	
+
+		if (*(haldata->enable)) {
 			// Read inputs
 			if (read_data(&hc_param, &hc_data, haldata) < 0) {
 				hycomm_ok = 0;
 			} else {
 				hycomm_ok++;
 			}
-			
+
 			// Set outputs
 			if (write_data(&hc_param, &hc_data, haldata) < 0) {
 				hycomm_ok = 0;
@@ -962,23 +962,23 @@ int main(int argc, char **argv)
 				hycomm_ok++;
 			}
 		}
-		
 
-		
+
+
 		if (hycomm_ok > HYCOMM_MIN_OK) {
 			*(haldata->hycomm_ok) = 1;
 		} else {
 			*(haldata->hycomm_ok) = 0;
 		}
 
-	    
+
 		// don't want to scan too fast, and shouldn't delay more than a few seconds
 		if ((*(haldata->looptime)) < 0.001) *(haldata->looptime) = 0.001;
 		if ((*(haldata->looptime)) > 1.0) *(haldata->looptime) = 1.0;
 		loop_timespec.tv_sec = (time_t)(*(haldata->looptime));
 		loop_timespec.tv_nsec = (long)((*(haldata->looptime) - loop_timespec.tv_sec) * 1000000000l);
 		nanosleep(&loop_timespec, &remaining);
-	
+
 	}
 
 	retval = 0;	/* if we get here, then everything is fine, so just clean up and exit */

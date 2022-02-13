@@ -1,7 +1,7 @@
 = Syslog async
 :author: Jakub Fišer <jakub DOT fiser AT eryaf DOT com>
-:description: Syslog_async sourcetree README 
-:sectanchors: 
+:description: Syslog_async sourcetree README
+:sectanchors:
 :url-repo: https://machinekit.io
 
 Syslog_async is a library from Simon Kelley used for block-less processing of `syslog()` function calls.

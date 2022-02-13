@@ -23,4 +23,3 @@ print(o0.get(), o1.get())
 time.sleep(100)
 
 # exiting here will remove the comp, and unlink the pins
-

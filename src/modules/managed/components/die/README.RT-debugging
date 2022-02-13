@@ -24,4 +24,3 @@ function must execute:
 or just do a
 
    halcmd -f segfault-rt-thread.hal
-

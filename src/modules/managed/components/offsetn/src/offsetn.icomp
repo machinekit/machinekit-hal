@@ -31,10 +31,10 @@ pin in float #.fb_in[pincount] "The feedback input value";
 pin out float #.fb_out[pincount] "The feedback output value";
 
 
-instanceparam int pincount = 1; 
+instanceparam int pincount = 1;
     //Default to single, same as legacy component
 
-option MAXCOUNT 9;  
+option MAXCOUNT 9;
     //Max of 9 to match current number of supported axes in most *kins
 
 function update_output "Updated the output value by adding the offset to the input";

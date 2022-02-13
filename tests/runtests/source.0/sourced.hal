@@ -10,5 +10,3 @@ net c flipflop.0.reset
 net d flipflop.0.set
 
 net n0 flipflop.0.out sampler.0.pin.0
-
-

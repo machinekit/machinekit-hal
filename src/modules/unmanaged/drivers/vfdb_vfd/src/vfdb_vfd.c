@@ -109,8 +109,8 @@
  *
  * Then, not all registers are equally important. We would like to read the
  * VFD status and actual frequency on every Modbus turnaround, but there is no need to
- * the read CPU version and inverter model more than once at startup, and the load factor etc 
- * every so often. 
+ * the read CPU version and inverter model more than once at startup, and the load factor etc
+ * every so often.
  */
 #define POLLCYCLES 	10      // read less important parameters only on every 10th transaction
 #define MODBUS_MIN_OK	10      // assert the modbus-ok pin after 10 successful modbus transactions
@@ -141,7 +141,7 @@ typedef struct {
     hal_s32_t	*errorcount;    // number of failed Modbus transactions - hints at logical errors
 
     hal_float_t	looptime;
-    hal_float_t	speed_tolerance; 	
+    hal_float_t	speed_tolerance;
     hal_float_t	motor_nameplate_hz;	// speeds are scaled in Hz, not RPM
     hal_float_t	motor_nameplate_RPM;	// nameplate RPM at default Hz
     hal_float_t	rpm_limit;		// do-not-exceed output frequency
@@ -159,7 +159,7 @@ typedef struct params {
     int modbus_debug;
     int debug;
     int slave;
-    int pollcycles; 
+    int pollcycles;
     char *device;
     int baud;
     int bits;
@@ -251,7 +251,7 @@ static struct option long_options[] = {
 };
 
 
-void  windup(param_pointer p) 
+void  windup(param_pointer p)
 {
     if (p->haldata && *(p->haldata->errorcount)) {
         fprintf(stderr,"%s: %d modbus errors\n",p->progname, *(p->haldata->errorcount));
@@ -275,14 +275,14 @@ static void toggle_debug(int sig)
     param.debug = !param.debug;
 }
 
-static void quit(int sig) 
+static void quit(int sig)
 {
     if (param.debug)
         fprintf(stderr,"quit(connection_state=%d)\n",connection_state);
 
     switch (connection_state) {
 
-    case CONNECTING:  
+    case CONNECTING:
         // modbus_tcp_accept() or TCP modbus_connect()  were interrupted
         // these wont return to the main loop, so exit here
         windup(&param);
@@ -321,10 +321,10 @@ int findkwd(param_pointer p, const char *name, int *result, const char *keyword,
         kwds[nargs++] = keyword;
         if (keyword)
             value = va_arg(ap, int);
-    }  
-    fprintf(stderr, "%s: %s:[%s]%s: found '%s' - not one of: ", 
+    }
+    fprintf(stderr, "%s: %s:[%s]%s: found '%s' - not one of: ",
             p->progname, p->inifile, p->section, name, word);
-    for (s = kwds; *s; s++) 
+    for (s = kwds; *s; s++)
         fprintf(stderr, "%s ", *s);
     fprintf(stderr, "\n");
     va_end(ap);
@@ -460,7 +460,7 @@ retry:
         rtapi_print_msg(RTAPI_MSG_ERR, "Error writing REG_COMMAND1 register2");
         p->last_errno = errno;
         return errno;
-    } 
+    }
 
     // remember so we can toggle fault/estop reset just once
     // otherwise the VFD keeps rebooting as long as the fault reset/estop reset bits are sent
@@ -472,7 +472,7 @@ retry:
         rtapi_print_msg(RTAPI_MSG_ERR, "Error writing REG_FREQUENCY");
         p->last_errno = errno;
         return errno;
-    } 
+    }
 
     return 0;
 }
@@ -487,12 +487,12 @@ retry:
 
 int read_initial(modbus_t *ctx, haldata_t *haldata, param_pointer p)
 {
-    uint16_t curr_reg, current, 
+    uint16_t curr_reg, current,
     voltage, model, eeprom, max_freq;
 
     GETREG(REG_UPPERLIMIT, &max_freq);
     *(haldata->upper_limit_hz) = (float)max_freq/100.0;
-    *(haldata->max_rpm) = *(haldata->upper_limit_hz) * 
+    *(haldata->max_rpm) = *(haldata->upper_limit_hz) *
             haldata->motor_nameplate_RPM / haldata->motor_nameplate_hz;
 
     if (p->report_device) {
@@ -776,7 +776,7 @@ int main(int argc, char **argv)
     signal(SIGUSR1, toggle_debug);
     signal(SIGUSR2, toggle_modbus_debug);
 
-    // create HAL component 
+    // create HAL component
     p->hal_comp_id = hal_init(p->modname);
     if ((p->hal_comp_id < 0) || (connection_state == DONE)) {
         fprintf(stderr, "%s: ERROR: hal_init(%s) failed: HAL error code=%d\n",
@@ -915,10 +915,9 @@ int main(int argc, char **argv)
             default: ;
         }
     }
-    retval = 0;	
+    retval = 0;
 
     finish:
     windup(p);
     return retval;
 }
-

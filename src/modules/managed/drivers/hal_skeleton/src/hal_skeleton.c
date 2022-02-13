@@ -1,21 +1,21 @@
 /********************************************************************
 * Description:  hal_skeleton.c
-*               This file, 'hal_skeleton.c', is a example that shows 
-*               how drivers for HAL components will work and serve as 
+*               This file, 'hal_skeleton.c', is a example that shows
+*               how drivers for HAL components will work and serve as
 *               a skeleton for new hardware drivers.
 *
 * Author: John Kasunich
 * License: GPL Version 2
-*    
+*
 * Copyright (c) 2003 All rights reserved.
 *
-* Last change: 
+* Last change:
 ********************************************************************/
 
 /** This file, 'hal_skeleton.c', is a example that shows how
  drivers for HAL components will work and serve as a skeleton
  for new hardware drivers.
- 
+
  Most of this code is taken from the hal_parport driver from John Kasunich,
  which is also a good starting point for new drivers.
 

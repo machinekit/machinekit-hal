@@ -165,7 +165,7 @@ extern "C" int rtapi_app_main(void)
 {
 
     string s(compname);
-    
+
     comp_id = hal_xinit(TYPE_RT, 0, 0, instantiate_lutn, NULL, compname);
     if (comp_id < 0)
 	return comp_id;

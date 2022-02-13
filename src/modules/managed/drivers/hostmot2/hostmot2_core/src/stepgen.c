@@ -377,7 +377,7 @@ static void hm2_stepgen_update_mode(hostmot2_t *hm2, int i) {
         hm2->stepgen.mode_reg[i] = 0;
     }
     // In that case, we can assume that we have been fed a step table and the
-    // step_type is actually the table length. 
+    // step_type is actually the table length.
 
     for (j = *inst->hal.pin.step_type - 1; j >= 0 ; j--){
         buff = ((*inst->hal.pin.table[j / 4] >> ((j % 4) * 8)) & 0xFF);
@@ -475,7 +475,7 @@ static void hm2_stepgen_force_write_dir_setup_time(hostmot2_t *hm2) {
         hm2->stepgen.dir_setup_time_reg,
         (hm2->stepgen.num_instances * sizeof(u32))
     );
-    
+
 }
 
 
@@ -591,7 +591,7 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
     int r;
 
 
-    // 
+    //
     // some standard sanity checks
     //
 
@@ -636,9 +636,9 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
     }
 
 
-    // 
+    //
     // looks good, start initializing
-    // 
+    //
 
 
     if (hm2->config.num_stepgens == -1) {
@@ -743,8 +743,8 @@ int hm2_stepgen_parse_md(hostmot2_t *hm2, int md_index) {
         }
 
         for (i = 0; i < hm2->stepgen.num_instances; i ++) {
-            
-            // Work out if table setup registers are needed. 
+
+            // Work out if table setup registers are needed.
             {
                 int j = 0;
                 hm2->stepgen.instance[i].table_width = 0;
@@ -1053,4 +1053,3 @@ void hm2_stepgen_print_module(hostmot2_t *hm2) {
         HM2_PRINT("            pulse_idle_width = 0x%08X (%u ns)\n", hm2->stepgen.pulse_idle_width_reg[i], *hm2->stepgen.instance[i].hal.pin.stepspace);
     }
 }
-

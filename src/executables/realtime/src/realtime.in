@@ -1,4 +1,4 @@
-#! /bin/bash
+@BASH_SHEBANG@
 #
 # @configure_input@
 # on @DATE@

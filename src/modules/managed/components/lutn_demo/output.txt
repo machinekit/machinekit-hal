@@ -10,10 +10,10 @@ lutn-demo.hal:17: Function 'and2.0.funct' added to thread 'servo', rmb=0 wmb=0
 lutn-demo.hal:18: Realtime threads started
 Signals:
 Type          Value  MB Name    linked to:
-bit           FALSE  r- in0 
+bit           FALSE  r- in0
                                  ==> and2.0.in0
                                  ==> or2.0.in0
-bit           FALSE  -w in1 
+bit           FALSE  -w in1
                                  ==> and2.0.in1
                                  ==> or2.0.in1
 
@@ -25,10 +25,10 @@ Component Pins:
 lutn-demo.hal:23: Signal 'in0' set to 1
 Signals:
 Type          Value  MB Name    linked to:
-bit            TRUE  r- in0 
+bit            TRUE  r- in0
                                  ==> and2.0.in0
                                  ==> or2.0.in0
-bit           FALSE  -w in1 
+bit           FALSE  -w in1
                                  ==> and2.0.in1
                                  ==> or2.0.in1
 
@@ -40,10 +40,10 @@ Component Pins:
 lutn-demo.hal:27: Signal 'in1' set to 1
 Signals:
 Type          Value  MB Name    linked to:
-bit            TRUE  r- in0 
+bit            TRUE  r- in0
                                  ==> and2.0.in0
                                  ==> or2.0.in0
-bit            TRUE  -w in1 
+bit            TRUE  -w in1
                                  ==> and2.0.in1
                                  ==> or2.0.in1
 
@@ -55,10 +55,10 @@ Component Pins:
 lutn-demo.hal:31: Signal 'in0' set to 0
 Signals:
 Type          Value  MB Name    linked to:
-bit           FALSE  r- in0 
+bit           FALSE  r- in0
                                  ==> and2.0.in0
                                  ==> or2.0.in0
-bit            TRUE  -w in1 
+bit            TRUE  -w in1
                                  ==> and2.0.in1
                                  ==> or2.0.in1
 
@@ -70,10 +70,10 @@ Component Pins:
 lutn-demo.hal:35: Signal 'in1' set to 0
 Signals:
 Type          Value  MB Name    linked to:
-bit           FALSE  r- in0 
+bit           FALSE  r- in0
                                  ==> and2.0.in0
                                  ==> or2.0.in0
-bit           FALSE  -w in1 
+bit           FALSE  -w in1
                                  ==> and2.0.in1
                                  ==> or2.0.in1
 
@@ -96,13 +96,13 @@ barrier-propagation-demo.hal:32: Unknown 'show' type 'piń'
 mick@INTEL-i7:/usr/src/machinekit-arceye/src/hal/icomp-example$ halcmd -f barrier-propagation-demo.hal
 Signals:
 Type          Value  MB Name    linked to:
-bit           FALSE  -- s1 
-bit           FALSE  -- s2 
+bit           FALSE  -- s1
+bit           FALSE  -- s2
 
 Signals:
 Type          Value  MB Name    linked to:
-bit           FALSE  rw s1 
-bit           FALSE  rw s2 
+bit           FALSE  rw s1
+bit           FALSE  rw s2
 
 barrier-propagation-demo.hal:30: Realtime module 'lutnv2' loaded
 Component Pins:
@@ -131,5 +131,3 @@ FUNCT test.funct id=86 owner=82 valid=1 refcnt=0 legacy=0 rmb=0 wmb=0
 PARAM test.funct.tmax id=88 owner=82 valid=1 refcnt=0 legacy=0 rmb=0 wmb=0
 PARAM test.funct.tmax-inc id=89 owner=82 valid=1 refcnt=0 legacy=0 rmb=0 wmb=0
 THREAD foo id=90 owner=0 valid=1 refcnt=0 legacy=0 rmb=1 wmb=1
-
-

@@ -184,4 +184,3 @@ STEP_DONE:
     JMP     NEXT_TASK
 
 .leave STEP_DIR_SCOPE
-

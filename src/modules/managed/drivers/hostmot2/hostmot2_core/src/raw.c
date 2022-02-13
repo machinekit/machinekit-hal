@@ -138,4 +138,3 @@ void hm2_raw_write(hostmot2_t *hm2) {
 
     *hm2->raw->hal.pin.write_strobe = 0;
 }
-

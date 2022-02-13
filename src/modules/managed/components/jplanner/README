@@ -7,4 +7,3 @@ the pos-cmd pin will be OUT, as it is driven from the queue
 the max-vel and max-acc pins are IO and can be overridden
 
 otherwise it will create and honor the pos-cmd pin as IO since it is updated by the tp as well.
-

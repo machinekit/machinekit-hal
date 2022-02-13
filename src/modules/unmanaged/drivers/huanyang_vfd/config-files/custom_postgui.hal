@@ -30,5 +30,3 @@ setp spindle-vfd.enable 1
 net DRO-Xpos <= axis.0.joint-pos-cmd => pyvcp.Xdisplay
 net DRO-Ypos <= axis.1.joint-pos-cmd => pyvcp.Ydisplay
 net DRO-Zpos <= axis.2.joint-pos-cmd => pyvcp.Zdisplay
-
-

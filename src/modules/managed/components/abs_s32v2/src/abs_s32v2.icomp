@@ -26,7 +26,7 @@ license "GPL";
 ;;
 FUNCTION(_) {
     hal_s32_t tmp = gs(in);
-    if ( tmp >= 0 ) 
+    if ( tmp >= 0 )
         {
         sb(sign, false);
         ss(out, tmp);
@@ -35,14 +35,14 @@ FUNCTION(_) {
         ss(out, -tmp);
     }
 
-    if (tmp > 0) 
+    if (tmp > 0)
         sb(is_positive, true);
-    else 
+    else
         sb(is_positive, false);
 
-    if (tmp < 0) 
+    if (tmp < 0)
         sb(is_negative, true);
-    else 
+    else
         sb(is_negative, false);
 
 return 0;

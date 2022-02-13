@@ -1,8 +1,8 @@
 /********************************************************************
 * Description:  2FOC_status.h
-* This file is part of the ZedBoard CAN communication driver for 
+* This file is part of the ZedBoard CAN communication driver for
 * the 2FOC board. This file provides the data structure of the
-* status/fault CAN packet provided by the 2FOC controller. 
+* status/fault CAN packet provided by the 2FOC controller.
 *
 * \author Claudio Lorini (claudio.lorini@iit.it)
 * License: GPL Version 2
@@ -42,7 +42,7 @@ typedef union uSysError
         // I2T protection
         unsigned I2TFailure:1;                  //8
         // External Fault
-        unsigned ExternalFaultAsserted:1;           
+        unsigned ExternalFaultAsserted:1;
 
         // EMUROM Fault
         unsigned EMUROMFault:1;
@@ -53,20 +53,20 @@ typedef union uSysError
         unsigned RotorAlignmentFault:1;         //12
 
         // SPI reading has been interrupted before finishing by foc loop
-        unsigned FirmwareSPITimingError:1;		
+        unsigned FirmwareSPITimingError:1;
 
-        unsigned AS5045CSumError:1;               
-        unsigned AS5045CalcError:1;				 
+        unsigned AS5045CSumError:1;
+        unsigned AS5045CalcError:1;
 
         // This is true when the FOC loop tried to delay the PWM update (see below)
         // but the wait for the PWM counter timed out (PWM counter freezed?)
         // This should never happen, and that may indicate
         // a firmware BUG or abnormal firmware behaviour due to
         // unpredictable and exotic reasons (malfunctions, voodoo
-        // magic, hardware bugs, gravity inversions, alien invasions, 
+        // magic, hardware bugs, gravity inversions, alien invasions,
         // end of the world).
         // In any case please consider that this is certainly NOT due
-        // to the firmware developer, but more likely it's electronic 
+        // to the firmware developer, but more likely it's electronic
         // eng. full responsibility :-)
         unsigned FirmwarePWMFatalError:1;         //16
 
@@ -77,24 +77,24 @@ typedef union uSysError
         // This might happen in certain blocking operation are requested like
         // save to eeprom parameters TODO: verify it.
         unsigned CAN_BufferOverRun:1;
-   
+
         // useless to send over can when can is dead :)
-        // unsigned CAN_BusOff:1; 
+        // unsigned CAN_BusOff:1;
 
         // can has been in TX passive mode at least one time.
         unsigned CAN_TXWasPasv:1;
         // can IS is TX passive mode
         unsigned CAN_TXIsPasv:1;                //20
-        // can has been in RX passive 
+        // can has been in RX passive
         unsigned CAN_RXWasPasv:1;
         // can IS in RX passive mode
         unsigned CAN_RXIsPasv:1;
-        // can IS in bus warn   
+        // can IS in bus warn
         unsigned CAN_IsWarn:1;
         // can has been in bus warn at least one time
         unsigned CAN_WasWarn:1;
         // at least one DLC error has been seen
-        unsigned CAN_DLCError:1;	
+        unsigned CAN_DLCError:1;
         // the MCU silicon revision in unsupported
         unsigned SiliconRevisionFault:1;
         // the position has run out upper position limit
@@ -111,8 +111,8 @@ typedef union uSysError
         // the speed exceed the lower limit
         unsigned SpeedLimitLower:1;
 
-    }; //Flags; 
-    // Permits to access the whole structure data in byte/word/array fashon 
+    }; //Flags;
+    // Permits to access the whole structure data in byte/word/array fashon
     hal_u32_t     dW[2];
     unsigned int  W[2];
     unsigned char b[4];

@@ -22,8 +22,8 @@
 // the single place for shared memory keys
 
 // convention: allocate a new key such that its
-// most significant byte is zero, which is used for 
-// instance management. 
+// most significant byte is zero, which is used for
+// instance management.
 // the rtapi_shmem_new code actually ignores the MSB
 // and replaces it be the rtapi_instance variable, so we
 // dont have to do the big shm key rename right away; just
@@ -39,7 +39,7 @@
 #define DEFAULT_MOTION_SHMEM_KEY 0x00000064
 
 // the global segment shm key
-#define GLOBAL_KEY  0x00154711     // key for GLOBAL 
+#define GLOBAL_KEY  0x00154711     // key for GLOBAL
 
 // from scope_shm.h
 #define SCOPE_SHM_KEY  0x000CF406
@@ -55,7 +55,7 @@
 #define RTAPI_KEY   0x00280A48	/* key used to open RTAPI shared memory */
 
 // RTAPI rings
-#define RTAPI_RING_SHM_KEY 0x00415000  
+#define RTAPI_RING_SHM_KEY 0x00415000
 
 // filename format in /dev/shm for POSIX shm_open() names:
 // 'hal-<rtapi_instance>-<key>

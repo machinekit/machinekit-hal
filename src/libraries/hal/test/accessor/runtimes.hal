@@ -69,5 +69,3 @@ addf xor2.funct    t
 addf fs.funct      t
 addf pat5.funct    t
 start
-
-

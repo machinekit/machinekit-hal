@@ -41,4 +41,3 @@ flavor_descriptor_t flavor_ulapi_descriptor = {
     .task_pll_get_reference_hook = NULL,
     .task_pll_set_correction_hook = NULL
 };
-

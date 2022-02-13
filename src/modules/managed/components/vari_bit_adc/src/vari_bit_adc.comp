@@ -3,7 +3,7 @@
 component vari_bit_adc;
 
 /**
- * Input pins 
+ * Input pins
  */
 pin in u32 in;
 pin in u32 bit-depth;
@@ -12,8 +12,8 @@ pin in bit filter_enable;
 pin in float filter_gain; /* TAU */
 
 
-/** 
- * Output pins 
+/**
+ * Output pins
  */
 pin out float out;
 

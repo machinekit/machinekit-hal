@@ -18,7 +18,7 @@ for i in l:
         continue
 
     if i != expected:
-        if expected == 1: 
+        if expected == 1:
             print("line %d: got %d, expected %d" % (lineno, i, expected))
         else:
             print("line %d: got %d, expected %d or 1" % (lineno, i, expected))
@@ -31,4 +31,3 @@ if got_reset:
 
 print("no reset in %d lines!" % (lineno-1))
 raise SystemExit(1) # failure
-

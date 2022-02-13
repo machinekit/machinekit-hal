@@ -6,7 +6,7 @@
  *
  * Developed at SunPro, a Sun Microsystems, Inc. business.
  * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice 
+ * software is freely granted, provided that this notice
  * is preserved.
  * ====================================================
  */
@@ -37,8 +37,8 @@ static char rcsid[] = "$NetBSD: s_logb.c,v 1.8 1995/05/10 20:47:50 jtc Exp $";
 	if((ix|lx)==0) return -1.0/fabs(x);
 	if(ix>=0x7ff00000) return x*x;
 	if((ix>>=20)==0) 			/* IEEE 754 logb */
-		return -1022.0; 
+		return -1022.0;
 	else
-		return (double) (ix-1023); 
+		return (double) (ix-1023);
 }
 #endif /* !__ppc__ */

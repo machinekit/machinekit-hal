@@ -29,4 +29,3 @@ hal_float_t new_position = position_fb + velocity_cmd * fperiod * scale;
 
    return 0;
 }
-

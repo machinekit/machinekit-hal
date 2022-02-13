@@ -1,7 +1,7 @@
 = Runtime memory
-:author: Jakub Fišer <jakub DOT fiser AT eryaf DOT com> 
-:description: Runtime memory sourcetree README 
-:sectanchors: 
+:author: Jakub Fišer <jakub DOT fiser AT eryaf DOT com>
+:description: Runtime memory sourcetree README
+:sectanchors:
 :url-repo: https://machinekit.io
 
 Shared memory driver implements HAL memory allocation and deallocation operations and affiliated functions.

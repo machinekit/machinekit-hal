@@ -121,7 +121,7 @@ Description: Machinekit-HAL's runtests (acceptance tests)
 Package: machinekit-hal
 Conflicts: machinekit
 Architecture: any
-Depends: 
+Depends:
     ${shlibs:Depends},
     ${python3:Depends},
     ${misc:Depends},
@@ -184,7 +184,7 @@ Description: Machinekit-HAL's Python unmanaged modules - drivers
 
 #Package: machinekit-hal-dev
 #Architecture: any
-#Depends: 
+#Depends:
 #    make,
 #    g++,
 #    ${misc:Depends},

@@ -33,8 +33,8 @@ When there is a combination of `pulse=inc`, `pulse-dec`, `home` and
 4 : pulse-inc
 """;
 pin_ptr in s32 index_cmd = 0 "Desired position of the indexing device";
-pin_ptr in bit index_switch = false "Switch rising edge counts up/down";        
-pin_ptr in bit start = false "Start movement of indextable on rising edge";               
+pin_ptr in bit index_switch = false "Switch rising edge counts up/down";
+pin_ptr in bit start = false "Start movement of indextable on rising edge";
 pin_ptr in bit enable = false "Enabling output drive-run, when disabled then drive-run is off and drive-brake is on";
 pin_ptr in bit set_home = false "From inactive state one can set the current index to the value of index-cmd";
 pin_ptr out s32 index_fb = false "Current index of the table";
@@ -44,7 +44,7 @@ pin_ptr out bit drive_on = false "Needs to be connected to a drive";
 pin_ptr out bit drive_dir = false "Needs to be connected to a drive";
 pin_ptr out bit drive_brake = false "Needs to be connected to a drive";
 pin_ptr out bit active = false "When the component is active (driving) then this pin is high";
-pin_ptr out u32 component_state "Mirror of internal state machine."; 
+pin_ptr out u32 component_state "Mirror of internal state machine.";
 variable hal_s32_t index_curr = 0;
 variable hal_s32_t index_target = 0;
 variable hal_bit_t indextable_active = false;
@@ -149,7 +149,7 @@ FUNCTION(_)
                 index_curr = gs(index_cmd);
                 state = 1;
                 break;
-            default: 
+            default:
                 break;
         }
     }

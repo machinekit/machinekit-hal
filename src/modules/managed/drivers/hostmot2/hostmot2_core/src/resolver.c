@@ -45,16 +45,16 @@ int hm2_resolver_parse_md(hostmot2_t *hm2, int md_index) {
     hm2_module_descriptor_t *md = &hm2->md[md_index];
     int i, r = 0;
     int resolvers_per_instance;
-    
+
     //
     // some standard sanity checks
     //
-    
+
     if ( ! hm2_md_is_consistent_or_complain(hm2, md_index, 0, 5, 4, 0x001F)) {
         HM2_ERR("inconsistent resolver Module Descriptor!\n");
         return -EINVAL;
     }
-    
+
     if (hm2->resolver.num_instances != 0) {
         HM2_ERR(
                 "found duplicate Module Descriptor for %s (inconsistent firmware), not loading driver\n",
@@ -62,9 +62,9 @@ int hm2_resolver_parse_md(hostmot2_t *hm2, int md_index) {
                 );
         return -EINVAL;
     }
-    
+
     resolvers_per_instance = hm2_resolver_get_param(2); // just returns 6 at the moment
-    
+
     if (hm2->config.num_resolvers > (md->instances * resolvers_per_instance)) {
         HM2_ERR(
                 "config.num_resolvers=%d, but only %d are available, not loading driver\n",
@@ -72,21 +72,21 @@ int hm2_resolver_parse_md(hostmot2_t *hm2, int md_index) {
                 md->instances * resolvers_per_instance);
         return -EINVAL;
     }
-    
+
     if (hm2->config.num_resolvers == 0) {
         return 0;
     }
-    
-    
+
+
     //
     // looks good, start initializing
     //
-    
+
     /*At the moment it is not clear if there will ever be more than one resolver
      instance. If there were to be more than one then they would need to have
      a different base-address, and this code would need to be re-enterable.
      A bridge to cross when we come to it */
-    
+
     if (hm2->config.num_resolvers == -1) {
         hm2->resolver.num_resolvers = md->instances * resolvers_per_instance;
         hm2->resolver.num_instances = md->instances;
@@ -94,7 +94,7 @@ int hm2_resolver_parse_md(hostmot2_t *hm2, int md_index) {
         hm2->resolver.num_resolvers = hm2->config.num_resolvers;
         hm2->resolver.num_instances = md->instances;
     }
-    
+
     hm2->resolver.hal = (hm2_resolver_global_t *)hal_malloc(
                                                 sizeof(hm2_resolver_global_t));
     if (hm2->resolver.hal == NULL) {
@@ -109,18 +109,18 @@ int hm2_resolver_parse_md(hostmot2_t *hm2, int md_index) {
         r = -ENOMEM;
         goto fail0;
     }
-    
+
     for (i = 0 ; i < hm2->resolver.num_instances ; i++ ){
         hm2->resolver.stride = md->register_stride;
         hm2->resolver.clock_frequency = md->clock_freq;
         hm2->resolver.version = md->version;
-        
+
         hm2->resolver.command_addr = md->base_address + (0 * md->register_stride);
         hm2->resolver.data_addr = md->base_address + (1 * md->register_stride);
         hm2->resolver.status_addr = md->base_address + (2 * md->register_stride);
         hm2->resolver.velocity_addr = md->base_address + (3 * md->register_stride);
         hm2->resolver.position_addr = md->base_address + (4 * md->register_stride);
-        
+
         // If there were multiple resolver function instances, this would need
         // to be the number of resolvers for that particular instance
         r = hm2_register_tram_read_region(hm2, hm2->resolver.status_addr,
@@ -137,17 +137,17 @@ int hm2_resolver_parse_md(hostmot2_t *hm2, int md_index) {
                     "register (%d)\n", i);
             goto fail1;
         }
-        
+
     }
-    
+
     // export the resolvers to HAL
-    
+
     {
         int i;
         int ret;
         char name[HAL_NAME_LEN + 1];
-        
-        rtapi_snprintf(name, sizeof(name), "%s.resolver.excitation-khz", 
+
+        rtapi_snprintf(name, sizeof(name), "%s.resolver.excitation-khz",
                        hm2->llio->name);
         ret= hal_pin_float_new(name, HAL_IO,
                                  &(hm2->resolver.hal->pin.excitation_khz),
@@ -156,93 +156,93 @@ int hm2_resolver_parse_md(hostmot2_t *hm2, int md_index) {
             HM2_ERR("error adding pin '%s', aborting\n", name);
             goto fail1;
         }
-        
+
         for (i = 0; i < hm2->resolver.num_resolvers; i ++) {
             // pins
-            
-            rtapi_snprintf(name, sizeof(name), "%s.resolver.%02d.position", 
+
+            rtapi_snprintf(name, sizeof(name), "%s.resolver.%02d.position",
                            hm2->llio->name, i);
-            ret= hal_pin_float_new(name, HAL_OUT, 
+            ret= hal_pin_float_new(name, HAL_OUT,
                                    &(hm2->resolver.instance[i].hal.pin.position),
                                    hm2->llio->comp_id);
             if (ret < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
-            
-            rtapi_snprintf(name, sizeof(name), "%s.resolver.%02d.angle", 
+
+            rtapi_snprintf(name, sizeof(name), "%s.resolver.%02d.angle",
                            hm2->llio->name, i);
-            ret= hal_pin_float_new(name, HAL_OUT, 
-                                   &(hm2->resolver.instance[i].hal.pin.angle), 
+            ret= hal_pin_float_new(name, HAL_OUT,
+                                   &(hm2->resolver.instance[i].hal.pin.angle),
                                    hm2->llio->comp_id);
             if (ret < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
-            
-            rtapi_snprintf(name, sizeof(name), "%s.resolver.%02d.velocity", 
+
+            rtapi_snprintf(name, sizeof(name), "%s.resolver.%02d.velocity",
                            hm2->llio->name, i);
-            ret= hal_pin_float_new(name, HAL_OUT, 
-                                   &(hm2->resolver.instance[i].hal.pin.velocity), 
+            ret= hal_pin_float_new(name, HAL_OUT,
+                                   &(hm2->resolver.instance[i].hal.pin.velocity),
                                    hm2->llio->comp_id);
             if (ret < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
-            
-            rtapi_snprintf(name, sizeof(name), "%s.resolver.%02d.count", 
+
+            rtapi_snprintf(name, sizeof(name), "%s.resolver.%02d.count",
                            hm2->llio->name, i);
-            ret= hal_pin_s32_new(name, HAL_OUT, 
-                                 &(hm2->resolver.instance[i].hal.pin.count), 
+            ret= hal_pin_s32_new(name, HAL_OUT,
+                                 &(hm2->resolver.instance[i].hal.pin.count),
                                  hm2->llio->comp_id);
             if (ret < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
-            
+
             rtapi_snprintf(name, sizeof(name), "%s.resolver.%02d.rawcounts",
                            hm2->llio->name, i);
-            ret= hal_pin_s32_new(name, HAL_OUT, 
-                                 &(hm2->resolver.instance[i].hal.pin.rawcounts), 
+            ret= hal_pin_s32_new(name, HAL_OUT,
+                                 &(hm2->resolver.instance[i].hal.pin.rawcounts),
                                  hm2->llio->comp_id);
             if (ret < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
-            
-            rtapi_snprintf(name, sizeof(name), "%s.resolver.%02d.reset", 
+
+            rtapi_snprintf(name, sizeof(name), "%s.resolver.%02d.reset",
                            hm2->llio->name, i);
-            ret= hal_pin_bit_new(name, HAL_IN, 
-                                 &(hm2->resolver.instance[i].hal.pin.reset), 
+            ret= hal_pin_bit_new(name, HAL_IN,
+                                 &(hm2->resolver.instance[i].hal.pin.reset),
                                  hm2->llio->comp_id);
             if (ret < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
-            
-            rtapi_snprintf(name, sizeof(name), "%s.resolver.%02d.index-enable", 
+
+            rtapi_snprintf(name, sizeof(name), "%s.resolver.%02d.index-enable",
                            hm2->llio->name, i);
             ret= hal_pin_bit_new(name, HAL_IO,
-                                 &(hm2->resolver.instance[i].hal.pin.index_enable), 
+                                 &(hm2->resolver.instance[i].hal.pin.index_enable),
                                  hm2->llio->comp_id);
             if (ret < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
-            
-            rtapi_snprintf(name, sizeof(name), "%s.resolver.%02d.error", 
+
+            rtapi_snprintf(name, sizeof(name), "%s.resolver.%02d.error",
                            hm2->llio->name, i);
-            ret= hal_pin_bit_new(name, HAL_OUT, 
-                                 &(hm2->resolver.instance[i].hal.pin.error), 
+            ret= hal_pin_bit_new(name, HAL_OUT,
+                                 &(hm2->resolver.instance[i].hal.pin.error),
                                  hm2->llio->comp_id);
             if (ret < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
-            
-            
+
+
             // parameters
-            rtapi_snprintf(name, sizeof(name), "%s.resolver.%02d.scale", 
+            rtapi_snprintf(name, sizeof(name), "%s.resolver.%02d.scale",
                            hm2->llio->name, i);
             ret= hal_pin_float_new(name, HAL_IO,
                                      &(hm2->resolver.instance[i].hal.pin.scale),
@@ -251,8 +251,8 @@ int hm2_resolver_parse_md(hostmot2_t *hm2, int md_index) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
-            
-            rtapi_snprintf(name, sizeof(name), "%s.resolver.%02d.velocity-scale", 
+
+            rtapi_snprintf(name, sizeof(name), "%s.resolver.%02d.velocity-scale",
                            hm2->llio->name, i);
             ret= hal_pin_float_new(name, HAL_IO,
                                      &(hm2->resolver.instance[i].hal.pin.vel_scale),
@@ -276,7 +276,7 @@ int hm2_resolver_parse_md(hostmot2_t *hm2, int md_index) {
             // init the hal objects that need it
             // the things not initialized here will be set by hm2_resolver_tram_init()
             //
-            
+
             *hm2->resolver.instance[i].hal.pin.reset = 0;
             *hm2->resolver.instance[i].hal.pin.scale = 1.0;
             *hm2->resolver.instance[i].hal.pin.vel_scale = 1.0;
@@ -285,14 +285,14 @@ int hm2_resolver_parse_md(hostmot2_t *hm2, int md_index) {
             hm2->resolver.kHz = (hm2->resolver.clock_frequency / 5000);
         }
     }
-    
-    
+
+
     return hm2->resolver.num_instances;
-    
+
 fail1:
-    // This is where we would kfree anything kmalloced. 
-    
-    
+    // This is where we would kfree anything kmalloced.
+
+
 fail0:
     hm2->resolver.num_instances = 0;
     return r;
@@ -301,14 +301,14 @@ fail0:
 void hm2_resolver_process_tram_read(hostmot2_t *hm2, long period) {
     int i;
     hm2_resolver_instance_t *res;
-    
+
     if (hm2->resolver.num_instances <= 0) return;
-    
+
     // process each resolver instance independently
     for (i = 0; i < hm2->resolver.num_resolvers; i ++) {
-        
+
         res = &hm2->resolver.instance[i];
-        
+
         // sanity check
         if (*res->hal.pin.scale == 0.0) {
             HM2_ERR("resolver.%02d.scale == 0.0, bogus, setting to 1.0\n", i);
@@ -318,11 +318,11 @@ void hm2_resolver_process_tram_read(hostmot2_t *hm2, long period) {
             HM2_ERR("resolver.%02d.velocity-scale == 0.0, bogus, setting to 1.0\n", i);
             *(res->hal.pin.vel_scale) = 1.0;
         }
-        
+
         // PROCESS THE REGISTERS, SET THE PINS
-        
+
         res->accum += (__s32)(hm2->resolver.position_reg[i] - res->old_reg );
-        
+
         if ((res->old_reg > hm2->resolver.position_reg[i]) && (res->old_reg - hm2->resolver.position_reg[i] > 0x80000000)){
             res->index_cnts++;
             if (*res->hal.pin.index_enable){
@@ -341,13 +341,13 @@ void hm2_resolver_process_tram_read(hostmot2_t *hm2, long period) {
                 *res->hal.pin.index_enable = 0;
             }
         }
-        
+
         if (*res->hal.pin.reset){
             res->offset = res->accum;
         }
-        
+
         res->old_reg = hm2->resolver.position_reg[i];
-        
+
         *res->hal.pin.angle = hm2->resolver.position_reg[i] / 4294967296.0;
         *res->hal.pin.rawcounts = (res->accum >> 8);
         *res->hal.pin.count = (res->accum - res->offset) >> 8;
@@ -365,9 +365,9 @@ void hm2_resolver_write(hostmot2_t *hm2, long period){
     static u32 cmd_val, data_val;
     static u32 timer;
     u32 buff;
-    
+
     if (hm2->resolver.num_instances <= 0) return;
-    
+
     switch (state){
         case 0: // Idle/waiting
             if (*hm2->resolver.hal->pin.excitation_khz < 0){
@@ -396,7 +396,7 @@ void hm2_resolver_write(hostmot2_t *hm2, long period){
             }
             break;
         case 10: // wait for command register clear before setting pins
-            hm2->llio->read(hm2->llio,hm2->resolver.command_addr, 
+            hm2->llio->read(hm2->llio,hm2->resolver.command_addr,
                             &buff, sizeof(u32));
             if (buff){
                 timer += period;
@@ -409,12 +409,12 @@ void hm2_resolver_write(hostmot2_t *hm2, long period){
             hm2->llio->write(hm2->llio, hm2->resolver.data_addr,
                              &data_val,sizeof(u32));
             hm2->llio->write(hm2->llio, hm2->resolver.command_addr,
-                             &cmd_val,sizeof(u32));            
+                             &cmd_val,sizeof(u32));
             state = 20;
             timer = 0;
             return;
         case 20: // wait for command to clear before processing any more pins
-            hm2->llio->read(hm2->llio,hm2->resolver.command_addr, 
+            hm2->llio->read(hm2->llio,hm2->resolver.command_addr,
                             &buff, sizeof(u32));
             if (buff){
                 timer += period;
@@ -423,7 +423,7 @@ void hm2_resolver_write(hostmot2_t *hm2, long period){
                     state = 0;
                 }
                 return;
-            }          
+            }
             state = 0;
             return;
             break;
@@ -432,7 +432,7 @@ void hm2_resolver_write(hostmot2_t *hm2, long period){
                     "machine");
     }
 }
-    
+
 void hm2_resolver_cleanup(hostmot2_t *hm2) {
     if (hm2->resolver.num_instances <= 0) return;
     // nothing kmallocced, so nothing to kfree
@@ -458,4 +458,3 @@ void hm2_resolver_print_module(hostmot2_t *hm2) {
                   (hm2->resolver.velocity_reg[i]));
     }
 }
-

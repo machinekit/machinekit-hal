@@ -59,37 +59,37 @@ FUNCTION(_)
     hal_s32_t i,num = 0;
     hal_bit_t internal[4];
 
-    if(gb(suppress_no_input)) 
+    if(gb(suppress_no_input))
         {
-        if (gb(sel(0)) + gb(sel(1)) + gb(sel(2)) + gb(sel(3)) == false) 
+        if (gb(sel(0)) + gb(sel(1)) + gb(sel(2)) + gb(sel(3)) == false)
             return 0;
         }
-    
-    if (gb(use_graycode)) 
+
+    if (gb(use_graycode))
         {
         internal[0] = gb(sel(3));
         internal[1] = gb(sel(2));
         internal[2] = gb(sel(1));
         internal[3] = gb(sel(0));
-        
+
         for(i = 1; i < 4; i++)
             internal[i] = internal[i] ^ internal[i - 1];
-        
+
         ss(selected, num = internal[3]+(internal[2]*2) + (internal[1]*4) + (internal[0]*8));
         }
     else
         ss(selected, num = (gb(sel(0)))+(gb(sel(1))*2) + (gb(sel(2))*4) + (gb(sel(3))*8));
-    
-    if(gf(debounce_time)) 
+
+    if(gf(debounce_time))
         {
-        if (num != lastnum) 
+        if (num != lastnum)
             {
-            if (!running) 
+            if (!running)
                 {
                 running = true;
                 delaytime = 0.0;
                 }
-            if (delaytime < gf(debounce_time)) 
+            if (delaytime < gf(debounce_time))
                 {
                 delaytime += fperiod;
                 sf(elapsed, delaytime);

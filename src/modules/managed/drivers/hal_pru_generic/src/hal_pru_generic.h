@@ -228,7 +228,7 @@ typedef struct {
 typedef struct {
 
     PRU_encoder_chan_t  pru;
-    
+
     struct {
 
         struct {

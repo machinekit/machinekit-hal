@@ -9,5 +9,3 @@ $(patsubst %, ../bin/%, $(VIDEOSERVER_COMP_PY)) : ../bin/%: $(MKWDIR)/%.py
 	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
 
 PYTARGETS += $(patsubst %, ../bin/%, $(VIDEOSERVER_COMP_PY))
-
-

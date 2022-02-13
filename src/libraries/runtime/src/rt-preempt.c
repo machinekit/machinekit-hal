@@ -122,9 +122,9 @@ int rt_preempt_module_init_hook(void)
 
     pm_qos_fd = open("/dev/cpu_dma_latency", O_RDWR);
 
-    if (pm_qos_fd < 0) 
-    {  
-    rtapi_print_msg(RTAPI_MSG_ERR, "RT PREEMPT: Could not open the Power Management Quality of Service interface file. Error: %s", strerror(errno));  
+    if (pm_qos_fd < 0)
+    {
+    rtapi_print_msg(RTAPI_MSG_ERR, "RT PREEMPT: Could not open the Power Management Quality of Service interface file. Error: %s", strerror(errno));
     retval = -errno;
     }
 
@@ -143,9 +143,9 @@ int rt_preempt_module_init_hook(void){ return posix_module_init_hook(); }
 #ifdef RTAPI
 void rt_preempt_module_exit_hook(void)
 {
-    if (pm_qos_fd < 0) 
-    {  
-        rtapi_print_msg(RTAPI_MSG_ERR, "RT PREEMPT: The Power Management Quality of Service interface file is not open!");  
+    if (pm_qos_fd < 0)
+    {
+        rtapi_print_msg(RTAPI_MSG_ERR, "RT PREEMPT: The Power Management Quality of Service interface file is not open!");
         return;
     }
 

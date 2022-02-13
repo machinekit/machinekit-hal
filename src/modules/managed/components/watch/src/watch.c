@@ -2,7 +2,7 @@
 * Description:  watch.c
 *
 * This file, 'watch.c', is a HAL instantiated component that,
-* reads the value of a pin and waits until it reaches a 
+* reads the value of a pin and waits until it reaches a
 * specified value and sets a flag.
 * It then either ceases to track the pin value or continues to do so.
 *
@@ -10,8 +10,8 @@
 * built into instantiated components.
 *
 * Passing strings via module params to instantiated components is
-* inherently risky, because the kernel module param is only created once, and all 
-* the instantiations of the component reuse it, irrespective of whether they 
+* inherently risky, because the kernel module param is only created once, and all
+* the instantiations of the component reuse it, irrespective of whether they
 * have longer strings and thus overrun the allocated buffer.
 *
 * Example:
@@ -20,17 +20,17 @@
 *
 * Where:
 * 	pin_name = Name of the pin value to watch (string)
-* 	preset_name = Name of pin to preset with target value (string) 
+* 	preset_name = Name of pin to preset with target value (string)
 *		(could be panel pin or heater temp etc)
 *	preset_type = Is it a pin or a signal (0 pin, 1 sig)
 * 	target value = Value required (float)
 * 	forever =  Keep watching pin after target value reached (bit)
-* 	iterations = Watch for XX iterations only (s32) 
+* 	iterations = Watch for XX iterations only (s32)
 *	       - remember this is thread polls, so may go very quickly
 *
 * Pins:
 * 	trigger (bit in) - starts the component watching 'pin_name'
-* 	reset (bit in) - stops the component watching 'pin_name' 
+* 	reset (bit in) - stops the component watching 'pin_name'
 *		(& zeros started, stopped, triggered.)
 * 	value-out (float out) - value of the pin at that poll
 * 	target-reached (bit out) - target value has been reached
@@ -52,7 +52,7 @@
 *
 * Last change:.
 ********************************************************************/
-    
+
 /** This program is free software; you can redistribute it and/or
     modify it under the terms of version 2 of the GNU General
     Public License as published by the Free Software Foundation.
@@ -60,7 +60,7 @@
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
-    
+
     You should have received a copy of the GNU General Public
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111 USA
@@ -215,7 +215,7 @@ int r = 0;
 
     hal_print_msg(RTAPI_MSG_DBG,"export_halobjs() ip->local_pincount set to %d", ip->local_pincount);
 
-    hal_export_xfunct_args_t __xf = 
+    hal_export_xfunct_args_t __xf =
         {
         .type = FS_XTHREADFUNC,
         .funct.x = watch_,
@@ -241,7 +241,7 @@ struct inst_data *ip;
 const char *name = argv[1];
 int r, k;
 int inst_id;
-    
+
     inst_id = hal_inst_create(name, comp_id, sizeof(struct inst_data), (void **)&ip);
     if (inst_id < 0)
         return -1;
@@ -413,7 +413,7 @@ hal_sig_t *sig;
 /////////////////////////////////////////////////////////////////////////////////////////
 
 int set_common(hal_type_t type, void *d_ptr, char *value)
-{   
+{
 // This function assumes that the mutex is held
 int retval = 0;
 double fval;
@@ -437,7 +437,7 @@ char *cp = value;
             fval = strtod ( value, &cp );
             if ((*cp != '\0') && (!isspace(*cp)))
                 {
-                // invalid character(s) in string 
+                // invalid character(s) in string
                 hal_print_msg(RTAPI_MSG_DBG,"value '%s' invalid for float\n", value);
                 retval = -EINVAL;
                 }
@@ -448,7 +448,7 @@ char *cp = value;
             lval = strtol(value, &cp, 0);
             if ((*cp != '\0') && (!isspace(*cp)))
                 {
-                // invalid chars in string 
+                // invalid chars in string
                 hal_print_msg(RTAPI_MSG_DBG,"value '%s' invalid for S32\n", value);
                 retval = -EINVAL;
                 }
@@ -459,7 +459,7 @@ char *cp = value;
             ulval = strtoul(value, &cp, 0);
             if ((*cp != '\0') && (!isspace(*cp)))
                 {
-                // invalid chars in string 
+                // invalid chars in string
                 hal_print_msg(RTAPI_MSG_DBG,"value '%s' invalid for U32\n", value);
                 retval = -EINVAL;
                 }
@@ -467,7 +467,7 @@ char *cp = value;
                 *((hal_u32_t *) (d_ptr)) = ulval;
             break;
         default:
-            // Shouldn't get here, but just in case... 
+            // Shouldn't get here, but just in case...
             hal_print_msg(RTAPI_MSG_DBG,"bad type %d\n", type);
             retval = -EINVAL;
         }
@@ -483,33 +483,33 @@ hal_type_t type;
 void *d_ptr;
 
     rtapi_print_msg(RTAPI_MSG_DBG, "setting signal '%s'\n", name);
-    // get mutex before accessing shared data 
+    // get mutex before accessing shared data
     rtapi_mutex_get(&(hal_data->mutex));
-    // search signal list for name 
+    // search signal list for name
     sig = halpr_find_sig_by_name(name);
-    if (sig == 0) 
+    if (sig == 0)
 	{
         rtapi_mutex_give(&(hal_data->mutex));
         hal_print_msg(RTAPI_MSG_DBG,"signal '%s' not found\n", name);
         return -EINVAL;
 	}
-    // found it - does it have a writer? 
-    if (sig->writers > 0) 
+    // found it - does it have a writer?
+    if (sig->writers > 0)
 	{
         rtapi_mutex_give(&(hal_data->mutex));
         hal_print_msg(RTAPI_MSG_DBG,"signal '%s' already has writer(s)\n", name);
         return -EINVAL;
 	}
-    // no writer, so we can safely set it 
+    // no writer, so we can safely set it
     type = sig->type;
     d_ptr = sig_value(sig);
     retval = set_common(type, d_ptr, value);
     rtapi_mutex_give(&(hal_data->mutex));
-    if (retval == 0) 
+    if (retval == 0)
         hal_print_msg(RTAPI_MSG_DBG,"Signal '%s' set to %s\n", name, value);
-     else 
+     else
         hal_print_msg(RTAPI_MSG_DBG,"sets failed\n");
-    
+
     return retval;
 }
 
@@ -592,7 +592,7 @@ static hal_bit_t latched = 0;
 	*(ip->_triggered) = latched = 1;
 	*(ip->_trigger) = 0;
 	}
-    
+
     if( latched ) // we are running
 	{
 	if(! *(ip->_target_reached)) // OK to continue running
@@ -629,7 +629,7 @@ static hal_bit_t latched = 0;
 	    }
 	}
     // carry on showing pin value after target reached, but not until triggered if not latched
-    else if(*(ip->_forever) && *(ip->_triggered)) 
+    else if(*(ip->_forever) && *(ip->_triggered))
 	{
 	get_pin_value(target_pin_name, value);
 	*(ip->_value_out) = atof(value);
@@ -673,7 +673,7 @@ int x;
 	    preset_type = atoi(&c[12]);
 	}
 
-    hal_print_msg(RTAPI_MSG_DBG,"pin_name = %s, preset_pin_name = %s, preset_type = %d, target_value = %f, forever = %d, iterations = %d", 
+    hal_print_msg(RTAPI_MSG_DBG,"pin_name = %s, preset_pin_name = %s, preset_type = %d, target_value = %f, forever = %d, iterations = %d",
 		    target_pin_name, preset_name, preset_type, *(ip->_target_value), *(ip->_forever), *(ip->_iterations) );
 
     char buff[16];
@@ -684,13 +684,13 @@ int x;
     // Uses for this include setting the heater component to the temperature required or
     // setting a panel widget to the value required to initialise it.
     // Wherever possible this should be a pin, the signal option arises from horrible FDM configs
-    // where signals are created with "meaningful names" and net'd to the pin, instead of just using 
+    // where signals are created with "meaningful names" and net'd to the pin, instead of just using
     // the actual pin name to do stuff.
 
     if(strlen(preset_name))
 	{
 	if(preset_type == 0) // pin
-	    ret = get_pin_type(preset_name, &type);	    
+	    ret = get_pin_type(preset_name, &type);
 	else
 	    ret = get_sig_type(preset_name, &type);
 
@@ -710,5 +710,3 @@ int x;
 
     return ret;
 }
-
-

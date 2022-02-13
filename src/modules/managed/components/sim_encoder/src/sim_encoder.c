@@ -1,16 +1,16 @@
 /********************************************************************
 * Description:  sim_encoder.c
-*               A HAL component that generates A, B, and index 
+*               A HAL component that generates A, B, and index
 *               signals as an encoder would.
 *
 * Author: John Kasunich
 * License: GPL Version 2
-*    
+*
 * Copyright (c) 2006 All rights reserved.
 *
-* Last change: 
+* Last change:
 ********************************************************************/
-/** This file, 'sim_encoder.c', is a HAL component that simulates 
+/** This file, 'sim_encoder.c', is a HAL component that simulates
     a quadrature encoder with an index pulse.  It "rotates" at a
     speed controlled by a HAL pin, and produces A, B, and Z outputs
     on other HAL pins.  A parameter sets the counts/revolution.
@@ -22,7 +22,7 @@
 
     The module exports two functions.  'sim-encoder.make-pulses', is
     responsible for actually generating the A, B, and Z signals.  It
-    must be executed in a fast thread to reduce pulse jitter.  The 
+    must be executed in a fast thread to reduce pulse jitter.  The
     other function, 'sim-encoder.update-speed', is is normally called
     from a much slower thread, and sets internal variables used by
     'make-pulses', based on the 'speed' input pin, and the 'ppr'
@@ -151,9 +151,9 @@ int rtapi_app_main(void)
 	    "SIM_ENCODER: ERROR: invalid number of channels %d\n", howmany);
 	return -1;
     }
-    /* periodns will be set to the proper value when 'make_pulses()' 
+    /* periodns will be set to the proper value when 'make_pulses()'
        runs for the first time.  We load a default value here to avoid
-       glitches at startup, but all these 'constants' are recomputed 
+       glitches at startup, but all these 'constants' are recomputed
        inside 'update_speed()' using the real period. */
     periodns = 50000;
     /* precompute some constants */

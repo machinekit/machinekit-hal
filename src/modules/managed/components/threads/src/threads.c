@@ -1,21 +1,21 @@
 /********************************************************************
 * Description:  threads.c
-*               This file, 'threads.c', is a HAL component that 
-*               provides a way to create realtime threads but 
+*               This file, 'threads.c', is a HAL component that
+*               provides a way to create realtime threads but
 *               contains no other functionality.
 *
 * Author: John Kasunich
 * License: GPL Version 2
-*    
+*
 * Copyright (c) 2003 All rights reserved.
 *
-* Last change: 
+* Last change:
 ********************************************************************/
-/** This file, 'threads.c', is a HAL component that provides a way to 
+/** This file, 'threads.c', is a HAL component that provides a way to
     create realtime threads but contains no other functionality.
     It will mostly be used for testing - when EMC is run normally,
     the motion module creates all the neccessary threads.
-    
+
     The module has three pairs of parameters, "name1, period1", etc.
 */
 

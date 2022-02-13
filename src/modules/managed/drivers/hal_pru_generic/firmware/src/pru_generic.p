@@ -141,22 +141,22 @@
 .entrypoint START
 
 // PRU GPIO Write Timing Details
-// The actual write instruction to a GPIO pin using SBBO takes two 
-// PRU cycles (10 nS).  However, the GPIO logic can only update every 
-// 40 nS (8 PRU cycles).  This meas back-to-back writes to GPIO pins 
-// will eventually stall the PRU, or you can execute 6 PRU instructions 
+// The actual write instruction to a GPIO pin using SBBO takes two
+// PRU cycles (10 nS).  However, the GPIO logic can only update every
+// 40 nS (8 PRU cycles).  This meas back-to-back writes to GPIO pins
+// will eventually stall the PRU, or you can execute 6 PRU instructions
 // for 'free' when burst writing to the GPIO.
 //
 // Latency from the PRU write to the actual I/O pin changing state
 // (normalized to PRU direct output pins = zero latency) when the
-// PRU is writing to GPIO1 and L4_PERPort1 is idle measures 
+// PRU is writing to GPIO1 and L4_PERPort1 is idle measures
 // 95 nS or 105 nS (apparently depending on clock synchronization)
 //
 // PRU GPIO Posted Writes
 // When L4_PERPort1 is idle, it is possible to burst-write multiple
-// values to the GPIO pins without stalling the PRU, as the writes 
-// are posted.  With an unrolled loop (SBBO to GPIO followed by a 
-// single SET/CLR to R30), the first 20 write cycles (both 
+// values to the GPIO pins without stalling the PRU, as the writes
+// are posted.  With an unrolled loop (SBBO to GPIO followed by a
+// single SET/CLR to R30), the first 20 write cycles (both
 // instructions) took 15 nS each, at which point the PRU began
 // to stall and the write cycle settled in to the 40 nS maximum
 // update frequency.
@@ -188,7 +188,7 @@ INITIALIZELOOP:
     QBBC INITIALIZELOOP, r0, 0 // keep looping while bit 0 is clear
 
     LBBO    r2, GState.Task_Addr, OFFSET(pru_statics.period), SIZE(pru_statics.period) // what is the period to use in the timers
-    
+
     // Setup registers
 
     // Zero all output registers
@@ -251,7 +251,7 @@ SET_CLR_BIT:
     LSL     r3.b2, r3.b0, 7
     LSR     r3.b3, r3.b1, 5
     LSR     r3.b0, r3.w2, 6
-    
+
     ADD     r3.w2, GState.PinTable, r3.b0
     JMP     r3.w2
 
@@ -363,13 +363,13 @@ TASKTABLEEND:
 //                      6       pru0.r31.12
 //  G18 mmc0_cmd        5       pru0.r30.13         -
 //                      6       pru0.r31.13
-//  T12 gpmc_ad12       6       pru0.r30.14         P8.12   GPIO1_12    
+//  T12 gpmc_ad12       6       pru0.r30.14         P8.12   GPIO1_12
 //  V13 gpmc_ad14       6       pru0.r31.14         P8.16   GPIO1_14
-//  R12 gpmc_ad13       6       pru0.r30.15         P8.11   GPIO1_13    
+//  R12 gpmc_ad13       6       pru0.r30.15         P8.11   GPIO1_13
 //  U13 gpmc_ad15       6       pru0.r31.15         P8.15   GPIO1_15
 //  D14 xdma_event_intr1 5      pru0.r31.16 P9.41   CLKOUT2
 //  D15 uart1_txd       6       pru0.r31.16 P9.24   UART1_TXD
-//  
+//
 //  R1  lcd_data0       5       pru1.r30.0          P8.45   GPIO2_6     J3
 //                      6       pru1.r31.0
 //  R2  lcd_data1       5       pru1.r30.1          P8.46   GPIO2_7     J2
@@ -378,7 +378,7 @@ TASKTABLEEND:
 //                      6       pru1.r31.2
 //  R4  lcd_data3       5       pru1.r30.3          P8.44   GPIO2_9     X Dir
 //                      6       pru1.r31.3
-//  T1  lcd_data4       5       pru1.r30.4          P8.41   GPIO2_10    X Enable    
+//  T1  lcd_data4       5       pru1.r30.4          P8.41   GPIO2_10    X Enable
 //                      6       pru1.r31.4
 //  T2  lcd_data5       5       pru1.r30.5          P8.42   GPIO2_11    Y Step
 //                      6       pru1.r31.5
@@ -408,15 +408,15 @@ TASKTABLEEND:
 //  U3  lcd_data10      -       -                   P8.36   UART3_CTSN  J4
 //
 //      ecap0_in_pwm0_out 3     ecap0_ecap_capin_apwm_o
-//                  
+//
 
 
 
 
-//                          BeagleBone          AM3359ZCZ           Mux                
+//                          BeagleBone          AM3359ZCZ           Mux
 //  Replicape   BeBoPr      Pin     Name        Pin Name            Value   PRU I/O Pin
 //  ----------------------------------------------------------------------------------
-//  
+//
 //                          P8.1    GND
 //                          P8.2    GND
 //  E2_Step     Enable      P8.3    GPIO1_6     R9  gpmc_ad6
@@ -427,12 +427,12 @@ TASKTABLEEND:
 //  E2_Fault                P8.8    TIMER7      T7  gpmc_oen_ren
 //                          P8.9    TIMER5      T6  gpmc_be0n_cle
 //  X_Fault                 P8.10   TIMER6      U6  gpmc_wen
-//  X_Dir                   P8.11   GPIO1_13    R12 gpmc_ad13       6       pru0.r30.15         
+//  X_Dir                   P8.11   GPIO1_13    R12 gpmc_ad13       6       pru0.r30.15
 //  X_Step                  P8.12   GPIO1_12    T12 gpmc_ad12       6       pru0.r30.14
 //  E1_Heat                 P8.13   EHRPWM2B    T10 gpmc_ad9
 //  Y_Stop_1                P8.14   GPIO0_26    T11 gpmc_ad10
-//  Y_Fault                 P8.15   GPIO1_15    U13 gpmc_ad15       6       pru0.r31.15         
-//  E2_Step                 P8.16   GPIO1_14    V13 gpmc_ad14       6       pru0.r31.14         
+//  Y_Fault                 P8.15   GPIO1_15    U13 gpmc_ad15       6       pru0.r31.15
+//  E2_Step                 P8.16   GPIO1_14    V13 gpmc_ad14       6       pru0.r31.14
 //  Z_Fault                 P8.17   GPIO0_27    U12 gpmc_ad11
 //  E1_Fault                P8.18   GPIO2_1     V12 gpmc_clk_mux0
 //  E2_Heat                 P8.19   EHRPWM2A    U10 gpmc_ad8
@@ -443,9 +443,9 @@ TASKTABLEEND:
 //  Z_Step                  P8.24   GPIO1_1     V7  gpmc_ad1
 //                          P8.25   GPIO1_0     U7  gpmc_ad0
 //  Z_Stop_1                P8.26   GPIO1_29    V6  gpmc_csn0
-//              Z_Step      P8.27   GPIO2_22    U5  lcd_vsync       5       pru1.r30.8 
+//              Z_Step      P8.27   GPIO2_22    U5  lcd_vsync       5       pru1.r30.8
 //              Z_Ena       P8.28   GPIO2_24    V5  lcd_pclk        5       pru1.r30.10
-//              Z_Dir       P8.29   GPIO2_23    R5  lcd_hsync       5       pru1.r30.9 
+//              Z_Dir       P8.29   GPIO2_23    R5  lcd_hsync       5       pru1.r30.9
 //              E_Step      P8.30   GPIO2_25    R6  lcd_ac_bias_en  5       pru1.r30.11
 //                          P8.31   UART5_CTSN  V4  lcd_data14
 //                          P8.32   UART5_RTSN  T5  lcd_data15
@@ -455,15 +455,15 @@ TASKTABLEEND:
 //              J4          P8.36   UART3_CTSN  U3  lcd_data10
 //                          P8.37   UART5_TXD   U1  lcd_data8
 //                          P8.38   UART5_RXD   U2  lcd_data9
-//              Y_Dir       P8.39   GPIO2_12    T3  lcd_data6       5       pru1.r30.6 
-//              Y_Ena       P8.40   GPIO2_13    T4  lcd_data7       5       pru1.r30.7 
-//              X_Ena       P8.41   GPIO2_10    T1  lcd_data4       5       pru1.r30.4 
-//              Y_Step      P8.42   GPIO2_11    T2  lcd_data5       5       pru1.r30.5 
-//              X_Step      P8.43   GPIO2_8     R3  lcd_data2       5       pru1.r30.2 
-//              X_Dir       P8.44   GPIO2_9     R4  lcd_data3       5       pru1.r30.3 
-//              J3          P8.45   GPIO2_6     R1  lcd_data0       5       pru1.r30.0 
-//              J2          P8.46   GPIO2_7     R2  lcd_data1       5       pru1.r30.1 
-//  
+//              Y_Dir       P8.39   GPIO2_12    T3  lcd_data6       5       pru1.r30.6
+//              Y_Ena       P8.40   GPIO2_13    T4  lcd_data7       5       pru1.r30.7
+//              X_Ena       P8.41   GPIO2_10    T1  lcd_data4       5       pru1.r30.4
+//              Y_Step      P8.42   GPIO2_11    T2  lcd_data5       5       pru1.r30.5
+//              X_Step      P8.43   GPIO2_8     R3  lcd_data2       5       pru1.r30.2
+//              X_Dir       P8.44   GPIO2_9     R4  lcd_data3       5       pru1.r30.3
+//              J3          P8.45   GPIO2_6     R1  lcd_data0       5       pru1.r30.0
+//              J2          P8.46   GPIO2_7     R2  lcd_data1       5       pru1.r30.1
+//
 //                          P9.1    GND
 //                          P9.2    GND
 //                          P9.3    VDD_3V3EXP
@@ -508,9 +508,9 @@ TASKTABLEEND:
 //                          bbb*    GPIO3_20    D13 mcasp0_axr1
 //                          P9.42   GPIO0_7     C18 eCAP0_in_PWM0_out
 //                          bbb*    GPIO3_18    B12 Mcasp0_aclkrp
-//                          P9.43   GND             
-//                          P9.44   GND             
+//                          P9.43   GND
+//                          P9.44   GND
 //                          P9.45   GND
-//                          P9.46   GND             
+//                          P9.46   GND
 //
 //                          bbb* = Only present on BeagleBone Black

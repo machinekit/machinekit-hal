@@ -31,4 +31,3 @@ addf second.update servo
 # now try to bring it back with:
 # newinst pbring second
 # and have a look at 'halcmd show' to see what happened
-

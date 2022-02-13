@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# encoding: utf-8
 """
 Pwm.py
 
@@ -34,7 +33,7 @@ def getHalName(pin):
 def main():
     parser = argparse.ArgumentParser(description="""
     HAL component to control the PCA9685 LED driver PWM IC
-    
+
     pins:
        bit out error          indicates an I2C error conditions
        bit out no-error       inverse of the error pin

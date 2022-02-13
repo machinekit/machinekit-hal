@@ -1,8 +1,8 @@
 (From the original PR text by @MX-Master)
 
-I have some files for those people who wants to make a quick test of GPIO driver with Orange Pi One board. 
+I have some files for those people who wants to make a quick test of GPIO driver with Orange Pi One board.
 
-I made two MicroSD images (8Gb, 16Gb) with a couple of HOWTO files. MicroSD image - it's Debian Jessie (built by Armbian) with real-time kernel (4.13, RT-PREEMPT), 
+I made two MicroSD images (8Gb, 16Gb) with a couple of HOWTO files. MicroSD image - it's Debian Jessie (built by Armbian) with real-time kernel (4.13, RT-PREEMPT),
 with Machinekit and some tweaks installed:
 
 8GB image

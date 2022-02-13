@@ -236,4 +236,3 @@ void hm2_tram_cleanup(hostmot2_t *hm2) {
     if (hm2->tram_read_buffer != NULL) kfree(hm2->tram_read_buffer);
     if (hm2->tram_write_buffer != NULL) kfree(hm2->tram_write_buffer);
 }
-

@@ -59,21 +59,18 @@ function process_wsums fp;
 
 FUNCTION(process_wsums)
 {
-hal_s32_t b; 
-    
-    if (!gb(hold)) 
+hal_s32_t b;
+
+    if (!gb(hold))
 	{
 	running_total = gs(offset);
-	for (b=0 ; b < local_pincount ; b++) 
+	for (b=0 ; b < local_pincount ; b++)
 	    {
-	    if (gb(in(b))) 
+	    if (gb(in(b)))
 		running_total += gs(weight(b));
 	    }
 	}
     ss(sum, running_total);
-	
+
     return 0;
 }
-
-
-

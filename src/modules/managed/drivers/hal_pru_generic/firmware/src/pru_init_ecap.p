@@ -54,7 +54,7 @@ MODE_INIT_ECAP:
     SBCO r2, CONST_ECAP, 0x10, 4 // set ecap period (shadow)
     LDI  r0, 0x40
     SBCO r0, CONST_ECAP, 0x2C, 2 // set trigger when count = period mode
-    LDI  r0, ((1 << 9) | (1 << 4)) 
+    LDI  r0, ((1 << 9) | (1 << 4))
     SBCO r0, CONST_ECAP, 0x2A, 2 // turn on APWM mode (reset count after period), free counting mode
     JMP     NEXT_TASK
 

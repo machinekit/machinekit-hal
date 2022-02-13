@@ -273,7 +273,7 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, hm2_encoder_t *encoder, int md_index, 
     int r;
 
 
-    // 
+    //
     // some standard sanity checks
     //
 
@@ -627,36 +627,36 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, hm2_encoder_t *encoder, int md_index, 
     }
 
 
-    // 
+    //
     // Set the Timestamp Divisor Register
-    // 
+    //
     // We want the timestamp to count as quickly as possible, so we get the
     // best temporal resolution.
-    // 
+    //
     // But we want it to count slow enough that the 16-bit counter doesnt
     // overrun between successive calls to the servo thread (easy), and
     // even slower so that we can do good low-speed velocity estimation
     // (long between roll-overs).
     //
     // A resonably slow servo thread runs at 1 KHz.  A fast one runs at 10
-    // KHz.  The actual servo period is unknown at loadtime, and is likely 
+    // KHz.  The actual servo period is unknown at loadtime, and is likely
     // to fluctuate slightly when the system is under load.
-    // 
+    //
     // Peter suggests a Quadrature Timestamp clock rate of 1 MHz.  This
     // means that a 1 KHz servo period sees about 1000 clocks per period.
-    //     
+    //
     //
     // From the HM2 RegMap:
-    // 
+    //
     //     Timestamp count rate is ClockLow/(TSDiv+2).
     //     Any divisor with MSb set = divide by 1
-    // 
+    //
     // This gives us:
-    // 
+    //
     //     rate = 1 MHz = 1e6 = ClockLow / (TSDiv+2)
-    // 
+    //
     //     TSDiv+2 = ClockLow / 1e6
-    // 
+    //
     //     TSDiv = (ClockLow / 1e6) - 2
     //
     //     seconds_per_clock = 1 / rate = (TSDiv+2) / ClockLow
@@ -757,9 +757,9 @@ static void hm2_encoder_instance_update_rawcounts_and_handle_index(hostmot2_t *h
     prev_rawcounts = *e->hal.pin.rawcounts;
 
 
-    // 
+    //
     // figure out current rawcounts accumulated by the driver
-    // 
+    //
 
     reg_count = hm2_encoder_get_reg_count(encoder, instance);
 
@@ -1102,4 +1102,3 @@ void hm2_encoder_print_module(hostmot2_t *hm2, hm2_encoder_t *encoder, char *tag
         HM2_PRINT("            prev_control = %04x.%04x\n", (encoder->instance[i].prev_control >> 16), (encoder->instance[i].prev_control & 0xffff));
     }
 }
-

@@ -2,7 +2,7 @@
 * Description:  hal_ppmc.c
 *               HAL driver for the the Pico Systems family of
 *               parallel port motion control boards, including
-*               the PPMC board set, the USC, and the UPC. 
+*               the PPMC board set, the USC, and the UPC.
 *
 * Usage:  halcmd loadrt hal_ppmc port_addr=<addr1>[,addr2[,addr3]]
 *		[extradac=<slotcode1>,[<slotcode2>]]
@@ -29,7 +29,7 @@
 
 * Author: John Kasunich, Jon Elson, Stephen Wille Padnos
 * License: GPL Version 2
-*    
+*
 * Copyright (c) 2005 All rights reserved.
 *
 ********************************************************************/
@@ -37,7 +37,7 @@
 /** The driver searches the entire address space of the enhanced
     parallel port (EPP) at 'port_addr', looking for any board(s)
     in the PPMC family.  It then exports HAL pins for whatever it
-    finds, as well as a pair of functions, one that reads all 
+    finds, as well as a pair of functions, one that reads all
     inputs, and one that writes all outputs.
 */
 
@@ -187,7 +187,7 @@ RTAPI_MP_ARRAY_INT(enc_clock, MAX_BUS*8, "bus/slot locations of encoder clock se
 /* The physical output associated with the "estop" output will not come on
    unless the physical "estop" input is also on.  All physical outputs
    will not come on unless the physical "estop" output is on. */
-   
+
 /* The ESTOP function is completely implementd in FPGA hardware.  To get
 out of ESTOP, the safety chain must be a closed circuit (Green LED lit on
 board), you then must satisfy the watchdog (if watchdog jumper is in ON
@@ -301,9 +301,9 @@ typedef struct {
 } encoder_t;
 
 /* this structure contains the runtime data for a single EPP bus slot */
-/* A single slot can contain a wide variety of "stuff", ranging 
+/* A single slot can contain a wide variety of "stuff", ranging
    from PWM or stepper or DAC outputs, to encoder inputs, to digital
-   I/O.  at runtime, the proper function(s) need to be invoked to 
+   I/O.  at runtime, the proper function(s) need to be invoked to
    handle it.  We do that by having an array of functions that are
    called in order.  The entries are filled in when the init code
    scans the bus and determines what is in each slot */
@@ -475,7 +475,7 @@ int rtapi_app_main(void)
         n++;
     }
     if ( n == 0 ) {
-	rtapi_print_msg(RTAPI_MSG_ERR, 
+	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "PPMC: ERROR: no ports specified\n");
 	hal_exit(comp_id);
 	return -1;
@@ -545,7 +545,7 @@ int rtapi_app_main(void)
             slot->encoder = NULL;
 	    slot->extra_mode = EXTRA_UNUSED;
 	    slot->extra = NULL;
-	}    
+	}
 	/* scan the bus */
 	for ( slotnum = 0 ; slotnum < NUM_SLOTS ; slotnum ++ ) {
 	    /* point to slot struct */
@@ -553,7 +553,7 @@ int rtapi_app_main(void)
 	    /* rv1 is used to flag errors that fail one bus */
 	    rv1 = 0;
 	    rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: slot %d: ", slotnum);
-	
+
 	    /* check slot */
 	    idcode = SelRead(slot->slot_base+SLOT_ID_OFFSET, slot->port_addr);
 	    if ((idcode == 0)||(idcode == 0xFF)||((idcode&0x0f) == 0x0f)) {
@@ -574,7 +574,7 @@ int rtapi_app_main(void)
 	    slot->enc_freq = 0; /* default is 1 MHz */
 	    /* mark slot as occupied */
 	    bus->slot_valid[slotnum] = 1;
-	    
+
 	    /* do board specific init and configuration */
 	    switch ( id ) {
 	    case 0x10:
@@ -591,12 +591,12 @@ int rtapi_app_main(void)
 		}
 		if ( need_timestamp ) {
 		    rv1 += export_timestamp(slot, bus);
-		}		
+		}
 		for ( n = 0; n < MAX_BUS*8 ; n++ ) {
 		  if ( (enc_clock[n] & 0xff) == bus_slot_code) {
 		    //		    rtapi_print_msg(RTAPI_MSG_ERR,"PPMC detected enc_clock parameter%x\n",enc_clock[n]);
 		    if (slot->ver < 4) {
-		      rtapi_print_msg(RTAPI_MSG_ERR, 
+		      rtapi_print_msg(RTAPI_MSG_ERR,
 				      "PPMC encoder does not support adjustable encoder clock, ignoring\n");
 		    }
 		    slot->enc_freq = (enc_clock[n]) >> 8; // the clock selection is in bits 12-8
@@ -647,7 +647,7 @@ int rtapi_app_main(void)
 		    rv1 += export_extra_dac(slot, bus);
 		} else if ( need_extra_dout ) {
 		    rv1 += export_extra_dout(slot, bus);
-		}		
+		}
 		/* the USC occupies two slots, so skip the second one */
 		slotnum++;
 		break;
@@ -685,7 +685,7 @@ int rtapi_app_main(void)
 		}
 		if ( need_timestamp ) {
 		    rv1 += export_timestamp(slot, bus);
-		}		
+		}
 		// can't export encoders until we know if they use timestamp feature
 		rv1 += export_encoders(slot, bus);
 		/* the UPC occupies two slots, so skip the second one */
@@ -762,7 +762,7 @@ int rtapi_app_main(void)
 	/* something went wrong, cleanup and exit */
         rtapi_app_exit();
 	return rv;
-    }    
+    }
     rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: driver installed\n");
     hal_ready(comp_id);
     return 0;
@@ -1078,7 +1078,7 @@ static void read_encoders(slot_data_t *slot)
     unsigned short delta_time;
     //    hal_u32_t timestamp;
     //    hal_u32_t timebase;
-      
+
     // sample timebase only on boards so equipped
     if (slot->use_timestamp) {
       byteindex = ENCTB;
@@ -1165,7 +1165,7 @@ static void read_encoders(slot_data_t *slot)
 	  } else {
 	    // no counts this sample
 	    if (slot->encoder[i].counts_since_timeout) {
-	      delta_time = timebase.s - timestamp.s;	
+	      delta_time = timebase.s - timestamp.s;
 	      delta_time = delta_time & 0xffff;
 	      //  if (delta_time < slot->encoder[i].scale * slot->encoder[i].min_speed) {
 	      if (delta_time < 65500) {
@@ -1417,9 +1417,9 @@ static void write_pwmgens(slot_data_t *slot)
 	/* calculate desired duty cycle */
 	dc = *(pg->value) / pg->scale;
 	/* Special code to deal with the requirements of the Pico PWM
-	   amps.  They need at least one PWM pulse in each direction 
+	   amps.  They need at least one PWM pulse in each direction
 	   every time you enable the amps.  So we override the commanded
-	   duty cycle with +5%, then -5%, for one thread execution time 
+	   duty cycle with +5%, then -5%, for one thread execution time
 	   each, when we see a rising edge on enable.
 	*/
 	if ( pg->bootstrap != 0 ) {
@@ -1457,10 +1457,10 @@ static void write_pwmgens(slot_data_t *slot)
 	/* reset any illegal duty cycle limits */
 	if (( pg->min_dc > 1.0 ) || ( pg->min_dc < 0.0 )) {
 	    pg->min_dc = 0.0;
-	} 
+	}
 	if (( pg->max_dc > 1.0 ) || ( pg->max_dc < 0.0 )) {
 	    pg->max_dc = 1.0;
-	} 
+	}
 	if ( pg->min_dc >= pg->max_dc ) {
 	    pg->min_dc = 0.0;
 	    pg->max_dc = 1.0;
@@ -1638,9 +1638,9 @@ static __u32 block(int min, int max)
 
 /* these functions are used to register a runtime function to be called
    by either read_all or write_all.  'cache_bitmap' defines the EPP
-   addresses that the function needs.  All addresses needed by all 
+   addresses that the function needs.  All addresses needed by all
    functions associated with the slot will be sequentially read into
-   the rd_buf cache (or written from the wr_buf cache) by read_all 
+   the rd_buf cache (or written from the wr_buf cache) by read_all
    or write_all respectively, to minimize the number of slow inb
    and outb operations needed.
 */
@@ -1649,7 +1649,7 @@ static int add_rd_funct(slot_funct_t *funct, slot_data_t *slot,
 			__u32 cache_bitmap )
 {
     if ( slot->num_rd_functs >= MAX_FUNCT ) {
-	rtapi_print_msg(RTAPI_MSG_ERR, 
+	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "PPMC: ERROR: too many read functions\n");
 	return -1;
     }
@@ -1662,7 +1662,7 @@ static int add_wr_funct(slot_funct_t *funct, slot_data_t *slot,
 			__u32 cache_bitmap )
 {
     if ( slot->num_wr_functs >= MAX_FUNCT ) {
-	rtapi_print_msg(RTAPI_MSG_ERR, 
+	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "PPMC: ERROR: too many write functions\n");
 	return -1;
     }
@@ -2088,16 +2088,16 @@ static int export_PPMC_DAC(slot_data_t *slot, bus_data_t *bus)
         ppmc.n.encoder.m.position   float
         ppmc.n.encoder.m.counts     s32
         ppmc.n.encoder.m.index      bit
-    
+
     the output value is position=counts / scale
 
-    Additionally, the encoder registers are zeroed, and the mode is set to latch 
+    Additionally, the encoder registers are zeroed, and the mode is set to latch
  */
 
 static int export_encoders(slot_data_t *slot, bus_data_t *bus)
 {
   int retval, n, m;
-    
+
     rtapi_print_msg(RTAPI_MSG_INFO, "PPMC: exporting encoder pins / params\n");
 
     /* do hardware init */
@@ -2361,7 +2361,7 @@ static int ClrTimeout(unsigned int port_addr)
     unsigned char r;
 
     r = rtapi_inb(STATUSPORT(port_addr));
-    
+
     if  (!(r & 0x01)) {
 	return 0;
     }
@@ -2380,7 +2380,7 @@ static int ClrTimeout(unsigned int port_addr)
 static unsigned short SelRead(unsigned char epp_addr, unsigned int port_addr)
 {
     unsigned char b;
-    
+
     ClrTimeout(port_addr);
     /* set port direction to output */
     rtapi_outb(0x04,CONTROLPORT(port_addr));
@@ -2394,7 +2394,7 @@ static unsigned short SelRead(unsigned char epp_addr, unsigned int port_addr)
 
 }
 
-/* reads one byte from EPP, use only after SelRead, and only 
+/* reads one byte from EPP, use only after SelRead, and only
    when hardware has auto-increment address cntr */
 static unsigned short ReadMore(unsigned int port_addr)
 {
@@ -2417,11 +2417,10 @@ static void SelWrt(unsigned char byte, unsigned char epp_addr, unsigned int port
     return;
 }
 
-/* writes one byte to EPP, use only after SelWrt, and only 
+/* writes one byte to EPP, use only after SelWrt, and only
    when hardware has auto-increment address cntr */
 static void WrtMore(unsigned char byte, unsigned int port_addr)
 {
     rtapi_outb(byte,DATAPORT(port_addr));
     return;
 }
-

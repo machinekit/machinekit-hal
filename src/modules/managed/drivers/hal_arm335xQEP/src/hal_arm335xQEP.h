@@ -228,4 +228,3 @@ typedef struct {
 #define EQEPCLK_EN          (0x0001 << 4)
 
 #endif
-

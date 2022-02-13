@@ -31,6 +31,6 @@ hal_float_t halfhyst = 0.5 * gf(hyst);
         }
     else
         sb(equal,true);
-        
+
     return 0;
 }

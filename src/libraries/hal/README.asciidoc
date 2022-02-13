@@ -1,7 +1,7 @@
 = HAL
-:author: Jakub Fišer <jakub DOT fiser AT eryaf DOT com> 
-:description: HAL sourcetree README 
-:sectanchors: 
+:author: Jakub Fišer <jakub DOT fiser AT eryaf DOT com>
+:description: HAL sourcetree README
+:sectanchors:
 :url-repo: https://machinekit.io
 
 HAL represents the **H**ardware **A**bstraction **L**ayer functionality of Machinekit-HAL. It provides the __IPC__ mechanism for communication between modules. Should be generally loaded as second object after **Runtime**.

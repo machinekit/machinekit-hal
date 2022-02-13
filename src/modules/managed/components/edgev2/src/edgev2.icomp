@@ -46,7 +46,7 @@ hal_bit_t rise, fall, desired_edge;
         {
         rise = new_in && !gb(last_in);
         fall = !new_in && gb(last_in);
-        desired_edge = 
+        desired_edge =
             gb(both) ? rise || fall
                     : gb(in_edge) ? fall : rise;
         if(desired_edge)

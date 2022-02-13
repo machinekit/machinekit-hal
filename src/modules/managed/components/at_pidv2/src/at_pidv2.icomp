@@ -453,4 +453,3 @@ hal_float_t  prevCmdD, lerror, loutput;
     sf(output, loutput);
     return 0;
 }
-

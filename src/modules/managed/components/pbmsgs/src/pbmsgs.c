@@ -112,4 +112,3 @@ msginfo_t msginfo[] = {
 };
 
 EXPORT_SYMBOL(msginfo);
-

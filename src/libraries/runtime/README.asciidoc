@@ -1,7 +1,7 @@
 = Runtime
 :author: Jakub Fišer <jakub DOT fiser AT eryaf DOT com>
-:description: Runtime sourcetree README 
-:sectanchors: 
+:description: Runtime sourcetree README
+:sectanchors:
 :url-repo: https://machinekit.io
 
 Runtime export the basic API for Machinekit-HAL function. It provides the lowest lewel set of symbols and has to be loaded first.

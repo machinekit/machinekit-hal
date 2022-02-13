@@ -21,5 +21,3 @@ demo:
 halrun -I interpolate.hal
 
 python feed-interpolator.py
-
-

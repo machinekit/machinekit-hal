@@ -2,12 +2,12 @@
  *  Description: module.h
  *
  *  Provides functions for running linux kernel modules in user space,
- *  emulating part of #include <linux/module.h> 
+ *  emulating part of #include <linux/module.h>
  *
  *  Copyright (C) 2012  Charles Steinkuehler
  *                      <charles AT steinkuehler DOT net>
  *
- *  Last change: 
+ *  Last change:
  *  2012-Dec-17 Charles Steinkuehler
  *              Initial version
  *
