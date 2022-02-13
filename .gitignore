@@ -72,3 +72,5 @@ share/pkgconfig/machinekit-hal.pc
 # CMake binary tree usual directories
 obj-*
 build
+# Used for development Pre-Commit virtual environment
+development
