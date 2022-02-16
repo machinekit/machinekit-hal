@@ -1,7 +1,7 @@
 = Runtime math
 :author: Jakub Fišer <jakub DOT fiser AT eryaf DOT com>
-:description: Runtime_math sourcetree README 
-:sectanchors: 
+:description: Runtime_math sourcetree README
+:sectanchors:
 :url-repo: https://machinekit.io
 
 Runtime_math is a library exporting set of mathematical functions.

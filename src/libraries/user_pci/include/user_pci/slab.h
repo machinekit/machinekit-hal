@@ -7,7 +7,7 @@
  *  Author(s): Charles Steinkuehler
  *  License: GNU LGPL Version 2.1 or (at your option) any later version.
  *
- *  Last change: 
+ *  Last change:
  *  2012-Dec-17 Charles Steinkuehler
  *              Initial version
  ********************************************************************/

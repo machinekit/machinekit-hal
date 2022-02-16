@@ -100,7 +100,7 @@ class BitFile:
             result += chunkdata
 
         return result
-    
+
     def tofile(self, file):
         return file.write(self.tostring())
 

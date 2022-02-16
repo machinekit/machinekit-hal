@@ -1,12 +1,12 @@
 /********************************************************************
 * Description:  counter.c
-*               This file, 'counter.c', is a HAL component that 
+*               This file, 'counter.c', is a HAL component that
 *               provides software-based counting of pulse streams
 *               with an optional reset input.
 *
 * Author: Chris Radek <chris@timeguy.com>
 * License: GPL Version 2
-*    
+*
 * Copyright (c) 2006 All rights reserved.
 *
 ********************************************************************/
@@ -33,7 +33,7 @@
     The driver exports variables for each counter's inputs and outputs.
     It also exports two functions:  "counter.update-counters" must be
     called in a high speed thread, at least twice the maximum desired
-    count rate.  "counter.capture-position" can be called at a much 
+    count rate.  "counter.capture-position" can be called at a much
     slower rate, and updates the output variables.
 */
 

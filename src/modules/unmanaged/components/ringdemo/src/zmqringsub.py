@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-#
 # run as  python zmqringsub.py [[destination] [optional list of ring names]]
 #
 # see also zmqringpub.py and zmqdemo.hal

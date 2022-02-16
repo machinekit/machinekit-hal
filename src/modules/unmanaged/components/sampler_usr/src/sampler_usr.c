@@ -6,12 +6,12 @@
 *
 * Author: John Kasunich <jmkasunich at sourceforge dot net>
 * License: GPL Version 2
-*    
+*
 * Copyright (c) 2006 All rights reserved.
 *
 ********************************************************************/
 /** This file, 'sampler_usr.c', is the user part of a HAL component
-    that allows values to be sampled from HAL pins at a uniform 
+    that allows values to be sampled from HAL pins at a uniform
     realtime sample rate, and writes them to a stdout (from which
     they can be redirected to a file).  When the realtime module
     is loaded, it creates a fifo in shared memory and begins capturing

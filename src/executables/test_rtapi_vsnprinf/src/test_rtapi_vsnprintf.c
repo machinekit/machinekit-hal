@@ -34,7 +34,7 @@ double vectors[] = {
     0.0, -0.0, 3.14, -3.14,
     100, 1e6, 1e300,
     1e-10, 1e-100, 1e-280, 1e-300,
-    -__builtin_inf(), __builtin_inf(), __builtin_nan(""), 
+    -__builtin_inf(), __builtin_inf(), __builtin_nan(""),
 };
 
 int nvectors = sizeof(vectors)/sizeof(vectors[0]);

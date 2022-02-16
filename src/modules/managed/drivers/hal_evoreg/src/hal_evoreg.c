@@ -1,15 +1,15 @@
 /********************************************************************
 * Description:  hal_evoreg.c
-*               This file, 'hal_evoreg.c', is a HAL component that 
-*               provides a driver for the Siemens EVOREG motion 
+*               This file, 'hal_evoreg.c', is a HAL component that
+*               provides a driver for the Siemens EVOREG motion
 *               control board.
 *
 * Author: Martin Kuhnle, John Kasunich
 * License: GPL Version 2
-*    
+*
 * Copyright (c) 2003 All rights reserved.
 *
-* Last change: 
+* Last change:
 ********************************************************************/
 
 /** This file, 'hal_evoreg.c', is a HAL component that provides a
@@ -35,7 +35,7 @@
                        <mkuhnle AT users DOT sourceforge DOT net>
                 John Kasunich
                        <jmkasunich AT users DOT sourceforge DOT net>
-                       
+
 */
 
 /** This program is free software; you can redistribute it and/or
@@ -135,7 +135,7 @@ int rtapi_app_main(void)
     #define ISA_BASE    0xC9000
     #define ISA_MAX    0x100000  /* allgemeiner Speicherzugriff */
 
-    
+
     /* STEP 1: initialise the driver */
     comp_id = hal_init("hal_evoreg");
     if (comp_id < 0) {
@@ -168,7 +168,7 @@ int rtapi_app_main(void)
     writew(0, port_data_array->io_base + 0x02); /* ENCODER 1 */
     writew(0, port_data_array->io_base + 0x0a); /* ENCODER 2 */
     writew(0, port_data_array->io_base + 0x12); /* ENCODER 3 */
-    
+
     /* STEP 3: export the pin(s) */
 
     /* Export DAC pin's */

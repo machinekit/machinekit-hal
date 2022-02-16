@@ -31,7 +31,7 @@ license "GPL";
 FUNCTION(_)
 {
     hal_float_t tmp = gf(in);
-    if (gf(deadband) < 1e-12) 
+    if (gf(deadband) < 1e-12)
         sf(deadband, 1e-12);
     if ( tmp > -gf(deadband) && tmp < 0.0)
         sf(out, -1.0/gf(deadband));

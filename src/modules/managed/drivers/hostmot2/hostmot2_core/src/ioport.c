@@ -36,7 +36,7 @@ int hm2_ioport_parse_md(hostmot2_t *hm2, int md_index) {
     int i, r;
 
 
-    // 
+    //
     // some standard sanity checks
     //
 
@@ -54,9 +54,9 @@ int hm2_ioport_parse_md(hostmot2_t *hm2, int md_index) {
     }
 
 
-    // 
+    //
     // special sanity check for io_ports
-    // 
+    //
 
     if (hm2->idrom.io_ports != md->instances) {
         HM2_ERR(
@@ -488,7 +488,7 @@ void hm2_ioport_gpio_process_tram_read(hostmot2_t *hm2) {
     int port;
     int port_pin;
 
-    // 
+    //
     // parse it out to the HAL pins
     //
 
@@ -510,7 +510,7 @@ void hm2_ioport_gpio_process_tram_read(hostmot2_t *hm2) {
 //
 // this function sets the data_write register TRAM buffer from the values of the HAL pins
 // the data_write buffer will get written to the TRAM and thus to the ioport data register by the caller
-// 
+//
 
 void hm2_ioport_gpio_prepare_tram_write(hostmot2_t *hm2) {
     int port;

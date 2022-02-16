@@ -9,10 +9,10 @@
  ********************************************************************/
 
 
-#include "runtime/rtapi.h"		
-#include "runtime/rtapi_app.h"	
+#include "runtime/rtapi.h"
+#include "runtime/rtapi_app.h"
 
-#include "hal/hal.h"	
+#include "hal/hal.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -50,7 +50,7 @@ static void read_port(void *arg, long period);
 static off_t start_addr_for_port(int port);
 static void configure_pin(bb_gpio_pin *pin, char mode);
 
-static int comp_id; 
+static int comp_id;
 static int num_ports;
 
 static char *user_leds;
@@ -67,7 +67,7 @@ RTAPI_MP_STRING(
     "output pins, comma separated.  P8 pins add 800, P9 900, P1 100, etc.");
 
 // Board-specific configuration variables
-// 
+//
 // Boards have two headers; call the lower-numbered 'lo' and the
 // higher-numbered 'hi'
 //
@@ -338,7 +338,7 @@ int rtapi_app_main(void) {
 	    *(port_data->input_inv[pin + header*PINS_PER_HEADER]) = 0;
 
 	    int gpio_num = bbpin->port_num;
-			
+
 	    // configure gpio port if necessary
 	    if (gpio_ports[gpio_num] == NULL) {
 		configure_gpio_port(gpio_num);
@@ -434,7 +434,7 @@ int rtapi_app_main(void) {
 	    *(port_data->output_inv[pin + header*PINS_PER_HEADER]) = 0;
 
 	    int gpio_num = bbpin->port_num;
-			
+
 	    // configure gpio port if necessary
 	    if (gpio_ports[gpio_num] == NULL) {
 		configure_gpio_port(gpio_num);
@@ -457,7 +457,7 @@ int rtapi_app_main(void) {
 	hal_exit(comp_id);
 	return -1;
     }
-	
+
     rtapi_snprintf(name, sizeof(name), "bb_gpio.read");
     retval = hal_export_funct(name, read_port, port_data, 0, 0, comp_id);
     if (retval < 0) {
@@ -510,7 +510,7 @@ static void write_port(void *arg, long period) {
 
 	if (i<PINS_PER_HEADER)
 	    pin = HLO_PINS[i];
-	else 
+	else
 	    pin = HHI_PINS[i - PINS_PER_HEADER];
 
 	// if we somehow get here but the pin isn't claimed as output,

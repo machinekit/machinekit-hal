@@ -17,7 +17,7 @@
 #include <sys/io.h>
 
 #include <string.h>
-#include <linux/ppdev.h> 
+#include <linux/ppdev.h>
 #include <linux/parport.h>
 
 typedef unsigned long long u64;
@@ -53,7 +53,7 @@ int get_ppdev_res(int dev, struct ppres *ppres)
 	unsigned from, to;
 
 	// parse this:
-	// $ cat /sys/class/ppdev/parport0/device/resources 
+	// $ cat /sys/class/ppdev/parport0/device/resources
 	// state = active
 	// io 0x378-0x37f
 	// irq 7
@@ -95,7 +95,7 @@ int get_ppdev_res(int dev, struct ppres *ppres)
 			    line);
 		    fclose(f);
 		    return -1;
-		    
+
 		} else {
 		    ppres->reg_start = from;
 		    ppres->reg_end = to;
@@ -106,7 +106,7 @@ int get_ppdev_res(int dev, struct ppres *ppres)
 	return 0;
 }
 
-float cpu_MHz(void) 
+float cpu_MHz(void)
 {
     char *path = "/proc/cpuinfo",  *s, line[1024];
     float freq;
@@ -161,8 +161,8 @@ int main(int argc, char *argv[])
     }
     sprintf(path, "/dev/parport%d", dev);
 
-    parportfd = open(path, O_RDWR);  
-    if (parportfd > 0) 
+    parportfd = open(path, O_RDWR);
+    if (parportfd > 0)
 	result = ioctl(parportfd, PPCLAIM);
     else {
 	perror(path);
@@ -173,21 +173,21 @@ int main(int argc, char *argv[])
 
     if (get_ppdev_res(dev, &ppres) < 0) {
 	exit(1);
-    } else 
-	printf("%s: io=0x%x-0x%x irq=%d state=%d\n", 
-	       path, ppres.reg_start, 
+    } else
+	printf("%s: io=0x%x-0x%x irq=%d state=%d\n",
+	       path, ppres.reg_start,
 	       ppres.reg_end, ppres.irq,ppres.state);
 
     ioctl( parportfd, PPRCONTROL, &ctrl );
     ioctl( parportfd, PPRSTATUS , &data );
     ioctl( parportfd, PPRDATA   , &status );
-    
+
     printf("control=0x%x data=0x%x status=0x%x\n", ctrl, data, status);
-   
-    if (time_ioctl) { 
+
+    if (time_ioctl) {
 	lap = 0;
 	for (i = 0; i < N_ITER; i++) {
-	    if (data == 0) 
+	    if (data == 0)
 		data = 1;
 	    start = rdtsc();
 	    ioctl(parportfd, PPWDATA, &data);
@@ -205,10 +205,10 @@ int main(int argc, char *argv[])
 	}
 	lap = 0;
 	for (i = 0; i < N_ITER; i++) {
-	    if (data == 0) 
+	    if (data == 0)
 		data = 1;
 	    start = rdtsc();
-	    outb(data, ppres.reg_start);  
+	    outb(data, ppres.reg_start);
 	    lap += rdtsc() - start;
 	    data = data << 1;
 	}
@@ -217,7 +217,7 @@ int main(int argc, char *argv[])
 	printf("direct register write: time=%g uS/write()\n",time);
 
 	if (ioperm(ppres.reg_start, 3, 0) < 0) {  //Release the IO ports
-	    perror("ioperm release");  
+	    perror("ioperm release");
 	}
     }
     result = ioctl(parportfd,PPRELEASE);

@@ -144,5 +144,3 @@ static inline int hal_pbsig2u(const machinetalk::Signal *s, hal_data_u *vp)
     }
     return 0;
 }
-
-

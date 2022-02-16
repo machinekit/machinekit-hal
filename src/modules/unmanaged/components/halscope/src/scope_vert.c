@@ -375,7 +375,7 @@ int set_vert_pos(double setting)
     /* set position slider based on new setting */
     adj = GTK_ADJUSTMENT(vert->pos_adj);
     gtk_adjustment_set_value(adj, chan->position * VERT_POS_RESOLUTION);
-    /* refresh other stuff */    
+    /* refresh other stuff */
     if (chan_num == ctrl_shm->trig_chan) {
 	refresh_trigger();
     }
@@ -397,7 +397,7 @@ int set_vert_offset(double setting, int ac_coupled)
 	return -1;
     }
     chan = &(ctrl_usr->chan[chan_num - 1]);
-    /* set the new offset */ 
+    /* set the new offset */
     chan->vert_offset = setting;
     chan->ac_offset = ac_coupled;
     /* update the offset display */
@@ -412,7 +412,7 @@ int set_vert_offset(double setting, int ac_coupled)
     }
     snprintf(buf2, BUFLEN, _("Offset\n%s"), buf1);
     gtk_label_set_text_if(vert->offset_label, buf2);
-    /* refresh other stuff */    
+    /* refresh other stuff */
     if (chan_num == ctrl_shm->trig_chan) {
 	refresh_trigger();
     }
@@ -896,7 +896,7 @@ static void channel_off_button(GtkWidget * widget, gpointer gdata)
 
     vert = &(ctrl_usr->vert);
     chan_num = vert->selected;
-    set_channel_off(chan_num);    
+    set_channel_off(chan_num);
 }
 
 static void change_source_button(GtkWidget * widget, gpointer gdata)
@@ -984,7 +984,7 @@ static gboolean search_for_entry(GtkWidget *widget, GdkEventKey *event, dialog_g
     } else {
 	strcat(search_target, event->string);
     }
-    
+
     for(z = search_row, wrapped=0; z != search_row || !wrapped; z ++) {
 	char *text;
 
@@ -992,13 +992,13 @@ static gboolean search_for_entry(GtkWidget *widget, GdkEventKey *event, dialog_g
 	if(!gtk_clist_get_text(clist, z, 0, &text)) {
 	    if(wrapped) break; // wrapped second time (why?)
 	    z = 0;
-	    wrapped = 1; 
+	    wrapped = 1;
 	}
-	
+
 	if(strstr(text, search_target)) {
 	    double pos = (z+.5) / (clist->rows-1);
 	    if(pos > 1) pos = 1;
-	    
+
 	    GTK_CLIST_GET_CLASS(clist)->scroll_vertical(clist, GTK_SCROLL_JUMP, pos);
 	    gtk_clist_select_row(clist, z, 0);
 	    search_row = z;
@@ -1198,7 +1198,7 @@ static gboolean dialog_select_source(int chan_num)
 
     // if initial_page was not set, ensure a valid page
     if(initial_page == -1) initial_page = 0;
-    
+
     if ( initial_row >= 0 ) {
 	/* highlight the currently selected name */
 	gtk_clist_select_row(GTK_CLIST(vert->lists[initial_page]), initial_row, -1);
@@ -1242,7 +1242,7 @@ static void selection_made(GtkWidget * clist, gint row, gint column,
     GdkEventButton * event, dialog_generic_t * dptr)
 {
     GdkEventType type;
-    
+
     if ((event == NULL) || (clist == NULL)) {
 	/* We get spurious events when the lists are populated I don't know
 	   why.  If either clist or event is null, it's a bad one! */

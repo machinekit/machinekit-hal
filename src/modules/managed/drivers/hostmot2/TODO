@@ -2,7 +2,7 @@
 
 next steps:
 
-    encoder: 
+    encoder:
 
         <micges> and for some values .velocity from encoder was NAN
         <micges> version from emc2.3 beta but encoder.c didn't change since then
@@ -40,16 +40,16 @@ next steps:
 
         <PCW> Theres also a race condition that I cant easily fix (Ive known about this for awhile but didnt think it was likely to run into)
         <PCW> So it should probably go in the manual:
-        <PCW> The servo thread period  - jitter cannot be less than the sum of dirsetup and dirhold times 
+        <PCW> The servo thread period  - jitter cannot be less than the sum of dirsetup and dirhold times
         <PCW> for modern step drives this  this would be hard to violate, for old parker drives with 300 usec times
-        <PCW> it may be an issue 
+        <PCW> it may be an issue
         <PCW> (with servo rate > ~1.6KHz)
         <PCW> BBL
         <seb_kuzminsky> PCW, wait a sec
         <PCW> dog needs to be fed, nibbling on my ankles...
         <seb_kuzminsky> do you mean the jitter of the servo period cannot be less than (dirsetup+dirhold)?  or (ServoPeriod-jitter) cannot be less?
         <PCW> servo-jitter
-        <PCW> (the setpgen doesn't expect its direction (rate MSB) to change when its doing a wait-for dir hold/setup cycle 
+        <PCW> (the setpgen doesn't expect its direction (rate MSB) to change when its doing a wait-for dir hold/setup cycle
         <PCW> so the minimum time between updates is dirsetup+dirhold
         <seb_kuzminsky> ok thanks
 
@@ -271,7 +271,7 @@ watchdog:
 
 
         LAVA MOKO S1
-        
+
             totally failed to read even the CPLD
 
 
@@ -406,4 +406,3 @@ wishlist:
 
 
     abstract the encoder code into an HAL library
-

@@ -27,4 +27,3 @@ int hal_iring_free(iring_t **irp)
 		     (void *) irp);
     }
 }
-

@@ -181,11 +181,11 @@ static void init_horiz_window(void)
 #else
     horiz->disp_area = gtk_drawing_area_new();
 #endif
-    gtk_signal_connect(GTK_OBJECT(horiz->disp_area), "button_press_event", 
+    gtk_signal_connect(GTK_OBJECT(horiz->disp_area), "button_press_event",
         GTK_SIGNAL_FUNC(horiz_press), 0);
-    gtk_signal_connect(GTK_OBJECT(horiz->disp_area), "button_release_event", 
+    gtk_signal_connect(GTK_OBJECT(horiz->disp_area), "button_release_event",
         GTK_SIGNAL_FUNC(horiz_release), 0);
-    gtk_signal_connect(GTK_OBJECT(horiz->disp_area), "motion_notify_event", 
+    gtk_signal_connect(GTK_OBJECT(horiz->disp_area), "motion_notify_event",
         GTK_SIGNAL_FUNC(horiz_motion), 0);
     gtk_widget_set_events(GTK_WIDGET(horiz->disp_area),
         GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK
@@ -316,7 +316,7 @@ void write_horiz_config(FILE *fp)
 int set_sample_thread(char *name)
 {
     int rv;
-    
+
     /* This is broken into two parts.  When called directly
        while reading config file commands, both execute in
        order.  however, when the dialog is running, it calls
@@ -370,7 +370,7 @@ int set_horiz_mult(int setting)
 {
     scope_horiz_t *horiz;
     long period_ns, max_mult;
-    
+
     /* validate setting */
     if ( setting < 1 ) {
 	return -1;
@@ -390,10 +390,10 @@ int set_horiz_mult(int setting)
     /* make sure we aren't too high */
     if ( setting > max_mult ) {
 	setting = max_mult;
-    }    
+    }
     /* save new value */
     ctrl_shm->mult = setting;
-    /* refresh other stuff */    
+    /* refresh other stuff */
     calc_horiz_scaling();
     refresh_horiz_info();
     return 0;
@@ -415,7 +415,7 @@ int set_horiz_zoom(int setting)
     /* set zoom slider based on new setting */
     adj = GTK_ADJUSTMENT(horiz->zoom_adj);
     gtk_adjustment_set_value(adj, setting);
-    /* refresh other stuff */    
+    /* refresh other stuff */
     calc_horiz_scaling();
     refresh_horiz_info();
     request_display_refresh(1);
@@ -438,7 +438,7 @@ int set_horiz_pos(double setting)
     /* set position slider based on new setting */
     adj = GTK_ADJUSTMENT(horiz->pos_adj);
     gtk_adjustment_set_value(adj, setting * 1000);
-    /* refresh other stuff */    
+    /* refresh other stuff */
     refresh_horiz_info();
     request_display_refresh(1);
     return 0;
@@ -717,7 +717,7 @@ const gchar *title, *msg;
 	/* yes, preselect appropriate line */
 	gtk_clist_select_row(GTK_CLIST(horiz->thread_list), sel_row, 1);
     } else {
-	// select first row as default, it is already selected .. 
+	// select first row as default, it is already selected ..
 	// the user can change it lateron if it's not right
 	sel_row = 0;
 	acquire_selection_made(GTK_WIDGET(horiz->thread_list), sel_row, 1, NULL, NULL);
@@ -785,10 +785,10 @@ void file_ok_sel( GtkWidget        *w,
 {
     //scope_log_t* log_prefs;
     //log_prefs = &(ctrl_usr->log);
-    //log_prefs->filename = 
+    //log_prefs->filename =
     //    (char*)gtk_file_selection_get_filename (GTK_FILE_SELECTION (fs));
-    //g_print ("filename is: %s\n", log_prefs->filename); 
-    
+    //g_print ("filename is: %s\n", log_prefs->filename);
+
     write_log_file( (char*)gtk_file_selection_get_filename (GTK_FILE_SELECTION (fs)));
     //gtk_widget_destroy( w);
 }
@@ -811,7 +811,7 @@ void log_popup(int junk)
                                             (filew)->cancel_button),
                                "clicked", (GtkSignalFunc) gtk_widget_destroy,
                                GTK_OBJECT (filew));
-    gtk_file_selection_set_filename (GTK_FILE_SELECTION(filew), 
+    gtk_file_selection_set_filename (GTK_FILE_SELECTION(filew),
                                      "halscope.log");
     gtk_file_selection_hide_fileop_buttons (GTK_FILE_SELECTION(filew) );
     gtk_widget_show(filew);
@@ -887,7 +887,7 @@ static int set_sample_thread_name(char *name)
     }
     /* shut down any prior thread */
     deactivate_sample_thread();
-    /* save info about the thread */ 
+    /* save info about the thread */
     horiz->thread_name = (char *)ho_name(thread);
     horiz->thread_period_ns = thread->period;
     /* calc max possible mult (to keep sample period <= 1 sec */
@@ -918,7 +918,7 @@ static int activate_sample_thread(void)
 {
     scope_horiz_t *horiz;
     int rv;
- 
+
     /* get a pointer to the horiz data structure */
     horiz = &(ctrl_usr->horiz);
     /* has a thread name been specified? */
@@ -947,7 +947,7 @@ static void mult_changed(GtkAdjustment * adj, gpointer gdata)
 {
     scope_horiz_t *horiz;
     int value;
-    
+
     /* point to GUI widgets */
     horiz = &(ctrl_usr->horiz);
     /* get value from spinbutton */
@@ -1249,7 +1249,7 @@ static gint horiz_motion(GtkWidget *widget, GdkEventMotion *event) {
     double disp_center, disp_start, disp_end;
     double rec_start, rec_end;
     double min, max, span, scale;
-    double newpos; 
+    double newpos;
 
     int x, y;
     GdkModifierType state;
@@ -1262,7 +1262,7 @@ static gint horiz_motion(GtkWidget *widget, GdkEventMotion *event) {
         y = event->y;
         state = event->state;
     }
-      
+
     if(!(state & GDK_BUTTON1_MASK)) return TRUE;
 
     motion = x - horiz->x0;
@@ -1292,7 +1292,7 @@ static gint horiz_motion(GtkWidget *widget, GdkEventMotion *event) {
     newpos = GTK_ADJUSTMENT(horiz->pos_adj)->value
         + motion * 100 / scale;
     gtk_adjustment_set_value(GTK_ADJUSTMENT(horiz->pos_adj), newpos);
-    
+
     horiz->x0 = event->x;
     return TRUE;
 }

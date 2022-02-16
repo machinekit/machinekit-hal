@@ -1,6 +1,6 @@
 /************************************************************************
  * Demo of standard instantiated component in C++ class component
- * 
+ *
  * ArcEye 2015  <arceyeATmgwareDOTcoDOTuk>
 ************************************************************************/
 #define _CORRECT_ISO_CPP_STRING_H_PROTO

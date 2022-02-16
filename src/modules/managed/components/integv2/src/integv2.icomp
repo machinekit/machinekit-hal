@@ -11,13 +11,13 @@ license "GPL";
 ;;
 FUNCTION(_)
 {
-    if(gb(reset)) 
+    if(gb(reset))
         sf(out,  0.0);
-    else 
+    else
         sf(out, gf(out) + gf(gain) * gf(in) * fperiod);
-    if (gf(out) > gf(max_)) 
+    if (gf(out) > gf(max_))
         sf(out, gf(max_));
-    if (gf(out) < gf(min_)) 
+    if (gf(out) < gf(min_))
         sf(out, gf(min_));
 
 	return 0;

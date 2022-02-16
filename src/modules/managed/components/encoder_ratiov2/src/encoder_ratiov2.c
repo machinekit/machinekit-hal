@@ -256,12 +256,12 @@ static int instantiate_encoder_pair(const int argc, char* const *argv)
     int retval;
     int msg;
     const char* name;
-    
+
     if(argc >= 2)
         name = argv[1];
     else
         HALFAIL_RC(EINVAL, "ERROR: insufficient args in argv");
-    
+
     /* This function exports a lot of stuff, which results in a lot of
        logging if msg_level is at INFO or ALL. So we save the current value
        of msg_level and restore it later. */

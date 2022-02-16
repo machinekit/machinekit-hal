@@ -6,7 +6,7 @@
  *
  * Developed at SunPro, a Sun Microsystems, Inc. business.
  * Permission to use, copy, modify, and distribute this
- * software is freely granted, provided that this notice 
+ * software is freely granted, provided that this notice
  * is preserved.
  * ====================================================
  */
@@ -17,7 +17,7 @@ static char rcsid[] = "$NetBSD: w_scalb.c,v 1.6 1995/05/10 20:49:48 jtc Exp $";
 
 /*
  * wrapper scalb(double x, double fn) is provide for
- * passing various standard test suite. One 
+ * passing various standard test suite. One
  * should use scalbn() instead.
  */
 
@@ -54,11 +54,11 @@ extern int libm_errno;
 	}
 	if(z==0.0&&z!=x) {
 	    return __kernel_standard(x,(double)fn,33); /* scalb underflow */
-	} 
+	}
 #ifndef _SCALB_INT
 	if(!finite(fn)) libm_errno = ERANGE;
 #endif
 	return z;
-#endif 
+#endif
 }
 #endif /* !__ppc__ */

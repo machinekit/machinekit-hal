@@ -111,7 +111,7 @@ struct bitfile *bitfile_read(char *fname);
    success, or -1 on failure.  It will write the standard xilinx 'a'
    through 'e' chunks first, and in order, even if they are not that way
    in the structure, followed by any extra chunks in the order in which
-   they are encounterd.  (This is to ensure compatibility with other 
+   they are encounterd.  (This is to ensure compatibility with other
    programs that read bitfiles - this library doesn't care about chunk
    ordering, but other programs might.)
 */

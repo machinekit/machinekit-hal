@@ -342,4 +342,3 @@ void hm2_watchdog_write(hostmot2_t *hm2, long period_ns) {
 
     hm2_watchdog_force_write(hm2);
 }
-

@@ -33,6 +33,6 @@ typedef struct {
 #include <machinetalk/protobuf/jplan.npb.h>
 #include <machinetalk/protobuf/ros.npb.h>
 #include <machinetalk/protobuf/sample.npb.h>
- 
+
 
 #endif // _PBMSGS_H

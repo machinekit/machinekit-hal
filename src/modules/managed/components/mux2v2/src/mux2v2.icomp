@@ -8,9 +8,9 @@ license "GPL";
 ;;
 FUNCTION(_)
 {
-    if(gb(sel)) 
+    if(gb(sel))
         sf(out, gf(in1));
-    else 
+    else
         sf(out, gf(in0));
 
 return 0;

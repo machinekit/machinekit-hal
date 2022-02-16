@@ -1,4 +1,3 @@
 
 loadrt siggen num_chan=1
 show pin
-

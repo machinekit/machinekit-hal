@@ -16,7 +16,7 @@
 //    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 //
 //
-//    The code in this file is based on UFLBP.PAS by Peter C. Wallace.  
+//    The code in this file is based on UFLBP.PAS by Peter C. Wallace.
 
 #include "user_pci/config_module.h"
 #include RTAPI_INC_SLAB_H
@@ -53,7 +53,7 @@ int waitfor(void){
             return -1;
         }
     } while (buff);
-    
+
     return 0;
 }
 
@@ -80,7 +80,7 @@ int setup_start(void){
     u32 buff=0xF00 | 1 << remote->index;
     HM2WRITE(remote->command_reg_addr, buff);
     if (waitfor() < 0) return -1;
-    HM2READ(remote->data_reg_addr, buff); 
+    HM2READ(remote->data_reg_addr, buff);
     rtapi_print("setup start: data_reg readback = %x\n", buff);
     if (buff & (1 << remote->index)){
         rtapi_print("Remote failed to start\n");
@@ -99,19 +99,19 @@ int nv_access(u32 type){
 
 int set_nvram_param(u32 addr, u32 value){
     u32 buff;
-    
+
     if (stop_all() < 0) goto fail0;
     if (setup_start() < 0) goto fail0;
     if (nv_access(LBPNONVOLEEPROM) < 0) goto fail0;
-    
+
     // value to set
     HM2WRITE(remote->reg_0_addr, value);
-    buff = WRITE_REM_WORD_CMD | addr; 
+    buff = WRITE_REM_WORD_CMD | addr;
     HM2WRITE(remote->reg_cs_addr, buff);
     if (doit() < 0) goto fail0;
-    
+
     if (nv_access(LBPNONVOLCLEAR) < 0) goto fail0;
-    
+
     return 0;
 fail0: // It's all gone wrong
     buff=0x800; //Stop
@@ -148,7 +148,7 @@ int setlocal(int addr, int val, int bytes){
         buff = WRITE_LOCAL_CMD | (addr + i);
         HM2WRITE(remote->command_reg_addr, buff);
         if (waitfor() < 0) return -1;
-    }   
+    }
     return 0;
 }
 
@@ -288,7 +288,7 @@ int sslbp_write_double(u32 addr, u32 data0, u32 data1){
     return 0;
 }
 
-    
+
 void flash_start(void){
     sslbp_write_lbp(LBPNONVOL_flag, LBPNONVOLFLASH);
 }
@@ -296,13 +296,13 @@ void flash_start(void){
 void flash_stop(void){
     sslbp_write_lbp(LBPNONVOL_flag, 0);
 }
-    
+
 int sslbp_flash(char *fname){
     const struct firmware *fw;
     struct device dev;
     int r;
     int write_sz, erase_sz;
-    
+
     if (strstr("8i20", remote->name)){
         if (hm2->sserial.version < 37){
             rtapi_print("SSLBP Version must be at least v37 to flash the 8i20"
@@ -316,15 +316,15 @@ int sslbp_flash(char *fname){
                     "\n",hm2->sserial.version);
         return -1;
     }
-    
+
     if (hm2->sserial.baudrate != 115200){
         rtapi_print("To flash firmware the baud rate of the board must be set "
                     "to 115200 by jumper, and in Hostmot2 using the "
                     "sserial_baudrate modparam\n");
         return -1;
     }
-     
-    //Copied direct from hostmot2.c. A bit of a faff, but seems to be necessary. 
+
+    //Copied direct from hostmot2.c. A bit of a faff, but seems to be necessary.
     memset(&dev, '\0', sizeof(dev));
 #if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,30)
     strncpy(dev.bus_id, hm2->llio->name, BUS_ID_SIZE);
@@ -347,21 +347,21 @@ int sslbp_flash(char *fname){
     if (r != 0) {
         HM2_ERR("request for firmware %s failed, aborting\n", fname);
         return -1;
-    }    
+    }
     rtapi_print("Firmware size 0x%zx\n", fw->size);
-    
+
     if (setup_start() < 0) goto fail0;
     flash_start();
     write_sz = 1 << sslbp_read_byte(LBPFLASHWRITESIZELOC);
     erase_sz = 1 << sslbp_read_byte(LBPFLASHERASESIZELOC);
     HM2_PRINT("Write Size = %x, Erase Size = %x\n", write_sz, erase_sz);
     flash_stop();
-    
+
     //Programming Loop
     {
         int ReservedBlock = 0;
         int StartBlock = ReservedBlock + 1;
-        
+
         int blocknum = StartBlock;
         int block_start;
         int i, j, t;
@@ -384,11 +384,11 @@ int sslbp_flash(char *fname){
                     for (j = 0 ; j < write_sz ; j += 8){
                         u32 data0, data1, m;
                         m = block_start + i + j;
-                        data0 = (fw->data[m] 
+                        data0 = (fw->data[m]
                               + (fw->data[m + 1] << 8)
                               + (fw->data[m + 2] << 16)
                               + (fw->data[m + 3] << 24));
-                        data1 = (fw->data[m + 4] 
+                        data1 = (fw->data[m + 4]
                               + (fw->data[m + 5] << 8)
                               + (fw->data[m + 6] << 16)
                               + (fw->data[m + 7] << 24));
@@ -404,17 +404,17 @@ int sslbp_flash(char *fname){
                 HM2_PRINT("Wrote block %i\n", blocknum);
             }
             else // Looks like an all-zeros block
-            { 
+            {
                 HM2_PRINT("Skipped Block %i\n", blocknum);
             }
             blocknum++;
         }
     }
-    
+
     release_firmware(fw);
-    
+
     return 0;
-    
+
 fail0:
     flash_stop();
     return -1;
@@ -424,20 +424,20 @@ int rtapi_app_main(void)
 {
     int cnt;
     char **cmd_list;
-    
+
     comp_id = hal_init("setsserial");
     hal_ready(comp_id);
-    
+
     cmd_list = argv_split(GFP_KERNEL, cmd, &cnt);
-    
+
     remote = hm2_get_sserial(&hm2, cmd_list[1]);
-    if (! remote) {   
+    if (! remote) {
         rtapi_print_msg(RTAPI_MSG_ERR,
-                        "Unable to find sserial remote corresponding to %s\n", 
+                        "Unable to find sserial remote corresponding to %s\n",
                         cmd_list[1]);
         return -1;
-    }    
-    
+    }
+
     if (! strncmp("set", cmd_list[0], 3) && cnt == 3){
         u32 value;
         u32 addr;
@@ -450,9 +450,9 @@ int rtapi_app_main(void)
                 break;
             }
         }
-        if (! addr) {   
+        if (! addr) {
             rtapi_print_msg(RTAPI_MSG_ERR,
-                            "Unable to find parameter corresponding to %s\n", 
+                            "Unable to find parameter corresponding to %s\n",
                             cmd_list[1]);
             return -1;
         }
@@ -464,12 +464,12 @@ int rtapi_app_main(void)
         if (set_nvram_param(addr, value) < 0) {
             rtapi_print_msg(RTAPI_MSG_ERR, "Parameter setting failed\n");
             return -1;
-        } 
+        }
         else
         {   rtapi_print_msg(RTAPI_MSG_ERR, "Parameter setting success\n");
             return 0;
         }
-    } 
+    }
     else if (! strncmp("flash", cmd_list[0], 5) && cnt == 3){
         rtapi_print("flash command\n");
         if ( ! strstr(cmd_list[2], ".BIN")){
@@ -480,19 +480,19 @@ int rtapi_app_main(void)
         if (sslbp_flash(cmd_list[2]) < 0){
             rtapi_print_msg(RTAPI_MSG_ERR, "Firmware Flash Failed\n");
             return -1;
-        } 
+        }
         else
         {   rtapi_print_msg(RTAPI_MSG_ERR, "Firmware Flash Success\n");
             return 0;
-        } 
+        }
     }
     else {
-        rtapi_print_msg(RTAPI_MSG_ERR, 
-                        "Unknown commmand or wrong number of parameters to " 
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "Unknown commmand or wrong number of parameters to "
                         "setsserial command");
         return -1;
     }
-    
+
     return 0;
 }
 
@@ -500,7 +500,3 @@ void rtapi_app_exit(void)
 {
     hal_exit(comp_id);
 }
-
-
-
-

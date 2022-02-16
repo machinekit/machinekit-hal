@@ -31,4 +31,3 @@ set_bridge lwhps2fpga 1
 
 # re-enable
 modprobe  gpio_altera
-

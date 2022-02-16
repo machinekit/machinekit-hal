@@ -4,7 +4,7 @@
 
 /* See resource_table definition in:
 
-https://git.ti.com/cgit/pru-software-support-package/pru-software-support-package/tree/labs/Getting_Started_Labs/c_code/solution/am572x/resource_table_empty.h 
+https://git.ti.com/cgit/pru-software-support-package/pru-software-support-package/tree/labs/Getting_Started_Labs/c_code/solution/am572x/resource_table_empty.h
 https://git.ti.com/cgit/pru-software-support-package/pru-software-support-package/tree/include/rsc_types.h
 
 */
@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
   }
 
   char* filename = argv[1];
-  FILE *f; 
+  FILE *f;
 
   f = fopen(filename, "wb");
 

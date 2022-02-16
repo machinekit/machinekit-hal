@@ -34,7 +34,7 @@ int main ( int argc, char *argv[] )
     int fd;
     u_int32_t index, inval;
     char *uio_dev;
-    
+
     // Open /dev/uio0
     char buf[MAXNAMELEN];
     int uio_id;
@@ -56,13 +56,13 @@ int main ( int argc, char *argv[] )
         printf ( "    ERROR: could not open %s ...\n", uio_dev);
         return ( 1 );
     }
-    
+
     // get virtual addr that maps to physical
     virtual_base = mmap( NULL, HW_REGS_SPAN, ( PROT_READ | PROT_WRITE ), MAP_SHARED, fd, 0);
-    
+
     if ( virtual_base == MAP_FAILED ) {
         printf ( "    ERROR: mmap() failed...\n" );
-        
+
         close ( fd );
         return ( 1 );
     }
@@ -79,7 +79,7 @@ int main ( int argc, char *argv[] )
             index = (u_int32_t) strtoul(argv[2], NULL, 10);
         }
         u_int32_t value = *((u_int32_t *)(h2p_lw_axi_mem_addr + index));
-    
+
         switch (argv[1][1]) {
             case 'r':
                 printf("Read: ");
@@ -96,7 +96,7 @@ int main ( int argc, char *argv[] )
                         inval = (u_int32_t) strtoul(argv[3], NULL, 10);
                     }
                     *((u_int32_t *)(h2p_lw_axi_mem_addr + index)) = inval;
-                    printf("Wrote:  0x%08X\t %u\tto Address --> 0x%08X\t%u \n", inval, inval, index, index);                    
+                    printf("Wrote:  0x%08X\t %u\tto Address --> 0x%08X\t%u \n", inval, inval, index, index);
                 } else {
                     printf("Value missing use: mksocmemio -h to show valid options and argunemts\n");
                 }

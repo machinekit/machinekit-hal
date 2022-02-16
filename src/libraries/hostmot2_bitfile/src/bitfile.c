@@ -163,7 +163,7 @@ int bitfile_parse_and_verify(const struct firmware *fw, bitfile_t *bitfile) {
     bitfile->e.data = NULL;
 
 
-    // 
+    //
     // verify the header
     //
 
@@ -180,7 +180,7 @@ int bitfile_parse_and_verify(const struct firmware *fw, bitfile_t *bitfile) {
     }
 
 
-    // 
+    //
     // parse and verify all the chunks
     //
 
@@ -190,7 +190,7 @@ int bitfile_parse_and_verify(const struct firmware *fw, bitfile_t *bitfile) {
     }
 
 
-    // 
+    //
     // make sure we got all the required chunks
     //
 
@@ -239,4 +239,3 @@ u8 bitfile_reverse_bits(u8 data) {
     };
     return swaptab[data];
 }
-

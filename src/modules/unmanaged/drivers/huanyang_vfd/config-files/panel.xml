@@ -233,7 +233,7 @@
     				<font>("Helvetica",2)</font>
 	    		</label>
 	    	<tablerow/>
-	    		<tablesticky sticky="nsew"/>	
+	    		<tablesticky sticky="nsew"/>
 	    	    	<bar>
 	    			<halpin>"spindle-speed"</halpin>
 	    			<max_>1440</max_>

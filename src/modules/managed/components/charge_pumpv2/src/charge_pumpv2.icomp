@@ -21,18 +21,18 @@ a factor of 2 and 4 slower for hardware that requires a lower frequency.""";
 license "GPL";
 ;;
 
-FUNCTION(_) 
+FUNCTION(_)
 {
 static hal_u32_t acc;
 
-    if ( gb(enable) ) 
+    if ( gb(enable) )
         {
         acc++;
         sb(out, (acc & 0x1));
         sb(out_2, (acc & 0x2));
         sb(out_4, (acc & 0x4));
-        } 
-    else 
+        }
+    else
         {
         sb(out, 0);
         sb(out_2, 0);

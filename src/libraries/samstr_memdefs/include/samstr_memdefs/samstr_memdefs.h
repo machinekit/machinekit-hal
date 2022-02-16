@@ -5,7 +5,7 @@
 *
 * Author: John Kasunich <jmkasunich at sourceforge dot net>
 * License: GPL Version 2
-*    
+*
 * Copyright (c) 2006 All rights reserved.
 *
 ********************************************************************/
@@ -48,4 +48,3 @@ typedef union {
     hal_u32_t *hu32;
     hal_s32_t *hs32;
 } pin_data_t;
-

@@ -1,7 +1,7 @@
 = RTAPI compat
-:author: Jakub Fišer <jakub DOT fiser AT eryaf DOT com> 
-:description: RTAPI_compat sourcetree README 
-:sectanchors: 
+:author: Jakub Fišer <jakub DOT fiser AT eryaf DOT com>
+:description: RTAPI_compat sourcetree README
+:sectanchors:
 :url-repo: https://machinekit.io
 
 Temporary solution for sharing single sourcefile between multiple `CMAKE` targets. Should go away once executables can be linked against **runtime** (`libulapi.so`) without its symbols infusing the managed linker namespace (where **runtime_module** [`rtapi_module.so`] is loaded).

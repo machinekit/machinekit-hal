@@ -10,6 +10,6 @@ USERSRCS += $(VFDB_SRCS)
 ../bin/vfdb_vfd: $(call TOOBJS, $(VFDB_SRCS)) ../lib/libhal.so.0 ../lib/libmkini.so.0
 	echo Linking $(notdir $@)
 	echo Flags: $(LIBMODBUS_CFLAGS) $(LIBMODBUS_LIBS)
-	$(CC) $(LDFLAGS) -o $@ $^ $(VFDB_LIBS) 
+	$(CC) $(LDFLAGS) -o $@ $^ $(VFDB_LIBS)
 
 TARGETS += ../bin/vfdb_vfd

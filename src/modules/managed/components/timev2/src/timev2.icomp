@@ -92,14 +92,14 @@ long lperiod = fa_current_period(fa);
 hal_u32_t totalsecs;
 
     if(gb(zero)){
-	// cater for restart	
-	totalnsecs = totalsecs = 0; 
+	// cater for restart
+	totalnsecs = totalsecs = 0;
 	su(seconds, 0);
 	su(minutes, 0);
 	su(hours, 0);
     }
 
-    if(gb(start) && !old_start) 
+    if(gb(start) && !old_start)
 		totalsecs = 0;
 
     if(gb(start)){

@@ -583,7 +583,7 @@ static int instantiate_stepgen(const int argc, char* const *argv)
 {
     int retval;
     const char* name;
-    
+
     if(argc >= 2)
         name = argv[1];
     else

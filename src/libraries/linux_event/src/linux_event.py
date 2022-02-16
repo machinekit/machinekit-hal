@@ -84,7 +84,7 @@ class AbsInfo:
     def __repr__(self):
         return "<AbsInfo: %8d %8d %8d %8d %8d>" % (
             self.value, self.minimum, self.maximum, self.fuzz, self.flat)
-        
+
     @classmethod
     def get(cls, fd, idx):
         idx = ABS.get(idx, idx)
@@ -93,7 +93,7 @@ class AbsInfo:
 
     def set(self, fd, idx):
         idx = ABS.get(idx, idx)
-        buf = struct.pack(format, self.value, self.minimum, self.maximum, 
+        buf = struct.pack(format, self.value, self.minimum, self.maximum,
                             self.fuzz, self.flat)
         fcntl.ioctl(fd, EVIOCSABS + idx, buf)
 
@@ -834,7 +834,7 @@ No input devices could be opened.  This usually indicates a misconfigured
 system.  Please read the section 'PERMISSIONS AND UDEV' in the hal_input
 manpage""")
     raise LookupError(
-        "No input device matching %r was found (%d devices checked)" 
+        "No input device matching %r was found (%d devices checked)"
             % (pattern, successful_opens))
 
 def decode(map, mapname, code):
@@ -854,7 +854,7 @@ class InputDevice:
 
         if exclusive:
             fcntl.ioctl(self.f, EVIOCGRAB, 1)
-        
+
     def fileno(self): return self.f
     def readable(self):
         r, w, x = select.select([self.f], [], [], 0)

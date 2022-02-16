@@ -101,7 +101,7 @@ link4 = Rotate([link4],90,1,0,0)
 link4 = Rotate([link4],-90,0,1,0)
 link4 = Rotate([link4],90,0,0,1)
 link4 = Translate([link4],0,0,-14.25) # note: 14.25 + 2.8 = 17.05 - distance between j3 and j5
-#assemble 
+#assemble
 link4 = Collection([link5, link4])
 # move back to joint3 in origin
 link4 = Translate([link4],1.85,0,14.25) #note: 14.25 as above, 1.85 = (9.2 - 5.5) / 2

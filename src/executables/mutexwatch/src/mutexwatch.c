@@ -16,7 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  ********************************************************************/
 
-// helper to watch mutexes 
+// helper to watch mutexes
 
 #include <stdio.h>
 #include <unistd.h>
@@ -67,7 +67,7 @@ int main(int argc, char **argv)
     halkey = OS_KEY(HAL_KEY, rtapi_instance);
 
     size = sizeof(global_data_t);
-    retval = shm_common_new(globalkey, &size, 
+    retval = shm_common_new(globalkey, &size,
 			    rtapi_instance, (void **) &global_data, 0);
      if (retval < 0)
 	 fprintf(stderr, "cannot attach global segment key=0x%x %s\n",
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
     }
 
     size = sizeof(rtapi_data_t);
-    retval = shm_common_new(rtapikey,  &size, 
+    retval = shm_common_new(rtapikey,  &size,
 			    rtapi_instance, (void **) &rtapi_data, 0);
     if (retval < 0)
 	 fprintf(stderr, "cannot attach rtapi segment key=0x%x %s\n",
@@ -91,7 +91,7 @@ int main(int argc, char **argv)
     if (MMAP_OK(global_data)) {
 	size = global_data->hal_size;
 	// global_data is needed for actual size of the HAL data segment
-	retval = shm_common_new(halkey, &size, 
+	retval = shm_common_new(halkey, &size,
 				rtapi_instance, (void **) &hal_data, 0);
 	if (retval < 0)
 	    fprintf(stderr, "cannot attach hal segment key=0x%x %s\n",

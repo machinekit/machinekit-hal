@@ -30,24 +30,24 @@ hal_float_t sign=1.0;
 
     /* Assume that the output device is scaled so that gear 1 is "Pass-through" */
     /* the other gear(s) need to be scaled by the relative scale for that gear */
-    if (gf(scale2) < 1.0) 
+    if (gf(scale2) < 1.0)
         sf(scale2, 1.0);
     if (temp_in < 0.0) {
         sign = -1.0;
         temp_in = -temp_in;
         }
     if(gb(sel)) {		/* gear 2 */
-        if (temp_in < gf(min2)) 
+        if (temp_in < gf(min2))
             temp_in = gf(min2);
-        else if (temp_in > gf(max2)) 
+        else if (temp_in > gf(max2))
             temp_in = gf(max2);
         temp_in /= gf(scale2);		/* scale up to second gear output range */
         sb(dir_out, gb(dir_in) ^ gb(reverse));
-        } 
+        }
     else {
-        if (temp_in < gf(min1)) 
+        if (temp_in < gf(min1))
             temp_in = gf(min1);
-        else if (temp_in > gf(max1)) 
+        else if (temp_in > gf(max1))
             temp_in = gf(max1);
         sb(dir_out, gb(dir_in));
         }

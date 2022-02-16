@@ -47,7 +47,7 @@ for line in result_file.readlines():
 
     #
     # input -> output following
-    # 
+    #
 
     error = math.fabs(in_value - out_value)
     if error > 0.0:

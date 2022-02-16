@@ -164,4 +164,3 @@ lran2(struct lran2_st* d)
     d->v[j] = d->x;
     return d->y;
 }
-

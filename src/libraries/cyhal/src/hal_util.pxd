@@ -65,4 +65,3 @@ cdef inline py2hal(int t, hal_data_u *dp, object v):
             raise RuntimeError("invalid HAL object type %d" % (t))
     else:
         raise RuntimeError("py2hal: float value not valid for type: %d" % (t))
-

@@ -28,27 +28,27 @@ FUNCTION(_)
 hal_float_t negcmd;
 
     if (gb(enable)) {
-        if (gb(brake)) 
+        if (gb(brake))
             {
             // motor DC brake
             sf(up, 0.0);
             sf(down, 0.0);
             sb(enable_out, true);
-            } 
+            }
         else {
             // normal forward/reverse operation
             negcmd = gf(command) * - 1.0;
             if (gf(command) < 0.0) {
                 sf(up, 0.0);
                 sf(down, (hal_float_t)MINIMUM(negcmd, gf(maxout)));
-                } 
+                }
             else {
                 sf(up, (hal_float_t)MINIMUM(gf(command), (double)gf(maxout)));
                 sf(down, 0.0);
                 }
             sb(enable_out, true);
             }
-        } 
+        }
     else {
         // let motor run freely
         sf(up, 0.0);

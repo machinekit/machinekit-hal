@@ -27,7 +27,7 @@
 #define LBPNONVOL_flag      0xCC000000
 #define LBPWRITE            0x20000000
 #define LBPNONVOLCLEAR      0x0
-#define LBPNONVOLEEPROM     0x01             
+#define LBPNONVOLEEPROM     0x01
 #define LBPNONVOLFLASH      0x02
 
 #define READ_LOCAL_CMD      0x2000
@@ -57,7 +57,7 @@
 #define LBPCOOKIE               0x5A
 
 #define HM2WRITE(a,b)  hm2->llio->write(hm2->llio, a, &b, sizeof(u32))
-#define HM2READ(a,b)  hm2->llio->read(hm2->llio, a, &b, sizeof(u32)) 
+#define HM2READ(a,b)  hm2->llio->read(hm2->llio, a, &b, sizeof(u32))
 
 #define LBP_IN                  0x00
 #define LBP_IO                  0x40
@@ -77,7 +77,7 @@
 #define LBP_ENCODER             0x08
 #define LBP_FLOAT               0x10 // New for STMBL
 #define LBP_ENCODER_H           0x18 // For Fanuc Absolute Encoders with separate
-#define LBP_ENCODER_L           0x28 // part and full count fields. 
+#define LBP_ENCODER_L           0x28 // part and full count fields.
 
 typedef struct {
     unsigned char RecordType;
@@ -107,7 +107,7 @@ static const hm2_sserial_data_t hm2_8i20_params[] = {
     {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","status.no-enable"},
     {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","status.pid-on"},
     {LBP_DATA,0x06,LBP_PAD,LBP_IN,0,0,0,"pad","pad"},
-    
+
     {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.watchdog"},
     {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.no-enable"},
     {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.overtemp"},
@@ -125,7 +125,7 @@ static const hm2_sserial_data_t hm2_8i20_params[] = {
     {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.overrun"},
     {LBP_DATA,0x01,LBP_BOOLEAN,LBP_IN,0,0,0,"none","fault.framingr"}
 };
-static const hm2_sserial_data_t hm2_8i20_globals[] = { 
+static const hm2_sserial_data_t hm2_8i20_globals[] = {
     {LBP_DATA,0x10,LBP_UNSIGNED,LBP_IN,0,0,2164,"none","swrevision"},
     {LBP_DATA,0x20,LBP_UNSIGNED,LBP_IN,0,0,2344,"none","unitnumber"},
     {LBP_DATA,0x10,LBP_NONVOL_UNSIGNED,LBP_IN,0,32.768,2,"amps","nvmaxcurrent"},
@@ -245,7 +245,7 @@ typedef struct {
     hal_u32_t fault_inc;
     hal_u32_t fault_dec;
     hal_u32_t fault_lim;
-    
+
     hal_bit_t *run;
     hal_u32_t *state;
     u32 timer;

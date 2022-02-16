@@ -38,7 +38,7 @@ sudo python setup.py install
 ```
 
 ### Usage
-See [examples](python/examples). 
+See [examples](python/examples).
 
 ## JavaScript (NPM/NodeJS)
 

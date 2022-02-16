@@ -175,7 +175,7 @@ int mk_bindsocket(mk_netopts_t *n, mk_socket_t *s)
 	// Copying a string PATH_MAX length plus 4 chars into a buffer of PATH_MAX
 	// and restricting copy size to PATH_MAX, will always raise
 	// a warning re possible truncation
-	char dsn[PATH_MAX]; 
+	char dsn[PATH_MAX];
 	snprintf(dsn, sizeof(dsn), "dsn=%s", buf);
 	s->announced_uri = strdup(dsn);
     }

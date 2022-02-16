@@ -39,5 +39,3 @@ setp tp.0.pos-cmd 1
 
 # now run jplan-run.py in separate window
 # to see injection of queued moves
-
-

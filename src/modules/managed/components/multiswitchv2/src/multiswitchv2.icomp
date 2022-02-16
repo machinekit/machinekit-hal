@@ -51,16 +51,16 @@ FUNCTION(_)
     hal_s32_t i;
 
     // debounce
-    if (gb(up) && !old_up) 
-        incs(position); 
-    if (gb(down) && !old_down) 
+    if (gb(up) && !old_up)
+        incs(position);
+    if (gb(down) && !old_down)
         decs(position);
     old_up = gb(up);
     old_down = gb(down);
 
-    if (gs(position) < 0) 
+    if (gs(position) < 0)
         ss(position, gu(top_position));
-    if (gs(position) > gu(top_position)) 
+    if (gs(position) > gu(top_position))
         ss(position, 0);
 
     for (i = 0 ; i < local_pincount; i++)

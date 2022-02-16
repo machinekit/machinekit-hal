@@ -72,7 +72,7 @@ cdef class Group(HALObject):
                 raise RuntimeError(f"hal_group_compile({self.name}) failed: {hal_lasterror()}")
         hal_unref_group(self.name.encode())
 
-    def member_add(self, member, int arg1=0, int eps_index=0): 
+    def member_add(self, member, int arg1=0, int eps_index=0):
         if isinstance(member, Signal):
             member = member.name
         rc = halg_member_new(1, self.name.encode(), member.encode(), arg1, eps_index)

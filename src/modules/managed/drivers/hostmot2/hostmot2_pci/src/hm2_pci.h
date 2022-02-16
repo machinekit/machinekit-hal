@@ -28,7 +28,7 @@
 
 
 
-// 
+//
 // PCI Device IDs and SubSystem Device IDs
 //
 
@@ -138,4 +138,3 @@ typedef struct {
     unsigned long data_base_addr;
     hm2_lowlevel_io_t llio;
 } hm2_pci_t;
-

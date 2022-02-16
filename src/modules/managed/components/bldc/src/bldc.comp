@@ -4,7 +4,7 @@ component bldc "BLDC and AC-servo control component ";
 pin in bit hall1 if personality & 0x01 "Hall sensor signal 1";
 pin in bit hall2 if personality & 0x01 "Hall sensor signal 2";
 pin in bit hall3 if personality & 0x01 "Hall sensor signal 3";
-pin out bit hall_error if personality & 0x01 
+pin out bit hall_error if personality & 0x01
 """
 Indicates that the selected hall
 pattern gives inconsistent rotor position data. This can be due to the pattern
@@ -32,13 +32,13 @@ reverse the motor and there will generally be a Hall pattern that runs the motor
 in each direction too.
 """;
 
-pin in float frequency if (personality & 0x0F)==0 
+pin in float frequency if (personality & 0x0F)==0
 """
 Frequency input for motors
 with no feedback at all, or those with only an index (which is ignored)
 """;
 
-pin in float initvalue = 0.2 if personality & 0x04 
+pin in float initvalue = 0.2 if personality & 0x04
 """
 The current to be used for
 the homing sequence in applications where an incremental encoder is used with no
@@ -51,7 +51,7 @@ Encoder counts input. This must be linked to the encoder rawcounts pin or
 encoder index resets will cause the motor commutation to fail
 """;
 
-pin io bit index-enable if personality & 0x08 
+pin io bit index-enable if personality & 0x08
 """
 This pin should be connected to
 the associated encoder index-enable pin to zero the encoder when it passes index
@@ -67,9 +67,9 @@ encoder monitoring has been interrupted. Typically this will only be at machine
 power-off.
 
 The alignment process involves powering the motor phases in such a way as to
-put the motor in a known position. 
+put the motor in a known position.
 
-The encoder counts are then stored in the*offset* parameter. 
+The encoder counts are then stored in the*offset* parameter.
 The alignment process will tend to cause a following
 error if it is triggered while the axis is enabled, so should be set before the
 matching axis.N.enable pin. The complementary *init-done* pin can be used
@@ -155,16 +155,16 @@ param r signed offset_measured = 0 if personality & 0x04
 """
 The encoder offset measured by the homing sequence (in certain modes)
 """;
-param rw float drive-offset = 0 
+param rw float drive-offset = 0
 """
-The angle, in degrees, applied to the commanded angle by the drive in degrees. 
+The angle, in degrees, applied to the commanded angle by the drive in degrees.
 
 This value is only used during the homing sequence of drives with incremental encoder feedback. It is
 used to back-calculate from commanded angle to actual phase angle. It is only
 relevant to drives which expect rotor-angle input rather than phase-angle
-demand. 
+demand.
 
-Should be 0 for most drives. 
+Should be 0 for most drives.
 """;
 
 param rw unsigned output-pattern=25 if personality & 0x400
@@ -176,7 +176,7 @@ description of /fBpattern/fR for details
 param rw unsigned pattern=25 if personality & 0x01
 """
 Commutation pattern to use, from 0 to 47. Default is type 25.
-Every plausible combination is included. 
+Every plausible combination is included.
 
 The table shows the excitation pattern
 along the top, and the pattern code on the left hand side. The table entries
@@ -516,7 +516,7 @@ FUNCTION(_) {
                 return;
             }
 
-            i  = (pattern << 3) + ((hall1 != 0) << 2) 
+            i  = (pattern << 3) + ((hall1 != 0) << 2)
                     + ((hall2 != 0) << 1) + (hall3 != 0);
             ph = P[i];
 
@@ -533,7 +533,7 @@ FUNCTION(_) {
             if (out_dir) phase_angle = rotor_angle + 0.25;
             else phase_angle = rotor_angle - 0.25;
             phase_angle -= rtapi_floor(phase_angle);
-            
+
             if (! (ph & old_ph)){ hall_error = 1;}
             if (pattern != old_pattern){hall_error = 0;}
 
@@ -567,7 +567,7 @@ FUNCTION(_) {
         case 0x10: // Fanuc-style Gray-code input
         case 0x14: // incremental encoder homing to gray-code transition
         case 0x1C: // incremental encoder homing to index.
-            ph = (C1 != 0) | ((C2 != 0) << 1) 
+            ph = (C1 != 0) | ((C2 != 0) << 1)
                     | ((C4 != 0) << 2) | ((C8 != 0) << 3);
 
             for (i = 0 ; gray_b[i] != ph && i<16 ; i++) {}
@@ -663,7 +663,7 @@ FUNCTION(_) {
                 lead = lead_angle / 360.0;
             }
             lagcomped_counts = long_rawcounts + ((long_rawcounts - old_long_rawcounts)/2);
-            rotor_angle = (double)((lagcomped_counts - offset_measured 
+            rotor_angle = (double)((lagcomped_counts - offset_measured
                                     - encoder_offset)* poles/2)/scale;
             rotor_angle -= rtapi_floor(rotor_angle);
             phase_angle = rotor_angle + lead;

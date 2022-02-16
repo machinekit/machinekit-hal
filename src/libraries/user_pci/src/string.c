@@ -1,13 +1,13 @@
 /********************************************************************
  *  Description: string.c
- *  Provides functions for running linux kernel modules in user space, 
+ *  Provides functions for running linux kernel modules in user space,
  *  emulating part of
  *  #include <linux/string.h>
  *
  *  Author(s): Charles Steinkuehler
  *  License: GNU LGPL Version 2.1 or (at your option) any later version.
  *
- *  Last change: 
+ *  Last change:
  *  2012-Dec-17 Charles Steinkuehler
  *              Initial version
  ********************************************************************/
@@ -50,10 +50,10 @@
 #include <wordexp.h>    // wordexp (substitute for argv_split)
 
 /*  We need to save the wordexp_t returned by wordexp so we can free it later.
-    For now, cheat and use a static global, which means we can only process 
+    For now, cheat and use a static global, which means we can only process
     one set of argv at a time.  If this causes problems, we can create a list
     of dynamically allocated wordexp_t values and match up the one to free by
-    looking at the we_wordv pointer.  Or a code change to the driver could 
+    looking at the we_wordv pointer.  Or a code change to the driver could
     let the calling code track the wordexp_t for us.
  */
 static wordexp_t result;
@@ -67,17 +67,17 @@ char **argv_split(gfp_t gfp, const char *str, int *argcp)
 	*argcp = result.we_wordc;
 	return result.we_wordv;
 	break;
-        
+
         // If the error was WRDE_NOSPACE,
         // then perhaps part of the result was allocated.
     case WRDE_NOSPACE:
 	wordfree (&result);
 	/* Fall-through */
-       
+
         /* Some other error.  */
-    default: 
+    default:
 	return NULL;
-       
+
     }
 }
 

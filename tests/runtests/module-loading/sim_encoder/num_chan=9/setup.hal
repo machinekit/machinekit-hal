@@ -1,4 +1,3 @@
 
 loadrt sim_encoder num_chan=9
 show pin
-

@@ -1,13 +1,13 @@
 component mesa_uart "An example component demonstrating how to access the Hostmot2 UART";
 
-description """This component creates 16 input and 16 output pins. It transmits 
+description """This component creates 16 input and 16 output pins. It transmits
 {name}.N.tx-bytes on the selected UART every thread cycle and reads up to 16
 bytes each cycle out of the recieve FIFO and writes the values to the associated
-output pins. {name}.rx-bytes indicates how many pins have been written to. 
+output pins. {name}.rx-bytes indicates how many pins have been written to.
 (pins > rx-bytes simply hold their previous value)
 
-This module uses the names= mode of loadrt declaration to specifiy which UART 
-instances to enable. A check is included to ensure that the count= option is 
+This module uses the names= mode of loadrt declaration to specifiy which UART
+instances to enable. A check is included to ensure that the count= option is
 not used instead.
 
 The component takes parameters in the form of a comma-separated
@@ -15,18 +15,18 @@ list of UART instance names, for example:
 
 \\fB loadrt mesa_uart names=hm2_5i23.0.uart.0,hm2_5i23.0.uart.7\\fR
 
-Note that no spaces are allowed in the string unless it is delimited by double 
-quotes. 
+Note that no spaces are allowed in the string unless it is delimited by double
+quotes.
 
-The UART instance names are printed to the dmesg buffer during the Hostmot2 
-setup sequence, one for each bspi instance included in the bitfile loaded to 
-each installed card during the Hostmot2 setup sequence. Type "dmesg" at the 
+The UART instance names are printed to the dmesg buffer during the Hostmot2
+setup sequence, one for each bspi instance included in the bitfile loaded to
+each installed card during the Hostmot2 setup sequence. Type "dmesg" at the
 terminal prompt to view the output.
 
 The component exports two functions, send and receive, which need to be added
 to a realtime thread.
 
-The above example will output data on UART channels 0 and 7 and the pins will 
+The above example will output data on UART channels 0 and 7 and the pins will
 have the names of the individual UARTS. (they need not be on the same card, or
 even the same bus).
 
@@ -60,9 +60,9 @@ char *uart_chans[18] = {0,};
 RTAPI_MP_ARRAY_STRING(uart_chans, 16, "UART Channel names");
 
 FUNCTION(send){
-/* This function uses the hm2_uart_send function to transmit data see 
+/* This function uses the hm2_uart_send function to transmit data see
 man hm2_uart_send for more information. Data may be up to 64 bytes in size*/
-    
+
     unsigned char data[16];
     int i, count;
     count = tx_bytes;
@@ -74,9 +74,9 @@ man hm2_uart_send for more information. Data may be up to 64 bytes in size*/
 }
 
 FUNCTION(receive){
-/* This function uses the hm2_uart_send function to transmit data. 
+/* This function uses the hm2_uart_send function to transmit data.
  See man hm2_uart_send for more information. 16 bytes in the Rx buffer*/
-    
+
     int i;
     unsigned char data[16];
     rx_bytes = hm2_uart_read(name, data);
@@ -84,8 +84,8 @@ FUNCTION(receive){
          rx_data(i) = data[i];
     }
 }
-    
-EXTRA_SETUP(){ // the names parameters are passed in 'prefix'. You just have to know that. 
+
+EXTRA_SETUP(){ // the names parameters are passed in 'prefix'. You just have to know that.
     if (prefix[0] == 'm'){ // should be the 'h' of hm2_....
         rtapi_print_msg(0, "mesa_uart can not be loaded using the 'count' "
                         "parameter, see man mesa_uart for details\n");

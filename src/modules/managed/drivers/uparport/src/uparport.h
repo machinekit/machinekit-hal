@@ -21,7 +21,7 @@
 
 // drop root privilegs after init
 // this is a stopgap measure until rtapi_app knows how to handle this
-#define DROP_PRIV 1 
+#define DROP_PRIV 1
 
 #define MAX_PARPORT 10 // a tad on the high side
 struct ppres  {
@@ -48,7 +48,7 @@ typedef struct hal_parport_t
 } hal_parport_t;
 
 #ifdef SIM
-float cpu_MHz(void) 
+float cpu_MHz(void)
 {
     char *path = "/proc/cpuinfo",  *s, line[1024];
     float freq;
@@ -81,7 +81,7 @@ int get_ppdev_res(int dev, struct ppres *ppres)
     unsigned from, to;
 
     // parse this:
-    // $ cat /sys/class/ppdev/parport0/device/resources 
+    // $ cat /sys/class/ppdev/parport0/device/resources
     // state = active
     // io 0x378-0x37f
     // irq 7
@@ -103,7 +103,7 @@ int get_ppdev_res(int dev, struct ppres *ppres)
 	    if (s && 1 == sscanf(s, "= %s", value)) {
 		ppres->state = !strcmp(value,"active");
 	    } else  {
-		rtapi_print_msg(RTAPI_MSG_ERR, 
+		rtapi_print_msg(RTAPI_MSG_ERR,
 				"get_ppdev_res: cant parse '%s'\n",
 				line);
 		fclose(f);
@@ -112,7 +112,7 @@ int get_ppdev_res(int dev, struct ppres *ppres)
 	}
 	if (!strncmp(line, "irq", 3)) {
 	    if (1 != sscanf(line+4, " %d", &ppres->irq)) {
-		rtapi_print_msg(RTAPI_MSG_ERR, 
+		rtapi_print_msg(RTAPI_MSG_ERR,
 				"get_ppdev_res: cant parse '%s'\n",
 				line);
 		fclose(f);
@@ -126,7 +126,7 @@ int get_ppdev_res(int dev, struct ppres *ppres)
 				line);
 		fclose(f);
 		return -1;
-		    
+
 	    } else {
 		ppres->reg_start = from;
 		ppres->reg_end = to;
@@ -158,7 +158,7 @@ hal_parport_get(int comp_id, hal_parport_t *port,
 		break;
 	    if (pp_res.reg_start == base)
 		break;
-	} 
+	}
     }
     if (i == MAX_PARPORT) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
@@ -173,13 +173,13 @@ hal_parport_get(int comp_id, hal_parport_t *port,
     snprintf(path, sizeof(path),"/dev/parport%d", i);
     if ((port->parport_fd = open(path,O_RDWR)) < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"PARPORT: ERROR: cant open %s: %s\n", 
+			"PARPORT: ERROR: cant open %s: %s\n",
 			path, strerror(errno));
 	return -EPERM;
     }
     if (ioctl(port->parport_fd, PPCLAIM) < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"PARPORT: ERROR: cant reserve %s: %s\n", 
+			"PARPORT: ERROR: cant reserve %s: %s\n",
 			path, strerror(errno));
 	return -EPERM;
     }
@@ -205,7 +205,7 @@ hal_parport_get(int comp_id, hal_parport_t *port,
     rtapi_print_msg(RTAPI_MSG_ERR,
 		    "PARPORT: dropping root permissions to uid %d\n",
 		    getuid());
-    setuid(getuid()); 
+    setuid(getuid());
 #endif
 
 #ifndef SIM
@@ -345,7 +345,7 @@ void hal_parport_release(hal_parport_t *port)
     }
     if (ioctl(port->parport_fd, PPRELEASE) < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-			"PARPORT: ERROR: releasing parport 0x%x: %s\n", 
+			"PARPORT: ERROR: releasing parport 0x%x: %s\n",
 			port->pp_res.reg_start, strerror(errno));
     }
 #endif

@@ -57,7 +57,7 @@ MODE_WAIT:
     .u32    GPIO1_Clr_Addr
     .u32    GPIO2_Clr_Addr
     .u32    GPIO3_Clr_Addr
-#ifdef DECAMUX   
+#ifdef DECAMUX
    // GPIO0 values align to b0, GPIO1 to b1 !
    .u16     PEPPER1_GPIO0
    .u16     PEPPER1_GPIO1
@@ -101,7 +101,7 @@ MODE_WAIT:
 
     XOR     r1.b3, r0, r0                    // clear leading byte for SBBO
     AND     r3, State.PEPPER2_GPIO1, State.GPIO1_Mask // determine bits to be set
-    XOR     r2, r3, State.GPIO1_Mask            // determine bits to be cleared 
+    XOR     r2, r3, State.GPIO1_Mask            // determine bits to be cleared
     SBBO    r1.b3, State.GPIO1_CLR_ADDR, 0, 8   // Write both CLR & SET registers
 
     // Negate DECAMUX clock (GPIO1.28) after having set PEPPER #2 data.
@@ -132,15 +132,15 @@ MODE_WAIT:
     XOR     r2, State_PEPPER1.GPIO01, State_GPIO01.Masks                  // find bits to clear
     OR      GState.GPIO0_CLR.w0, GState.GPIO0_CLR.w0, r2.w0               // merge bits to be cleared
     OR      GState.GPIO1_CLR.w1, GState.GPIO1_CLR.w1, r2.w2               //
-      
+
     XOUT    10, State_PEPPER1.GPIO01, SIZE( State_PEPPER1)  // update GPIO0 & GPIO1 state on scratchpad
 
 #endif
-   
+
     // Debugging:
     // Task_DataY indicates we had a real-time error, or the timer tick
     // occurred before we began waiting for it!
-    
+
 #ifdef BBAI
     LBCO    r2, CONST_IEP, 0x74, 4      // Load CMP_STATUS register
 #else
@@ -179,14 +179,14 @@ WAITLOOP:
     // ...write out the pre-computed output bits:
     MOV     r30, GState.PRU_Out
 
-#ifdef DECAMUX   
+#ifdef DECAMUX
 
     SBBO    GState.GPIO0_CLR, State.GPIO0_CLR_ADDR, 0, 8    // Writes both CLR and SET registers
     SBBO    GState.GPIO1_CLR, State.GPIO1_CLR_ADDR, 0, 8    // Writes both CLR and SET registers
 //    SBBO    GState.GPIO2_CLR, State.GPIO2_CLR_ADDR, 0, 8    // Writes both CLR and SET registers
 //    SBBO    GState.GPIO3_CLR, State.GPIO3_CLR_ADDR, 0, 8    // Writes both CLR and SET registers
 
-   
+
     // Assert DECAMUX clock (GPIO1.28) after having set PEPPER #1 data
     // This generates a rising edge on the DM_CLK signal that in its
     // turn creates the enable for the latch on the DECAMUX that stores

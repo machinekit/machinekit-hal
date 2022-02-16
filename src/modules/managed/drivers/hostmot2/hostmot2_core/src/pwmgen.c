@@ -41,7 +41,7 @@ void hm2_pwmgen_handle_pwm_frequency(hostmot2_t *hm2) {
     }
 
 
-    // 
+    //
     // hal->pin.pwm_frequency is the user's desired PWM frequency in Hz
     //
     // We get to play with PWMClock (frequency at which the PWM counter
@@ -117,7 +117,7 @@ void hm2_pwmgen_handle_pdm_frequency(hostmot2_t *hm2) {
     }
 
 
-    // 
+    //
     // hal->pin.pdm_frequency is the user's desired PDM frequency in Hz
     //
     // We get to play with PDMClock (frequency at which the PDM counter
@@ -249,15 +249,15 @@ void hm2_pwmgen_force_write(hostmot2_t *hm2) {
                 HM2_ERR(
                     "invalid pwmgen output_type %d requested\n",
                     *hm2->pwmgen.instance[i].hal.pin.output_type
-                ); 
+                );
                 HM2_ERR(
                     "supported .output-type values are: %d (PWM & Dir), %d (Up & Down), %d (PDM & Dir), and %d (Dir & PWM)\n",
                     HM2_PWMGEN_OUTPUT_TYPE_PWM,
                     HM2_PWMGEN_OUTPUT_TYPE_UP_DOWN,
                     HM2_PWMGEN_OUTPUT_TYPE_PDM,
                     HM2_PWMGEN_OUTPUT_TYPE_PWM_SWAPPED
-                ); 
-                HM2_ERR("switching to 1 (PWM & Dir)\n"); 
+                );
+                HM2_ERR("switching to 1 (PWM & Dir)\n");
                 *(hm2->pwmgen.instance[i].hal.pin.output_type) = HM2_PWMGEN_OUTPUT_TYPE_PWM;
                 double_buffered = 1;
                 // leave the Output Mode bits 0
@@ -338,7 +338,7 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
     int r;
 
 
-    // 
+    //
     // some standard sanity checks
     //
 
@@ -369,9 +369,9 @@ int hm2_pwmgen_parse_md(hostmot2_t *hm2, int md_index) {
     }
 
 
-    // 
+    //
     // looks good, start initializing
-    // 
+    //
 
 
     if (hm2->config.num_pwmgens == -1) {
@@ -603,4 +603,3 @@ void hm2_pwmgen_prepare_tram_write(hostmot2_t *hm2) {
         }
     }
 }
-

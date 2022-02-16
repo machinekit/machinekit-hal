@@ -65,7 +65,7 @@ RUN apt-get update &&                                                           
     apt-get install -y                                                            \
         curl                                                                      \
         apt-transport-https                                                       \
-        lsb-release                                                               \ 
+        lsb-release                                                               \
         ca-certificates &&                                                        \
     curl -1sLf                                                                    \
     'https://dl.cloudsmith.io/public/machinekit/machinekit/cfg/setup/bash.deb.sh' \

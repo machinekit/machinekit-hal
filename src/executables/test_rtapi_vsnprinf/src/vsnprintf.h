@@ -6,7 +6,7 @@
 *
 * License: GPL Version 2
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
 * Last change:
@@ -25,7 +25,7 @@ values (or floating point).
    under the terms of version 2 of the GNU General Public License
    as published by the Free Software Foundation.  This code is
    distributed in the hope that it will be useful, but WITHOUT ANY
-   WARRANTY; without even the implied warranty of MERCHANTABILITY 
+   WARRANTY; without even the implied warranty of MERCHANTABILITY
    or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public
    License for more details.
 
@@ -184,7 +184,7 @@ static char *fnumber(char *buf, char *end, double num)
     if(du.ieee.negative) buf = ch(buf, end, '-');
 
     if(du.ieee.exponent == 0x7ff) {
-	// inf or nan	
+	// inf or nan
         if(du.ieee.mantissa0 == 0 && du.ieee.mantissa1 == 0) {
 	    buf = st(buf, end, "Inf"); return buf;
 	} else {

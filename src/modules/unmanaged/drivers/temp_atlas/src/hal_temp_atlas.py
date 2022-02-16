@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# encoding: utf-8
 """
 Temperature.py
 
@@ -23,7 +21,7 @@ def adc2r_cramps(pin,ref):
 #    V_adc = pin.rawValue * 3.3 / 3315.0
     V_adc = pin.rawValue * 3.3 / ref
     V_T  = 0.0  # Voltage across the thermistor
-    R_PU = 2000.0 #Pull-up resistence 
+    R_PU = 2000.0 #Pull-up resistence
     I_PU = 0.0  # Current flowing through the pull-up resistor
     R_T  = 0.0  # Resistance of the thermistor
 
@@ -31,8 +29,8 @@ def adc2r_cramps(pin,ref):
 
     # No dividing by zero or negative voltages despite what the ADC says!
     # Clip to a small positive value
-    I_PU = max((3.3 - V_T ) / R_PU, 0.000001) 
-#    I_PU = max((5.0 - V_T ) / R_PU, 0.000001) 
+    I_PU = max((3.3 - V_T ) / R_PU, 0.000001)
+#    I_PU = max((5.0 - V_T ) / R_PU, 0.000001)
 
     R_T = V_T / I_PU
 
@@ -59,7 +57,7 @@ class Pin:
             sampleSum += sample
         # No dividing by zero or negative voltages despite what the ADC says!
         # Clip to a small positive value
-        self.rawValue  = max(sampleSum / len(self.filterSamples), 0.000001) 
+        self.rawValue  = max(sampleSum / len(self.filterSamples), 0.000001)
 
 
 def getHalName(pin):

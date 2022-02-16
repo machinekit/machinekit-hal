@@ -39,7 +39,7 @@
 * Portable Audio I/O Library Ring Buffer utility.
 * Author: Phil Burk, http://www.softsynth.com
 * License:
-* PortAudio Portable Real-Time Audio Library 
+* PortAudio Portable Real-Time Audio Library
 * Copyright (c) 1999-2011 Ross Bencina and Phil Burk
 
 * Permission is hereby granted, free of charge, to any person obtaining a copy of this
@@ -52,7 +52,7 @@
 * substantial portions of the Software.
 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
 * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
-* PURPOSE AND NONINFRINGEMENT. 
+* PURPOSE AND NONINFRINGEMENT.
 * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
 * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF
 * OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
@@ -596,8 +596,8 @@ static inline rrecsize_t _ring_shift_offset(const ringbuffer_t *ring,
     if (h->head == rtapi_load_u32(&t->tail))
 	return -1;
 
-    // ensure that previous reads (copies out of the ring buffer) are always completed 
-    // before updating (writing) the read index. 
+    // ensure that previous reads (copies out of the ring buffer) are always completed
+    // before updating (writing) the read index.
     // (write-after-read) => full barrier
     rtapi_smp_rmb();
 

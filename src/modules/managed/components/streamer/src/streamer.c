@@ -6,7 +6,7 @@
 *
 * Author: John Kasunich <jmkasunich at sourceforge dot net>
 * License: GPL Version 2
-*    
+*
 * Copyright (c) 2006 All rights reserved.
 *
 ********************************************************************/
@@ -14,8 +14,8 @@
     that allows numbers stored in a file to be "streamed" onto HAL
     pins at a uniform realtime sample rate.  When the realtime module
     is loaded, it creates a fifo in shared memory.  Then, the user
-    space program 'hal_streamer' is invoked.  'hal_streamer' takes 
-    input from stdin and writes it to the fifo, and this component 
+    space program 'hal_streamer' is invoked.  'hal_streamer' takes
+    input from stdin and writes it to the fifo, and this component
     transfers the data from the fifo to HAL pins.
 
     Loading:
@@ -416,4 +416,3 @@ static int init_streamer(int num, fifo_t *tmp_fifo)
     fifo->magic = FIFO_MAGIC_NUM;
     return 0;
 }
-

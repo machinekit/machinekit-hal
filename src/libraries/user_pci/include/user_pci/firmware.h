@@ -1,13 +1,13 @@
 /********************************************************************
  *  Description: firmware.h
- *  Provides functions for loading firmware when running kernel 
+ *  Provides functions for loading firmware when running kernel
  *  modules in user space, emulating part of
  *  #include <linux/firmware.h>
  *
  *  Author(s): Charles Steinkuehler
  *  License: GNU LGPL Version 2.1 or (at your option) any later version.
  *
- *  Last change: 
+ *  Last change:
  *  2012-Dec-17 Charles Steinkuehler
  *              Initial version
  ********************************************************************/

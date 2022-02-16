@@ -5,7 +5,7 @@ loadrt stepgen step_type=0
 newthread fast 100000 fp
 
 newsig unlinked bit
-net dir stepgen.0.dir sampler.0.pin.0 
+net dir stepgen.0.dir sampler.0.pin.0
 net step stepgen.0.step sampler.0.pin.1
 
 addf stepgen.update-freq fast

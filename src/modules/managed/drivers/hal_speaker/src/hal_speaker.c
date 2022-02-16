@@ -4,16 +4,16 @@
 *               This file, 'hal_speaker.c', drives the PC speaker based
 *               on up to 8 bit outputs.  When the new outputs differ
 *               from the old outputs, a click is output on the speaker.
-*               
+*
 * Author: John Kasunich and Jeff Epler
 * License: GPL Version 2
-*    
+*
 * Copyright (c) 2003, 2006 All rights reserved.
 *
-* Last change: 
+* Last change:
 ********************************************************************/
 
-/* 
+/*
  Most of this code is taken from hal_skeleton by John Kasunich,
  which is also a good starting point for new drivers.
 
@@ -104,7 +104,7 @@ static void write_port(void *arg, long period)
     int i;
     speaker_t *port;
     port = arg;
-    
+
     for(i=0; i<8; i++) {
         if(*(port->signals[i])) v = v | (1<<i);
     }
@@ -186,5 +186,3 @@ void rtapi_app_exit(void)
 {
     hal_exit(comp_id);
 }
-
-

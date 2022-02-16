@@ -89,7 +89,7 @@ ZERO_HI:
     MOV State.CurTime, State.MaxTime
 
 PWM_READ_DONE:
-    
+
     SBBO State, GTask.addr, SIZE(task_header), SIZE(State)
     JMP     NEXT_TASK
 .leave PWM_READ_SCOPE

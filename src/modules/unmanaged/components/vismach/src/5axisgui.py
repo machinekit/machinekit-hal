@@ -85,7 +85,7 @@ ram = HalTranslate([ram],c,"joint2",0,0,1)
 ram = Collection([ram,
                   Box(-100,100,350, 100,200,550)
                   ])
-    
+
 ram = HalTranslate([ram],c,"joint0",1,0,0)
 
 ram = Collection([ram,

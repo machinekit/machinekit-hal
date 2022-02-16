@@ -5,12 +5,12 @@
 # BEGIN Note: spindle signals are ususally listed in the main .hal file
 #
 #net  spindle.is-on                      motion.spindle-on
-#net  spindle.start                      halui.spindle.start         
+#net  spindle.start                      halui.spindle.start
 #net  spindle.stop                       halui.spindle.stop
 #net  spindle.forward                    halui.spindle.forward
 #
 #net  spindle.reverse                    halui.spindle.reverse
-#net  spindle.runs-forward               motion.spindle-forward     
+#net  spindle.runs-forward               motion.spindle-forward
 #net  spindle.runs-reverse               motion.spindle-reverse
 #
 #net  spindle.increase                   halui.spindle.increase
@@ -43,9 +43,9 @@ loadrt scale names=scale.axis.0,scale.axis.1,scale.axis.2
 addf   scale.axis.0         servo-thread
 addf   scale.axis.1         servo-thread
 addf   scale.axis.2         servo-thread
-setp   scale.axis.0.gain    0.01 
-setp   scale.axis.1.gain    0.01 
-setp   scale.axis.2.gain    0.01 
+setp   scale.axis.0.gain    0.01
+setp   scale.axis.1.gain    0.01
+setp   scale.axis.2.gain    0.01
 setp   scale.axis.0.offset  0
 setp   scale.axis.1.offset  0
 setp   scale.axis.2.offset  0
@@ -68,7 +68,7 @@ net  pdnt.program.pause                  whb.halui.program.pause            halu
 net  pdnt.program.run                    whb.halui.program.run              halui.program.run
 net  pdnt.program.stop                   whb.halui.program.stop             halui.program.stop
 
-# Connect "selected axis" signals    
+# Connect "selected axis" signals
 net  pdnt.joint.X.select                 whb.halui.joint.x.select           halui.joint.0.select
 net  pdnt.joint.Y.select                 whb.halui.joint.y.select           halui.joint.1.select
 net  pdnt.joint.Z.select                 whb.halui.joint.z.select           halui.joint.2.select
@@ -90,9 +90,9 @@ net  pdnt.stepgen.02.position-scale      hpg.stepgen.02.position-scale      whb.
 #net pdnt.stepgen.04.position-scale      hpg.stepgen.04.position-scale      whb.stepgen.04.position-scale
 #net pdnt.stepgen.05.position-scale      hpg.stepgen.05.position-scale      whb.stepgen.05.position-scale
 
-net  pdnt.axis.0.jog-scale               whb.axis.0.jog-scale               scale.axis.0.in      
-net  pdnt.axis.1.jog-scale               whb.axis.1.jog-scale               scale.axis.1.in      
-net  pdnt.axis.2.jog-scale               whb.axis.2.jog-scale               scale.axis.2.in      
+net  pdnt.axis.0.jog-scale               whb.axis.0.jog-scale               scale.axis.0.in
+net  pdnt.axis.1.jog-scale               whb.axis.1.jog-scale               scale.axis.1.in
+net  pdnt.axis.2.jog-scale               whb.axis.2.jog-scale               scale.axis.2.in
 
 net  scale.axis.0.jog-scale              scale.axis.0.out                   axis.0.jog-scale
 net  scale.axis.1.jog-scale              scale.axis.1.out                   axis.1.jog-scale
@@ -155,9 +155,9 @@ net  pdnt.home-all                       whb.button.macro-5                 halu
 net  pdnt.button.reset                   whb.button.reset
 # already linked to halui.program.stop via whb.program.stop
 net  pdnt.button.stop                    whb.button.stop
-# toggles whb.halui.program{run, pause, resume} which are 
+# toggles whb.halui.program{run, pause, resume} which are
 # already connected to halui.program.{run, pause, resume} via whb.halui.program.{run, pause, resume}
-net  pdnt.button.start-pause             whb.button.start-pause     
+net  pdnt.button.start-pause             whb.button.start-pause
 
 # Connect special positions signals
 net  pdnt.button.m-home                  whb.button.m-home                  halui.mdi-command-01
@@ -235,4 +235,3 @@ net  pdnt.halui.axis.2.pos-relative      halui.axis.2.pos-relative          whb.
 net  pdnt.halui.axis.3.pos-relative      halui.axis.3.pos-relative          whb.halui.axis.3.pos-relative
 net  pdnt.halui.axis.4.pos-relative      halui.axis.4.pos-relative          whb.halui.axis.4.pos-relative
 net  pdnt.halui.axis.5.pos-relative      halui.axis.5.pos-relative          whb.halui.axis.5.pos-relative
-

@@ -1,4 +1,3 @@
-# coding=utf-8
 import os
 from six.moves import configparser
 from machinekit.hal import cyruntime, cyhal

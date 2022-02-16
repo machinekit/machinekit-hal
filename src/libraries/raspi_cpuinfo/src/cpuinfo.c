@@ -55,10 +55,10 @@ char *get_cpuinfo_revision(char *revision)
 int get_rpi_revision(void)
 {
    char revision[1024] = {'\0'};
-   
+
    if (get_cpuinfo_revision(revision) == NULL)
       return -1;
-      
+
    if ((strcmp(revision, "0002") == 0) ||
        (strcmp(revision, "1000002") == 0 ) ||
        (strcmp(revision, "0003") == 0) ||

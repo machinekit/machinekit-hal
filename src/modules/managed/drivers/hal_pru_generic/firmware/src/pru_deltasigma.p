@@ -67,7 +67,7 @@ DELTA_OUT_LOOP:
     // Update integrator state
     SUB     r1, Output.Value, Output.Quantize
     ADD     Output.Integrate, Output.Integrate, r1.w0
-    
+
     // Calculate Output State and store quantized value for next loop
     QBBC    DELTA_OUT_Zero, Output.Integrate, 15
     LDI     Output.Quantize, 0xC000

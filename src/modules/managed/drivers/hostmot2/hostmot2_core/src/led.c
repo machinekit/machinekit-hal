@@ -47,7 +47,7 @@ int hm2_led_parse_md(hostmot2_t *hm2, int md_index) {
 
 
     // LEDs were enumerated during llio setup
-    
+
     if (hm2->llio->num_leds == 0 || hm2->config.num_leds == 0) return 0;
 
     if (hm2->config.num_leds > hm2->llio->num_leds) {

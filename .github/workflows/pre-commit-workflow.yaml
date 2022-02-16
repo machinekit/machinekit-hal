@@ -1,0 +1,74 @@
+#####################################################################
+# Description:  pre-commit-workflow.yaml
+#
+#               This file, 'pre-commit-workflow.yaml', implements
+#               the Pre-commit git hooks managed CI/CD workflow
+#               for Machinekit-HAL code source-tree.
+#
+# Copyright (C) 2022 -     Jakub Fišer <jakub DOT fiser AT eryaf DOT com>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+#
+######################################################################
+
+name: Check the codebase for formatting and linting violations
+
+on:
+  push:
+    branches:
+    - '*'
+    tags-ignore:
+    - 'v*'
+
+  pull_request:
+    branches:
+    - '*'
+
+jobs:
+  checkFormattingAndLintingWithPreCommit:
+    name: >
+      Run the Pre-Commit git hook manager's tests
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+
+    steps:
+      - name: Show GitHub context as a JSON
+        run: |
+          echo "$GITHUB_CONTEXT"
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+
+      - name: >
+          Cancel any previous run of the same workflow
+          on the same branch
+        uses: styfle/cancel-workflow-action@0.4.1
+        with:
+          access_token: ${{ github.token }}
+
+      - name: Clone Machinekit-HAL repository
+        uses: actions/checkout@v2
+        with:
+          ref: '${{ github.event.ref }}'
+
+      - name: >
+          Prepare specific Python version for Machinekit-HAL
+          formatting and linting checks
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Run the Pre-Commit gith hooks manager
+        uses: pre-commit/action@v2.0.3

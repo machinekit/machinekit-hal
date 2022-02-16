@@ -2,7 +2,7 @@
 This driver will support the HostMot2 firmware on the following boards:
 
     EPP:
-    
+
         7i43 (Xilinx Spartan 3, 200 K or 400 K gates (can query which from the CPLD))
 
 
@@ -176,5 +176,3 @@ Shout outs:
 
     Thanks to Jeffry Molanus (U. Twente) for the anyio driver, it provided
     some early inspiration.
-
-

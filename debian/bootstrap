@@ -91,14 +91,14 @@ _process_options(){
 
 # TODO:
 # This whole should be taken only as an initial commit
-# The colorful output logging with icons and timestamps is currently missing 
+# The colorful output logging with icons and timestamps is currently missing
 # and the code should act accordingly when the output is being piped to other
 # programs (the colors should be automatically turned off, icons and time
 # stripped off)
 _write_out() {
     local level=$1
     local message="${@:2}"
-    
+
     printf "%b"          \
            "$message\n";
 }
@@ -178,7 +178,7 @@ search_for_xenomai() {
 
 search_for_readline(){
     local library="$(apt-cache search libeditreadline-dev)"
-    local retval="$?" 
+    local retval="$?"
     if ((retval != 0 ))
     then
         log_error "Command 'apt-cache search libeditreadline-dev' returned error code $retval!"
@@ -192,7 +192,7 @@ search_for_readline(){
     fi
 
     local library="$(apt-cache search libreadline-gplv2-dev)"
-    local retval="$?" 
+    local retval="$?"
     if ((retval != 0 ))
     then
         log_error "Command 'apt-cache search libreadline-gplv2-dev' returned error code $retval!"
@@ -235,7 +235,7 @@ check_necessity_of_pasm() {
 
 check_necessity_of_importlib_resourses() {
     local python="$(apt-cache show python3.6)"
-    local retval="$?" 
+    local retval="$?"
     if ((retval != 0 ))
     then
         log_error "Command 'apt-cache show python3-importlib-resources' returned error code $retval!"
@@ -254,7 +254,7 @@ test_dir(){
     local version_file="$1/VERSION"
     local readme_file="$1/README.md"
     local copying_file="$1/COPYING"
-    
+
     if [[ -f "$version_file" && -f "$readme_file" && -f "$copying_file" ]]
     then
         read first_line < "$version_file"
@@ -336,7 +336,7 @@ _main(){
             find_dir
             retval=$?
             if (( retval != 0 ))
-            then 
+            then
                 log_error "Could not find Machinekit-HAL repository root directory"
                 failure
             fi
@@ -344,7 +344,7 @@ _main(){
             test_dir "$MK_PATH"
             retval=$?
             if (( retval != 0 ))
-            then 
+            then
                 log_error "Specified Machinekit-HAL repository root directory" \
                           "not valid!"
                 failure

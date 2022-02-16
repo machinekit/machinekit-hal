@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 #    This is 'comp', a tool to write HAL boilerplate
 #    Copyright 2006 Jeff Epler <jepler@unpythonic.net>
 #
@@ -712,13 +711,13 @@ def build_usr(tempdir, filename, mode, origfilename, installdir):
     cmake_build = f"cmake --build {cmake_builddir} {_config}"
     cmake_install = f"cmake --install {cmake_builddir} {_config}"
 
-    
+
     _generate = subprocess.run(cmake_generate, shell=True, check=True)
     _build = subprocess.run(cmake_build, shell=True, check=True)
-    
+
     if mode == INSTALL:
         _install = subprocess.run(cmake_install, shell=True, check=True)
-    
+
     if mode == COMPILE:
         # Copying out with the build RPATH
         # TODO: Does this really make sense?
@@ -800,18 +799,18 @@ def build_rt(tempdir, filename, mode, origfilename, installdir):
         _config = f"--config {_config}"
     # Generator should be taken from the CMAKE_GENERATOR evironment variable
     # by CMake automatically
-    
+
     cmake_generate = f"cmake -S {tempdir} -B {cmake_builddir}"
     cmake_build = f"cmake --build {cmake_builddir} {_config}"
     cmake_install = f"cmake --install {cmake_builddir} {_config}"
 
-    
+
     _generate = subprocess.run(cmake_generate, shell=True, check=True)
     _build = subprocess.run(cmake_build, shell=True, check=True)
-    
+
     if mode == INSTALL:
         _install = subprocess.run(cmake_install, shell=True, check=True)
-    
+
     if mode == COMPILE:
         # Copying out with the build RPATH
         # TODO: Does this really make sense?

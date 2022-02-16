@@ -55,11 +55,11 @@ typedef struct board_data_t {
     int 			slot;				/* PCI slot number */
     int 			num;				/* HAL board number */
     void 			__iomem *base;			/* base address */
-    int 			len;				/* length of address space*/ 
+    int 			len;				/* length of address space*/
    struct port_t 		port[2];
-   
 
-} board_data_t; 
+
+} board_data_t;
 
 /*************************************************************************
                                 Globals
@@ -71,6 +71,3 @@ typedef struct board_data_t {
 /*************************************************************************
                                 Functions
 *************************************************************************/
-
-
-

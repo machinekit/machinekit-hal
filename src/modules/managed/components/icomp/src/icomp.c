@@ -143,7 +143,7 @@ static int instantiate(const int argc, char* const *argv)
 	    break;
 	case 0:     // getopt_long() set a variable, just keep going
 	    break;
-	case ':':   // missing option argument 
+	case ':':   // missing option argument
 	    HALERR("%s: option `-%c' requires an argument\n",
 		    argv[1], optopt);
 	    break;

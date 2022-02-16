@@ -32,9 +32,9 @@
 typedef struct {
 	hal_u32_t			serialModulesDataOut[16][8]; // 0000 0000
 	hal_u32_t			serialModulesDataIn[16][8];  // 1000 0000
-	
-	hal_u32_t			moduleId[8];		//addr 0 	0000 000 
-	
+
+	hal_u32_t			moduleId[8];		//addr 0 	0000 000
+
 	hal_u32_t			card_status_reg;	//addr 1	0001 000        //  ... Estop_2 | Estop_1 | Pwr_fault | Bus_err | Wdt_err  //Card status read resets wdt
 	hal_u32_t			cardID;				//	0001 001
 	hal_u32_t			card_control_reg; 		//	0001 010	//  Wdt_period(16 bit)[us] | ... | EstopEn_2 | EstopEn_1 | power_enable | card_enable
@@ -43,7 +43,7 @@ typedef struct {
 	hal_u32_t			gpioDir;			//	0001 101
 	hal_u32_t			StepGen_status;			//	0001 110
 	hal_u32_t			PCI_clk_counter;		//	0001 111
-	
+
 	hal_u32_t			ENC_control_reg;	//addr 2	0010 000
 	hal_u32_t			CAN_status_reg;
 	hal_u32_t			CAN_control_reg;
@@ -51,17 +51,17 @@ typedef struct {
 	hal_u32_t			DAC_1; //DAC AXIS 3-2
 	hal_u32_t			DAC_2; //DAC AXIS 5-4
 	hal_u32_t			reserved_1[2];
-	
+
 	hal_u32_t			CAN_RX_buffer[4];	//addr 3     	0011 000
-	hal_u32_t			CAN_TX_buffer[4];	
+	hal_u32_t			CAN_TX_buffer[4];
 	hal_u32_t			reserved_2[8];		//addr 4       	0100 000
-		
+
 	hal_u32_t			reserved_3[8];		//addr 5       	0101 000
-		
+
 	hal_u32_t			reserved_4[8];		//addr 6       	0110 000
-	
+
 	hal_u32_t			reserved_5[8];		//addr 7       	0111 000
-	
+
 	hal_s32_t			ENC_counter[6];		//addr 8	1000 000
 	hal_u32_t			reserved_6[2];
 	hal_s32_t			ENC_period[6];		//addr 9	1001 000
@@ -73,9 +73,9 @@ typedef struct {
 	hal_s32_t			StepGen_steprate[6];	//addr 12	1100 000
 	hal_u32_t			reserved_10[2];
 	hal_u32_t			StepGen_fb[6];		//addr 13	1101 000
-	hal_u32_t			reserved_11[2];			
+	hal_u32_t			reserved_11[2];
 	hal_u32_t			StepGen_time_params[6];	//addr 14	1110 000
-	hal_u32_t			reserved_12[2];		
+	hal_u32_t			reserved_12[2];
 	hal_u32_t			reserved_16[8];		//addr 15	1111 000
 
 } volatile card;

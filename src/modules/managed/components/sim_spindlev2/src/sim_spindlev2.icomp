@@ -29,4 +29,3 @@ hal_float_t new_position = (gf(position_fb) + gf(velocity_cmd )* fperiod * gf(sc
 
    return 0;
 }
-

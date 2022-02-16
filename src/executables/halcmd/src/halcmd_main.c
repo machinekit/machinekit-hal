@@ -322,7 +322,7 @@ int main(int argc, char **argv)
             }
             /* remove comments, do var substitution, and tokenise */
             retval = halcmd_preprocess_line(raw_buf, tokens);
-            if (echo_mode) { 
+            if (echo_mode) {
                 halcmd_echo("%s\n", raw_buf);
             }
             if (retval == 0) {

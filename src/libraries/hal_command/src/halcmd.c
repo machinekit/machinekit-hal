@@ -356,12 +356,12 @@ int hal_systemv(char *const argv[]) {
     }
     if (WIFSIGNALED(status) && WTERMSIG(status))
     {
-	halcmd_error("child %s caught signal %s\n", 
+	halcmd_error("child %s caught signal %s\n",
 		     argv[0], strsignal(WTERMSIG(status)));
     }
     if (WIFSIGNALED(status) && WCOREDUMP(status))
     {
-	halcmd_error("child %s created a core dump, signal %s\n", 
+	halcmd_error("child %s created a core dump, signal %s\n",
 		     argv[0], strsignal(WTERMSIG(status)));
 	return -1;
     }
@@ -391,7 +391,7 @@ static void quit(int sig)
 	halcmd_done = 1;
     } else {
 	/* don't have to worry about the mutex, but if we just
-	   return, we might return into the fgets() and wait 
+	   return, we might return into the fgets() and wait
 	   all day instead of exiting.  So we exit from here. */
 	if ( comp_id > 0 ) {
 	    hal_exit(comp_id);
@@ -590,17 +590,17 @@ static int tokenize(char *cmd_buf, char **tokens)
     cp1 = cmd_buf;
     state = BETWEEN_TOKENS;
     while ( m < MAX_TOK ) {
-        if(*cp1 == '\r') 
+        if(*cp1 == '\r')
         {
             char nextc = *(cp1+1);
-            if(nextc == '\n' || nextc == '\0') 
+            if(nextc == '\n' || nextc == '\0')
             {
                 static int warned=0;
-                if(!warned) 
+                if(!warned)
                     halcmd_warning("File contains DOS-style line endings.\n");
                 warned = 1;
             }
-            else 
+            else
             {
                 halcmd_error("File contains embedded carriage returns.\n");
                 return -1;
@@ -816,7 +816,7 @@ static int strlimcpy(char **dest, char *src, int srclen, int *destspace) {
    ini vars are in the following formats:
    [SECTION]VAR<whitespace>
    [SECTION](VAR)<any char>
-   
+
    return values:
    0	success
    -1	missing close parenthesis
@@ -834,7 +834,7 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars, char **
     char *replacement, sec[128], var[128];
     static char info[256];
     char *sp=source_str, *dp=dest_str, *secP, *varP;
-    const char 
+    const char
 	* words = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.-_";
 
     dest_str[max_chars-1] = '\0';	/* make sure there's a terminator */
@@ -864,7 +864,7 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars, char **
 		strncpy(var, varP, next_delim);
 		var[next_delim]='\0';
 		replacement = getenv(var);
-		if (replacement == NULL) 
+		if (replacement == NULL)
                 {
                     snprintf(info, sizeof(info), "%s", var);
                     *detail = info;

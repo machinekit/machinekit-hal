@@ -15,10 +15,10 @@
 * Author:
 * License: GPL Version 2
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 *
-* Last change: 
+* Last change:
 ********************************************************************/
 
 #include <stdio.h>		/* printf(), fprintf(), FILE, fopen(),*/

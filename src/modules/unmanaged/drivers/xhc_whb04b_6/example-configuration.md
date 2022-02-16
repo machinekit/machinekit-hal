@@ -8,7 +8,7 @@ Define section XHC_WHB04B_6_CONFIG section HAL:
 # -a to enable debug output
 #COMPONENT_ARGUMENTS = -a
 # normal operation mode
-COMPONENT_ARGUMENTS = 
+COMPONENT_ARGUMENTS =
 
 [HAL]
 HALFILE = <your-machine-hal>.hal
@@ -27,7 +27,7 @@ net  pdnt.machine.is-on             halui.machine.is-on           whb.halui.mach
 net  pdnt.machine.on                whb.halui.machine.on          halui.machine.on
 net  pdnt.machine.off               whb.halui.machine.off         halui.machine.off
 
-# Connect program related signals                                 
+# Connect program related signals
 net  pdnt.program.is-idle           whb.halui.program.is-idle     halui.program.is-idle
 net  pdnt.program.is-paused         whb.halui.program.is-paused   halui.program.is-paused
 net  pdnt.program.is-running        whb.halui.program.is-running  halui.program.is-running
@@ -36,7 +36,7 @@ net  pdnt.program.pause             whb.halui.program.pause       halui.program.
 net  pdnt.program.run               whb.halui.program.run         halui.program.run
 net  pdnt.program.stop              whb.halui.program.stop        halui.program.stop
 
-# Connect "selected axis" signals                                 
+# Connect "selected axis" signals
 net  pdnt.joint.X.select            whb.halui.joint.x.select      halui.joint.0.select
 net  pdnt.joint.Y.select            whb.halui.joint.y.select      halui.joint.1.select
 net  pdnt.joint.Z.select            whb.halui.joint.z.select      halui.joint.2.select
@@ -108,9 +108,9 @@ net  pdnt.button.reset              whb.button.reset              axisui.notific
 net  pdnt.button.reset              axisui.notifications-clear
 # already linked to halui.program.stop via whb.program.stop
 net  pdnt.button.stop               whb.button.stop
-# toggles whb.halui.program{run, pause, resume} which are 
+# toggles whb.halui.program{run, pause, resume} which are
 # already connected to halui.program.{run, pause, resume} via whb.halui.program.{run, pause, resume}
-net  pdnt.button.start-pause        whb.button.start-pause     
+net  pdnt.button.start-pause        whb.button.start-pause
 
 # Connect special positions signals
 net  pdnt.button.m-home             whb.button.m-home             halui.mdi-command-01

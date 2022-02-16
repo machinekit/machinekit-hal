@@ -19,7 +19,7 @@ FUNCTION(_)
         in1 = -in1;
         in2 = -in2;
     }
-    if((gf(scale) > 1 && in1 / gf(scale) <= in2 && in2 <= in1 * gf(scale)) || 
+    if((gf(scale) > 1 && in1 / gf(scale) <= in2 && in2 <= in1 * gf(scale)) ||
         rtapi_fabs(in1-in2) <= gf(difference))
         sb(out, true);
     else

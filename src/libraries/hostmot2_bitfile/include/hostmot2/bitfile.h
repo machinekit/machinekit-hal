@@ -53,4 +53,3 @@ u8 bitfile_reverse_bits(u8 data);
 
 
 #endif  // __BITFILE_H
-

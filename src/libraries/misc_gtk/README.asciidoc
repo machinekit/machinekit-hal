@@ -1,7 +1,7 @@
 = HAL
-:author: Jakub Fišer <jakub DOT fiser AT eryaf DOT com> 
-:description: miscgtk sourcetree README 
-:sectanchors: 
+:author: Jakub Fišer <jakub DOT fiser AT eryaf DOT com>
+:description: miscgtk sourcetree README
+:sectanchors:
 :url-repo: https://machinekit.io
 
 Misc_gtk is a library used in graphical parts of Machinekit-HAL like HALscope and HAL meter. Thus, should be a terporary as Machinekit-HAL is intended as mainly headless solution.

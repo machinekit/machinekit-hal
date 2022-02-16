@@ -92,7 +92,7 @@ static const char *status_table[] = {
 };
 
 static const char *pintype_table[] = {
-    "bit", "float", "u32", "s32", 
+    "bit", "float", "u32", "s32",
     NULL
 };
 
@@ -108,7 +108,7 @@ static const char **string_table = NULL;
 
 foreach_args_t cargs;
 
-static inline void zero_foreach_args(foreach_args_t *a) 
+static inline void zero_foreach_args(foreach_args_t *a)
     {
     memset((void *)a, 0, sizeof(foreach_args_t));
     }
@@ -156,8 +156,8 @@ static int yield_pinmatch(hal_object_ptr o, foreach_args_t *args)
 {
 int sz = strcspn(args->user_ptr1, " \t");
 
-    if ( sz == strlen(hh_get_name(&o.pin->hdr)) && 
-         strncmp(args->user_ptr1, hh_get_name(&o.pin->hdr), sz) == 0 ) 
+    if ( sz == strlen(hh_get_name(&o.pin->hdr)) &&
+         strncmp(args->user_ptr1, hh_get_name(&o.pin->hdr), sz) == 0 )
         {
         match_type = o.pin->type;
         match_direction = o.pin->dir;
@@ -167,12 +167,12 @@ int sz = strcspn(args->user_ptr1, " \t");
      return 0;
 }
 
-static void check_match_type_pin(const char *name) 
+static void check_match_type_pin(const char *name)
 {
     zero_foreach_args(&cargs);
     cargs.type = HAL_PIN;
     cargs.user_ptr1 = (char *) name;
-   
+
     halg_yield(0, &cargs, yield_pinmatch);
 }
 
@@ -182,8 +182,8 @@ static int yield_signalmatch(hal_object_ptr o, foreach_args_t *args)
 {
 int sz = strcspn(args->user_ptr1, " \t");
 
-    if ( sz == strlen(hh_get_name(&o.sig->hdr)) && 
-         strncmp(args->user_ptr1, hh_get_name(&o.sig->hdr), sz) == 0 ) 
+    if ( sz == strlen(hh_get_name(&o.sig->hdr)) &&
+         strncmp(args->user_ptr1, hh_get_name(&o.sig->hdr), sz) == 0 )
         {
         match_type = o.sig->type;
         match_writers = o.sig->writers;
@@ -198,7 +198,7 @@ static void check_match_type_signal(const char *name) {
     zero_foreach_args(&cargs);
     cargs.type = HAL_SIGNAL;
     cargs.user_ptr1 = (char *) name;
-   
+
     halg_yield(0, &cargs, yield_signalmatch);
 
 }
@@ -218,7 +218,7 @@ size_t len = strlen(args->user_ptr1);
 
 
 static char *thread_generator(const char *text, int state) {
-    if (!state) 
+    if (!state)
         {
         zero_foreach_args(&cargs);
         cargs.type = HAL_THREAD;
@@ -234,8 +234,8 @@ static char *thread_generator(const char *text, int state) {
 static int yield_paramstrname(hal_object_ptr o, foreach_args_t *args)
 {
 size_t len = strlen(args->user_ptr1);
-   
-    if( (strncmp(args->user_ptr1, hh_get_name(&o.param->hdr), len) == 0 )) 
+
+    if( (strncmp(args->user_ptr1, hh_get_name(&o.param->hdr), len) == 0 ))
         {
         args->result = strdup(hh_get_name(&o.param->hdr));
         return 1;
@@ -245,11 +245,11 @@ size_t len = strlen(args->user_ptr1);
 }
 
 
-static char *parameter_generator(const char *text, int state) 
-{ 
+static char *parameter_generator(const char *text, int state)
+{
 // we don't have aliases any more, so just read param names
 
-    if (!state) 
+    if (!state)
         {
         zero_foreach_args(&cargs);
         cargs.type = HAL_PARAM;
@@ -265,7 +265,7 @@ static char *parameter_generator(const char *text, int state)
 static int yield_functstrname(hal_object_ptr o, foreach_args_t *args)
 {
 size_t len = strlen(args->user_ptr1);
-   
+
     if( (strncmp(args->user_ptr1, hh_get_name(&o.funct->hdr), len) == 0 ) &&
         ( args->user_arg1 == o.funct->users) )
         {
@@ -276,9 +276,9 @@ size_t len = strlen(args->user_ptr1);
     return 0;
 }
 
-static char *funct_generator_common(const char *text, int state, int inuse) 
-{ 
-    if (!state) 
+static char *funct_generator_common(const char *text, int state, int inuse)
+{
+    if (!state)
         {
         zero_foreach_args(&cargs);
         cargs.type = HAL_FUNCT;
@@ -406,7 +406,7 @@ static char *comp_generator(const char *text, int state) {
 #define T_RT 0
 #define T_USER 1
 #define T_INST 2
-    
+
 static int yield_typecompstrname(hal_object_ptr o, foreach_args_t *args)
 {
 size_t len;
@@ -449,15 +449,15 @@ size_t len;
         default:  // out of range error
             return -1;
         }
-        
+
     return 0;
-}    
-        
+}
+
 
 
 static char *typecomp_generator(const char *text, int state, int type) {
-    
-    if (!state) 
+
+    if (!state)
         {
         zero_foreach_args(&cargs);
         cargs.type = HAL_COMPONENT;
@@ -469,17 +469,17 @@ static char *typecomp_generator(const char *text, int state, int type) {
 
 }
 
-static char *usrcomp_generator(const char *text, int state) 
+static char *usrcomp_generator(const char *text, int state)
 {
     return typecomp_generator(text, state, T_USER);
 }
 
-static char *icomp_generator(const char *text, int state) 
+static char *icomp_generator(const char *text, int state)
 {
     return typecomp_generator(text, state, T_INST);
 }
 
-static char *rtcomp_generator(const char *text, int state) 
+static char *rtcomp_generator(const char *text, int state)
 {
     return typecomp_generator(text, state, T_RT);
 }
@@ -491,7 +491,7 @@ static int yield_pinstrname(hal_object_ptr o, foreach_args_t *args)
         return 0;
     if ( !direction_match( o.pin->dir, match_direction ) )
         return 0;
-    if ( match_type != HAL_TYPE_UNSPECIFIED && match_type != o.pin->type )  
+    if ( match_type != HAL_TYPE_UNSPECIFIED && match_type != o.pin->type )
         return 0;
 
     size_t len = strlen(args->user_ptr1);
@@ -841,4 +841,3 @@ void halcmd_init_readline()
     rl_readline_name = "halcmd";
     rl_attempted_completion_function = rlcompleter;
 }
-

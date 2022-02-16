@@ -119,8 +119,8 @@ int shmdrv_attach(struct shm_status *shmstat, void **shm)
     if (retval)
 	return retval;
 
-    *shm = mmap(NULL, shmstat->size, 
-		PROT_READ | PROT_WRITE, MAP_SHARED | MAP_LOCKED, 
+    *shm = mmap(NULL, shmstat->size,
+		PROT_READ | PROT_WRITE, MAP_SHARED | MAP_LOCKED,
 		shmstat->driver_fd, 0);
     if (*shm == (void *)MAP_FAILED) {
 	return -errno;
@@ -178,7 +178,7 @@ int shm_common_new(int key, int *size, int instance, void **shmptr, int create)
 	    return -ENOENT;
 	}
 	if (retval) { // didnt exist, so create
-	    retval = shmdrv_create(&sm); 
+	    retval = shmdrv_create(&sm);
 	    if (retval < 0) {
 		return retval;
 	    }
@@ -191,7 +191,7 @@ int shm_common_new(int key, int *size, int instance, void **shmptr, int create)
 	    return retval;
 	}
 	// if size was passed in as 0 (attach), fill in actual size
-	if (size && (*size == 0)) 
+	if (size && (*size == 0))
 	    *size = sm.size;
 	close(sm.driver_fd);
 	return is_new;
@@ -208,7 +208,7 @@ int shm_common_new(int key, int *size, int instance, void **shmptr, int create)
 	    mmap_size = *size;
 	sprintf(segment_name, SHM_FMT, instance, key);
 	old_umask = umask(0); //S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
-	if (create && ((shmfd = shm_open(segment_name, 
+	if (create && ((shmfd = shm_open(segment_name,
 					 (O_CREAT | O_EXCL | O_RDWR),
  				(S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP))) > 0)) {
 	    // initial creation

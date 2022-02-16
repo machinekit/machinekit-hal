@@ -12,9 +12,9 @@ be structured as
 or
 	tests/
 		xyz/
-			0	
-			1	
-			2	
+			0
+			1
+			2
 
 
 Two types of tests are supported: Regression tests, in which the output is

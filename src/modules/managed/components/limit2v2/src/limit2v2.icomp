@@ -1,5 +1,5 @@
 component limit2v2 """
-Limit the output signal to fall between min and max and limit its slew rate to less than maxv per second.  
+Limit the output signal to fall between min and max and limit its slew rate to less than maxv per second.
 When the signal is a position, this means that position and velocity are limited.""";
 
 pin_ptr in float in;
@@ -25,12 +25,12 @@ FUNCTION(_)
 {
 hal_float_t tmp = gf(in);
 hal_float_t maxdelta = gf(maxv) * fperiod;
-    
+
     tmp = clamp(tmp, gf(min_), gf(max_));
-    if(gb(load)) 
-        { 
+    if(gb(load))
+        {
         sf(out, old_out = tmp);
-        return 0; 
+        return 0;
         }
     tmp = clamp(tmp, old_out - maxdelta, old_out + maxdelta);
     old_out = tmp;

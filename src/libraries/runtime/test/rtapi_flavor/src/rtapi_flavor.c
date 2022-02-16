@@ -228,7 +228,7 @@ static void test_flavor_default_runner(flavor_default_test_data_t *td)
     if (td->getenv_ret && td->getenv_ret[0]) {
         // $FLAVOR is set in environment
         if (td->ret > 0 || td->exit == 101)
-            // Get flavor_descriptor for tests where $FLAVOR is valid 
+            // Get flavor_descriptor for tests where $FLAVOR is valid
             flavor = flavor_byname(td->getenv_ret);
 
         if (td->ret > 0) {
@@ -405,5 +405,5 @@ int main(void)
         cmocka_unit_test(test_flavor_install_success),
     };
 
-    return cmocka_run_group_tests_name("rtapi_flavor tests", tests, NULL, NULL);    
+    return cmocka_run_group_tests_name("rtapi_flavor tests", tests, NULL, NULL);
 }

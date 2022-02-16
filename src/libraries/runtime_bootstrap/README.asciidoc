@@ -1,7 +1,7 @@
 = Runtime
 :author: Jakub Fišer <jakub DOT fiser AT eryaf DOT com>
-:description: Runtime sourcetree README 
-:sectanchors: 
+:description: Runtime sourcetree README
+:sectanchors:
 :url-repo: https://machinekit.io
 
 Runtime-bootstrap experts exports the core functionality for build workflow of Machinekit-HAL. To use during the main build and also in out-of-tree build of additional functionality (related libraries, executables and HAL modules).

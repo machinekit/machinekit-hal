@@ -1,14 +1,14 @@
 /********************************************************************
 * Description:  stepgen.c
-*               This file, 'stepgen.c', is a HAL component that 
+*               This file, 'stepgen.c', is a HAL component that
 *               provides software based step pulse generation.
 *
 * Author: John Kasunich
 * License: GPL Version 2
-*    
+*
 * Copyright (c) 2003-2007 All rights reserved.
 *
-* Last change: 
+* Last change:
 ********************************************************************/
 /** This file, 'stepgen.c', is a HAL component that provides software
     based step pulse generation.  The maximum step rate will depend
@@ -37,7 +37,7 @@
 	insmod stepgen step_type=0,0,1,2  ctrl_type=p,p,v,p
 
     will install four step generators, two using stepping type 0,
-    one using type 1, and one using type 2.  The first two and 
+    one using type 1, and one using type 2.  The first two and
     the last one will be running in position mode, and the third
     one will be running in velocity mode.
 
@@ -471,7 +471,7 @@ int rtapi_app_main(void)
 			"STEPGEN: ERROR: no channels configured\n");
 	return -1;
     }
-    /* periodns will be set to the proper value when 'make_pulses()' runs for 
+    /* periodns will be set to the proper value when 'make_pulses()' runs for
        the first time.  We load a default value here to avoid glitches at
        startup, but all these 'constants' are recomputed inside
        'update_freq()' using the real period. */

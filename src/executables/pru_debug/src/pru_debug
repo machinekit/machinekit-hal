@@ -17,8 +17,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #################################################
 
-usage () { 
-cat << _EOF_ 
+usage () {
+cat << _EOF_
 Usage: $0 [options] pru-binary-image
   -p <pru> PRU to target
 _EOF_
@@ -163,4 +163,3 @@ stop
 unloadrt all
 
 _EOF_
-

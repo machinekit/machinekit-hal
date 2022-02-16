@@ -5,7 +5,7 @@ pin out bit or if personality & 0x200;
 pin out bit xor if personality & 0x400;
 function _ nofp;
 
-description 
+description
 """
 General logic function' component.  Can perform AND, OR and XOR of up to 16 inputs.
 
@@ -20,7 +20,7 @@ by adding the inputs and outputs then convert to hex:
 
     1024 (0x400)  if the `xor' (exclusive or) output is desired
 
-Outputs can be combined, for example: 
+Outputs can be combined, for example:
 
 2 + 256 + 1024 = 1282 converted to hex
 would be 0x502 and would have two inputs and have both XOR and AND outputs.

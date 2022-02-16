@@ -9,6 +9,10 @@
 <img alt="Github Actions build status" src="https://img.shields.io/github/workflow/status/machinekit/machinekit-hal/Test application and publish packages (Debian linux)/master?style=for-the-badge&logo=github" />
 </a>
 
+<a href="https://github.com/machinekit/machinekit-hal/actions" target="_blank">
+<img alt="Github Actions build status" src="https://img.shields.io/github/workflow/status/machinekit/machinekit-hal/Check the codebase for formatting and linting violations/master?style=for-the-badge&logo=github" />
+</a>
+
 <a href="https://cloud.drone.io/machinekit/machinekit-hal" target="_blank">
 <img alt="Drone Cloud build status" src="https://img.shields.io/drone/build/machinekit/machinekit-hal/master?style=for-the-badge&logo=drone" />
 </a>
@@ -206,6 +210,21 @@ It all started in the early nineties when NIST created the Enhanced Machine Cont
 **Machinekit-HAL** like all projects in the **Machinekit** organization is volunteer based governed by the [**C**ollective **C**ode **C**onstruction **C**ontract ](http://www.machinekit.io/community/c4), generally known as a C4 originally from the [ZeroMQ](https://rfc.zeromq.org/spec/22) project.
 
 The source code is hosted publicly on [GitHUB](https://github.com/machinekit/machinekit-hal), where majority of programming discussion about further development happens. In lower measures, Machinekit-HAL is also discussed on [_Machinekit forum_](https://groups.google.com/forum/#!forum/machinekit) and in [_Machinekit Matrix Room_](https://matrix.to/#/#machinekit:matrix.org), which are used more to the point of support platforms and for general chat.
+
+For a change to be eligible for merge, all automatic tests need to run to successful conclusion. This includes the building and `x86_64` and `arm64`, running the `runtests` acceptance test suite, the `pytest` test suite and the `pre-commit` driven formatting and linking checkers.
+
+For developer's convenience, the Machinekit-HAL source-tree includes a `pre-commit` configuration, and it is strongly suggested to install the manager and run the hooks during git operations to automatically format and lint the changed files. (Of course, only the end result is important, and you can use whatever tool you please to archive it.)
+
+Installing the `pre-commit` into virtual environment:
+
+```sh
+python3 -m venv development/pcvenv
+source development/pcvenv/bin/activate
+pip install pre-commit
+pre-commit install
+```
+
+Or you can consult the installation step in the official [**Documentation**](https://pre-commit.com/index.html#install).
 
 |![Counselling](https://img.icons8.com/ios-filled/50/000000/counselor.png)| It's always encouraged to create a new _issue_ in GitHub tracker first. Discuss the proposed changes there and then based on the output implement the changes and create a new _pull request_. |
 |:---:|---|

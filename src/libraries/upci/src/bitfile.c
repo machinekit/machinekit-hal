@@ -393,4 +393,3 @@ void bitfile_print_xilinx_info(struct bitfile *bf)
 	printf ( "Bitstream size:  %d\n", ch->len );
     }
 }
-

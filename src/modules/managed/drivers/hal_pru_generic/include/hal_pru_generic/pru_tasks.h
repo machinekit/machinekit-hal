@@ -53,7 +53,7 @@
 // C style typedefs to exist in the same file, since it is critical that
 // the data structures for both sides match exactly.
 //
-// The _hal_pru_generic_H_ define (from hal_pru_generic.h) is used to 
+// The _hal_pru_generic_H_ define (from hal_pru_generic.h) is used to
 // deteremine if we are assembling pru code or compiling C code.
 
 //
@@ -64,14 +64,14 @@
 
 #ifndef _hal_pru_generic_H_
     // pru_addr_t
-    
+
     // pru_task_mode_t
 
 #else
     typedef u32 pru_addr_t;
 
     // Insure these values match the JUMPTABLE in the pru assembly code!
-    typedef enum { 
+    typedef enum {
         eMODE_INVALID   = -1,
         eMODE_NONE      = 0,
         eMODE_WAIT      = 1,

@@ -108,7 +108,7 @@ FUNCTION(_)
         else if (!gb(latching))
         {
             sb(error_out, false);
-            sb(ok_out, true);        
+            sb(ok_out, true);
         }
     }
 

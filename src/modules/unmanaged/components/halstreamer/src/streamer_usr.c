@@ -6,7 +6,7 @@
 *
 * Author: John Kasunich <jmkasunich at sourceforge dot net>
 * License: GPL Version 2
-*    
+*
 * Copyright (c) 2006 All rights reserved.
 *
 ********************************************************************/
@@ -14,7 +14,7 @@
     that allows numbers stored in a file to be "streamed" onto HAL
     pins at a uniform realtime sample rate.  When the realtime module
     is loaded, it creates a fifo in shared memory.  Then, the user
-    space program 'hal_streamer' is invoked.  'hal_streamer' takes 
+    space program 'hal_streamer' is invoked.  'hal_streamer' takes
     input from stdin and writes it to the fifo, and the realtime
     part transfers the data from the fifo to HAL pins.
 
@@ -24,7 +24,7 @@
 
     'chan_num', if present, specifies the streamer channel to use.
     The default is channel zero.  Since hal_streamer takes its data
-    from stdin, it will almost always either need to have stdin 
+    from stdin, it will almost always either need to have stdin
     redirected from a file, or have data piped into it from some
     other program.
 */
@@ -290,7 +290,7 @@ int main(int argc, char **argv)
 	if ( errmsg != NULL ) {
 	    /* print message */
 	    fprintf (stderr, "line %d, field %d: %s, skipping the line\n", line, n, errmsg );
-	    /** TODO - decide whether to skip this line and continue, or 
+	    /** TODO - decide whether to skip this line and continue, or
 		abort the program.  Right now it skips the line. */
 	} else {
 	    /* good data, keep it */

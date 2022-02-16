@@ -7,10 +7,10 @@
  * Author:
  * License: GPL Version 2
  * System: Linux
- *    
+ *
  * Copyright (c) 2004 All rights reserved.
  *
- * Last change: 
+ * Last change:
  *****************************************************************************/
 
 #include <stdio.h>              /* FILE *, fopen(), fclose(), NULL */
@@ -33,7 +33,7 @@ static bool check_line_endings(const char *s) {
             char c = s[1];
             if(c == '\n' || c == '\0') {
                 static bool warned = 0;
-                if(!warned) 
+                if(!warned)
                     fprintf(stderr, "inifile: warning: File contains DOS-style line endings.\n");
                 warned = true;
                 continue;
@@ -103,7 +103,7 @@ IniFile::Close()
 }
 
 
-IniFile::ErrorCode                   
+IniFile::ErrorCode
 IniFile::Find(int *result, int min, int max,
               const char *tag, const char *section, int num)
 {
@@ -122,7 +122,7 @@ IniFile::Find(int *result, int min, int max,
 }
 
 
-IniFile::ErrorCode                   
+IniFile::ErrorCode
 IniFile::Find(int *result, const char *tag, const char *section, int num)
 {
     const char                  *pStr;
@@ -145,7 +145,7 @@ IniFile::Find(int *result, const char *tag, const char *section, int num)
 }
 
 
-IniFile::ErrorCode                   
+IniFile::ErrorCode
 IniFile::Find(double *result, double min, double max,
               const char *tag, const char *section, int num)
 {
@@ -164,7 +164,7 @@ IniFile::Find(double *result, double min, double max,
 }
 
 
-IniFile::ErrorCode                   
+IniFile::ErrorCode
 IniFile::Find(double *result, const char *tag, const char *section,
 	      int num, int *lineno)
 {
@@ -485,7 +485,7 @@ IniFile::LockFile(void)
 
 
 /*! Expands the tilde to $(HOME) and concatenates file to it. If the first char
-    If file does not start with ~/, file will be copied into path as-is. 
+    If file does not start with ~/, file will be copied into path as-is.
 
    @param the input filename
 
@@ -586,7 +586,7 @@ IniFile::AfterEqual(const char *string)
 
 
 /*! Finds the first non-white character on a new line and returns a
-   pointer. Ignores any line that starts with a comment char i.e. a ';' or 
+   pointer. Ignores any line that starts with a comment char i.e. a ';' or
    '#'.
 
    @return NULL if not found or a valid pointer.

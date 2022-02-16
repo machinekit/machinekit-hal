@@ -7,4 +7,3 @@ license "GPL";
 int testdefine;
 
 FUNCTION(_) { out = testdefine; }
-

@@ -27,4 +27,3 @@ start
 #loadusr -Wn halsampler halsampler -N halsampler -n 2000
 # - Machinekit-HAL
 loadusr -w halsampler -n $(NUMSAMPS_X4)
-

@@ -11,8 +11,8 @@
     initially display the pin/signal/parameter <name>, otherwise it
     will initially display nothing.
 */
-/* Added ability to specify initial window positon on command line 
-    -g Xposition Yposiion    Chris Morley June 2009 
+/* Added ability to specify initial window positon on command line
+    -g Xposition Yposiion    Chris Morley June 2009
 */
 
 /** Copyright (C) 2003 John Kasunich
@@ -160,7 +160,7 @@ int main(int argc, gchar * argv[])
     /* process my own command line args (if any) here */
     small = 0;
     n = 1;
-    while ( argc > n ) {  
+    while ( argc > n ) {
         if ( strcmp (argv[n], "-g") == 0 ) {
             /* This sets up the variables for initial position of window*/
             /* The last check is for the optional width request*/
@@ -173,13 +173,13 @@ int main(int argc, gchar * argv[])
             if ( argc > n ){
                 strcpy(buf,argv[n]);
                 for (i=0; i< strlen(argv[n]); i++) {
-                    if (isdigit(buf[i]) == 0) { break; } 
+                    if (isdigit(buf[i]) == 0) { break; }
                 }
                 if (strlen(argv[n]) == i){
                     width =  atoi(argv[n]);
                     n++;
                 }
-            } 
+            }
 	    }
         if ((argc > n) && ( strcmp (argv[n], "-s") == 0 )) {
 	        small = 1;
@@ -207,8 +207,8 @@ int main(int argc, gchar * argv[])
 	            } else {
 	                printf(_("ERROR: no pin/signal/parameter name\n"));
 	                return -1;
-	            }	
-        }     
+	            }
+        }
     }
     if ((initial_name == NULL) && (small == 1)) {
         printf(_("ERROR: -s option requires a probe type and a pin/signal/parameter name\n"));
@@ -764,7 +764,7 @@ static void close_selection(GtkWidget * widget, gpointer data)
     probe = (probe_t *) data;
     /* destroy the window, hiding it causes problems when showing again */
     // it wouldn't always switch to the same tab, which causes confusion
-    // we need to rebuild the lists anyways, 
+    // we need to rebuild the lists anyways,
     // so rebuilding it doesn't take that longer
     gtk_widget_destroy(probe->window);
 }
@@ -793,13 +793,13 @@ static void selection_made(GtkWidget * clist, gint row, gint column,
             close_selection(GTK_WIDGET(probe->window), probe);
         }
         return;
-    } 
+    }
 
 }
 
 static void page_switched(GtkNotebook *notebook, GtkNotebookPage *page,
 		guint page_num, gpointer user_data)
 {
-	// update the listnum in probe data, because 
+	// update the listnum in probe data, because
 	((probe_t *)user_data)->listnum=page_num;
 }

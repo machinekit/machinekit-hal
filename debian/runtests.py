@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 #####################################################################
 # Description:  runtests.py
@@ -103,7 +102,7 @@ class Build():
             self.build_directory = self.build_directory.resolve()
         if not self.build_directory.is_dir():
             self.build_directory.mkdir()  # Throws in case Path is another object
-            
+
         self.parallel_jobs = parallel_jobs
 
     def disable_zeroconf(self) -> None:
@@ -187,7 +186,7 @@ class Build():
 
     def build(self,
               target: str = None,
-              sudo: bool = False) -> None: 
+              sudo: bool = False) -> None:
 
         build_additional = list()
         if target is not None:
@@ -402,7 +401,7 @@ if __name__ == "__main__":
     parser.add_argument("--no-python-tests",
                         action="store_true",
                         help="Do not run python tests")
-    
+
     parser.add_argument("-j",
                         "--jobs",
                         dest="jobs",

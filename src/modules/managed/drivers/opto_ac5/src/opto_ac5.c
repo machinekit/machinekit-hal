@@ -85,17 +85,17 @@ int rtapi_app_main(void)
     if (driver.comp_id < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR, " ERROR OPTO_AC5--- hal_init() failed\n");
 	return(-1);
-    }	
+    }
     for ( n = 0 ; n < MAX_BOARDS ; n++ ) {
 	driver.boards[n] = NULL;
     }
     pDev = NULL;
-    for ( n = 0 ; n < MAX_BOARDS ; n++ ) 
+    for ( n = 0 ; n < MAX_BOARDS ; n++ )
     {
 	// Find a M5I20 card.
 	pDev = pci_get_device(opto22_VENDOR_ID, opto22_pci_AC5_DEVICE_ID, pDev);
 	if ( pDev == NULL ) { /* no more boards */break;}
-	
+
 
 	/* Allocate HAL memory for the board */
 	pboard = (board_data_t *)(hal_malloc(sizeof(board_data_t)));
@@ -136,23 +136,23 @@ int rtapi_app_main(void)
 	    hal_exit(driver.comp_id);
 	    return(-1);
 	}
-	
+
     }
-    
+
     if(n == 0){
 	/* No cards detected */
 	rtapi_print ("ERROR OPTO_AC5---  No opto PCI-AC5 card(s) detected\n");
 	rtapi_app_exit();
 	return(-1);
     	}
-	
+
     hal_ready(driver.comp_id);
     return(0);
 }
 
 // here we turn the leds and outputs off and unmap the pci driver
 void rtapi_app_exit(void)
-{ 
+{
   	int n;
 	board_data_t 	*pDevice;
 
@@ -160,7 +160,7 @@ void rtapi_app_exit(void)
 
 
     hal_exit(driver.comp_id);
-    for ( n = 0; n < MAX_BOARDS; n++ ) 
+    for ( n = 0; n < MAX_BOARDS; n++ )
 	{
 		if ( driver.boards[n] != NULL)
 		 {
@@ -168,7 +168,7 @@ void rtapi_app_exit(void)
 			writel(0XC0FFFFFF, driver.boards[n]->base + (DATA_WRITE_OFFSET_0));
 			writel(0XC0FFFFFF, driver.boards[n]->base + (DATA_WRITE_OFFSET_1));
 		   	// Unmap board memory
-			if ( driver.boards[n]->base != NULL ) 
+			if ( driver.boards[n]->base != NULL )
 			{
 				iounmap(driver.boards[n]->base);
 	   		}
@@ -187,8 +187,8 @@ static int Device_Init(board_data_t *pboard)
 {
 
  // Initialize hardware.
-// portconfig[0 or 1] are either the default number from global or mapped from the command line 
-// make sure last two bits are set for output so leds will work 
+// portconfig[0 or 1] are either the default number from global or mapped from the command line
+// make sure last two bits are set for output so leds will work
 
 	if ((portconfig0 & 0x80000000) ==0) { 	portconfig0 |=0x80000000;	}
 	if ((portconfig0 & 0x40000000) ==0) { 	portconfig0 |=0x40000000;	}
@@ -198,10 +198,10 @@ static int Device_Init(board_data_t *pboard)
 	writel(portconfig1, pboard->base + (CONFIG_WRITE_OFFSET_1));
 
  // Initialize digital I/O structure mask.
-    
+
 	pboard->port[0].mask = portconfig0;
 	pboard->port[1].mask = portconfig1;
-    
+
     return(0);
 }
 
@@ -263,7 +263,7 @@ static int Device_ExportDigitalInPinsParametersFunctions(board_data_t *this, int
 			mask <<=1;
 		   }
 
-		   portnum ++;	
+		   portnum ++;
 	 	}
 
     // Export functions.
@@ -293,7 +293,7 @@ static int Device_ExportDigitalOutPinsParametersFunctions(board_data_t *this, in
     char				name[HAL_NAME_LEN + 1];
 
     // Export pins and parameters.
-    
+
 	while (portnum<2)
 		{
 		mask=1;
@@ -388,7 +388,7 @@ Device_DigitalInRead(void *arg, long period)
 
 // here we output data and update LEDS
 // we look at the mask of the first port to see which of the 24 io points are outputs (the bits that are true)
-// then check the OUT HAL pins to see if output should be on and if it should - OR the bit (using 'mask') to the variable 'pins' 
+// then check the OUT HAL pins to see if output should be on and if it should - OR the bit (using 'mask') to the variable 'pins'
 // then set 'mask' to the last bit (32) and check the HAL led pin to see if true- OR the bit to 'pins' if it is
 // set 'mask to second to second to last bit (31) do the same
 // have to remember that a 1 sent to the hardware turns an output OFF
@@ -422,7 +422,7 @@ Device_DigitalOutWrite(void *arg, long period)
 					 {	pins |= mask;	    }
 				}
 	   			 mask <<=1; // shift mask
-				
+
 			}
 
 			// CHECK LED PINS
@@ -431,8 +431,8 @@ Device_DigitalOutWrite(void *arg, long period)
 				{
 			 		mask=1<<(31-i);
 					pDigital++;
-				
-					if ( *(pDigital->pValue) ==0 ) {	pins |= mask;	    }	
+
+					if ( *(pDigital->pValue) ==0 ) {	pins |= mask;	    }
 				}
 			// Write digital I/O register.
 			writel(pins,pboard->base + (offset));
@@ -440,4 +440,3 @@ Device_DigitalOutWrite(void *arg, long period)
 			offset=DATA_WRITE_OFFSET_1; // set to port1 offset
    		 }
 }
-

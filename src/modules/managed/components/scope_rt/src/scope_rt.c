@@ -367,7 +367,7 @@ static int check_trigger(void)
 	break;
     case HAL_U64:
 	compare_result = (value->d_u64 > level->d_u64);
-	break;	
+	break;
     default:
 	compare_result = 0;
 	break;

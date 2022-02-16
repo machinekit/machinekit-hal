@@ -38,7 +38,7 @@ int hm2_adc_setup(hostmot2_t *hm2) {
     if (hm2->config.enable_adc == 0) {
         return 0;
     }
-    
+
     hm2->nano_soc_adc = (de0_nano_soc_adc_t *)hal_malloc(sizeof(de0_nano_soc_adc_t));
     if (hm2->nano_soc_adc == NULL) {
         HM2_ERR("out of memory!\n");
@@ -74,14 +74,14 @@ void de0_nano_soc_adc_read(hostmot2_t *hm2) {
     u32 start_reg = 0x0101;
 
 	 if (hm2->config.enable_adc == 0) return;
-	 
+
     hm2->llio->read(
         hm2->llio,
         DE0_NANO_SOC_ADC_BASE,
         &val,
         sizeof(u32)
     );
-    if (val & 1){ 
+    if (val & 1){
     /* insert dummy read of first sample */
 //        hm2->llio->read(
 //            hm2->llio,
@@ -89,7 +89,7 @@ void de0_nano_soc_adc_read(hostmot2_t *hm2) {
 //            (void *)hm2->nano_soc_adc->hal.pin.sample[0],
 //            sizeof(u32)
 //        );
-	 
+
 	    for(i=0;i<NUM_ADC_SAMPLES;i=i+1){
                 hm2->llio->read(
                 hm2->llio,

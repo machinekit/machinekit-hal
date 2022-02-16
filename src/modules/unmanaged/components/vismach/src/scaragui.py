@@ -96,7 +96,7 @@ tool = Collection([
 	CylinderZ(tool_len, tool_radius, tool_dia, tool_radius),
 	CylinderZ(tool_dia, tool_radius, 0.0, 0.0)])
 # translate so origin is at base of tool, not the tip
-tool = Translate([tool],0.0,0.0,-tool_len)	
+tool = Translate([tool],0.0,0.0,-tool_len)
 # the tool might not be pointing straight down
 tool = Rotate([tool],tool_angle,0.0,-1.0,0.0)
 # make joint 3 rotate
