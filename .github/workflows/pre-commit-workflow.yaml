@@ -70,5 +70,12 @@ jobs:
         with:
           python-version: '3.10'
 
+      - name: >
+          Skip the 'no-commit-to-branch' on merge
+          to the 'master' branch
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        run: |
+          echo "SKIP=no-commit-to-branch" >> $GITHUB_ENV
+
       - name: Run the Pre-Commit gith hooks manager
         uses: pre-commit/action@v2.0.3
