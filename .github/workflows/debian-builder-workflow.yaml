@@ -538,13 +538,14 @@ jobs:
           run Runtests
         if: matrix.architecture == 'amd64'
         run: |
-          docker run --tty --rm -u "$(id -u):$(id -g)" \
+          docker run --tty --rm -u "$(id -u):$(id -g)"  \
             -v "$(pwd):/home/machinekit/machinekit-hal" \
-            -w "/home/machinekit/machinekit-hal" \
-            ${DOCKER_IMAGE} \
+            -w "/home/machinekit/machinekit-hal"        \
+            --cap-add=sys_nice                          \
+            ${DOCKER_IMAGE}                             \
             /bin/bash -c "
             #!/bin/bash -e
-            sudo apt-get install -y \
+            sudo apt-get install -y                 \
               /home/machinekit/machinekit-hal/*.deb
             echo "ANNOUNCE_IPV4=0" | sudo tee -a /etc/machinekit/hal/machinekit.ini
             echo "ANNOUNCE_IPV6=0" | sudo tee -a /etc/machinekit/hal/machinekit.ini
