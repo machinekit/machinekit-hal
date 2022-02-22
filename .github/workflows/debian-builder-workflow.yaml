@@ -387,7 +387,7 @@ jobs:
         run: |
           if [ "${{ needs.prepareState.outputs.BuildDockerImages }}" == "true" ]
           then
-            debian/buildcontainerimage.py -d ${IMAGE_NAME_PREFIX} \
+            debian/buildcontainerimage.py -r ${IMAGE_NAME_PREFIX} \
                                           ${DISTRIBUTION}         \
                                           ${VERSION}              \
                                           ${ARCHITECTURE}
@@ -517,12 +517,12 @@ jobs:
           ${{ matrix.osVersionCodename}}
         if: matrix.architecture == 'amd64'
         run: |
-          debian/buildcontainerimage.py -d ${IMAGE_NAME_PREFIX} \
+          debian/buildcontainerimage.py -r ${IMAGE_NAME_PREFIX} \
                                            ${DISTRIBUTION}      \
                                            ${VERSION}           \
                                            ${ARCHITECTURE}      \
                                         -t ${BUILD_TARGET}      \
-                                           ${IMAGE_NAME}
+                                        -d ${IMAGE_NAME}
         env:
           IMAGE_NAME_PREFIX: 'docker.pkg.github.com/${{ github.repository }}'
           DISTRIBUTION: ${{ matrix.osDistribution}}
@@ -602,7 +602,7 @@ jobs:
         run: |
           if [ "${{ needs.prepareState.outputs.BuildDockerImages }}" == "true" ]
           then
-            debian/buildcontainerimage.py -d ${IMAGE_NAME_PREFIX} \
+            debian/buildcontainerimage.py -r ${IMAGE_NAME_PREFIX} \
                                              ${DISTRIBUTION}      \
                                              ${VERSION}           \
                                              ${ARCHITECTURE}
@@ -690,7 +690,7 @@ jobs:
           Build the docker image for ${{ matrix.osDistribution }}
           ${{ matrix.osVersionCodename}}, ${{ matrix.architecture }} Builder
         run: |
-          debian/buildcontainerimage.py -d ${IMAGE_NAME_PREFIX} \
+          debian/buildcontainerimage.py -r ${IMAGE_NAME_PREFIX} \
                                            ${DISTRIBUTION}      \
                                            ${VERSION}           \
                                            ${ARCHITECTURE}
