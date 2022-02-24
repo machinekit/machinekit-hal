@@ -13,6 +13,10 @@
 <img alt="Github Actions build status" src="https://img.shields.io/github/workflow/status/machinekit/machinekit-hal/Check the codebase for formatting and linting violations/master?style=for-the-badge&logo=github" />
 </a>
 
+<a href="https://app.circleci.com/pipelines/github/machinekit/machinekit-hal" target="_blank">
+<img alt="Circle CI build status" src="https://img.shields.io/circleci/build/github/machinekit/machinekit-hal?logoColor=circle&style=for-the-badge&logo=circleci" />
+</a>
+
 <a href="https://cloud.drone.io/machinekit/machinekit-hal" target="_blank">
 <img alt="Drone Cloud build status" src="https://img.shields.io/drone/build/machinekit/machinekit-hal/master?style=for-the-badge&logo=drone" />
 </a>

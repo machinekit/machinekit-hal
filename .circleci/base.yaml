@@ -1,0 +1,329 @@
+#####################################################################
+# Description:  base.yaml
+#
+#               This file, 'base.yaml', implements the base parts used
+#               for dynamic configuration for Circle CI/CD workflow
+#               service for Machinekit-HAL code source-tree.
+#
+# Copyright (C) 2022 -     Jakub Fišer <jakub DOT fiser AT eryaf DOT com>
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+#
+######################################################################
+
+version: 2.1
+
+# TODO: How to merge keys and override inside elements?
+distribution_name: &distribution_name
+  description: |
+    Name of the Debian-like distribution to use as target
+  type: string
+
+distribution_version: &distribution_version
+  description: |
+    Version of the distribution release to use as target
+  type: string
+
+target_architecture: &target_architecture
+  description: |
+    Target architecture for which to build the builder
+  type: string
+
+image_target: &image_target
+  description: Dockerfile target which to build
+  type: string
+  default: ''
+
+image_name: &image_name
+  description: Pertinent docker image name
+  type: string
+  default: ''
+
+working_directory: &working_directory
+  description: Directory to mount in the container
+  type: string
+
+repository_path: &repository_path
+  description: Path to the Machinekit-HAL repository root
+  type: string
+
+label: &label
+  description: Description to show in the webapp
+  type: string
+
+executor: &executor
+  description: Machine executor class to run the job in
+  type: string
+
+executors:
+  basic-arm64:
+    machine:
+      image: ubuntu-2004:202201-01
+      #docker_layer_caching: true   # Seems like too expensive option
+                                    # per run with limited storage time
+                                    # (The cost for DLC is higher than
+                                    # the cost of building the image
+                                    # on per run basis)
+    resource_class: arm.medium
+    working_directory: ~/run
+  basic-amd64:
+    machine:
+      image: ubuntu-2004:202201-01
+      #docker_layer_caching: true   # Seems like too expensive option
+                                    # per run with limited storage time
+                                    # (The cost for DLC is higher than
+                                    # the cost of building the image
+                                    # on per run basis)
+    resource_class: medium
+    working_directory: ~/run
+
+commands:
+  identify-runner:
+    description: Identify hardware of the CI runner
+    steps:
+      - run:
+          name: Identify hardware of the CI runner
+          command: uname -a
+  install-sh:
+    description: Install the SH Python package
+    steps:
+      - run:
+          name: Install the SH Python package
+          command: python3 -m pip install sh
+  build-mkhb-image:
+    description: Build Machinekit-HAL builder Docker image
+    parameters:
+      distribution_name:
+        <<: *distribution_name
+      distribution_version:
+        <<: *distribution_version
+      target_architecture:
+        <<: *target_architecture
+      image_target:
+        <<: *image_target
+      image_name:
+        <<: *image_name
+      repository_path:
+        <<: *repository_path
+
+      label:
+        <<: *label
+        default: >
+          Building the Machinekit-HAL builder image << parameters.image_target >>
+          for targeting << parameters.distribution_name >>, << parameters.distribution_version >>
+          on << parameters.target_architecture >> with name << parameters.image_name >>
+    steps:
+      - run:
+          name: << parameters.label >>
+          command: |
+            image_target=''
+            image_name=''
+            if [[ '<< parameters.image_target >>' != '' ]]
+            then
+              image_target='-t << parameters.image_target >>'
+            fi
+            if [[ '<< parameters.image_name >>' != '' ]]
+            then
+              image_name='-d << parameters.image_name >>'
+            fi
+            ./debian/buildcontainerimage.py                                    \
+            << parameters.distribution_name >>                                 \
+            << parameters.distribution_version >>                              \
+            << parameters.target_architecture >> ${image_target} ${image_name}
+          working_directory: << parameters.repository_path >>
+  run-in-mkhb-container:
+    description: Run command in Machinekit-HAL builder container
+    parameters:
+      image_name:
+        <<: *image_name
+      working_directory:
+        <<: *working_directory
+      command:
+        description: Command to run in the Docker container
+        type: string
+      capabilities:
+        description: >
+          List of capabilities delimited by a comma which the container
+          should have
+        type: string
+        default: ''
+      label:
+        <<: *label
+        default: >
+          Execute command '<< parameters.command >>' in container
+          created from image << parameters.image_name >>
+    steps:
+      - run:
+          name: << parameters.label >>
+          command: |
+            docker_capabilities=''
+            if [[ '<< parameters.capabilities >>' != '' ]]
+            then
+              docker_capabilities='--cap-add=<< parameters.capabilities >>'
+            fi
+            docker run --tty --rm -u "$(id -u):$(id -g)"         \
+            -v "$(pwd):/home/machinekit/run"                     \
+            -w "/home/machinekit/run"                            \
+            ${docker_capabilities}                               \
+            << parameters.image_name >> << parameters.command >>
+          working_directory: << parameters.working_directory >>
+  prepare-debian-artifacts:
+    description:
+    parameters:
+      repository_path:
+        <<: *repository_path
+      output_directory:
+        description: >
+          Directory path where the prepared Debian packages should
+          be copied to
+        type: string
+    steps:
+      - run:
+          name: Prepare build artifact for upload
+          command: |
+            mkdir -p << parameters.output_directory >>
+            find $(pwd) -maxdepth 1 -mindepth 1 -type f -not \(                                           \
+            -path "." -or -path '$(pwd)' -or -path '$(pwd)/<< parameters.repository_path >>' \) -print0 | \
+            xargs -0 -t -I '{}' cp -r -v '{}'                                                             \
+            << parameters.output_directory >>
+          working_directory: << parameters.repository_path >>/..
+
+
+jobs:
+  buildMachinekitHALPackages:
+    executor: << parameters.executor >>
+    parameters:
+      executor:
+        <<: *executor
+      distribution_name:
+        <<: *distribution_name
+      distribution_version:
+        <<: *distribution_version
+      target_architecture:
+        <<: *target_architecture
+    steps:
+      - identify-runner
+      - checkout:
+          path: machinekit-hal
+      - install-sh
+      - build-mkhb-image:
+          repository_path: machinekit-hal
+          distribution_name: << parameters.distribution_name >>
+          distribution_version: << parameters.distribution_version >>
+          target_architecture: << parameters.target_architecture >>
+          image_name: machinekit-hal-builder:latest
+      - run-in-mkhb-container:
+          label: Bootstrap Machinekit-HAL repository
+          command: debian/bootstrap
+          working_directory: machinekit-hal
+          image_name: machinekit-hal-builder:latest
+      - run-in-mkhb-container:
+          label: Configure Machinekit-HAL repository
+          command: debian/configure.py -c
+          working_directory: machinekit-hal
+          image_name: machinekit-hal-builder:latest
+      - run-in-mkhb-container:
+          label: Build Debian packages from Machinekit-HAL repository
+          command: machinekit-hal/debian/buildpackages.py --path ./machinekit-hal
+          image_name: machinekit-hal-builder:latest
+          working_directory: '.'
+      - prepare-debian-artifacts:
+          repository_path: machinekit-hal
+          output_directory: ~/storage/machinekit-hal-packages-<< parameters.distribution_name >>-<< parameters.distribution_version >>-<< parameters.target_architecture >>
+      - persist_to_workspace:
+          root: ~/storage
+          paths:
+            - machinekit-hal-packages-<< parameters.distribution_name >>-<< parameters.distribution_version >>-<< parameters.target_architecture >>
+      - store_artifacts:
+          path: ~/storage/machinekit-hal-packages-<< parameters.distribution_name >>-<< parameters.distribution_version >>-<< parameters.target_architecture >>
+          destination: machinekit-hal-packages-<< parameters.distribution_name >>-<< parameters.distribution_version >>-<< parameters.target_architecture >>
+
+  testMachinekitHALPackages:
+    executor: << parameters.executor >>
+    parameters:
+      executor:
+        <<: *executor
+      distribution_name:
+        <<: *distribution_name
+      distribution_version:
+        <<: *distribution_version
+      target_architecture:
+        <<: *target_architecture
+    steps:
+      - identify-runner
+      - checkout:
+          path: machinekit-hal
+      - attach_workspace:
+          at: ~/storage
+      - install-sh
+      - build-mkhb-image:
+          label: >
+            Build the runner for installing Machinekit-HAL and run runtests
+            for << parameters.distribution_name >> << parameters.distribution_version >>
+            << parameters.target_architecture >>
+          distribution_name: << parameters.distribution_name >>
+          distribution_version: << parameters.distribution_version >>
+          target_architecture: << parameters.target_architecture >>
+          image_name: machinekit-hal-runner
+          image_target: machinekit-hal_builder_base
+          repository_path: machinekit-hal
+      - run-in-mkhb-container:
+          label: >
+            Install Machinekit-HAL << parameters.distribution_name >> package for
+            << parameters.distribution_version >>, << parameters.target_architecture >> and
+            run Runtests
+          command: |
+            /bin/bash -c "
+              #!/bin/bash -e
+              sudo apt-get install -y  ./*.deb
+              echo "ANNOUNCE_IPV4=0" | sudo tee -a /etc/machinekit/hal/machinekit.ini
+              echo "ANNOUNCE_IPV6=0" | sudo tee -a /etc/machinekit/hal/machinekit.ini
+              run_runtests -v
+            "
+          image_name: machinekit-hal-runner
+          capabilities: sys_nice
+          working_directory: ~/storage/machinekit-hal-packages-<< parameters.distribution_name >>-<< parameters.distribution_version >>-<< parameters.target_architecture >>
+
+  buildDebianVersionAndRunTestsuites:
+    executor: << parameters.executor >>
+    parameters:
+      executor:
+        <<: *executor
+      distribution_name:
+        <<: *distribution_name
+      distribution_version:
+        <<: *distribution_version
+      target_architecture:
+        <<: *target_architecture
+    steps:
+      - identify-runner
+      - checkout:
+          path: machinekit-hal
+      - install-sh
+      - build-mkhb-image:
+          repository_path: machinekit-hal
+          distribution_name: << parameters.distribution_name >>
+          distribution_version: << parameters.distribution_version >>
+          target_architecture: << parameters.target_architecture >>
+          image_name: machinekit-hal-builder:latest
+      - run-in-mkhb-container:
+            label: >
+              Execute the Machinekit-HAL testing suites for << parameters.distribution_name >>
+              << parameters.distribution_version >>, << parameters.target_architecture >>
+            command: |
+              debian/runtests.py -p . -b ./build -g N -c Debug Release RelWithDebInfo
+            image_name: machinekit-hal-builder:latest
+            capabilities: sys_nice
+            working_directory: machinekit-hal

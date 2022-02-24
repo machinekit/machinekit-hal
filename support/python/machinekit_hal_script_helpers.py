@@ -57,6 +57,10 @@ class NormalizeMachinekitHALPath():
     def __init__(self, path: Union[pathlib.Path, str]):
         self.path = path if isinstance(
             path, pathlib.Path) else pathlib.Path(path)
+
+        if self.path.is_file():
+            self.path = self.path.parent
+
         self.root_path: pathlib.Path = None
 
     def version_file_valid(self) -> bool:

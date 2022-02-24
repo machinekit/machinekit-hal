@@ -387,7 +387,7 @@ jobs:
         run: |
           if [ "${{ needs.prepareState.outputs.BuildDockerImages }}" == "true" ]
           then
-            debian/buildcontainerimage.py -d ${IMAGE_NAME_PREFIX} \
+            debian/buildcontainerimage.py -r ${IMAGE_NAME_PREFIX} \
                                           ${DISTRIBUTION}         \
                                           ${VERSION}              \
                                           ${ARCHITECTURE}
@@ -517,12 +517,12 @@ jobs:
           ${{ matrix.osVersionCodename}}
         if: matrix.architecture == 'amd64'
         run: |
-          debian/buildcontainerimage.py -d ${IMAGE_NAME_PREFIX} \
+          debian/buildcontainerimage.py -r ${IMAGE_NAME_PREFIX} \
                                            ${DISTRIBUTION}      \
                                            ${VERSION}           \
                                            ${ARCHITECTURE}      \
                                         -t ${BUILD_TARGET}      \
-                                           ${IMAGE_NAME}
+                                        -d ${IMAGE_NAME}
         env:
           IMAGE_NAME_PREFIX: 'docker.pkg.github.com/${{ github.repository }}'
           DISTRIBUTION: ${{ matrix.osDistribution}}
@@ -538,13 +538,14 @@ jobs:
           run Runtests
         if: matrix.architecture == 'amd64'
         run: |
-          docker run --tty --rm -u "$(id -u):$(id -g)" \
+          docker run --tty --rm -u "$(id -u):$(id -g)"  \
             -v "$(pwd):/home/machinekit/machinekit-hal" \
-            -w "/home/machinekit/machinekit-hal" \
-            ${DOCKER_IMAGE} \
+            -w "/home/machinekit/machinekit-hal"        \
+            --cap-add=sys_nice                          \
+            ${DOCKER_IMAGE}                             \
             /bin/bash -c "
             #!/bin/bash -e
-            sudo apt-get install -y \
+            sudo apt-get install -y                 \
               /home/machinekit/machinekit-hal/*.deb
             echo "ANNOUNCE_IPV4=0" | sudo tee -a /etc/machinekit/hal/machinekit.ini
             echo "ANNOUNCE_IPV6=0" | sudo tee -a /etc/machinekit/hal/machinekit.ini
@@ -602,7 +603,7 @@ jobs:
         run: |
           if [ "${{ needs.prepareState.outputs.BuildDockerImages }}" == "true" ]
           then
-            debian/buildcontainerimage.py -d ${IMAGE_NAME_PREFIX} \
+            debian/buildcontainerimage.py -r ${IMAGE_NAME_PREFIX} \
                                              ${DISTRIBUTION}      \
                                              ${VERSION}           \
                                              ${ARCHITECTURE}
@@ -690,7 +691,7 @@ jobs:
           Build the docker image for ${{ matrix.osDistribution }}
           ${{ matrix.osVersionCodename}}, ${{ matrix.architecture }} Builder
         run: |
-          debian/buildcontainerimage.py -d ${IMAGE_NAME_PREFIX} \
+          debian/buildcontainerimage.py -r ${IMAGE_NAME_PREFIX} \
                                            ${DISTRIBUTION}      \
                                            ${VERSION}           \
                                            ${ARCHITECTURE}

@@ -109,7 +109,7 @@ class Buildcontainerimage_script():
                         return True
         return False
 
-    def build_docker_image(self: object, target, designation, specific_name, network) -> None:
+    def build_docker_image(self: object, target, registry, specific_name, network) -> None:
         if any(tested is None for tested in [self.armed_docker_base_image,
                                              self.armed_image_architecture,
                                              self.armed_os_version,
@@ -123,8 +123,8 @@ class Buildcontainerimage_script():
                                                               f"{self.armed_image_architecture}_{self.armed_os_version}")
         else:
             docker_tag = specific_name
-        if designation is not None:
-            docker_tag = f"{designation.rstrip('/')}/{docker_tag}"
+        if registry is not None:
+            docker_tag = f"{registry.rstrip('/')}/{docker_tag}"
         docker_build_arguments = [
             "--build-arg", f"DEBIAN_DISTRO_BASE={self.armed_docker_base_image}",
             "--build-arg", f"HOST_ARCHITECTURE={self.armed_image_architecture}"]
@@ -142,7 +142,7 @@ class Buildcontainerimage_script():
         ]
         docker_parameters = [
             "--file", f"{self.normalized_path}/debian/buildsystem/Dockerfile",
-            "--tag", f"{docker_tag}:latest"]
+            "--tag", f"{docker_tag}{':latest' if ':latest' not in docker_tag else ''}"]
         if target is not None:
             docker_parameters.extend(["--target", target])
         if network is not None:
@@ -160,6 +160,11 @@ class Buildcontainerimage_script():
 
 def main(args):
     """ Main entry point of the app """
+    # Patch argparse with logic to require secondary argument when needed
+    if args.target and args.designation is None:
+        parser.error("[-t, --target] requires specifying "
+                     "[-d, --designation] name of the image.")
+
     try:
         buildcontainerimage_script = Buildcontainerimage_script(args.path)
         buildcontainerimage_script.load_debian_distro_settings()
@@ -169,10 +174,10 @@ def main(args):
                 f"Wanted combination of {args.distribution} {args.version} "
                 f"{args.architecture} is not possible to be build.")
         buildcontainerimage_script.build_docker_image(
-            args.target[0] if args.target is not None else None,
+            args.target,
+            args.registry,
             args.designation,
-            args.target[1] if args.target is not None else None,
-            args.network if args.network is not None else None)
+            args.network,)
         print("Container image build ran successfully to completion!")
     except ValueError as e:
         print(e)
@@ -211,16 +216,23 @@ if __name__ == "__main__":
                         "--target",
                         action="store",
                         dest="target",
-                        nargs=2,
-                        metavar=("TARGET", "NAME"),
-                        help="Specific target to build and name of the image without prefix")
-    # Optional argument for a Docker image tag prefix
+                        metavar="TARGET",
+                        help="Specific target to build")
+    # Optional argument for a Docker registry prefix of image name
+    parser.add_argument("-r",
+                        "--registry",
+                        action="store",
+                        dest="registry",
+                        metavar="REGISTRY",
+                        help="Registry prefix to use when tagging the image")
+    # Optional argument for a Docker repository name of the image name
     parser.add_argument("-d",
                         "--designation",
                         action="store",
                         dest="designation",
-                        help="Prefix to use when tagging the image")
-    # Optional argument for a Docker image tag prefix
+                        metavar="DESIGNATION",
+                        help="Designation (image name) to use when tagging the image")
+    # Optional argument to specify network usage when building the image
     parser.add_argument("-n",
                         "--network",
                         action="store",
