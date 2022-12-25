@@ -57,6 +57,7 @@ Build-Depends:
     python3-pyftpdlib:native,
     python3-pip:native,
     python3-venv:native,
+    python3-virtualenv:native,
     libck-dev @BUILDTIME_DEPENDENCIES@
 #Build-conflicts: *linuxcnc
 Standards-Version: 4.5.1
