@@ -23,6 +23,12 @@
       "distributionCodename": "Hirsute",
       "baseImage": "ubuntu:hirsute",
       "releaseNumber": 21.04
+    },
+    {
+      "distributionID": "Ubuntu",
+      "distributionCodename": "Jammy",
+      "baseImage": "ubuntu:jammy",
+      "releaseNumber": 22.04
     }
   ],
   "allowedCombinations": [
@@ -47,7 +53,7 @@
       "architecture": "amd64"
     },
     {
-      "osVersionNumber": 21.04,
+      "osVersionNumber": 22.04,
       "architecture": "amd64"
     },
     {
@@ -63,7 +69,7 @@
       "architecture": "armhf"
     },
     {
-      "osVersionNumber": 21.04,
+      "osVersionNumber": 22.04,
       "architecture": "armhf"
     },
     {
@@ -79,7 +85,7 @@
       "architecture": "arm64"
     },
     {
-      "osVersionNumber": 21.04,
+      "osVersionNumber": 22.04,
       "architecture": "arm64"
     }
   ],
