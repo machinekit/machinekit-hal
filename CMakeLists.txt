@@ -106,6 +106,7 @@ list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/support/cmake/tools"
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CC_STANDARD 17)
+set(CMAKE_CXX_STANDARD 14)
 
 # TODO: Make a real effort at setting relevant flags
 set(CMAKE_C_FLAGS_DEBUG "-g -O0")
