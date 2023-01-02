@@ -64,6 +64,7 @@ RUN apt-get update &&                                                           
 RUN apt-get update &&                                                             \
     apt-get install -y                                                            \
         curl                                                                      \
+        wget                                                                      \
         apt-transport-https                                                       \
         lsb-release                                                               \
         ca-certificates &&                                                        \
@@ -118,13 +119,7 @@ RUN apt-get update &&       \
     apt-get clean;
 
 # Kitware is publishing pre-built binaries only for amd64 and arm64 architectures!
-RUN curl \
-    --connect-timeout 30 \
-    --max-time 30 \
-    --retry 30 \
-    --retry-delay 5 \
-    --retry-max-time 40 \
-    https://api.github.com/repos/kitware/cmake/releases/latest --output /tmp/parsefile --silent
+RUN until wget -O /tmp/parsefile "https://api.github.com/repos/kitware/cmake/releases/latest"; do sleep 60 ; done
 
 RUN curl -1vLf \
     $( jq -r --arg FILE "cmake-\d{1,}\.\d{1,}\.\d{1,}(-.{1,})?-linux-$(dpkg-architecture -qDEB_BUILD_GNU_CPU)\.sh" \
