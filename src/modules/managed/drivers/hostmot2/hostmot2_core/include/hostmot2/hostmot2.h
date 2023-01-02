@@ -38,7 +38,7 @@
 #include "hostmot2-lowlevel.h"
 
 #ifndef FIRMWARE_NAME_MAX
-    #define FIRMWARE_NAME_MAX  30
+    #define FIRMWARE_NAME_MAX  62
 #endif
 
 #define HM2_VERSION "0.15"

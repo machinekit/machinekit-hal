@@ -118,11 +118,11 @@ RUN apt-get update &&       \
     apt-get clean;
 
 # Kitware is publishing pre-built binaries only for amd64 and arm64 architectures!
-RUN curl -1vLf                                                                                                      \
-    $(curl -s https://api.github.com/repos/kitware/cmake/releases/latest |                                          \
+RUN curl -1vLf \
+    $(curl -s https://api.github.com/repos/kitware/cmake/releases/latest | \
         jq -r --arg FILE "cmake-\d{1,}\.\d{1,}\.\d{1,}(-.{1,})?-linux-$(dpkg-architecture -qDEB_BUILD_GNU_CPU)\.sh" \
-        '.assets | .[] | select(.name? | match($FILE)) | .browser_download_url')                                    \
-        --output /tmp/cmake.sh &&                                                                                   \
+        '.assets | .[] | select(.name? | match($FILE)) | .browser_download_url') \
+        --output /tmp/cmake.sh && \
     bash /tmp/cmake.sh --skip-license --prefix=/usr/local
 
 # Python 3.9 has --upgrade-deps, but lower versions need manual action
