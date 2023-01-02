@@ -118,10 +118,17 @@ RUN apt-get update &&       \
     apt-get clean;
 
 # Kitware is publishing pre-built binaries only for amd64 and arm64 architectures!
+RUN curl \
+    --connect-timeout 30 \
+    --max-time 30 \
+    --retry 30 \
+    --retry-delay 5 \
+    --retry-max-time 40 \
+    https://api.github.com/repos/kitware/cmake/releases/latest --output /tmp/parsefile --silent
+
 RUN curl -1vLf \
-    $(curl -s https://api.github.com/repos/kitware/cmake/releases/latest | \
-        jq -r --arg FILE "cmake-\d{1,}\.\d{1,}\.\d{1,}(-.{1,})?-linux-$(dpkg-architecture -qDEB_BUILD_GNU_CPU)\.sh" \
-        '.assets | .[] | select(.name? | match($FILE)) | .browser_download_url') \
+    $( jq -r --arg FILE "cmake-\d{1,}\.\d{1,}\.\d{1,}(-.{1,})?-linux-$(dpkg-architecture -qDEB_BUILD_GNU_CPU)\.sh" \
+        '.assets | .[] | select(.name? | match($FILE)) | .browser_download_url' /tmp/parsefile) \
         --output /tmp/cmake.sh && \
     bash /tmp/cmake.sh --skip-license --prefix=/usr/local
 
