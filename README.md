@@ -158,7 +158,7 @@ cmake --build ./build --config Debug
 sudo cmake --build ./build --config Debug --target setuid
 cmake --build ./build --config Debug --target binary_tree_venv
 cd build
-direnw allow
+direnv allow
 halrun
 ```
 
@@ -173,7 +173,7 @@ cmake --build ./build
 sudo cmake --build ./build --target setuid
 cmake --build ./build --target binary_tree_venv
 cd build
-direnw allow
+direnv allow
 halrun
 ```
 
