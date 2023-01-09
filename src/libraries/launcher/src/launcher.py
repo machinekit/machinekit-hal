@@ -1,10 +1,14 @@
+
+"""# Launcher python bindings
+# launch and stop processes
+"""
 import os
 import shlex
 import sys
 from time import *
 import subprocess
 import signal
-from machinekit.hal import compat
+from machinekit.hal import cycompat
 
 _processes = []
 _realtime_started = False
@@ -16,6 +20,7 @@ def end_session():
     stop_processes()
     if _realtime_started:  # Stop realtime only when explicitly started
         stop_realtime()
+"""# ends a running Machinekit session"""
 
 
 # checks wheter a single command is available or not
@@ -25,6 +30,7 @@ def check_command(command):
     if process.returncode != 0:
         print(command + ' not found, check Machinekit installation')
         sys.exit(1)
+"""# checks wheter a single command is available or not"""
 
 
 # checks the whole Machinekit installation
@@ -32,6 +38,7 @@ def check_installation():
     commands = ['realtime', 'configserver', 'halcmd', 'haltalk']
     for command in commands:
         check_command(command)
+"""# checks the whole Machinekit installation"""
 
 
 # checks for a running session and cleans it up if necessary
@@ -56,6 +63,7 @@ def cleanup_session():
             except OSError:
                 pass
         sys.stdout.write('done\n')
+"""# checks for a running session and cleans it up if necessary"""
 
 
 # starts a command, waits for termination and checks the output
@@ -64,6 +72,7 @@ def check_process(command):
     sys.stdout.flush()
     subprocess.check_call(command, shell=True)
     sys.stdout.write('done\n')
+"""# starts a command, waits for termination and checks the output"""
 
 
 # starts and registers a process
@@ -79,6 +88,7 @@ def start_process(command, check=True, wait=1.0):
             raise subprocess.CalledProcessError(process.returncode, command, None)
     _processes.append(process)
     sys.stdout.write('done\n')
+"""# starts and registers a process"""
 
 
 # stops a registered process by its name
@@ -91,6 +101,7 @@ def stop_process(command):
             os.killpg(process.pid, signal.SIGTERM)
             process.wait()
             sys.stdout.write('done\n')
+"""# stops a registered process by its name"""
 
 
 # stops all registered processes
@@ -101,6 +112,7 @@ def stop_processes():
         os.killpg(process.pid, signal.SIGTERM)
         process.wait()
         sys.stdout.write('done\n')
+"""# stops all registered processes"""
 
 
 # loads a HAL configuration file
@@ -110,14 +122,15 @@ def load_hal_file(filename, ini=None):
 
     _, ext = os.path.splitext(filename)
     if ext == '.py':
-        from machinekit import rtapi
+        from machinekit.hal.cyruntime import rtapi
 
         if not rtapi.__rtapicmd:
             rtapi.init_RTAPI()
         if ini is not None:
-            from machinekit import config
+            #from machinekit import config
 
-            config.load_ini(ini)
+            #config.load_ini(ini)
+            ini = machinekit_hal_ini_file
         with open(filename, 'r') as f:
             data = compile(f.read(), filename, 'exec')
             globals_ = {}
@@ -148,7 +161,7 @@ def install_comp(filename):
     if mk_module_dir and os.path.exists(mk_module_dir):
         module_dir = mk_module_dir
     else:
-        module_dir = compat.get_rtapi_config("RTLIB_DIR")
+        module_dir = cycompat.get_rtapi_config("RTLIB_DIR")
     module_path = os.path.join(module_dir, 'modules', f'{base}.so')
     if os.path.exists(module_path):
         comp_time = os.path.getmtime(filename)
@@ -260,6 +273,7 @@ def _exit_handler(signum, frame):
 # set the Machinekit debug level
 def set_debug_level(level):
     os.environ['DEBUG'] = str(level)
+"""# set the Machinekit debug level"""
 
 
 # set the Machinekit ini

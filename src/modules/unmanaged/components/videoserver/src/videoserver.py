@@ -8,8 +8,8 @@ import socket
 import argparse
 from six.moves import configparser
 
-from machinekit import service
-from machinekit import config
+from machinekit.hal import service
+#from machinekit import config
 
 
 MJPG_STREAMER_PLUGIN_PATH = "/usr/local/lib/mjpg-streamer/"
@@ -191,10 +191,10 @@ def main():
 
     debug = args.debug
 
-    mkconfig = config.Config()
+    #mkconfig = config.Config()
     mkini = os.getenv("MACHINEKIT_INI")
     if mkini is None:
-        mkini = mkconfig.MACHINEKIT_INI
+        mkini = machinekit_hal_ini_file
     if not os.path.isfile(mkini):
         sys.stderr.write("MACHINEKIT_INI " + mkini + " does not exist\n")
         sys.exit(1)
