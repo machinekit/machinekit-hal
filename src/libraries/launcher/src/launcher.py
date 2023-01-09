@@ -8,7 +8,7 @@ import sys
 from time import *
 import subprocess
 import signal
-from machinekit.hal import cycompat
+from machinekit.hal.cycompat import compat
 
 _processes = []
 _realtime_started = False
@@ -161,7 +161,7 @@ def install_comp(filename):
     if mk_module_dir and os.path.exists(mk_module_dir):
         module_dir = mk_module_dir
     else:
-        module_dir = cycompat.get_rtapi_config("RTLIB_DIR")
+        module_dir = compat.get_rtapi_config("RTLIB_DIR")
     module_path = os.path.join(module_dir, 'modules', f'{base}.so')
     if os.path.exists(module_path):
         comp_time = os.path.getmtime(filename)

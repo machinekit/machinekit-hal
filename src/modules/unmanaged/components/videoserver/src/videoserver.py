@@ -8,7 +8,7 @@ import socket
 import argparse
 from six.moves import configparser
 
-from machinekit.hal import service
+from machinekit.hal.service import service
 #from machinekit import config
 
 
