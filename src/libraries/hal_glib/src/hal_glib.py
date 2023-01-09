@@ -137,7 +137,7 @@ class GRemotePin(gobject.GObject):
 
 def enum(*sequential, **named):
     enums = dict(zip(sequential, range(len(sequential))), **named)
-    reverse = dict((value, key) for key, value in enums.iteritems())
+    reverse = dict((value, key) for key, value in enums.items())
     enums['reverse_mapping'] = reverse
     return type('Enum', (), enums)
 
@@ -226,7 +226,7 @@ class GServiceResolver(gobject.GObject):
 
     def start(self):
         # start resolution for the missing URI's
-        for key, uri in self.services.iteritems():
+        for key, uri in self.services.items():
             if not uri:
                 if self.remote:
                     if not self.sda:
@@ -407,7 +407,7 @@ class GRemoteComponent(gobject.GObject):
         self.tx.type = MT_HALRCOMP_BIND
         c = self.tx.comp.add()
         c.name = self.name
-        for pin_name,pin in self.pinsbyname.iteritems():
+        for pin_name,pin in self.pinsbyname.items():
             p = c.pin.add()
             p.name = self.name +  "." + pin_name
             p.type = pin.get_type()
