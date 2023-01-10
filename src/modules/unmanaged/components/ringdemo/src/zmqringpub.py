@@ -19,7 +19,7 @@
 import os,sys
 import time
 import zmq
-import machinekit.hal.cyhal as hal
+import machinekit.hal.pyhal as hal
 
 def main():
     debug = 1
