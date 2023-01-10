@@ -137,7 +137,7 @@ cdef char ** _to_argv(args):
 
 import sys
 import os
-import machinekit.hal.pyhal as hal
+import machinekit.hal.cyhal as hal
 import configparser
 
 # enums for classify_comp
