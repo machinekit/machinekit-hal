@@ -4,7 +4,7 @@
 # HAL internals introspection - the hal_data descriptor
 # and shared memory heap
 
-import machinekit.hal.cyhal as hal
+import machinekit.hal.pyhal as hal
 
 hd = hal.HALData()
 hd.heap_flags = -1 # log RTAPI malloc/free operations

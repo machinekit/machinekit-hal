@@ -9,8 +9,8 @@ import time
 import argparse
 from six.moves import configparser
 
-from machinekit import service
-from machinekit import config
+from machinekit.hal.service import service
+#from machinekit import config
 
 from google.protobuf.message import DecodeError
 from machinetalk.protobuf.message_pb2 import Container
@@ -252,10 +252,10 @@ def main():
 
     debug = args.debug
 
-    mkconfig = config.Config()
+    #mkconfig = config.Config()
     mkini = os.getenv("MACHINEKIT_INI")
     if mkini is None:
-        mkini = mkconfig.MACHINEKIT_INI
+        mkini = machinekit_hal_ini_file
     if not os.path.isfile(mkini):
         sys.stderr.write("MACHINEKIT_INI " + mkini + " does not exist\n")
         sys.exit(1)

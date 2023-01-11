@@ -1,9 +1,9 @@
 
-# RTAPI python bindings
+"""# RTAPI python bindings
 # shared memory
 # RT logger
 # rtapi_app command interface
-
+"""
 from rtapi cimport *
 
 from os import strerror, getpid
@@ -145,6 +145,7 @@ CS_NOT_LOADED = 0
 CS_NOT_RT = 1
 CS_RTLOADED_NOT_INSTANTIABLE = 2
 CS_RTLOADED_AND_INSTANTIABLE = 3
+""" enums for classify_comp """
 
 autoload = True  #  autoload components on newinst
 
@@ -158,6 +159,7 @@ def classify_comp(comp):
     if not c.has_ctor:
         return CS_RTLOADED_NOT_INSTANTIABLE
     return CS_RTLOADED_AND_INSTANTIABLE
+""" classifies a component for newinst"""
 
 
 class RTAPIcommand:

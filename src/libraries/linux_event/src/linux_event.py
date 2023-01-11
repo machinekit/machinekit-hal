@@ -751,7 +751,7 @@ EVIOCGEFFECTS        = i(0x80044584)
 EVIOCGRAB            = 0x40044590
 
 def invert(d):
-    return dict((v,k) for k,v in d.iteritems())
+    return dict((v,k) for k,v in d.items())
 ABS_invert = invert(ABS)
 BTN_invert = invert(BTN)
 BUS_invert = invert(BUS)

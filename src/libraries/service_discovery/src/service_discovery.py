@@ -3,8 +3,8 @@ from __future__ import print_function
 
 import pprint
 import sys
-import gobject
-
+#import gobject
+from gi.repository import GObject as gobject
 try:
     import avahi, dbus, gtk
 except ImportError as e:

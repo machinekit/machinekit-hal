@@ -8,7 +8,7 @@
 # attach to an existing ring and write a few messages
 
 import os, time
-import machinekit.hal.cyhal as hal
+import machinekit.hal.pyhal as hal
 
 def main():
     # print ring properties

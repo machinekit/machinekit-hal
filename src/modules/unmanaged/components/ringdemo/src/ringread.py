@@ -8,7 +8,7 @@
 # python ringread.py
 
 import os, time
-import machinekit.hal.cyhal as hal
+import machinekit.hal.pyhal as hal
 
 def main():
     name = "ring_0"

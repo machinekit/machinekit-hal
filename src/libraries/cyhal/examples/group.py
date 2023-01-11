@@ -1,7 +1,7 @@
 
 # basic group example
 
-import machinekit.hal.cyhal as hal
+import machinekit.hal.pyhal as hal
 g2 = hal.Group("group1")
 s1 = hal.Signal("sigs32",   hal.HAL_S32)
 s2 = hal.Signal("sigfloat", hal.HAL_FLOAT)
