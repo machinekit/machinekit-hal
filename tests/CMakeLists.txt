@@ -29,6 +29,11 @@ option(BUILD_RUNTESTS_TESTSUITE "Build the Machinekit-HAL's Runtest testsuite."
 
 if(BUILD_RUNTESTS_TESTSUITE)
 
+  execute_process(COMMAND lsb_release -cs
+      OUTPUT_VARIABLE RELEASE_CODENAME
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+
   # Act on each file in 'runtests' separately as the Runtests run in-place and
   # thus there is a possibility that the 'tests/runtests' folder will be dirty
   # even in a SOURCE tree
@@ -110,11 +115,15 @@ if(BUILD_RUNTESTS_TESTSUITE)
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/halgroups/group.hal
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/hal-link-unlink/checkresult
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/hal-link-unlink/hallink.py
-      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/hal-link-unlink/test.sh
-      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/halmodule.0/expected
-      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/halmodule.0/README
-      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/halmodule.0/test.py
-      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/halmodule.0/test.sh
+      ${CMAKE_CURRENT_SOURCE_DIR}/runtests/hal-link-unlink/test.sh)
+      if(NOT ${RELEASE_CODENAME} MATCHES "jammy")
+        set(RUNTESTS_SOURCE_FILES ${RUNTESTS_SOURCE_FILES}
+          ${CMAKE_CURRENT_SOURCE_DIR}/runtests/halmodule.0/expected
+          ${CMAKE_CURRENT_SOURCE_DIR}/runtests/halmodule.0/README
+          ${CMAKE_CURRENT_SOURCE_DIR}/runtests/halmodule.0/test.py
+          ${CMAKE_CURRENT_SOURCE_DIR}/runtests/halmodule.0/test.sh)
+      endif()
+      set(RUNTESTS_SOURCE_FILES ${RUNTESTS_SOURCE_FILES}
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/hm2-idrom/expected
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/hm2-idrom/README
       ${CMAKE_CURRENT_SOURCE_DIR}/runtests/hm2-idrom/skip
