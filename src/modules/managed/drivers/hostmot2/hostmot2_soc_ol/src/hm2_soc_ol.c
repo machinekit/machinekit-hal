@@ -625,7 +625,12 @@ static int delete(const char *name, void *inst, const int inst_size)
 {
     hm2_soc_t *brd = (hm2_soc_t *)inst;
     char buf[MAXNAMELEN];
-
+    u32 index;
+    // Unset outputs
+    for(u32 i=0;i<20;i=i+4) {
+        index=(u32)(0x1100 + i);
+        *((u32 *)(brd->base + index)) = 0;
+    }
     // explicitly free locally allocated strings in case realtime
     // continues to run after shutdown of this driver
     if(brd->config != NULL)
