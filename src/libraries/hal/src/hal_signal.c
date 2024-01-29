@@ -274,10 +274,10 @@ int halg_link(const int use_hal_mutex,
 	// good runtime assertion on 'halcmd show objects'.
 	pin->data_ptr = SHMOFF(&sig->value);
 
-	if (( sig->readers == 0 ) && ( sig->writers == 0 ) &&
-	    ( sig->bidirs == 0 )) {
+	if (( pin->dir == HAL_OUT ) || ( sig->readers + sig->writers + sig->bidirs == 0 )) {
 
 	    // this signal is not linked to any pins
+	    // or the newly linked pin is the first OUT pin
 	    // copy value from pin's "dummy" field,
 	    // making it 'inherit' the value of the first pin
 	    // data_addr = hal_shmem_base + sig->data_ptr;
