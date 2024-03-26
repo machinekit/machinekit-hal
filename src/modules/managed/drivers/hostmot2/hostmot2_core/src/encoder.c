@@ -108,7 +108,7 @@ static void hm2_encoder_update_control_register(hostmot2_t *hm2,
         );
 
         do_flag(
-            &hm2->encoder.control_reg[i],
+            &encoder->control_reg[i],
             *e->hal.pin.index_mode,
             HM2_ENCODER_INDEX_MODE
         );
