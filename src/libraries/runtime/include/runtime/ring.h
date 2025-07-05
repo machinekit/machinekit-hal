@@ -1120,7 +1120,7 @@ static inline ringsize_t stream_write(ringbuffer_t *ring,
     memcpy (&(ring->buf[t->tail]), src, n1);
 
     if (n2) {
-	memcpy (&(ring->buf[t->tail + n1]), src + n1, n2);
+	memcpy(ring->buf, src + n1, n2);
 	rtapi_smp_wmb();
 	rtapi_store_u32(&t->tail, (t->tail + n1 + n2) & h->size_mask);
     } else {
